@@ -5907,7 +5907,8 @@ T tex2DLayered(cudaTextureObject_t texObj,
 如[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)中所述，使用纹理坐标`(x,y)`和索引层从二维纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.24. tex2DLayeredLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredlod "这个标题的永久链接")
-
+```c++
+```
 template<class T>
 T tex2DLayeredLod(cudaTextureObject_t texObj, float x, float y, int layer,
                   float level);
