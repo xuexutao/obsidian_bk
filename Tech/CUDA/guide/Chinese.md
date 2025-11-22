@@ -13399,7 +13399,7 @@ cudaMemPoolTrimTo(mempool, 0);
 
 // Some other process/allocation mechanism can now use the physical memory
 // released by the trimming operation.
-
+```
 ## 15.8.资源使用统计[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#resource-usage-statistics "这个标题的永久链接")
 
 在CUDA 11.3中，添加了池属性`cudaMemPoolAttrReservedMemCurrent`、`cudaMemPoolAttrReservedMemHigh`、`cudaMemPoolAttrUsedMemCurrent`和`cudaMemPoolAttrUsedMemHigh`来查询池的内存使用情况。
@@ -13407,7 +13407,7 @@ cudaMemPoolTrimTo(mempool, 0);
 查询池的`cudaMemPoolAttrReservedMemCurrent`属性报告池当前消耗的物理GPU内存总量。查询池的`cudaMemPoolAttrUsedMemCurrent`将返回池中分配的所有内存的总大小，并且无法重复使用。
 
 The`cudaMemPoolAttr*MemHigh` attributes are watermarks recording the max value achieved by the respective `cudaMemPoolAttr*MemCurrent` attribute since last reset. They can be reset to the current value by using the `cudaMemPoolSetAttribute` API.
-
+```c++
 // sample helper functions for getting the usage statistics in bulk
 struct usageStatistics {
     cuuint64_t reserved;
@@ -13431,7 +13431,7 @@ void resetStatistics(cudaMemoryPool_t memPool)
     cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrReservedMemHigh, &value);
     cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrUsedMemHigh, &value);
 }
-
+```
 ## 15.9.内存重复使用政策[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-reuse-policies "这个标题的永久链接")
 
 为了服务分配请求，驱动程序在尝试从操作系统中分配更多内存之前，尝试重复使用之前通过`cudaFreeAsync()`释放的内存。例如，流中释放的内存可以立即重复使用，用于同一流中的后续分配请求。同样，当一个流与CPU同步时，之前在该流中释放的内存可以用于任何流中的分配。
@@ -14560,7 +14560,7 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
         
     
     示例：
-    
+    ```c++
     #if !defined(__CUDA_ARCH__)
     typedef int mytype;
     #else
@@ -14573,11 +14573,11 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
     {
       *ptr = in;
     }
-    
-2. 如果`__global__`函数模板被实例化并从主机启动，那么无论是否定义了`__CUDA_ARCH__`，也无论`__CUDA_ARCH__`的值如何，函数模板都必须使用相同的模板参数实例化。
+    ```
+1. 如果`__global__`函数模板被实例化并从主机启动，那么无论是否定义了`__CUDA_ARCH__`，也无论`__CUDA_ARCH__`的值如何，函数模板都必须使用相同的模板参数实例化。
     
     示例：
-    
+    ```c++
     __device__ int result;
     template <typename T>
     __global__ void kern(T in)
@@ -14599,8 +14599,8 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
       cudaDeviceSynchronize();
       return 0;
     }
-    
-3. 在单独的编译模式下，是否存在具有外部链接的函数或变量的定义不应取决于是否定义了`__CUDA_ARCH__`或`__CUDA_ARCH__`的特定值。
+    ```
+1. 在单独的编译模式下，是否存在具有外部链接的函数或变量的定义不应取决于是否定义了`__CUDA_ARCH__`或`__CUDA_ARCH__`的特定值。
     
     示例：
     
@@ -14610,10 +14610,10 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
                                         // is undefined
     #endif
     
-4. 在单独的编译中，`__CUDA_ARCH__`不得用于标题，这样不同的对象可能包含不同的行为。或者，必须保证所有对象都将为相同的compute_arch编译。如果在标题中定义了弱函数或模板函数，并且其行为取决于`__CUDA_ARCH__`，那么如果对象为不同的计算arch编译，则对象中该函数的实例可能会发生冲突。
+2. 在单独的编译中，`__CUDA_ARCH__`不得用于标题，这样不同的对象可能包含不同的行为。或者，必须保证所有对象都将为相同的compute_arch编译。如果在标题中定义了弱函数或模板函数，并且其行为取决于`__CUDA_ARCH__`，那么如果对象为不同的计算arch编译，则对象中该函数的实例可能会发生冲突。
     
     例如，如果a.h包含：
-    
+    ```c++
     template<typename T>
     __device__ T* getptr(void)
     {
@@ -14624,7 +14624,7 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
       return arr;
     #endif
     }
-    
+    ```
     然后，如果`a.cu`和`b.cu`都包含`a.h`并实例化相同类型的`getptr`，`b.cu`期望一个非空地址，并用以下方式编译：
     
     nvcc –arch=compute_70 –dc a.cu
@@ -14972,7 +14972,7 @@ nvlink fatal   : merge_elf failed
     当从主机代码中降低`__global__`函数启动时，编译器会生成存根函数，这些函数按值复制参数一次或多次，然后最终使用`memcpy`将参数复制到设备上`__global__`函数的参数内存。即使参数不能平凡地复制，也会发生这种情况，因此可能会破坏复制构造函数有副作用的程序。
     
     示例：
-    
+    ```c++
     #include <cassert>
     struct S {
      int x;
@@ -14995,7 +14995,7 @@ nvlink fatal   : merge_elf failed
       foo<<<1,1>>>(tmp);
       cudaDeviceSynchronize();
     }
-    
+    ```
     示例：
     
     #include <cassert>
