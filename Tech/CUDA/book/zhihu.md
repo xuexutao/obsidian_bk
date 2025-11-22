@@ -31,7 +31,6 @@ __global__ void reduce5(r_Ptr<int> sums,cr_Ptr<int> data, int n) {
 对于早期的教程，上面 `if (id < 32)` 里面的代码可能没有 `if` 和 `__syncwarp()`，这是对的，因为确实不需要同步，并且不提前退出也不会增加程序执行时间。所以，反正结果是对的（`s[1-31]` 会被污染） ，移除 `if` 还能更快。
 
 但对于新的机器，`__syncwarp` 就是必须的了。还有一点是说 `if` 也是必须的，这是为了避免 read after write 错误：比如 `s[id] += s[id+8]`，如果在 `if(id < 8)` 里面，`s[0–7]` 会加上 `s[8–15]`；如果把 `if` 去掉了，那么可能有若干个 `s[8-15]` 里的元素还去做加上 `s[16-23]` 的操作了，再去加 `s[0-7]` 就导致了错误。
-
 ## **CUDA Objects in Cooperative Groups**
 
 使用协作组需要导入头文件，第二行是可选的：
@@ -50,7 +49,7 @@ auto warp = cg::tiled_partition<32>(block);
 //      cg::thread_block_tile<32>   warp
 ```
 
-`this_grid()` 和 `this_thread_block()` 都是内置的对象，但对于线程束，需要显式的指定数字 32。这些对象都可以作为参数传递给设备函数，他们没有默认构造函数，`grid` 和 `block` 只能以示例的方式构造。这些变量可以通过复制传递。在核函数内部，这些对象其实都是轻量级的 handle 指针。
+`this_grid()` 和 `this_thread_block()` 都是内置的对象，**但对于线程束，需要显式的指定数字 32**。这些对象都可以作为参数传递给设备函数，他们没有默认构造函数，`grid` 和 `block` 只能以示例的方式构造。这些变量可以通过复制传递。在核函数内部，这些对象其实都是轻量级的 handle 指针。
 
 `block` 和 `grid` 对象包装了这次核函数启动的属性，并且提供了另一种访问诸如 `threadIdx` 变量的方式。
 
