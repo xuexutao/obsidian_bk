@@ -8093,7 +8093,7 @@ The API documentation for `cuda::pipeline` is provided in the [libcudacxx API
 ### 10.28.1. Single-Stage Asynchronous Data Copies using `cuda::pipeline`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#single-stage-asynchronous-data-copies-using-cuda-pipeline "Permalink to this headline")
 
 In previous examples we showed how to use [cooperative_groups](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-wait) and [cuda::barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier) to do asynchronous data transfers. In this section, we will use the `cuda::pipeline` API with a single stage to schedule asynchronous copies. And later we will expand this example to show multi staged overlapped compute and copy.
-
+```c++
 #include <cooperative_groups/memcpy_async.h>
 #include <cuda/pipeline>
 
@@ -8143,6 +8143,7 @@ __global__ void with_single_stage(int* global_out, int const* global_in, size_t 
         pipeline.consumer_release();
     }
 }
+```
 
 ### 10.28.2. Multi-Stage Asynchronous Data Copies using `cuda::pipeline`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#multi-stage-asynchronous-data-copies-using-cuda-pipeline "Permalink to this headline")
 
@@ -8673,7 +8674,7 @@ PFN_cuTensorMapEncodeTiled_v12000 get_cuTensorMapEncodeTiled() {
   );
 
 **Host-to-device transfer**. There are three ways to make a tensor map accessible to device code. The recommended approach is to pass the tensor map as a const `__grid_constant__` parameter to a kernel. The other possibilities are copying the tensor map into device `__constant__` memory using `cudaMemcpyToSymbol` or accessing it via global memory. When passing the tensor map as a parameter, some versions of the GCC C++ compiler issue the warning “the ABI for passing parameters with 64-byte alignment has changed in GCC 4.6”. This warning can be ignored.
-
+```c++
 #include <cuda.h>
 
 __global__ void kernel(const __grid_constant__ CUtensorMap tensor_map)
@@ -8685,6 +8686,7 @@ int main() {
   // [ ..Initialize map.. ]
   kernel<<<1, 1>>>(map);
 }
+```
 
 As an alternative to the `__grid_constant__` kernel parameter, a global [constant](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#constant) variable can be used. An example is included below.
 
