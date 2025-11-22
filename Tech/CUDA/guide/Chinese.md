@@ -6250,14 +6250,11 @@ __device__ double atomicAdd(double* address, double val)
 #endif
 ```
 以下设备范围的原子API有系统范围和块范围的变体，但有以下例外：
-
 - 计算能力小于6.0的设备仅支持设备范围的原子操作，
-    
 - 计算能力小于7.2的Tegra设备不支持全系统原子操作。
-    
 
 CUDA 12.8及更高版本支持CUDA编译器内置函数，用于具有内存顺序和线程范围的原子操作。我们遵循[GNU的原子内置函数签名](https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html)，并附加了线程范围的参数。我们使用以下原子操作内存顺序和线程范围：
-
+```c++
 enum {
    __NV_ATOMIC_RELAXED,
    __NV_ATOMIC_CONSUME,
@@ -6274,31 +6271,31 @@ enum {
    __NV_THREAD_SCOPE_DEVICE,
    __NV_THREAD_SCOPE_SYSTEM
 };
-
+```
 示例：
-
+```c++
 __device__ T __nv_atomic_load_n(T* ptr, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
-
+```
 T可以是大小为1、2、4、8和16字节的任何整数类型。
 
 这些原子函数不能在本地存储器上运行。例如：
-
+```c++
 __device__ void foo() {
    int a = 1; // defined in local memory
    int b;
    __nv_atomic_load(&a, &b, __NV_ATOMIC_RELAXED, __NV_THREAD_SCOPE_SYSTEM);
 }
-
+```
 这些函数只能在`__device__`函数的块范围内使用。例如：
-
+```c++
 __device__ void foo() {
    __shared__ unsigned int u1 = 1;
    __shared__ unsigned int u2 = 2;
    __nv_atomic_load(&u1, &u2, __NV_ATOMIC_RELAXED, __NV_THREAD_SCOPE_SYSTEM);
 }
-
+```
 并且无法获得这些函数的地址。以下是三个不受支持的例子：
-
+```c++
 // Not permitted to be used in a host function
 __host__ void bar() {
    __shared__ unsigned int u1 = 1;
@@ -6319,7 +6316,7 @@ class Y {
 public:
    __device__ Y(int *b): a(__nv_atomic_load_n(b, __NV_ATOMIC_RELAXED)) {}
 };
-
+```
 内存顺序对应于[C++标准原子运算的内存顺序](https://en.cppreference.com/w/cpp/atomic/memory_order)。对于线程范围，我们遵循cuda::thread_scope的[定义](https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes)。
 
 `__NV_ATOMIC_CONSUME`内存顺序目前使用更强的`__NV_ATOMIC_ACQUIRE`内存顺序实现。
@@ -6331,7 +6328,7 @@ public:
 ### 10.14.1.算术函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#arithmetic-functions "这个标题的永久链接")
 
 #### 10.14.1.1.原子添加（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicadd "这个标题的永久链接")
-
+```c++
 int atomicAdd(int* address, int val);
 unsigned int atomicAdd(unsigned int* address,
                        unsigned int val);
@@ -6345,46 +6342,42 @@ __nv_bfloat162 atomicAdd(__nv_bfloat162 *address, __nv_bfloat162 val);
 __nv_bfloat16 atomicAdd(__nv_bfloat16 *address, __nv_bfloat16 val);
 float2 atomicAdd(float2* address, float2 val);
 float4 atomicAdd(float4* address, float4 val);
-
+```
 读取位于全局或共享内存中地址的16位、32位或64位`old`，计算`(oldval)`并将结果存储回同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`。
 
-`atomicAdd()`的32位浮点版本仅由具有2.x及更高计算能力的设备支持。
-
-`atomicAdd()`的64位浮点版本仅由具有6.x及更高计算能力的设备支持。
+- `atomicAdd()`的32位浮点版本仅由具有2.x及更高计算能力的设备支持。
+- `atomicAdd()`的64位浮点版本仅由具有6.x及更高计算能力的设备支持。
 
 `atomicAdd()`的32位`__half2`浮点版本仅由具有6.x及以上计算能力的设备支持。`__half2`或`__nv_bfloat162`添加操作的原子性对两个`__half`或`__nv_bfloat16`元素中的每一个分别保证；整个`__half2`或`__nv_bfloat162`不能保证作为单个32位访问是原子的。
 
 `atomicAdd()`的`float2`和`float4`浮点向量版本仅由计算能力9.x及以上的设备支持。`float2`或`float4`添加操作的原子性对两个或四个`float`元素中的每一个都单独保证；整个`float2`或`float4`不能保证作为单个64位或128位访问是原子的。
 
-`atomicAdd()`的16位`__half`版本仅由具有7.x及以上计算能力的设备支持。
-
-`atomicAdd()`的16位`__nv_bfloat16`浮点版本仅由计算能力8.x及更高级别的设备支持。
-
-`atomicAdd()`的`float2`和`float4`浮点向量版本仅由计算能力9.x及以上的设备支持。
-
-`atomicAdd()`的`float2`和`float4`浮点向量版本仅支持全局内存地址。
+- `atomicAdd()`的16位`__half`版本仅由具有7.x及以上计算能力的设备支持。
+- `atomicAdd()`的16位`__nv_bfloat16`浮点版本仅由计算能力8.x及更高级别的设备支持。
+- `atomicAdd()`的`float2`和`float4`浮点向量版本仅由计算能力9.x及以上的设备支持。
+- `atomicAdd()`的`float2`和`float4`浮点向量版本仅支持全局内存地址。
 
 #### 10.14.1.2.原子子（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicsub "这个标题的永久链接")
-
+```c++
 int atomicSub(int* address, int val);
 unsigned int atomicSub(unsigned int* address,
                        unsigned int val);
-
+```
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `(old - val)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
 
 #### 10.14.1.3.原子Exch（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicexch "这个标题的永久链接")
-
+```c++
 int atomicExch(int* address, int val);
 unsigned int atomicExch(unsigned int* address,
                         unsigned int val);
 unsigned long long int atomicExch(unsigned long long int* address,
                                   unsigned long long int val);
 float atomicExch(float* address, float val);
-
+```
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory and stores `val` back to memory at the same address. These two operations are performed in one atomic transaction. The function returns `old`.
-
+```c++
 template<typename T> T atomicExch(T* address, T val);
-
+```
 读取位于全局或共享内存中地址的128位`old`字，并将`val`存储回同一地址的内存中。这两个操作在一个原子交易中执行。该函数返回`old`。`T`必须满足以下要求：
 ```c++
 sizeof(T) == 16
@@ -6398,7 +6391,7 @@ std::is_default_constructible<T>::value == true
 128位`atomicExch()`仅受计算能力9.x及更高的设备支持。
 
 #### 10.14.1.4.原子最小（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicmin "这个标题的永久链接")
-
+```c++
 int atomicMin(int* address, int val);
 unsigned int atomicMin(unsigned int* address,
                        unsigned int val);
@@ -6406,13 +6399,13 @@ unsigned long long int atomicMin(unsigned long long int* address,
                                  unsigned long long int val);
 long long int atomicMin(long long int* address,
                                 long long int val);
-
+```
 读取位于全局或共享内存中地址`address`的32位或64位字，计算`old`和`val`的最小值，并将结果存储回同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`。
 
 64位版本的`atomicMin()`仅支持具有5.0及更高计算能力的设备。
 
 #### 10.14.1.5.原子最大（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicmax "这个标题的永久链接")
-
+```c++
 int atomicMax(int* address, int val);
 unsigned int atomicMax(unsigned int* address,
                        unsigned int val);
@@ -6420,27 +6413,27 @@ unsigned long long int atomicMax(unsigned long long int* address,
                                  unsigned long long int val);
 long long int atomicMax(long long int* address,
                                  long long int val);
-
+```
 读取位于全局或共享内存中地址`address`的32位或64位单词，计算`old`和`val`的最大值，并将结果存储回同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`。
 
 `atomicMax()`的64位版本仅受计算能力5.0及更高版本的设备支持。
 
 #### 10.14.1.6.原子公司（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicinc "这个标题的永久链接")
-
+```c++
 unsigned int atomicInc(unsigned int* address,
                        unsigned int val);
-
+```
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `((old >= val) ? 0 : (old+1))`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
 
 #### 10.14.1.7.原子十二（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicdec "这个标题的永久链接")
-
+```c++
 unsigned int atomicDec(unsigned int* address,
                        unsigned int val);
-
+```
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `(((old == 0) || (old > val)) ? val : (old-1)` ), and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
 
 #### 10.14.1.8.原子CAS（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomiccas "这个标题的永久链接")
-
+```c++
 int atomicCAS(int* address, int compare, int val);
 unsigned int atomicCAS(unsigned int* address,
                        unsigned int compare,
@@ -6451,27 +6444,27 @@ unsigned long long int atomicCAS(unsigned long long int* address,
 unsigned short int atomicCAS(unsigned short int *address,
                              unsigned short int compare,
                              unsigned short int val);
-
+```
 读取位于全局或共享内存中地址的16位、32位或64位`old`字，计算`(old==compare?val:old)`并将结果存储在同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回（比较和交换）。
-
+```c++
 template<typename T> T atomicCAS(T* address, T compare, T val);
-
+```
 读取位于全局或共享内存中地址`address`的128位单词，计算`(old==compare?val:old)`并将结果存储在同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`（比较和交换）。`T`必须满足以下要求：
-
+```c++
 sizeof(T) == 16
 alignof(T) >= 16
 std::is_trivially_copyable<T>::value == true
 // for C++03 and older
 std::is_default_constructible<T>::value == true
-
+```
 因此，`T`必须是128位并正确对齐，可以简单复制，在C++03或更早版本上，它也必须是默认可建的。
 
 128位`atomicCAS()`仅受计算能力为9.x及更高的设备支持。
 
 #### 10.14.1.9. __nv_原子_交换（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-exchange "这个标题的永久链接")
-
+```c++
 __device__ void __nv_atomic_exchange(T* ptr, T* val, T *ret, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
-
+```
 CUDA 12.8中引入了这个原子函数。它读取`ptr`指向的值，并将`ret`指向的值存储到ret指向的值。它读取`val`指向的值，并存储`ptr`指向的值。
 
 这是一种通用的原子交换，这意味着`T`可以是大小为4、8或16字节的任何数据类型。
@@ -6856,13 +6849,13 @@ __host__ __device__ void * alloca(size_t size);
 它支持5.2或更高的计算能力。
 
 ### 10.17.3.示例：[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#example "这个标题的永久链接")
-
+```c++
 __device__ void foo(unsigned int num) {
     int4 *ptr = (int4 *)alloca(num * sizeof(int4));
     // use of ptr
     ...
 }
-
+```
 ## 10.18.编译器优化提示功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compiler-optimization-hint-functions "这个标题的永久链接")
 
 本节中描述的功能可用于向编译器优化器提供其他信息。
@@ -6879,18 +6872,18 @@ void *res = __builtin_assume_aligned(ptr, 32); // compiler can assume 'res' is
                                                // at least 32-byte aligned
 
 三个参数版本：
-
+```c++
 void * __builtin_assume_aligned (const void *exp, size_t align,
                                  <integral type> offset)
-
+```
 Allows the compiler to assume that `(char *)exp - offset` is aligned to at least `align` bytes, and returns the argument pointer.
 
 示例：
-
+```c++
 void *res = __builtin_assume_aligned(ptr, 32, 8); // compiler can assume
                                                   // '(char *)res - 8' is
                                                   // at least 32-byte aligned.
-
+```
 ### 10.18.2. __内置_假设（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#builtin-assume "这个标题的永久链接")
 
 void __builtin_assume(bool exp)
@@ -6995,10 +6988,10 @@ unsigned __activemask();
 由计算能力为7倍或更高的设备支持。
 
 ### 10.20.1.大纲[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synopsis-match "这个标题的永久链接")
-
+```c++
 unsigned int __match_any_sync(unsigned mask, T value);
 unsigned int __match_all_sync(unsigned mask, T value, int *pred);
-
+```
 `T` can be `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`, `float` or `double`.
 
 ### 10.20.2.描述[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-description-match "这个标题的永久链接")
@@ -7319,7 +7312,7 @@ Tensor Cores支持计算能力8.0及更高的设备上的双精度浮点操作�
 ### 10.24.4.子字节操作[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sub-byte-operations "这个标题的永久链接")
 
 子字节WMMA操作提供了一种访问张量核心的低精度能力的方法。它们被视为预览功能，即它们的数据结构和API可能会发生变化，并且可能与未来的版本不兼容。此功能可通过thenvcuda`nvcuda::wmma::experimental`命名空间获得：
-
+```c++
 namespace experimental {
     namespace precision {
         struct u4; // 4-bit unsigned
@@ -7332,7 +7325,7 @@ namespace experimental {
     };
     enum bmmaAccumulateOp { bmmaAccumulateOpPOPC = 1 };
 }
-
+```
 对于4位精度，可用的API保持不变，但您必须指定`experimental::precision::u4`或`experimental::precision::s4`作为片段数据类型。由于片段的元素是打包在一起的，`num_storage_elements`将小于该片段的`num_elements`。子字节片段的`num_elements`变量，因此返回子字节类型`element_type<T>`的元素数。单位精度也是如此，在这种情况下，从`element_type<T>`到`storage_element_type<T>`的映射如下：
 
 experimental::precision::u4 -> unsigned (8 elements in 1 storage element)
@@ -7372,7 +7365,7 @@ Waits until all warp lanes have executed bmma_sync, and then performs the warp-s
 由于片段是特定于架构的，如果函数已为不同的链接兼容架构编译并链接到同一设备可执行文件，则将它们从函数A传递到函数B是不安全的。在这种情况下，片段的大小和布局将特定于一个架构，在另一个架构中使用WMMA API将导致不正确的结果或潜在的损坏。
 
 两个链接兼容架构的一个例子是sm_70和sm_75，其中片段的布局不同。
-
+```c++
 fragA.cu: void foo() { wmma::fragment<...> mat_a; bar(&mat_a); }
 fragB.cu: void bar(wmma::fragment<...> *mat_a) { // operate on mat_a }
 
@@ -7382,7 +7375,7 @@ $> nvcc -dc -arch=compute_70 -code=sm_70 fragA.cu -o fragA.o
 $> nvcc -dc -arch=compute_75 -code=sm_75 fragB.cu -o fragB.o
 // Linking the two together
 $> nvcc -dlink -arch=sm_75 fragA.o fragB.o -o frag.o
-
+```
 这种未定义的行为在编译时和运行时可能无法被工具检测到，因此需要格外小心，以确保片段的布局一致。当与传统库链接时，最有可能出现这种链接危险，该库既是为不同的链接兼容架构而构建的，又期望传递WMMA片段。
 
 请注意，在弱链接的情况下（例如，CUDA C++内联函数），链接器可以选择任何可用的函数定义，这可能会导致编译单元之间的隐式传递。
@@ -7395,20 +7388,20 @@ To avoid these sorts of problems, the matrix should always be stored out to memo
 
 张量核心支持各种元素类型和矩阵大小。下表显示了支持的`matrix_a`、`matrix_b`和`accumulator`矩阵的各种组合：
 
-|矩阵A|矩阵B|累加器|矩阵大小（m-n-k）|
-|---|---|---|---|
-|__一半|__一半|漂浮|16x16x16|
-|__一半|__一半|漂浮|32x8x16|
-|__一半|__一半|漂浮|8x32x16|
-|__一半|__一半|__一半|16x16x16|
-|__一半|__一半|__一半|32x8x16|
-|__一半|__一半|__一半|8x32x16|
-|无符号字符|无符号字符|int|16x16x16|
-|无符号字符|无符号字符|int|32x8x16|
-|无符号字符|无符号字符|int|8x32x16|
-|签名字符|签名字符|int|16x16x16|
-|签名字符|签名字符|int|32x8x16|
-|签名字符|签名字符|int|8x32x16|
+| 矩阵A   | 矩阵B   | 累加器  | 矩阵大小（m-n-k） |
+| ----- | ----- | ---- | ----------- |
+| __一半  | __一半  | 漂浮   | 16x16x16    |
+| __一半  | __一半  | 漂浮   | 32x8x16     |
+| __一半  | __一半  | 漂浮   | 8x32x16     |
+| __一半  | __一半  | __一半 | 16x16x16    |
+| __一半  | __一半  | __一半 | 32x8x16     |
+| __一半  | __一半  | __一半 | 8x32x16     |
+| 无符号字符 | 无符号字符 | int  | 16x16x16    |
+| 无符号字符 | 无符号字符 | int  | 32x8x16     |
+| 无符号字符 | 无符号字符 | int  | 8x32x16     |
+| 签名字符  | 签名字符  | int  | 16x16x16    |
+| 签名字符  | 签名字符  | int  | 32x8x16     |
+| 签名字符  | 签名字符  | int  | 8x32x16     |
 
 备用浮点支持：
 
@@ -7436,7 +7429,7 @@ To avoid these sorts of problems, the matrix should always be stored out to memo
 ### 10.24.7.示例：[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma-example "这个标题的永久链接")
 
 以下代码在单个经编中实现了16x16x16矩阵乘法。
-
+```c++
 #include <mma.h>
 using namespace nvcuda;
 
@@ -7459,7 +7452,7 @@ __global__ void wmma_ker(half *a, half *b, float *c) {
    // Store the output
    wmma::store_matrix_sync(c, c_frag, 16, wmma::mem_row_major);
 }
-
+```
 ## 10.25.DPX[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dpx "这个标题的永久链接")
 
 DPX是一组函数，可以查找最小值和最大值，以及融合加法和最小值/最大值，最多三个16位和32位有符号或无符号整数参数，可选ReLU（夹到零）：
