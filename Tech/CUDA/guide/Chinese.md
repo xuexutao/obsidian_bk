@@ -5908,82 +5908,81 @@ T tex2DLayered(cudaTextureObject_t texObj,
 
 #### 10.8.1.24. tex2DLayeredLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredlod "这个标题的永久链接")
 ```c++
-```
 template<class T>
 T tex2DLayeredLod(cudaTextureObject_t texObj, float x, float y, int layer,
                   float level);
-
+```
 使用纹理坐标`(x,y)`从层层二维[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。
 
 #### 10.8.1.25. tex2DLayeredLod（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredlod-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex2DLayeredLod(cudaTextureObject_t texObj, float x, float y, int layer,
                 float level, bool* isResident);
-
+```
 使用纹理坐标`(x,y)`从层层二维[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.26. tex2DLayeredGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredgrad "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex2DLayeredGrad(cudaTextureObject_t texObj, float x, float y, int layer,
                    float2 dx, float2 dy);
-
+```c++
 使用纹理坐标`(x,y)`和从`dx`和`dy`梯度衍生的细节级别，从层层中指定的二维[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。
 
 #### 10.8.1.27. tex2DLayeredGrad（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredgrad-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex2DLayeredGrad(cudaTextureObject_t texObj, float x, float y, int layer,
                 float2 dx, float2 dy, bool* isResident);
-
+```c++
 使用纹理坐标`(x,y)`和从`dx`和`dy`梯度衍生的细节级别，从层层中指定的二维[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.28. texCubemap（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemap "这个标题的永久链接")
-
+```c++
 template<class T>
 T texCubemap(cudaTextureObject_t texObj, float x, float y, float z);
-
+```c++
 如[立方体图纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures)中所述，使用纹理坐标`(x,y,z)`获取立方体图纹理对象`texObj`指定的CUDA数组。
 
 #### 10.8.1.29. texCubemapGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemapgrad "这个标题的永久链接")
-
+```c++
 template<class T>
 T texCubemapGrad(cudaTextureObject_t texObj, float x, float, y, float z,
                 float4 dx, float4 dy);
-
+```c++
 使用[立方体图纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures)中描述的纹理坐标`(x,y,z)`从立方体图纹理对象`texObj`指定的CUDA数组中获取。使用的细节级别来自`dx`和`dy`梯度。
 
 #### 10.8.1.30. texCubemapLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplod "这个标题的永久链接")
-
+```c++
 template<class T>
 T texCubemapLod(cudaTextureObject_t texObj, float x, float, y, float z,
                 float level);
-
+```c++
 使用[立方体图纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures)中描述的纹理坐标`(x,y,z)`从立方体图纹理对象`texObj`指定的CUDA数组中获取。使用的细节级别按`level`给出。
 
 #### 10.8.1.31. texCubemap分层（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayered "这个标题的永久链接")
-
+```c++
 template<class T>
 T texCubemapLayered(cudaTextureObject_t texObj,
                     float x, float y, float z, int layer);
-
+```c++
 如[Cubemap分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures)中所述，使用纹理坐标`(x,y,z)`和索引层从立方体图分层纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.32. texCubemap分层毕业（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayeredgrad "这个标题的永久链接")
-
+```c++
 template<class T>
 T texCubemapLayeredGrad(cudaTextureObject_t texObj, float x, float y, float z,
                        int layer, float4 dx, float4 dy);
-
+```c++
 使用纹理坐标`(x,y,z)`和索引层从立方体图分层纹理对象`texObj`指定的CUDA数组中获取，如[立方体图分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures)中所述，在从`dx`和`dy`梯度中提取的细节级别。
 
 #### 10.8.1.33. texCubemapLayeredLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayeredlod "这个标题的永久链接")
-
+```c++
 template<class T>
 T texCubemapLayeredLod(cudaTextureObject_t texObj, float x, float y, float z,
                        int layer, float level);
-
+```c++
 使用纹理坐标`(x,y,z)`和索引层从立方体图分层纹理对象`texObj`指定的CUDA数组中获取，如[立方体图分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures)中所述，在细节级别级别。
 
 ## 10.9.表面功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surface-functions "这个标题的永久链接")
@@ -5997,25 +5996,25 @@ T texCubemapLayeredLod(cudaTextureObject_t texObj, float x, float y, float z,
 ### 10.9.1.表面对象API[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surface-object-api-appendix "这个标题的永久链接")
 
 #### 10.9.1.1. surf1Dread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dread "这个标题的永久链接")
-
+```c++
 template<class T>
 T surf1Dread(cudaSurfaceObject_t surfObj, int x,
                boundaryMode = cudaBoundaryModeTrap);
-
+```c++
 使用字节坐标x读取一维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.2. surf1Dwrite[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dwrite "这个标题的永久链接")
-
+```c++
 template<class T>
 void surf1Dwrite(T data,
                   cudaSurfaceObject_t surfObj,
                   int x,
                   boundaryMode = cudaBoundaryModeTrap);
-
+```c++
 在字节坐标x处将值数据写入一维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.3. surf2Dread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dread "这个标题的永久链接")
-
+```c++
 template<class T>
 T surf2Dread(cudaSurfaceObject_t surfObj,
               int x, int y,
@@ -6025,21 +6024,21 @@ void surf2Dread(T* data,
                  cudaSurfaceObject_t surfObj,
                  int x, int y,
                  boundaryMode = cudaBoundaryModeTrap);
-
+```c
 使用字节坐标x和y读取二维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.4. surf2Dwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dwrite "这个标题的永久链接")
-
+```c++
 template<class T>
 void surf2Dwrite(T data,
                   cudaSurfaceObject_t surfObj,
                   int x, int y,
                   boundaryMode = cudaBoundaryModeTrap);
-
+```
 在字节坐标x和y处将值数据写入由二维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.5. surf3Dread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf3dread "这个标题的永久链接")
-
+```c++
 template<class T>
 T surf3Dread(cudaSurfaceObject_t surfObj,
               int x, int y, int z,
@@ -6049,21 +6048,21 @@ void surf3Dread(T* data,
                  cudaSurfaceObject_t surfObj,
                  int x, int y, int z,
                  boundaryMode = cudaBoundaryModeTrap);
-
+```
 使用字节坐标x、y和z读取三维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.6. surf3Dwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf3dwrite "这个标题的永久链接")
-
+```c++
 template<class T>
 void surf3Dwrite(T data,
                   cudaSurfaceObject_t surfObj,
                   int x, int y, int z,
                   boundaryMode = cudaBoundaryModeTrap);
-
+```
 在字节坐标x、y和z处将值数据写入三维对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.7. surf1DLayeredread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dlayeredread "这个标题的永久链接")
-
+```c++
 template<class T>
 T surf1DLayeredread(
                  cudaSurfaceObject_t surfObj,
@@ -6074,7 +6073,7 @@ void surf1DLayeredread(T data,
                  cudaSurfaceObject_t surfObj,
                  int x, int layer,
                  boundaryMode = cudaBoundaryModeTrap);
-
+```
 使用字节坐标x和索引层读取一维分层表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.8. surf1DLayeredwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dlayeredwrite "这个标题的永久链接")
