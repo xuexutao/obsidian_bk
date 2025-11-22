@@ -15299,7 +15299,7 @@ void fn() {
   // instantiating a variable template
   d2<int, decltype(lam1)> = 10;
 }
-
+```
 ### 18.5.13.三叉戔和二叉戳[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#trigraphs-and-digraphs "这个标题的永久链接")
 
 任何平台都不支持Trigraphs。Windows不支持双图。
@@ -15458,7 +15458,7 @@ __device__ void f6(void) {
 lambda表达式的闭包类型不能用于`__global__`函数模板实例化的类型或非类型参数，除非lambda是在`__device__`或`__global__`函数中定义的。
 
 示例：
-
+```c++
 template <typename T>
 __global__ void foo(T in) { };
 
@@ -15473,13 +15473,13 @@ void bar(void) {
   foo<<<1,1>>>( S1_t<decltype(temp1)>()); // error: lambda closure type used in
                                           // template type argument
 }
-
+```
 #### 18.5.22.2. std::初始化器_列表[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#std-initializer-list "这个标题的永久链接")
 
 By default, the CUDA compiler will implicitly consider the member functions of `std::initializer_list` to have `__host__ __device__` execution space specifiers, and therefore they can be invoked directly from device code. The nvcc flag `--no-host-device-initializer-list` will disable this behavior; member functions of `std::initializer_list` will then be considered as `__host__` functions and will not be directly invokable from device code.
 
 示例：
-
+```c++
 #include <initializer_list>
 
 __device__ int foo(std::initializer_list<int> in);
@@ -15494,7 +15494,7 @@ __device__ void bar(void)
                     // non-constant element.
                     // This form may have better performance than (a).
   }
-
+```
 #### 18.5.22.3.R值引用[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#rvalue-references "这个标题的永久链接")
 
 By default, the CUDA compiler will implicitly consider `std::move` and `std::forward` function templates to have `__host__ __device__` execution space specifiers, and therefore they can be invoked directly from device code. The nvcc flag `--no-host-device-move-forward` will disable this behavior; `std::move` and `std::forward` will then be considered as `__host__` functions and will not be directly invokable from device code.
@@ -15592,7 +15592,7 @@ namespace N2 {
     
 
 示例：
-
+```c++
 inline namespace {
   namespace N2 {
     template <typename T>
@@ -15610,7 +15610,7 @@ inline namespace {
     texture<int> q2;                      // error
     surface<int> s2;                      // error
   }
-};
+};```
 
 #### 18.5.22.7.线程_本地[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-local "这个标题的永久链接")
 
@@ -15621,7 +15621,7 @@ inline namespace {
 如果与lambda表达式关联的闭包类型用于`__global__`函数模板实例化的模板参数，则lambda表达式必须在`__device__`或`__global__`函数的直接或嵌套块范围内定义，或者必须是anextended [lambda](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-lambda)。
 
 示例：
-
+```c++
 template <typename T>
 __global__ void kernel(T in) { }
 
@@ -15635,7 +15635,6 @@ __device__ void foo_device(void)
   kernel<<<1,1>>>( [] __host__ __device__ { } );
   kernel<<<1,1>>>( []  { } );
 }
-
 auto lam1 = [] { };
 
 auto lam2 = [] __host__ __device__ { };
@@ -15661,7 +15660,7 @@ void foo_host(void)
    // that is not an extended lambda
    kernel<<<1,1>>>( lam2);
 }
-
+```
 `__global__`函数或函数模板不能声明为`constexpr`。
 
 `__global__`函数或函数模板不能具有`std::initializer_list`或`va_list`类型的参数。
@@ -15676,7 +15675,7 @@ void foo_host(void)
     
 
 示例：
-
+```c++
 // ok
 template <template <typename...> class Wrapper, typename... Pack>
 __global__ void foo1(Wrapper<Pack...>);
@@ -15689,7 +15688,7 @@ __global__ void foo2(Wrapper<Pack...>);
 template <typename... Pack1, int...Pack2, template<typename...> class Wrapper1,
           template<int...> class Wrapper2>
 __global__ void foo3(Wrapper1<Pack1...>, Wrapper2<Pack2...>);
-
+```
 #### 18.5.22.9. __管理__和__共享__变量[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#managed-and-shared-variables "这个标题的永久链接")
 
 `` `__managed__ ``和`__shared__`变量不能用关键字`constexpr`标记。
@@ -15757,7 +15756,7 @@ nvcc也支持主机编译器默认启用的C++14功能。传递nvcc `-std=c++14
 如果`__device__`函数推导出了返回类型，CUDA前端编译器将在调用主机编译器之前将函数声明更改为`void`返回类型。这可能会导致在主机代码中内省`__device__`函数的推断返回类型时出现问题。因此，CUDA编译器将发出编译时错误，用于在设备函数体之外引用此类推断的返回类型，除非`__CUDA_ARCH__`未定义时没有引用。
 
 示例：
-
+```c++
 __device__ auto fn1(int x) {
   return x;
 }
@@ -15794,13 +15793,13 @@ template<typename T> struct S1_t { };
 
 // error: referenced outside device function bodies
 struct S1_derived_t : S1_t<decltype(fn1)> { };
-
+```
 #### 18.5.23.2.可变模板[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#variable-templates "这个标题的永久链接")
 
 使用微软主机编译器时，`__device__/__constant__`变量模板不能具有常量限定类型。
 
 示例：
-
+```c++
 // error: a __device__ variable template cannot
 // have a const qualified type on Windows
 template <typename T>
@@ -15823,7 +15822,7 @@ __device__ void fn() {
 
   const int *t3 = d3<int>;
 }
-
+```
 ### 18.5.24.C++17功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#c-17-features "这个标题的永久链接")
 
 nvcc也支持主机编译器默认启用的C++17功能。传递nvcc `-std=c++17`标志可以打开所有C++17功能，并使用相应的C++17方言选项[21](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn28)调用主机预处理器、编译器和链接器。本节介绍受支持的C++17功能的限制。
@@ -15875,7 +15874,7 @@ CUDA C++、主机或设备代码都不支持模块。`module`、`export`和`impo
 主机和设备代码都支持三方比较运算符，但一些用途隐含地依赖于主机实现提供的标准模板库的功能。使用这些运算符可能需要指定标志`--expt-relaxed-constexpr`来静音警告，该功能要求主机实现满足设备代码的要求。
 
 示例：
-
+```c++
 #include<compare>
 struct S {
   int x, y, z;
@@ -15888,7 +15887,7 @@ __host__ __device__ bool f(S a, S b) {
   return a < b; // call to an implicitly-declared function and requires
                 // a device-compatible std::strong_ordering implementation
 }
-
+```
 #### 18.5.25.4.节数函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#consteval-functions "这个标题的永久链接")
 
 通常，不允许交叉执行空间调用，并导致编译器诊断（警告或错误）。当调用的函数使用`consteval`指定符声明时，此限制不适用。因此，`__device__`或`__global__`函数可以调用`__host__``consteval`函数，`__host__`函数可以调用`__device__consteval`函数。
