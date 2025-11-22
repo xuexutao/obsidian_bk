@@ -10,7 +10,7 @@ CUDA C编程指南是官方的综合资源，解释了如何使用CUDA平台编�
 
 # 3.[介绍](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#introduction "这个标题的永久链接")
 
-## 3.1.使用GPU的好处[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#the-benefits-of-using-gpus "这个标题的永久链接")
+## 3.1.使用GPU的好处
 
 图形处理单元（GPU）[1](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn1)在类似价格和功率包络范围内提供比CPU更高的指令吞吐量和内存带宽。许多应用程序利用这些更高的功能，在GPU上运行速度比在CPU上运行得更快（请参阅[GPU应用程序](https://www.nvidia.com/object/gpu-applications.html)）。其他计算设备，如FPGA，也非常节能，但编程灵活性比GPU低得多。
 
@@ -84,6 +84,7 @@ CUDA C++扩展了C++，允许程序员定义称为_内核的_C++函数，当调�
 核心使用`__global__`声明指定符定义，并使用新的`<<<...>>>`_执行配置_语法（请参阅[执行配置](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#execution-configuration)）指定为给定内核调用执行该内核的CUDA线程数量。每个执行内核的线程都有一个唯一的_线程ID_，可以通过内置变量在内核内访问。
 
 举例来说，以下示例代码使用内置变量`threadIdx`，添加两个大小为_N_的向量_A_和_B，_并将结果存储在向量_C中_。
+```c++
 
 // Kernel definition
 __global__ void VecAdd(float* A, float* B, float* C)
@@ -99,7 +100,7 @@ int main()
     VecAdd<<<1, N>>>(A, B, C);
     ...
 }
-
+```
 在这里，执行`VecAdd()`的_N个_线程中的每一个都会执行一个成对的添加。
 
 ## 5.2.线程层次结构[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-hierarchy "这个标题的永久链接")
@@ -109,7 +110,7 @@ int main()
 线程的索引及其线程ID以直截了当的方式相互关联：对于一维块，它们是相同的；对于尺寸的二维块_（Dx，Dy），_索引线程的线程ID（x_，y）_是_（x + y Dx）；_对于尺寸的三维块_（Dx，Dy，Dz），_索引线程_（x，y，z）_的线程ID是_（x + y Dx + z Dx Dx Dy）。_
 
 例如，以下代码添加两个大小为_NxN_的矩阵A和_B_，并将结果存储在矩阵_C中_。
-
+```c++
 // Kernel definition
 __global__ void MatAdd(float A[N][N], float B[N][N],
                        float C[N][N])
@@ -128,7 +129,7 @@ int main()
     MatAdd<<<numBlocks, threadsPerBlock>>>(A, B, C);
     ...
 }
-
+```
 每个块的线程数量是有限制的，因为一个块的所有线程都应该位于同一个流式多处理器内核上，并且必须共享该内核的有限内存资源。在当前的GPU上，一个线程块可能包含多达1024个线程。
 
 然而，一个内核可以通过多个相同形状的线程块执行，因此线程总数等于每个块的线程数乘以块数。
@@ -144,7 +145,7 @@ int main()
 网格中的每个块都可以由一维、二維或三维唯一索引识别，该索引可以通过内置的`blockIdx`变量在核心内访问。线程块的维度可以通过内置的`blockDim`变量在内核内访问。
 
 扩展之前的`MatAdd()`示例来处理多个块，代码如下所示。
-
+```c++
 // Kernel definition
 __global__ void MatAdd(float A[N][N], float B[N][N],
 float C[N][N])
@@ -163,7 +164,7 @@ int main()
     dim3 numBlocks(N / threadsPerBlock.x, N / threadsPerBlock.y);
     MatAdd<<<numBlocks, threadsPerBlock>>>(A, B, C);
     ...
-}
+}```
 
 线程块大小为16x16（256线程），虽然在这种情况下是任意的，但这是一个常见的选择。网格创建时有足够的块，每个矩阵元素都有一个线程，就像以前一样。为了简单起见，本示例假设每个维度中每个网格的线程数被该维度中每个块的线程数均匀整除，尽管情况并非如此。
 
@@ -188,7 +189,7 @@ Similar to thread blocks, clusters are also organized into a one-dimension, two-
 在使用集群支持启动的内核中，为了兼容性，gridDim变量仍然以线程块数量表示大小。集群中块的排名可以使用[集群组](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group-cg)API找到。
 
 线程块集群可以在内核中使用`__cluster_dims__(X,Y,Z)`的编译时内核属性或使用CUDA内核启动API `cudaLaunchKernelEx`。下面的示例展示了如何使用编译时内核属性启动集群。使用内核属性的集群大小在编译时是固定的，然后可以使用经典的`<<<,>>>`启动内核。如果内核使用编译时的集群大小，则在启动内核时无法修改集群大小。
-
+```
 // Kernel definition
 // Compile time cluster size 2 in X-dimension and 1 in Y and Z dimension
 __global__ void __cluster_dims__(2, 1, 1) cluster_kernel(float *input, float* output)
@@ -208,9 +209,9 @@ int main()
     // The grid dimension must be a multiple of cluster size.
     cluster_kernel<<<numBlocks, threadsPerBlock>>>(input, output);
 }
-
+```
 线程块集群大小也可以在运行时设置，并且可以使用CUDA内核启动API `cudaLaunchKernelEx`启动内核。下面的代码示例展示了如何使用可扩展API启动集群内核。
-
+```
 // Kernel definition
 // No compile time attribute attached to the kernel
 __global__ void cluster_kernel(float *input, float* output)
@@ -244,7 +245,7 @@ int main()
         cudaLaunchKernelEx(&config, cluster_kernel, input, output);
     }
 }
-
+```
 In GPUs with compute capability 9.0, all the thread blocks in the cluster are guaranteed to be co-scheduled on a single GPU Processing Cluster (GPC) and allow thread blocks in the cluster to perform hardware-supported synchronization using the [Cluster Group](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group-cg) API `cluster.sync()`. Cluster group also provides member functions to query cluster group size in terms of number of threads or number of blocks using `num_threads()` and `num_blocks()` API respectively. The rank of a thread or block in the cluster group can be queried using `dim_threads()` and `dim_blocks()` API respectively.
 
 属于集群的线程块可以访问分布式共享内存。集群中的线程块能够读取、写入和执行分布式共享内存中的任何地址的原子。[分布式共享内存](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#distributed-shared-memory)给出了一个在分布式共享内存中执行直方图的示例。
@@ -252,12 +253,12 @@ In GPUs with compute capability 9.0, all the thread blocks in the cluster are gu
 ### 5.2.2.块作为集群[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#blocks-as-clusters "这个标题的永久链接")
 
 使用`__cluster_dims__`，启动的集群数量保持隐式，只能手动计算。
-
+```c++
 __cluster_dims__((2, 2, 2)) __global__ void foo();
 
 // 8x8x8 clusters each with 2x2x2 thread blocks.
 foo<<<dim3(16, 16, 16), dim3(1024, 1, 1)>>>();
-
+```
 在上述示例中，内核以16x16x16线程块的网格或实际上8x8x8集群的网格启动。或者，使用另一个编译时内核属性`__block_size__`，允许启动一个显式配置为线程块集群数量的网格。
 
 // Implementation detail of how many threads per block and blocks per cluster
