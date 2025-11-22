@@ -7641,7 +7641,7 @@ A `cuda::barrier` is flexible in specifying how threads participate (split arr
 ||消耗填充缓冲区中的数据|
 
 生产者线程等待消费者线程发出缓冲区已准备好填充的信号；但是，消费者线程不会等待此信号。消费者线程等待生产者线程发出缓冲区已满的信号；然而，生产者线程不会等待此信号。对于完全的生产者/消费者并发性，该模式具有（至少）双缓冲，每个缓冲区需要两个`cuda::barrier`。
-
+```c++
 #include <cuda/barrier>
 #include <cooperative_groups.h>
 
@@ -7689,7 +7689,7 @@ __global__ void producer_consumer_pattern(int N, int buffer_len, float* in, floa
     else
         consumer(bar, bar+2, buffer, out, N, buffer_len);
 }
-
+```
 在本例中，第一个经编是专门作为生产者，其余经编是专门作为消费者。所有生产者和消费者线程都参与（调用`bar.arrive()`或`bar.arrive_and_wait()`四个`cuda::barrier`，因此预期到达计数等于`block.size()`
 
 生产者线程等待消费者线程发出共享内存缓冲区可以填充的信号。为了等待`cuda::barrier`，生产者线程必须首先到达`ready[i%2].arrive()`以获取令牌，然后使用该令牌`ready[i%2].wait(token)`。对于简单性，`ready[i%2].arrive_and_wait()`结合了这些操作。
@@ -7705,7 +7705,7 @@ bar.wait(bar.arrive());
 ### 10.26.6.提前退出（退出参与）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#early-exit-dropping-out-of-participation "这个标题的永久链接")
 
 当参与同步序列的线程必须提前退出该序列时，该线程在退出之前必须明确退出参与。其余参与线程可以正常进行后续的`cuda::barrier`到达和等待操作。
-
+```c++
 #include <cuda/barrier>
 #include <cooperative_groups.h>
 
@@ -7732,13 +7732,13 @@ __global__ void early_exit_kernel(int N) {
         /* code after wait */
     }
 }
-
+```
 此操作到达`cuda::barrier`，以履行参与线程在**当前**阶段到达的义务，然后减少**下一**阶段的预期到达计数，以便该线程不再预计到达障碍。
 
 ### 10.26.7.完成功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#completion-function "这个标题的永久链接")
 
 The `CompletionFunction` of `cuda::barrier<Scope, CompletionFunction>` is executed once per phase, after the last thread _arrives_ and before any thread is unblocked from the `wait`. Memory operations performed by the threads that arrived at the `barrier` during the phase are visible to the thread executing the `CompletionFunction`, and all memory operations performed within the `CompletionFunction` are visible to all threads waiting at the `barrier` once they are unblocked from the `wait`.
-
+```c++
 #include <cuda/barrier>
 #include <cooperative_groups.h>
 #include <functional>
@@ -7792,7 +7792,7 @@ __global__ void psum(int* data, int n, int* acc) {
     // that did the reduction
   }
 }
-
+```
 ### 10.26.8.内存屏障原始接口[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-barrier-primitives-interface "这个标题的永久链接")
 
 内存屏障原语是与`cuda::barrier`功能的类似C的接口。这些原语可以通过包含`<cuda_awbarrier_primitives.h>`标题获得。
@@ -8298,7 +8298,7 @@ __global__ void with_staging_unified(int* global_out, int const* global_in, size
 }
 
 上面使用的`pipeline<thread_scope_block>`原语非常灵活，并支持我们上面的例子没有使用的两个功能：块中线程的任何任意子集都可以参与`pipeline`，从参与的线程中，任何子集都可以是生产者、消费者或两者兼而有之。在以下示例中，线程排名为“偶数”的线程是生产者，而其他线程是消费者：
-
+```c++
 __device__ void compute(int* global_out, int shared_in);
 
 template <size_t stages_count = 2>
@@ -8403,7 +8403,7 @@ __global__ void with_staging_scope_thread(int* global_out, int const* global_in,
         pipeline.consumer_release();
     }
 }
-
+```
 如果`compute`操作仅读取与当前线程相同的经编中其他线程写入的共享内存，则`__syncwarp()`就足够了。
 
 ### 10.28.3.管道接口[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pipeline-interface "这个标题的永久链接")
@@ -8426,18 +8426,18 @@ __global__ void with_staging_scope_thread(int* global_out, int const* global_in,
 管道原语是`memcpy_async`功能的类似C的接口。管道原语接口可以通过包含`<cuda_pipeline.h>`标头获得。在没有ISO C++ 2011兼容性的情况下编译时，包括`<cuda_pipeline_primitives.h>`标题。
 
 #### 10.28.4.1. `memcpy_async` Primitive[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-primitive "这个标题的永久链接")
-
+```c++
 void __pipeline_memcpy_async(void* __restrict__ dst_shared,
                              const void* __restrict__ src_global,
                              size_t size_and_align,
                              size_t zfill=0);
-
+```
 - 请求提交以下操作以进行异步评估：
-    
+    ```c++
     size_t i = 0;
     for (; i < size_and_align - zfill; ++i) ((char*)dst_shared)[i] = ((char*)src_global)[i]; /* copy */
     for (; i < size_and_align; ++i) ((char*)dst_shared)[i] = 0; /* zero-fill */
-    
+    ```
 - 要求：
     
     - `dst_shared`必须是指向`memcpy_async`共享内存目的地的指针。
@@ -8903,7 +8903,7 @@ void cuda::device::experimental::cp_async_bulk_tensor_5d_shared_to_global(
 [![与CU_TENSOR_MAP_SWIZZLE_128B swizzle共享内存数据布局。](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/example2.png)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/example2.png)
 
 Figure 28 The shared memory data layout with `CU_TENSOR_MAP_SWIZZLE_128B` swizzle. One row is stored in a column, each matrix element is from a different bank for both the rows and columns, and so without any bank conflicts.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id469 "此图像的永久链接")
-
+```c++
 __global__ void kernel_tma(const __grid_constant__ CUtensorMap tensor_map) {
    // The destination shared memory buffer of a bulk tensor operation
    // with the 128-byte swizzle mode, it should be 1024 bytes aligned.
@@ -9003,10 +9003,10 @@ int main(){
    kernel_tma<<<1, 8>>>(tensor_map);
  ...
 }
-
+```
 **备注。**这个例子应该展示swizzle的使用，“as-is”没有性能，也没有超出给定维度的扩展范围。
 
-**解释。**在数据传输过程中，TMA引擎根据抖动模式对数据进行洗牌，如下表所述。这些swizzle模式定义了沿swizzle宽度的16字节块映射到四个银行的子组。它的类型为`CUtensorMapSwizzle`，有四个选项：无、32字节、64字节和128字节。请注意，共享内存盒的内部尺寸必须小于或等于swizzle模式的跨度。
+解释。在数据传输过程中，TMA引擎根据抖动模式对数据进行洗牌，如下表所述。这些swizzle模式定义了沿swizzle宽度的16字节块映射到四个银行的子组。它的类型为`CUtensorMapSwizzle`，有四个选项：无、32字节、64字节和128字节。请注意，共享内存盒的内部尺寸必须小于或等于swizzle模式的跨度。
 
 #### 10.29.3.2.Swizzle模式[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#the-swizzle-modes "这个标题的永久链接")
 
@@ -9024,7 +9024,7 @@ int main(){
     
 - **内部尺寸：**共享内存块的内部尺寸必须满足表[12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements)中规定的尺寸要求。如果不符合这些要求，则该指令将被视为无效。此外，如果swizzle宽度超过内部尺寸，请确保分配共享内存以适应完整的swizzle宽度。
     
-- **粒度：**swizzle映射的粒度固定在16字节。这意味着数据以16字节的块形式组织和访问，在规划内存布局和访问模式时必须考虑这一点。
+- 粒度：swizzle映射的粒度固定在16字节。这意味着数据以16字节的块形式组织和访问，在规划内存布局和访问模式时必须考虑这一点。
     
 
 **Swizzle模式指针偏移计算**。在这里，我们描述了如何确定swizzle模式和共享内存之间的偏移，当共享内存缓冲区没有按swizzle模式重复的字节数对齐时。使用TMA时，共享内存需要与128字节对齐。要找出共享内存缓冲区相对于swizzle模式的移动次数，请应用相应的偏移公式。
@@ -9037,11 +9037,11 @@ int main(){
 |CU_TENSOR_地图_SWIZZLE_32B|`(reinterpret_cast <uintptr_t>(smem_ptr)/128)%2`|`smem[y][x] <-> smem[y][((y+offset)%2)^x]`|
 
 在[图29中，](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#figure-swizzle-overview)这个偏移表示初始行偏移，因此，在swizzle指数计算中，它被添加到行索引y中。以下片段展示了如何在`CU_TENSOR_MAP_SWIZZLE_128B`模式下访问swizzled共享内存。
-
+```c++
 data_t* smem_ptr = &smem[0][0];
 int offset = (reinterpret_cast<uintptr_t>(smem_ptr)/128)%8;
 smem[y][((y+offset)%8)^x] = ...
-
+```
 **总结。**下表[12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements)总结了计算能力9的不同swizzle模式的要求和属性。
 
 表12计算能力9的不同swizzle模式的要求和属性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements "此表的永久链接")
@@ -9297,22 +9297,22 @@ The value of counters 0, 1, …, 7 can be obtained via `nvprof` by `nvprof -
 ## 10.32.断言[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#assertion "这个标题的永久链接")
 
 断言仅由具有2.x及更高计算能力的设备支持。
-
+```c++
 void assert(int expression);
-
+```
 如果`expression`等于零，则停止内核执行。如果程序在调试器内运行，这会触发一个断点，调试器可用于检查设备的当前状态。否则，`expression`等于零的每个线程在通过`cudaDeviceSynchronize()``cudaStreamSynchronize()`或`cudaEventSynchronize()`与主机同步后向_stderr_打印消息。此消息的格式如下：
-
+```c++
 <filename>:<line number>:<function>:
 block: [blockId.x,blockId.x,blockIdx.z],
 thread: [threadIdx.x,threadIdx.y,threadIdx.z]
 Assertion `<expression>` failed.
-
+```
 任何后续针对同一设备的主机端同步调用都将返回`cudaErrorAssert`。在调用`cudaDeviceReset()`重新初始化设备之前，不能再向该设备发送命令。
 
 如果`expression`与零不同，则内核执行不受影响。
 
 例如，源文件_test.cu_中的以下程序
-
+```c++
 #include <assert.h>
 
 __global__ void testAssert(void)
@@ -9334,7 +9334,7 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-
+```
 将输出：
 
 test.cu:19: void testAssert(): block: [0,0,0], thread: [0,0,0] Assertion `should_be_one` failed.
@@ -9378,15 +9378,10 @@ int printf(const char *format[, arg, ...]);
 支持以下字段（有关所有行为的完整描述，请参阅广泛可用的文档）：
 
 - 旗帜：`'#' ' ' '0' '+' '-'`
-    
 - 宽度：`'*' '0-9'`
-    
 - 精确度：`'0-9'`
-    
 - 尺寸：`'h' 'l' 'll'`
-    
 - 类型：`"%cdiouxXpeEfgGaAs"`
-    
 
 请注意，CUDA的`printf()`将接受标志、宽度、精度、大小和类型的任何组合，无论它们是否整体形成有效的格式指定符。换句话说，“`%hd`”将被接受，printf将期望在参数列表中的相应位置有一个双精度变量。
 
@@ -9431,7 +9426,7 @@ int printf(const char *format[, arg, ...]);
 ### 10.35.4.实例[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#format-specifier-examples "这个标题的永久链接")
 
 以下代码示例：
-
+```c++
 #include <stdio.h>
 
 __global__ void helloCUDA(float f)
