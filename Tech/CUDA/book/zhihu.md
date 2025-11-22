@@ -62,7 +62,7 @@ auto warp4B = cg::tiled_partition<4>(warp8);    // 把 warp8 分成 2 个 4 线�
 // 对于 warp4A 和 warp4B, meta_group_size() 和 meta_group_rank() 的值不同.
 ```
 
-如果你打算使用 `sub-warps`，请记住协作组只是提供了软件的支持，GPU 硬件还是以 32 个线程为一束来执行的。因此，如果同一个线程束里两个子束里的代码发生了分歧，对性能仍然是有影响的。
+如果你打算使用 `sub-warps`，请记住**协作组只是提供了软件的支持**，GPU 硬件还是以 32 个线程为一束来执行的。因此，如果同一个线程束里两个子束里的代码发生了分歧，对性能仍然是有影响的。
 
 ![](https://pic2.zhimg.com/v2-6cddf1d0261f84047bcb3500f993b1f1_1440w.jpg)
 
