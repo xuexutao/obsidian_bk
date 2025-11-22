@@ -10556,13 +10556,13 @@ if (tile4.thread_rank()==0) printf("Hello from tile4 rank 0\n");
 然后，该语句将由块中的每四个线程打印：每个`tile4`组中排名为0的线程，对应于`block`中排名为0、4、8、12等的线程。
 
 ### 11.5.2.`labeled_partition`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#labeled-partition "这个标题的永久链接")
-
+```c++
 template <typename Label>
 coalesced_group labeled_partition(const coalesced_group& g, Label label);
 
 template <unsigned int Size, typename Label>
 coalesced_group labeled_partition(const thread_block_tile<Size>& g, Label label);
-
+```
 `labeled_partition`方法是一种集体操作，将父组划分为线程合并的一维子组。实现将评估条件标签，并将具有相同标签值的线程分配到同一组中。
 
 `Label`可以是任何整数类型。
@@ -10576,10 +10576,10 @@ coalesced_group labeled_partition(const thread_block_tile<Size>& g, Label label)
 ### 11.5.3.`binary_partition`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#binary-partition "这个标题的永久链接")
 
 coalesced_group binary_partition(const coalesced_group& g, bool pred);
-
+```c++
 template <unsigned int Size>
 coalesced_group binary_partition(const thread_block_tile<Size>& g, bool pred);
-
+```
 `binary_partition()`方法是一种集体操作，将父组划分为一维子组，其中线程合并。实现将评估一个谓词，并将具有相同值的线程分配到同一组中。这是`labeled_partition()`的一种特殊形式，其中标签只能是0或1。
 
 实现可能会导致调用线程等待父组的所有成员调用该操作，然后再恢复执行。
@@ -10589,7 +10589,7 @@ coalesced_group binary_partition(const thread_block_tile<Size>& g, bool pred);
 **Codegen要求：**计算能力最低7.0，C++11
 
 **示例：**
-
+```c++
 /// This example divides a 32-sized tile into a group with odd
 /// numbers and a group with even numbers
 _global__ void oddEven(int *inputArr) {
@@ -10602,7 +10602,7 @@ _global__ void oddEven(int *inputArr) {
     // a subtile where elem&1 is true and one where its false
     auto subtile = cg::binary_partition(tile32, (elem & 1));
 }
-
+```
 ## 11.6.团体集体[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-collectives "这个标题的永久链接")
 
 合作组库提供了一组可以由一组线程执行的集体操作。这些操作需要指定组中的所有线程参与才能完成操作。除非参数描述中明确允许不同的值，否则组中的所有线程都需要为每个集体调用传递相应的参数相同的值。否则，呼叫的行为是未定义的。
@@ -10651,12 +10651,12 @@ __global__ void cluster_kernel() {
 }
 ```
 #### 11.6.1.2.`sync`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sync "这个标题的永久链接")
-
+```c++
 static void T::sync();
 
 template <typename T>
 void sync(T& group);
-
+```
 `sync`同步组中命名的线程。组类型T可以是任何现有的组类型，因为它们都支持同步。它可作为每个组类型的成员函数，或作为将组作为参数的自由函数。如果该组是`grid_group`，则内核必须使用适当的合作启动API启动。相当于`T.barrier_wait(T.barrier_arrive())`
 
 ### 11.6.2.数据传输[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-transfer "这个标题的永久链接")
@@ -10668,7 +10668,7 @@ void sync(T& group);
 Having to wait on all outstanding requests can lose some flexibility (but gain simplicity). In order to efficiently overlap data transfer and execution, its important to be able to kick off an **N+1**`memcpy_async` request while waiting on and operating on request **N**. To do so, use `memcpy_async` and wait on it using the collective stage-based `wait_prior` API. See [wait and wait_prior](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-wait) for more details.
 
 用法1
-
+```c++
 template <typename TyGroup, typename TyElem, typename TyShape>
 void memcpy_async(
   const TyGroup &group,
@@ -10676,7 +10676,7 @@ void memcpy_async(
   const TyElem *__restrict__ _src,
   const TyShape &shape
 );
-
+```
 执行**“形状”字节**的副本。
 
 用法2
@@ -10727,21 +10727,20 @@ __global__ void kernel(int* global_data) {
 }
 
 #### 11.6.2.2.`wait and wait_prior`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wait-and-wait-prior "这个标题的永久链接")
-
+```c++
 template <typename TyGroup>
 void wait(TyGroup & group);
 
 template <unsigned int NumStages, typename TyGroup>
 void wait_prior(TyGroup & group);
-
+```
 `wait`和`wait_prior`集合允许等待memcpy_async副本完成。`wait`呼叫线程的块，直到所有之前的副本都完成。`wait_prior`允许最新的NumStages仍未完成，并等待之前的所有请求。因此，在请求的`N`副本总数中，它会等到第一个`N-NumStages`完成，最后一个`NumStages`可能仍在进行中。`wait`和`wait_prior`都会同步命名组。
 
 **Codegen要求：**最低计算能力5.0，非同步计算能力8.0，C++11
-
-`cooperative_groups/memcpy_async.h`标题需要包含。
+cooperative_groups/memcpy_async.h 标题需要包含。
 
 **示例：**
-
+```c++
 /// This example streams elementsPerThreadBlock worth of data from global memory
 /// into a limited sized shared memory (elementsInShared) block to operate on in
 /// multiple (two) stages. As stage N is kicked off, we can wait on and operate on stage N-1.
@@ -10782,7 +10781,7 @@ __global__ void kernel(int* global_data) {
     cg::wait(tb);
     // The last local_smem[stage] can be handled here
 }
-
+```
 ### 11.6.3.数据操作[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-manipulation "这个标题的永久链接")
 
 #### 11.6.3.1.`reduce`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reduce "这个标题的永久链接")
@@ -10859,7 +10858,7 @@ __device__ int std_dev(const cg::thread_block_tile<32>& tile, int *vec, int leng
 }
 
 **块宽缩的例子：**
-
+```c++
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
 namespace cg=cooperative_groups;
@@ -10883,11 +10882,11 @@ __device__ void block_reduce(const int* A, int count, cuda::atomic<int, cuda::th
  // synchronize the block, to ensure all async reductions are ready
     block.sync();
 }
-
+```
 #### 11.6.3.2.`Reduce`操作员[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reduce-operators "这个标题的永久链接")
 
 以下是一些基本操作的函数对象原型，可以完成`reduce`
-
+```c++
 namespace cooperative_groups {
   template <typename Ty>
   struct cg::plus;
@@ -10907,11 +10906,10 @@ namespace cooperative_groups {
   template <typename Ty>
   struct cg::bit_or;
 }
-
+```
 减少仅限于编译时实现可用的信息。因此，为了利用CC 8.0中引入的内在，`cg::`命名空间暴露了几个反映硬件的功能对象。除了`less/greater`，这些对象看起来与C++ STL中呈现的对象相似。与STL的任何差异的原因是，这些功能对象被设计为实际反映硬件内在的操作。
 
 **功能描述：**
-
 - `cg::plus:`接受两个值，并使用运算符+返回两者的总和。
     
 - `cg::less:`接受两个值，并使用运算符<返回较小的值。这不同之处在于**返回的是较低**的**值，**而不是布尔值。
@@ -10926,7 +10924,7 @@ namespace cooperative_groups {
     
 
 **示例：**
-
+```c++
 {
     // cg::plus<int> is specialized within cg::reduce and calls __reduce_add_sync(...) on CC 8.0+
     cg::reduce(tile, (int)val, cg::plus<int>());
@@ -10943,7 +10941,7 @@ namespace cooperative_groups {
     // and will instead perform shuffle based reductions using the provided function object.
     cg::reduce(tile, (int)val, [](int l, int r) -> int {return l + r;});
 }
-
+```
 #### 11.6.3.3. `inclusive_scan`和`exclusive_scan`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inclusive-scan-and-exclusive-scan "这个标题的永久链接")
 
 template <typename TyGroup, typename TyVal, typename TyFn>
@@ -11013,7 +11011,7 @@ return op(inclusive_scan(group, val, op), old);
 `cooperative_groups/scan.h`标题需要包含。
 
 **示例：**
-
+```c++
 #include <stdio.h>
 #include <cooperative_groups.h>
 #include <cooperative_groups/scan.h>
@@ -11036,9 +11034,9 @@ __global__ void kernel() {
     6: 21
     7: 28
 */
-
+```
 **使用exclusive_scan进行流压缩的示例：**
-
+```c++
 #include <cooperative_groups.h>
 #include <cooperative_groups/scan.h>
 namespace cg = cooperative_groups;
@@ -11073,7 +11071,7 @@ __device__ int stream_compaction(Group &g, Data *input, int count, TyFn&& test_f
     // return the total number of items in the output
     return g.shfl(my_idx + my_count, g.num_threads() - 1);
 }
-
+```
 **使用exclusive_scan_update的动态缓冲空间分配示例：**
 
 #include <cooperative_groups.h>
