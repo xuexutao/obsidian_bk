@@ -281,3 +281,264 @@ __global__ void reduce8(r_Ptr<float> sums, cr_Ptr<float> data, int n) {
         atomicAdd(&sums[block.group_index().x],v);
 }
 ```
+## **Vector Loading**
+
+我们观察到缩并包含两个步骤：每个线程累加整个数组的部分和；缩并线程的部分和，到每个线程块的一个数字。第一步的耗时和数组尺寸强相关，但第二步需要的时间和数组尺寸是无关的。因此，对于大尺寸的数组，步骤一需要的时间占多数，但我们一直在努力优化步骤二。
+
+观察到步骤一，每个线程每轮循环都只读取一个 `int32`，这个读操作可以被折叠，因为相邻的线程读取相邻的元素。但我们可以更进一步，每次读 128 位，这回最大化 L1 缓存的效率，并且允许编译器使用 128 位的读写指令。这个技术就叫做[向量加载](https://zhida.zhihu.com/search?content_id=242003209&content_type=Article&match_order=1&q=%E5%90%91%E9%87%8F%E5%8A%A0%E8%BD%BD&zhida_source=entity)（vector-loading）
+
+```cpp
+__global__ void reduce7_vl(r_Ptr<float> sums, cr_Ptr<float> data, int n) {
+    // ... 同上, 定义 cg::grid/block/warp
+​
+    // use v4 to read global memory
+    float4 v4 = {0.0f,0.0f,0.0f,0.0f};
+    // 要求 n 是 4 的倍数
+    for(int tid = grid.thread_rank(); tid < n/4; tid += grid.size()) 
+        // 用 reinterpret_cast 让编译器把 data 当成 float4 类型的指针, tid 会被当成 float4 数组的下标
+        // 编译器会用 128-bit 的读取指令, 访问一个完整的 128-bit L1 缓存行
+        // += 是对 float4 重载过的
+        v4 += reinterpret_cast<const float4 *>(data)[tid];
+    // accumulate thread sums in v
+    float v = v4.x + v4.y + v4.z + v4.w;
+    warp.sync();
+​
+    // ... 同上, warp 内求和
+}
+```
+
+另外提一嘴，对于这类内存瓶颈函数的计算时间的测量其实也有讲究，如果你只是单纯的循环，那可能测出来的是 L2 的速度，为了测得准，你可能需要把更多的输入拿来做轮转。
+
+![](https://pic2.zhimg.com/v2-06c9d79ad45b22e9cb29a720cd97095d_1440w.jpg)
+
+从图里可以看出，使用向量加载是最关键的优化。并且随着数量级越来越大，性能趋近，可能是因为内存访问主导了时间。2070 上 v7/8 差别不大，但 CC 8 的新一代 GPU 添加了对束级别缩并的硬件支持，可能会更强。
+
+## **Warp-Level Intrinsic Functions and Sub-warps**
+
+虽然 `cg::tiled_partition` 对象常被用于表示 32 个线程组成的束，但它也可以被用来表示 2 的指数幂尺寸的子束，这时 `size`/`thread_rank` 等成员函数会返回对应子束的属性。如果你的问题可以很自然的用子集切分，这将会带来方便。当然这只是软件层面的支持，并没有额外的硬件来支持同一个[线程束](https://zhida.zhihu.com/search?content_id=242003209&content_type=Article&match_order=1&q=%E7%BA%BF%E7%A8%8B%E6%9D%9F&zhida_source=entity)里的子集做同步操作。因此线程分歧还是会导致性能变差的，但就算存在分歧，任意尺寸的 `tiled_partition` 的 `sync` 函数都不会导致死锁。
+
+`cg` 的成员函数，好多都有前身，都是带有双下划线的内部方法（感觉没啥屌用，不展示了）。现在都化简了，并且隐式的帮忙执行了束级别的同步（以前束内是同步的，所以那些写法已经不太安全了）。不过老旧的教程里可能还会有，另外，`cg` 里面的实现，可能也偷偷帮你调用了这些函数。
+
+## **Thread Divergence and Synchronisation**
+
+除了分支，还有一个差不多的事情是有些线程可能会更早退出，留下没有调用 `return` 的线程们继续干活。如果一个核函数没有分支也没有早退，那线程肯定是激活的，反之亦然。区分暂停(inactive)和退出(exited)的线程很重要，大多数的 CUDA 函数都可以优雅的处理退出的线程，但对于暂停的线程不好。比如 `__syncwarp()` 出现暂停的线程可能会陷入死锁，但已经退出的线程就没问题（还有诸如 `__syncthreads(), warp.shfl_xxx` 都是危险的源头）。`shuffle` 函数还有一个问题是线程超界，比如 `w.shfl_down(v, 16)` 对于 16~31 号线程。
+
+![](https://pic1.zhimg.com/v2-194999f5d92290b1944a56674d6652c2_1440w.jpg)
+
+如上表所示，我们之前的缩并求和，暂停的线程返回 0 没什么问题（？我记得加了 `if` 呀），但乘法就坏了。如果知道哪个线程是激活的，那么 `bitmask` 可以用来排除暂停线程带来的未定义行为。特别的，只有被 `bitmask` 包含的线程才会被算在 `shlf_up/down`，比如 7-10 号线程被排除了，那么 6 号线程的 `shlf_down(v, 1)` 拿到的是 11 号线程的值。这个 `bitmask` 要用前面提到的双下划线函数，很麻烦。（看文章最后的 Coalesced Groups）
+
+## **Avoiding Deadlock**
+
+有时候确实要在线程块级别做 `__syncthreads()`，这个函数一直存在，文档里要求块里所有还没退出的线程，都要到达调用的地方，否则核函数就会永远停滞。用共享内存来搞数据的话，通常都会至少用一次 `__syncthreads()`，如果叠满 BUFF，我是说在分支里面调用包含 `__syncthreads()` 的 `__device__` 函数，那就有意思咯。
+
+下面的例子教你怎么用线程分歧制造死锁。
+
+```cpp
+int main(int argc, char* argv[]) {
+    int warps = (argc > 1)? atoi(argv[1]) : 3; // 3 warps
+    int blocks = (argc > 2)? atoi(argv[2]) : 1; // 1 block, block 其实没什么意义在这个例子里
+    int gsync = (argc > 3)? atoi(argv[3]) : 32; // one warp
+    int dolock = (argc > 4)? atoi(argv[4]) : 1; // use lock?
+    printf("about to call\n");
+    deadlock<<<blocks,warps*32>>>(gsync,dolock);
+    printf("done\n");
+    return 0;
+}
+​
+__global__ void deadlock(int gsync, int dolock) {
+    __shared__ int lock;
+​
+    if (threadIdx.x == 0) lock = 0;
+    __syncthreads(); // 这个同步是很安全的
+​
+    if (threadIdx.x < gsync) { // group A
+        __syncthreads(); // sync A, 如果 blockDim.x≥gsync, 后面的线程就有机会死锁啦
+        if (threadIdx.x == 0) lock = 1; // 前面这行同步成功了, 才会解开后面的 while 循环
+    }
+​
+    else if (threadIdx.x < 2*gsync) { // group B
+        __syncthreads(); // 根据文档, 早期的机器可能这样就死锁了, 但新设备到这里还是好的
+    }
+​
+    // 如果 dolock=0, 那 C 组就是早退的, 可能没法死锁了
+    if(dolock) while (lock != 1);
+​
+    // see message only if NO deadlock
+    if(threadIdx.x == 0 && blockIdx.x==0)
+        printf("deadlock OK\n");
+}
+```
+
+这个核函数把线程块分成了三组：`[0, gsync-1]` 为 A 组，`[gsync, gsync*2-1]` 为 B 组，他们在不同的地方调用了 `__syncthreads()`，这还不足以死锁，我们再来一组，既不调用 `__syncthreads()`，也不退出的。看看结果
+
+![](https://pica.zhimg.com/v2-b2f6bc66e6ea89cc1f8e2e8ca03ee2ca_1440w.jpg)
+
+- 第一行：只有两组，只是在不一样的地方执行了同步，没发生死锁。
+- 第二行：如果不打开 `while` 循环，正常；如果打开了，第三组的线程都所在循环里。
+- 第三行：这个配置共 64 个线程，前 16 个是 A 组，最后 32 个是 C 组。对于高级卡，不开启 `while` 也死锁了！！因为硬件确实检查了所有非退出线程要调用同一处 `__syncthreads()`
+- 第四行：共 96 个线程，前一半是 A 组，后一半是 B 组。也就是说，1 号束被分割了。没有 C 组。对于老旧的设备，正常执行；但对于新卡，都锁住了。因为线程束 1 包含了不同的调用。
+- 第五行：共 128 个线程，最后一个线程束是 C 组，其余同上。这里旧设备在 `while` 打开的情况也死锁了。
+
+结论：新设备，同一个束里还未退出的线程要调用同一处同步，但不同的束可以执行不同的同步。对于旧设备，如果剩下的线程都退出了，貌似就不会死锁。（建议别学旧设备了）
+
+> For devices of CC≥7 For all warps in each thread-block all non-exited threads in a particular warp must execute the same `__syncthreads()` call but different warps can execute different `__syncthreads()` calls.  
+> For devices of CC<7 For all warps in each thread-block, at least one thread from each warp having non-exited threads must execute a `__syncthreads()` call.
+
+最好的办法就是避免在可能出现线程分歧的地方做 `__syncthreads()` 啦，可以尝试用线程束级别的同步，[协作组](https://zhida.zhihu.com/search?content_id=242003209&content_type=Article&match_order=1&q=%E5%8D%8F%E4%BD%9C%E7%BB%84&zhida_source=entity)会帮你。对于大型的项目，你可能没有 `__device__` 函数的源码，不知道里面是否调用了 `__syncthreads()`，优秀的作者会用一个弱一点的同步，只对当前激活的线程有效，这就下面要讲的东西。
+
+## **Coalesced Groups**
+
+协作组里的 `coalesced_group` 对象（合并组？）类似 `tiled_partition` 但只包含了当前线程组里激活状态的线程。和 `tiled_partition` 不同的是，不需要手动指定他的尺寸为 2 的次幂，他的尺寸是自动设置的，值是这个对象创建时的激活状态线程数量。`coalesced_group` 的打开方式和 `thread_block` 很像：
+
+```cpp
+auto a = cg::coalesced_threads(); // a for active
+cg::coalesced_group a = cg::coalesced_threads();
+```
+
+`a` 包含了当前线程束所有激活状态的线程，这也是一个 warp-level 的对象。成员函数 `a.size()` 返回激活状态的线程数量，`shuffle` 函数会自动加上只包含激活线程的掩码。`a.rank()` 的取值范围是 `[0, a.size() - 1]`， 最重要的 `a.sync()` 会执行只有这些激活状态线程的同步，这可以避免死锁并且使代码的意图更清晰。注意，在合并组对象实例化后，不应该再有进一步的线程分歧出现。
+
+下面的示例无论用什么配置启动，都不会死锁
+
+```cpp
+__global__ void deadlock_coalesced(int gsync, int dolock) {
+    __shared__ int lock;
+    if (threadIdx.x == 0) lock = 0;
+    __syncthreads(); // normal syncthreads
+​
+    if (threadIdx.x < gsync) { // group A
+        // 这个对象有所有 tile_partition<32> 表示的线程束的功能, 但只作用在激活的线程上
+        auto a = cg::coalesced_threads(); 
+        a.sync(); // sync A
+        if (threadIdx.x == 0) lock = 1;
+    }
+    else if (threadIdx.x < 2 * gsync) { // group B
+        auto a = cg::coalesced_threads();
+        a.sync(); // sync B
+    }
+​
+    if (dolock) while (lock != 1);
+    if (threadIdx.x == 0 && blockIdx.x == 0)
+        printf("deadlock_coalesced OK\n");
+}
+```
+
+前面两个例子都是讲怎么死锁和避免的，下面看看合并组能真正做什么。这个例子还是数组求和，但是先分别计算奇数线程号和偶数线程号各自的和。
+
+```cpp
+__device__ void reduce7_vl_coal(r_Ptr<float>sums, cr_Ptr<float>data, int n) {
+    // 假设 a.size 是 2 的次幂(否则 shlf 有可能越界), n 是 4 的倍数
+    auto g = cg::this_grid();
+    auto b = cg::this_thread_block();
+    auto a = cg::coalesced_threads(); // active threads in warp
+​
+    float4 v4 ={0,0,0,0};
+    for(int tid = g.thread_rank(); tid < n/4; tid += g.size())
+        v4 += reinterpret_cast<const float4 *>(data)[tid];
+    float v = v4.x + v4.y + v4.z + v4.w;
+    a.sync();
+​
+    if(a.size() > 16) v += a.shfl_down(v,16); // NB no new
+    if(a.size() > 8) v += a.shfl_down(v,8); // thread
+    if(a.size() > 4) v += a.shfl_down(v,4); // divergence
+    if(a.size() > 2) v += a.shfl_down(v,2); // allowed
+    if(a.size() > 1) v += a.shfl_down(v,1); // here
+    if(a.thread_rank() == 0)
+        atomicAdd(&sums[b.group_index().x],v);
+}
+​
+__global__ void reduce_warp_even_odd(
+    r_Ptr<float>sumeven, r_Ptr<float>sumodd, cr_Ptr<float>data, int n) {
+    // divergent code here
+    // CC < 7 的机器, 这两步是顺序执行的; >= 7 的机器, 有一些并行(比前面慢了 1.8 倍)
+    if (threadIdx.x%2==0) reduce_coal_vl(sumeven, data, n);
+    else reduce_coal_vl(sumodd, data, n);
+}
+```
+
+下面最后一个示例，它能够计算出任何大小的合并组的求和，前提是每个线程束至少有一个激活的线程。在这个版本中，每个线程束不再需要有相同数量的激活线程。
+
+```cpp
+ // 我们把数据分成连续的块, 每个块由网格中的一个线程束来处理. 
+// 如果每个束里激活线程的数量不同, 这个方法性能会差一些, 因为给每个束的任务总量是一样的.
+__device__ void reduce_coal_any_vl(r_Ptr<float>sums, cr_Ptr<float>data,int n) {
+    // a.size [1, 32] 都可以算
+    auto g = cg::this_grid();
+    auto b = cg::this_thread_block();
+    auto w = cg::tiled_partition<32>(b); // whole warp
+    auto a = cg::coalesced_threads();
+​
+    // number of warps in grid
+    // g.group_dim().x = 线程块数量, w.meta_group_size() = 线程块里有多少线程束
+    // a.meta_group_size() 永远等于 1, 因为合并组被视为线程束的分割, 每个束只分一个出来
+    int warps = g.group_dim().x * w.meta_group_size(); 
+​
+    // divide data into contiguous parts, with one part per warp
+    int part_size =((n/4)+warps-1)/warps; // 向上取整, /4 
+    // 当前 warp 在 grid 里的编号 * part_size
+    int part_start =(b.group_index().x*w.meta_group_size()+w.meta_group_rank() )*part_size;
+    int part_end =min(part_start+part_size,n/4);
+    
+    // get part sub-sums into threads of a
+    float4 v4 ={0,0,0,0};
+    int id = a.thread_rank();
+    // adjacent adds within the warp
+    for(int k=part_start+id; k<part_end; k+=a.size())
+        v4 += reinterpret_cast<const float4 *>(data)[k];
+    float v = v4.x + v4.y + v4.z + v4.w;
+    a.sync();
+
+    // 这几行代码解决激活线程数量 a.size() 不是 2 整数幂的问题
+    // kstart 是比 a.size 小的最大 2 的整数幂, clz 返回无符号数前导 0 的数量
+    int kstart = 1 << (31 - __clz(a.size()));
+    // 把后面线程的值加到前面线程
+    if(a.size() > kstart) {
+        float w = a.shfl_down(v,kstart);
+        // only update v for valid low ranking threads
+        if(a.thread_rank() < a.size()-kstart) v += w;
+        a.sync();
+    }
+​
+    // now do power of 2 reduction
+    // 由于 kstart 不知道多少, 就不好 unroll 了
+    for(int k = kstart/2; k>0; k /= 2)v+= a.shfl_down(v,k);
+    if(a.thread_rank() == 0)
+        AtomicAdd(&sums[b.group_index().x],v);
+}
+​
+__global__ void reduce_any(r_Ptr<float>sums, cr_Ptr<float>data, int n) {
+    if(threadIdx.x%3 ==0) reduce_coal_any_vl(sums,data,n);
+}
+```
+
+`reduce_coal_any_vl` 的表现还不错，下图是数据大小为 2^24，<<<288, 256>>> 的表现。16 以后基本能打满内存带宽。
+
+![](https://pic4.zhimg.com/v2-7100607831a8ceff58d150f5ce15e083_1440w.jpg)
+
+## **HPC Features**
+
+对于 Linux 集群上的高性能计算，网格级别的同步是可能需要的（？这不就是宿主上调用 `syncDevice` 吗），使用 `grip.sync` 函数需要特别的编译以及特殊的 API。细节就不说了。现在网格级别的同步是有限制的，主要来源于：所有的被同步的线程块，都需要同时存留在 GPU，这意味着线程块的数量不能超过 SM 的数量。
+
+对于高性能计算的应用，核函数要在多个 GPU 上启动的，就有 `multi-grid` 的说法了。
+
+```cpp
+auto mg = this_multi_grid();
+multi_grid_group mg = this_multi_grid();
+​
+mg.sync(); // Synchronization across multiple GPUs is possible with
+```
+
+CUDA 11 提供了许多新功能，除了前面说的 `reduce` 函数。
+
+1 子合并组，`label` 是个自己设置的正整数，可能每个线程都不一样，用来区分。
+
+```text
+cg::coalesced_group a = cg::coalesced_threads();
+cg::coalesced_group lg = cg::labeled_partition(a,label);
+​
+auto a = cg::coalesced_threads();
+auto lg = cg::labeled_partition(a,label);
+```
+
+2 binary_partitition 是上面的一个特例，他接受布尔的 label 作为参数，最多分两组。
+
+3 新的 memcpy_async 函数，用来加速从 GPU 全局内存到共享内存的拷贝速度。这是通过硬件支持的，绕过 L1 和 L2。引入他的主要目的是搞后面要讲的 Tensor Core
