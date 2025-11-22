@@ -1,14 +1,14 @@
 CUDA C++编程指南
 
-# 1.一览表[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#overview "这个标题的永久链接")
+# 1.[一览表](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#overview "这个标题的永久链接")
 
 CUDA是由NVIDIA开发的平行计算平台和编程模型，通过利用GPU的强大功能，可以大幅提高计算性能。它允许开发人员使用C、C++和Fortran加速计算密集型应用程序，并被广泛应用于深度学习、科学计算和高性能计算（HPC）等领域。
 
-# 2.什么是CUDA C编程指南？[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#what-is-the-cuda-c-programming-guide "这个标题的永久链接")
+# 2.什么是CUDA C编程指南？
 
 CUDA C编程指南是官方的综合资源，解释了如何使用CUDA平台编写程序。它提供了CUDA架构、编程模型、语言扩展和性能指南的详细文档。无论您是刚刚开始还是优化复杂的GPU内核，本指南都是有效利用CUDA的全部功能的重要参考。
 
-# 3.介绍[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#introduction "这个标题的永久链接")
+# 3.[介绍](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#introduction "这个标题的永久链接")
 
 ## 3.1.使用GPU的好处[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#the-benefits-of-using-gpus "这个标题的永久链接")
 
@@ -26,9 +26,7 @@ GPU专门用于高度并行计算，因此设计成更多的晶体管用于数�
 
 一般来说，应用程序混合了并行部分和顺序部分，因此系统设计了GPU和CPU的组合，以最大限度地提高整体性能。具有高度并行性的应用程序可以利用GPU的这种大规模并行性质来实现比CPU更高的性能。
 
-[1](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id2)
-
-_图形_限定符源于这样一个事实，即20年前GPU最初创建时，它被设计为一个专门的处理器来加速图形渲染。在市场对实时、高清、3D图形的不满足需求的驱使下，它已经发展成为一种通用处理器，用于更多工作负载，而不仅仅是图形渲染。
+[1](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id2) _图形_限定符源于这样一个事实，即20年前GPU最初创建时，它被设计为一个专门的处理器来加速图形渲染。在市场对实时、高清、3D图形的不满足需求的驱使下，它已经发展成为一种通用处理器，用于更多工作负载，而不仅仅是图形渲染。
 
 ## 3.2.CUDA®：通用并行计算平台和编程模型[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-a-general-purpose-parallel-computing-platform-and-programming-model "这个标题的永久链接")
 
