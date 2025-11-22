@@ -12691,7 +12691,7 @@ cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
 请参阅上面的[cudaGetParameterBuffer](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cudagetparameterbuffer-cdp2)，了解CDP2版本的文档。
 
 `cudaGetParameterBuffer()`在使用之前，需要在PTX级别声明。根据地址大小，PTX级声明必须以以下两种形式之一：
-
+```c++
 // PTX-level Declaration of cudaGetParameterBuffer() when .address_size is 64
 // When .address_size is 64
 .extern .func(.param .b64 func_retval0) cudaGetParameterBuffer
@@ -12708,7 +12708,7 @@ cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
   .param .b32 size
 )
 ;
-
+```
 以下`cudaGetParameterBuffer()`的CUDA级声明映射到上述PTX级声明：
 
 // CUDA-level Declaration of cudaGetParameterBuffer()
@@ -13263,7 +13263,7 @@ __global__ void all_reduce_norm_barrier_kernel(float* l2_norm,
 用户可以通过调用带有设备属性`cudaDevAttrMemoryPoolsSupported``cudaDeviceGetAttribute()`来确定设备是否支持流有序内存分配器。
 
 从CUDA 11.3开始，IPC内存池支持可以通过`cudaDevAttrMemoryPoolSupportedHandleTypes`设备属性进行查询。之前的驱动程序将返回`cudaErrorInvalidValue`，因为这些驱动程序不知道属性枚舉。
-
+```c++
 int driverVersion = 0;
 int deviceSupportsMemoryPools = 0;
 int poolSupportedHandleTypes = 0;
@@ -13283,7 +13283,7 @@ if (driverVersion >= 11030) {
 if (poolSupportedHandleTypes & cudaMemHandleTypePosixFileDescriptor) {
    // Pools on the specified device can be created with posix file descriptor-based IPC
 }
-
+```
 在查询之前执行驱动程序版本检查，避免在尚未定义属性的驱动程序上遇到`cudaErrorInvalidValue`错误。人们可以使用`cudaGetLastError`来清除错误，而不是避免它。
 
 ## 15.3.API基础知识（cudaMallocAsync和cudaFreeAsync）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#api-fundamentals-cudamallocasync-and-cudafreeasync "这个标题的永久链接")
@@ -13314,7 +13314,7 @@ cudaStreamWaitEvent(stream3, event2);
 cudaFreeAsync(ptr, stream3);
 
 用户可以通过`cudaFreeAsync()`释放使用`cudaMalloc()`分配的分配。在免费操作开始之前，用户必须对访问完成做出同样的保证。
-
+```c++
 cudaMalloc(&ptr, size);
 kernel<<<..., stream>>>(ptr, ...);
 cudaFreeAsync(ptr, stream);
@@ -13326,20 +13326,16 @@ kernel<<<..., stream>>>(ptr, ...);
 // synchronize is needed to avoid prematurely freeing the memory
 cudaStreamSynchronize(stream);
 cudaFree(ptr);
-
+```
 ## 15.4.记忆池和cudaMemPool_t[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-pools-and-the-cudamempool-t "这个标题的永久链接")
 
 内存池封装了根据池属性和属性分配和管理的虚拟地址和物理内存资源。内存池的主要方面是它管理的内存类型和位置。
 
 所有对`cudaMallocAsync`的调用都使用内存池的资源。在没有指定内存池的情况下，`cudaMallocAsync`使用提供的流设备的当前内存池。设备的当前内存池可以使用`cudaDeviceSetMempool`设置，并使用`cudaDeviceGetMempool`进行查询。默认情况下（在没有`cudaDeviceSetMempool`调用的情况下），当前内存池是设备的默认内存池。API `cudaMallocFromPoolAsync`和[cudaMallocAsync的c++过载](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1ga31efcffc48981621feddd98d71a0feb)允许用户指定用于分配的池，而无需将其设置为当前池。API `cudaDeviceGetDefaultMempool`和`cudaMemPoolCreate`为用户提供内存池的句柄。
 
-笔记
+笔记: 设备的内存池电流将是该设备的本地电流。因此，在不指定内存池的情况下进行分配将始终产生流设备本地的分配。
 
-设备的内存池电流将是该设备的本地电流。因此，在不指定内存池的情况下进行分配将始终产生流设备本地的分配。
-
-笔记
-
-`cudaMemPoolSetAttribute`和`cudaMemPoolGetAttribute`控制内存池的属性。
+笔记: `cudaMemPoolSetAttribute`和`cudaMemPoolGetAttribute`控制内存池的属性。
 
 ## 15.5.默认/隐含池[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#default-implicit-pools "这个标题的永久链接")
 
@@ -13380,7 +13376,7 @@ Cuuint64_t setVal = UINT64_MAX;
 cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrReleaseThreshold, &setVal);
 
 将`cudaMemPoolAttrReleaseThreshold`设置为足够高以有效禁用内存池缩减的应用程序可能希望显式缩小内存池的内存占用。`cudaMemPoolTrimTo`允许此类应用程序这样做。在修剪内存池的足迹时，theminBytesToKeep参数允许应用程序保留它期望在后续执行阶段所需的内存量。
-
+```c++
 Cuuint64_t setVal = UINT64_MAX;
 cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrReleaseThreshold, &setVal);
 
