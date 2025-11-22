@@ -15893,7 +15893,7 @@ __host__ __device__ bool f(S a, S b) {
 通常，不允许交叉执行空间调用，并导致编译器诊断（警告或错误）。当调用的函数使用`consteval`指定符声明时，此限制不适用。因此，`__device__`或`__global__`函数可以调用`__host__``consteval`函数，`__host__`函数可以调用`__device__consteval`函数。
 
 示例：
-
+```c++
 namespace N1 {
 //consteval host function
 consteval int hcallee() { return 10; }
@@ -15913,13 +15913,13 @@ __global__ void gfunc() { (void)dcallee(); /* OK */ }
 __host__ __device__ int hdfunc() { return dcallee();  /* OK */ }
 int hfunc() { return dcallee(); /* OK */ }
 }
-
+```
 ## 18.6.多态函数包装器[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#polymorphic-function-wrappers "这个标题的永久链接")
 
 `nvfunctional`标题中提供了多态函数包装器类模板`nvstd::function`。此类模板的实例可用于存储、复制和调用任何可调用的目标，例如lambda表达式。`nvstd::function`可用于主机和设备代码。
 
 示例：
-
+```c++
 #include <nvfunctional>
 
 __device__ int foo_d() { return 1; }
@@ -15948,13 +15948,13 @@ __host__ void host_func(int *result) {
 
   *result = fn1() + fn2() + fn3();
 }
-
+```
 主机代码中`nvstd::function`的实例不能用`__device__`函数的地址或`operator()`是`__device__`函数的函子初始化。设备代码中的`nvstd::function`实例不能用`__host__`函数的地址或`operator()`是`__host__`函数的函子初始化。
 
 `nvstd::function`实例不能在运行时从主机代码传递到设备代码（反之亦然）。如果`__global__`函数是从主机代码启动的，则不能在`__global__`函数的参数类型中使用`nvstd::function`。
 
 示例：
-
+```c++
 #include <nvfunctional>
 
 __device__ int foo_d() { return 1; }
@@ -16043,7 +16043,7 @@ namespace nvstd {
   __device__ __host__
   void swap(function<_R(_ArgTypes...)>&, function<_R(_ArgTypes...)>&);
 }
-
+```
 ## 18.7.扩展的Lambdas[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-lambdas "这个标题的永久链接")
 
 nvcc标志`'--extended-lambda'`允许在lambda表达式[23](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn30)中显式执行空间注释。执行空间注释应出现在`'--extended-lambda'`之后和可选的“lambda-declarator”之前。当指定了“--extended-lambda”标志时，nvcc将定义宏__CUDACC_EXTENDED_LAMBDA__。
@@ -16265,7 +16265,7 @@ auto lam6 = [] {
 5. 在定义了扩展的lambda时，必须能够明确地取包围例程的地址。在某些情况下，这可能不可行，例如，当类typedef阴影相同名称的模板类型参数时。
     
     示例：
-    
+    ```c++
     template <typename> struct A {
       typedef void Bar;
       void test();
@@ -16294,8 +16294,8 @@ auto lam6 = [] {
       A<int> xxx;
       xxx.test();
     }
-    
-6. 扩展的lambda无法在函数本地的类中定义。
+    ```
+1. 扩展的lambda无法在函数本地的类中定义。
     
     示例：
     
@@ -16308,7 +16308,7 @@ auto lam6 = [] {
       };
     }
     
-7. 扩展lambda的包围函数不能有推断的返回类型。
+2. 扩展lambda的包围函数不能有推断的返回类型。
     
     示例：
     
@@ -16317,7 +16317,7 @@ auto lam6 = [] {
       auto lam1 = [] __host__ __device__ { return 0; };
     }
     
-8. __host__ __device__ extended lambda不能是通用的lambda。
+3. __host__ __device__ extended lambda不能是通用的lambda。
     
     示例：
     
@@ -16333,7 +16333,7 @@ auto lam6 = [] {
                   };
     }
     
-9. 如果包含函数是函数模板或成员函数模板的实例化，并且/或者该函数是类模板的成员，则该模板必须满足以下约束：
+4. 如果包含函数是函数模板或成员函数模板的实例化，并且/或者该函数是类模板的成员，则该模板必须满足以下约束：
     
     - 模板最多必须有一个变量参数，并且它必须列在模板参数列表中的最后。
         
@@ -16343,7 +16343,7 @@ auto lam6 = [] {
         
     
     示例：
-    
+    ```c++
     template <typename T>
     __global__ void kern(T in) { in(); }
     
@@ -16379,9 +16379,9 @@ auto lam6 = [] {
       bar2(f1, 10);
       bar3<int, 10>();
     }
-    
+    ```
     示例：
-    
+```c++
     template <typename T>
     __global__ void kern(T in) { in(); }
     
@@ -16403,12 +16403,12 @@ auto lam6 = [] {
       // of a class.
       bar4<C1_t::S1_t>();
     }
+    ```
+5. 使用Visual Studio主机编译器，包含函数必须有外部链接。存在限制是因为这个主机编译器不支持使用非外部链接函数的地址作为模板参数，CUDA编译器转换需要这个地址来支持扩展的lambda。
     
-10. 使用Visual Studio主机编译器，包含函数必须有外部链接。存在限制是因为这个主机编译器不支持使用非外部链接函数的地址作为模板参数，CUDA编译器转换需要这个地址来支持扩展的lambda。
+6. 使用Visual Studio主机编译器，不应在“if-constexpr”块的主体中定义扩展的lambda。
     
-11. 使用Visual Studio主机编译器，不应在“if-constexpr”块的主体中定义扩展的lambda。
-    
-12. 扩展lambda对捕获的变量有以下限制：
+7. 扩展lambda对捕获的变量有以下限制：
     
     - 在发送到主机编译器的代码中，变量可以通过值传递给帮助函数序列，然后用于直接初始化用于表示扩展lambda25的闭包类型的类类型的字段。
         
@@ -16432,7 +16432,7 @@ auto lam6 = [] {
         
     
     示例：
-    
+    ```c++
     void foo(void) {
       // OK: an init-capture is allowed for an
       // extended __device__ lambda.
@@ -16496,10 +16496,10 @@ auto lam6 = [] {
       };
     }
     
-13. 解析函数时，CUDA编译器会为该函数中的每个扩展lambda分配一个计数器值。此计数器值用于传递给主机编译器的替换命名类型。因此，是否在函数中定义扩展lambda不应取决于`__CUDA_ARCH__`的特定值，或`__CUDA_ARCH__`未定义。
+8. 解析函数时，CUDA编译器会为该函数中的每个扩展lambda分配一个计数器值。此计数器值用于传递给主机编译器的替换命名类型。因此，是否在函数中定义扩展lambda不应取决于`__CUDA_ARCH__`的特定值，或`__CUDA_ARCH__`未定义。
     
     示例：
-    
+    ```c++
     template <typename T>
     __global__ void kernel(T in) { in(); }
     
@@ -16514,8 +16514,8 @@ auto lam6 = [] {
       auto lam2 = [] __device__ { return 4; };
       kernel<<<1,1>>>(lam2);
     }
-    
-14. As described above, the CUDA compiler replaces a `__device__` extended lambda defined in a host function with a placeholder type defined in namespace scope. Unless the trait `__nv_is_extended_device_lambda_with_preserved_return_type()` returns true for the closure type of the extended lambda, the placeholder type does not define a `operator()` function equivalent to the original lambda declaration. An attempt to determine the return type or parameter types of the `operator()` function of such a lambda may therefore work incorrectly in host code, as the code processed by the host compiler will be semantically different than the input code processed by the CUDA compiler. However, it is OK to introspect the return type or parameter types of the `operator()` function within device code. Note that this restriction does not apply to `__host__ __device__` extended lambdas, or to `__device__` extended lambdas for which the trait `__nv_is_extended_device_lambda_with_preserved_return_type()` returns true.
+    ```
+5. As described above, the CUDA compiler replaces a `__device__` extended lambda defined in a host function with a placeholder type defined in namespace scope. Unless the trait `__nv_is_extended_device_lambda_with_preserved_return_type()` returns true for the closure type of the extended lambda, the placeholder type does not define a `operator()` function equivalent to the original lambda declaration. An attempt to determine the return type or parameter types of the `operator()` function of such a lambda may therefore work incorrectly in host code, as the code processed by the host compiler will be semantically different than the input code processed by the CUDA compiler. However, it is OK to introspect the return type or parameter types of the `operator()` function within device code. Note that this restriction does not apply to `__host__ __device__` extended lambdas, or to `__device__` extended lambdas for which the trait `__nv_is_extended_device_lambda_with_preserved_return_type()` returns true.
     
     示例：
     
@@ -16546,12 +16546,12 @@ auto lam6 = [] {
       static_assert( ! __nv_is_extended_device_lambda_with_preserved_return_type(decltype(lam4)), "" );
     }
     
-15. 对于扩展设备lambda：-内省运算符（）的参数类型仅在设备代码中支持。-内省运算符（）的返回类型仅在设备代码中支持，除非特征函数__nv_is_extended_device_lambda_with_preserved_return_type（）返回true。
+6. 对于扩展设备lambda：-内省运算符（）的参数类型仅在设备代码中支持。-内省运算符（）的返回类型仅在设备代码中支持，除非特征函数__nv_is_extended_device_lambda_with_preserved_return_type（）返回true。
     
-16. 如果由扩展lambda表示的函子对象从主机传递到设备代码（例如，作为`__global__`函数的参数），那么lambda表达式正文中捕获变量的任何表达式都必须保持不变，无论`__CUDA_ARCH__`宏是否定义，以及宏是否具有特定值。出现此限制是因为lambda的闭包类布局取决于编译器处理lambda表达式时遇到捕获变量的顺序；如果设备和主机编译中的闭包类布局不同，程序可能会错误地执行。
+7. 如果由扩展lambda表示的函子对象从主机传递到设备代码（例如，作为`__global__`函数的参数），那么lambda表达式正文中捕获变量的任何表达式都必须保持不变，无论`__CUDA_ARCH__`宏是否定义，以及宏是否具有特定值。出现此限制是因为lambda的闭包类布局取决于编译器处理lambda表达式时遇到捕获变量的顺序；如果设备和主机编译中的闭包类布局不同，程序可能会错误地执行。
     
     示例：
-    
+    ```c++
     __device__ int result;
     
     template <typename T>
@@ -16569,11 +16569,11 @@ auto lam6 = [] {
       };
       kernel<<<1,1>>>(lam1);
     }
-    
-17. As described previously, the CUDA compiler replaces an extended `__device__` lambda expression with an instance of a placeholder type in the code sent to the host compiler. This placeholder type does not define a pointer-to-function conversion operator in host code, however the conversion operator is provided in device code. Note that this restriction does not apply to `__host__ __device__` extended lambdas.
+    ```
+5. As described previously, the CUDA compiler replaces an extended `__device__` lambda expression with an instance of a placeholder type in the code sent to the host compiler. This placeholder type does not define a pointer-to-function conversion operator in host code, however the conversion operator is provided in device code. Note that this restriction does not apply to `__host__ __device__` extended lambdas.
     
     示例：
-    
+    ```c++
     template <typename T>
     __global__ void kern(T in) {
       int (*fp)(double) = in;
@@ -16601,13 +16601,13 @@ auto lam6 = [] {
       // host code.
       int (*fp2)(double) = lam_d;
     }
-    
-18. As described previously, the CUDA compiler replaces an extended `__device__` or `__host__ __device__` lambda expression with an instance of a placeholder type in the code sent to the host compiler. This placeholder type may define C++ special member functions (e.g. constructor, destructor). As a result, some standard C++ type traits may return different results for the closure type of the extended lambda, in the CUDA frontend compiler versus the host compiler. The following type traits are affected: `std::is_trivially_copyable`, `std::is_trivially_constructible`, `std::is_trivially_copy_constructible`, `std::is_trivially_move_constructible`, `std::is_trivially_destructible`.
+    ```
+5. As described previously, the CUDA compiler replaces an extended `__device__` or `__host__ __device__` lambda expression with an instance of a placeholder type in the code sent to the host compiler. This placeholder type may define C++ special member functions (e.g. constructor, destructor). As a result, some standard C++ type traits may return different results for the closure type of the extended lambda, in the CUDA frontend compiler versus the host compiler. The following type traits are affected: `std::is_trivially_copyable`, `std::is_trivially_constructible`, `std::is_trivially_copy_constructible`, `std::is_trivially_move_constructible`, `std::is_trivially_destructible`.
     
     Care must be taken that the results of these type traits are not used in `__global__` function template instantiation or in `__device__ /__constant__ / __managed__` variable template instantiation.
     
     示例：
-    
+    ```c++
     template <bool b>
     void __global__ foo() { printf("hi"); }
     
@@ -16628,7 +16628,7 @@ auto lam6 = [] {
     dolaunch<decltype(lam1)>();
     }
     
-
+```
 CUDA编译器将为1-12中描述的案例子集生成编译器诊断；不会为案例13-17生成诊断，但主机编译器可能无法编译生成的代码。
 
 ### 18.7.3.关于__host__ __device__ lambdas的注释[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#notes-on-host-device-lambdas "这个标题的永久链接")
@@ -16642,7 +16642,7 @@ The presence of the indirect function call may cause an extended `__host__ __d
 When a lambda is defined within a non-static class member function, and the body of the lambda refers to a class member variable, C++11/C++14 rules require that the `this` pointer of the class is captured by value, instead of the referenced member variable. If the lambda is an extended `__device__` or `__host__``__device__` lambda defined in a host function, and the lambda is executed on the GPU, accessing the referenced member variable on the GPU will cause a run time error if the `this` pointer points to host memory.
 
 示例：
-
+```c++
 #include <cstdio>
 
 template <typename T>
@@ -16672,13 +16672,13 @@ int main(void) {
   S1_t s1;
   s1.doit();
 }
-
+```
 C++17通过添加一个新的“*this”捕获模式来解决这个问题。在此模式下，编译器复制了用“*this”表示的对象，而不是通过值捕获指针`this`。“*this”捕获模式在此处进行了更详细的描述：`http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0018r3.html`。
 
 The CUDA compiler supports the “*this” capture mode for lambdas defined within `__device__` and `__global__` functions and for extended `__device__` lambdas defined in host code, when the `--extended-lambda` nvcc flag is used.
 
 以下是修改为使用“*this”捕获模式的上述示例：
-
+```c++
 #include <cstdio>
 
 template <typename T>
@@ -16710,7 +16710,7 @@ int main(void) {
   S1_t s1;
   s1.doit();
 }
-
+```
 除非所选语言方言启用了“*this”捕获，否则不允许用于主机代码中定义的未注释的lambda或扩展的`__host__``__device__`lambdas。支持和不支持的使用示例：
 
 struct S1_t {
@@ -16763,7 +16763,7 @@ struct S1_t {
 1. `ADL Lookup`：如前所述，在调用主机编译器之前，CUDA编译器将用占位符类型的实例替换扩展的lambda表达式。占位符类型的一个模板参数使用包含原始lambda表达式的函数地址。这可能会导致其他命名空间参与参数依赖查找（ADL），对于任何参数类型涉及扩展lambda表达式的闭包类型的主机函数调用。这可能会导致主机编译器选择不正确的函数。
     
     示例：
-    
+    ```c++
     namespace N1 {
       struct S1_t { };
       template <typename T>  void foo(T);
@@ -16785,7 +16785,7 @@ struct S1_t {
       */
       auto lam1 = [=] __device__ { };
       N2::doit(lam1);
-    }
+    }```
     
     在上述示例中，CUDA编译器用涉及`N1`命名空间的占位符类型取代了扩展的lambda。因此，命名空间`N1`参与了`N2::doit`正文中`foo(in)`的ADL查找，主机编译失败，因为发现了多个过载候选者`N1::foo`和`N2::foo`。
     
@@ -16968,7 +16968,7 @@ __device__ Shape* GetPointObj(MemoryPool& pool)
 }
 
 ### 18.9.3.班级模板[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#class-template "这个标题的永久链接")
-
+```c++
 template <class T>
 class myValues {
     T values[MAX_VALUES];
@@ -16992,9 +16992,9 @@ int main()
     useValues<int><<<blocks, threads>>>(buffer);
     ...
 }
-
+```
 ### 18.9.4.功能模板[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#function-template "这个标题的永久链接")
-
+```c++
 template <typename T>
 __device__ bool func(T x)
 {
@@ -17014,9 +17014,9 @@ bool result = func<double>(0.5);
 // Implicit argument deduction
 int x = 1;
 bool result = func(x);
-
+```
 ### 18.9.5.函子类[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#functor-class "这个标题的永久链接")
-
+```c++
 class Add {
 public:
     __device__  float operator() (float a, float b) const
@@ -17049,39 +17049,23 @@ int main()
     ...
     VectorOperation<<<blocks, threads>>>(v1, v2, v3, N, Add());
     ...
-}
+}```
 
-9
+9例如，`<<<...>>>`启动内核的语法。
 
-例如，`<<<...>>>`启动内核的语法。
+10 这不适用于可能在多个翻译单元中定义的实体，例如编译器生成的模板实例化。
 
-10
+[11](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id339) The intent is to allow variable memory space specifiers for static variables in a `__host__ __device__` function during device compilation, but disallow it during host compilation
 
-这不适用于可能在多个翻译单元中定义的实体，例如编译器生成的模板实例化。
+[12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id349) One way to debug suspected layout mismatch of a type `C` is to use `printf` to output the values of `sizeof(C)` and `offsetof(C, field)` in host and device code.
 
-[11](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id339)
+[13](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id355) 请注意，由于存在额外的声明，这可能会对编译时间产生负面影响。
 
-The intent is to allow variable memory space specifiers for static variables in a `__host__ __device__` function during device compilation, but disallow it during host compilation
+[14](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id356) 目前，`-std=c++11`标志仅支持以下主机编译器：gcc版本>= 4.7、clang、icc>= 15和xlc >= 13.1
 
-[12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id349)
+[15](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id358) 包括`operator()`
 
-One way to debug suspected layout mismatch of a type `C` is to use `printf` to output the values of `sizeof(C)` and `offsetof(C, field)` in host and device code.
-
-[13](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id355)
-
-请注意，由于存在额外的声明，这可能会对编译时间产生负面影响。
-
-[14](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id356)
-
-目前，`-std=c++11`标志仅支持以下主机编译器：gcc版本>= 4.7、clang、icc>= 15和xlc >= 13.1
-
-[15](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id358)
-
-包括`operator()`
-
-[16](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id360)
-
-限制与非constexpr被调用函数相同。
+[16](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id360) 限制与非constexpr被调用函数相同。
 
 [17](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id361)
 
