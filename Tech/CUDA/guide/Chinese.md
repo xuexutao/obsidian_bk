@@ -5689,29 +5689,32 @@ void __syncthreads();
 
 - `__syncthreads()`用于协调同一块线程之间的通信。当块中的一些线程访问共享或全局内存中的相同地址时，其中一些内存访问存在潜在的写后读、读后写或写后写入危险。通过在这些访问之间同步线程，可以避免这些数据危害。
 
-`__syncthreads()`在条件代码中是允许的，但前提是条件在整个线程块中评估相同，否则代码执行可能会挂起或产生意外副作用。
+- `__syncthreads()`在条件代码中是允许的，但前提是条件在整个线程块中评估相同，否则代码执行可能会挂起或产生意外副作用。
 
 计算能力2.x及以上的设备支持下面描述的`__syncthreads()`的三种变体。
-
+```c++
 int __syncthreads_count(int predicate);
+```
 
 与`__syncthreads()`相同，具有额外的功能，即它评估块的所有线程的谓词，并返回谓词评估为非零的线程数。
 
+```
 int __syncthreads_and(int predicate);
-
+```
 与`__syncthreads()`相同，具有额外的功能，即它评估块的所有线程的谓词，并且仅当谓词评估为非零时（仅当）将其返回非零。
 
+```c++
 int __syncthreads_or(int predicate);
+```
 
 与`__syncthreads()`相同，具有额外的功能，即它评估块的所有线程的谓词，并且仅当谓词评估为非零时返回非零。
 
+```c++
 void __syncwarp(unsigned mask=0xffffffff);
-
+```
 将导致执行线程等到掩码中命名的所有扭曲通道都执行了`__syncwarp()`（具有相同的掩码），然后再恢复执行。每个调用线程必须在掩码中设置自己的位，掩码中命名的所有未退出线程必须使用相同的掩码执行相应的`__syncwarp()`），否则结果是未定义的。
 
 执行`__syncwarp()`保证了参与障碍的线程之间的内存排序。因此，希望通过内存通信的经编中的线程可以存储在内存中，执行`__syncwarp()`然后安全地读取经编中其他线程存储的值。
-
-笔记
 
 对于.target sm_6x或更低，掩码中的所有线程必须在收敛中执行相同的`__syncwarp()`），掩码中所有值的并联必须等于活动掩码。否则，行为是未定义的。
 
@@ -5730,173 +5733,177 @@ void __syncwarp(unsigned mask=0xffffffff);
 ### 10.8.1.紋理物件API[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-object-api-appendix "这个标题的永久链接")
 
 #### 10.8.1.1. tex1D获取（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dfetch "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex1Dfetch(cudaTextureObject_t texObj, int x);
+```
 
 使用整数纹理坐标`x``tex1Dfetch()`从一维纹理对象`texObj`指定的线性内存区域获取，仅适用于非规范化坐标，因此仅支持边框和夹紧寻址模式。它不执行任何纹理过滤。对于整数类型，它可以选择将整数提升为单精度浮点。
 
 #### 10.8.1.2. tex1D（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1d "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex1D(cudaTextureObject_t texObj, float x);
+```
 
 使用纹理坐标x从一维纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.3. tex1DLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlod "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex1DLod(cudaTextureObject_t texObj, float x, float level);
+```
 
 从一维纹理对象`texObj`指定的CUDA数组中获取，使用细节`level`的纹理坐标x。
 
 #### 10.8.1.4. tex1DGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dgrad "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex1DGrad(cudaTextureObject_t texObj, float x, float dx, float dy);
+```
 
 使用纹理坐标x从一维纹理对象`texObj`指定的CUDA数组中获取。细节水平来自X-梯度`dx`和Y-梯度`dy`。
 
 #### 10.8.1.5. tex2D（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2d "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex2D(cudaTextureObject_t texObj, float x, float y);
-
+```
 使用纹理坐标`(x,y)`从CUDA数组或二维纹理对象`texObj`指定的线性内存区域获取。
 
 #### 10.8.1.6. tex2D（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2d-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex2D(cudaTextureObject_t texObj, float x, float y, bool* isResident);
-
+```
 使用纹理坐标`(x,y)`从二维纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.7. tex2Dgather（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgather "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex2Dgather(cudaTextureObject_t texObj,
               float x, float y, int comp = 0);
-
+```
 使用纹理坐标x和`y`以及[Texture Gather](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-gather)中描述的`comp`参数，从2D纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.8. tex2Dgather（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgather-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex2Dgather(cudaTextureObject_t texObj,
             float x, float y, bool* isResident, int comp = 0);
-
+```
 使用纹理坐标x和`y`以及[Texture Gather](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-gather)中描述的`comp`参数，从2D纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.9. tex2DGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgrad "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex2DGrad(cudaTextureObject_t texObj, float x, float y,
             float2 dx, float2 dy);
-
+```
 使用纹理坐标`(x,y)`从二维纹理对象`texObj`指定的CUDA数组中获取。细节水平来自`dx`和`dy`梯度。
 
 #### 10.8.1.10. tex2DGrad（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgrad-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex2DGrad(cudaTextureObject_t texObj, float x, float y,
         float2 dx, float2 dy, bool* isResident);
-
+```
 使用纹理坐标`(x,y)`从二维纹理对象`texObj`指定的CUDA数组中获取。细节水平来自`dx`和`dy`梯度。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.11. tex2DLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlod "这个标题的永久链接")
-
+```c++
 template<class T>
 tex2DLod(cudaTextureObject_t texObj, float x, float y, float level);
-
+```
 从CUDA数组或二维纹理对象`texObj`指定的线性内存区域获取，使用细节`level`纹理坐标`(x,y)`
 
 #### 10.8.1.12. tex2DLod（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlod-for-sparse-cuda-arrays "这个标题的永久链接")
-
-        template<class T>
+```c++
+template<class T>
 tex2DLod(cudaTextureObject_t texObj, float x, float y, float level, bool* isResident);
-
+```
 从二维纹理对象`texObj`指定的CUDA数组中获取，使用细节级别的纹理坐标`(x,y)`还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.13. tex3D（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3d "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex3D(cudaTextureObject_t texObj, float x, float y, float z);
-
+```
 使用纹理坐标`(x,y,z)`从三维纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.14. tex3D（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3d-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex3D(cudaTextureObject_t texObj, float x, float y, float z, bool* isResident);
-
+```
 使用纹理坐标`(x,y,z)`从三维纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.15. tex3DLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dlod "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex3DLod(cudaTextureObject_t texObj, float x, float y, float z, float level);
-
+```
 从CUDA数组或三维纹理对象`texObj`指定的线性内存区域获取，使用细节`level`纹理坐标`(x,y,z)`
 
 #### 10.8.1.16. tex3DLod（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dlod-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex3DLod(cudaTextureObject_t texObj, float x, float y, float z, float level, bool* isResident);
-
+```
 从CUDA数组或三维纹理对象`texObj`指定的线性内存区域获取，使用细节`level`纹理坐标`(x,y,z)`还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.17. tex3DGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dgrad "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex3DGrad(cudaTextureObject_t texObj, float x, float y, float z,
             float4 dx, float4 dy);
-
+```
 从三维纹理对象`texObj`指定的CUDA数组中获取，使用纹理坐标`(x,y,z)`在X和Y梯度`dx`和`dy`衍生的细节级别上。
 
 #### 10.8.1.18. tex3DGrad（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dgrad-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex3DGrad(cudaTextureObject_t texObj, float x, float y, float z,
         float4 dx, float4 dy, bool* isResident);
-
+```
 从三维纹理对象`texObj`指定的CUDA数组中获取，使用纹理坐标`(x,y,z)`在X和Y梯度`dx`和`dy`衍生的细节级别上。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.19. tex1DLyered（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayered "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex1DLayered(cudaTextureObject_t texObj, float x, int layer);
-
+```
 如[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)中所述，使用纹理坐标x和索引层从一维纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.20. tex1DRayeredLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayeredlod "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex1DLayeredLod(cudaTextureObject_t texObj, float x, int layer, float level);
-
+```
 使用纹理坐标x和detaillevel从图层上一维分[层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组获取。
 
 #### 10.8.1.21. tex1DLayeredGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayeredgrad "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex1DLayeredGrad(cudaTextureObject_t texObj, float x, int layer,
                    float dx, float dy);
-
+```
 使用纹理坐标x以及从`dx`和`dy`梯度得出的细节水平，从图层层中一维分[层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。
 
 #### 10.8.1.22. tex2DLyered（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayered "这个标题的永久链接")
-
+```c++
 template<class T>
 T tex2DLayered(cudaTextureObject_t texObj,
                float x, float y, int layer);
-
+```
 如[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)中所述，使用纹理坐标`(x,y)`和索引层从二维纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.23. 稀疏CUDA数组的tex2DLayered()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayered-for-sparse-cuda-arrays "这个标题的永久链接")
-
+```c++
                 template<class T>
 T tex2DLayered(cudaTextureObject_t texObj,
             float x, float y, int layer, bool* isResident);
-
+```
 如[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)中所述，使用纹理坐标`(x,y)`和索引层从二维纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.24. tex2DLayeredLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredlod "这个标题的永久链接")
