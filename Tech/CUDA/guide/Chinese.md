@@ -6087,7 +6087,7 @@ void surf1DLayeredwrite(T data,
 将值数据写入由二维分层表面对象`surfObj`在字节坐标x和索引层指定的CUDA数组。
 
 #### 10.9.1.9. surf2DLayeredread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dlayeredread "这个标题的永久链接")
-
+```c++
 template<class T>
 T surf2DLayeredread(
                  cudaSurfaceObject_t surfObj,
@@ -6098,21 +6098,21 @@ void surf2DLayeredread(T data,
                          cudaSurfaceObject_t surfObj,
                          int x, int y, int layer,
                          boundaryMode = cudaBoundaryModeTrap);
-
+```
 使用字节坐标x和y以及索引层读取二维分层表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.10. surf2DLayeredwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dlayeredwrite "这个标题的永久链接")
-
+```c++
 template<class T>
 void surf2DLayeredwrite(T data,
                           cudaSurfaceObject_t surfObj,
                           int x, int y, int layer,
                           boundaryMode = cudaBoundaryModeTrap);
-
+```
 将值数据写入由一维分层表面对象`surfObj`在字节坐标x和y以及索引层指定的CUDA数组。
 
 #### 10.9.1.11. surfCubemapread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemapread "这个标题的永久链接")
-
+```c++
 template<class T>
 T surfCubemapread(
                  cudaSurfaceObject_t surfObj,
@@ -6123,21 +6123,21 @@ void surfCubemapread(T data,
                  cudaSurfaceObject_t surfObj,
                  int x, int y, int face,
                  boundaryMode = cudaBoundaryModeTrap);
-
+```
 使用字节坐标x和y以及面索引面读取立方体映射表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.12. surfCubemapwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemapwrite "这个标题的永久链接")
-
+```c++
 template<class T>
 void surfCubemapwrite(T data,
                  cudaSurfaceObject_t surfObj,
                  int x, int y, int face,
                  boundaryMode = cudaBoundaryModeTrap);
-
+```
 将值数据写入立方体对象`surfObj`在字节坐标x和y和面索引面指定的CUDA数组。
 
 #### 10.9.1.13. surfCubemapLayeredread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemaplayeredread "这个标题的永久链接")
-
+```c++
 template<class T>
 T surfCubemapLayeredread(
              cudaSurfaceObject_t surfObj,
@@ -6148,17 +6148,17 @@ void surfCubemapLayeredread(T data,
              cudaSurfaceObject_t surfObj,
              int x, int y, int layerFace,
              boundaryMode = cudaBoundaryModeTrap);
-
+```
 使用字节坐标x和y以及索引读取立方体图分层表面对象`surfObj`指定的CUDA数组`layerFace.`
 
 #### 10.9.1.14. surfCubemapLayeredwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemaplayeredwrite "这个标题的永久链接")
-
+```c++
 template<class T>
 void surfCubemapLayeredwrite(T data,
              cudaSurfaceObject_t surfObj,
              int x, int y, int layerFace,
              boundaryMode = cudaBoundaryModeTrap);
-
+```
 将值数据写入由立方体地图分层对象`surfObj`在字节坐标x和`y`和索引`layerFace`指定的CUDA数组。
 
 ## 10.10.只读数据缓存加载功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#read-only-data-cache-load-function "这个标题的永久链接")
@@ -6193,10 +6193,10 @@ void __stwt(T* address, T value);
 stores the `value` argument of type `T` to the location at address `address`, where `T` is `char`, `signed char`, `short`, `int`, `long`, `long long``unsignedchar`, `unsigned short`, `unsigned int`, `unsigned long`, `unsigned long long`, `char2`, `char4`, `short2`, `short4`, `int2`, `int4`, `longlong2``uchar2`, `uchar4`, `ushort2`, `ushort4`, `uint2`, `uint4`, `ulonglong2``float`, `float2`, `float4`, `double`, or `double2`. With the `cuda_fp16.h` header included, `T` can be `__half` or `__half2`. Similarly, with the `cuda_bf16.h` header included, `T` can also be `__nv_bfloat16` or `__nv_bfloat162`. The operation is using the corresponding cache operator (see [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#cache-operators) )
 
 ## 10.13.时间函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#time-function "这个标题的永久链接")
-
+```c++
 clock_t clock();
 long long int clock64();
-
+```
 在设备代码中执行时，返回每个时钟周期递增的每多处理器计数器的值。在内核的开头和结尾对这个计数器进行采样，取两个样本的差值，并记录每个线程的结果，为每个线程提供了设备为完全执行线程所采取的时钟周期数的度量，但不能为设备实际执行线程指令所花费的时钟周期数提供了衡量标准。前者的数量大于后者，因为线程是时间切片的。
 
 ## 10.14.原子函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomic-functions "这个标题的永久链接")
@@ -6213,7 +6213,7 @@ long long int clock64();
     
 
 在以下示例中，CPU和GPU都以原子方式更新地址地址的整数值：
-
+```c++
 __global__ void mykernel(int *addr) {
   atomicAdd_system(addr, 10);       // only available on devices with compute capability 6.x
 }
@@ -6226,7 +6226,7 @@ void foo() {
    mykernel<<<...>>>(addr);
    __sync_fetch_and_add(addr, 10);  // CPU atomic operation
 }
-
+```
 请注意，任何原子操作都可以基于`atomicCAS()`比较和交换）实现。例如，用于双精度浮点数的`atomicAdd()`在计算能力低于6.0的设备上不可用，但可以实现如下：
 ```c++
 #if __CUDA_ARCH__ < 600
