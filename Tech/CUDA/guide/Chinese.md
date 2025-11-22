@@ -9440,7 +9440,7 @@ int main()
     cudaDeviceSynchronize();
     return 0;
 }
-
+```
 将输出：
 
 Hello thread 2, f=1.2345
@@ -9452,7 +9452,7 @@ Hello thread 3, f=1.2345
 注意每个线程如何遇到`printf()`命令，因此输出行与网格中启动的线程一样多。不出所料，全局值（即`float`）在所有线程之间是共用的，局部值（即`threadIdx.x`）是每个线程不同的。
 
 以下代码示例：
-
+```c++
 #include <stdio.h>
 
 __global__ void helloCUDA(float f)
@@ -9467,7 +9467,7 @@ int main()
     cudaDeviceSynchronize();
     return 0;
 }
-
+```
 将输出：
 
 Hello thread 0, f=1.2345
@@ -9477,11 +9477,11 @@ Hello thread 0, f=1.2345
 ## 10.36.动态全局内存分配和操作[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dynamic-global-memory-allocation-and-operations "这个标题的永久链接")
 
 动态全局内存分配和操作仅由具有2.x及以上计算能力的设备支持。
-
+```c++
 __host__ __device__ void* malloc(size_t size);
 __device__ void *__nv_aligned_device_malloc(size_t size, size_t align);
 __host__ __device__  void free(void* ptr);
-
+```
 从全局内存中的固定大小堆中动态分配和释放内存。
 
 __host__ __device__ void* memcpy(void* dest, const void* src, size_t size);
@@ -9609,7 +9609,7 @@ int main()
 }
 
 #### 10.36.3.3.在内核启动之间持续分配[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocation-persisting-between-kernel-launches "这个标题的永久链接")
-
+```c++
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -9673,7 +9673,7 @@ int main()
 
     return 0;
 }
-
+```
 ## 10.37.执行配置[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration "这个标题的永久链接")
 
 对`__global__`函数的任何调用都必须指定该调用的_执行配置_。执行配置定义了用于在设备上执行功能的网格和块的维度，以及相关的流（有关流的描述，请参阅[CUDA运行时](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-c-runtime)）。
@@ -9708,7 +9708,7 @@ __global__ void __cluster_dims__(2, 1, 1) Func(float* parameter);
 `__cluster_dims__()`的默认形式指定内核将作为集群网格启动。通过不指定集群维度，用户可以在启动时自由指定维度。在启动时不指定维度将导致启动时间错误。
 
 Thread block cluster dimensions can also be specified at runtime and kernel with the cluster can be launched using `cudaLaunchKernelEx` API. The API takes a configuration argument of type `cudaLaunchConfig_t`, kernel function pointer and kernel arguments. Runtime kernel configuration is shown in the example below.
-
+```c++
 __global__ void Func(float* parameter);
 
 // Kernel invocation with runtime cluster size
@@ -9732,7 +9732,7 @@ __global__ void Func(float* parameter);
     float* parameter;
     cudaLaunchKernelEx(&config, Func, parameter);
 }
-
+```
 ## 10.38.发射边界[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#launch-bounds "这个标题的永久链接")
 
 正如在[多处理器级别](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#multiprocessor-level)中详细讨论的那样，内核使用的寄存器越少，多处理器上可能存在的线程和线程块就越多，这可以提高性能。
@@ -9836,7 +9836,7 @@ MyKernel(...)
 默认情况下，编译器以已知的行程计数展开小循环。然而，`#pragmaunroll`指令可用于控制任何给定循环的展开。它必须紧挨着循环，并且仅适用于该循环。可选的后面是一个整数常数表达式（ICE）[6](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn13)。如果没有ICE，如果它的行程计数是恒定的，循环将被完全展开。如果ICE评估为1，编译器将不会展开循环。如果ICE评估为非正整数或大于整数数据类型可表示的最大值的整数，则将忽略实用法。
 
 示例：
-
+```c++
 struct S1_t { static const int value = 4; };
 template <int X, typename T2>
 __device__ void foo(int *p1, int *p2) {
@@ -9865,7 +9865,7 @@ for (int i = 0; i < 12; ++i)
 __global__ void bar(int *p1, int *p2) {
 foo<7, S1_t>(p1, p2);
 }
-
+```
 ## 10.41.SIMD视频说明[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#simd-video-instructions "这个标题的永久链接")
 
 PTX ISA版本3.0包括SIMD（单指令，多数据）视频指令，这些指令在16位值对和8位值的四元上操作。这些在计算能力3.0的设备上可用。
@@ -9904,13 +9904,13 @@ asm("vabsdiff4.u32.u32.u32.add" " %0, %1, %2, %3;": "=r" (result):"r" (A), "r" (
 ## 10.42.诊断Pragmas[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#diagnostic-pragmas "这个标题的永久链接")
 
 以下实用程序可用于控制发出给定诊断消息时使用的错误严重程度。
-
+```c++
 #pragma nv_diag_suppress
 #pragma nv_diag_warning
 #pragma nv_diag_error
 #pragma nv_diag_default
 #pragma nv_diag_once
-
+```
 这些词的用法有以下形式：
 
 #pragma nv_diag_xxx error_number, error_number ...
@@ -10353,10 +10353,10 @@ _CG_QUALIFIER thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g)
     - `sizeof(T) <= 32` for tile sizes lower or equal 32, `sizeof(T) <= 8` for larger tiles
         
 - 在具有计算能力7.5或更低的硬件上，尺寸大于32的瓷砖需要为它们保留少量内存。这可以使用`cooperative_groups::block_tile_memory`结构模板来完成，该模板必须位于共享或全局内存中。
-    
+    ```c++
     template <unsigned int MaxBlockSize = 1024>
     struct block_tile_memory;
-    
+    ```
     `MaxBlockSize`指定当前线程块中线程的最大数量。此参数可用于最大限度地减少仅以较小线程计数启动的内核中`block_tile_memory`的共享内存使用。
     
     然后，这个`block_tile_memory`需要传递到`cooperative_groups::this_thread_block`，允许将生成的`thread_block`划分为大于32的瓷砖。接受`block_tile_memory`参数的`this_thread_block`过载是一个集体操作，必须与`thread_block`中的所有线程一起调用。
@@ -10365,7 +10365,7 @@ _CG_QUALIFIER thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g)
     
 
 **示例：**
-
+```c++
 /// The following code will create two sets of tiled groups, of size 32 and 4 respectively:
 /// The latter has the provenance encoded in the type, while the first stores it in the handle
 thread_block block = this_thread_block();
@@ -10385,7 +10385,7 @@ __global__ void kernel(...) {
 
     // ...
 }
-
+```
 ##### 11.4.2.1.1.扭曲同步代码模式[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-synchronous-code-pattern "这个标题的永久链接")
 
 开发人员可能有经编同步代码，他们之前对经编大小做出了隐性假设，并将围绕该数字进行编码。现在这需要明确指定。
@@ -10617,7 +10617,7 @@ void T::barrier_wait(T::arrival_token&&);
 `barrier_arrive`和`barrier_wait`成员函数提供了一个类似于`cuda::barrier`的同步API[（阅读更多）。](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier)合作组自动初始化组屏障，但由于这些操作的集体性质，到达和等待操作有额外的限制：组中的所有线程必须每个阶段到达并等待一次屏障。当与一个组一起调用`barrier_arrive`时，调用任何集体操作或该组的另一个障碍到达的结果是未定义的，直到`barrier_wait`调用观察到障碍阶段的完成。在其他线程调用`barrier_wait`之前，`barrier_wait`上被阻止的线程可能会从同步中释放，但只有在名为`barrier_arrive`的组中的所有线程之后。组类型T可以是任何[隐式组](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-types-implicit-cg)。这允许线程在到达后和等待同步解决之前进行独立工作，从而隐藏一些同步延迟。`barrier_arrive`返回一个`arrival_token`对象，该对象必须传递到相应的`barrier_wait`。令牌以这种方式消耗，不能用于另一个`barrier_wait`调用。
 
 **用于同步跨集群共享内存初始化的barrier_arrive和barrier_wait示例：**
-
+```c++
 #include <cooperative_groups.h>
 
 using namespace cooperative_groups;
@@ -10649,7 +10649,7 @@ __global__ void cluster_kernel() {
     process_shared_data(block, dsmem);
     cluster.sync();
 }
-
+```
 #### 11.6.1.2.`sync`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sync "这个标题的永久链接")
 
 static void T::sync();
