@@ -4,4 +4,3 @@
 
 ## 图片
 
-![](assets/Helloworld/file-20251122135901921.png)
