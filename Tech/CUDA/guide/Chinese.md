@@ -14997,7 +14997,7 @@ nvlink fatal   : merge_elf failed
     }
     ```
     示例：
-    
+    ```c++
     #include <cassert>
     
     __managed__ int counter;
@@ -15022,8 +15022,8 @@ nvlink fatal   : merge_elf failed
     foo<<<1,1>>>(V);
     cudaDeviceSynchronize();
     }
-    
-2. **在``__global__``函数完成之前可以调用析构函数**
+    ```
+1. **在``__global__``函数完成之前可以调用析构函数**
     
     内核启动与主机执行异步。因此，如果`__global__`函数参数具有非平凡的析构函数，则在`__global__`函数完成执行之前，析构函数也可能在主机代码中执行。这可能会破坏破坏者有副作用的程序。
     
@@ -15082,7 +15082,7 @@ nvlink fatal   : merge_elf failed
 `V`具有与在命名空间范围内声明的具有相同内存空间指定符的变量相同的初始化限制，例如`__device__`变量不能有“非空”构造函数（请参阅[设备内存空间指定符](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-memory-specifiers)）。
 
 函数范围静态变量的合法和非法使用示例如下所示。
-
+```c++
 struct S1_t {
   int x;
 };
@@ -15136,7 +15136,7 @@ __host__ __device__ void f2() {
                              // a host function during host compilation
                              // i.e. when __CUDA_ARCH__ is not defined
 }
-
+```
 #### 18.5.10.5.函数指针[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#function-pointers "这个标题的永久链接")
 
 主机代码中的`__global__`函数的地址不能用于设备代码（例如启动内核）。同样，设备代码中的a__global`__global__`函数的地址不能用于主机代码。
@@ -15152,7 +15152,7 @@ __host__ __device__ void f2() {
 `__global__`函数或函数模板不能在朋友声明中定义。
 
 示例：
-
+```c++
 struct S1_t {
   friend __global__
   void foo1(void);  // OK: not a definition
@@ -15167,7 +15167,7 @@ struct S1_t {
   friend __global__
   void foo4(void) { } // error: definition in friend declaration
 };
-
+```
 #### 18.5.10.8.操作符功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#operator-function "这个标题的永久链接")
 
 运算符函数不能是`__global__`函数。
@@ -15199,7 +15199,7 @@ struct S1_t {
 有关使用微软主机编译器时的其他限制，请参阅[Windows-Specific](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#windows-specific)。
 
 示例：
-
+```c++
 struct S1 { virtual __host__ __device__ void foo() { } };
 
 __managed__ S1 *ptr1, *ptr2;
@@ -15219,7 +15219,7 @@ int main(void) {
   cudaDeviceSynchronize();
   ptr2->foo();  // error: virtual function call on an object
                 //        created in device code.
-}
+}```
 
 #### 18.5.11.4.虚拟基类[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-base-classes "这个标题的永久链接")
 
@@ -15268,7 +15268,7 @@ CUDA编译器遵循IA64 ABI进行类布局，而微软主机编译器则不遵�
     
 
 示例：
-
+```c++
 template <typename T>
 __global__ void myKernel(void) { }
 
