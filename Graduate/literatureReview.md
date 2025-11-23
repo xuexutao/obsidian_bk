@@ -59,3 +59,7 @@ FlashSplat: 2D to 3D Gaussian Splatting Segmentation Solved Optimally》
 《Editing Conditional Radiance Fields》
 
 尽管该工作基于NeRF而非3DGS，但其核心贡献在于为隐式神经表示（如NeRF）设计了一种条件化的、局部的编辑机制。其创新点在于通过插入轻量级编辑模块，实现了对预训练大型模型的高效、语义化修改。在您的论文中，此工作扮演着重要的对比和衬托角色。它深刻揭示了隐式表示（NeRF），从而有力地论证了转向显式、可编辑的3DGS表示进行场景理解研究的必要性和优越性。
+
+![](assets/literatureReview/file-20251123165440612.png)
+IGGT: INSTANCE-GROUNDED GEOMETRY TRANSFORMER FOR SEMANTIC 3D RECONSTRUCTION
+作为重建与理解统一框架的代表性研究，其核心创新是提出实例接地（Instance-Grounded）机制，通过几何 Transformer 将场景实例语义与三维几何结构进行端到端绑定，同时构建 InsScene-15K 大规模实例级数据集，解决传统方法中几何重建与语义理解分离导致的一致性差、实例级建模缺失的问题。在本论文中，该文献是 “统一框架设计” 的核心参考，其 Instance-Grounded 机制为设计语义 - 几何协同模块提供直接思路，所构建的数据集可作为模型训练与评估的基准，罗列该文献是因为它首次系统性实现了实例级语义与几何重建的深度融合，为本研究明确了核心技术路线与数据支撑方案。
