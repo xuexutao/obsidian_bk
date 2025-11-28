@@ -1,5 +1,7 @@
 {
   "useMarkdownLinks": true,
   "newLinkFormat": "relative",
-  "vimMode": false
+  "vimMode": false,
+  "readableLineLength": true,
+  "showLineNumber": true
 }

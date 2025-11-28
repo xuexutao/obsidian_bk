@@ -1,4 +1,6 @@
 {
-  "cssTheme": "Things",
-  "monospaceFontFamily": "Arial"
+  "cssTheme": "",
+  "monospaceFontFamily": "",
+  "baseFontSize": 14,
+  "translucency": true
 }
