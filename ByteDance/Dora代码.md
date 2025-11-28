@@ -1,5 +1,6 @@
 看到Dora的部分代码感觉utils完全可以复用
 - https://github.com/Seed3D/Dora/blob/main/sharp_edge_sampling/to_watertight_mesh.py
+
 ```python
 import cubvh
 import torch
@@ -122,3 +123,5 @@ if __name__ == "__main__":
     args, extras = parser.parse_known_args()
     main(args.resolution, args.json_file_path, args.remesh_target_path, args.use_pcu)
 ```
+
+
