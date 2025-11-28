@@ -51,6 +51,7 @@ def remesh(grid_xyz, grid_size, mesh_path, remesh_path, resolution, use_pcu):
         grid_udf, _,_= f.unsigned_distance(grid_xyz, return_uvw=False)
         grid_udf = grid_udf.view((grid_size[0], grid_size[1], grid_size[2]))
         
+     # 使用可谓分
     diffdmc = DiffDMC(dtype=torch.float32).cuda()
     vertices, faces = diffdmc(grid_udf, isovalue=eps, normalize= False)
     bbox_min = np.array((-1.05, -1.05, -1.05))
