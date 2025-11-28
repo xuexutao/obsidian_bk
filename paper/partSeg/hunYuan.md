@@ -16,7 +16,9 @@ https://hjfy.top/arxiv/2509.06784
 
 **1、特征提取器：**
 
-最近的点云编码器在各种点云任务上取得了优异的结果，尤其是自监督预训练的 Point Transformer V3 \cite{Wu2025}，即 Sonata \cite{Wu2024}。我们随后采用带有预训练权重的 \textbf{Sonata} 作为我们的特征提取器 $\mathcal{E}$，以从点云中提取多尺度特征。然后我们将这些多尺度特征进行聚合，并使用一个权重共享的 MLP $\mathcal{F}_e$ 来获得逐点特征 $f$，如图\ref{fig:your_fig_label}所示，$f_{\rm p} = \mathcal{F}_e\left(\mathcal{E}(\mathbf{P},N)_1, \mathcal{E}(\mathbf{P},N)_2, \dots, \mathcal{E}(\mathbf{P},N)_n\right)$，其中下标表示不同尺度下的特征。这些逐点特征只需预测一次，即可用于通过不同的点提示预测部件掩码。
+最近的点云编码器在各种点云任务上取得了优异的结果，尤其是自监督预训练的 Point Transformer V3 ，即 Sonata 。我们随后采用**带有预训练权重的 Sonata 作为特征提取器 $\mathcal{E}$，** 以从点云中提取多尺度特征。然后将这些多尺度特征进行聚合，并使用一个权重共享的 MLP $\mathcal{F}_e$ 来获得逐点特征 $f$，
+$$f_{\rm p} = \mathcal{F}_e\left(\mathcal{E}(\mathbf{P},N)_1, \mathcal{E}(\mathbf{P},N)_2, \dots, \mathcal{E}(\mathbf{P},N)_n\right)$$
+其中下标表示不同尺度下的特征。这些逐点特征只需预测一次，即可用于通过不同的点提示预测部件掩码。
 
 **2、两阶段多头分割器：**
 
