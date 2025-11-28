@@ -1,4 +1,6 @@
-
+- Cli
+这个主要是做一些鉴权，github用gh鉴权：gh
+https://github.com/cli/cli/blob/trunk/docs/install_macos.md#homebrew
 
 
 - pointCloudUtils
