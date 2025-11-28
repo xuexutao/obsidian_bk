@@ -14,3 +14,21 @@ https://github.com/fwilliams/point-cloud-utils
 这个是纯CPU的，相对的还有 `cubvh` 是 GPU-base 的，但是在处理 large number of faces 时容易出现 GPU memory leakage issue，导致速度变慢，一般还是采用这个好
 
 
+
+
+
+
+
+
+
+
+# bash Cli
+
+```bash
+
+find ./temp -type f | wc -l  # 查找./temp路径下有多少文件数
+
+
+
+
+```
