@@ -26,7 +26,7 @@ https://github.com/fwilliams/point-cloud-utils
 
 ```bash
 
-find ./temp -type f | wc -l  # 查找./temp路径下有多少文件数
+find ./temp -type f | wc -l  # 查找./temp路径下有多少文件数 file  不包括文件夹
 
 
 
