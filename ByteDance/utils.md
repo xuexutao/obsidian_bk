@@ -30,6 +30,4 @@ https://github.com/nv-tlabs/NKSR
 find ./temp -type f | wc -l  # 查找./temp路径下有多少文件数 file  不包括文件夹
 
 
-
-
 ```
