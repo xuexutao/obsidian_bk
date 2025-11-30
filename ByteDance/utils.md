@@ -19,6 +19,9 @@ https://github.com/fwilliams/point-cloud-utils
 - NKSR 网格重建
 https://github.com/nv-tlabs/NKSR
 
+- 3D AffordanceNet
+https://andlollipopde.github.io/3D-AffordanceNet/#/introduction
+
 
 
 
