@@ -22,7 +22,7 @@ https://github.com/nv-tlabs/NKSR
 - 3D AffordanceNet
 https://andlollipopde.github.io/3D-AffordanceNet/#/introduction
 
-
+`3D AffordanceNet` 为 **_22949_** 个形状、**_23_** 个形状类别提供定义清晰的视觉曝光率评分图注释，每个类别最多定义 **_5_** 种适用性类型。从赋能类别的角度来看，`3D AfffodanceNet` 包含来自 **_18_** 个赋能类别的 **_56307_** 条赋性注释。`3D AffordanceNet` 数据集和注释为**多类**多**标签** ，意味着这些标签不互斥，每个点都可以对多种赋性标记为正。`3D AffordanceNet` 中的所有形状均来自 PartNet。标签 1 和标签 2 显示了可供性数据集的统计数据。`3D AffordanceNet` 数据集根据形状语义类别分为训练集、验证集和测试集，比例分别为 **_70%_**、**_10%_** 和 20%。
 
 
 
