@@ -72,11 +72,10 @@ IGGT: INSTANCE-GROUNDED GEOMETRY TRANSFORMER FOR SEMANTIC 3D RECONSTRUCTION
 
 
 
-
+![](assets/literatureReview/file-20251202232847559.png)
 pixelSplat（CVPR 2024 Oral, Best Paper Runner-Up）是 feed-forward 3D Gaussian Splatting 领域的开创性工作之一，其核心贡献在于首次将 3D 高斯表示成功嵌入端到端可微的深度学习框架中。传统基于 per-scene optimization 的 3DGS 方法依赖不可微的启发式策略（如 pruning 与 division）来动态调整高斯基元数量，这在泛化建模中不可行。为克服局部极小值问题，pixelSplat 提出通过编码器预测每个像素对应高斯位置的概率分布，并借助重参数化技巧实现可微采样，从而在训练过程中隐式地生成或删除高斯，保持梯度流畅通。该方法仅需一对图像输入，利用对极 Transformer 学习跨视图特征，展现出强大的可扩展性。然而，其几何重建质量受限于从图像特征到深度分布映射的固有模糊性，常在弱纹理或遮挡区域产生噪声与几何伪影，限制了其在高精度场景中的应用。
 
-TriplaneGaussian（CVPR 2024）作为首个将 triplane 隐式表示与显式 3D 高斯融合的单视图重建方法，标志着 feed-forward 3DGS 向通用对象重建迈出重要一步。该方法利用 Transformer 网络从单张图像中解码 triplane 特征，并进一步生成 3D 高斯参数。通过 triplane 编码三维结构先验，TriplaneGaussian 实现了对一般物体的快速泛化重建。尽管其技术细节披露有限，但其架构设计为后续研究提供了关键启发：即如何在保持 3DGS 渲染效率的同时，引入更强的全局几何先验，以缓解单视图重建的不适定性。
-
+![](assets/literatureReview/file-20251202232948883.png)
 Splatter Image（CVPR 2024）则以极简设计实现了超高效的单视图重建。其核心思想是将输入图像通过一个 2D U-Net 映射为“Splatter Image”——一幅每像素对应一个 3D 高斯参数的图像。这种 pixel-aligned 表示将 3D 重建问题转化为 image-to-image 翻译任务，避免了复杂的 3D 算子，大幅提升了计算效率。尤为引人注目的是，即便仅观测单侧视角，网络仍能借助训练先验隐式编码物体背面信息：通过调整深度与 3D 偏移量，将部分高斯分配至不可见区域，从而实现近似 360° 重建。然而，该方法主要适用于对象级重建，面对大规模或复杂场景时，单视图固有的几何模糊性使其泛化能力显著受限。
 
 AGG（TMLR 2024）进一步探索了生成式建模范式在 3DGS 中的潜力，提出一种级联式摊销生成架构。该方法包含一个粗生成器预测稀疏高斯混合，以及一个超分辨率模块生成密集高斯表示。通过分阶段建模，AGG 在保持端到端可训练性的同时，实现了从粗到细的细节恢复。尽管未开源，其设计思路为平衡重建效率与细节保真度提供了新视角，也反映了生成模型从 NeRF 向显式表示迁移的趋势。
