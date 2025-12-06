@@ -22,7 +22,20 @@ DGCNN 则是从全局特征提取向局部结构建模演进的代表性工作�
 #### NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis
 https://hjfy.top/arxiv/2003.08934
 ![](assets/literatureReview/file-20251122180456085.png)
-2020年，Mildenhall 等提出的NeRF 彻底改变了3D重建领域的方式。它摒弃了传统的显式几何表示，转而采用一个隐式的、连续的神经辐射场来编码整个场景。这个场由一个全连接神经网络定义，输入是空间坐标和视角方向，输出是该点的颜色和体积密度。通过渲染方程，可以从任意新视角合成逼真的图像。其主要创新在于“隐式神经表示”和“可微分渲染”，实现了前所未有的视图合成质量。NeRF 的成功引发了研究热潮，催生了无数变体。然而，其致命缺陷是计算成本极高，训练和渲染速度慢，且内部表示是“黑盒”，缺乏可解释性和结构化语义，难以直接用于下游任务。NeRF 代表了从“显式几何”向“隐式函数”的范式转移，是当前3D重建领域最具影响力的突破。
+在三维场景新视角合成的研究中，NeRF（神经辐射场）作为一种通过神经网络隐式表达 3D 场景的技术，其核心是提出 5D 神经辐射场来表征复杂场景：以位置\((x,y,z)\)与相机方向\((\theta,\phi)\)构成的 5D 信息为输入，经神经网络映射输出 RGB 颜色与体密度（记为\(F_\theta = (x,d) \to (\boldsymbol{c}, \sigma)\)，其中体密度\(\sigma\)仅与位置相关、颜色\(\boldsymbol{c}\)关联位置与方向），并通过沿相机射线随机采样 5D 点实现数据输入。为实现可微的渲染过程，NeRF 基于体渲染（volume rendering）技术，结合吸收、放射等光学效应，将最终颜色定义为
+$$
+C(\mathbf{r}) = \int_{t_{\text{near}}}^{t_{\text{far}}} T(t)\sigma(\mathbf{r}(t))\mathbf{c}(\mathbf{r}(t), \mathbf{d}) dt
+$$
+其中透射率$T(t) = \exp\left( -\int_{t_{\text{near}}}^{t} \sigma(\mathbf{r}(s)) ds \right)$。
+针对 MLP 对高频信息拟合不足的问题，NeRF 引入位置编码（Positional encoding），通过高频函数
+$$
+\gamma(p) = \left( \sin(2^0 \pi p), \cos(2^0 \pi p), ..., \sin(2^{L-1} \pi p), \cos(2^{L-1} \pi p) \right)
+$$
+将输入映射到高维空间（坐标取$L=10$、视角方向取$L=4$，输入维度从 5 扩展至 76）；同时采用分层体采样（Hierarchical volume sampling）提升效率：先采样 64 个点得到概率密度，再分区域采样 128 个点，合并后同时优化粗、细网络，损失函数定义为
+$$
+\mathcal{L} = \sum_{\mathbf{r} \in \mathcal{R}} \left\| \hat{C}_c(\mathbf{r}) - C(\mathbf{r}) \right\|^2 + \left\| \hat{C}_f(\mathbf{r}) - C(\mathbf{r}) \right\|^2
+$$
+最终实现高质量的场景新视角合成。
 
 Fourier features let networks learn high frequency functions in low dimensional domains这篇论文并非独立的重建方法，而是对NeRF性能提升至关重要的技术贡献。它发现标准的MLP网络难以学习高频细节（如锐利边缘、精细纹理），这是NeRF早期版本渲染质量不佳的原因之一。为此，作者提出了一种“位置编码”（Positional Encoding）技术，将输入坐标映射到一个高维的傅里叶特征空间，从而使网络更容易学习高频函数。其主要创新在于“高频编码技巧”，它解决了“如何让神经网络有效学习复杂、高频的视觉信号”的技术瓶颈。这一技术被迅速采纳为NeRF的标准组件，极大地提升了其渲染质量和收敛速度。虽然它本身不解决重建或理解问题，但它是使NeRF从理论走向实用的关键一环，体现了底层技术突破对整个领域发展的巨大推动力。
 
