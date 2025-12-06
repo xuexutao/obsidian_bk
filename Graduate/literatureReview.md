@@ -8,12 +8,19 @@
 ![](assets/literatureReview/file-20251122180448857.png)
 KinectFusion 是实时稠密重建领域的开创性工作。它利用Kinect深度相机，实现了在普通PC上对动态场景进行实时（~30fps）的、亚厘米级精度的稠密表面重建和相机跟踪。其核心创新在于引入了GPU加速的迭代最近点（ICP）算法和TSDF（Truncated Signed Distance Function）体积融合技术，使得在短时间内积累并融合大量深度帧成为可能。其重建结果是一个静态的体积网格，无法处理大范围运动或长时间的场景变化，也完全不具备语义理解能力。它代表了从离线重建向在线、实时重建的重要跨越，但其输出仍停留在纯几何层面，未能满足更高层次的智能需求。
 
+### 点云处理
 #### PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation
 ![](assets/literatureReview/file-20251122212136788.png)
 PointNet 是点云深度学习领域的开山之作。它首次证明了可以直接在无序的点云数据上应用深度神经网络，而无需将其转换为体素或网格等结构化表示。其核心创新在于设计了一个简单的网络架构，包含一个共享的MLP（多层感知机）用于提取每个点的特征，以及一个对称函数（最大池化）用于聚合所有点的信息，从而保证了网络对输入点云顺序的不变性，它的主要缺点是忽略了点与点之间的局部结构信息，导致在处理复杂形状时性能有限。
+![pointnet Architecture](assets/literatureReview/file-20251206204957491.png)
 
+#### Dynamic Graph CNN for Learning on Point Clouds
+![](assets/literatureReview/file-20251206205156824.png)
 DGCNN 则是从全局特征提取向局部结构建模演进的代表性工作，它是在 PointNet 的基础上进行了重要改进。通过引入动态图（Dynamic Graph）的概念，使模型重点理解点云中的局部几何结构。在每一层网络中，它会根据当前层的特征重新计算点与点之间的K近邻关系，构建一个动态的图结构，然后在这个图上应用图卷积操作来捕捉局部上下文信息。它使网络能够适应不同层次的语义信息，从而更好地建模点云的局部结构。DGCNN 解决了 PointNet 忽略局部结构的问题，在点云分割和分类任务上取得了显著优于 PointNet 的性能。然而，它的计算复杂度较高，且图的构建依赖于欧氏距离，对于非均匀采样的点云可能不够鲁棒。
 
+
+#### NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis
+https://hjfy.top/arxiv/2003.08934
 ![](assets/literatureReview/file-20251122180456085.png)
 2020年，Mildenhall 等提出的NeRF 彻底改变了3D重建领域的方式。它摒弃了传统的显式几何表示，转而采用一个隐式的、连续的神经辐射场来编码整个场景。这个场由一个全连接神经网络定义，输入是空间坐标和视角方向，输出是该点的颜色和体积密度。通过渲染方程，可以从任意新视角合成逼真的图像。其主要创新在于“隐式神经表示”和“可微分渲染”，实现了前所未有的视图合成质量。NeRF 的成功引发了研究热潮，催生了无数变体。然而，其致命缺陷是计算成本极高，训练和渲染速度慢，且内部表示是“黑盒”，缺乏可解释性和结构化语义，难以直接用于下游任务。NeRF 代表了从“显式几何”向“隐式函数”的范式转移，是当前3D重建领域最具影响力的突破。
 
