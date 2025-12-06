@@ -126,7 +126,7 @@ Editing Conditional Radiance Fields
 
 
 #### VGGT: Visual Geometry Grounded Transformer
-VGGT通过视觉特征引导几何 Transformer 的注意力机制，实现视觉语义与几何结构的精准对齐，解决传统 Transformer 在 3D 重建中缺乏视觉语义指导、几何建模与图像内容脱节的问题。
+VGGT 针对传统 3D 重建依赖迭代优化（如束调整 BA）、多任务需专用模型的核心问题，提出基于大型前馈 Transformer 的统一框架，核心创新集中在算法设计层面，通过最小 3D 归纳偏置的网络架构、多任务联合训练与高效推理策略，实现从单张 / 多张输入视图直接预测相机参数、深度图、点图、3D 点轨迹等全量 3D 属性，无需复杂几何后处理即可达到 SOTA 性能。
 ![](assets/literatureReview/file-20251207005228163.png)
 
 
