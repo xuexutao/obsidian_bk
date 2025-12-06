@@ -3,5 +3,12 @@
   "newLinkFormat": "relative",
   "vimMode": false,
   "readableLineLength": true,
-  "showLineNumber": true
+  "showLineNumber": true,
+  "pdfExportSettings": {
+    "includeName": true,
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  }
 }
