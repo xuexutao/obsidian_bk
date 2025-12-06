@@ -97,11 +97,13 @@ GS-NeRF: Bridging Gaussian Splatting and Neural Radiance Fields
 
 将语义分割能力引入3DGS是一个新兴的研究热点。作为开创性探索，SemGaussian (Chen et al., 2023) 首次在3DGS框架内实现了开放词汇的语义查询，证明了其承载语义信息的潜力。紧随其后，3D Segment Anything (Wu et al., 2024) 巧妙地将强大的2D基础模型SAM与3DGS相结合，通过多视角2D分割结果的融合，实现了零样本的3D场景分割，为该方向提供了极具价值的技术范式。这些工作表明，3DGS的显式点云式表示，使其天然适合作为3D分割的载体，可以借鉴和改造点云分割领域成熟的模型架构（如PointNet++, Qi et al., 2017）进行处理。
 
-《Rethinking End-to-End 2D to 3D Scene Segmentation in Gaussian Splatting》
-该工作首次提出了一种端到端的联合优化框架，将3D高斯的几何参数（位置、协方差）与语义分割标签进行协同学习。其核心创新在于引入了“语义引导的几何正则化”机制，使语义信息能反向约束几何形状的优化，从而在根本上解决了重建与分割任务割裂的问题。对于您的研究，此工作提供了最直接的理论框架和方法论启示，证明了在3DGS内部实现几何-语义深度融合的可行性，是您构建一体化模型的重要基石和对标基准。
+#### Rethinking End-to-End 2D to 3D Scene Segmentation in Gaussian Splatting
+Unified-Lift 首次提出了一种端到端的联合优化框架，将3D高斯的几何参数（位置、协方差）与语义分割标签进行协同学习。其核心创新在于引入了语义引导的几何正则化机制，使语义信息能反向约束几何形状的优化，从而在根本上解决了重建与分割任务割裂的问题。
+![](assets/literatureReview/file-20251206215818148.png)
+从架构中可以看到，它首先为 3DGS 中的每个高斯点增加高斯级特征，并利用对比损失优化渲染后的特征。为了让 3D 场景具备目标级理解能力，通过引入了一个额外的目标级码本，并建立目标级特征与高斯级特征之间的关联。此外，通过关联学习模块（association learning module）和噪声标签过滤模块（noisy label filtering module），以稳健且精准地学习该码本。
+
 
 《Gaussian Grouping: Segment and Edit Anything in 3D Scenes》
-
 该论文开创性地利用自监督2D视觉特征（如DINO），通过在3D高斯点集上进行聚类分组，实现了无需任何3D标注的、交互式的“零样本”3D分割与编辑。其主要创新在于将3DGS的显式表示优势与强大的2D基础模型相结合，提供了一种极其灵活、用户友好的场景理解与操作范式。对您的研究而言，此工作展示了3DGS在交互性和易用性方面的巨大潜力，并为您提供了一条可行的技术路径——即利用2D预训练模型来驱动3D语义理解，尤其适用于标注数据稀缺的场景。
 
 《Segment Any 3D Gaussians》 (Wu et al., arXiv:2401.02093)
