@@ -114,17 +114,22 @@ SAGA系统性地将 SAM 的2D基础模型迁移到3DGS领域，并设计了一�
 ![](assets/literatureReview/file-20251206235007973.png)
 SAGA 为每个 3D 高斯点附加一个高斯亲和特征（Gaussian affinity feature），并通过软尺度门控（soft scale gate）调节不同亲和特征通道的权重，以应对多粒度歧义问题。通过尺度感知对比学习（scale-aware contrastive learning），将 SAM 的分割能力蒸馏到 3D-GS 模型中附着于 3D 高斯点的亲和特征上。
 
-FlashSplat: 2D to 3D Gaussian Splatting Segmentation Solved Optimally》
 
+
+
+
+FlashSplat: 2D to 3D Gaussian Splatting Segmentation Solved Optimally
 该工作从最优传输（Optimal Transport）的理论高度，为2D到3D分割的提升问题提供了数学上最优且端到端可微的解决方案。其主要创新在于将多视角语义一致性建模为一个全局优化问题，显著提升了3D分割结果的几何一致性与鲁棒性。对您的研究，此工作提供了处理多视角信息融合的先进理论工具。当您需要确保分割结果在复杂视角下依然保持稳定和准确时，FlashSplat的优化框架可作为您模型后端或损失函数设计的重要借鉴。
 
-《Editing Conditional Radiance Fields》
-
+Editing Conditional Radiance Fields
 尽管该工作基于NeRF而非3DGS，但其核心贡献在于为隐式神经表示（如NeRF）设计了一种条件化的、局部的编辑机制。其创新点在于通过插入轻量级编辑模块，实现了对预训练大型模型的高效、语义化修改。在您的论文中，此工作扮演着重要的对比和衬托角色。它深刻揭示了隐式表示（NeRF），从而有力地论证了转向显式、可编辑的3DGS表示进行场景理解研究的必要性和优越性。
 
 
+#### VGGT: Visual Geometry Grounded Transformer
 VGGT通过视觉特征引导几何 Transformer 的注意力机制，实现视觉语义与几何结构的精准对齐，解决传统 Transformer 在 3D 重建中缺乏视觉语义指导、几何建模与图像内容脱节的问题。在本论文中，其视觉 - 几何注意力对齐机制为融合模型的跨模态融合模块提供直接参考，罗列该文献是因为本研究的核心是语义与几何的协同建模，该文献的注意力对齐思路可有效解决跨模态特征融合不充分的问题。
 
+
+#### IGGT
 ![](assets/literatureReview/file-20251123165440612.png)
 IGGT: INSTANCE-GROUNDED GEOMETRY TRANSFORMER FOR SEMANTIC 3D RECONSTRUCTION
 作为重建与理解统一框架的代表性研究，其核心创新是提出实例接地（Instance-Grounded）机制，通过几何 Transformer 将场景实例语义与三维几何结构进行端到端绑定，同时构建 InsScene-15K 大规模实例级数据集，解决传统方法中几何重建与语义理解分离导致的一致性差、实例级建模缺失的问题。在本论文中，该文献是 “统一框架设计” 的核心参考，其 Instance-Grounded 机制为设计语义 - 几何协同模块提供直接思路，所构建的数据集可作为模型训练与评估的基准，罗列该文献是因为它首次系统性实现了实例级语义与几何重建的深度融合，为本研究明确了核心技术路线与数据支撑方案。
