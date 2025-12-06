@@ -22,7 +22,7 @@ DGCNN 则是从全局特征提取向局部结构建模演进的代表性工作�
 #### NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis
 https://hjfy.top/arxiv/2003.08934
 ![](assets/literatureReview/file-20251122180456085.png)
-在三维场景新视角合成的研究中，NeRF（神经辐射场）作为一种通过神经网络隐式表达 3D 场景的技术，其核心是提出 5D 神经辐射场来表征复杂场景：以位置\((x,y,z)\)与相机方向\((\theta,\phi)\)构成的 5D 信息为输入，经神经网络映射输出 RGB 颜色与体密度（记为\(F_\theta = (x,d) \to (\boldsymbol{c}, \sigma)\)，其中体密度\(\sigma\)仅与位置相关、颜色\(\boldsymbol{c}\)关联位置与方向），并通过沿相机射线随机采样 5D 点实现数据输入。为实现可微的渲染过程，NeRF 基于体渲染（volume rendering）技术，结合吸收、放射等光学效应，将最终颜色定义为
+在三维场景新视角合成的研究中，NeRF（神经辐射场）作为一种通过神经网络隐式表达 3D 场景的技术，其核心是提出 5D 神经辐射场来表征复杂场景：以位置$(x,y,z)$与相机方向$(\theta,\phi)$构成的 5D 信息为输入，经神经网络映射输出 RGB 颜色与体密度（记为$F_\theta = (x,d) \to (\boldsymbol{c}, \sigma)$，其中体密度$\sigma$仅与位置相关、颜色$\boldsymbol{c}$关联位置与方向），并通过沿相机射线随机采样 5D 点实现数据输入。为实现可微的渲染过程，NeRF 基于体渲染（volume rendering）技术，结合吸收、放射等光学效应，将最终颜色定义为
 $$
 C(\mathbf{r}) = \int_{t_{\text{near}}}^{t_{\text{far}}} T(t)\sigma(\mathbf{r}(t))\mathbf{c}(\mathbf{r}(t), \mathbf{d}) dt
 $$
