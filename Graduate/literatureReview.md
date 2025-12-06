@@ -110,8 +110,8 @@ Unified-Lift 首次提出了一种端到端的联合优化框架，将3D高斯�
 
 
 《Segment Any 3D Gaussians》 (Wu et al., arXiv:2401.02093)
-
-该研究系统性地将Segment Anything Model (SAM) 这一强大的2D基础模型迁移到3DGS领域。其核心创新在于设计了一套鲁棒的多视角2D分割结果融合与优化流程，将2D掩码“提升”为一致的3D语义标签。在您的论文中，此工作是连接2D与3D世界的关键桥梁。它提供了一种务实、高效的方案，使您能够利用海量、高质量的2D分割数据来监督3DGS的语义学习，是您解决3D语义数据瓶颈问题的核心技术参考。
+![](assets/literatureReview/file-20251206235007973.png)
+SAGA系统性地将 SAM 的2D基础模型迁移到3DGS领域，并设计了一套鲁棒的多视角2D分割结果融合与优化流程，将2D掩码“提升”为一致的3D语义标签。在您的论文中，此工作是连接2D与3D世界的关键桥梁。它提供了一种务实、高效的方案，使您能够利用海量、高质量的2D分割数据来监督3DGS的语义学习，是您解决3D语义数据瓶颈问题的核心技术参考。
 
 FlashSplat: 2D to 3D Gaussian Splatting Segmentation Solved Optimally》
 
