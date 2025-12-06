@@ -109,9 +109,10 @@ Unified-Lift 首次提出了一种端到端的联合优化框架，将3D高斯�
 采用 SAM以 全量模式（everything mode）为每个视图独立自动生成掩码，采用一种通用时间传播模型对掩码标签进行关联，实现训练视图间掩码 ID 的一致性，生成多视图一致的分割结果；（c）基于预处理后的训练输入，通过可微渲染联合学习 3D 高斯的所有属性，包括其分组标识编码（group Identity Encoding）。该编码由两部分损失监督：一是利用多视图一致分割结果的 2D 标识损失（2D Identity Loss），二是 3D 正则化损失。我们在输入视图中通过颜色区分不同帧中的目标 ID。为简洁起见，本文省略了其他高斯参数的渲染过程及密度控制部分（相关内容继承自文献 [15]）。
 
 
-《Segment Any 3D Gaussians》 (Wu et al., arXiv:2401.02093)
-![](assets/literatureReview/file-20251206235007973.png)
+#### Segment Any 3D Gaussians (Wu et al., arXiv:2401.02093)
 SAGA系统性地将 SAM 的2D基础模型迁移到3DGS领域，并设计了一套鲁棒的多视角2D分割结果融合与优化流程，将2D掩码“提升”为一致的3D语义标签。在您的论文中，此工作是连接2D与3D世界的关键桥梁。它提供了一种务实、高效的方案，使您能够利用海量、高质量的2D分割数据来监督3DGS的语义学习，是您解决3D语义数据瓶颈问题的核心技术参考。
+![](assets/literatureReview/file-20251206235007973.png)
+SAGA 为每个 3D 高斯点附加一个高斯亲和特征（Gaussian affinity feature），并通过软尺度门控（soft scale gate）调节不同亲和特征通道的权重，以应对多粒度歧义问题。通过尺度感知对比学习（scale-aware contrastive learning），将 SAM 的分割能力蒸馏到 3D-GS 模型中附着于 3D 高斯点的亲和特征上。
 
 FlashSplat: 2D to 3D Gaussian Splatting Segmentation Solved Optimally》
 
