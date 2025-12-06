@@ -7,6 +7,8 @@
 #### 2.KinectFusion: Real-Time Dense Surface Mapping and Tracking
 ![](assets/literatureReview/file-20251122180448857.png)
 KinectFusion 是实时稠密重建领域的开创性工作。它利用Kinect深度相机，实现了在普通PC上对动态场景进行实时（~30fps）的、亚厘米级精度的稠密表面重建和相机跟踪。其核心创新在于引入了GPU加速的迭代最近点（ICP）算法和TSDF（Truncated Signed Distance Function）体积融合技术，使得在短时间内积累并融合大量深度帧成为可能。其重建结果是一个静态的体积网格，无法处理大范围运动或长时间的场景变化，也完全不具备语义理解能力。它代表了从离线重建向在线、实时重建的重要跨越，但其输出仍停留在纯几何层面，未能满足更高层次的智能需求。
+
+#### PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation
 ![](assets/literatureReview/file-20251122212136788.png)
 PointNet 是点云深度学习领域的开山之作。它首次证明了可以直接在无序的点云数据上应用深度神经网络，而无需将其转换为体素或网格等结构化表示。其核心创新在于设计了一个简单的网络架构，包含一个共享的MLP（多层感知机）用于提取每个点的特征，以及一个对称函数（最大池化）用于聚合所有点的信息，从而保证了网络对输入点云顺序的不变性，它的主要缺点是忽略了点与点之间的局部结构信息，导致在处理复杂形状时性能有限。
 
