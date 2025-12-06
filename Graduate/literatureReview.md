@@ -57,13 +57,16 @@ $$
 
 
 
-Multiview Neural Surface Reconstruction by Disentangling Geometry and Appearance
+#### Multiview Neural Surface Reconstruction by Disentangling Geometry and Appearance
+![](assets/literatureReview/file-20251206213705566.png)
 这篇论文试图解决NeRF的一个根本性问题：其隐式表示将几何和外观耦合在一起，导致难以分离和操控。作者提出了一种“解耦”的方法，将场景分解为一个独立的几何表面（由一个隐式函数定义）和一个独立的外观场（定义表面的颜色和材质）。通过引入额外的约束（如法向一致性），网络可以学习到更合理的几何和外观。其主要创新在于“几何-外观解耦”，它解决了“如何从NeRF中分离出纯净的几何结构”的难题，为后续的语义注入和几何编辑提供了便利。虽然其解耦效果并非完美，但它开辟了从“整体建模”向“分治建模”的新思路，是迈向可解释、可操作的3D表示的重要一步。
 
+#### In-Place Scene Labelling and Understanding with Implicit Scene Representation
+![](assets/literatureReview/file-20251206213427760.png)
 Semantic NeRF 是将语义信息引入NeRF框架的早期代表性工作。它在标准NeRF的基础上增加了一个分支，用于预测每个采样点的语义标签（如“墙壁”、“椅子”）。通过共享底层特征，实现了重建和语义预测的联合优化。然而，其局限性在于语义预测是像素级的，缺乏实例区分能力，且语义信息并未反向指导几何重建过程，两者仍是松耦合的。它标志着NeRF从“纯视觉”向“语义视觉”的初步迈进，但距离真正的“理解”还有很大差距。
 
 
-
+#### Instance Neural Radiance Field
 InstanceNeRF 在 Semantic NeRF 的基础上更进一步，实现了对场景中不同物体实例的区分。它在NeRF中增加了实例分割分支，为每个采样点预测一个实例ID。可以在NeRF的场景中识别和区分不同的物体实例，是迈向高级场景理解的关键一步。通过实例ID，可以对场景中的物体进行单独的操作或查询。然而，其局限性在于实例分割的精度受制于NeRF本身的采样密度，且实例信息同样未用于指导几何重建，两者依然是平行的。它代表了从“类别级语义”向“实例级语义”的演进，为构建更精细的场景模型奠定了基础。
 
 ![](assets/literatureReview/file-20251122180505539.png)
