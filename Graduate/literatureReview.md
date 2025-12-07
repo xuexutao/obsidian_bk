@@ -184,11 +184,12 @@ AGG（TMLR 2024）进一步探索了生成式建模范式在 3DGS 中的潜力�
 ![](assets/literatureReview/file-20251202233222484.png)
 Gamba（TPAMI 2025）则另辟蹊径，首次将状态空间模型 Mamba 引入 3D 重建领域。与主流 Transformer 架构不同，Gamba 利用 Mamba 的长程建模能力与线性计算复杂度优势，直接从单视图图像预测 3D 高斯参数，仅通过多视角渲染损失进行监督。该工作不仅验证了非注意力架构在 3D 感知任务中的可行性，也拓展了 feed-forward 3DGS 的模型多样性，为高效、可扩展的 3D 生成提供了新路径。
 
-#### MVSplat
+#### MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images
+
 MVSplat（ECCV 2024 Oral）成为多视图 feed-forward 3DGS 的代表性突破。该方法通过多视图 transformer 编码跨视角几何一致性，并联合预测深度与其他高斯属性。其核心思想是将高斯中心定位问题重新表述为基于特征匹配识别表面点的任务，显著降低了学习难度。MVSplat 以轻量模型实现高效重建，但其性能仍受制于传统多视图立体视觉的固有缺陷，如遮挡与无纹理区域的匹配失败，这促使后续工作探索与单目深度先验的融合。
 ![](assets/literatureReview/file-20251207105743309.png)
 对于给定多个视图图像作为输入，MVSplat首先使用CNN 和 Transformer提取多视图图像特征得到跨视角感知的Transformer特征 $\{F^i\}_{i=1}^K, F^i \in R^{\frac{H}{4} \times \frac{W}{4} \times C}$ 。然后，使用plane sweeping构建对不同深度候选值建模跨视角特征匹配信息。
-为了解决无纹理区域的cost volume 可能存在歧义的问题，将 Transformer 特征 $F^i$ 和 cost volume 被连接在一起，作为一个轻量 2D U-Net 的输入，用于cost volume细化和预测每个视图的深度图。每个视图的深度图未投影到3D，并使用简单的确定性联合操作作为3D高斯中心进行组合。不透明度、协方差和颜色高斯参数与深度图联合预测。最后，通过光栅化操作从预测的3D高斯图像中渲染出新的视图
+为了解决无纹理区域的cost volume 可能存在歧义的问题，将 Transformer 特征 $F^i$ 和 cost volume $C^i$ 被连接在一起，作为一个轻量 2D U-Net 的输入，用于cost volume细化和预测每个视图的深度图。每个视图的深度图未投影到3D，并使用简单的确定性联合操作作为3D高斯中心进行组合。不透明度、协方差和颜色高斯参数与深度图联合预测。最后，通过光栅化操作从预测的3D高斯图像中渲染出新的视图
 
 GRM（ECCV 2024）则代表了大模型在 3D 重建中的前沿探索。该方法构建了一个纯 Transformer 架构的大型高斯重建模型，将输入像素直接映射为 pixel-aligned 3D 高斯，摒弃了 triplane 等中间表示。其创新之处在于设计了一种基于窗口化自注意力的上采样器，能高效传递非局部视觉线索，从而生成密集高斯集。尽管尚未开源，GRM 展示了大模型在 3D 重建与生成中的广阔前景，也预示着“3D 大模型”时代的来临。
 
