@@ -12,8 +12,8 @@ Particulate 在一次前向传播中即可预测完整的可动属性，包括�
 		- 其中每一个 $M_*$ 都表示一个每个部件相对于其父部件 刚性运动 的一个方面
 		- (下面几个的下标，我把缩写展开，方便理解是什么意思)
 		- $M_{type}$ ：表明父子部件之间运动的类型：固定fixed、线性滑动pri、单一轴旋转rev、两者都有both
-		- $M_{Prismatic Directions}$ ：表明部件P的移动方向
-		- $M_{Revolute Axes}$ ：表明每个部件转动运动的旋转轴
+		- $M_{Prismatic Directions}$ ：表明部件P的移动方向  $\to S^2 \to$  用一个三维的单位向量表示
+		- $M_{Revolute Axes}$ ：表明每个部件转动运动的旋转轴 $\to S^2 \times R^3\to$  一个三维的单位向量和一个三维点表示
 		- $M_{Prismatic Ranges}$ ：表明每个部件移动的范围 $\to R^2 \to$  指明值域 $[-l_{min}, l_{max}]$
 		- $M_{RevoluteRanges}$ ：表明每个部件转动的范围 $\to R^2 \to$  指明值域 $[-\theta_{min}, \theta_{max}]$
 		- 上面五个M也比较好理解，就是，（运动类别、平移、转动、平移范围、转动范围），后面四个两两一组，是否有值根据第一个运动类别去判定
