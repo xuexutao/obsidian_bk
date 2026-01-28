@@ -18,5 +18,11 @@ Particulate 在一次前向传播中即可预测完整的可动属性，包括�
 		- $M_{RevoluteRanges}$ ：表明每个部件转动的范围 $\to R^2 \to$  指明值域 $[-\theta_{min}, \theta_{max}]$
 		- 上面五个M也比较好理解，就是，（运动类别、平移、转动、平移范围、转动范围），后面四个两两一组，是否有值根据第一个运动类别去判定
 
+### 模型结构
+![](assets/particulate%20feed%20forward/file-20260128234729934.png)
+
+
+
+
 
 
