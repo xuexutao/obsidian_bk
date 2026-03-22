@@ -1,5 +1,3 @@
-# 3D Gaussian Splatting 语言理解创新点规划
-
   
 
 ## 1. 引言
