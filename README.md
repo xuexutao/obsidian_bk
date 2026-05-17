@@ -13,3 +13,9 @@ obsidian需要安装的插件：
 2. Custom Attachment Location
 设置复制的图片保存位置，比较重要～
 ![](assets/README/file-20251122232245754.png)
+
+再加一个 linter
+
+搜索空行：
+![](assets/README/file-20260517145419559.png)
+![](assets/README/file-20260517145447970.png)
