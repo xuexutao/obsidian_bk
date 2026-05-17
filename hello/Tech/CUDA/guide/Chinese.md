@@ -63,6 +63,7 @@ GPU是围绕一系列流式多处理器（SM）构建的（有关更多详细信
 # 4.更新日志[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#changelog "这个标题的永久链接")
 
 表1变更日志[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id452 "此表的永久链接")
+
 |版本|变化|
 |---|---|
 |13.0|将指令吞吐量表从CUDA C++编程指南的“_性能指南”_部分移至CUDA C++最佳实践指南的[指令优化](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#instruction-optimization)部分。删除了不受支持的架构，并更正了整数算术和类型转换的条目。|
@@ -84,6 +85,7 @@ CUDA C++扩展了C++，允许程序员定义称为_内核的_C++函数，当调�
 核心使用`__global__`声明指定符定义，并使用新的`<<<...>>>`_执行配置_语法（请参阅[执行配置](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#execution-configuration)）指定为给定内核调用执行该内核的CUDA线程数量。每个执行内核的线程都有一个唯一的_线程ID_，可以通过内置变量在内核内访问。
 
 举例来说，以下示例代码使用内置变量`threadIdx`，添加两个大小为_N_的向量_A_和_B，_并将结果存储在向量_C中_。
+
 ```c++
 
 // Kernel definition
@@ -101,6 +103,7 @@ int main()
     ...
 }
 ```
+
 在这里，执行`VecAdd()`的_N个_线程中的每一个都会执行一个成对的添加。
 
 ## 5.2.线程层次结构[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-hierarchy "这个标题的永久链接")
@@ -110,6 +113,7 @@ int main()
 线程的索引及其线程ID以直截了当的方式相互关联：对于一维块，它们是相同的；对于尺寸的二维块_（Dx，Dy），_索引线程的线程ID（x_，y）_是_（x + y Dx）；_对于尺寸的三维块_（Dx，Dy，Dz），_索引线程_（x，y，z）_的线程ID是_（x + y Dx + z Dx Dx Dy）。_
 
 例如，以下代码添加两个大小为_NxN_的矩阵A和_B_，并将结果存储在矩阵_C中_。
+
 ```c++
 // Kernel definition
 __global__ void MatAdd(float A[N][N], float B[N][N],
@@ -130,6 +134,7 @@ int main()
     ...
 }
 ```
+
 每个块的线程数量是有限制的，因为一个块的所有线程都应该位于同一个流式多处理器内核上，并且必须共享该内核的有限内存资源。在当前的GPU上，一个线程块可能包含多达1024个线程。
 
 然而，一个内核可以通过多个相同形状的线程块执行，因此线程总数等于每个块的线程数乘以块数。
@@ -145,6 +150,7 @@ int main()
 网格中的每个块都可以由一维、二維或三维唯一索引识别，该索引可以通过内置的`blockIdx`变量在核心内访问。线程块的维度可以通过内置的`blockDim`变量在内核内访问。
 
 扩展之前的`MatAdd()`示例来处理多个块，代码如下所示。
+
 ```c++
 // Kernel definition
 __global__ void MatAdd(float A[N][N], float B[N][N],
@@ -190,39 +196,58 @@ Similar to thread blocks, clusters are also organized into a one-dimension, two-
 
 线程块集群可以在内核中使用`__cluster_dims__(X,Y,Z)`的编译时内核属性或使用CUDA内核启动API `cudaLaunchKernelEx`。下面的示例展示了如何使用编译时内核属性启动集群。使用内核属性的集群大小在编译时是固定的，然后可以使用经典的`<<<,>>>`启动内核。如果内核使用编译时的集群大小，则在启动内核时无法修改集群大小。
 ```
+
 // Kernel definition
+
 // Compile time cluster size 2 in X-dimension and 1 in Y and Z dimension
-__global__ void __cluster_dims__(2, 1, 1) cluster_kernel(float *input, float* output)
+
+__global__ void __cluster_dims__(2, 1, 1) cluster_kernel(float _input, float_ output)
+
 {
 
 }
 
 int main()
+
 {
+
     float *input, *output;
+
     // Kernel invocation with compile time cluster size
+
     dim3 threadsPerBlock(16, 16);
+
     dim3 numBlocks(N / threadsPerBlock.x, N / threadsPerBlock.y);
 
     // The grid dimension is not affected by cluster launch, and is still enumerated
     // using number of blocks.
     // The grid dimension must be a multiple of cluster size.
     cluster_kernel<<<numBlocks, threadsPerBlock>>>(input, output);
+
 }
+
 ```
 线程块集群大小也可以在运行时设置，并且可以使用CUDA内核启动API `cudaLaunchKernelEx`启动内核。下面的代码示例展示了如何使用可扩展API启动集群内核。
 ```
+
 // Kernel definition
+
 // No compile time attribute attached to the kernel
-__global__ void cluster_kernel(float *input, float* output)
+
+__global__ void cluster_kernel(float _input, float_ output)
+
 {
 
 }
 
 int main()
+
 {
+
     float *input, *output;
+
     dim3 threadsPerBlock(16, 16);
+
     dim3 numBlocks(N / threadsPerBlock.x, N / threadsPerBlock.y);
 
     // Kernel invocation with runtime cluster size
@@ -244,7 +269,9 @@ int main()
 
         cudaLaunchKernelEx(&config, cluster_kernel, input, output);
     }
+
 }
+
 ```
 In GPUs with compute capability 9.0, all the thread blocks in the cluster are guaranteed to be co-scheduled on a single GPU Processing Cluster (GPC) and allow thread blocks in the cluster to perform hardware-supported synchronization using the [Cluster Group](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group-cg) API `cluster.sync()`. Cluster group also provides member functions to query cluster group size in terms of number of threads or number of blocks using `num_threads()` and `num_blocks()` API respectively. The rank of a thread or block in the cluster group can be queried using `dim_threads()` and `dim_blocks()` API respectively.
 
@@ -259,13 +286,17 @@ __cluster_dims__((2, 2, 2)) __global__ void foo();
 // 8x8x8 clusters each with 2x2x2 thread blocks.
 foo<<<dim3(16, 16, 16), dim3(1024, 1, 1)>>>();
 ```
+
 在上述示例中，内核以16x16x16线程块的网格或实际上8x8x8集群的网格启动。或者，使用另一个编译时内核属性`__block_size__`，允许启动一个显式配置为线程块集群数量的网格。
 
 // Implementation detail of how many threads per block and blocks per cluster
+
 // is handled as an attribute of the kernel.
+
 __block_size__((1024, 1, 1), (2, 2, 2)) __global__ void foo();
 
 // 8x8x8 clusters.
+
 foo<<<dim3(8, 8, 8)>>>();
 
 `__block_size__`需要两个字段，每个字段都是3个元素的元组。第一个元组表示块维度和第二个集群大小。如果第二个元组没有通过，则假定为`(1,1,1)`）。要指定流，必须传递`1`和`0`作为`<<<>>>`中的第二个和第三个参数，最后传递流。传递其他值会导致未定义的行为。
@@ -302,7 +333,7 @@ CUDA寫程式模型還假設主機和裝置在DRAM中保持自己的獨立記憶
 
 ## 5.5.异步SIMT编程模型[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-simt-programming-model "这个标题的永久链接")
 
-在CUDA编程模型中，线程是进行计算或内存操作的最低抽象级别。从基于**NVIDIA Ampere GPU架构**的设备开始，CUDA编程模型通过异步编程模型加速内存操作。异步编程模型定义了非同步操作相对于CUDA线程的行为。
+在CUDA编程模型中，线程是进行计算或内存操作的最低抽象级别。从基于__NVIDIA Ampere GPU架构__的设备开始，CUDA编程模型通过异步编程模型加速内存操作。异步编程模型定义了非同步操作相对于CUDA线程的行为。
 
 异步编程模型定义了CUDA线程之间同步的[异步屏障](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier)的行为。该模型还解释和定义了如何在GPU中计算时使用[cuda::memcpy_async](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-data-copies)从全局内存异步移动数据。
 
@@ -332,6 +363,7 @@ CUDA寫程式模型還假設主機和裝置在DRAM中保持自己的獨立記憶
 主要修订号表示设备的核心GPU架构。具有相同主要修订号的设备共享相同的基本架构。下表列出了与每个NVIDIA GPU架构相对应的主要修订号。
 
 表2 GPU架构和主要修订编号[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id453 "此表的永久链接")
+
 |主要修订号|NVIDIA GPU架构|
 |---|---|
 |9|NVIDIA Hopper GPU架构|
@@ -344,6 +376,7 @@ CUDA寫程式模型還假設主機和裝置在DRAM中保持自己的獨立記憶
 次要修订号对应于对核心架构的增量改进，可能包括新功能。
 
 表3 GPU架构的增量更新[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id454 "此表的永久链接")
+
 |计算能力|NVIDIA GPU架构|基于|
 |---|---|---|
 |7.5|NVIDIA图灵GPU架构|NVIDIA Volta GPU架构|
@@ -381,18 +414,14 @@ CUDA C++为熟悉C++编程语言的用户提供了一个简单的路径，以便
 使用`nvcc`编译的源文件可以包括主机代码（即在主机上执行的代码）和设备代码（即在设备上执行的代码）的混合。`nvcc`的基本工作流程包括将设备代码与主机代码分开，然后：
 
 - 将设备代码编译成汇编形式（_PTX_代码）和/或二进制形式（_cubin_对象），
-    
 - 并通过将[内核](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#kernels)中引入的`<<<...>>>`语法（并在[执行配置](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration)中进行更详细地描述）替换为必要的CUDA运行时函数调用来修改主机代码，以从_PTX_代码和/或_cubin_对象中加载和启动每个编译的内核。
-    
 
 修改后的主机代码要么输出为使用其他工具编译的C++代码，要么直接输出为对象代码，让`nvcc`在最后一个编译阶段调用主机编译器。
 
 然后应用程序可以：
 
 - 要么链接到编译的主机代码（这是最常见的情况），
-    
 - 或者忽略修改后的主机代码（如果有的话），并使用CUDA驱动程序API（请参阅[驱动程序API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-api)）来加载和执行_PTX_代码或_cubin_对象。
-    
 
 #### 6.1.1.2.及时汇编[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#just-in-time-compilation "这个标题的永久链接")
 
@@ -429,8 +458,11 @@ CUDA C++为熟悉C++编程语言的用户提供了一个简单的路径，以便
 嵌入CUDA C++应用程序中的_PTX_和二进制代码由`-arch`和`-code`编译器选项或`-gencode`编译器选项控制，如`nvcc`用户手册中所述。例如，
 
 nvcc x.cu
+
         -gencode arch=compute_50,code=sm_50
+
         -gencode arch=compute_60,code=sm_60
+
         -gencode arch=compute_70,code=\"compute_70,sm_70\"
 
 嵌入与计算能力5.0和6.0（第一和第二`-gencode`选项）兼容的二进制代码以及与计算能力7.0（第三`-gencode`选项）兼容的_PTX_和二进制代码。
@@ -438,13 +470,9 @@ nvcc x.cu
 生成主机代码是为了在运行时自动选择最合适的代码来加载和执行，在上述示例中，这将是：
 
 - 具有计算能力5.0和5.2的设备的5.0二进制代码，
-    
 - 具有计算能力6.0和6.1的设备的6.0二进制代码，
-    
 - 具有7.0和7.5计算能力的设备的7.0二进制代码，
-    
 - 对于计算能力低于7.5的设备，在运行时编译为二进制代码的_PTX_代码
-    
 
 `x.cu`可以有一个优化的代码路径，使用扭曲减少操作，例如，这些操作仅在计算能力8.0及更高版本的设备中支持。`__CUDA_ARCH__`宏可用于根据计算能力区分各种代码路径。它仅针对设备代码进行定义。例如，使用`-arch=compute_80`编译时，`__CUDA_ARCH__`等于`800`。
 
@@ -517,6 +545,7 @@ CUDA数组是为纹理获取而优化的不透明内存布局。它们在[纹理
 线性内存被分配到单个统一地址空间中，这意味着单独分配的实体可以通过指针相互引用，例如在二叉树或链接列表中。地址空间的大小取决于主机系统（CPU）和所用GPU的计算能力：
 
 表4线性内存地址空间[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id455 "此表的永久链接")
+
 ||x86_64（AMD64）|电源（ppc64le）|手臂64|
 |---|---|---|---|
 |高达计算能力5.3（Maxwell）|40位|40位|40位|
@@ -529,17 +558,27 @@ CUDA数组是为纹理获取而优化的不透明内存布局。它们在[纹理
 线性内存通常使用`cudaMalloc()`分配，并使用`cudaFree()`释放，主机内存和设备内存之间的数据传输通常使用`cudaMemcpy()`完成。在[内核](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#kernels)的向量加法代码示例中，需要将向量从主机内存复制到设备内存：
 
 // Device code
+
 __global__ void VecAdd(float* A, float* B, float* C, int N)
+
 {
+
     int i = blockDim.x * blockIdx.x + threadIdx.x;
+
     if (i < N)
+
         C[i] = A[i] + B[i];
+
 }
 
 // Host code
+
 int main()
+
 {
+
     int N = ...;
+
     size_t size = N * sizeof(float);
 
     // Allocate input vectors h_A and h_B in host memory
@@ -579,56 +618,95 @@ int main()
 
     // Free host memory
     ...
+
 }
 
 线性内存也可以通过`cudaMallocPitch()`和`cudaMalloc3D()`分配。建议使用这些功能进行2D或3D阵列的分配，因为它确保分配得到适当的填充，以满足[设备内存访问](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-memory-accesses)中描述的对齐要求，因此确保在访问行地址或在2D数组和设备内存的其他区域之间执行副本时（使用`cudaMemcpy2D()`和`cudaMemcpy3D()`函数）时获得最佳性能。返回的音高（或步长）必须用于访问数组元素。以下代码示例分配了一个`width`x`height`的浮点值的2D数组，并展示了如何在设备代码中循环数组元素：
 
 // Host code
+
 int width = 64, height = 64;
+
 float* devPtr;
+
 size_t pitch;
+
 cudaMallocPitch(&devPtr, &pitch,
+
                 width * sizeof(float), height);
+
 MyKernel<<<100, 512>>>(devPtr, pitch, width, height);
 
 // Device code
+
 __global__ void MyKernel(float* devPtr,
+
                          size_t pitch, int width, int height)
+
 {
+
     for (int r = 0; r < height; ++r) {
+
         float* row = (float*)((char*)devPtr + r * pitch);
+
         for (int c = 0; c < width; ++c) {
+
             float element = row[c];
+
         }
+
     }
+
 }
 
 以下代码示例分配了浮点值的`width`x`height`x`depth`3D数组，并展示了如何在设备代码中循环数组元素：
 
 // Host code
+
 int width = 64, height = 64, depth = 64;
+
 cudaExtent extent = make_cudaExtent(width * sizeof(float),
+
                                     height, depth);
+
 cudaPitchedPtr devPitchedPtr;
+
 cudaMalloc3D(&devPitchedPtr, extent);
+
 MyKernel<<<100, 512>>>(devPitchedPtr, width, height, depth);
 
 // Device code
+
 __global__ void MyKernel(cudaPitchedPtr devPitchedPtr,
+
                          int width, int height, int depth)
+
 {
+
     char* devPtr = devPitchedPtr.ptr;
+
     size_t pitch = devPitchedPtr.pitch;
+
     size_t slicePitch = pitch * height;
+
     for (int z = 0; z < depth; ++z) {
+
         char* slice = devPtr + z * slicePitch;
+
         for (int y = 0; y < height; ++y) {
+
             float* row = (float*)(slice + y * pitch);
+
             for (int x = 0; x < width; ++x) {
+
                 float element = row[x];
+
             }
+
         }
+
     }
+
 }
 
 笔记
@@ -640,17 +718,25 @@ __global__ void MyKernel(cudaPitchedPtr devPitchedPtr,
 以下代码示例说明了通过运行时API访问全局变量的各种方法：
 
 __constant__ float constData[256];
+
 float data[256];
+
 cudaMemcpyToSymbol(constData, data, sizeof(data));
+
 cudaMemcpyFromSymbol(data, constData, sizeof(data));
 
 __device__ float devData;
+
 float value = 3.14f;
+
 cudaMemcpyToSymbol(devData, &value, sizeof(float));
 
 __device__ float* devPointer;
+
 float* ptr;
+
 cudaMalloc(&ptr, 256 * sizeof(float));
+
 cudaMemcpyToSymbol(devPointer, &ptr, sizeof(ptr));
 
 `cudaGetSymbolAddress()`用于检索指向分配给全局内存空间中声明的变量的内存的地址。分配的内存大小是通过`cudaGetSymbolSize()`获得的。
@@ -668,7 +754,9 @@ L2缓存的一部分可以预留，用于对全局内存的持久数据访问。
 持久访问的L2缓存保留大小可以在限制范围内进行调整：
 
 cudaGetDeviceProperties(&prop, device_id);
+
 size_t size = min(int(prop.l2CacheSize * 0.75), prop.persistingL2CacheMaxSize);
+
 cudaDeviceSetLimit(cudaLimitPersistingL2CacheSize, size); /* set-aside 3/4 of L2 cache for persisting accesses or the max allowed*/
 
 当GPU配置为多Instance GPU（MIG）模式时，L2缓存设置功能将被禁用。
@@ -681,34 +769,48 @@ cudaDeviceSetLimit(cudaLimitPersistingL2CacheSize, size); /* set-aside 3/4 of L2
 
 下面的代码示例展示了如何使用CUDA流设置L2持久访问窗口。
 
-**CUDA流示例**
+__CUDA流示例__
 
 cudaStreamAttrValue stream_attribute;                                         // Stream level attributes data structure
+
 stream_attribute.accessPolicyWindow.base_ptr  = reinterpret_cast<void*>(ptr); // Global Memory data pointer
+
 stream_attribute.accessPolicyWindow.num_bytes = num_bytes;                    // Number of bytes for persistence access.
+
                                                                               // (Must be less than cudaDeviceProp::accessPolicyMaxWindowSize)
+
 stream_attribute.accessPolicyWindow.hitRatio  = 0.6;                          // Hint for cache hit ratio
+
 stream_attribute.accessPolicyWindow.hitProp   = cudaAccessPropertyPersisting; // Type of access property on cache hit
+
 stream_attribute.accessPolicyWindow.missProp  = cudaAccessPropertyStreaming;  // Type of access property on cache miss.
 
 //Set the attributes to a CUDA stream of type cudaStream_t
+
 cudaStreamSetAttribute(stream, cudaStreamAttributeAccessPolicyWindow, &stream_attribute);
 
 当内核随后在CUDA`stream`执行时，全局内存范围`[ptr..ptr+num_bytes)`内的内存访问比访问其他全局内存位置更有可能保留在L2缓存中。
 
 L2持久性也可以为CUDA图形内核节点设置，如下例所示：
 
-**CUDA GraphKernelNode示例**
+__CUDA GraphKernelNode示例__
 
 cudaKernelNodeAttrValue node_attribute;                                     // Kernel level attributes data structure
+
 node_attribute.accessPolicyWindow.base_ptr  = reinterpret_cast<void*>(ptr); // Global Memory data pointer
+
 node_attribute.accessPolicyWindow.num_bytes = num_bytes;                    // Number of bytes for persistence access.
+
                                                                             // (Must be less than cudaDeviceProp::accessPolicyMaxWindowSize)
+
 node_attribute.accessPolicyWindow.hitRatio  = 0.6;                          // Hint for cache hit ratio
+
 node_attribute.accessPolicyWindow.hitProp   = cudaAccessPropertyPersisting; // Type of access property on cache hit
+
 node_attribute.accessPolicyWindow.missProp  = cudaAccessPropertyStreaming;  // Type of access property on cache miss.
 
 //Set the attributes to a CUDA Graph Kernel node of type cudaGraphNode_t
+
 cudaGraphKernelNodeSetAttribute(node, cudaKernelNodeAttributeAccessPolicyWindow, &node_attribute);
 
 `hitRatio`参数可用于指定接收`hitProp`属性的访问分数。在上述两个示例中，全局内存区域`[ptr..ptr+num_bytes)`中60%的内存访问具有持久属性，40%的内存访问具有流属性。哪些特定的内存访问被归类为持久（`hitProp`）是随机的，概率约为`hitRatio`；概率分布取决于硬件架构和内存范围。
@@ -716,9 +818,7 @@ cudaGraphKernelNodeSetAttribute(node, cudaKernelNodeAttributeAccessPolicyWindow,
 例如，如果L2设置缓存大小为16KB，`accessPolicyWindow`中的`num_bytes`为32KB：
 
 - 当命`hitRatio`为0.5时，硬件将随机选择32KB窗口中的16KB，以指定为持久并缓存在保留的L2缓存区域中。
-    
 - 当命`hitRatio`为1.0时，硬件将尝试在留置的L2缓存区域缓存整个32KB窗口。由于留置区域比窗口小，缓存行将被驱逐，以将最近使用的16KB的32KB数据保留在L2缓存的留置部分。
-    
 
 因此，可以使用`hitRatio`来避免缓存行的崩溃，并总体减少进出L2缓存的数据量。
 
@@ -729,43 +829,55 @@ cudaGraphKernelNodeSetAttribute(node, cudaKernelNodeAttributeAccessPolicyWindow,
 为不同的全局内存数据访问定义了三种类型的访问属性：
 
 1. `cudaAccessPropertyStreaming`：流属性发生的内存访问不太可能在L2缓存中持续存在，因为这些访问被优先驱逐。
-    
 2. `cudaAccessPropertyPersisting`：与持久属性一起发生的内存访问更有可能在L2缓存中持续存在，因为这些访问优先保留在L2缓存的保留部分。
-    
 3. `cudaAccessPropertyNormal`：此访问属性将之前应用的持久访问属性强制重置为正常状态。具有先前CUDA内核持久属性的内存访问可能在预期使用后很长时间保留在L2缓存中。这种使用后持久性减少了不使用持久属性的后续内核可用的L2缓存量。使用`cudaAccessPropertyNormal`属性重置访问属性窗口会删除先前访问的持久（首选保留）状态，就好像之前的访问没有访问属性一样。
-    
 
 #### 6.2.3.4.L2 持久性示例[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#l2-persistence-example "这个标题的永久链接")
 
 以下示例展示了如何为持久访问设置L2缓存，通过CUDA流在CUDA内核中使用设置L2缓存，然后重置L2缓存。
 
 cudaStream_t stream;
+
 cudaStreamCreate(&stream);                                                                  // Create CUDA stream
 
 cudaDeviceProp prop;                                                                        // CUDA device properties variable
+
 cudaGetDeviceProperties( &prop, device_id);                                                 // Query GPU properties
+
 size_t size = min( int(prop.l2CacheSize * 0.75) , prop.persistingL2CacheMaxSize );
+
 cudaDeviceSetLimit( cudaLimitPersistingL2CacheSize, size);                                  // set-aside 3/4 of L2 cache for persisting accesses or the max allowed
 
 size_t window_size = min(prop.accessPolicyMaxWindowSize, num_bytes);                        // Select minimum of user defined num_bytes and max window size.
 
 cudaStreamAttrValue stream_attribute;                                                       // Stream level attributes data structure
+
 stream_attribute.accessPolicyWindow.base_ptr  = reinterpret_cast<void*>(data1);               // Global Memory data pointer
+
 stream_attribute.accessPolicyWindow.num_bytes = window_size;                                // Number of bytes for persistence access
+
 stream_attribute.accessPolicyWindow.hitRatio  = 0.6;                                        // Hint for cache hit ratio
+
 stream_attribute.accessPolicyWindow.hitProp   = cudaAccessPropertyPersisting;               // Persistence Property
+
 stream_attribute.accessPolicyWindow.missProp  = cudaAccessPropertyStreaming;                // Type of access property on cache miss
 
 cudaStreamSetAttribute(stream, cudaStreamAttributeAccessPolicyWindow, &stream_attribute);   // Set the attributes to a CUDA Stream
 
 for(int i = 0; i < 10; i++) {
+
     cuda_kernelA<<<grid_size,block_size,0,stream>>>(data1);                                 // This data1 is used by a kernel multiple times
+
 }                                                                                           // [data1 + num_bytes) benefits from L2 persistence
+
 cuda_kernelB<<<grid_size,block_size,0,stream>>>(data1);                                     // A different kernel in the same stream can also benefit
+
                                                                                             // from the persistence of data1
 
 stream_attribute.accessPolicyWindow.num_bytes = 0;                                          // Setting the window size to 0 disable it
+
 cudaStreamSetAttribute(stream, cudaStreamAttributeAccessPolicyWindow, &stream_attribute);   // Overwrite the access policy attribute to a CUDA Stream
+
 cudaCtxResetPersistingL2Cache();                                                            // Remove any persistent lines in L2
 
 cuda_kernelC<<<grid_size,block_size,0,stream>>>(data2);                                     // data2 can now benefit from full L2 in normal mode
@@ -775,11 +887,8 @@ cuda_kernelC<<<grid_size,block_size,0,stream>>>(data2);                         
 來自之前CUDA核心的持久L2快取行可能會在使用L2中持續很長時間。因此，对于流式传输或正常内存访问以正常优先级使用L2缓存来说，将L2缓存重置为正常状态很重要。有三种方法可以将持久访问重置为正常状态。
 
 1. 使用访问属性`cudaAccessPropertyNormal`重置之前的持久内存区域。
-    
 2. 通过调用`cudaCtxResetPersistingL2Cache()`将所有持久的L2缓存行重置为正常。
-    
-3. **最终**，未触及的线路将自动重置为正常。强烈建议不要依赖自动重置，因为发生自动重置所需的时间长度不确定。
-    
+3. __最终__，未触及的线路将自动重置为正常。强烈建议不要依赖自动重置，因为发生自动重置所需的时间长度不确定。
 
 #### 6.2.3.6.管理L2留置缓存的利用率[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#manage-utilization-of-l2-set-aside-cache "这个标题的永久链接")
 
@@ -788,13 +897,9 @@ cuda_kernelC<<<grid_size,block_size,0,stream>>>(data2);                         
 要管理留置L2缓存部分的利用，应用程序必须考虑以下几点：
 
 - L2留置缓存的大小。
-    
 - 可能并发执行的CUDA内核。
-    
 - 可能同时执行的所有CUDA内核的访问策略窗口。
-    
 - 何时以及如何重置L2，以允许正常或流式访问以同等优先级使用之前设置的L2缓存。
-    
 
 #### 6.2.3.7.查询L2缓存属性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#query-l2-cache-properties "这个标题的永久链接")
 
@@ -803,19 +908,19 @@ cuda_kernelC<<<grid_size,block_size,0,stream>>>(data2);                         
 CUDA设备属性包括：
 
 - `l2CacheSize`：GPU上可用的L2缓存量。
-    
 - `persistingL2CacheMaxSize`：可以为持久内存访问保留的最大L2缓存量。
-    
 - `accessPolicyMaxWindowSize`：访问策略窗口的最大大小。
-    
 
 #### 6.2.3.8.控制L2缓存设置的大小，以持续内存访问[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#control-l2-cache-set-aside-size-for-persisting-memory-access "这个标题的永久链接")
 
 使用CUDA运行时API `cudaDeviceGetLimit`查询持久内存访问的L2保留缓存大小，并使用CUDA运行时API `cudaDeviceSetLimit`作为`cudaLimit`设置。设置此限制的最大值是`cudaDeviceProp::persistingL2CacheMaxSize`。
 
 enum cudaLimit {
+
     /* other fields not shown */
+
     cudaLimitPersistingL2CacheSize
+
 };
 
 ### 6.2.4.共享内存[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory "这个标题的永久链接")
@@ -827,35 +932,59 @@ enum cudaLimit {
 以下代码示例是矩阵乘法的直接实现，不利用共享内存。每个线程读取一行A和一列B，并计算相应的_C元素_，如[图8](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-matrix-multiplication-no-shared-memory)所示。因此，_A_从全局内存中读取B_.宽度_时间，_B_读取_A.高度_时间。
 
 // Matrices are stored in row-major order:
-// M(row, col) = *(M.elements + row * M.width + col)
+
+// M(row, col) = _(M.elements + row * M.width + col)
+
 typedef struct {
+
     int width;
+
     int height;
-    float* elements;
+
+    float_ elements;
+
 } Matrix;
 
 // Thread block size
+
 #define BLOCK_SIZE 16
 
 // Forward declaration of the matrix multiplication kernel
+
 __global__ void MatMulKernel(const Matrix, const Matrix, Matrix);
 
 // Matrix multiplication - Host code
+
 // Matrix dimensions are assumed to be multiples of BLOCK_SIZE
+
 void MatMul(const Matrix A, const Matrix B, Matrix C)
+
 {
+
     // Load A and B to device memory
+
     Matrix d_A;
+
     d_A.width = A.width; d_A.height = A.height;
+
     size_t size = A.width * A.height * sizeof(float);
+
     cudaMalloc(&d_A.elements, size);
+
     cudaMemcpy(d_A.elements, A.elements, size,
+
                cudaMemcpyHostToDevice);
+
     Matrix d_B;
+
     d_B.width = B.width; d_B.height = B.height;
+
     size = B.width * B.height * sizeof(float);
+
     cudaMalloc(&d_B.elements, size);
+
     cudaMemcpy(d_B.elements, B.elements, size,
+
                cudaMemcpyHostToDevice);
 
     // Allocate C in device memory
@@ -877,20 +1006,33 @@ void MatMul(const Matrix A, const Matrix B, Matrix C)
     cudaFree(d_A.elements);
     cudaFree(d_B.elements);
     cudaFree(d_C.elements);
+
 }
 
 // Matrix multiplication kernel called by MatMul()
+
 __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C)
+
 {
+
     // Each thread computes one element of C
+
     // by accumulating results into Cvalue
+
     float Cvalue = 0;
+
     int row = blockIdx.y * blockDim.y + threadIdx.y;
+
     int col = blockIdx.x * blockDim.x + threadIdx.x;
+
     for (int e = 0; e < A.width; ++e)
+
         Cvalue += A.elements[row * A.width + e]
+
                 * B.elements[e * B.width + col];
+
     C.elements[row * C.width + col] = Cvalue;
+
 }
 
 ![_图像/矩阵-乘法-无-共享-内存.png](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/matrix-multiplication-without-shared-memory.png)
@@ -904,119 +1046,233 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C)
 上一个代码示例中的_矩阵_类型用_步长_字段增强，因此子矩阵可以用相同的类型有效地表示。[__device__](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-function-specifier)函数用于获取和设置元素，并从矩阵中构建任何子矩阵。
 
 // Matrices are stored in row-major order:
-// M(row, col) = *(M.elements + row * M.stride + col)
+
+// M(row, col) = _(M.elements + row * M.stride + col)
+
 typedef struct {
+
     int width;
+
     int height;
+
     int stride;
-    float* elements;
+
+    float_ elements;
+
 } Matrix;
+
 // Get a matrix element
+
 __device__ float GetElement(const Matrix A, int row, int col)
+
 {
+
     return A.elements[row * A.stride + col];
+
 }
+
 // Set a matrix element
+
 __device__ void SetElement(Matrix A, int row, int col,
+
                            float value)
+
 {
+
     A.elements[row * A.stride + col] = value;
+
 }
+
 // Get the BLOCK_SIZExBLOCK_SIZE sub-matrix Asub of A that is
+
 // located col sub-matrices to the right and row sub-matrices down
+
 // from the upper-left corner of A
+
  __device__ Matrix GetSubMatrix(Matrix A, int row, int col)
+
 {
+
     Matrix Asub;
+
     Asub.width    = BLOCK_SIZE;
+
     Asub.height   = BLOCK_SIZE;
+
     Asub.stride   = A.stride;
+
     Asub.elements = &A.elements[A.stride * BLOCK_SIZE * row
+
                                          + BLOCK_SIZE * col];
+
     return Asub;
+
 }
+
 // Thread block size
+
 #define BLOCK_SIZE 16
+
 // Forward declaration of the matrix multiplication kernel
+
 __global__ void MatMulKernel(const Matrix, const Matrix, Matrix);
+
 // Matrix multiplication - Host code
+
 // Matrix dimensions are assumed to be multiples of BLOCK_SIZE
+
 void MatMul(const Matrix A, const Matrix B, Matrix C)
+
 {
+
     // Load A and B to device memory
+
     Matrix d_A;
+
     d_A.width = d_A.stride = A.width; d_A.height = A.height;
+
     size_t size = A.width * A.height * sizeof(float);
+
     cudaMalloc(&d_A.elements, size);
+
     cudaMemcpy(d_A.elements, A.elements, size,
+
                cudaMemcpyHostToDevice);
+
     Matrix d_B;
+
     d_B.width = d_B.stride = B.width; d_B.height = B.height;
+
     size = B.width * B.height * sizeof(float);
+
     cudaMalloc(&d_B.elements, size);
+
     cudaMemcpy(d_B.elements, B.elements, size,
+
     cudaMemcpyHostToDevice);
+
     // Allocate C in device memory
+
     Matrix d_C;
+
     d_C.width = d_C.stride = C.width; d_C.height = C.height;
+
     size = C.width * C.height * sizeof(float);
+
     cudaMalloc(&d_C.elements, size);
+
     // Invoke kernel
+
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+
     dim3 dimGrid(B.width / dimBlock.x, A.height / dimBlock.y);
+
     MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_B, d_C);
+
     // Read C from device memory
+
     cudaMemcpy(C.elements, d_C.elements, size,
+
                cudaMemcpyDeviceToHost);
+
     // Free device memory
+
     cudaFree(d_A.elements);
+
     cudaFree(d_B.elements);
+
     cudaFree(d_C.elements);
+
 }
+
 // Matrix multiplication kernel called by MatMul()
+
  __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C)
+
 {
+
     // Block row and column
+
     int blockRow = blockIdx.y;
+
     int blockCol = blockIdx.x;
+
     // Each thread block computes one sub-matrix Csub of C
+
     Matrix Csub = GetSubMatrix(C, blockRow, blockCol);
+
     // Each thread computes one element of Csub
+
     // by accumulating results into Cvalue
+
     float Cvalue = 0;
+
     // Thread row and column within Csub
+
     int row = threadIdx.y;
+
     int col = threadIdx.x;
+
     // Loop over all the sub-matrices of A and B that are
+
     // required to compute Csub
+
     // Multiply each pair of sub-matrices together
+
     // and accumulate the results
+
     for (int m = 0; m < (A.width / BLOCK_SIZE); ++m) {
+
         // Get sub-matrix Asub of A
+
         Matrix Asub = GetSubMatrix(A, blockRow, m);
+
         // Get sub-matrix Bsub of B
+
         Matrix Bsub = GetSubMatrix(B, m, blockCol);
+
         // Shared memory used to store Asub and Bsub respectively
+
         __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+
         __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+
         // Load Asub and Bsub from device memory to shared memory
+
         // Each thread loads one element of each sub-matrix
+
         As[row][col] = GetElement(Asub, row, col);
+
         Bs[row][col] = GetElement(Bsub, row, col);
+
         // Synchronize to make sure the sub-matrices are loaded
+
         // before starting the computation
+
         __syncthreads();
+
         // Multiply Asub and Bsub together
+
         for (int e = 0; e < BLOCK_SIZE; ++e)
+
             Cvalue += As[row][e] * Bs[e][col];
+
         // Synchronize to make sure that the preceding
+
         // computation is done before loading two new
+
         // sub-matrices of A and B in the next iteration
+
         __syncthreads();
+
     }
+
     // Write Csub to device memory
+
     // Each thread writes one element
+
     SetElement(Csub, row, col, Cvalue);
+
 }
 
 ![_图像/矩阵-乘法-共享-记忆.png](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/matrix-multiplication-with-shared-memory.png)
@@ -1036,30 +1292,47 @@ CUDA提供了一个访问分布式共享内存的机制，应用程序可以从�
 #include <cooperative_groups.h>
 
 // Distributed Shared memory histogram kernel
+
 __global__ void clusterHist_kernel(int *bins, const int nbins, const int bins_per_block, const int *__restrict__ input,
+
                                    size_t array_size)
+
 {
+
   extern __shared__ int smem[];
+
   namespace cg = cooperative_groups;
+
   int tid = cg::this_grid().thread_rank();
 
   // Cluster initialization, size and calculating local bin offsets.
+
   cg::cluster_group cluster = cg::this_cluster();
+
   unsigned int clusterBlockRank = cluster.block_rank();
+
   int cluster_size = cluster.dim_blocks().x;
 
   for (int i = threadIdx.x; i < bins_per_block; i += blockDim.x)
+
   {
+
     smem[i] = 0; //Initialize shared memory histogram to zeros
+
   }
 
   // cluster synchronization ensures that shared memory is initialized to zero in
+
   // all thread blocks in the cluster. It also ensures that all thread blocks
+
   // have started executing and they exist concurrently.
+
   cluster.sync();
 
   for (int i = tid; i < array_size; i += blockDim.x * gridDim.x)
+
   {
+
     int ldata = input[i];
 
     //Find the right histogram bin.
@@ -1079,50 +1352,75 @@ __global__ void clusterHist_kernel(int *bins, const int nbins, const int bins_pe
 
     //Perform atomic update of the histogram bin
     atomicAdd(dst_smem + dst_offset, 1);
+
   }
 
   // cluster synchronization is required to ensure all distributed shared
+
   // memory operations are completed and no thread block exits while
+
   // other thread blocks are still accessing distributed shared memory
+
   cluster.sync();
 
   // Perform global memory histogram, using the local distributed memory histogram
+
   int *lbins = bins + cluster.block_rank() * bins_per_block;
+
   for (int i = threadIdx.x; i < bins_per_block; i += blockDim.x)
+
   {
+
     atomicAdd(&lbins[i], smem[i]);
+
   }
+
 }
 
 上述内核可以在运行时启动，集群大小取决于所需的分布式共享内存量。如果直方图足够小，仅适合一个块的共享内存，用户可以启动集群大小为1的内核。下面的代码片段展示了如何根据共享内存要求动态启动集群内核。
 
 // Launch via extensible launch
+
 {
+
   cudaLaunchConfig_t config = {0};
+
   config.gridDim = array_size / threads_per_block;
+
   config.blockDim = threads_per_block;
 
   // cluster_size depends on the histogram size.
+
   // ( cluster_size == 1 ) implies no distributed shared memory, just thread block local shared memory
+
   int cluster_size = 2; // size 2 is an example here
+
   int nbins_per_block = nbins / cluster_size;
 
   //dynamic shared memory size is per block.
+
   //Distributed shared memory size =  cluster_size * nbins_per_block * sizeof(int)
+
   config.dynamicSmemBytes = nbins_per_block * sizeof(int);
 
   CUDA_CHECK(::cudaFuncSetAttribute((void *)clusterHist_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, config.dynamicSmemBytes));
 
   cudaLaunchAttribute attribute[1];
+
   attribute[0].id = cudaLaunchAttributeClusterDimension;
+
   attribute[0].val.clusterDim.x = cluster_size;
+
   attribute[0].val.clusterDim.y = 1;
+
   attribute[0].val.clusterDim.z = 1;
 
   config.numAttrs = 1;
+
   config.attrs = attribute;
 
   cudaLaunchKernelEx(&config, clusterHist_kernel, bins, nbins, nbins_per_block, input, array_size);
+
 }
 
 ### 6.2.6.页面锁定主机内存[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#page-locked-host-memory "这个标题的永久链接")
@@ -1130,18 +1428,13 @@ __global__ void clusterHist_kernel(int *bins, const int nbins, const int bins_pe
 运行时提供的功能允许使用_页面锁定_（也称为_固定_）主机内存（而不是`malloc()`分配的常规分页主机内存）：
 
 - `cudaHostAlloc()`和`cudaFreeHost()`分配和释放页面锁定主机内存；
-    
 - `cudaHostRegister()`页面锁定由`malloc()`分配的内存范围（有关限制，请参阅参考手册）。
-    
 
 使用页面锁定的主机内存有几个好处：
 
 - 如非[同步并发执行](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-concurrent-execution)中所述，页面锁定主机内存和设备内存之间的副本可以与某些设备的内核执行同时执行。
-    
 - 在某些设备上，页面锁定的主机内存可以映射到设备的地址空间中，无需将其复制到或从设备内存中复制，如[“映射内存](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapped-memory)”中所述。
-    
 - 在具有前端总线的系统上，如果主机内存被分配为页面锁定，则主机内存和设备内存之间的带宽会更高，如果如[写入组合内存](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#write-combining-memory)中所述，则分配为写入组合，则更高。
-    
 
 笔记
 
@@ -1168,9 +1461,7 @@ A block of page-locked host memory can also be mapped into the address space of 
 直接从内核内部访问主机内存不会提供与设备内存相同的带宽，但确实有一些优点：
 
 - 无需在设备内存中分配一个块，并在该块和主机内存中的块之间复制数据；数据传输根据内核的需要隐式执行；
-    
 - 无需使用流（请参阅[并发数据传输](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#concurrent-data-transfers)）将数据传输与内核执行重叠；内核源的数据传输自动与内核执行重叠。
-    
 
 然而，由于映射的页面锁定内存在主机和设备之间共享，应用程序必须使用流或事件（请参阅[异步并发执行](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-concurrent-execution)）同步内存访问，以避免任何潜在的写后读、读后写或写入后写危险。
 
@@ -1207,7 +1498,7 @@ To be able to retrieve the device pointer to any mapped page-locked memory, page
 
 从Hopper架构GPU和CUDA 12.0开始，内存同步域功能提供了一种缓解此类干扰的方法。为了换取代码的明确帮助，GPU可以通过围栏操作来减少净投射。每次内核启动都会给出一个域ID。写入和栅栏用ID标记，栅栏只会订购与栅栏域匹配的写入。在并发计算与通信的例子中，通信内核可以放置在不同的域中。
 
-使用域时，代码必须遵守**同一GPU上不同域之间的排序或同步需要系统范围围栏**的规则。在一个领域内，设备范围围栏仍然足够。这对于累积性是必要的，因为一个内核的写入不会被另一个域内核发出的栅栏所包围。从本质上讲，通过确保跨域流量提前冲入系统范围来满足累积性。
+使用域时，代码必须遵守__同一GPU上不同域之间的排序或同步需要系统范围围栏__的规则。在一个领域内，设备范围围栏仍然足够。这对于累积性是必要的，因为一个内核的写入不会被另一个域内核发出的栅栏所包围。从本质上讲，通过确保跨域流量提前冲入系统范围来满足累积性。
 
 请注意，这修改了`thread_scope_device`的定义。然而，由于内核将默认为域0，如下所述，因此保持向后兼容。
 
@@ -1220,31 +1511,53 @@ To be able to retrieve the device pointer to any mapped page-locked memory, page
 拥有逻辑域可以简化应用程序的组成。在堆栈中低级别的单个核心启动，例如NCCL，可以选择语义逻辑域，而无需考虑周围的应用程序架构。更高级别可以使用映射来引导逻辑域。逻辑域的默认值（如果未设置）为默认域，默认映射是将默认域映射到0，远程域映射到1（在具有1个以上域的GPU上）。特定库可能会在CUDA 12.0及更高版本中用远程域标记启动；例如，NCCL 2.16将这样做。总体而言，这为开箱即用的常见应用程序提供了有益的使用模式，无需在其他组件、框架或应用程序级别更改代码。另一种使用模式，例如在使用nvshmem或没有明确分离内核类型的应用程序中，可能是分区并行流。流A可以将两个逻辑域映射到物理域0，流B映射到1，以此以此为。
 
 // Example of launching a kernel with the remote logical domain
+
 cudaLaunchAttribute domainAttr;
+
 domainAttr.id = cudaLaunchAttrMemSyncDomain;
+
 domainAttr.val = cudaLaunchMemSyncDomainRemote;
+
 cudaLaunchConfig_t config;
+
 // Fill out other config fields
+
 config.attrs = &domainAttr;
+
 config.numAttrs = 1;
+
 cudaLaunchKernelEx(&config, myKernel, kernelArg1, kernelArg2...);
 
 // Example of setting a mapping for a stream
+
 // (This mapping is the default for streams starting on Hopper if not
+
 // explicitly set, and provided for illustration)
+
 cudaLaunchAttributeValue mapAttr;
+
 mapAttr.memSyncDomainMap.default_ = 0;
+
 mapAttr.memSyncDomainMap.remote = 1;
+
 cudaStreamSetAttribute(stream, cudaLaunchAttributeMemSyncDomainMap, &mapAttr);
 
 // Example of mapping different streams to different physical domains, ignoring
+
 // logical domain settings
+
 cudaLaunchAttributeValue mapAttr;
+
 mapAttr.memSyncDomainMap.default_ = 0;
+
 mapAttr.memSyncDomainMap.remote = 0;
+
 cudaStreamSetAttribute(streamA, cudaLaunchAttributeMemSyncDomainMap, &mapAttr);
+
 mapAttr.memSyncDomainMap.default_ = 1;
+
 mapAttr.memSyncDomainMap.remote = 1;
+
 cudaStreamSetAttribute(streamB, cudaLaunchAttributeMemSyncDomainMap, &mapAttr);
 
 与其他启动属性一样，这些属性在CUDA流、使用`cudaLaunchKernelEx`的单个启动和CUDA图中的内核节点上均匀地暴露。如上所述，典型的用法是在流级别设置映射，在启动级别设置逻辑域（或括号为流使用的一部分）。
@@ -1256,17 +1569,11 @@ cudaStreamSetAttribute(streamB, cudaLaunchAttributeMemSyncDomainMap, &mapAttr);
 CUDA将以下操作作为独立任务公开，可以相互并行操作：
 
 - 在主机上进行计算；
-    
 - 设备上的计算；
-    
 - 内存从主机传输到设备；
-    
 - 内存从设备传输到主机；
-    
 - 给定设备内存中的内存传输；
-    
 - 设备之间的内存传输。
-    
 
 这些操作之间实现的并发级别将取决于设备的功能集和计算能力，如下所述。
 
@@ -1275,15 +1582,10 @@ CUDA将以下操作作为独立任务公开，可以相互并行操作：
 通过异步库函数促进并发主机执行，这些库函数在设备完成请求的任务之前将控制权返回给主机线程。使用异步调用，当有适当的设备资源可用时，CUDA驱动程序可以将许多设备操作排队在一起执行。这免除了主机线程管理设备的大部分责任，使其可以自由地执行其他任务。以下设备操作与主机是异步的：
 
 - 内核发射；
-    
 - 单个设备内存中的内存副本；
-    
 - 64 KB或更小的内存块从主机复制到设备；
-    
 - 由带有`Async`后缀的函数执行的内存副本；
-    
 - 内存集功能调用。
-    
 
 程序员可以通过将`CUDA_LAUNCH_BLOCKING`环境变量设置为1，在全球范围内禁用在系统上运行的所有CUDA应用程序的内核启动的异步性。此功能仅用于调试目的，不应用作使生产软件可靠运行的一种方式。
 
@@ -1318,20 +1620,31 @@ CUDA将以下操作作为独立任务公开，可以相互并行操作：
 通过创建流对象并将其指定为内核启动序列和主机`<->`设备内存副本的流参数来定义流。以下代码示例创建了两个流，并在页面锁定内存中分配一个`float`的数组`hostPtr`。
 
 cudaStream_t stream[2];
+
 for (int i = 0; i < 2; ++i)
+
     cudaStreamCreate(&stream[i]);
+
 float* hostPtr;
+
 cudaMallocHost(&hostPtr, 2 * size);
 
 以下代码示例将这些流中的每一个定义为从主机到设备的内存副本、一个内核启动和一个从设备到主机的内存副本的序列：
 
 for (int i = 0; i < 2; ++i) {
+
     cudaMemcpyAsync(inputDevPtr + i * size, hostPtr + i * size,
+
                     size, cudaMemcpyHostToDevice, stream[i]);
+
     MyKernel <<<100, 512, 0, stream[i]>>>
+
           (outputDevPtr + i * size, inputDevPtr + i * size, size);
+
     cudaMemcpyAsync(hostPtr + i * size, outputDevPtr + i * size,
+
                     size, cudaMemcpyDeviceToHost, stream[i]);
+
 }
 
 每个流将其输入数组`hostPtr`的一部分复制到设备内存中的数组`inputDevPtr`，通过调用`MyKernel()`处理设备上的`inputDevPtr`并将结果`outputDevPtr`复制回`hostPtr`的同一部分。[重叠行为](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#overlapping-behavior)描述了本示例中流如何根据设备的功能重叠。请注意，`hostPtr`必须指向页面锁定的主机内存，才能发生任何重叠。
@@ -1339,6 +1652,7 @@ for (int i = 0; i < 2; ++i) {
 流通过调用`cudaStreamDestroy()`来释放。
 
 for (int i = 0; i < 2; ++i)
+
     cudaStreamDestroy(stream[i]);
 
 如果调用`cudaStreamDestroy()`时，设备仍在流中工作，该函数将立即返回，一旦设备完成流中的所有工作，与流相关的资源将自动释放。
@@ -1376,9 +1690,7 @@ for (int i = 0; i < 2; ++i)
 应用程序应遵循以下准则，以提高其并发内核执行的潜力：
 
 - 所有独立操作都应在依赖操作之前发布，
-    
 - 任何类型的同步都应尽可能长时间地延迟。
-    
 
 ##### 6.2.8.5.5.重叠行为[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#overlapping-behavior "这个标题的永久链接")
 
@@ -1387,13 +1699,21 @@ for (int i = 0; i < 2; ++i)
 例如，在不支持并发数据传输的设备上，[创建和销毁流代](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creation-and-destruction-streams)码样本的两个流根本不重叠，因为从主机到设备的内存副本在发布到流[0]后，从主机到设备的内存副本被发送到流[1]，因此只有在从设备到主机的内存副本发布到流[0]完成后才能启动。如果代码以以下方式重写（并假设设备支持数据传输和内核执行的重叠）
 
 for (int i = 0; i < 2; ++i)
+
     cudaMemcpyAsync(inputDevPtr + i * size, hostPtr + i * size,
+
                     size, cudaMemcpyHostToDevice, stream[i]);
+
 for (int i = 0; i < 2; ++i)
+
     MyKernel<<<100, 512, 0, stream[i]>>>
+
           (outputDevPtr + i * size, inputDevPtr + i * size, size);
+
 for (int i = 0; i < 2; ++i)
+
     cudaMemcpyAsync(hostPtr + i * size, outputDevPtr + i * size,
+
                     size, cudaMemcpyDeviceToHost, stream[i]);
 
 然后，从主机到设备发布到流[1]的内存副本与发布到流的内核启动重叠[0]。
@@ -1406,15 +1726,24 @@ for (int i = 0; i < 2; ++i)
 
 以下代码示例在向每个流中发布主机到设备内存副本、内核启动和设备到主机内存副本后，将主机函数`MyCallback`添加到两个流中的每个流中。在每个设备到主机内存副本完成后，该函数将开始在主机上执行。
 
-void CUDART_CB MyCallback(void *data){
+void CUDART_CB MyCallback(void _data){
+
     printf("Inside callback %d\n", (size_t)data);
+
 }
+
 ...
+
 for (size_t i = 0; i < 2; ++i) {
+
     cudaMemcpyAsync(devPtrIn[i], hostPtr[i], size, cudaMemcpyHostToDevice, stream[i]);
+
     MyKernel<<<100, 512, 0, stream[i]>>>(devPtrOut[i], devPtrIn[i], size);
+
     cudaMemcpyAsync(hostPtr[i], devPtrOut[i], size, cudaMemcpyDeviceToHost, stream[i]);
-    cudaLaunchHostFunc(stream[i], MyCallback, (void*)i);
+
+    cudaLaunchHostFunc(stream[i], MyCallback, (void_)i);
+
 }
 
 主机函数后在流中发出的命令在函数完成之前不会开始执行。
@@ -1428,11 +1757,17 @@ for (size_t i = 0; i < 2; ++i) {
 以下代码示例获取当前设备的允许优先级范围，并创建具有最高和最低可用优先级的流。
 
 // get the range of stream priorities for this device
+
 int leastPriority, greatestPriority;
+
 cudaDeviceGetStreamPriorityRange(&leastPriority, &greatestPriority);
+
 // create streams with highest and lowest available priorities
+
 cudaStream_t st_high, st_low;
+
 cudaStreamCreateWithPriority(&st_high, cudaStreamNonBlocking, greatestPriority));
+
 cudaStreamCreateWithPriority(&st_low, cudaStreamNonBlocking, leastPriority);
 
 #### 6.2.8.6.程序化依赖启动和同步[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#programmatic-dependent-launch-and-synchronization "这个标题的永久链接")
@@ -1468,31 +1803,43 @@ _程序化依赖启动_引入了对CUDA内核启动API的更改，如下一节�
 在程序化依赖启动中，主内核和次要内核在同一CUDA流中启动。当主内核准备好启动时，主内核应该使用所有线程块执行`cudaTriggerProgrammaticLaunchCompletion`。二级内核必须使用可扩展启动API启动，如图所示。
 
 __global__ void primary_kernel() {
+
    // Initial work that should finish before starting secondary kernel
 
    // Trigger the secondary kernel
+
    cudaTriggerProgrammaticLaunchCompletion();
 
    // Work that can coincide with the secondary kernel
+
 }
 
 __global__ void secondary_kernel()
+
 {
+
    // Independent work
 
    // Will block until all primary kernels the secondary kernel is dependent on have completed and flushed results to global memory
+
    cudaGridDependencySynchronize();
 
    // Dependent work
+
 }
 
 cudaLaunchAttribute attribute[1];
+
 attribute[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+
 attribute[0].val.programmaticStreamSerializationAllowed = 1;
+
 configSecondary.attrs = attribute;
+
 configSecondary.numAttrs = 1;
 
 primary_kernel<<<grid_dim, block_dim, 0, stream>>>();
+
 cudaLaunchKernelEx(&configSecondary, secondary_kernel);
 
 当使用`cudaLaunchAttributeProgrammaticStreamSerialization`属性启动辅助内核时，CUDA驱动程序可以安全地提前启动辅助内核，而不是在启动辅助内核之前等待主内核的完成和内存刷新。
@@ -1524,11 +1871,8 @@ CUDA图形为在CUDA中提交工作提供了一种新的模式。图形是一系
 使用图表提交工作分为三个不同的阶段：定义、实例化和执行。
 
 - 在定义阶段，程序创建图形中操作的描述以及它们之间的依赖关系。
-    
 - 实例化对图形模板进行快照，进行验证，并执行大部分工作的设置和初始化，目的是尽量减少启动时需要完成的工作。生成的实例被称为_可执行图。_
-    
 - 可执行图可以启动到流中，类似于任何其他CUDA工作。它可以在不重复实例化的情况下任意启动次数。
-    
 
 ##### 6.2.8.7.1.图形结构[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#graph-structure "这个标题的永久链接")
 
@@ -1541,29 +1885,17 @@ CUDA图形为在CUDA中提交工作提供了一种新的模式。图形是一系
 图形节点可以是：
 
 - 内核
-    
 - CPU功能调用
-    
 - 记忆副本
-    
 - 梅姆塞特
-    
 - 空节点
-    
 - 等待一个[事件](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#events)
-    
 - 记录一个[事件](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#events)
-    
 - 发出[外部信号信号](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#external-resource-interoperability)
-    
 - 等待[外部訊號燈](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#external-resource-interoperability)
-    
 - [条件节点](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-graph-nodes)
-    
 - [图形内存节点](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#graph-memory-nodes)
-    
 - 子图：执行单独的嵌套图，如下图所示。
-    
 
 [![子图形示例](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/child-graph.png)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/child-graph.png)
 
@@ -1590,22 +1922,35 @@ CUDA 12.3在CUDA图形上引入了边缘数据。边缘数据修改边缘指定�
 图14使用Graph API创建图形示例[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-api-fig-creating-using-graph-apis "此图像的永久链接")
 
 // Create the graph - it starts out empty
+
 cudaGraphCreate(&graph, 0);
 
 // For the purpose of this example, we'll create
+
 // the nodes separately from the dependencies to
+
 // demonstrate that it can be done in two stages.
+
 // Note that dependencies can also be specified
+
 // at node creation.
+
 cudaGraphAddKernelNode(&a, graph, NULL, 0, &nodeParams);
+
 cudaGraphAddKernelNode(&b, graph, NULL, 0, &nodeParams);
+
 cudaGraphAddKernelNode(&c, graph, NULL, 0, &nodeParams);
+
 cudaGraphAddKernelNode(&d, graph, NULL, 0, &nodeParams);
 
 // Now set up dependencies on each node
+
 cudaGraphAddDependencies(graph, &a, &b, NULL, 1);     // A->B
+
 cudaGraphAddDependencies(graph, &a, &c, NULL, 1);     // A->C
+
 cudaGraphAddDependencies(graph, &b, &d, NULL, 1);     // B->D
+
 cudaGraphAddDependencies(graph, &c, &d, NULL, 1);     // C->D
 
 ##### 6.2.8.7.3.使用流捕获创建图形[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-stream-capture "这个标题的永久链接")
@@ -1617,8 +1962,11 @@ cudaGraph_t graph;
 cudaStreamBeginCapture(stream);
 
 kernel_A<<< ..., stream >>>(...);
+
 kernel_B<<< ..., stream >>>(...);
+
 libraryCall(stream);
+
 kernel_C<<< ..., stream >>>(...);
 
 cudaStreamEndCapture(stream, &graph);
@@ -1642,24 +1990,31 @@ cudaStreamEndCapture(stream, &graph);
 当流捕获中存在跨流依赖性时，`cudaStreamEndCapture()`仍然必须在调用`cudaStreamBeginCapture()`的同一流中调用；这是_源流_。由于基于事件的依赖关系，捕获到同一捕获图的任何其他流也必须重新加入到源流中。这如下所示。在`cudaStreamEndCapture()`所有捕获到同一捕获图的流都从捕获模式中取出。未能重新加入源流将导致整体捕获操作失败。
 
 // stream1 is the origin stream
+
 cudaStreamBeginCapture(stream1);
 
 kernel_A<<< ..., stream1 >>>(...);
 
 // Fork into stream2
+
 cudaEventRecord(event1, stream1);
+
 cudaStreamWaitEvent(stream2, event1);
 
 kernel_B<<< ..., stream1 >>>(...);
+
 kernel_C<<< ..., stream2 >>>(...);
 
 // Join stream2 back to origin stream (stream1)
+
 cudaEventRecord(event2, stream2);
+
 cudaStreamWaitEvent(stream1, event2);
 
 kernel_D<<< ..., stream1 >>>(...);
 
 // End capture in the origin stream
+
 cudaStreamEndCapture(stream1, &graph);
 
 // stream1 and stream2 no longer in capture mode
@@ -1697,25 +2052,43 @@ CUDA用户对象可用于帮助管理CUDA中异步工作使用的资源的生命
 各种资源管理方案与CUDA图表不兼容。例如，考虑基于事件的池或同步创建、异步销毁方案。
 
 // Library API with pool allocation
+
 void libraryWork(cudaStream_t stream) {
+
     auto &resource = pool.claimTemporaryResource();
+
     resource.waitOnReadyEventInStream(stream);
+
     launchWork(stream, resource);
+
     resource.recordReadyEvent(stream);
+
 }
 
 // Library API with asynchronous resource deletion
+
 void libraryWork(cudaStream_t stream) {
+
     Resource *resource = new Resource(...);
+
     launchWork(stream, resource);
+
     cudaLaunchHostFunc(
+
         stream,
+
         [](void *resource) {
+
             delete static_cast<Resource *>(resource);
+
         },
+
         resource,
+
         0);
+
     // Error handling considerations not shown
+
 }
 
 这些方案很难使用CUDA图，因为资源的非固定指针或句柄需要间接或图形更新，以及每次提交工作时所需的同步CPU代码。如果这些考虑因素对库的调用者隐藏，并且由于在捕获期间使用不允许的API，它们也不适用于流捕获。存在各种解决方案，例如将资源暴露给呼叫者。CUDA用户对象呈现另一种方法。
@@ -1729,34 +2102,63 @@ CUDA用户对象将用户指定的解构函数回调与内部参考计数相关�
 cudaGraph_t graph;  // Preexisting graph
 
 Object *object = new Object;  // C++ object with possibly nontrivial destructor
+
 cudaUserObject_t cuObject;
+
 cudaUserObjectCreate(
+
     &cuObject,
+
     object,  // Here we use a CUDA-provided template wrapper for this API,
+
              // which supplies a callback to delete the C++ object pointer
+
     1,  // Initial refcount
+
     cudaUserObjectNoDestructorSync  // Acknowledge that the callback cannot be
+
                                     // waited on via CUDA
+
 );
+
 cudaGraphRetainUserObject(
+
     graph,
+
     cuObject,
+
     1,  // Number of references
+
     cudaGraphUserObjectMove  // Transfer a reference owned by the caller (do
+
                              // not modify the total reference count)
+
 );
+
 // No more references owned by this thread; no need to call release API
+
 cudaGraphExec_t graphExec;
+
 cudaGraphInstantiate(&graphExec, graph, nullptr, nullptr, 0);  // Will retain a
+
                                                                // new reference
+
 cudaGraphDestroy(graph);  // graphExec still owns a reference
+
 cudaGraphLaunch(graphExec, 0);  // Async launch has access to the user objects
+
 cudaGraphExecDestroy(graphExec);  // Launch is not synchronized; the release
+
                                   // will be deferred if needed
+
 cudaStreamSynchronize(0);  // After the launch is synchronized, the remaining
+
                            // reference is released and the destructor will
+
                            // execute. Note this happens asynchronously.
+
 // If the destructor callback had signaled a synchronization object, it would
+
 // be safe to wait on it at this point.
 
 子图节点中图所拥有的引用与子图相关联，而不是父图。如果更新或删除子图，引用也会相应更改。如果使用`cudaGraphExecUpdate`或`cudaGraphExecChildGraphNodeSetParams`更新可执行图或子图，则将克隆新源图中的引用并替换目标图中的引用。无论哪种情况，如果之前的启动没有同步，任何将要发布的引用都会被保留到启动完成执行。
@@ -1786,42 +2188,31 @@ CUDA还提供了一种机制，用于在不影响其当前参数的情况下启�
 内核节点：
 
 - 函数的拥有上下文不能改变。
-    
 - 功能最初不使用CUDA动态并行的节点不能更新为使用CUDA动态并行的函数。
-    
 
 `cudaMemset`和`cudaMemcpy`节点：
 
 - 分配/映射操作数的CUDA设备无法更改。
-    
 - 源/目的地内存必须从与原始源/目的地内存相同的上下文中分配。
-    
 - 只能更改1D `cudaMemset`节点。
-    
 
 额外的memcpy节点限制：
 
 - 不支持更改源或目标内存类型（即`cudaPitchedPtr`、`cudaArray_t`等）或传输类型（即`cudaMemcpyKind`）。
-    
 
 外部訊號燈等待节点和记录节点：
 
 - 不支持更改信号灯的数量。
-    
 
 条件节点：
 
 - 句柄创建和分配的顺序必须在图表之间匹配。
-    
 - 不支持更改节点参数（即条件、节点上下文等中的图形数量）。
-    
 - 更改条件体图中节点的参数受制于上述规则。
-    
 
 内存节点：
 
 - 如果`cudaGraph_t`当前实例化为不同的`cudaGraphExec_t`，则无法使用`cudaGraph_t`更新`cudaGraphExec_t`。
-    
 
 对主机节点、事件记录节点或事件等待节点的更新没有限制。
 
@@ -1832,27 +2223,24 @@ CUDA还提供了一种机制，用于在不影响其当前参数的情况下启�
 更明确地说，遵循以下规则会导致`cudaGraphExecUpdate()`确定性地将原始图和更新图中的节点配对：
 
 1. 对于任何捕获流，在该流上运行的API调用必须以相同的顺序进行，包括事件等待和其他与节点创建不直接对应的API调用。
-    
 2. 直接操作给定图节点的传入边缘（包括捕获的流API、节点添加API和边缘添加/删除API）的API调用必须按照相同的顺序进行。此外，当在数组中指定依赖关系到这些API时，这些数组中指定依赖关系的顺序必须匹配。
-    
 3. 汇节点必须按顺序排列。汇节点是调用`cudaGraphExecUpdate()`时最终图形中没有依赖节点/出站边缘的节点。以下操作会影响汇节点排序（如果存在），并且必须（作为组合集）以相同的顺序进行：
     
     - 节点添加API导致一个汇节点。
-        
     - 边缘移除导致节点变成汇节点。
-        
     - `cudaStreamUpdateCaptureDependencies()`，如果它从捕获流的依赖集中删除了一个汇节点。
-        
     - `cudaStreamEndCapture()`.
-        
 
 以下示例展示了如何使用API来更新实例化图：
 
 cudaGraphExec_t graphExec = NULL;
 
 for (int i = 0; i < 10; i++) {
+
     cudaGraph_t graph;
+
     cudaGraphExecUpdateResult updateResult;
+
     cudaGraphNode_t errorNode;
 
     // In this example we use stream capture to create the graph.
@@ -1890,6 +2278,7 @@ for (int i = 0; i < 10; i++) {
     cudaGraphDestroy(graph);
     cudaGraphLaunch(graphExec, stream);
     cudaStreamSynchronize(stream);
+
 }
 
 一个典型的工作流程是使用流捕获或图形API创建初始`cudaGraph_t`。然后，`cudaGraph_t`被实例化并正常启动。初始启动后，使用与初始图相同的方法创建新的`cudaGraph_t`，并调用`cudaGraphExecUpdate()`）。如果图形更新成功，由上述示例中的`updateResult`参数指示，则启动更新的`cudaGraphExec_t`。如果更新因任何原因失败，则调用`cudaGraphExecDestroy()`和`cudaGraphInstantiate()`来销毁原始`cudaGraphExec_t`并实例化一个新的。
@@ -1905,23 +2294,14 @@ for (int i = 0; i < 10; i++) {
 实例化图形节点参数可以直接更新。这消除了实例化的开销以及创建新`cudaGraph_t`的开销。如果需要更新的节点数量相对于图表中的节点总数来说很小，最好单独更新节点。以下方法可用于更新`cudaGraphExec_t`节点：
 
 - `cudaGraphExecKernelNodeSetParams()`
-    
 - `cudaGraphExecMemcpyNodeSetParams()`
-    
 - `cudaGraphExecMemsetNodeSetParams()`
-    
 - `cudaGraphExecHostNodeSetParams()`
-    
 - `cudaGraphExecChildGraphNodeSetParams()`
-    
 - `cudaGraphExecEventRecordNodeSetEvent()`
-    
 - `cudaGraphExecEventWaitNodeSetEvent()`
-    
 - `cudaGraphExecExternalSemaphoresSignalNodeSetParams()`
-    
 - `cudaGraphExecExternalSemaphoresWaitNodeSetParams()`
-    
 
 有关使用情况和当前限制的更多信息，请参阅[Graph API](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH)。
 
@@ -1934,9 +2314,7 @@ for (int i = 0; i < 10; i++) {
 以下方法可用于启用/禁用`cudaGraphExec_t`节点，以及查询其状态：
 
 - `cudaGraphNodeSetEnabled()`
-    
 - `cudaGraphNodeGetEnabled()`
-    
 
 有关使用情况和当前限制的更多信息，请参阅[Graph API](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH)。
 
@@ -1969,25 +2347,18 @@ for (int i = 0; i < 10; i++) {
 一般要求：
 
 - 图形的节点必须全部位于单个设备上。
-    
 - 该图只能包含内核节点、memcpy节点、memset节点和子图节点。
-    
 
 内核节点：
 
 - 不允许在图形中使用内核CUDA动态并行。
-    
 - 只要不使用MPS，就允许合作发射。
-    
 
 Memcpy节点：
 
 - 仅允许涉及设备内存和/或固定设备映射的主机内存的副本。
-    
 - 不允许复制涉及CUDA阵列的副本。
-    
 - 两个操作数必须在实例化时从当前设备访问。请注意，复制操作将从图形所在的设备执行，即使它针对的是其他设备上的内存。
-    
 
 6.2.8.7.7.1.2.设备图形上传[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-graph-upload "这个标题的永久链接")
 
@@ -2000,17 +2371,25 @@ Memcpy节点：
 所有三种方法的示例如下：
 
 // Explicit upload after instantiation
+
 cudaGraphInstantiate(&deviceGraphExec1, deviceGraph1, cudaGraphInstantiateFlagDeviceLaunch);
+
 cudaGraphUpload(deviceGraphExec1, stream);
 
 // Explicit upload as part of instantiation
+
 cudaGraphInstantiateParams instantiateParams = {0};
+
 instantiateParams.flags = cudaGraphInstantiateFlagDeviceLaunch | cudaGraphInstantiateFlagUpload;
+
 instantiateParams.uploadStream = stream;
+
 cudaGraphInstantiateWithParams(&deviceGraphExec2, deviceGraph2, &instantiateParams);
 
 // Implicit upload via host launch
+
 cudaGraphInstantiate(&deviceGraphExec3, deviceGraph3, cudaGraphInstantiateFlagDeviceLaunch);
+
 cudaGraphLaunch(deviceGraphExec3, stream);
 
 6.2.8.7.7.1.3.设备图更新[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-graph-update "这个标题的永久链接")
@@ -2028,6 +2407,7 @@ cudaGraphLaunch(deviceGraphExec3, stream);
 与主机启动不同，设备图不能启动到常规CUDA流中，只能启动到不同的命名流中，每个流都表示特定的启动模式：
 
 表5 仅设备图形启动流[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id456 "此表的永久链接")
+
 |流动|启动模式|
 |---|---|
 |`cudaStreamGraphFireAndForget`|发射并忘记发射|
@@ -2045,11 +2425,15 @@ cudaGraphLaunch(deviceGraphExec3, stream);
 上面的图表可以通过下面的示例代码生成：
 
 __global__ void launchFireAndForgetGraph(cudaGraphExec_t graph) {
+
     cudaGraphLaunch(graph, cudaStreamGraphFireAndForget);
+
 }
 
 void graphSetup() {
+
     cudaGraphExec_t gExec1, gExec2;
+
     cudaGraph_t g1, g2;
 
     // Create, instantiate, and upload the device graph.
@@ -2065,6 +2449,7 @@ void graphSetup() {
 
     // Launch the host graph, which will in turn launch the device graph.
     cudaGraphLaunch(gExec1, stream);
+
 }
 
 一个图形在执行过程中总共可以有120个触发和忘记的图形。此总数在同一父图的启动之间重置。
@@ -2106,11 +2491,15 @@ Unlike on the host, it is not possible to synchronize with device graphs from th
 上述执行流程可以通过以下代码生成：
 
 __global__ void launchTailGraph(cudaGraphExec_t graph) {
+
     cudaGraphLaunch(graph, cudaStreamGraphTailLaunch);
+
 }
 
 void graphSetup() {
+
     cudaGraphExec_t gExec1, gExec2;
+
     cudaGraph_t g1, g2;
 
     // Create, instantiate, and upload the device graph.
@@ -2126,6 +2515,7 @@ void graphSetup() {
 
     // Launch the host graph, which will in turn launch the device graph.
     cudaGraphLaunch(gExec1, stream);
+
 }
 
 由给定图排成一排的尾部发射将一次执行一个，按照排成排的顺序。因此，第一个排成一排的图将首先运行，然后是第二个，以此以此为。
@@ -2155,6 +2545,7 @@ cudaGraphExec_t cudaGetCurrentGraphExec();
 __device__ int relaunchCount = 0;
 
 __global__ void relaunchSelf() {
+
     int relaunchMax = 100;
 
     if (threadIdx.x == 0) {
@@ -2164,6 +2555,7 @@ __global__ void relaunchSelf() {
 
         relaunchCount++;
     }
+
 }
 
 6.2.8.7.7.2.1.4.兄弟姐妹发射[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sibling-launch "这个标题的永久链接")
@@ -2177,11 +2569,15 @@ __global__ void relaunchSelf() {
 上面的图表可以通过下面的示例代码生成：
 
 __global__ void launchSiblingGraph(cudaGraphExec_t graph) {
+
     cudaGraphLaunch(graph, cudaStreamGraphFireAndForgetAsSibling);
+
 }
 
 void graphSetup() {
+
     cudaGraphExec_t gExec1, gExec2;
+
     cudaGraph_t g1, g2;
 
     // Create, instantiate, and upload the device graph.
@@ -2197,6 +2593,7 @@ void graphSetup() {
 
     // Launch the host graph, which will in turn launch the device graph.
     cudaGraphLaunch(gExec1, stream);
+
 }
 
 由于兄弟启动不会启动到启动图的执行环境中，它们不会在启动图中排队的尾部发射。
@@ -2208,11 +2605,8 @@ void graphSetup() {
 当满足条件节点的依赖性时，在设备上进行条件值的评估。条件节点可以是以下类型之一：
 
 - 如果节点执行时条件值非零，则条件[IF节点](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-if-nodes)执行一次其身体图。可以提供可选的第二个身体图，如果节点执行时条件值为零，则将执行一次。
-    
 - 如果节点执行时条件值为非零，则条件[WILE节点](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-while-nodes)执行其身体图，并将继续执行其身体图，直到条件值为零。
-    
 - 如果条件值等于n，条件[开关节点](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-switch-nodes)执行第n个身体图一次。如果条件值与身体图不对应，则不会启动身体图。
-    
 
 条件值由[条件句柄](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-handles)访问，[条件句柄](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-handles)必须在节点之前创建。条件值可以通过使用`cudaGraphSetConditional()`的设备代码进行设置。在创建句柄时，也可以指定应用于每个图形启动的默认值。
 
@@ -2235,25 +2629,18 @@ void graphSetup() {
 一般要求：
 
 - 图形的节点必须全部位于单个设备上。
-    
 - 该图只能包含内核节点、空节点、memcpy节点、memset节点、子图节点和条件节点。
-    
 
 内核节点：
 
 - 不允许在图表中使用CUDA动态并行或设备图形启动内核。
-    
 - 只要不使用MPS，就允许合作发射。
-    
 
 Memcpy/Memset节点：
 
 - 仅允许涉及设备内存和/或固定设备映射主机内存的副本/内存集。
-    
 - 不允许使用涉及CUDA阵列的副本/memset。
-    
 - 两个操作数必须在实例化时从当前设备访问。请注意，复制操作将从图形所在的设备执行，即使它针对的是其他设备上的内存。
-    
 
 ###### 6.2.8.7.8.3.条件IF节点[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-if-nodes "这个标题的永久链接")
 
@@ -2266,17 +2653,27 @@ Memcpy/Memset节点：
 以下代码说明了包含IF条件节点的图形的创建。条件的默认值是使用上游内核设置的。条件的主体使用[图形API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-graph-apis)填充。
 
 __global__ void setHandle(cudaGraphConditionalHandle handle)
+
 {
+
     ...
+
     cudaGraphSetConditional(handle, value);
+
     ...
+
 }
 
 void graphSetup() {
+
     cudaGraph_t graph;
+
     cudaGraphExec_t graphExec;
+
     cudaGraphNode_t node;
+
     void *kernelArgs[1];
+
     int value = 1;
 
     cudaGraphCreate(&graph, 0);
@@ -2311,15 +2708,21 @@ void graphSetup() {
 
     cudaGraphExecDestroy(graphExec);
     cudaGraphDestroy(graph);
+
 }
 
 从CUDA 12.8开始，IF节点还可以有一个可选的第二个身体图，如果条件值为零，则在节点执行时执行一次。
 
 void graphSetup() {
+
     cudaGraph_t graph;
+
     cudaGraphExec_t graphExec;
+
     cudaGraphNode_t node;
+
     void *kernelArgs[1];
+
     int value = 1;
 
     cudaGraphCreate(&graph, 0);
@@ -2357,6 +2760,7 @@ void graphSetup() {
 
     cudaGraphExecDestroy(graphExec);
     cudaGraphDestroy(graph);
+
 }
 
 ###### 6.2.8.7.8.4.条件的WILE节点[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-while-nodes "这个标题的永久链接")
@@ -2370,15 +2774,23 @@ void graphSetup() {
 以下代码说明了包含WHILE条件节点的图形的创建。手柄是使用_cudaGraphCondAssignDefault_创建的，以避免对上游内核的需求。条件的主体使用[图形API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-graph-apis)填充。
 
 __global__ void loopKernel(cudaGraphConditionalHandle handle)
+
 {
+
     static int count = 10;
+
     cudaGraphSetConditional(handle, --count ? 1 : 0);
+
 }
 
 void graphSetup() {
+
     cudaGraph_t graph;
+
     cudaGraphExec_t graphExec;
+
     cudaGraphNode_t node;
+
     void *kernelArgs[1];
 
     cuGraphCreate(&graph, 0);
@@ -2408,6 +2820,7 @@ void graphSetup() {
 
     cudaGraphExecDestroy(graphExec);
     cudaGraphDestroy(graph);
+
 }
 
 ###### 6.2.8.7.8.5.条件开关节点[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-switch-nodes "这个标题的永久链接")
@@ -2421,17 +2834,27 @@ CUDA 12.8中添加的SWITCH节点在条件节点内执行n个不同的图形中�
 以下代码说明了创建包含SWITCH条件节点的图形。条件的值是使用上游内核设置的。条件的主体使用[图形API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-graph-apis)填充。
 
 __global__ void setHandle(cudaGraphConditionalHandle handle)
+
 {
+
     ...
+
     cudaGraphSetConditional(handle, value);
+
     ...
+
 }
 
 void graphSetup() {
+
     cudaGraph_t graph;
+
     cudaGraphExec_t graphExec;
+
     cudaGraphNode_t node;
+
     void *kernelArgs[1];
+
     int value = 1;
 
     cudaGraphCreate(&graph, 0);
@@ -2469,6 +2892,7 @@ void graphSetup() {
 
     cudaGraphExecDestroy(graphExec);
     cudaGraphDestroy(graph);
+
 }
 
 #### 6.2.8.8.事件[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#events "这个标题的永久链接")
@@ -2480,12 +2904,15 @@ void graphSetup() {
 以下代码示例创建了两个事件：
 
 cudaEvent_t start, stop;
+
 cudaEventCreate(&start);
+
 cudaEventCreate(&stop);
 
 它们被这样摧毁：
 
 cudaEventDestroy(start);
+
 cudaEventDestroy(stop);
 
 ##### 6.2.8.8.2.流逝的时间[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#elapsed-time "这个标题的永久链接")
@@ -2493,17 +2920,29 @@ cudaEventDestroy(stop);
 在[事件的创建和销毁](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creation-and-destruction-events)中创建的事件可用于以以下方式为[创建和销毁流](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creation-and-destruction-streams)的代码样本计时：
 
 cudaEventRecord(start, 0);
+
 for (int i = 0; i < 2; ++i) {
+
     cudaMemcpyAsync(inputDev + i * size, inputHost + i * size,
+
                     size, cudaMemcpyHostToDevice, stream[i]);
+
     MyKernel<<<100, 512, 0, stream[i]>>>
+
                (outputDev + i * size, inputDev + i * size, size);
+
     cudaMemcpyAsync(outputHost + i * size, outputDev + i * size,
+
                     size, cudaMemcpyDeviceToHost, stream[i]);
+
 }
+
 cudaEventRecord(stop, 0);
+
 cudaEventSynchronize(stop);
+
 float elapsedTime;
+
 cudaEventElapsedTime(&elapsedTime, start, stop);
 
 #### 6.2.8.9.同步呼叫[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synchronous-calls "这个标题的永久链接")
@@ -2517,13 +2956,21 @@ cudaEventElapsedTime(&elapsedTime, start, stop);
 主机系统可以有多个设备。以下代码示例展示了如何枚举这些设备、查询其属性以及确定启用CUDA的设备数量。
 
 int deviceCount;
+
 cudaGetDeviceCount(&deviceCount);
+
 int device;
+
 for (device = 0; device < deviceCount; ++device) {
+
     cudaDeviceProp deviceProp;
+
     cudaGetDeviceProperties(&deviceProp, device);
+
     printf("Device %d has compute capability %d.%d.\n",
+
            device, deviceProp.major, deviceProp.minor);
+
 }
 
 #### 6.2.9.2.设备选择[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-selection "这个标题的永久链接")
@@ -2533,13 +2980,21 @@ for (device = 0; device < deviceCount; ++device) {
 以下代码示例说明了设置当前设备如何影响内存分配和内核执行。
 
 size_t size = 1024 * sizeof(float);
+
 cudaSetDevice(0);            // Set device 0 as current
+
 float* p0;
+
 cudaMalloc(&p0, size);       // Allocate memory on device 0
+
 MyKernel<<<1000, 128>>>(p0); // Launch kernel on device 0
+
 cudaSetDevice(1);            // Set device 1 as current
+
 float* p1;
+
 cudaMalloc(&p1, size);       // Allocate memory on device 1
+
 MyKernel<<<1000, 128>>>(p1); // Launch kernel on device 1
 
 #### 6.2.9.3.流和事件行为[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-and-event-behavior "这个标题的永久链接")
@@ -2547,15 +3002,23 @@ MyKernel<<<1000, 128>>>(p1); // Launch kernel on device 1
 如果内核启动发布到未与当前设备关联的流，则内核启动将失败，如以下代码示例所示。
 
 cudaSetDevice(0);               // Set device 0 as current
+
 cudaStream_t s0;
+
 cudaStreamCreate(&s0);          // Create stream s0 on device 0
+
 MyKernel<<<100, 64, 0, s0>>>(); // Launch kernel on device 0 in s0
+
 cudaSetDevice(1);               // Set device 1 as current
+
 cudaStream_t s1;
+
 cudaStreamCreate(&s1);          // Create stream s1 on device 1
+
 MyKernel<<<100, 64, 0, s1>>>(); // Launch kernel on device 1 in s1
 
 // This kernel launch will fail:
+
 MyKernel<<<100, 64, 0, s0>>>(); // Launch kernel on device 1 in s0
 
 即使内存副本发布到与当前设备未关联的流，它也会成功。
@@ -2579,16 +3042,25 @@ MyKernel<<<100, 64, 0, s0>>>(); // Launch kernel on device 1 in s0
 统一地址空间用于两个设备（请参阅[统一虚拟地址空间](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#unified-virtual-address-space)），因此可以使用相同的指针来定址来自两个设备的内存，如下文代码示例所示。
 
 cudaSetDevice(0);                   // Set device 0 as current
+
 float* p0;
+
 size_t size = 1024 * sizeof(float);
+
 cudaMalloc(&p0, size);              // Allocate memory on device 0
+
 MyKernel<<<1000, 128>>>(p0);        // Launch kernel on device 0
+
 cudaSetDevice(1);                   // Set device 1 as current
+
 cudaDeviceEnablePeerAccess(0, 0);   // Enable peer-to-peer access
+
                                     // with device 0
 
 // Launch kernel on device 1
+
 // This kernel launch can access memory on device 0 at address p0
+
 MyKernel<<<1000, 128>>>(p0);
 
 ##### 6.2.9.4.1.Linux上的IOMMU[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#iommu-on-linux "这个标题的永久链接")
@@ -2608,24 +3080,33 @@ MyKernel<<<1000, 128>>>(p0);
 否则，这是使用`cudaMemcpyPeer()``cudaMemcpyPeerAsync()``cudaMemcpy3DPeer()`或`cudaMemcpy3DPeerAsync()`完成，如以下代码示例所示。
 
 cudaSetDevice(0);                   // Set device 0 as current
+
 float* p0;
+
 size_t size = 1024 * sizeof(float);
+
 cudaMalloc(&p0, size);              // Allocate memory on device 0
+
 cudaSetDevice(1);                   // Set device 1 as current
+
 float* p1;
+
 cudaMalloc(&p1, size);              // Allocate memory on device 1
+
 cudaSetDevice(0);                   // Set device 0 as current
+
 MyKernel<<<1000, 128>>>(p0);        // Launch kernel on device 0
+
 cudaSetDevice(1);                   // Set device 1 as current
+
 cudaMemcpyPeer(p1, 1, p0, 0, size); // Copy p0 to p1
+
 MyKernel<<<1000, 128>>>(p1);        // Launch kernel on device 1
 
 两个不同设备内存之间的副本（在隐式_NULL_流中）：
 
 - 直到之前向任一设备发出的所有命令都完成并且
-    
 - 在复制到任一设备后发出的任何命令（请参阅[异步并发执行](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-concurrent-execution)）之前运行到完成。
-    
 
 与流的正常行为一致，两个设备内存之间的异步副本可能与另一个流中的副本或内核重叠。
 
@@ -2636,11 +3117,8 @@ MyKernel<<<1000, 128>>>(p1);        // Launch kernel on device 1
 当应用程序作为64位进程运行时，主机和所有计算能力2.0及更高版本的设备将使用单个地址空间。通过CUDA API调用进行的所有主机内存分配以及受支持设备上的所有设备内存分配都在此虚拟地址范围内。因此：
 
 - 通过CUDA分配的主机上或使用统一地址空间的任何设备上的任何内存的位置，都可以使用`cudaPointerGetAttributes()`从指针的值中确定。
-    
 - 当复制到或从任何使用统一地址空间的设备内存中复制时，`cudaMemcpy*()`的`cudaMemcpyKind`参数可以设置为`cudaMemcpyDefault`以确定指针的位置。这也适用于未通过CUDA分配的主机指针，只要当前设备使用统一寻址。
-    
 - 通过`cudaHostAlloc()`的分配在使用统一地址空间的所有设备上自动可移植（请参阅[便携式内存](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#portable-memory)），`cudaHostAlloc()`返回的指针可以直接从这些设备上运行的内核内使用（即，无需通过`cudaHostGetDevicePointer()`获取设备指针，如[映射内存](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapped-memory)中所述）。
-    
 
 应用程序可以通过检查`unifiedAddressing`设备属性（请参阅[设备枚举](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-enumeration)）是否等于1来查询统一地址空间是否用于特定设备。
 
@@ -2691,19 +3169,12 @@ CUDA支持GPU用于图形访问纹理和表面内存的纹理硬件的子集。�
 纹理对象指定：
 
 - _纹理_，这是获取的纹理内存的一部分。纹理对象在运行时创建，并在创建纹理对象时指定纹理，如[纹理对象API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-object-api)中所述。
-    
 - 它的_维度_指定了纹理是使用一个纹理坐标的一维数组、使用两个纹理坐标的二维数组，还是使用三个纹理坐标的三维数组。数组的元素称为_texels_，是_纹理元素_的缩写。_纹理宽度_、_高度_和_深度_是指每个维度中数组的大小。[表27](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#features-and-technical-specifications-technical-specifications-per-compute-capability)列出了根据设备的计算能力的最大纹理宽度、高度和深度。
-    
 - texel的类型，仅限于基本整数和单精度浮点类型，以及从基本整数和单精度浮点类型衍生的[内置向量类型](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#built-in-vector-types)中定义的任何1、2和4分量向量类型。
-    
 - _读取模式_，等于`cudaReadModeNormalizedFloat`或`cudaReadModeElementType`。如果是`cudaReadModeNormalizedFloat`，并且texel的类型是16位或8位整数类型，则纹理获取返回的值实际上返回为浮点类型，整数类型的整个范围对映到[0.0, 1.0]对于无符号整数类型和[-1.0, 1.0]对于有符号整数类型；例如，值为0xff的无符号8位纹理元素读作1。如果是`cudaReadModeElementType`，则不会执行转换。
-    
 - 纹理坐标是否归一化。默认情况下，使用[0, N-1]范围内的浮点坐标引用纹理（由[纹理函数](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-functions)的函数），其中N是与坐标相对应的维度中纹理的大小。例如，对于x和y维度，尺寸为64x32的纹理将分别引用[0, 63]和[0, 31]范围内的坐标。规范化纹理坐标导致坐标在[0.0, 1.0-1/N]范围内指定，而不是[0, N-1]，因此相同的64x32纹理将在x和y维度中由[0, 1-1/N]范围内的规范化坐标处理。如果纹理坐标独立于纹理大小，则规范化纹理坐标自然适合某些应用程序的要求。
-    
 - _寻址模式_。调用B.8节的设备函数的坐标不在范围范围内是有效的。寻址模式定义了在这种情况下会发生什么。默认寻址模式是将坐标夹到有效范围：非规范化坐标为[0，N]，规范化坐标为[0.0，1.0）。如果指定了边框模式，则使用范围外纹理坐标的纹理获取将返回零。对于归一化坐标，还可以使用换行模式和镜像模式。使用包装模式时，每个坐标x都转换为_frac(x)=x - floor(x)_，其中_floor(x)_是不超过_x_的最大整数。使用镜像模式时，如果_floor(x)_为偶数，则每个坐标_x_转换为_frac(x)_，如果_floor(x)_为奇数，则转换为_1-frac(x)_。寻址模式被指定为大小为三的数组，其第一、第二和第三元素分别指定第一、第二和第三纹理坐标的寻址模式；寻址模式是`cudaAddressModeBorder`、`cudaAddressModeClamp`、`cudaAddressModeWrap`和`cudaAddressModeMirror`和`cudaAddressModeMirror`仅支持规范化纹理坐标
-    
 - 指定获取纹理时返回值的_过滤_模式是根据输入纹理坐标计算的。线性纹理过滤只能对配置为返回浮点数据的纹理进行。它在相邻的文本之间执行低精度插值。启用后，会读取围绕纹理获取位置的文本，并根据纹理坐标在文本之间的位置插值纹理的返回值。一维纹理执行简单线性插值，二维纹理执行双线性插值，三维纹理执行三线性插值。[纹理获取](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-fetching)提供了有关纹理获取的更多详细信息。过滤模式等于`cudaFilterModePoint`或`cudaFilterModeLinear`。如果是`cudaFilterModePoint`，则返回的值是纹理坐标最接近输入纹理坐标的文本。如果是`cudaFilterModeLinear`，返回的值是两个（对于一维纹理）、四个（对于二维纹理）或八个（对于三维纹理）文本的线性插值，其纹理坐标最接近输入纹理坐标。`cudaFilterModeLinear`仅适用于浮点类型的返回值。
-    
 
 [纹理对象API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-object-api)引入了纹理对象API。
 
@@ -2720,40 +3191,55 @@ CUDA支持GPU用于图形访问纹理和表面内存的纹理硬件的子集。�
 A texture object is created using `cudaCreateTextureObject()` from a resource description of type `struct cudaResourceDesc`, which specifies the texture, and from a texture description defined as such:
 
 struct cudaTextureDesc
+
 {
+
     enum cudaTextureAddressMode addressMode[3];
+
     enum cudaTextureFilterMode  filterMode;
+
     enum cudaTextureReadMode    readMode;
+
     int                         sRGB;
+
     int                         normalizedCoords;
+
     unsigned int                maxAnisotropy;
+
     enum cudaTextureFilterMode  mipmapFilterMode;
+
     float                       mipmapLevelBias;
+
     float                       minMipmapLevelClamp;
+
     float                       maxMipmapLevelClamp;
+
 };
 
 - `addressMode`指定寻址模式；
-    
 - `filterMode`指定过滤模式；
-    
 - `readMode`指定读取模式；
-    
 - `normalizedCoords`指定纹理坐标是否归一化；
-    
 - 请参阅`sRGB`、`maxAnisotropy`、`mipmapFilterMode`、`mipmapLevelBias`、`minMipmapLevelClamp`和`maxMipmapLevelClamp`的参考手册。
-    
 
 以下代码示例将一些简单的转换内核应用于纹理。
 
 // Simple transformation kernel
+
 __global__ void transformKernel(float* output,
+
                                 cudaTextureObject_t texObj,
+
                                 int width, int height,
+
                                 float theta)
+
 {
+
     // Calculate normalized texture coordinates
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     float u = x / (float)width;
@@ -2767,13 +3253,19 @@ __global__ void transformKernel(float* output,
 
     // Read from texture and write to global memory
     output[y * width + x] = tex2D<float>(texObj, tu, tv);
+
 }
 
 // Host code
+
 int main()
+
 {
+
     const int height = 1024;
+
     const int width = 1024;
+
     float angle = 0.5;
 
     // Allocate and set some host data
@@ -2838,6 +3330,7 @@ int main()
     free(h_data);
 
     return 0;
+
 }
 
 ##### 6.2.14.1.2.16位浮点纹理[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#bit-floating-point-textures "这个标题的永久链接")
@@ -2867,11 +3360,10 @@ CUDA C++不支持匹配数据类型，但提供内在函数，通过`unsignedsho
 _立方体图_纹理是一种特殊类型的二维分层纹理，有六层代表立方体的面：
 
 - 一层的宽度等于其高度。
-    
 - 立方体映射使用三个纹理坐标_x、y_和_z来_处理，这些坐标被解释为从立方体中心发出的方向向量，指向立方体的一面和与该面相对应的层内的文本。更具体地说，面由最大幅度_m_的坐标选择，使用坐标_（s/m+1）/2_和_（t/m+1）/2_处理相应的层，其中_s_和_t_定义在[表6](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures-cubemap-fetch)中。
-    
 
 表6 立方体地图獲取[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures-cubemap-fetch "此表的永久链接")
+
 ||   |面容|M|s|吨|
 |---|---|---|---|---|---|
 |`\|x\| > \|y\|`和`\|x\| > \|z\|`|X ≥ 0|0|x|-z|-y|
@@ -2922,26 +3414,45 @@ A surface object is created using `cudaCreateSurfaceObject()` from a resource 
 以下代码示例将一些简单的变换内核应用于曲面。
 
 // Simple copy kernel
+
 __global__ void copyKernel(cudaSurfaceObject_t inputSurfObj,
+
                            cudaSurfaceObject_t outputSurfObj,
+
                            int width, int height)
+
 {
+
     // Calculate surface coordinates
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+
     if (x < width && y < height) {
+
         uchar4 data;
+
         // Read from input surface
+
         surf2Dread(&data,  inputSurfObj, x * 4, y);
+
         // Write to output surface
+
         surf2Dwrite(data, outputSurfObj, x * 4, y);
+
     }
+
 }
 
 // Host code
+
 int main()
+
 {
+
     const int height = 1024;
+
     const int width = 1024;
 
     // Allocate and set some host data
@@ -3005,6 +3516,7 @@ int main()
     free(h_data);
 
   return 0;
+
 }
 
 ##### 6.2.14.2.2.立方体图表面[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-surfaces "这个标题的永久链接")
@@ -3045,18 +3557,24 @@ CUDA数组是为纹理获取而优化的不透明内存布局。它们是一维�
 
 资源共享的OpenGL上下文必须是当前的主机线程，才能进行任何OpenGL互操作性API调用。
 
-请注意：当OpenGL纹理无绑定时（例如，使用`glGetTextureHandle`*/`glGetImageHandle`* API请求图像或纹理句柄），它无法在CUDA注册。在请求图像或纹理句柄之前，应用程序需要注册互操作的纹理。
+请注意：当OpenGL纹理无绑定时（例如，使用`glGetTextureHandle`_/`glGetImageHandle`_ API请求图像或纹理句柄），它无法在CUDA注册。在请求图像或纹理句柄之前，应用程序需要注册互操作的纹理。
 
 以下代码示例使用内核动态修改存储在顶点缓冲对象中的顶点的2D`width`x`height`网格：
 
 GLuint positionsVBO;
+
 struct cudaGraphicsResource* positionsVBO_CUDA;
 
 int main()
+
 {
+
     // Initialize OpenGL and GLUT for device 0
+
     // and make the OpenGL context current
+
     ...
+
     glutDisplayFunc(display);
 
     // Explicitly set device 0
@@ -3076,16 +3594,25 @@ int main()
     glutMainLoop();
 
     ...
+
 }
 
 void display()
+
 {
+
     // Map buffer object for writing from CUDA
+
     float4* positions;
+
     cudaGraphicsMapResources(1, &positionsVBO_CUDA, 0);
+
     size_t num_bytes;
+
     cudaGraphicsResourceGetMappedPointer((void**)&positions,
+
                                          &num_bytes,
+
                                          positionsVBO_CUDA));
 
     // Execute kernel
@@ -3108,18 +3635,27 @@ void display()
     // Swap buffers
     glutSwapBuffers();
     glutPostRedisplay();
+
 }
 
 void deleteVBO()
+
 {
+
     cudaGraphicsUnregisterResource(positionsVBO_CUDA);
+
     glDeleteBuffers(1, &positionsVBO);
+
 }
 
 __global__ void createVertices(float4* positions, float time,
+
                                unsigned int width, unsigned int height)
+
 {
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     // Calculate uv coordinates
@@ -3135,6 +3671,7 @@ __global__ void createVertices(float4* positions, float time,
 
     // Write positions
     positions[y * width + x] = make_float4(u, w, v, 1.0f);
+
 }
 
 在Windows和Quadro GPU上，可以使用`cudaWGLGetDevice()`检索与`wglEnumGpusNV()`返回的句柄相关的CUDA设备。Quadro GPU在多GPU配置中比GeForce和Tesla GPU提供更高的OpenGL互操作性，OpenGL渲染在Quadro GPU上执行，CUDA计算在系统中的其他GPU上执行。
@@ -3152,18 +3689,29 @@ CUDA上下文只能与满足以下标准的Direct3D设备互操作：Direct3D 9E
 ##### 6.2.15.2.1.Direct3D 9版本[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-9-version "这个标题的永久链接")
 
 IDirect3D9* D3D;
+
 IDirect3DDevice9* device;
+
 struct CUSTOMVERTEX {
+
     FLOAT x, y, z;
+
     DWORD color;
+
 };
+
 IDirect3DVertexBuffer9* positionsVB;
+
 struct cudaGraphicsResource* positionsVB_CUDA;
 
 int main()
+
 {
+
     int dev;
+
     // Initialize Direct3D
+
     D3D = Direct3DCreate9Ex(D3D_SDK_VERSION);
 
     // Get a CUDA-enabled adapter
@@ -3202,16 +3750,25 @@ int main()
         ...
     }
     ...
+
 }
 
 void Render()
+
 {
+
     // Map vertex buffer for writing from CUDA
+
     float4* positions;
+
     cudaGraphicsMapResources(1, &positionsVB_CUDA, 0);
+
     size_t num_bytes;
+
     cudaGraphicsResourceGetMappedPointer((void**)&positions,
+
                                          &num_bytes,
+
                                          positionsVB_CUDA));
 
     // Execute kernel
@@ -3225,18 +3782,27 @@ void Render()
 
     // Draw and present
     ...
+
 }
 
 void releaseVB()
+
 {
+
     cudaGraphicsUnregisterResource(positionsVB_CUDA);
+
     positionsVB->Release();
+
 }
 
 __global__ void createVertices(float4* positions, float time,
+
                                unsigned int width, unsigned int height)
+
 {
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     // Calculate uv coordinates
@@ -3253,32 +3819,53 @@ __global__ void createVertices(float4* positions, float time,
     // Write positions
     positions[y * width + x] =
                 make_float4(u, w, v, __int_as_float(0xff00ff00));
+
 }
 
 ##### 6.2.15.2.2.Direct3D 10版本[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-10-version "这个标题的永久链接")
 
 ID3D10Device* device;
+
 struct CUSTOMVERTEX {
+
     FLOAT x, y, z;
+
     DWORD color;
+
 };
+
 ID3D10Buffer* positionsVB;
+
 struct cudaGraphicsResource* positionsVB_CUDA;
 
 int main()
+
 {
+
     int dev;
+
     // Get a CUDA-enabled adapter
+
     IDXGIFactory* factory;
+
     CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
+
     IDXGIAdapter* adapter = 0;
+
     for (unsigned int i = 0; !adapter; ++i) {
+
         if (FAILED(factory->EnumAdapters(i, &adapter))
+
             break;
+
         if (cudaD3D10GetDevice(&dev, adapter) == cudaSuccess)
+
             break;
+
         adapter->Release();
+
     }
+
     factory->Release();
 
     // Create swap chain and device
@@ -3316,16 +3903,25 @@ int main()
         ...
     }
     ...
+
 }
 
 void Render()
+
 {
+
     // Map vertex buffer for writing from CUDA
+
     float4* positions;
+
     cudaGraphicsMapResources(1, &positionsVB_CUDA, 0);
+
     size_t num_bytes;
+
     cudaGraphicsResourceGetMappedPointer((void**)&positions,
+
                                          &num_bytes,
+
                                          positionsVB_CUDA));
 
     // Execute kernel
@@ -3339,18 +3935,27 @@ void Render()
 
     // Draw and present
     ...
+
 }
 
 void releaseVB()
+
 {
+
     cudaGraphicsUnregisterResource(positionsVB_CUDA);
+
     positionsVB->Release();
+
 }
 
 __global__ void createVertices(float4* positions, float time,
+
                                unsigned int width, unsigned int height)
+
 {
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     // Calculate uv coordinates
@@ -3367,32 +3972,53 @@ __global__ void createVertices(float4* positions, float time,
     // Write positions
     positions[y * width + x] =
                 make_float4(u, w, v, __int_as_float(0xff00ff00));
+
 }
 
 ##### 6.2.15.2.3.Direct3D 11版本[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-11-version "这个标题的永久链接")
 
 ID3D11Device* device;
+
 struct CUSTOMVERTEX {
+
     FLOAT x, y, z;
+
     DWORD color;
+
 };
+
 ID3D11Buffer* positionsVB;
+
 struct cudaGraphicsResource* positionsVB_CUDA;
 
 int main()
+
 {
+
     int dev;
+
     // Get a CUDA-enabled adapter
+
     IDXGIFactory* factory;
+
     CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
+
     IDXGIAdapter* adapter = 0;
+
     for (unsigned int i = 0; !adapter; ++i) {
+
         if (FAILED(factory->EnumAdapters(i, &adapter))
+
             break;
+
         if (cudaD3D11GetDevice(&dev, adapter) == cudaSuccess)
+
             break;
+
         adapter->Release();
+
     }
+
     factory->Release();
 
     // Create swap chain and device
@@ -3434,16 +4060,25 @@ int main()
         ...
     }
     ...
+
 }
 
 void Render()
+
 {
+
     // Map vertex buffer for writing from CUDA
+
     float4* positions;
+
     cudaGraphicsMapResources(1, &positionsVB_CUDA, 0);
+
     size_t num_bytes;
+
     cudaGraphicsResourceGetMappedPointer((void**)&positions,
+
                                          &num_bytes,
+
                                          positionsVB_CUDA));
 
     // Execute kernel
@@ -3457,24 +4092,36 @@ void Render()
 
     // Draw and present
     ...
+
 }
 
 void releaseVB()
+
 {
+
     cudaGraphicsUnregisterResource(positionsVB_CUDA);
+
     positionsVB->Release();
+
 }
 
     __global__ void createVertices(float4* positions, float time,
                           unsigned int width, unsigned int height)
+
 {
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
 // Calculate uv coordinates
+
     float u = x / (float)width;
+
     float v = y / (float)height;
+
     u = u * 2.0f - 1.0f;
+
     v = v * 2.0f - 1.0f;
 
     // Calculate simple sine wave pattern
@@ -3485,6 +4132,7 @@ void releaseVB()
     // Write positions
     positions[y * width + x] =
                 make_float4(u, w, v, __int_as_float(0xff00ff00));
+
 }
 
 #### 6.2.15.3.SLI互操作性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sli-interoperability "这个标题的永久链接")
@@ -3514,8 +4162,11 @@ void releaseVB()
 导入Vulkan导出的内存和同步对象时，它们必须导入并映射到创建的同一设备上。与创建对象的Vulkan物理设备相对应的CUDA设备可以通过将CUDA设备的UUID与Vulkan物理设备的UUID进行比较来确定，如以下代码示例所示。请注意，Vulkan物理设备不应成为包含多个Vulkan物理设备的设备组的一部分。包含给定Vulkan物理设备的`vkEnumeratePhysicalDeviceGroups`返回的设备组必须具有1的物理设备计数。
 
 int getCudaDeviceForVulkanPhysicalDevice(VkPhysicalDevice vkPhysicalDevice) {
+
     VkPhysicalDeviceIDProperties vkPhysicalDeviceIDProperties = {};
+
     vkPhysicalDeviceIDProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES;
+
     vkPhysicalDeviceIDProperties.pNext = NULL;
 
     VkPhysicalDeviceProperties2 vkPhysicalDeviceProperties2 = {};
@@ -3535,6 +4186,7 @@ int getCudaDeviceForVulkanPhysicalDevice(VkPhysicalDevice vkPhysicalDevice) {
         }
     }
     return cudaInvalidDeviceId;
+
 }
 
 ##### 6.2.16.1.2.导入内存对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-memory-objects "这个标题的永久链接")
@@ -3544,7 +4196,9 @@ int getCudaDeviceForVulkanPhysicalDevice(VkPhysicalDevice vkPhysicalDevice) {
 使用`VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT`导出的Vulkan内存对象可以使用与该对象关联的文件描述符导入CUDA，如下所示。请注意，一旦导入文件描述符，CUDA就承担其所有权。导入成功后使用文件描述符会导致未定义的行为。
 
 cudaExternalMemory_t importVulkanMemoryObjectFromFileDescriptor(int fd, unsigned long long size, bool isDedicated) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3561,12 +4215,15 @@ cudaExternalMemory_t importVulkanMemoryObjectFromFileDescriptor(int fd, unsigned
     // Input parameter 'fd' should not be used beyond this point as CUDA has assumed ownership of it
 
     return extMem;
+
 }
 
 使用`VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT`导出的Vulkan内存对象可以使用与该对象关联的NT句柄导入CUDA，如下所示。请注意，CUDA不承担NT句柄的所有权，当不再需要时，应用程序有责任关闭句柄。NT句柄包含对资源的引用，因此在释放底层内存之前，必须明确释放它。
 
 cudaExternalMemory_t importVulkanMemoryObjectFromNTHandle(HANDLE handle, unsigned long long size, bool isDedicated) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3584,12 +4241,15 @@ cudaExternalMemory_t importVulkanMemoryObjectFromNTHandle(HANDLE handle, unsigne
     CloseHandle(handle);
 
     return extMem;
+
 }
 
 使用`VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT`导出的Vulkan内存对象也可以使用命名句柄导入，如果存在，如下所示。
 
 cudaExternalMemory_t importVulkanMemoryObjectFromNamedNTHandle(LPCWSTR name, unsigned long long size, bool isDedicated) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3604,12 +4264,15 @@ cudaExternalMemory_t importVulkanMemoryObjectFromNamedNTHandle(LPCWSTR name, uns
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 使用VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT导出的Vulkan内存对象可以使用与该对象关联的全球共享D3DKMT句柄导入CUDA，如下所示。由于全局共享的D3DKMT句柄不包含对底层内存的引用，因此当对资源的所有其他引用被销毁时，它会自动销毁。
 
 cudaExternalMemory_t importVulkanMemoryObjectFromKMTHandle(HANDLE handle, unsigned long long size, bool isDedicated) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3624,6 +4287,7 @@ cudaExternalMemory_t importVulkanMemoryObjectFromKMTHandle(HANDLE handle, unsign
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 ##### 6.2.16.1.3.将缓冲區映射到导入的内存对象上[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-buffers-onto-imported-memory-objects "这个标题的永久链接")
@@ -3655,7 +4319,9 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 CUDA mipmapped数组可以映射到导入的内存对象上，如下所示。偏移量、尺寸、格式和mip级别必须与使用相应的Vulkan API创建映射时指定的值相匹配。此外，如果mipmapped数组在Vulkan中绑定为颜色目标，则必须设置flagcudaArrayColorAttachment。必须使用`cudaFreeMipmappedArray()`释放所有映射的mipmapped数组。以下代码示例展示了在将mipmapp的数组映射到导入的内存对象时，如何将Vulkan参数转换为相应的CUDA参数。
 
 cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, cudaChannelFormatDesc *formatDesc, cudaExtent *extent, unsigned int flags, unsigned int numLevels) {
+
     cudaMipmappedArray_t mipmap = NULL;
+
     cudaExternalMemoryMipmappedArrayDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3670,10 +4336,13 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
     cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &desc);
 
     return mipmap;
+
 }
 
 cudaChannelFormatDesc getCudaChannelFormatDescForVulkanFormat(VkFormat format)
+
 {
+
     cudaChannelFormatDesc d;
 
     memset(&d, 0, sizeof(d));
@@ -3704,9 +4373,11 @@ cudaChannelFormatDesc getCudaChannelFormatDescForVulkanFormat(VkFormat format)
     }
 
     return d;
+
 }
 
 cudaExtent getCudaExtentForVulkanExtent(VkExtent3D vkExt, uint32_t arrayLayers, VkImageViewType vkImageViewType) {
+
     cudaExtent e = { 0, 0, 0 };
 
     switch (vkImageViewType) {
@@ -3721,9 +4392,11 @@ cudaExtent getCudaExtentForVulkanExtent(VkExtent3D vkExt, uint32_t arrayLayers, 
     }
 
     return e;
+
 }
 
 unsigned int getCudaMipmappedArrayFlagsForVulkanImage(VkImageViewType vkImageViewType, VkImageUsageFlags vkImageUsageFlags, bool allowSurfaceLoadStore) {
+
     unsigned int flags = 0;
 
     switch (vkImageViewType) {
@@ -3742,6 +4415,7 @@ unsigned int getCudaMipmappedArrayFlagsForVulkanImage(VkImageViewType vkImageVie
         flags |= cudaArraySurfaceLoadStore;
     }
     return flags;
+
 }
 
 ##### 6.2.16.1.5.导入同步对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects "这个标题的永久链接")
@@ -3749,7 +4423,9 @@ unsigned int getCudaMipmappedArrayFlagsForVulkanImage(VkImageViewType vkImageVie
 使用`VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT`导出的Vulkan semaphore对象可以使用与该对象关联的文件描述符导入CUDA，如下所示。请注意，一旦导入文件描述符，CUDA就承担其所有权。导入成功后使用文件描述符会导致未定义的行为。
 
 cudaExternalSemaphore_t importVulkanSemaphoreObjectFromFileDescriptor(int fd) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3762,12 +4438,15 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromFileDescriptor(int fd) {
     // Input parameter 'fd' should not be used beyond this point as CUDA has assumed ownership of it
 
     return extSem;
+
 }
 
 使用`VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT`导出的Vulkan訊號器对象可以使用与该对象关联的NT句柄导入CUDA，如下所示。请注意，CUDA不承担NT句柄的所有权，当不再需要时，应用程序有责任关闭句柄。NT句柄包含对资源的引用，因此在释放底层信号之前，必须明确释放它。
 
 cudaExternalSemaphore_t importVulkanSemaphoreObjectFromNTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3781,12 +4460,15 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromNTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 使用`VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT`导出的Vulkan信号器对象也可以使用命名句柄导入，如果存在，如下所示。
 
 cudaExternalSemaphore_t importVulkanSemaphoreObjectFromNamedNTHandle(LPCWSTR name) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3797,12 +4479,15 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromNamedNTHandle(LPCWSTR nam
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 使用`VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT`导出的Vulkan semaphore对象可以使用与该对象关联的全局共享D3DKMT句柄导入CUDA，如下所示。由于全局共享的D3DKMT控制代碼不包含对底层訊號燈的引用，因此当对资源的所有其他引用被销毁时，它会自动被销毁。
 
 cudaExternalSemaphore_t importVulkanSemaphoreObjectFromKMTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3813,6 +4498,7 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromKMTHandle(HANDLE handle) 
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 ##### 6.2.16.1.6.在导入的同步对象上发出信号/等待[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#signaling-waiting-on-imported-synchronization-objects "这个标题的永久链接")
@@ -3820,21 +4506,25 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromKMTHandle(HANDLE handle) 
 导入的Vulkan信号灯对象可以发出信号，如下所示。发出这样的信号灯对象将其设置为信号状态。等待此信号的相应等待必须在Vulkan中发出。此外，在此信号发出后，必须发出等待此信号。
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream) {
+
     cudaExternalSemaphoreSignalParams params = {};
 
     memset(&params, 0, sizeof(params));
 
     cudaSignalExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 导入的Vulkan semaphore对象可以等待，如下所示。在这样的信号灯对象上等待，直到它达到信号状态，然后将其重置为无信号状态。必须用Vulkan发出等待的相应信号。此外，在发出此等待之前，必须发出信号。
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream) {
+
     cudaExternalSemaphoreWaitParams params = {};
 
     memset(&params, 0, sizeof(params));
 
     cudaWaitExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 #### 6.2.16.2.OpenGL互操作性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#opengl-interoperability-ext-res-int "这个标题的永久链接")
@@ -3842,17 +4532,11 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream) 
 [OpenGL互操作性](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#opengl-interoperability)中概述的传统OpenGL-CUDA互操作由CUDA直接消耗OpenGL中创建的句柄。然而，由于OpenGL也可以消耗在Vulkan中创建的内存和同步对象，因此存在一种替代方法来进行OpenGL-CUDA互操作。从本质上讲，Vulkan导出的内存和同步对象可以导入到OpenGL和CUDA中，然后用于协调OpenGL和CUDA之间的内存访问。有关如何导入Vulkan导出的内存和同步对象的更多详细信息，请参阅以下OpenGL扩展：
 
 - GL_EXT_内存_对象
-    
 - GL_EXT_内存_对象_fd
-    
 - GL_EXT_内存_对象_win32
-    
 - GL_EXT_中光
-    
 - GL_EXT_semaphore_fd
-    
 - GL_EXT_semaphore_win32
-    
 
 #### 6.2.16.3.Direct3D 12互操作性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-12-interoperability "这个标题的永久链接")
 
@@ -3861,6 +4545,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream) 
 导入Direct3D 12导出的内存和同步对象时，它们必须导入并映射到创建的同一设备上。与创建对象的Direct3D 12设备对应的CUDA设备可以通过将CUDA设备的LUID与Direct3D 12设备的LUID进行比较来确定，如以下代码示例所示。请注意，Direct3D 12设备不得在链接节点适配器上创建。即`ID3D12Device::GetNodeCount`返回的节点计数必须为1。
 
 int getCudaDeviceForD3D12Device(ID3D12Device *d3d12Device) {
+
     LUID d3d12Luid = d3d12Device->GetAdapterLuid();
 
     int cudaDeviceCount;
@@ -3877,6 +4562,7 @@ int getCudaDeviceForD3D12Device(ID3D12Device *d3d12Device) {
         }
     }
     return cudaInvalidDeviceId;
+
 }
 
 ##### 6.2.16.3.2.导入内存对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-memory-objects-dir3d-12-int "这个标题的永久链接")
@@ -3884,7 +4570,9 @@ int getCudaDeviceForD3D12Device(ID3D12Device *d3d12Device) {
 通过在调用`ID3D12Device::CreateHeap`中设置标志`D3D12_HEAP_FLAG_SHARED`创建的可共享Direct3D 12堆内存对象，可以使用与该对象关联的NT句柄导入CUDA，如下所示。请注意，当不再需要NT句柄时，应用程序有责任关闭它。NT句柄包含对资源的引用，因此在释放底层内存之前，必须明确释放它。
 
 cudaExternalMemory_t importD3D12HeapFromNTHandle(HANDLE handle, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3899,12 +4587,15 @@ cudaExternalMemory_t importD3D12HeapFromNTHandle(HANDLE handle, unsigned long lo
     CloseHandle(handle);
 
     return extMem;
+
 }
 
 如果存在命名句柄，也可以使用可共享的Direct3D 12堆内存对象导入，如下所示。
 
 cudaExternalMemory_t importD3D12HeapFromNamedNTHandle(LPCWSTR name, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3916,12 +4607,15 @@ cudaExternalMemory_t importD3D12HeapFromNamedNTHandle(LPCWSTR name, unsigned lon
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 通过在调用`D3D12Device::CreateCommittedResource`设置标志`D3D12_HEAP_FLAG_SHARED`创建的可共享的Direct3D 12提交资源，可以使用与该对象关联的NT句柄导入CUDA，如下所示。导入Direct3D 12提交资源时，必须设置标志`cudaExternalMemoryDedicated`。请注意，当不再需要NT句柄时，应用程序有责任关闭它。NT句柄包含对资源的引用，因此在释放底层内存之前，必须明确释放它。
 
 cudaExternalMemory_t importD3D12CommittedResourceFromNTHandle(HANDLE handle, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3937,12 +4631,15 @@ cudaExternalMemory_t importD3D12CommittedResourceFromNTHandle(HANDLE handle, uns
     CloseHandle(handle);
 
     return extMem;
+
 }
 
 如果存在可共享的Direct3D 12提交资源，也可以使用命名手柄导入，如下所示。
 
 cudaExternalMemory_t importD3D12CommittedResourceFromNamedNTHandle(LPCWSTR name, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3955,6 +4652,7 @@ cudaExternalMemory_t importD3D12CommittedResourceFromNamedNTHandle(LPCWSTR name,
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 ##### 6.2.16.3.3.将缓冲區映射到导入的内存对象上[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-buffers-onto-imported-memory-objects-dir3d-12-int "这个标题的永久链接")
@@ -3962,7 +4660,9 @@ cudaExternalMemory_t importD3D12CommittedResourceFromNamedNTHandle(LPCWSTR name,
 设备指针可以映射到导入的内存对象上，如下所示。映射的偏移量和大小必须与使用相应的Direct3D 12 API创建映射时指定的偏移量和大小相匹配。必须使用`cudaFree()`释放所有映射的设备指针。
 
 void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, unsigned long long size) {
+
     void *ptr = NULL;
+
     cudaExternalMemoryBufferDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3974,6 +4674,7 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 
     // Note: 'ptr' must eventually be freed using cudaFree()
     return ptr;
+
 }
 
 ##### 6.2.16.3.4.将Mipmapped数组映射到导入的内存对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-mipmapped-arrays-onto-imported-memory-objects-dir3d-12-int "这个标题的永久链接")
@@ -3981,7 +4682,9 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 CUDA mipmapped数组可以映射到导入的内存对象上，如下所示。偏移量、尺寸、格式和mip级别数量必须与使用相应的Direct3D 12 API创建映射时指定的偏移量、尺寸、格式和数量相匹配。此外，如果mipmapped数组可以在Direct3D 12中绑定为渲染目标，则必须设置标志`cudaArrayColorAttachment`。必须使用`cudaFreeMipmappedArray()`释放所有映射的mipmapped数组。以下代码示例展示了在将mipmapp的数组映射到导入的内存对象时，如何将Vulkan参数转换为相应的CUDA参数。
 
 cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, cudaChannelFormatDesc *formatDesc, cudaExtent *extent, unsigned int flags, unsigned int numLevels) {
+
     cudaMipmappedArray_t mipmap = NULL;
+
     cudaExternalMemoryMipmappedArrayDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3996,10 +4699,13 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
     cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &desc);
 
     return mipmap;
+
 }
 
 cudaChannelFormatDesc getCudaChannelFormatDescForDxgiFormat(DXGI_FORMAT dxgiFormat)
+
 {
+
     cudaChannelFormatDesc d;
 
     memset(&d, 0, sizeof(d));
@@ -4031,9 +4737,11 @@ cudaChannelFormatDesc getCudaChannelFormatDescForDxgiFormat(DXGI_FORMAT dxgiForm
     }
 
     return d;
+
 }
 
 cudaExtent getCudaExtentForD3D12Extent(UINT64 width, UINT height, UINT16 depthOrArraySize, D3D12_SRV_DIMENSION d3d12SRVDimension) {
+
     cudaExtent e = { 0, 0, 0 };
 
     switch (d3d12SRVDimension) {
@@ -4048,9 +4756,11 @@ cudaExtent getCudaExtentForD3D12Extent(UINT64 width, UINT height, UINT16 depthOr
     }
 
     return e;
+
 }
 
 unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D12_SRV_DIMENSION d3d12SRVDimension, D3D12_RESOURCE_FLAGS d3d12ResourceFlags, bool allowSurfaceLoadStore) {
+
     unsigned int flags = 0;
 
     switch (d3d12SRVDimension) {
@@ -4069,6 +4779,7 @@ unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D12_SRV_DIMENSION d3d1
     }
 
     return flags;
+
 }
 
 ##### 6.2.16.3.5.导入同步对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects-dir3d-12-int "这个标题的永久链接")
@@ -4076,7 +4787,9 @@ unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D12_SRV_DIMENSION d3d1
 通过在调用`ID3D12Device::CreateFence`设置标志`D3D12_FENCE_FLAG_SHARED`创建的可共享的Direct3D 12围栏对象，可以使用与该对象关联的NT句柄导入CUDA，如下所示。请注意，当不再需要时，应用程序有责任关闭手柄。NT句柄包含对资源的引用，因此在释放底层信号之前，必须明确释放它。
 
 cudaExternalSemaphore_t importD3D12FenceFromNTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4090,12 +4803,15 @@ cudaExternalSemaphore_t importD3D12FenceFromNTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 如果存在可共享的Direct3D 12围栏对象，也可以使用命名手柄导入，如下所示。
 
 cudaExternalSemaphore_t importD3D12FenceFromNamedNTHandle(LPCWSTR name) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4106,6 +4822,7 @@ cudaExternalSemaphore_t importD3D12FenceFromNamedNTHandle(LPCWSTR name) {
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 ##### 6.2.16.3.6.在导入的同步对象上发出信号/等待[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#signaling-waiting-on-imported-synchronization-objects-dir3d-12-int "这个标题的永久链接")
@@ -4113,6 +4830,7 @@ cudaExternalSemaphore_t importD3D12FenceFromNamedNTHandle(LPCWSTR name) {
 导入的Direct3D 12围栏对象可以发出信号，如下所示。发出这样的信号，将栅栏对象将其值设置为指定的值。等待此信号的相应等待必须在Direct3D 12中发出。此外，在此信号发出后，必须发出等待此信号。
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long value, cudaStream_t stream) {
+
     cudaExternalSemaphoreSignalParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4120,11 +4838,13 @@ void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long 
     params.params.fence.value = value;
 
     cudaSignalExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 导入的Direct3D 12围栏对象可以等待，如下所示。等待这样的栅栏对象，直到其值大于或等于指定值。必须在Direct3D 12中发出此等待的相应信号。此外，在发出此等待之前，必须发出信号。
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long value, cudaStream_t stream) {
+
     cudaExternalSemaphoreWaitParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4132,6 +4852,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long va
     params.params.fence.value = value;
 
     cudaWaitExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 #### 6.2.16.4.Direct3D 11互操作性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-11-interoperability "这个标题的永久链接")
@@ -4141,7 +4862,9 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long va
 导入Direct3D 11导出的内存和同步对象时，它们必须导入并映射到创建的同一设备上。与创建对象的Direct3D 11设备对应的CUDA设备可以通过将CUDA设备的LUID与Direct3D 11设备的LUID进行比较来确定，如以下代码示例所示。
 
 int getCudaDeviceForD3D11Device(ID3D11Device *d3d11Device) {
+
     IDXGIDevice *dxgiDevice;
+
     d3d11Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&dxgiDevice);
 
     IDXGIAdapter *dxgiAdapter;
@@ -4166,6 +4889,7 @@ int getCudaDeviceForD3D11Device(ID3D11Device *d3d11Device) {
         }
     }
     return cudaInvalidDeviceId;
+
 }
 
 ##### 6.2.16.4.2.导入内存对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-memory-objects-dir3d-11-int "这个标题的永久链接")
@@ -4173,7 +4897,9 @@ int getCudaDeviceForD3D11Device(ID3D11Device *d3d11Device) {
 A shareable Direct3D 11 texture resource, viz, `ID3D11Texture1D`, `ID3D11Texture2D` or `ID3D11Texture3D`, can be created by setting either the `D3D11_RESOURCE_MISC_SHARED` or `D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX` (on Windows 7) or `D3D11_RESOURCE_MISC_SHARED_NTHANDLE` (on Windows 10) when calling `ID3D11Device:CreateTexture1D`, `ID3D11Device:CreateTexture2D` or `ID3D11Device:CreateTexture3D` respectively. A shareable Direct3D 11 buffer resource, `ID3D11Buffer`, can be created by specifying either of the above flags when calling `ID3D11Device::CreateBuffer`. A shareable resource created by specifying the `D3D11_RESOURCE_MISC_SHARED_NTHANDLE` can be imported into CUDA using the NT handle associated with that object as shown below. Note that it is the application’s responsibility to close the NT handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying memory can be freed. When importing a Direct3D 11 resource, the flag `cudaExternalMemoryDedicated` must be set.
 
 cudaExternalMemory_t importD3D11ResourceFromNTHandle(HANDLE handle, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4189,12 +4915,15 @@ cudaExternalMemory_t importD3D11ResourceFromNTHandle(HANDLE handle, unsigned lon
     CloseHandle(handle);
 
     return extMem;
+
 }
 
 如果存在可共享的Direct3D 11资源，也可以使用命名手柄导入，如下所示。
 
 cudaExternalMemory_t importD3D11ResourceFromNamedNTHandle(LPCWSTR name, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4207,12 +4936,15 @@ cudaExternalMemory_t importD3D11ResourceFromNamedNTHandle(LPCWSTR name, unsigned
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 通过指定`D3D11_RESOURCE_MISC_SHARED`或`D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX`创建的可共享Direct3D 11资源，可以使用与该对象关联的全球共享`D3DKMT`句柄导入CUDA，如下所示。由于全局共享的`D3DKMT`句柄不包含对底层内存的引用，因此当对资源的所有其他引用被销毁时，它会自动销毁。
 
 cudaExternalMemory_t importD3D11ResourceFromKMTHandle(HANDLE handle, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4225,6 +4957,7 @@ cudaExternalMemory_t importD3D11ResourceFromKMTHandle(HANDLE handle, unsigned lo
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 ##### 6.2.16.4.3.将缓冲區映射到导入的内存对象上[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-buffers-onto-imported-memory-objects-dir3d-11-int "这个标题的永久链接")
@@ -4232,7 +4965,9 @@ cudaExternalMemory_t importD3D11ResourceFromKMTHandle(HANDLE handle, unsigned lo
 设备指针可以映射到导入的内存对象上，如下所示。映射的偏移量和大小必须与使用相应的Direct3D 11 API创建映射时指定的偏移量和大小相匹配。必须使用`cudaFree()`释放所有映射的设备指针。
 
 void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, unsigned long long size) {
+
     void *ptr = NULL;
+
     cudaExternalMemoryBufferDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4244,6 +4979,7 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 
     // Note: ‘ptr’ must eventually be freed using cudaFree()
     return ptr;
+
 }
 
 ##### 6.2.16.4.4.将Mipmapped数组映射到导入的内存对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-mipmapped-arrays-onto-imported-memory-objects-dir3d-11-int "这个标题的永久链接")
@@ -4251,7 +4987,9 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 CUDA mipmapped数组可以映射到导入的内存对象上，如下所示。偏移量、尺寸、格式和mip级别必须与使用相应的Direct3D 11 API创建映射时指定的值相匹配。此外，如果mipmapped数组可以在Direct3D 12中绑定为渲染目标，则必须设置标志`cudaArrayColorAttachment`。必须使用`cudaFreeMipmappedArray()`释放所有映射的mipmapped数组。以下代码示例展示了如何在将mipmapped数组映射到导入的内存对象时将Direct3D 11参数转换为相应的CUDA参数。
 
 cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, cudaChannelFormatDesc *formatDesc, cudaExtent *extent, unsigned int flags, unsigned int numLevels) {
+
     cudaMipmappedArray_t mipmap = NULL;
+
     cudaExternalMemoryMipmappedArrayDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4266,41 +5004,71 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
     cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &desc);
 
     return mipmap;
+
 }
 
 cudaChannelFormatDesc getCudaChannelFormatDescForDxgiFormat(DXGI_FORMAT dxgiFormat)
+
 {
+
     cudaChannelFormatDesc d;
+
     memset(&d, 0, sizeof(d));
+
     switch (dxgiFormat) {
+
     case DXGI_FORMAT_R8_UINT:            d.x = 8;  d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R8_SINT:            d.x = 8;  d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R8G8_UINT:          d.x = 8;  d.y = 8;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R8G8_SINT:          d.x = 8;  d.y = 8;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R8G8B8A8_UINT:      d.x = 8;  d.y = 8;  d.z = 8;  d.w = 8;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R8G8B8A8_SINT:      d.x = 8;  d.y = 8;  d.z = 8;  d.w = 8;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R16_UINT:           d.x = 16; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R16_SINT:           d.x = 16; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R16G16_UINT:        d.x = 16; d.y = 16; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R16G16_SINT:        d.x = 16; d.y = 16; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R16G16B16A16_UINT:  d.x = 16; d.y = 16; d.z = 16; d.w = 16; d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R16G16B16A16_SINT:  d.x = 16; d.y = 16; d.z = 16; d.w = 16; d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R32_UINT:           d.x = 32; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R32_SINT:           d.x = 32; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R32_FLOAT:          d.x = 32; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindFloat;    break;
+
     case DXGI_FORMAT_R32G32_UINT:        d.x = 32; d.y = 32; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R32G32_SINT:        d.x = 32; d.y = 32; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R32G32_FLOAT:       d.x = 32; d.y = 32; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindFloat;    break;
+
     case DXGI_FORMAT_R32G32B32A32_UINT:  d.x = 32; d.y = 32; d.z = 32; d.w = 32; d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R32G32B32A32_SINT:  d.x = 32; d.y = 32; d.z = 32; d.w = 32; d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R32G32B32A32_FLOAT: d.x = 32; d.y = 32; d.z = 32; d.w = 32; d.f = cudaChannelFormatKindFloat;    break;
+
     default: assert(0);
+
     }
 
     return d;
+
 }
 
 cudaExtent getCudaExtentForD3D11Extent(UINT64 width, UINT height, UINT16 depthOrArraySize, D3D12_SRV_DIMENSION d3d11SRVDimension) {
+
     cudaExtent e = { 0, 0, 0 };
 
     switch (d3d11SRVDimension) {
@@ -4314,9 +5082,11 @@ cudaExtent getCudaExtentForD3D11Extent(UINT64 width, UINT height, UINT16 depthOr
     default: assert(0);
     }
     return e;
+
 }
 
 unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D11_SRV_DIMENSION d3d11SRVDimension, D3D11_BIND_FLAG d3d11BindFlags, bool allowSurfaceLoadStore) {
+
     unsigned int flags = 0;
 
     switch (d3d11SRVDimension) {
@@ -4336,6 +5106,7 @@ unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D11_SRV_DIMENSION d3d1
     }
 
     return flags;
+
 }
 
 ##### 6.2.16.4.5.导入同步对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects-dir3d-11-int "这个标题的永久链接")
@@ -4343,7 +5114,9 @@ unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D11_SRV_DIMENSION d3d1
 通过在调用`ID3D11Device5::CreateFence`中设置标志`D3D11_FENCE_FLAG_SHARED`创建的可共享的Direct3D 11围栏对象，可以使用与该对象关联的NT句柄导入CUDA，如下所示。请注意，当不再需要时，应用程序有责任关闭手柄。NT句柄包含对资源的引用，因此在释放底层信号之前，必须明确释放它。
 
 cudaExternalSemaphore_t importD3D11FenceFromNTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4357,12 +5130,15 @@ cudaExternalSemaphore_t importD3D11FenceFromNTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 可共享的Direct3D 11围栏对象也可以使用命名句柄导入，如果存在，如下所示。
 
 cudaExternalSemaphore_t importD3D11FenceFromNamedNTHandle(LPCWSTR name) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4373,12 +5149,15 @@ cudaExternalSemaphore_t importD3D11FenceFromNamedNTHandle(LPCWSTR name) {
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 通过设置flagD3D11`D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX`创建的可共享Direct3D 11资源，即`IDXGIKeyedMutex`，可共享的Direct3D 11密钥互斥对象，可以使用与该对象关联的NT句柄导入CUDA，如下所示。请注意，当不再需要时，应用程序有责任关闭手柄。NT句柄包含对资源的引用，因此在释放底层信号之前，必须明确释放它。
 
 cudaExternalSemaphore_t importD3D11KeyedMutexFromNTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4392,12 +5171,15 @@ cudaExternalSemaphore_t importD3D11KeyedMutexFromNTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 也可以使用命名句柄导入可共享的Direct3D 11键互斥对象，如果存在如下所示。
 
 cudaExternalSemaphore_t importD3D11KeyedMutexFromNamedNTHandle(LPCWSTR name) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4408,12 +5190,15 @@ cudaExternalSemaphore_t importD3D11KeyedMutexFromNamedNTHandle(LPCWSTR name) {
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 可共享的Direct3D 11键互斥对象可以使用与该对象关联的全球共享D3DKMT句柄导入CUDA，如下所示。由于全局共享的D3DKMT句柄不包含对底层内存的引用，因此当对资源的所有其他引用被销毁时，它会自动销毁。
 
 cudaExternalSemaphore_t importD3D11FenceFromKMTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4427,6 +5212,7 @@ cudaExternalSemaphore_t importD3D11FenceFromKMTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 ##### 6.2.16.4.6.在导入的同步对象上发出信号/等待[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#signaling-waiting-on-imported-synchronization-objects-dir3d-11-int "这个标题的永久链接")
@@ -4434,6 +5220,7 @@ cudaExternalSemaphore_t importD3D11FenceFromKMTHandle(HANDLE handle) {
 导入的Direct3D 11围栏对象可以发出信号，如下所示。发出这样的信号，将栅栏对象将其值设置为指定的值。等待此信号的相應等待必須在Direct3D 11中发出。此外，在此信号发出后，必须发出等待此信号。
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long value, cudaStream_t stream) {
+
     cudaExternalSemaphoreSignalParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4441,11 +5228,13 @@ void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long 
     params.params.fence.value = value;
 
     cudaSignalExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 导入的Direct3D 11围栏对象可以等待，如下所示。等待这样的栅栏对象，直到其值大于或等于指定值。必须在Direct3D 11中发出此等待的相应信号。此外，在发出此等待之前，必须发出信号。
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long value, cudaStream_t stream) {
+
     cudaExternalSemaphoreWaitParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4453,11 +5242,13 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long va
     params.params.fence.value = value;
 
     cudaWaitExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 导入的Direct3D 11键互斥对象可以发出信号，如下所示。通过指定密钥值来发出此类密钥互斥体对象的信号，释放该值的密钥互斥体。等待此信号的相应等待必须在Direct3D 11中以相同的密钥值发出。此外，在发出此信号后，必须发出Direct3D 11等待。
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long key, cudaStream_t stream) {
+
     cudaExternalSemaphoreSignalParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4465,11 +5256,13 @@ void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long 
     params.params.keyedmutex.key = key;
 
     cudaSignalExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 导入的Direct3D 11键互斥对象可以等待，如下所示。在等待这种键控互斥时，需要以毫秒为单位的超时值。等待操作等待，直到密钥互斥值等于指定的密钥值或超时已过。超时间隔也可以是无限值。如果指定了无限值，超时永远不会过去。必须使用windows INFINITE宏来指定无限超时。必须在Direct3D 11中发出此等待的相应信号。此外，在发出此等待之前，必须发出Direct3D 11信号。
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long key, unsigned int timeoutMs, cudaStream_t stream) {
+
     cudaExternalSemaphoreWaitParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4478,6 +5271,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long ke
     params.params.keyedmutex.timeoutMs = timeoutMs;
 
     cudaWaitExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 #### 6.2.16.5.英伟达软件通信接口互操作性（NVSCI）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nvidia-software-communication-interface-interoperability-nvsci "这个标题的永久链接")
@@ -4485,9 +5279,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long ke
 NvSciBuf和NvSciSync是为以下目的而开发的接口：
 
 - NvSciBuf：允许应用程序在内存中分配和交换缓冲区
-    
 - NvSciSync：允许应用程序在操作边界管理同步对象
-    
 
 有关这些接口的更多详细信息，请访问：[https://docs.nvidia.com/drive](https://docs.nvidia.com/drive)。
 
@@ -4496,15 +5288,10 @@ NvSciBuf和NvSciSync是为以下目的而开发的接口：
 要分配与给定CUDA设备兼容的NvSciBuf对象，必须在NvSciBuf属性列表中使用`NvSciBufGeneralAttrKey_GpuId`设置相应的GPU ID，如下所示。可选的，应用程序可以指定以下属性-
 
 - `NvSciBufGeneralAttrKey_NeedCpuAccess`：指定缓冲区是否需要CPU访问
-    
 - `NvSciBufRawBufferAttrKey_Align`：指定对齐要求`NvSciBufType_RawBuffer`
-    
 - `NvSciBufGeneralAttrKey_RequiredPerm`：每个NvSciBuf内存对象实例可以为不同的UMD配置不同的访问权限。例如，为了为GPU提供对缓冲区的只读访问权限，请使用`NvSciBufObjDupWithReducePerm()`创建一个重复的NvSciBuf对象，`NvSciBufAccessPerm_Readonly`作为输入参数。然后将这个新创建的重复对象导入到CUDA中，权限减少，如图所示
-    
 - `NvSciBufGeneralAttrKey_EnableGpuCache`：控制GPU L2缓存性
-    
 - `NvSciBufGeneralAttrKey_EnableGpuCompression`：指定GPU压缩
-    
 
 笔记
 
@@ -4513,11 +5300,17 @@ NvSciBuf和NvSciSync是为以下目的而开发的接口：
 以下代码片段说明了它们的示例用法。
 
 NvSciBufObj createNvSciBufObject() {
+
    // Raw Buffer Attributes for CUDA
+
     NvSciBufType bufType = NvSciBufType_RawBuffer;
+
     uint64_t rawsize = SIZE;
+
     uint64_t align = 0;
+
     bool cpuaccess_flag = true;
+
     NvSciBufAttrValAccessPerm perm = NvSciBufAccessPerm_ReadWrite;
 
     NvSciRmGpuId gpuid[] ={};
@@ -4551,11 +5344,15 @@ NvSciBufObj createNvSciBufObject() {
                        &attrListConflictBuffer)
     NvSciBufObjAlloc(attrListReconciledBuffer, &bufferObjRaw);
     return bufferObjRaw;
+
 }
 
 NvSciBufObj bufferObjRo; // Readonly NvSciBuf memory obj
+
 // Create a duplicate handle to the same memory buffer with reduced permissions
+
 NvSciBufObjDupWithReducePerm(bufferObjRaw, NvSciBufAccessPerm_Readonly, &bufferObjRo);
+
 return bufferObjRo;
 
 分配的NvSciBuf内存对象可以使用NvSciBufObj句柄在CUDA中导入，如下所示。应用程序应查询分配的NvSciBufObj，以获取填充CUDA外部内存描述符所需的属性。请注意，属性列表和NvSciBuf对象应由应用程序维护。如果导入到CUDA的NvSciBuf对象也被其他驱动程序映射，那么基于`NvSciBufGeneralAttrKey_GpuSwNeedCacheCoherency`输出属性值，应用程序必须使用NvSciSync对象（参考[导入同步对象](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects-nvsci)）作为保持CUDA和其他驱动程序之间的一致性的适当屏障。
@@ -4609,6 +5406,7 @@ cudaExternalMemory_t importNvSciBufObject (NvSciBufObj bufferObjRaw) {
     memHandleDesc.size = ret_size;
     cudaImportExternalMemory(&extMemBuffer, &memHandleDesc);
     return extMemBuffer;
+
  }
 
 ##### 6.2.16.5.2.将缓冲區映射到导入的内存对象上[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-buffers-onto-imported-memory-objects-nvsci "这个标题的永久链接")
@@ -4616,7 +5414,9 @@ cudaExternalMemory_t importNvSciBufObject (NvSciBufObj bufferObjRaw) {
 设备指针可以映射到导入的内存对象上，如下所示。映射的偏移量和大小可以根据分配的`NvSciBufObj`的属性进行填充。必须使用`cudaFree()`释放所有映射的设备指针。
 
 void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, unsigned long long size) {
+
     void *ptr = NULL;
+
     cudaExternalMemoryBufferDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4628,6 +5428,7 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 
     // Note: 'ptr' must eventually be freed using cudaFree()
     return ptr;
+
 }
 
 ##### 6.2.16.5.3.将Mipmapped数组映射到导入的内存对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-mipmapped-arrays-onto-imported-memory-objects-nvsci "这个标题的永久链接")
@@ -4639,7 +5440,9 @@ CUDA mipmapped数组可以映射到导入的内存对象上，如下所示。偏
 mip级别的数量必须为1。
 
 cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, cudaChannelFormatDesc *formatDesc, cudaExtent *extent, unsigned int flags, unsigned int numLevels) {
+
     cudaMipmappedArray_t mipmap = NULL;
+
     cudaExternalMemoryMipmappedArrayDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4654,6 +5457,7 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
     cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &desc);
 
     return mipmap;
+
 }
 
 ##### 6.2.16.5.4.导入同步对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects-nvsci "这个标题的永久链接")
@@ -4661,12 +5465,19 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
 可以使用`cudaDeviceGetNvSciSyncAttributes()`生成与给定CUDA设备兼容的NvSciSync属性。返回的属性列表可用于创建`NvSciSyncObj`，该NvSciSyncObj保证与给定的CUDA设备兼容。
 
 NvSciSyncObj createNvSciSyncObject() {
+
     NvSciSyncObj nvSciSyncObj
+
     int cudaDev0 = 0;
+
     int cudaDev1 = 1;
+
     NvSciSyncAttrList signalerAttrList = NULL;
+
     NvSciSyncAttrList waiterAttrList = NULL;
+
     NvSciSyncAttrList reconciledList = NULL;
+
     NvSciSyncAttrList newConflictList = NULL;
 
     NvSciSyncAttrListCreate(module, &signalerAttrList);
@@ -4683,12 +5494,15 @@ NvSciSyncObj createNvSciSyncObject() {
     NvSciSyncObjAlloc(reconciledList, &nvSciSyncObj);
 
     return nvSciSyncObj;
+
 }
 
 NvSciSync对象（如上创建）可以使用如下所示的NvSciSyncObj句柄导入CUDA。请注意，即使导入后，NvSciSyncObj句柄的所有权仍与应用程序有。
 
 cudaExternalSemaphore_t importNvSciSyncObject(void* nvSciSyncObj) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4701,6 +5515,7 @@ cudaExternalSemaphore_t importNvSciSyncObject(void* nvSciSyncObj) {
     // Deleting/Freeing the nvSciSyncObj beyond this point will lead to undefined behavior in CUDA
 
     return extSem;
+
 }
 
 ##### 6.2.16.5.5.在导入的同步对象上发出信号/等待[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#signaling-waiting-on-imported-synchronization-objects-nvsci "这个标题的永久链接")
@@ -4708,6 +5523,7 @@ cudaExternalSemaphore_t importNvSciSyncObject(void* nvSciSyncObj) {
 导入的`NvSciSyncObj`对象可以发出如下所述的信号。信号NvSciSync支持的信号灯对象初始化作为输入传递的_栅栏_参数。这个围栏参数由与上述信号对应的等待操作等待。此外，在此信号发出后，必须发出等待此信号。如果标志设置为`cudaExternalSemaphoreSignalSkipNvSciBufMemSync`，则默认作为信号操作的一部分执行的内存同步操作（在此过程中导入的所有NvSciBuf）将被跳过。当`NvsciBufGeneralAttrKey_GpuSwNeedCacheCoherency`为FALSE时，应设置此标志。
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream, void *fence) {
+
     cudaExternalSemaphoreSignalParams signalParams = {};
 
     memset(&signalParams, 0, sizeof(signalParams));
@@ -4722,6 +5538,7 @@ void signalExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream
 导入的`NvSciSyncObj`对象可以等待，如下所述。等待NvSciSync支持的信号灯对象，直到输入_围栏_参数由相应的信号器发出信号。此外，在发出等待之前，必须发出信号。如果标志设置为`cudaExternalSemaphoreWaitSkipNvSciBufMemSync`，则默认作为信号操作的一部分执行的内存同步操作（在此过程中导入的所有NvSciBuf）将被跳过。当`NvsciBufGeneralAttrKey_GpuSwNeedCacheCoherency`为FALSE时，应设置此标志。
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream, void *fence) {
+
      cudaExternalSemaphoreWaitParams waitParams = {};
 
     memset(&waitParams, 0, sizeof(waitParams));
@@ -4730,6 +5547,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream, 
     waitParams.flags = 0; //OR cudaExternalSemaphoreWaitSkipNvSciBufMemSync
 
     cudaWaitExternalSemaphoresAsync(&extSem, &waitParams, 1, stream);
+
 }
 
 ## 6.3.版本和兼容性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#versioning-and-compatibility "这个标题的永久链接")
@@ -4741,11 +5559,8 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream, 
 需要注意的是，支持的版本的混合和匹配有限制：
 
 - 由于CUDA驱动程序一次只能在系统上安装一个版本，因此已安装的驱动程序必须与构建任何必须在该系统上运行的应用程序、插件或库的最大驱动程序API版本相同或更高的版本。
-    
 - 应用程序使用的所有插件和库都必须使用相同版本的CUDA运行时，除非它们静态链接到运行时，在这种情况下，运行时的多个版本可以在同一进程空间中共存。请注意，如果使用`nvcc`链接应用程序，默认将使用CUDA运行时库的静态版本，所有CUDA工具包库都与CUDA运行时静态链接。
-    
 - 应用程序使用的所有插件和库必须使用使用运行时的任何库的相同版本（如cuFFT、cuBLAS......），除非静态链接到这些库。
-    
 
 ![驱动程序API向后兼容，但不向前兼容](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/compatibility-of-cuda-versions.png)
 
@@ -4758,11 +5573,8 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream, 
 在运行Windows Server 2008及更高版本或Linux的特斯拉解决方案上，可以使用NVIDIA的系统管理接口（nvidia-smi）在以下三种模式之一中设置系统中的任何设备，nvidia-smi是作为驱动程序的一部分分发的工具：
 
 - _默认_计算模式：多个主机线程可以同时使用该设备（使用运行时API时，通过在此设备上调用`cudaSetDevice()`），或在使用驱动程序API时将当前设置为与设备关联的上下文）。
-    
 - _专属进程_计算模式：在系统中的所有进程中，只能在设备上创建一个CUDA上下文。在创建该上下文的进程中，上下文可以是最新的，可以到所需的尽可能多的线程。
-    
 - _禁止的_计算模式：无法在设备上创建CUDA上下文。
-    
 
 这特别意味着，如果设备0处于禁止模式或专属进程模式，并由另一个进程使用，而不明确调用`cudaSetDevice()`的运行时API的主机线程可能会与设备0以外的设备相关联。`cudaSetValidDevices()`可用于从优先级设备列表中设置设备。
 
@@ -4829,11 +5641,8 @@ SIMT架构类似于SIMD（单指令，多数据）向量组织，即单个指令
 ceil(TWsize,1)
 
 - _T是_每个块的线程数，
-    
 - _Wsize_是经度大小，等于32，
-    
 - ceil(x, y)等于x四舍五入到y的最接近的倍数。
-    
 
 分配给一个区块的寄存器总数和共享内存总数记录在CUDA工具包中提供的CUDA占用率计算器中。
 
@@ -4848,13 +5657,9 @@ ceil(TWsize,1)
 性能优化围绕四个基本策略展开：
 
 - 最大化并行执行，以实现最大利用率；
-    
 - 优化内存使用，以实现最大的内存吞吐量；
-    
 - 优化指令使用，以实现最大的指令吞吐量；
-    
 - 尽量减少内存崩溃。
-    
 
 哪种策略将为应用程序的特定部分产生最佳性能增益取决于该部分的性能限制器；例如，优化主要由内存访问限制的内核的指令使用不会产生任何显著的性能增益。因此，应通过测量和监测性能限制器，例如使用CUDA分析器来不断指导优化工作。此外，将特定内核的浮点操作吞吐量或内存吞吐量（以哪个更有意义）与设备的相应峰值理论吞吐量进行比较，表明内核有多少改进空间。
 
@@ -4881,9 +5686,7 @@ ceil(TWsize,1)
 如[硬件多线程](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#hardware-multithreading)中所述，GPU多处理器主要依赖于线程级并行性，以最大限度地利用其功能单元。因此，利用率与居民翘曲的数量直接相关。在每个指令问题时，经编调度器都会选择一个准备执行的指令。该指令可以是同一经编的另一个独立指令，利用指令级并行性，或者更常见的是另一个经编的指令，利用线程级并行性。如果选择了准备执行的指令，它将发给经编的[活动](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#simt-architecture-notes)线程。扭曲准备执行其下一个指令所需的时钟周期数称为_延迟_，当所有扭曲调度器在该延迟期间的每个时钟周期总是为一些扭曲发出一些指令时，或者换句话说，当延迟完全“隐藏”时，就可以实现充分利用。隐藏L时钟周期延迟所需的指令数量取决于这些指令的相应吞吐量（有关各种算术指令的吞吐量，请参阅[CUDA C++最佳实践指南](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#arithmetic-instructions)）。如果我们假设指令具有最大吞吐量，它等于：
 
 - _4L_适用于计算能力5.x、6.1、6.2、7.x和8.x的设备，因为对于这些设备，多处理器在一次四个经编的时钟周期内，每次发出一个指令，如[计算能力](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capabilities)中提到的。
-    
 - _2L_对于计算能力6.0的设备，因为对于这些设备，每个周期发出的两个指令是两个不同翘曲的一个指令。
-    
 
 扭曲尚未准备好执行其下一个指令的最常见原因是指令的输入操作数尚未可用。
 
@@ -4910,27 +5713,32 @@ The number of blocks and warps residing on each multiprocessor for a given kerne
 存在几个API功能，以帮助程序员根据寄存器和共享内存要求选择线程块大小和集群大小。
 
 - 占用计算器API，`cudaOccupancyMaxActiveBlocksPerMultiprocessor`，可以根据内核的块大小和共享内存使用情况提供占用预测。该函数以每个多处理器的并发线程块数量报告占用率。
-    
     - 请注意，此值可以转换为其他指标。乘以每个块的经编数，得出每个多处理器的并发经编数；进一步将并发经编除以每个多处理器的最大经编，得出占用率为百分比。
-        
 - 基于占用的启动配置器API，`cudaOccupancyMaxPotentialBlockSize`和`cudaOccupancyMaxPotentialBlockSizeVariableSMem`，以启发式方式计算实现最大多处理器级占用的执行配置。
-    
 - 占用计算器API，`cudaOccupancyMaxActiveClusters`，可以根据内核的集群大小、块大小和共享内存使用情况提供占用预测。该功能以系统中GPU上给定大小的最大活动集群数量来报告占用率。
-    
 
 以下代码示例计算了MyKernel的占用率。然后，它报告占用水平，以及每个多处理器的并发翘曲率与最大翘曲率之间的比率。
 
 // Device code
+
 __global__ void MyKernel(int *d, int *a, int *b)
+
 {
+
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
     d[idx] = a[idx] * b[idx];
+
 }
 
 // Host code
+
 int main()
+
 {
+
     int numBlocks;        // Occupancy in terms of active blocks
+
     int blockSize = 32;
 
     // These variables are used to convert occupancy to warps
@@ -4954,27 +5762,43 @@ int main()
     std::cout << "Occupancy: " << (double)activeWarps / maxWarps * 100 << "%" << std::endl;
 
     return 0;
+
 }
 
 以下代码示例根据用户输入配置了MyKernel的基于占用的内核启动。
 
 // Device code
+
 __global__ void MyKernel(int *array, int arrayCount)
+
 {
+
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
     if (idx < arrayCount) {
+
         array[idx] *= array[idx];
+
     }
+
 }
 
 // Host code
+
 int launchMyKernel(int *array, int arrayCount)
+
 {
+
     int blockSize;      // The launch configurator returned block size
+
     int minGridSize;    // The minimum grid size needed to achieve the
+
                         // maximum occupancy for a full device
+
                         // launch
+
     int gridSize;       // The actual grid size needed, based on input
+
                         // size
 
     cudaOccupancyMaxPotentialBlockSize(
@@ -4994,6 +5818,7 @@ int launchMyKernel(int *array, int arrayCount)
     // cudaOccupancyMaxActiveBlocksPerMultiprocessor
 
     return 0;
+
 }
 
 以下代码示例展示了如何使用集群占用API来查找给定大小的活动集群的最大数量。下面的示例代码计算大小为2的集群占用率，每个区块128个线程。
@@ -5001,26 +5826,39 @@ int launchMyKernel(int *array, int arrayCount)
 Cluster size of 8 is forward compatible starting compute capability 9.0, except on GPU hardware or MIG configurations which are too small to support 8 multiprocessors in which case the maximum cluster size will be reduced. But it is recommended that the users query the maximum cluster size before launching a cluster kernel. Max cluster size can be queried using `cudaOccupancyMaxPotentialClusterSize` API.
 
 {
+
   cudaLaunchConfig_t config = {0};
+
   config.gridDim = number_of_blocks;
+
   config.blockDim = 128; // threads_per_block = 128
+
   config.dynamicSmemBytes = dynamic_shared_memory_size;
 
   cudaLaunchAttribute attribute[1];
+
   attribute[0].id = cudaLaunchAttributeClusterDimension;
+
   attribute[0].val.clusterDim.x = 2; // cluster_size = 2
+
   attribute[0].val.clusterDim.y = 1;
+
   attribute[0].val.clusterDim.z = 1;
+
   config.attrs = attribute;
+
   config.numAttrs = 1;
 
   int max_cluster_size = 0;
+
   cudaOccupancyMaxPotentialClusterSize(&max_cluster_size, (void *)kernel, &config);
 
   int max_active_clusters = 0;
+
   cudaOccupancyMaxActiveClusters(&max_active_clusters, (void *)kernel, &config);
 
   std::cout << "Max Active Clusters of size 2: " << max_active_clusters << std::endl;
+
 }
 
 CUDA Nsight计算用户界面还为任何不能依赖CUDA软件堆栈的用例提供了独立的占用计算器和`<CUDA_Toolkit_Path>/include/cuda_occupancy.h`中的启动配置器实现。Nsight计算版本的占用率计算器作为学习工具特别有用，可以可视化影响占用率的参数变化的影响（块大小、每个线程的寄存器和每个线程的共享内存）。
@@ -5036,15 +5874,10 @@ CUDA Nsight计算用户界面还为任何不能依赖CUDA软件堆栈的用例�
 共享内存等同于用户管理的缓存：应用程序明确分配和访问它。如[CUDA运行时](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-c-runtime)所示，一个典型的编程模式是将来自设备内存的数据分阶段到共享内存中；换句话说，有一个块的每个线程：
 
 - 将数据从设备内存加载到共享内存，
-    
 - 与块的所有其他线程同步，以便每个线程都可以安全地读取由不同线程填充的共享内存位置，
-    
 - 在共享内存中处理数据，
-    
 - 如有必要，请再次同步，以确保共享内存已更新结果，
-    
 - 将结果写回设备内存中。
-    
 
 对于一些应用程序（例如，全局内存访问模式与数据相关），传统的硬件管理缓存更适合利用数据局部性。如[计算能力7.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-7-x)、[计算能力8.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-8-x)和[计算能力9.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-9-0)中提到的，对于计算能力7.x、8.x和9.0的设备，L1和共享内存都使用相同的片上内存，每个内核调用都可以配置多少内存专用于L1与共享内存。
 
@@ -5066,7 +5899,7 @@ CUDA Nsight计算用户界面还为任何不能依赖CUDA软件堆栈的用例�
 
 访问可定址内存（即全局、本地、共享、常量或纹理内存）的指令可能需要多次重新发放，具体取决于内存地址在经编内线程中的分布情况。分布如何以这种方式影响指令吞吐量是特定于每种内存类型的，并在以下章节中进行了描述。例如，对于全局内存，一般来说，地址越分散，吞吐量就越低。
 
-**全球记忆**
+__全球记忆__
 
 全局内存位于设备内存中，设备内存通过32、64或128字节的内存事务访问。这些内存事务必须自然对齐：只有与其大小对齐的32、64或128字节的设备内存段（即其第一个地址是其大小的倍数）才能通过内存事务读取或写入。
 
@@ -5077,13 +5910,10 @@ CUDA Nsight计算用户界面还为任何不能依赖CUDA软件堆栈的用例�
 因此，为了最大化全局内存吞吐量，通过以下方式最大化融合很重要：
 
 - 遵循基于[计算能力5.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-5-x)、[计算能力6.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-6-x)、[计算能力7.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-7-x)、[计算能力8.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-8-x)、[计算能力9.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-9-0)、[计算能力10.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-10-0)和[计算能力12.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-12-0)的最优化访问模式。
-    
 - 使用符合以下“尺寸和对齐要求”部分中详述的尺寸和对齐要求的数据类型，
-    
 - 在某些情况下，例如，在访问二维数组时，如下文“二维数组”部分所述，填充数据。
-    
 
-**尺寸和对齐要求**
+__尺寸和对齐要求__
 
 全局内存指令支持读取或写入大小等于1、2、4、8或16字节的单词。当且仅当数据类型的大小为1、2、4、8或16字节且数据自然对齐（即其地址是该大小的倍数）时，对全局内存中数据的任何访问（通过变量或指针）都会编译为单个全局内存指令。
 
@@ -5094,23 +5924,30 @@ CUDA Nsight计算用户界面还为任何不能依赖CUDA软件堆栈的用例�
 对于结构，编译器可以使用对齐指定符`__align__(8)or__align__(16)`来强制执行大小和对齐要求，例如
 
 struct __align__(8) {
+
     float x;
+
     float y;
+
 };
 
 或者
 
 struct __align__(16) {
+
     float x;
+
     float y;
+
     float z;
+
 };
 
 位于全局内存中的变量或由驱动程序或运行时API的内存分配例程之一返回的任何地址始终与至少256字节对齐。
 
 读取非自然对齐的8字节或16字节单词会产生不正确的结果（仅几个单词），因此必须特别注意保持这些类型的任何值或值数组的起始地址对齐。这可能容易被忽视的典型情况是使用一些自定义全局内存分配方案时，其中多个数组的分配（对`cudaMalloc()`或`cuMemAlloc()`多次调用）被分配分割成多个数组的单个内存块所取代，在这种情况下，每个数组的起始地址都与块的起始地址相偏移。
 
-**二维阵列**
+__二维阵列__
 
 一个常见的全局内存访问模式是，索引的每个线程`(tx,ty)`使用以下地址访问宽度为2D数组的一个元素，该数组位于类型类型`type*`的地址`BaseAddress`（其中`type`符合[最大化利用率](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#maximize-utilization)中描述的要求）：
 
@@ -5120,16 +5957,13 @@ BaseAddress + width * ty + tx
 
 特别是，这意味着宽度不是此大小的倍数的数组，如果实际分配的宽度四舍五入到最接近此大小的倍数，并相应地填充其行，则可以更有效地访问。参考手册中描述的`cudaMallocPitch()`和`cuMemAllocPitch()`函数以及相关的内存复制函数使程序员能够编写非硬件依赖性代码来分配符合这些约束的数组。
 
-**本地记忆**
+__本地记忆__
 
 本地内存访问仅适用于[可变内存空间指定符中](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#variable-memory-space-specifiers)提到的一些自动变量。编译器可能放置在本地内存中的自动变量是：
 
 - 无法确定它们以恒定数量索引的数组，
-    
 - 会占用过多寄存器空间的大型结构或数组，
-    
 - 如果核心使用比可用更多的寄存器（這也稱為_寄存器溢位_），任何變數。
-    
 
 对_PTX_汇编代码的检查（通过使用`-ptx`或`-keep`选项编译获得）将告诉变量在第一个编译阶段是否已放置在本地内存中，因为它将使用`.local`符声明，并使用`ld.local`和`st.local`记符访问。即使没有，后续的编译阶段可能仍然会做出不同的决定，尽管如果他们发现它为目标架构占用了太多寄存器空间：使用`cuobjdump`检查_cubin_对象将判断是否是这种情况。此外，当使用`--ptxas-options=-v`选项编译时，编译器会报告每个内核（`lmem`）的总本地内存使用量。请注意，一些数学函数的实现路径可能会访问本地内存。
 
@@ -5137,7 +5971,7 @@ BaseAddress + width * ty + tx
 
 在具有计算能力5.x以后的设备上，本地内存访问总是以与全局内存访问相同的方式在L2中缓存（请参阅[计算能力5.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-5-x)和[计算能力6.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-6-x)）。
 
-**共享内存**
+__共享内存__
 
 由于它是片上存储器，共享内存比本地或全局内存具有更高的带宽和更低的延迟。
 
@@ -5147,7 +5981,7 @@ BaseAddress + width * ty + tx
 
 因此，为了获得最大的性能，了解内存地址如何映射到内存库，以便安排内存请求，从而最大限度地减少内存库冲突，这一点很重要。[计算能力5.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-5-x)、[计算能力6.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-6-x)、[计算能力7.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-7-x)、[计算能力8.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-8-x)、[计算能力9.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-9-0)、[计算能力10.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-10-0)和[计算能力12.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-12-0)中分别描述了这些计算能力的设备。
 
-**恒定记忆**
+__恒定记忆__
 
 恒定内存空间位于设备内存中，并缓存在恒定缓存中。
 
@@ -5155,20 +5989,16 @@ BaseAddress + width * ty + tx
 
 如果缓存被击中，则以恒定缓存的吞吐量或设备内存的吞吐量对生成的请求进行服务。
 
-**纹理和表面记忆**
+__纹理和表面记忆__
 
 纹理和表面内存空间位于设备内存中，并缓存在纹理缓存中，因此纹理获取或表面读取仅在缓存错过时需要从设备内存中读取一个内存，否则只需从纹理缓存中读取一次。纹理缓存针对2D空间局部进行了优化，因此读取2D中紧密的纹理或表面地址的相同经编线程将达到最佳性能。此外，它专为具有恒定延迟的流式获取而设计；缓存命中可以减少DRAM带宽需求，但不会降低获取延迟。
 
 通过纹理或表面获取读取设备内存具有一些好处，使其成为从全局或常量内存读取设备内存的有利替代方案：
 
 - 如果内存读取不遵循全局或常量内存读取必须遵循的访问模式以获得良好的性能，那么只要在纹理获取或表面读取中存在局部性，就可以实现更高的带宽；
-    
 - 定址计算由专用单元在内核之外执行；
-    
 - 打包的数据可以在单个操作中广播到单独的变量；
-    
 - 8位和16位整数输入数据可以选择转换为[0.0, 1.0]或[-1.0, 1.0]范围内的32位浮点值（见[纹理内存](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-memory)）。
-    
 
 ## 8.4.最大化指令吞吐量[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#maximize-instruction-throughput "这个标题的永久链接")
 
@@ -5179,13 +6009,9 @@ BaseAddress + width * ty + tx
 经常不断分配和释放内存的应用程序可能会发现，随着时间的推移，分配调用往往会变慢，直到一定限制。由于将内存释放回操作系统供其自己使用的性质，这通常是意料之中的。为了在这方面的最佳表现，我们建议以下内容：
 
 - Try to size your allocation to the problem at hand. Don’t try to allocate all available memory with `cudaMalloc` / `cudaMallocHost` / `cuMemCreate`, as this forces memory to be resident immediately and prevents other applications from being able to use that memory. This can put more pressure on operating system schedulers, or just prevent other applications using the same GPU from running entirely.
-    
 - 尝试在应用程序早期以适当大小的分配分配内存，并且仅在应用程序没有任何用途时才进行分配。减少应用程序中的`cudaMalloc`调用数量，特别是在性能关键区域。
-    
 - 如果应用程序无法分配足够的设备内存，请考虑使用其他内存类型，如`cudaMallocHost`或`cudaMallocManaged`，这可能没有性能，但将使应用程序取得进展。
-    
 - 对于支持该功能的平台，`cudaMallocManaged`允许过度订阅，启用正确的`cudaMemAdvise`策略后，将允许应用程序保留大部分（如果不是全部）`cudaMalloc`的性能。`cudaMallocManaged`也不会强制分配为常驻，直到需要或预取，从而减轻了操作系统调度器的整体压力，并更好地启用多原则用例。
-    
 
 # 9.支持CUDA的GPU[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-enabled-gpus "这个标题的永久链接")
 
@@ -5204,11 +6030,8 @@ BaseAddress + width * ty + tx
 `__global__`执行空间指定符将函数声明为内核。这样的功能是：
 
 - 在设备上执行，
-    
 - 可由主机呼叫，
-    
 - 可从计算能力5.0或更高版本的设备调用（有关更多详细信息，请参阅[CUDA动态并行](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-dynamic-parallelism)）。
-    
 
 `__global__`函数必须具有无效返回类型，并且不能成为类的成员。
 
@@ -5221,9 +6044,7 @@ BaseAddress + width * ty + tx
 `__device__`执行空间指定符声明一个函数：
 
 - 在设备上执行，
-    
 - 只能从设备呼叫。
-    
 
 `__global__`和`__device__`执行空间指定符不能一起使用。
 
@@ -5232,9 +6053,7 @@ BaseAddress + width * ty + tx
 `__host__`执行空间指定符声明一个函数：
 
 - 在主机上执行，
-    
 - 只能从主机呼叫。
-    
 
 等同于声明仅使用`__host__`执行空间指定符的函数，或者声明没有任何`__host__`、`__device__`或`__global__`执行空间指定符的函数；无论哪种情况，该函数都仅为主机编译。
 
@@ -5243,18 +6062,31 @@ BaseAddress + width * ty + tx
 然而，`__device__`和`__host__`执行空间指定符可以一起使用，在这种情况下，该函数是为主机和设备编译的。[应用程序兼容性](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility)中引入的`__CUDA_ARCH__`宏可用于区分主机和设备之间的代码路径：
 
 __host__ __device__ func()
+
 {
+
 #if __CUDA_ARCH__ >= 800
+
    // Device code path for compute capability 8.x
+
 #elif __CUDA_ARCH__ >= 700
+
    // Device code path for compute capability 7.x
+
 #elif __CUDA_ARCH__ >= 600
+
    // Device code path for compute capability 6.x
+
 #elif __CUDA_ARCH__ >= 500
+
    // Device code path for compute capability 5.x
+
 #elif !defined(__CUDA_ARCH__)
+
    // Host code path
+
 #endif
+
 }
 
 ### 10.1.4.未定义的行为[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#undefined-behavior "这个标题的永久链接")
@@ -5262,9 +6094,7 @@ __host__ __device__ func()
 在以下时候，“跨执行空间”调用具有未定义的行为：
 
 - `__CUDA_ARCH__` is defined, a call from within a `__global__`, `__device__` or `__host__ __device__` function to a `__host__` function.
-    
 - `__CUDA_ARCH__`是未定义的，从`__host__`函数内调用`__device__`函数。[4](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn11)
-    
 
 ### 10.1.5. __noinline__和__forceinline__[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#noinline-and-forceinline "这个标题的永久链接")
 
@@ -5295,26 +6125,18 @@ __host__ __device__ func()
 最多，接下来三个部分中定义的其他内存空间指定符之一可以与`__device__`一起使用，以进一步表示变量属于哪个内存空间。如果它们都不存在，变量：
 
 - 居住在全球内存空间，
-    
 - 拥有创建CUDA上下文的生命周期，
-    
 - 每个设备都有一个不同的对象，
-    
 - Is accessible from all the threads within the grid and from the host through the runtime library `(cudaGetSymbolAddress()` / `cudaGetSymbolSize()` / `cudaMemcpyToSymbol()` / `cudaMemcpyFromSymbol()`).
-    
 
 ### 10.2.2. __恒定__[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#constant "这个标题的永久链接")
 
 `__constant__`内存空间指定符，可选择与`__device__`一起使用，声明一个变量：
 
 - 位于恒定的内存空间中，
-    
 - 拥有创建CUDA上下文的生命周期，
-    
 - 每个设备都有一个不同的对象，
-    
 - Is accessible from all the threads within the grid and from the host through the runtime library (`cudaGetSymbolAddress()` / `cudaGetSymbolSize()` / `cudaMemcpyToSymbol()` / `cudaMemcpyFromSymbol()`).
-    
 
 当有一个并发网格在该网格生命周期的任何点访问该常量时，从主机修改常量的行为是未定义的。
 
@@ -5323,15 +6145,10 @@ __host__ __device__ func()
 `__shared__`内存空间指定符，可选择与`__device__`一起使用，声明一个变量：
 
 - 位于线程块的共享内存空间中，
-    
 - 拥有块的寿命，
-    
 - 每个块都有一个不同的对象，
-    
 - 只能从块内的所有线程访问，
-    
 - 没有固定的地址。
-    
 
 当将共享内存中的变量声明为外部数组时，例如
 
@@ -5340,26 +6157,39 @@ extern __shared__ float shared[];
 阵列的大小在启动时确定（请参阅[执行配置](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration)）。以这种方式声明的所有变量，从内存中的同一地址开始，因此数组中变量的布局必须通过偏移量进行显式管理。例如，如果一个人想要等同于
 
 short array0[128];
+
 float array1[64];
+
 int   array2[256];
 
 在动态分配的共享内存中，可以通过以下方式声明和初始化数组：
 
 extern __shared__ float array[];
+
 __device__ void func()      // __device__ or __global__ function
+
 {
+
     short* array0 = (short*)array;
+
     float* array1 = (float*)&array0[128];
+
     int*   array2 =   (int*)&array1[64];
+
 }
 
 请注意，指针需要与它们所指向的类型对齐，因此，例如，以下代码不起作用，因为数组1没有对齐到4个字节。
 
 extern __shared__ float array[];
+
 __device__ void func()      // __device__ or __global__ function
+
 {
+
     short* array0 = (short*)array;
+
     float* array1 = (float*)&array0[127];
+
 }
 
 [表7](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#vector-types-alignment-requirements-in-device-code)列出了内置矢量类型的对齐要求。
@@ -5369,33 +6199,29 @@ __device__ void func()      // __device__ or __global__ function
 大于或等于7.0的计算架构的`__grid_constant__`注释注释了非引用类型的`const`限定`__global__`函数参数：
 
 - 拥有网格的寿命，
-    
 - 对网格是私有的，即该对象无法访问主机线程和其他网格（包括子网格）的线程，
-    
 - 每个网格都有一个不同的对象，即网格中的所有线程都看到相同的地址，
-    
 - 是只读的，即修改`__grid_constant__`对象或其任何子对象都是_未定义的行为_，包括`mutable`成员。
-    
 
 要求：
 
 - 用`__grid_constant__`注释的内核参数必须具有`const`限定的非引用类型。
-    
 - 所有函数声明必须与任何`__grid_constant_`参数相匹配。
-    
 - 函数模板专业化必须与任何`__grid_constant__`参数的主要模板声明相匹配。
-    
 - 函数模板实例化指令必须与任何`__grid_constant__`参数的主模板声明相匹配。
-    
 
 如果获取了`__global__`函数参数的地址，编译器通常会在线程本地内存中复制内核参数，并使用副本的地址来部分支持C++语义，这允许每个线程修改函数参数的本地副本。用`__grid_constant__`注释`__global__`函数参数，确保编译器不会在线程本地内存中创建内核参数的副本，而是使用参数本身的通用地址。避免本地复制可能会提高性能。
 
 __device__ void unknown_function(S const&);
+
 __global__ void kernel(const __grid_constant__ S s) {
+
    s.x += threadIdx.x;  // Undefined Behavior: tried to modify read-only memory
 
    // Compiler will _not_ create a per-thread thread local copy of "s":
+
    unknown_function(s);
+
 }
 
 ### 10.2.5. __管理__[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#managed "这个标题的永久链接")
@@ -5403,9 +6229,7 @@ __global__ void kernel(const __grid_constant__ S s) {
 `__managed__`内存空间指定符，可选择与`__device__`一起使用，声明一个变量：
 
 - 可以从设备和主机代码中引用，例如，可以获取其地址，也可以直接从设备或主机函数读取或写入。
-    
 - 具有应用程序的生命周期。
-    
 
 有关更多详细信息，请参阅[__managed__内存空间指定符](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#managed-specifier)。
 
@@ -5418,16 +6242,27 @@ C99中引入了受限的指针，以缓解C型语言中存在的锯齿问题，�
 这是一个受别名问题约束的示例，使用受限指针可以帮助编译器减少指令数量：
 
 void foo(const float* a,
+
          const float* b,
+
          float* c)
+
 {
+
     c[0] = a[0] * b[0];
+
     c[1] = a[0] * b[0];
+
     c[2] = a[0] * b[0] * a[1];
+
     c[3] = a[0] * a[1];
+
     c[4] = a[0] * b[0];
+
     c[5] = b[0];
+
     ...
+
 }
 
 在C型语言中，指针`a`和`c`可以是别名的，因此任何通过`c`的写入都可以修改`a`或`b`的元素。这意味着，为了保证功能正确性，编译器不能将`a[0]`和`b[0]`加载到寄存器中，将它们相乘，并将结果存储在`c[0]`和`c[1]`中，因为如果`a[0]`与`c[0]`的位置确实相同，结果将与抽象执行模型不同。因此，编译器无法利用常见的子表达式。同样，编译器不能只是将`c[4]`的计算重新排序为`c[0]`和`c[1]`计算的接近，因为之前写入`c[3]`可能会将输入更改为`c[4]`的计算。
@@ -5435,26 +6270,43 @@ void foo(const float* a,
 通过使`a`和`c`限制指针，程序员向编译器断言，指针实际上不是别名的，在这种情况下，这意味着通过`c`写入永远不会覆盖a或`b`的元素。这改变了函数原型如下：
 
 void foo(const float* __restrict__ a,
+
          const float* __restrict__ b,
+
          float* __restrict__ c);
 
 请注意，所有指针参数都需要受到限制，编译器优化器才能获得任何好处。添加`__restrict__`关键字后，编译器现在可以随心地重新排序和执行常见的子表达式消除，同时保留与抽象执行模型相同的功能：
 
 void foo(const float* __restrict__ a,
+
          const float* __restrict__ b,
+
          float* __restrict__ c)
+
 {
+
     float t0 = a[0];
+
     float t1 = b[0];
+
     float t2 = t0 * t1;
+
     float t3 = a[1];
+
     c[0] = t2;
+
     c[1] = t2;
+
     c[4] = t2;
+
     c[2] = t2 * t3;
+
     c[3] = t0 * t3;
+
     c[5] = t1;
+
     ...
+
 }
 
 这里的影响是内存访问数量减少和计算数量减少。这被由于“缓存”负载和常见的子表达式导致的寄存器压力的增加所平衡。
@@ -5474,6 +6326,7 @@ int2 make_int2(int x, int y);
 向量类型的对齐要求详见表[7。](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#vector-types-alignment-requirements-in-device-code)
 
 表7对齐要求[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#vector-types-alignment-requirements-in-device-code "此表的永久链接")
+
 |类型|对齐|
 |---|---|
 |char1，uchar1|1|
@@ -5558,15 +6411,23 @@ CUDA编程模型假设一个具有弱有序内存模型的设备，即CUDA线程
 __device__ int X = 1, Y = 2;
 
 __device__ void writeXY()
+
 {
+
     X = 10;
+
     Y = 20;
+
 }
 
 __device__ void readXY()
+
 {
+
     int B = Y;
+
     int A = X;
+
 }
 
 两个线程同时从相同的内存位置X和`Y`读取和写入。任何数据竞赛都是未定义的行为，并且没有定义的语义。`A`的结果值可以是任何东西。
@@ -5578,9 +6439,7 @@ void __threadfence_block();
 等同于[cuda::atomic_thread_fence(cuda::memory_order_seq_cst, cuda::thread_scope_block)](https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html)，并确保：
 
 - 调用`__threadfence_block()`之前，调用线程对所有内存的所有写入都被调用线程块中的所有线程观察到，在调用`__threadfence_block()`后对调用线程对所有内存的所有写入之前发生；
-    
 - 在调用`__threadfence_block()`之前，调用线程从所有内存中读取的所有读取都排序，在调用`__threadfence_block()`后，调用线程从所有内存中读取之前排序。
-    
 
 void __threadfence();
 
@@ -5593,6 +6452,7 @@ void __threadfence_system();
 `__threadfence_system()`仅支持具有2.x及以上计算能力的设备。
 
 在之前的代码示例中，我们可以在代码中插入栅栏如下：
+
 ```c++
 __device__ int X = 1, Y = 2;
 
@@ -5610,20 +6470,19 @@ __device__ void readXY()
     int A = X;
 }
 ```
+
 对于这个代码，可以观察到以下结果：
 
 - `A`等于1，B等于2，
-    
 - `A`等于10，B等于2，
-    
 - `A`等于10，B等于20。
-    
 
 第四个结果是不可能的，因为第一次写入必须在第二次写入之前可见。如果线程1和2属于同一个块，使用`__threadfence_block()`就足够了。如果线程1和2不属于同一块，如果它们是来自同一设备的CUDA线程，则必须使用`__threadfence()`），如果它们是来自两个不同设备的CUDA线程，则必须使用`__threadfence_system()`）。
 
 一个常见的用例是当线程消耗其他线程生成的一些数据时，如以下内核代码示例所示，该代码示例计算在一次调用中N个数字数组的总和。每个块首先将数组的子集相加，并将结果存储在全局内存中。当所有块完成时，最后一个块从全局内存中读取这些部分和，并将它们相加以获得最终结果。为了确定哪个块最后完成，每个块原子递增一个计数器，以表示它是通过计算和存储其部分和完成的（见关于原子函数的[原子函数](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomic-functions)）。最后一个块是接收计数器值等于`gridDim.x-1`的块。如果在存储部分总和和增加计数器之间没有设置栅栏，计数器可能会在部分总和存储之前增加，因此，可能会到达`gridDim.x-1`，并让最后一个块在内存中实际更新之前开始读取部分总和。
 
 内存围栏函数只影响线程对内存操作的排序；它们本身并不能确保这些内存操作对其他线程可见（如`__syncthreads()`对块内线程所做的那样；请参阅[同步函数](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synchronization-functions)）。在下面的代码示例中，通过将其声明为易失性来确保`result`变量上内存操作的可见性（请参阅[易失性限定符](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#volatile-qualifier)）。
+
 ```c++
 __device__ unsigned int count = 0;
 __shared__ bool isLastBlockDone;
@@ -5679,7 +6538,9 @@ __global__ void sum(const float* array, unsigned int N,
     }
 }
 ```
+
 ## 10.6.同步功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synchronization-functions "这个标题的永久链接")
+
 ```c++
 void __syncthreads();
 ```
@@ -5687,10 +6548,10 @@ void __syncthreads();
 等到线程块中的所有线程都达到这个点，并且这些线程在`__syncthreads()`之前进行的所有全局和共享内存访问都对块中的所有线程可见。
 
 - `__syncthreads()`用于协调同一块线程之间的通信。当块中的一些线程访问共享或全局内存中的相同地址时，其中一些内存访问存在潜在的写后读、读后写或写后写入危险。通过在这些访问之间同步线程，可以避免这些数据危害。
-
 - `__syncthreads()`在条件代码中是允许的，但前提是条件在整个线程块中评估相同，否则代码执行可能会挂起或产生意外副作用。
 
 计算能力2.x及以上的设备支持下面描述的`__syncthreads()`的三种变体。
+
 ```c++
 int __syncthreads_count(int predicate);
 ```
@@ -5700,6 +6561,7 @@ int __syncthreads_count(int predicate);
 ```
 int __syncthreads_and(int predicate);
 ```
+
 与`__syncthreads()`相同，具有额外的功能，即它评估块的所有线程的谓词，并且仅当谓词评估为非零时（仅当）将其返回非零。
 
 ```c++
@@ -5711,6 +6573,7 @@ int __syncthreads_or(int predicate);
 ```c++
 void __syncwarp(unsigned mask=0xffffffff);
 ```
+
 将导致执行线程等到掩码中命名的所有扭曲通道都执行了`__syncwarp()`（具有相同的掩码），然后再恢复执行。每个调用线程必须在掩码中设置自己的位，掩码中命名的所有未退出线程必须使用相同的掩码执行相应的`__syncwarp()`），否则结果是未定义的。
 
 执行`__syncwarp()`保证了参与障碍的线程之间的内存排序。因此，希望通过内存通信的经编中的线程可以存储在内存中，执行`__syncwarp()`然后安全地读取经编中其他线程存储的值。
@@ -5732,6 +6595,7 @@ void __syncwarp(unsigned mask=0xffffffff);
 ### 10.8.1.紋理物件API[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-object-api-appendix "这个标题的永久链接")
 
 #### 10.8.1.1. tex1D获取（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dfetch "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex1Dfetch(cudaTextureObject_t texObj, int x);
@@ -5740,6 +6604,7 @@ T tex1Dfetch(cudaTextureObject_t texObj, int x);
 使用整数纹理坐标`x``tex1Dfetch()`从一维纹理对象`texObj`指定的线性内存区域获取，仅适用于非规范化坐标，因此仅支持边框和夹紧寻址模式。它不执行任何纹理过滤。对于整数类型，它可以选择将整数提升为单精度浮点。
 
 #### 10.8.1.2. tex1D（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1d "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex1D(cudaTextureObject_t texObj, float x);
@@ -5748,6 +6613,7 @@ T tex1D(cudaTextureObject_t texObj, float x);
 使用纹理坐标x从一维纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.3. tex1DLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlod "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex1DLod(cudaTextureObject_t texObj, float x, float level);
@@ -5756,6 +6622,7 @@ T tex1DLod(cudaTextureObject_t texObj, float x, float level);
 从一维纹理对象`texObj`指定的CUDA数组中获取，使用细节`level`的纹理坐标x。
 
 #### 10.8.1.4. tex1DGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dgrad "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex1DGrad(cudaTextureObject_t texObj, float x, float dx, float dy);
@@ -5764,224 +6631,282 @@ T tex1DGrad(cudaTextureObject_t texObj, float x, float dx, float dy);
 使用纹理坐标x从一维纹理对象`texObj`指定的CUDA数组中获取。细节水平来自X-梯度`dx`和Y-梯度`dy`。
 
 #### 10.8.1.5. tex2D（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2d "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2D(cudaTextureObject_t texObj, float x, float y);
 ```
+
 使用纹理坐标`(x,y)`从CUDA数组或二维纹理对象`texObj`指定的线性内存区域获取。
 
 #### 10.8.1.6. tex2D（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2d-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2D(cudaTextureObject_t texObj, float x, float y, bool* isResident);
 ```
+
 使用纹理坐标`(x,y)`从二维纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.7. tex2Dgather（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgather "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2Dgather(cudaTextureObject_t texObj,
               float x, float y, int comp = 0);
 ```
+
 使用纹理坐标x和`y`以及[Texture Gather](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-gather)中描述的`comp`参数，从2D纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.8. tex2Dgather（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgather-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2Dgather(cudaTextureObject_t texObj,
             float x, float y, bool* isResident, int comp = 0);
 ```
+
 使用纹理坐标x和`y`以及[Texture Gather](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-gather)中描述的`comp`参数，从2D纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.9. tex2DGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgrad "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2DGrad(cudaTextureObject_t texObj, float x, float y,
             float2 dx, float2 dy);
 ```
+
 使用纹理坐标`(x,y)`从二维纹理对象`texObj`指定的CUDA数组中获取。细节水平来自`dx`和`dy`梯度。
 
 #### 10.8.1.10. tex2DGrad（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgrad-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2DGrad(cudaTextureObject_t texObj, float x, float y,
         float2 dx, float2 dy, bool* isResident);
 ```
+
 使用纹理坐标`(x,y)`从二维纹理对象`texObj`指定的CUDA数组中获取。细节水平来自`dx`和`dy`梯度。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.11. tex2DLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlod "这个标题的永久链接")
+
 ```c++
 template<class T>
 tex2DLod(cudaTextureObject_t texObj, float x, float y, float level);
 ```
+
 从CUDA数组或二维纹理对象`texObj`指定的线性内存区域获取，使用细节`level`纹理坐标`(x,y)`
 
 #### 10.8.1.12. tex2DLod（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlod-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 tex2DLod(cudaTextureObject_t texObj, float x, float y, float level, bool* isResident);
 ```
+
 从二维纹理对象`texObj`指定的CUDA数组中获取，使用细节级别的纹理坐标`(x,y)`还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.13. tex3D（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3d "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex3D(cudaTextureObject_t texObj, float x, float y, float z);
 ```
+
 使用纹理坐标`(x,y,z)`从三维纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.14. tex3D（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3d-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex3D(cudaTextureObject_t texObj, float x, float y, float z, bool* isResident);
 ```
+
 使用纹理坐标`(x,y,z)`从三维纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.15. tex3DLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dlod "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex3DLod(cudaTextureObject_t texObj, float x, float y, float z, float level);
 ```
+
 从CUDA数组或三维纹理对象`texObj`指定的线性内存区域获取，使用细节`level`纹理坐标`(x,y,z)`
 
 #### 10.8.1.16. tex3DLod（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dlod-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex3DLod(cudaTextureObject_t texObj, float x, float y, float z, float level, bool* isResident);
 ```
+
 从CUDA数组或三维纹理对象`texObj`指定的线性内存区域获取，使用细节`level`纹理坐标`(x,y,z)`还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.17. tex3DGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dgrad "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex3DGrad(cudaTextureObject_t texObj, float x, float y, float z,
             float4 dx, float4 dy);
 ```
+
 从三维纹理对象`texObj`指定的CUDA数组中获取，使用纹理坐标`(x,y,z)`在X和Y梯度`dx`和`dy`衍生的细节级别上。
 
 #### 10.8.1.18. tex3DGrad（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dgrad-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex3DGrad(cudaTextureObject_t texObj, float x, float y, float z,
         float4 dx, float4 dy, bool* isResident);
 ```
+
 从三维纹理对象`texObj`指定的CUDA数组中获取，使用纹理坐标`(x,y,z)`在X和Y梯度`dx`和`dy`衍生的细节级别上。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.19. tex1DLyered（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayered "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex1DLayered(cudaTextureObject_t texObj, float x, int layer);
 ```
+
 如[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)中所述，使用纹理坐标x和索引层从一维纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.20. tex1DRayeredLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayeredlod "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex1DLayeredLod(cudaTextureObject_t texObj, float x, int layer, float level);
 ```
+
 使用纹理坐标x和detaillevel从图层上一维分[层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组获取。
 
 #### 10.8.1.21. tex1DLayeredGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayeredgrad "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex1DLayeredGrad(cudaTextureObject_t texObj, float x, int layer,
                    float dx, float dy);
 ```
+
 使用纹理坐标x以及从`dx`和`dy`梯度得出的细节水平，从图层层中一维分[层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。
 
 #### 10.8.1.22. tex2DLyered（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayered "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2DLayered(cudaTextureObject_t texObj,
                float x, float y, int layer);
 ```
+
 如[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)中所述，使用纹理坐标`(x,y)`和索引层从二维纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.23. 稀疏CUDA数组的tex2DLayered()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayered-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2DLayered(cudaTextureObject_t texObj,
             float x, float y, int layer, bool* isResident);
 ```
+
 如[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)中所述，使用纹理坐标`(x,y)`和索引层从二维纹理对象`texObj`指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.24. tex2DLayeredLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredlod "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2DLayeredLod(cudaTextureObject_t texObj, float x, float y, int layer,
                   float level);
 ```
+
 使用纹理坐标`(x,y)`从层层二维[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。
 
 #### 10.8.1.25. tex2DLayeredLod（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredlod-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2DLayeredLod(cudaTextureObject_t texObj, float x, float y, int layer,
                 float level, bool* isResident);
 ```
+
 使用纹理坐标`(x,y)`从层层二维[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.26. tex2DLayeredGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredgrad "这个标题的永久链接")
+
 ```c++
 template<class T>
 T tex2DLayeredGrad(cudaTextureObject_t texObj, float x, float y, int layer,
                    float2 dx, float2 dy);
 ```
+
 使用纹理坐标`(x,y)`和从`dx`和`dy`梯度衍生的细节级别，从层层中指定的二维[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。
 
 #### 10.8.1.27. tex2DLayeredGrad（）用于稀疏CUDA数组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredgrad-for-sparse-cuda-arrays "这个标题的永久链接")
+
 ```c++
                 template<class T>
 T tex2DLayeredGrad(cudaTextureObject_t texObj, float x, float y, int layer,
                 float2 dx, float2 dy, bool* isResident);
 ```
+
 使用纹理坐标`(x,y)`和从`dx`和`dy`梯度衍生的细节级别，从层层中指定的二维[分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures)指定的CUDA数组中获取。还通过`isResident`指针返回texel是否驻留在内存中。如果没有，获取的值将是零。
 
 #### 10.8.1.28. texCubemap（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemap "这个标题的永久链接")
+
 ```c++
 template<class T>
 T texCubemap(cudaTextureObject_t texObj, float x, float y, float z);
 ```
+
 如[立方体图纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures)中所述，使用纹理坐标`(x,y,z)`获取立方体图纹理对象`texObj`指定的CUDA数组。
 
 #### 10.8.1.29. texCubemapGrad（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemapgrad "这个标题的永久链接")
+
 ```c++
 template<class T>
 T texCubemapGrad(cudaTextureObject_t texObj, float x, float, y, float z,
                 float4 dx, float4 dy);
 ```
+
 使用[立方体图纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures)中描述的纹理坐标`(x,y,z)`从立方体图纹理对象`texObj`指定的CUDA数组中获取。使用的细节级别来自`dx`和`dy`梯度。
 
 #### 10.8.1.30. texCubemapLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplod "这个标题的永久链接")
+
 ```c++
 template<class T>
 T texCubemapLod(cudaTextureObject_t texObj, float x, float, y, float z,
                 float level);
 ```
+
 使用[立方体图纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures)中描述的纹理坐标`(x,y,z)`从立方体图纹理对象`texObj`指定的CUDA数组中获取。使用的细节级别按`level`给出。
 
 #### 10.8.1.31. texCubemap分层（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayered "这个标题的永久链接")
+
 ```c++
 template<class T>
 T texCubemapLayered(cudaTextureObject_t texObj,
                     float x, float y, float z, int layer);
 ```
+
 如[Cubemap分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures)中所述，使用纹理坐标`(x,y,z)`和索引层从立方体图分层纹理对象`texObj`指定的CUDA数组中获取。
 
 #### 10.8.1.32. texCubemap分层毕业（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayeredgrad "这个标题的永久链接")
+
 ```c++
 template<class T>
 T texCubemapLayeredGrad(cudaTextureObject_t texObj, float x, float y, float z,
                        int layer, float4 dx, float4 dy);
 ```
+
 使用纹理坐标`(x,y,z)`和索引层从立方体图分层纹理对象`texObj`指定的CUDA数组中获取，如[立方体图分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures)中所述，在从`dx`和`dy`梯度中提取的细节级别。
 
 #### 10.8.1.33. texCubemapLayeredLod（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayeredlod "这个标题的永久链接")
+
 ```c++
 template<class T>
 T texCubemapLayeredLod(cudaTextureObject_t texObj, float x, float y, float z,
                        int layer, float level);
 ```
+
 使用纹理坐标`(x,y,z)`和索引层从立方体图分层纹理对象`texObj`指定的CUDA数组中获取，如[立方体图分层纹理](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures)中所述，在细节级别级别。
 
 ## 10.9.表面功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surface-functions "这个标题的永久链接")
@@ -5995,14 +6920,17 @@ T texCubemapLayeredLod(cudaTextureObject_t texObj, float x, float y, float z,
 ### 10.9.1.表面对象API[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surface-object-api-appendix "这个标题的永久链接")
 
 #### 10.9.1.1. surf1Dread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dread "这个标题的永久链接")
+
 ```c++
 template<class T>
 T surf1Dread(cudaSurfaceObject_t surfObj, int x,
                boundaryMode = cudaBoundaryModeTrap);
 ```
+
 使用字节坐标x读取一维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.2. surf1Dwrite[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dwrite "这个标题的永久链接")
+
 ```c++
 template<class T>
 void surf1Dwrite(T data,
@@ -6010,9 +6938,11 @@ void surf1Dwrite(T data,
                   int x,
                   boundaryMode = cudaBoundaryModeTrap);
 ```
+
 在字节坐标x处将值数据写入一维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.3. surf2Dread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dread "这个标题的永久链接")
+
 ```c++
 template<class T>
 T surf2Dread(cudaSurfaceObject_t surfObj,
@@ -6024,9 +6954,11 @@ void surf2Dread(T* data,
                  int x, int y,
                  boundaryMode = cudaBoundaryModeTrap);
 ```
+
 使用字节坐标x和y读取二维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.4. surf2Dwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dwrite "这个标题的永久链接")
+
 ```c++
 template<class T>
 void surf2Dwrite(T data,
@@ -6034,9 +6966,11 @@ void surf2Dwrite(T data,
                   int x, int y,
                   boundaryMode = cudaBoundaryModeTrap);
 ```
+
 在字节坐标x和y处将值数据写入由二维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.5. surf3Dread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf3dread "这个标题的永久链接")
+
 ```c++
 template<class T>
 T surf3Dread(cudaSurfaceObject_t surfObj,
@@ -6048,9 +6982,11 @@ void surf3Dread(T* data,
                  int x, int y, int z,
                  boundaryMode = cudaBoundaryModeTrap);
 ```
+
 使用字节坐标x、y和z读取三维表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.6. surf3Dwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf3dwrite "这个标题的永久链接")
+
 ```c++
 template<class T>
 void surf3Dwrite(T data,
@@ -6058,9 +6994,11 @@ void surf3Dwrite(T data,
                   int x, int y, int z,
                   boundaryMode = cudaBoundaryModeTrap);
 ```
+
 在字节坐标x、y和z处将值数据写入三维对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.7. surf1DLayeredread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dlayeredread "这个标题的永久链接")
+
 ```c++
 template<class T>
 T surf1DLayeredread(
@@ -6073,9 +7011,11 @@ void surf1DLayeredread(T data,
                  int x, int layer,
                  boundaryMode = cudaBoundaryModeTrap);
 ```
+
 使用字节坐标x和索引层读取一维分层表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.8. surf1DLayeredwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dlayeredwrite "这个标题的永久链接")
+
 ```c++
 template<class Type>
 void surf1DLayeredwrite(T data,
@@ -6083,9 +7023,11 @@ void surf1DLayeredwrite(T data,
                  int x, int layer,
                  boundaryMode = cudaBoundaryModeTrap);
 ```
+
 将值数据写入由二维分层表面对象`surfObj`在字节坐标x和索引层指定的CUDA数组。
 
 #### 10.9.1.9. surf2DLayeredread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dlayeredread "这个标题的永久链接")
+
 ```c++
 template<class T>
 T surf2DLayeredread(
@@ -6098,9 +7040,11 @@ void surf2DLayeredread(T data,
                          int x, int y, int layer,
                          boundaryMode = cudaBoundaryModeTrap);
 ```
+
 使用字节坐标x和y以及索引层读取二维分层表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.10. surf2DLayeredwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dlayeredwrite "这个标题的永久链接")
+
 ```c++
 template<class T>
 void surf2DLayeredwrite(T data,
@@ -6108,9 +7052,11 @@ void surf2DLayeredwrite(T data,
                           int x, int y, int layer,
                           boundaryMode = cudaBoundaryModeTrap);
 ```
+
 将值数据写入由一维分层表面对象`surfObj`在字节坐标x和y以及索引层指定的CUDA数组。
 
 #### 10.9.1.11. surfCubemapread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemapread "这个标题的永久链接")
+
 ```c++
 template<class T>
 T surfCubemapread(
@@ -6123,9 +7069,11 @@ void surfCubemapread(T data,
                  int x, int y, int face,
                  boundaryMode = cudaBoundaryModeTrap);
 ```
+
 使用字节坐标x和y以及面索引面读取立方体映射表面对象`surfObj`指定的CUDA数组。
 
 #### 10.9.1.12. surfCubemapwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemapwrite "这个标题的永久链接")
+
 ```c++
 template<class T>
 void surfCubemapwrite(T data,
@@ -6133,9 +7081,11 @@ void surfCubemapwrite(T data,
                  int x, int y, int face,
                  boundaryMode = cudaBoundaryModeTrap);
 ```
+
 将值数据写入立方体对象`surfObj`在字节坐标x和y和面索引面指定的CUDA数组。
 
 #### 10.9.1.13. surfCubemapLayeredread（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemaplayeredread "这个标题的永久链接")
+
 ```c++
 template<class T>
 T surfCubemapLayeredread(
@@ -6148,9 +7098,11 @@ void surfCubemapLayeredread(T data,
              int x, int y, int layerFace,
              boundaryMode = cudaBoundaryModeTrap);
 ```
+
 使用字节坐标x和y以及索引读取立方体图分层表面对象`surfObj`指定的CUDA数组`layerFace.`
 
 #### 10.9.1.14. surfCubemapLayeredwrite（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemaplayeredwrite "这个标题的永久链接")
+
 ```c++
 template<class T>
 void surfCubemapLayeredwrite(T data,
@@ -6158,6 +7110,7 @@ void surfCubemapLayeredwrite(T data,
              int x, int y, int layerFace,
              boundaryMode = cudaBoundaryModeTrap);
 ```
+
 将值数据写入由立方体地图分层对象`surfObj`在字节坐标x和`y`和索引`layerFace`指定的CUDA数组。
 
 ## 10.10.只读数据缓存加载功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#read-only-data-cache-load-function "这个标题的永久链接")
@@ -6173,9 +7126,13 @@ returns the data of type `T` located at address `address`, where `T` is `c
 这些负载功能仅由具有5.0及更高计算能力的设备支持。
 
 T __ldcg(const T* address);
+
 T __ldca(const T* address);
+
 T __ldcs(const T* address);
+
 T __ldlu(const T* address);
+
 T __ldcv(const T* address);
 
 returns the data of type `T` located at address `address`, where `T` is `char`, `signed char`, `short`, `int`, `long`, `long long``unsigned char`, `unsignedshort`, `unsigned int`, `unsigned long`, `unsigned long long`, `char2`, `char4`, `short2`, `short4`, `int2`, `int4`, `longlong2``uchar2`, `uchar4`, `ushort2`, `ushort4`, `uint2`, `uint4`, `ulonglong2``float`, `float2`, `float4`, `double`, or `double2`. With the `cuda_fp16.h` header included, `T` can be `__half` or `__half2`. Similarly, with the `cuda_bf16.h` header included, `T` can also be `__nv_bfloat16` or `__nv_bfloat162`. The operation is using the corresponding cache operator (see [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#cache-operators))
@@ -6183,19 +7140,23 @@ returns the data of type `T` located at address `address`, where `T` is `c
 ## 10.12.使用缓存提示存储功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#store-functions-using-cache-hints "这个标题的永久链接")
 
 只有具有5.0及更高计算能力的设备支持这些存储功能。
+
 ```c++
 void __stwb(T* address, T value);
 void __stcg(T* address, T value);
 void __stcs(T* address, T value);
 void __stwt(T* address, T value);
 ```
+
 stores the `value` argument of type `T` to the location at address `address`, where `T` is `char`, `signed char`, `short`, `int`, `long`, `long long``unsignedchar`, `unsigned short`, `unsigned int`, `unsigned long`, `unsigned long long`, `char2`, `char4`, `short2`, `short4`, `int2`, `int4`, `longlong2``uchar2`, `uchar4`, `ushort2`, `ushort4`, `uint2`, `uint4`, `ulonglong2``float`, `float2`, `float4`, `double`, or `double2`. With the `cuda_fp16.h` header included, `T` can be `__half` or `__half2`. Similarly, with the `cuda_bf16.h` header included, `T` can also be `__nv_bfloat16` or `__nv_bfloat162`. The operation is using the corresponding cache operator (see [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#cache-operators) )
 
 ## 10.13.时间函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#time-function "这个标题的永久链接")
+
 ```c++
 clock_t clock();
 long long int clock64();
 ```
+
 在设备代码中执行时，返回每个时钟周期递增的每多处理器计数器的值。在内核的开头和结尾对这个计数器进行采样，取两个样本的差值，并记录每个线程的结果，为每个线程提供了设备为完全执行线程所采取的时钟周期数的度量，但不能为设备实际执行线程指令所花费的时钟周期数提供了衡量标准。前者的数量大于后者，因为线程是时间切片的。
 
 ## 10.14.原子函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomic-functions "这个标题的永久链接")
@@ -6205,13 +7166,11 @@ long long int clock64();
 本节中描述的原子函数具有排序[cuda::memory_order_relaxed](https://en.cppreference.com/w/cpp/atomic/memory_order)，并且仅在特定[范围内](https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#thread-scopes)是原子的：
 
 - 带有`_system`后缀的原子API（例如：`atomicAdd_system`）如果满足特定[条件，则](https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#atomicity)在范围`cuda::thread_scope_system`是原子的。
-    
 - 没有后缀的原子API（例如：`atomicAdd`）在范围`cuda::thread_scope_device`上是原子的。
-    
 - 带有`_block`后缀的原子API（例如：`atomicAdd_block`）在范围`cuda::thread_scope_block`是原子的。
-    
 
 在以下示例中，CPU和GPU都以原子方式更新地址地址的整数值：
+
 ```c++
 __global__ void mykernel(int *addr) {
   atomicAdd_system(addr, 10);       // only available on devices with compute capability 6.x
@@ -6226,7 +7185,9 @@ void foo() {
    __sync_fetch_and_add(addr, 10);  // CPU atomic operation
 }
 ```
+
 请注意，任何原子操作都可以基于`atomicCAS()`比较和交换）实现。例如，用于双精度浮点数的`atomicAdd()`在计算能力低于6.0的设备上不可用，但可以实现如下：
+
 ```c++
 #if __CUDA_ARCH__ < 600
 __device__ double atomicAdd(double* address, double val)
@@ -6248,11 +7209,14 @@ __device__ double atomicAdd(double* address, double val)
 }
 #endif
 ```
+
 以下设备范围的原子API有系统范围和块范围的变体，但有以下例外：
+
 - 计算能力小于6.0的设备仅支持设备范围的原子操作，
 - 计算能力小于7.2的Tegra设备不支持全系统原子操作。
 
 CUDA 12.8及更高版本支持CUDA编译器内置函数，用于具有内存顺序和线程范围的原子操作。我们遵循[GNU的原子内置函数签名](https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html)，并附加了线程范围的参数。我们使用以下原子操作内存顺序和线程范围：
+
 ```c++
 enum {
    __NV_ATOMIC_RELAXED,
@@ -6271,13 +7235,17 @@ enum {
    __NV_THREAD_SCOPE_SYSTEM
 };
 ```
+
 示例：
+
 ```c++
 __device__ T __nv_atomic_load_n(T* ptr, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 ```
+
 T可以是大小为1、2、4、8和16字节的任何整数类型。
 
 这些原子函数不能在本地存储器上运行。例如：
+
 ```c++
 __device__ void foo() {
    int a = 1; // defined in local memory
@@ -6285,7 +7253,9 @@ __device__ void foo() {
    __nv_atomic_load(&a, &b, __NV_ATOMIC_RELAXED, __NV_THREAD_SCOPE_SYSTEM);
 }
 ```
+
 这些函数只能在`__device__`函数的块范围内使用。例如：
+
 ```c++
 __device__ void foo() {
    __shared__ unsigned int u1 = 1;
@@ -6293,7 +7263,9 @@ __device__ void foo() {
    __nv_atomic_load(&u1, &u2, __NV_ATOMIC_RELAXED, __NV_THREAD_SCOPE_SYSTEM);
 }
 ```
+
 并且无法获得这些函数的地址。以下是三个不受支持的例子：
+
 ```c++
 // Not permitted to be used in a host function
 __host__ void bar() {
@@ -6316,6 +7288,7 @@ public:
    __device__ Y(int *b): a(__nv_atomic_load_n(b, __NV_ATOMIC_RELAXED)) {}
 };
 ```
+
 内存顺序对应于[C++标准原子运算的内存顺序](https://en.cppreference.com/w/cpp/atomic/memory_order)。对于线程范围，我们遵循cuda::thread_scope的[定义](https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes)。
 
 `__NV_ATOMIC_CONSUME`内存顺序目前使用更强的`__NV_ATOMIC_ACQUIRE`内存顺序实现。
@@ -6327,6 +7300,7 @@ public:
 ### 10.14.1.算术函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#arithmetic-functions "这个标题的永久链接")
 
 #### 10.14.1.1.原子添加（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicadd "这个标题的永久链接")
+
 ```c++
 int atomicAdd(int* address, int val);
 unsigned int atomicAdd(unsigned int* address,
@@ -6342,6 +7316,7 @@ __nv_bfloat16 atomicAdd(__nv_bfloat16 *address, __nv_bfloat16 val);
 float2 atomicAdd(float2* address, float2 val);
 float4 atomicAdd(float4* address, float4 val);
 ```
+
 读取位于全局或共享内存中地址的16位、32位或64位`old`，计算`(oldval)`并将结果存储回同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`。
 
 - `atomicAdd()`的32位浮点版本仅由具有2.x及更高计算能力的设备支持。
@@ -6357,14 +7332,17 @@ float4 atomicAdd(float4* address, float4 val);
 - `atomicAdd()`的`float2`和`float4`浮点向量版本仅支持全局内存地址。
 
 #### 10.14.1.2.原子子（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicsub "这个标题的永久链接")
+
 ```c++
 int atomicSub(int* address, int val);
 unsigned int atomicSub(unsigned int* address,
                        unsigned int val);
 ```
+
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `(old - val)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
 
 #### 10.14.1.3.原子Exch（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicexch "这个标题的永久链接")
+
 ```c++
 int atomicExch(int* address, int val);
 unsigned int atomicExch(unsigned int* address,
@@ -6373,11 +7351,15 @@ unsigned long long int atomicExch(unsigned long long int* address,
                                   unsigned long long int val);
 float atomicExch(float* address, float val);
 ```
+
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory and stores `val` back to memory at the same address. These two operations are performed in one atomic transaction. The function returns `old`.
+
 ```c++
 template<typename T> T atomicExch(T* address, T val);
 ```
+
 读取位于全局或共享内存中地址的128位`old`字，并将`val`存储回同一地址的内存中。这两个操作在一个原子交易中执行。该函数返回`old`。`T`必须满足以下要求：
+
 ```c++
 sizeof(T) == 16
 alignof(T) >= 16
@@ -6385,11 +7367,13 @@ std::is_trivially_copyable<T>::value == true
 // for C++03 and older
 std::is_default_constructible<T>::value == true
 ```
+
 因此，`T`必须是128位并正确对齐，可以简单复制，在C++03或更早版本上，它也必须是默认可建的。
 
 128位`atomicExch()`仅受计算能力9.x及更高的设备支持。
 
 #### 10.14.1.4.原子最小（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicmin "这个标题的永久链接")
+
 ```c++
 int atomicMin(int* address, int val);
 unsigned int atomicMin(unsigned int* address,
@@ -6399,11 +7383,13 @@ unsigned long long int atomicMin(unsigned long long int* address,
 long long int atomicMin(long long int* address,
                                 long long int val);
 ```
+
 读取位于全局或共享内存中地址`address`的32位或64位字，计算`old`和`val`的最小值，并将结果存储回同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`。
 
 64位版本的`atomicMin()`仅支持具有5.0及更高计算能力的设备。
 
 #### 10.14.1.5.原子最大（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicmax "这个标题的永久链接")
+
 ```c++
 int atomicMax(int* address, int val);
 unsigned int atomicMax(unsigned int* address,
@@ -6413,25 +7399,31 @@ unsigned long long int atomicMax(unsigned long long int* address,
 long long int atomicMax(long long int* address,
                                  long long int val);
 ```
+
 读取位于全局或共享内存中地址`address`的32位或64位单词，计算`old`和`val`的最大值，并将结果存储回同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`。
 
 `atomicMax()`的64位版本仅受计算能力5.0及更高版本的设备支持。
 
 #### 10.14.1.6.原子公司（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicinc "这个标题的永久链接")
+
 ```c++
 unsigned int atomicInc(unsigned int* address,
                        unsigned int val);
 ```
+
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `((old >= val) ? 0 : (old+1))`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
 
 #### 10.14.1.7.原子十二（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicdec "这个标题的永久链接")
+
 ```c++
 unsigned int atomicDec(unsigned int* address,
                        unsigned int val);
 ```
+
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `(((old == 0) || (old > val)) ? val : (old-1)` ), and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
 
 #### 10.14.1.8.原子CAS（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomiccas "这个标题的永久链接")
+
 ```c++
 int atomicCAS(int* address, int compare, int val);
 unsigned int atomicCAS(unsigned int* address,
@@ -6444,11 +7436,15 @@ unsigned short int atomicCAS(unsigned short int *address,
                              unsigned short int compare,
                              unsigned short int val);
 ```
+
 读取位于全局或共享内存中地址的16位、32位或64位`old`字，计算`(old==compare?val:old)`并将结果存储在同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回（比较和交换）。
+
 ```c++
 template<typename T> T atomicCAS(T* address, T compare, T val);
 ```
+
 读取位于全局或共享内存中地址`address`的128位单词，计算`(old==compare?val:old)`并将结果存储在同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`（比较和交换）。`T`必须满足以下要求：
+
 ```c++
 sizeof(T) == 16
 alignof(T) >= 16
@@ -6456,14 +7452,17 @@ std::is_trivially_copyable<T>::value == true
 // for C++03 and older
 std::is_default_constructible<T>::value == true
 ```
+
 因此，`T`必须是128位并正确对齐，可以简单复制，在C++03或更早版本上，它也必须是默认可建的。
 
 128位`atomicCAS()`仅受计算能力为9.x及更高的设备支持。
 
 #### 10.14.1.9. __nv_原子_交换（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-exchange "这个标题的永久链接")
+
 ```c++
 __device__ void __nv_atomic_exchange(T* ptr, T* val, T *ret, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 ```
+
 CUDA 12.8中引入了这个原子函数。它读取`ptr`指向的值，并将`ret`指向的值存储到ret指向的值。它读取`val`指向的值，并存储`ptr`指向的值。
 
 这是一种通用的原子交换，这意味着`T`可以是大小为4、8或16字节的任何数据类型。
@@ -6531,6 +7530,7 @@ CUDA 12.8中引入了这个原子函数。它读取`ptr`指向的值，并将其
 #### 10.14.1.13. __nv_atomic_fetch_add（）和__nv_atomic_add（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-add-and-nv-atomic-add "这个标题的永久链接")
 
 __device__ T __nv_atomic_fetch_add (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_add (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，用`val`添加，并将结果存储回`ptr`指向的值。`__nv_atomic_fetch_add`返回`ptr`指向的旧值。`__nv_atomic_add`没有返回值。
@@ -6546,6 +7546,7 @@ CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，用`va
 #### 10.14.1.14. __nv_atomic_fetch_sub（）和__nv_atomic_sub（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-sub-and-nv-atomic-sub "这个标题的永久链接")
 
 __device__ T __nv_atomic_fetch_sub (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_sub (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，用`val`进行减去，并将结果存储回`ptr`指向的值。`__nv_atomic_fetch_sub`返回`ptr`指向的旧值。`__nv_atomic_sub`没有返回值。
@@ -6561,6 +7562,7 @@ CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，用`va
 #### 10.14.1.15. __nv_atomic_fetch_min（）和__nv_atomic_min（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-min-and-nv-atomic-min "这个标题的永久链接")
 
 __device__ T __nv_atomic_fetch_min (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_min (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，与`val`进行比较，并将较小的值存储回`ptr`指向的值。`__nv_atomic_fetch_min`返回`ptr`指向的旧值。`__nv_atomic_min`没有返回值。
@@ -6576,6 +7578,7 @@ CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，与`va
 #### 10.14.1.16. __nv_atomic_fetch_max（）和__nv_atomic_max（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-max-and-nv-atomic-max "这个标题的永久链接")
 
 __device__ T __nv_atomic_fetch_max (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_max (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，与`val`进行比较，并将更大的值存储回`ptr`指向的位置。`__nv_atomic_fetch_max`返回`ptr`指向的旧值。`__nv_atomic_max`没有返回值。
@@ -6593,9 +7596,13 @@ CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，与`va
 #### 10.14.2.1.原子和（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicand "这个标题的永久链接")
 
 int atomicAnd(int* address, int val);
+
 unsigned int atomicAnd(unsigned int* address,
+
                        unsigned int val);
+
 unsigned long long int atomicAnd(unsigned long long int* address,
+
                                  unsigned long long int val);
 
 读取位于全局或共享内存中地址的32位或64位`old`字，计算`(old`），并将结果存储回同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`。
@@ -6605,9 +7612,13 @@ unsigned long long int atomicAnd(unsigned long long int* address,
 #### 10.14.2.2. 原子或（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicor "这个标题的永久链接")
 
 int atomicOr(int* address, int val);
+
 unsigned int atomicOr(unsigned int* address,
+
                       unsigned int val);
+
 unsigned long long int atomicOr(unsigned long long int* address,
+
                                 unsigned long long int val);
 
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory, computes `(old | val)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6617,9 +7628,13 @@ reads the 32-bit or 64-bit word `old` located at the address `address` in gl
 #### 10.14.2.3.原子Xor（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicxor "这个标题的永久链接")
 
 int atomicXor(int* address, int val);
+
 unsigned int atomicXor(unsigned int* address,
+
                        unsigned int val);
+
 unsigned long long int atomicXor(unsigned long long int* address,
+
                                  unsigned long long int val);
 
 读取位于全局或共享内存中地址`address`的32位或64位`old`字，计算`(oldval)`并将结果存储回同一地址的内存中。这三个操作在一次原子交易中执行。该函数返回`old`。
@@ -6629,6 +7644,7 @@ unsigned long long int atomicXor(unsigned long long int* address,
 #### 10.14.2.4. __nv_atomic_fetch_or()和__nv_atomic_or()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-or-and-nv-atomic-or "这个标题的永久链接")
 
 __device__ T __nv_atomic_fetch_or (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_or (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，`or`带有`val`的值，并将结果存储回`ptr`指向的值。`__nv_atomic_fetch_or`返回`ptr`指向的旧值。`__nv_atomic_or`没有返回值。
@@ -6644,6 +7660,7 @@ CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，`or`�
 #### 10.14.2.5. __nv_atomic_fetch_xor（）和__nv_atomic_xor（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-xor-and-nv-atomic-xor "这个标题的永久链接")
 
 __device__ T __nv_atomic_fetch_xor (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_xor (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，`xor`与`val`，并将结果存储回`ptr`指向的值。`__nv_atomic_fetch_xor`返回`ptr`指向的旧值。`__nv_atomic_xor`没有返回值。
@@ -6659,6 +7676,7 @@ CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，`xor`�
 #### 10.14.2.6. __nv_atomic_fetch_and（）和__nv_atomic_and（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-and-and-nv-atomic-and "这个标题的永久链接")
 
 __device__ T __nv_atomic_fetch_and (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_and (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 CUDA 12.8中引入了这两个原子函数。它读取`ptr`指向的值，`and`带有`val`，并将结果存储回`ptr`指向的位置。`__nv_atomic_fetch_and`返回`ptr`指向的旧值。`__nv_atomic_and`没有返回值。
@@ -6848,6 +7866,7 @@ __host__ __device__ void * alloca(size_t size);
 它支持5.2或更高的计算能力。
 
 ### 10.17.3.示例：[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#example "这个标题的永久链接")
+
 ```c++
 __device__ void foo(unsigned int num) {
     int4 *ptr = (int4 *)alloca(num * sizeof(int4));
@@ -6855,6 +7874,7 @@ __device__ void foo(unsigned int num) {
     ...
 }
 ```
+
 ## 10.18.编译器优化提示功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compiler-optimization-hint-functions "这个标题的永久链接")
 
 本节中描述的功能可用于向编译器优化器提供其他信息。
@@ -6868,21 +7888,26 @@ void * __builtin_assume_aligned (const void *exp, size_t align)
 示例：
 
 void *res = __builtin_assume_aligned(ptr, 32); // compiler can assume 'res' is
+
                                                // at least 32-byte aligned
 
 三个参数版本：
+
 ```c++
 void * __builtin_assume_aligned (const void *exp, size_t align,
                                  <integral type> offset)
 ```
+
 Allows the compiler to assume that `(char *)exp - offset` is aligned to at least `align` bytes, and returns the argument pointer.
 
 示例：
+
 ```c++
 void *res = __builtin_assume_aligned(ptr, 32, 8); // compiler can assume
                                                   // '(char *)res - 8' is
                                                   // at least 32-byte aligned.
 ```
+
 ### 10.18.2. __内置_假设（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#builtin-assume "这个标题的永久链接")
 
 void __builtin_assume(bool exp)
@@ -6892,8 +7917,11 @@ void __builtin_assume(bool exp)
 示例：
 
  __device__ int get(int *ptr, int idx) {
+
    __builtin_assume(idx <= 2);
+
    return ptr[idx];
+
 }
 
 ### 10.18.3. __假设（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#assume "这个标题的永久链接")
@@ -6905,8 +7933,11 @@ void __assume(bool exp)
 示例：
 
  __device__ int get(int *ptr, int idx) {
+
    __assume(idx <= 2);
+
    return ptr[idx];
+
 }
 
 ### 10.18.4. __内置_预期（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#builtin-expect "这个标题的永久链接")
@@ -6918,9 +7949,13 @@ Indicates to the compiler that it is expected that `exp == c`, and returns th
 示例：
 
 // indicate to the compiler that likely "var == 0",
+
 // so the body of the if-block is unlikely to be
+
 // executed at run time.
+
 if (__builtin_expect (var, 0))
+
   doit ();
 
 ### 10.18.5. __内置_无法到达（）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#builtin-unreachable "这个标题的永久链接")
@@ -6932,10 +7967,15 @@ void __builtin_unreachable(void)
 示例：
 
 // indicates to the compiler that the default case label is never reached.
+
 switch (in) {
+
 case 1: return 4;
+
 case 2: return 10;
+
 default: __builtin_unreachable();
+
 }
 
 ### 10.18.6.限制[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#restrictions "这个标题的永久链接")
@@ -6943,15 +7983,16 @@ default: __builtin_unreachable();
 `__assume()`仅在使用`cl.exe`主机编译器时才支持。所有平台都支持其他功能，但受以下限制：
 
 - 如果主机编译器支持该函数，则可以从翻译单元的任何地方调用该函数。
-    
 - 否则，该函数必须从`__device__`/ `__global__`function的主体内调用，或者仅在定义了`__CUDA_ARCH__`宏[5](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn12)时调用。
-    
 
 ## 10.19.扭曲投票函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-vote-functions "这个标题的永久链接")
 
 int __all_sync(unsigned mask, int predicate);
+
 int __any_sync(unsigned mask, int predicate);
+
 unsigned __ballot_sync(unsigned mask, int predicate);
+
 unsigned __activemask();
 
 弃用通知：`__any`、`__all`和`__ballot`已在所有CUDA 9.0中对所有设备弃用。
@@ -6987,10 +8028,12 @@ unsigned __activemask();
 由计算能力为7倍或更高的设备支持。
 
 ### 10.20.1.大纲[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synopsis-match "这个标题的永久链接")
+
 ```c++
 unsigned int __match_any_sync(unsigned mask, T value);
 unsigned int __match_all_sync(unsigned mask, T value, int *pred);
 ```
+
 `T` can be `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`, `float` or `double`.
 
 ### 10.20.2.描述[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-description-match "这个标题的永久链接")
@@ -7018,16 +8061,25 @@ unsigned int __match_all_sync(unsigned mask, T value, int *pred);
 ### 10.21.1.大纲[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-reduce-synopsis "这个标题的永久链接")
 
 // add/min/max
+
 unsigned __reduce_add_sync(unsigned mask, unsigned value);
+
 unsigned __reduce_min_sync(unsigned mask, unsigned value);
+
 unsigned __reduce_max_sync(unsigned mask, unsigned value);
+
 int __reduce_add_sync(unsigned mask, int value);
+
 int __reduce_min_sync(unsigned mask, int value);
+
 int __reduce_max_sync(unsigned mask, int value);
 
 // and/or/xor
+
 unsigned __reduce_and_sync(unsigned mask, unsigned value);
+
 unsigned __reduce_or_sync(unsigned mask, unsigned value);
+
 unsigned __reduce_xor_sync(unsigned mask, unsigned value);
 
 ### 10.21.2.描述[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-reduce-description "这个标题的永久链接")
@@ -7057,8 +8109,11 @@ unsigned __reduce_xor_sync(unsigned mask, unsigned value);
 ### 10.22.1.大纲[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-synopsis "这个标题的永久链接")
 
 T __shfl_sync(unsigned mask, T var, int srcLane, int width=warpSize);
+
 T __shfl_up_sync(unsigned mask, T var, unsigned int delta, int width=warpSize);
+
 T __shfl_down_sync(unsigned mask, T var, unsigned int delta, int width=warpSize);
+
 T __shfl_xor_sync(unsigned mask, T var, int laneMask, int width=warpSize);
 
 `T` can be `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`, `float` or `double`. With the `cuda_fp16.h` header included, `T`can also be `__half` or `__half2`. Similarly, with the `cuda_bf16.h` header included, `T` can also be `__nv_bfloat16` or `__nv_bfloat162`.
@@ -7104,6 +8159,7 @@ The new `*_sync` shfl intrinsics take in a mask indicating the threads partici
 这些内在并不意味着记忆障碍。他们不保证任何内存排序。
 
 ### 10.22.3.实例[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#examples "这个标题的永久链接")
+
 ```c++
 #### 10.22.3.1.跨经编广播单个值[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#broadcast-of-a-single-value-across-a-warp "这个标题的永久链接")
 
@@ -7126,7 +8182,9 @@ int main() {
     return 0;
 }
 ```
+
 #### 10.22.3.2.跨8个线程子分区的包容性加扫描[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inclusive-plus-scan-across-sub-partitions-of-8-threads "这个标题的永久链接")
+
 ```c++
 #include <stdio.h>
 
@@ -7164,8 +8222,11 @@ int main() {
 #include <stdio.h>
 
 __global__ void warpReduce() {
+
     int laneId = threadIdx.x & 0x1f;
+
     // Seed starting value as inverse lane ID
+
     int value = 31 - laneId;
 
     // Use XOR mode to perform butterfly reduction
@@ -7174,13 +8235,17 @@ __global__ void warpReduce() {
 
     // "value" now contains the sum across all threads
     printf("Thread %d final value = %d\n", threadIdx.x, value);
+
 }
 
 int main() {
+
     warpReduce<<< 1, 32 >>>();
+
     cudaDeviceSynchronize();
 
     return 0;
+
 }
 
 ## 10.23.纳米睡眠功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nanosleep-function "这个标题的永久链接")
@@ -7200,17 +8265,27 @@ void __nanosleep(unsigned ns);
 以下代码实现了具有指数回退的互斥。
 
 __device__ void mutex_lock(unsigned int *mutex) {
+
     unsigned int ns = 8;
+
     while (atomicCAS(mutex, 0, 1) == 1) {
+
         __nanosleep(ns);
+
         if (ns < 256) {
+
             ns *= 2;
+
         }
+
     }
+
 }
 
 __device__ void mutex_unlock(unsigned int *mutex) {
+
     atomicExch(mutex, 0);
+
 }
 
 ## 10.24.扭曲矩阵函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-matrix-functions "这个标题的永久链接")
@@ -7224,9 +8299,13 @@ C++扭曲矩阵操作利用张量核心来加速`D=A*B+C`形式的矩阵问题�
 template<typename Use, int m, int n, int k, typename T, typename Layout=void> class fragment;
 
 void load_matrix_sync(fragment<...> &a, const T* mptr, unsigned ldm);
+
 void load_matrix_sync(fragment<...> &a, const T* mptr, unsigned ldm, layout_t layout);
+
 void store_matrix_sync(T* mptr, const fragment<...> &a, unsigned ldm, layout_t layout);
+
 void fill_fragment(fragment<...> &a, const T& v);
+
 void mma_sync(fragment<...> &d, const fragment<...> &a, const fragment<...> &b, const fragment<...> &c, bool satf=false);
 
 `fragment`
@@ -7236,15 +8315,12 @@ void mma_sync(fragment<...> &d, const fragment<...> &a, const fragment<...> &b, 
 只允许某些模板参数组合。第一个模板参数指定片段将如何参与矩阵操作。`Use`可接受值是：
 
 - `matrix_a`当片段用作第一个乘数时，`A`，
-    
 - `matrix_b`当片段用作第二乘数时，`B`，或者
-    
 - `accumulator`当片段用作源或目标累加器（分别为`C`或`D`。
-    
+
     The `m`, `n` and `k` sizes describe the shape of the warp-wide matrix tiles participating in the multiply-accumulate operation. The dimension of each tile depends on its role. For `matrix_a` the tile takes dimension `m x k`; for `matrix_b` the dimension is `k x n`, and `accumulator` tiles are `m xn`.
-    
+
     数据类型`T`可以是`double`、`float`、`__half`、`__nv_bfloat16`、`char`或乘数的`unsignedchar`，累加数可以是`double`、`float`、`int`或`__half`。如[元素类型和矩阵大小中](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma-type-sizes)所述，支持累加器和乘数类型的有限组合。必须为`matrix_a`和`matrix_b`片段指定布局参数。`row_major`或`col_major`表示矩阵行或列中的元素在内存中分别是连续的。`accumulator`矩阵的`Layout`参数应保留`void`的默认值。仅当累加器加载或存储时，才会指定行或列布局，如下所述。
-    
 
 `load_matrix_sync`
 
@@ -7265,23 +8341,25 @@ void mma_sync(fragment<...> &d, const fragment<...> &a, const fragment<...> &b, 
 如果`satf`（饱和到有限值）模式为`true`，则以下附加数值属性适用于目标累加器：
 
 - 如果元素结果是+Infinity，相应的累加器将包含`+MAX_NORM`
-    
 - 如果元素结果是-Infinity，相应的累加器将包含`-MAX_NORM`
-    
 - 如果元素结果是NaN，则相应的累加器将包含`+0`
-    
 
 由于矩阵元素进入每个线程`fragment`的映射未指定，因此在调用`store_matrix_sync`后，必须从内存（共享或全局）访问单个矩阵元素。在扭曲中的所有线程将统一对所有片段元素应用元素操作的特殊情况下，可以使用以下`fragment`类成员实现直接元素访问。
 
 enum fragment<Use, m, n, k, T, Layout>::num_elements;
+
 T fragment<Use, m, n, k, T, Layout>::x[num_elements];
 
 例如，以下代码将`accumulator`矩阵图块缩放一半。
 
 wmma::fragment<wmma::accumulator, 16, 16, 16, float> frag;
+
 float alpha = 0.5f; // Same value for all threads in warp
-/*...*/
+
+/_..._/
+
 for(int t=0; t<frag.num_elements; t++)
+
 frag.x[t] *= alpha;
 
 ### 10.24.2.备用浮点[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#alternate-floating-point "这个标题的永久链接")
@@ -7311,6 +8389,7 @@ Tensor Cores支持计算能力8.0及更高的设备上的双精度浮点操作�
 ### 10.24.4.子字节操作[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sub-byte-operations "这个标题的永久链接")
 
 子字节WMMA操作提供了一种访问张量核心的低精度能力的方法。它们被视为预览功能，即它们的数据结构和API可能会发生变化，并且可能与未来的版本不兼容。此功能可通过thenvcuda`nvcuda::wmma::experimental`命名空间获得：
+
 ```c++
 namespace experimental {
     namespace precision {
@@ -7325,11 +8404,15 @@ namespace experimental {
     enum bmmaAccumulateOp { bmmaAccumulateOpPOPC = 1 };
 }
 ```
+
 对于4位精度，可用的API保持不变，但您必须指定`experimental::precision::u4`或`experimental::precision::s4`作为片段数据类型。由于片段的元素是打包在一起的，`num_storage_elements`将小于该片段的`num_elements`。子字节片段的`num_elements`变量，因此返回子字节类型`element_type<T>`的元素数。单位精度也是如此，在这种情况下，从`element_type<T>`到`storage_element_type<T>`的映射如下：
 
 experimental::precision::u4 -> unsigned (8 elements in 1 storage element)
+
 experimental::precision::s4 -> int (8 elements in 1 storage element)
+
 experimental::precision::b1 -> unsigned (32 elements in 1 storage element)
+
 T -> T  //all other types
 
 子字节片段允许的布局始终是`matrix_a`的`row_major`和`matrix_b`的`col_major`。
@@ -7364,6 +8447,7 @@ Waits until all warp lanes have executed bmma_sync, and then performs the warp-s
 由于片段是特定于架构的，如果函数已为不同的链接兼容架构编译并链接到同一设备可执行文件，则将它们从函数A传递到函数B是不安全的。在这种情况下，片段的大小和布局将特定于一个架构，在另一个架构中使用WMMA API将导致不正确的结果或潜在的损坏。
 
 两个链接兼容架构的一个例子是sm_70和sm_75，其中片段的布局不同。
+
 ```c++
 fragA.cu: void foo() { wmma::fragment<...> mat_a; bar(&mat_a); }
 fragB.cu: void bar(wmma::fragment<...> *mat_a) { // operate on mat_a }
@@ -7375,6 +8459,7 @@ $> nvcc -dc -arch=compute_75 -code=sm_75 fragB.cu -o fragB.o
 // Linking the two together
 $> nvcc -dlink -arch=sm_75 fragA.o fragB.o -o frag.o
 ```
+
 这种未定义的行为在编译时和运行时可能无法被工具检测到，因此需要格外小心，以确保片段的布局一致。当与传统库链接时，最有可能出现这种链接危险，该库既是为不同的链接兼容架构而构建的，又期望传递WMMA片段。
 
 请注意，在弱链接的情况下（例如，CUDA C++内联函数），链接器可以选择任何可用的函数定义，这可能会导致编译单元之间的隐式传递。
@@ -7428,6 +8513,7 @@ To avoid these sorts of problems, the matrix should always be stored out to memo
 ### 10.24.7.示例：[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma-example "这个标题的永久链接")
 
 以下代码在单个经编中实现了16x16x16矩阵乘法。
+
 ```c++
 #include <mma.h>
 using namespace nvcuda;
@@ -7452,22 +8538,17 @@ __global__ void wmma_ker(half *a, half *b, float *c) {
    wmma::store_matrix_sync(c, c_frag, 16, wmma::mem_row_major);
 }
 ```
+
 ## 10.25.DPX[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dpx "这个标题的永久链接")
 
 DPX是一组函数，可以查找最小值和最大值，以及融合加法和最小值/最大值，最多三个16位和32位有符号或无符号整数参数，可选ReLU（夹到零）：
 
 - 三个参数：`__vimax3_s32`，`__vimax3_s16x2`，`__vimax3_u32`，`__vimax3_u16x2`，`__vimin3_s32`，`__vimin3_s16x2`，`__vimin3_u32`，`__vimin3_u16x2`
-    
 - 两个参数，带有ReLU：`__vimax_s32_relu`，`__vimax_s16x2_relu`，`__vimin_s32_relu`，`__vimin_s16x2_relu`
-    
 - 三个参数，带有ReLU：`__vimax3_s32_relu`，`__vimax3_s16x2_relu`，`__vimin3_s32_relu`，`__vimin3_s16x2_relu`
-    
 - 两个参数，也返回哪个参数更小/更大：`__vibmax_s32`，`__vibmax_u32`，`__vibmin_s32`，`__vibmin_u32`，`__vibmax_s16x2`，`__vibmax_u16x2`，`__vibmin_s16x2`，`__vibmin_u16x2`
-    
 - 三个参数，与第三个参数进行比较（第一+第二）：`__viaddmax_s32`，`__viaddmax_s16x2`，`__viaddmax_u32`，`__viaddmax_u16x2`，`__viaddmin_s32`，`__viaddmin_s16x2`，`__viaddmin_u32`，`__viaddmin_u16x2`
-    
 - 三个参数，使用ReLU，与第三个和零进行比较（第一+第二）：`__viaddmax_s32_relu`，`__viaddmax_s16x2_relu`，`__viaddmin_s32_relu`，`__viaddmin_s16x2_relu`
-    
 
 这些指令在具有计算能力9及更高的设备上进行硬件加速，在旧设备上进行软件仿真。
 
@@ -7480,34 +8561,51 @@ DPX在实现动态编程算法时非常有用，例如基因组学中的Smith-Wa
 三个有符号的32位整数的最大值，带有ReLU
 
 const int a = -15;
+
 const int b = 8;
+
 const int c = 5;
+
 int max_value_0 = __vimax3_s32_relu(a, b, c); // max(-15, 8, 5, 0) = 8
+
 const int d = -2;
+
 const int e = -4;
+
 int max_value_1 = __vimax3_s32_relu(a, d, e); // max(-15, -2, -4, 0) = 0
 
 两个32位有符号整数、另一个32位有符号整数和零（ReLU）之和的最小值
 
 const int a = -5;
+
 const int b = 6;
+
 const int c = -2;
+
 int max_value_0 = __viaddmax_s32_relu(a, b, c); // max(-5 + 6, -2, 0) = max(1, -2, 0) = 1
+
 const int d = 4;
+
 int max_value_1 = __viaddmax_s32_relu(a, d, c); // max(-5 + 4, -2, 0) = max(-1, -2, 0) = 0
 
 两个无符号32位整数的最小值，并确定哪个值更小
 
 const unsigned int a = 9;
+
 const unsigned int b = 6;
+
 bool smaller_value;
+
 unsigned int min_value = __vibmin_u32(a, b, &smaller_value); // min_value is 6, smaller_value is true
 
 三对无符号16位整数的最大值
 
 const unsigned a = 0x00050002;
+
 const unsigned b = 0x00070004;
+
 const unsigned c = 0x00020006;
+
 unsigned int max_value = __vimax3_u16x2(a, b, c); // max(5, 7, 2) and max(2, 4, 6), so max_value is 0x00070006
 
 ## 10.26.异步屏障[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-barrier "这个标题的永久链接")
@@ -7523,6 +8621,7 @@ NVIDIA C++标准库引入了[std::barrier](https://nvidia.github.io/libcudacxx/e
 #include <cooperative_groups.h>
 
 __global__ void simple_sync(int iteration_count) {
+
     auto block = cooperative_groups::this_thread_block();
 
     for (int i = 0; i < iteration_count; ++i) {
@@ -7530,31 +8629,33 @@ __global__ void simple_sync(int iteration_count) {
         block.sync(); /* wait for all threads to arrive here */
         /* code after wait */
     }
+
 }
 
 线程在同步点（`block.sync()`）被阻止，直到所有线程都达到同步点。此外，同步点之前发生的内存更新保证在同步点之后对块中的所有线程可见，即等同于`atomic_thread_fence(memory_order_seq_cst,thread_scope_block)`以及`sync`。
 
 这个模式有三个阶段：
 
-- 同步**前的**代码执行内存更新，该更新将在同步**后**读取。
-    
+- 同步__前的__代码执行内存更新，该更新将在同步__后__读取。
 - 同步点
-    
-- 同步点**后的**代码，可见同步点**之前**发生的内存更新。
-    
+- 同步点__后的__代码，可见同步点__之前__发生的内存更新。
 
 ### 10.26.2.时间分割和同步的五个阶段[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#temporal-splitting-and-five-stages-of-synchronization "这个标题的永久链接")
 
 与`std::barrier`的时间分割同步模式如下。
 
 #include <cuda/barrier>
+
 #include <cooperative_groups.h>
 
 __device__ void compute(float* data, int curr_iteration);
 
 __global__ void split_arrive_wait(int iteration_count, float *data) {
+
     using barrier = cuda::barrier<cuda::thread_scope_block>;
+
     __shared__  barrier bar;
+
     auto block = cooperative_groups::this_thread_block();
 
     if (block.thread_rank() == 0) {
@@ -7569,43 +8670,43 @@ __global__ void split_arrive_wait(int iteration_count, float *data) {
        bar.wait(std::move(token)); /* wait for all threads participating in the barrier to complete bar.arrive()*/
         /* code after wait */
     }
+
 }
 
 在此模式中，同步点（`block.sync()`被分为到达点（`bar.arrive()`和等待点（`bar.wait(std::move(token))`）。线程在第一次调用`bar.arrive()`开始参与`cuda::barrier`当线程调用`bar.wait(std::move(token))`时，它将被阻止，直到参与线程完成`bar.arrive()`传递给`init()`的预期到达计数参数指定的预期次数。在参与线程调用`bar.arrive()`之前发生的内存更新保证在调用`bar.wait(std::move(token))`后对参与线程可见。请注意，对`bar.arrive()`的调用不会阻止线程，它可以继续进行其他工作，这些工作不依赖于在其他参与线程调用`bar.arrive()`之前发生的内存更新。
 
 _到达然后等待_模式有五个阶段，可以迭代重复：
 
-- 到达**前的**代码执行内存更新，这些更新将在等待**后**读取。
-    
+- 到达__前的__代码执行内存更新，这些更新将在等待__后__读取。
 - 带有隐式内存围栏的到达点（即，相当于`atomic_thread_fence(memory_order_seq_cst,thread_scope_block)`）。
-    
-- 到达和等待**之间的**代码。
-    
+- 到达和等待__之间的__代码。
 - 等待点。
-    
-- 等待**后**的代码，以及到达**前**执行的更新的可见性。
-    
+- 等待__后__的代码，以及到达__前__执行的更新的可见性。
 
 ### 10.26.3.引导初始化、预计到达计数和参与[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#bootstrap-initialization-expected-arrival-count-and-participation "这个标题的永久链接")
 
 初始化必须在任何线程开始参与`cuda::barrier`之前进行。
 
 #include <cuda/barrier>
+
 #include <cooperative_groups.h>
 
 __global__ void init_barrier() {
+
     __shared__ cuda::barrier<cuda::thread_scope_block> bar;
+
     auto block = cooperative_groups::this_thread_block();
 
     if (block.thread_rank() == 0) {
         init(&bar, block.size()); // Single thread initializes the total expected arrival count.
     }
     block.sync();
+
 }
 
-在任何线程参与`cuda::barrier`之前，必须使用具有**预期到达计数**的`init()`初始化屏障，在本例中是`block.size()`。初始化必须在任何线程调用`bar.arrive()`之前进行。这带来了一个引导挑战，因为线程在参与`cuda::barrier`之前必须同步，但线程正在创建`cuda::barrier`以进行同步。在本例中，将参与的线程是合作组的一部分，并使用`block.sync()`进行引导初始化。在本例中，整个线程块正在参与初始化，因此也可以使用`__syncthreads()`）。
+在任何线程参与`cuda::barrier`之前，必须使用具有__预期到达计数__的`init()`初始化屏障，在本例中是`block.size()`。初始化必须在任何线程调用`bar.arrive()`之前进行。这带来了一个引导挑战，因为线程在参与`cuda::barrier`之前必须同步，但线程正在创建`cuda::barrier`以进行同步。在本例中，将参与的线程是合作组的一部分，并使用`block.sync()`进行引导初始化。在本例中，整个线程块正在参与初始化，因此也可以使用`__syncthreads()`）。
 
-`init()`的第二个参数是**预期到达计数**，即在参与线程从调用`bar.wait(std::move(token))`中解锁之前，参与线程将调用`bar.arrive()`的次数。在之前的示例中，`cuda::barrier`使用线程块中的线程数初始化，即`cooperative_groups::this_thread_block().size()`，线程块内的所有线程都参与了障碍。
+`init()`的第二个参数是__预期到达计数__，即在参与线程从调用`bar.wait(std::move(token))`中解锁之前，参与线程将调用`bar.arrive()`的次数。在之前的示例中，`cuda::barrier`使用线程块中的线程数初始化，即`cooperative_groups::this_thread_block().size()`，线程块内的所有线程都参与了障碍。
 
 A `cuda::barrier` is flexible in specifying how threads participate (split arrive/wait) and which threads participate. In contrast `this_thread_block.sync()` from cooperative groups or `__syncthreads()` is applicable to whole-thread-block and `__syncwarp(mask)` is a specified subset of a warp. If the intention of the user is to synchronize a full thread block or a full warp we recommend using `__syncthreads()` and `__syncwarp(mask)` respectively for performance reasons.
 
@@ -7615,14 +8716,11 @@ A `cuda::barrier` is flexible in specifying how threads participate (split arr
 
 从`token=bar.arrive()`返回的类`cuda::barrier::arrival_token`的`token`对象与障碍的当前阶段相关联。当`cuda::barrier`处于当前阶段时，对`bar.wait(std::move(token))`的调用会阻止调用线程，即与令牌关联的阶段与`cuda::barrier`的阶段相匹配。如果在调用tobar.wait(std`bar.wait(std::move(token))`之前阶段是高级的（因为倒计时达到零），那么线程不会被阻止；如果线程在`bar.wait(std::move(token))`中被阻止时阶段是高级的，线程将被阻止。
 
-**知道何时可以或不能发生重置至关重要，特别是在非平凡的到达/等待同步模式中。**
+__知道何时可以或不能发生重置至关重要，特别是在非平凡的到达/等待同步模式中。__
 
 - 线程对`token=bar.arrive()`和`bar.wait(std::move(token))`的调用必须排序，以便`token=bar.arrive()`在thecuda`cuda::barrier`的当前阶段发生，`bar.wait(std::move(token))`在同一阶段或下一个阶段发生。
-    
 - 当障碍计数器非零时，必须发生线程对`bar.arrive()`的调用。在屏障初始化后，如果线程对`bar.arrive()`调用导致倒计时达到零，那么必须调用`bar.wait(std::move(token))`，然后才能重复使用该屏障进行对`bar.arrive()`的后续调用。
-    
 - `bar.wait()`只能使用当前阶段或紧接着阶段的`token`对象进行调用。对于`token`对象的任何其他值，行为是未定义的。
-    
 
 对于简单的到达/等待同步模式，遵守这些使用规则是直接的。
 
@@ -7640,6 +8738,7 @@ A `cuda::barrier` is flexible in specifying how threads participate (split arr
 ||消耗填充缓冲区中的数据|
 
 生产者线程等待消费者线程发出缓冲区已准备好填充的信号；但是，消费者线程不会等待此信号。消费者线程等待生产者线程发出缓冲区已满的信号；然而，生产者线程不会等待此信号。对于完全的生产者/消费者并发性，该模式具有（至少）双缓冲，每个缓冲区需要两个`cuda::barrier`。
+
 ```c++
 #include <cuda/barrier>
 #include <cooperative_groups.h>
@@ -7689,12 +8788,15 @@ __global__ void producer_consumer_pattern(int N, int buffer_len, float* in, floa
         consumer(bar, bar+2, buffer, out, N, buffer_len);
 }
 ```
+
 在本例中，第一个经编是专门作为生产者，其余经编是专门作为消费者。所有生产者和消费者线程都参与（调用`bar.arrive()`或`bar.arrive_and_wait()`四个`cuda::barrier`，因此预期到达计数等于`block.size()`
 
 生产者线程等待消费者线程发出共享内存缓冲区可以填充的信号。为了等待`cuda::barrier`，生产者线程必须首先到达`ready[i%2].arrive()`以获取令牌，然后使用该令牌`ready[i%2].wait(token)`。对于简单性，`ready[i%2].arrive_and_wait()`结合了这些操作。
 
 bar.arrive_and_wait();
+
 /* is equivalent to */
+
 bar.wait(bar.arrive());
 
 生产者线程计算并填充准备缓冲区，然后它们通过到达填充屏障，`filled[i%2].arrive()`发出信号，缓冲区已填充。生产者线程不会在这一点上等待，而是等到下一个迭代的缓冲区（双缓冲）准备好填充。
@@ -7704,6 +8806,7 @@ bar.wait(bar.arrive());
 ### 10.26.6.提前退出（退出参与）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#early-exit-dropping-out-of-participation "这个标题的永久链接")
 
 当参与同步序列的线程必须提前退出该序列时，该线程在退出之前必须明确退出参与。其余参与线程可以正常进行后续的`cuda::barrier`到达和等待操作。
+
 ```c++
 #include <cuda/barrier>
 #include <cooperative_groups.h>
@@ -7732,11 +8835,13 @@ __global__ void early_exit_kernel(int N) {
     }
 }
 ```
-此操作到达`cuda::barrier`，以履行参与线程在**当前**阶段到达的义务，然后减少**下一**阶段的预期到达计数，以便该线程不再预计到达障碍。
+
+此操作到达`cuda::barrier`，以履行参与线程在__当前__阶段到达的义务，然后减少__下一__阶段的预期到达计数，以便该线程不再预计到达障碍。
 
 ### 10.26.7.完成功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#completion-function "这个标题的永久链接")
 
 The `CompletionFunction` of `cuda::barrier<Scope, CompletionFunction>` is executed once per phase, after the last thread _arrives_ and before any thread is unblocked from the `wait`. Memory operations performed by the threads that arrived at the `barrier` during the phase are visible to the thread executing the `CompletionFunction`, and all memory operations performed within the `CompletionFunction` are visible to all threads waiting at the `barrier` once they are unblocked from the `wait`.
+
 ```c++
 #include <cuda/barrier>
 #include <cooperative_groups.h>
@@ -7792,64 +8897,53 @@ __global__ void psum(int* data, int n, int* acc) {
   }
 }
 ```
+
 ### 10.26.8.内存屏障原始接口[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-barrier-primitives-interface "这个标题的永久链接")
 
 内存屏障原语是与`cuda::barrier`功能的类似C的接口。这些原语可以通过包含`<cuda_awbarrier_primitives.h>`标题获得。
 
 #### 10.26.8.1.数据类型[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-types "这个标题的永久链接")
 
-typedef /* implementation defined */ __mbarrier_t;
-typedef /* implementation defined */ __mbarrier_token_t;
+typedef /* implementation defined _/ __mbarrier_t;
+
+typedef /_ implementation defined */ __mbarrier_token_t;
 
 #### 10.26.8.2.内存屏障原语API[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-barrier-primitives-api "这个标题的永久链接")
 
 uint32_t __mbarrier_maximum_count();
+
 void __mbarrier_init(__mbarrier_t* bar, uint32_t expected_count);
 
 - `bar`必须是`__shared__`内存的指针。
-    
 - `expected_count <= __mbarrier_maximum_count()`
-    
 - 将当前和下一阶段的预期到达计数初始化`*bar`到`expected_count`。
-    
 
 void __mbarrier_inval(__mbarrier_t* bar);
 
 - `bar`必须是指向共享内存中的屏障对象的指针。
-    
 - 在重新利用相应的共享内存之前，需要对`*bar`进行无效。
-    
 
 __mbarrier_token_t __mbarrier_arrive(__mbarrier_t* bar);
 
 - `*bar`的初始化必须在此呼叫之前完成。
-    
 - 待定计数不得为零。
-    
 - 原子地减少屏障当前阶段的待定计数。
-    
 - 在递减之前返回与屏障状态相关的到达令牌。
-    
 
 __mbarrier_token_t __mbarrier_arrive_and_drop(__mbarrier_t* bar);
 
 - `*bar`的初始化必须在此呼叫之前完成。
-    
 - 待定计数不得为零。
-    
 - 原子地减少当前阶段的待定计数和屏障下一阶段的预期计数。
-    
 - 在递减之前返回与屏障状态相关的到达令牌。
-    
 
 bool __mbarrier_test_wait(__mbarrier_t* bar, __mbarrier_token_t token);
 
 - `token`必须与`*this`的紧随其后阶段或当前阶段相关联。
-    
 - 如果`token`与`*bar`的紧接着阶段相关联，则返回`true`，否则返回`false`。
-    
 
 //Note: This API has been deprecated in CUDA 11.1
+
 uint32_t __mbarrier_pending_count(__mbarrier_token_t token);
 
 ## 10.27.异步数据副本[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-data-copies "这个标题的永久链接")
@@ -7875,24 +8969,16 @@ The `memcpy_async` APIs that use [cuda::barrier](https://docs.nvidia.com/cuda
 CUDA应用程序通常采用_复制和计算_模式：
 
 - 从全局内存中获取数据，
-    
 - 将数据存储到共享内存中，以及
-    
 - 对共享内存数据执行计算，并有可能将结果写回全局内存。
-    
 
 以下章节说明了如何在没有`memcpy_async`功能的情况下表达此模式：
 
 - [没有memcpy_async](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#without-memcpy-async)引入了一个不与数据移动重叠计算并使用中间寄存器复制数据的示例。
-    
 - [With memcpy_async](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#with-memcpy-async) improves the previous example by introducing the [memcpy_async](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-memcpy-async) and the `cuda::memcpy_async` APIs to directly copy data from global to shared memory without using intermediate registers.
-    
 - [使用cuda::barrier的异步数据副本](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-barrier)显示带有合作组和屏障的memcpy。
-    
 - [使用cuda::pipeline的单级异步数据副本](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#with-memcpy-async-pipeline-pattern-single)显示带有单级管道的memcpy。
-    
 - [使用cuda::pipeline的多阶段异步数据副本](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#with-memcpy-async-pipeline-pattern-multi)显示带有多阶段管道的memcpy。
-    
 
 ### 10.27.3.没有`memcpy_async`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#without-memcpy-async "这个标题的永久链接")
 
@@ -7901,14 +8987,21 @@ Without `memcpy_async`, the _copy_ phase of the _copy and compute_ pattern 
 When this pattern occurs within an iterative algorithm, each thread block needs to synchronize after the `shared[local_idx] = global[global_idx]`assignment, to ensure all writes to shared memory have completed before the compute phase can begin. The thread block also needs to synchronize again after the compute phase, to prevent overwriting shared memory before all threads have completed their computations. This pattern is illustrated in the following code snippet.
 
 #include <cooperative_groups.h>
+
 __device__ void compute(int* global_out, int const* shared_in) {
+
     // Computes using all values of current batch from shared memory.
+
     // Stores this thread's result back to global memory.
+
 }
 
 __global__ void without_memcpy_async(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
   auto grid = cooperative_groups::this_grid();
+
   auto block = cooperative_groups::this_thread_block();
+
   assert(size == batch_sz * grid.size()); // Exposition: input size fits batch_sz * grid_size
 
   extern __shared__ int shared[]; // block.size() * sizeof(int) bytes
@@ -7916,9 +9009,13 @@ __global__ void without_memcpy_async(int* global_out, int const* global_in, size
   size_t local_idx = block.thread_rank();
 
   for (size_t batch = 0; batch < batch_sz; ++batch) {
+
     // Compute the index of the current batch for this block in global memory:
+
     size_t block_batch_idx = block.group_index().x * block.size() + grid.size() * batch;
+
     size_t global_idx = block_batch_idx + threadIdx.x;
+
     shared[local_idx] = global_in[global_idx];
 
     block.sync(); // Wait for all copies to complete
@@ -7926,7 +9023,9 @@ __global__ void without_memcpy_async(int* global_out, int const* global_in, size
     compute(global_out + block_batch_idx, shared); // Compute and write result to global memory
 
     block.sync(); // Wait for compute using shared memory to finish
+
   }
+
 }
 
 ### 10.27.4.与`memcpy_async`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#with-memcpy-async "这个标题的永久链接")
@@ -7944,20 +9043,27 @@ The [cooperative_groups::memcpy_async](https://docs.nvidia.com/cuda/cuda-c-prog
 在计算能力为8.0或更高版本的设备上，`memcpy_async`从全局内存传输到共享内存可以从硬件加速中受益，这避免了通过中间寄存器传输数据。
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/memcpy_async.h>
 
 __device__ void compute(int* global_out, int const* shared_in);
 
 __global__ void with_memcpy_async(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
   auto grid = cooperative_groups::this_grid();
+
   auto block = cooperative_groups::this_thread_block();
+
   assert(size == batch_sz * grid.size()); // Exposition: input size fits batch_sz * grid_size
 
   extern __shared__ int shared[]; // block.size() * sizeof(int) bytes
 
   for (size_t batch = 0; batch < batch_sz; ++batch) {
+
     size_t block_batch_idx = block.group_index().x * block.size() + grid.size() * batch;
+
     // Whole thread-group cooperatively copies whole batch to shared memory:
+
     cooperative_groups::memcpy_async(block, shared, global_in + block_batch_idx, sizeof(int) * block.size());
 
     cooperative_groups::wait(block); // Joins all threads, waits for all copies to complete
@@ -7965,7 +9071,9 @@ __global__ void with_memcpy_async(int* global_out, int const* global_in, size_t 
     compute(global_out + block_batch_idx, shared);
 
     block.sync();
+
   }
+
 }}
 
 ### 10.27.5.异步数据副本使用`cuda::barrier`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-data-copies-using-cuda-barrier "这个标题的永久链接")
@@ -7973,25 +9081,37 @@ __global__ void with_memcpy_async(int* global_out, int const* global_in, size_t 
 [cuda::barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier)的`cuda::memcpy_async`过载可以使用`barrier`同步异步数据传输。这种超载执行复制操作，就像由绑定到屏障的另一个线程执行一样：在创建时增加当前阶段的预期计数，并在复制操作完成后递减它，这样`barrier`的阶段只有在所有参与屏障的线程到达，并且绑定到屏障当前阶段的所有`memcpy_async`都已完成时才会前进。以下示例使用块宽`barrier`，其中所有块线程都参与其中，并将等待操作与屏障`arrive_and_wait`交换，同时提供与前一个示例相同的功能：
 
 #include <cooperative_groups.h>
+
 #include <cuda/barrier>
+
 __device__ void compute(int* global_out, int const* shared_in);
 
 __global__ void with_barrier(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
   auto grid = cooperative_groups::this_grid();
+
   auto block = cooperative_groups::this_thread_block();
+
   assert(size == batch_sz * grid.size()); // Assume input size fits batch_sz * grid_size
 
   extern __shared__ int shared[]; // block.size() * sizeof(int) bytes
 
   // Create a synchronization object (C++20 barrier)
+
   __shared__ cuda::barrier<cuda::thread_scope::thread_scope_block> barrier;
+
   if (block.thread_rank() == 0) {
+
     init(&barrier, block.size()); // Friend function initializes barrier
+
   }
+
   block.sync();
 
   for (size_t batch = 0; batch < batch_sz; ++batch) {
+
     size_t block_batch_idx = block.group_index().x * block.size() + grid.size() * batch;
+
     cuda::memcpy_async(block, shared, global_in + block_batch_idx, sizeof(int) * block.size(), barrier);
 
     barrier.arrive_and_wait(); // Waits for all copies to complete
@@ -7999,7 +9119,9 @@ __global__ void with_barrier(int* global_out, int const* global_in, size_t size,
     compute(global_out + block_batch_idx, shared);
 
     block.sync();
+
   }
+
 }
 
 ### 10.27.6.绩效指导`memcpy_async`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#performance-guidance-for-memcpy-async "这个标题的永久链接")
@@ -8031,34 +9153,27 @@ cuda::memcpy_async(group, dst, src, cuda::aligned_size_t<16>(N * block.size()), 
 `memcpy_async`批次的序列在经编中共享。提交操作是合并的，因此对于调用提交操作的所有收敛线程，序列会增加一次。如果经编完全收敛，序列递增一；如果经编完全发散，序列递增32。
 
 - 让_PB_是扭曲共享管道_的实际_批次序列。
-    
+
     `PB = {BP0, BP1, BP2, …, BPL}`
-    
+
 - 让_TB_是线程_感知_的批次序列，就好像序列只是通过该线程调用提交操作而增加的一样。
-    
+
     `TB = {BT0, BT1, BT2, …, BTL}`
-    
+
     `pipeline::producer_commit()`返回值来自线程_感知_的批处理序列。
-    
+
 - 线程感知序列中的索引总是与实际经编共享序列中相同或更大的索引对齐。只有当所有提交操作都从收敛线程调用时，序列才相等。
-    
+
     `BTn ≡ BPm`地点`n <= m`
-    
 
 例如，当经编完全发散时：
 
 - The warp-shared pipeline’s actual sequence would be: `PB = {0, 1, 2, 3, ..., 31}` (`PL=31`).
-    
 - 这个经编的每个线程的感知序列将是：
-    
     - Thread 0: `TB = {0}` (`TL=0`)
-        
     - Thread 1: `TB = {0}` (`TL=0`)
-        
     - `…`
-        
     - Thread 31: `TB = {0}` (`TL=0`)
-        
 
 #### 10.27.6.4.扭曲纠缠 - 等待[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-entanglement-wait "这个标题的永久链接")
 
@@ -8077,9 +9192,7 @@ The `pipeline_consumer_wait_prior<N>()` function waits for batches in the _ac
 建议通过收敛线程进行提交和到达调用：
 
 - 通过保持线程感知的批次序列与实际序列保持一致，从而不超时等待，以及
-    
 - 尽量减少对屏障对象的更新。
-    
 
 当这些操作之前的代码发散线程时，在调用提交或到达操作之前，应通过`__syncwarp`重新收敛经编。
 
@@ -8101,12 +9214,17 @@ CUDA提供`cuda::pipeline`同步对象，用于管理异步数据移动与计算
 In previous examples we showed how to use [cooperative_groups](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-wait) and [cuda::barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier) to do asynchronous data transfers. In this section, we will use the `cuda::pipeline` API with a single stage to schedule asynchronous copies. And later we will expand this example to show multi staged overlapped compute and copy.
 
 #include <cooperative_groups/memcpy_async.h>
+
 #include <cuda/pipeline>
 
 __device__ void compute(int* global_out, int const* shared_in);
+
 __global__ void with_single_stage(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
     auto grid = cooperative_groups::this_grid();
+
     auto block = cooperative_groups::this_thread_block();
+
     assert(size == batch_sz * grid.size()); // Assume input size fits batch_sz * grid_size
 
     constexpr size_t stages_count = 1; // Pipeline with one stage
@@ -8148,6 +9266,7 @@ __global__ void with_single_stage(int* global_out, int const* global_in, size_t 
         // Collectively release the stage resources
         pipeline.consumer_release();
     }
+
 }
 
 ### 10.28.2.多阶段异步数据副本使用`cuda::pipeline`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#multi-stage-asynchronous-data-copies-using-cuda-pipeline "这个标题的永久链接")
@@ -8157,23 +9276,24 @@ __global__ void with_single_stage(int* global_out, int const* global_in, size_t 
 为此，我们在以下示例中使用CUDA[管道](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pipeline-interface)功能。它提供了一种管理`memcpy_async`批次序列的机制，使CUDA内核能够将内存传输与计算重叠。以下示例实现了一个两阶段的管道，该管道将数据传输与计算重叠。它：
 
 - 初始化管道共享状态（更多内容见下文）
-    
 - 通过为第一批安排`memcpy_async`来启动管道。
-    
 - 循环所有批次：它为下一个批次安排`memcpy_async`，阻止上一个批次的`memcpy_async`完成的所有线程，然后将上一个批次的计算与下一个批次的内存异步副本重叠。
-    
 - 最后，它通过对最后一批进行计算来耗尽管道。
-    
 
 请注意，为了与`cuda::pipeline`的互操作性，这里使用了`cuda/pipeline`的`cuda::memcpy_async`。
 
 #include <cooperative_groups/memcpy_async.h>
+
 #include <cuda/pipeline>
 
 __device__ void compute(int* global_out, int const* shared_in);
+
 __global__ void with_staging(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
     auto grid = cooperative_groups::this_grid();
+
     auto block = cooperative_groups::this_thread_block();
+
     assert(size == batch_sz * grid.size()); // Assume input size fits batch_sz * grid_size
 
     constexpr size_t stages_count = 2; // Pipeline with two stages
@@ -8232,33 +9352,31 @@ __global__ void with_staging(int* global_out, int const* global_in, size_t size,
     pipeline.consumer_wait();
     compute(global_out + block_batch(batch_sz-1), shared + shared_offset[(batch_sz - 1) % 2]);
     pipeline.consumer_release();
+
 }
 
 [管道对象](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pipeline-interface)是一个具有_头部_和_尾部_的双端队列，用于按先入先出（FIFO）顺序处理工作。生产者线程将工作提交到管道的头部，而消费者线程则从管道的尾部提取工作。在上述示例中，所有线程都是生产者和消费者线程。线程首先_提交_`memcpy_async`操作来获取_下一个_批次，同时_等待_上一批`memcpy_async`操作完成。
 
 - 将工作提交到管道阶段涉及：
-    
     - 使用`pipeline.producer_acquire()`从一组生产者线程中集体_获取_管道头_。_
-        
     - 向管道头提交`memcpy_async`操作。
-        
     - 使用`pipeline.producer_commit()`集体_提交_（推进）管道头。
-        
 - 使用之前承诺的阶段包括：
-    
     - 集体等待阶段完成，例如，使用`pipeline.consumer_wait()`在尾部（最旧）阶段等待。
-        
     - 使用`pipeline.consumer_release()`集体_发布_阶段。
-        
 
 `cuda::pipeline_shared_state<scope, count>`封装有限资源，允许管道处理到`count`并发阶段。如果所有资源都在使用中，`pipeline.producer_acquire()`阻止生产者线程，直到下一个管道阶段的资源被消费者线程释放。
 
 通过将循环的前体和尾部与循环本身合并，可以以更简洁的方式编写此示例，具体如下所示：
 
-template <size_t stages_count = 2 /* Pipeline with stages_count stages */>
-__global__ void with_staging_unified(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+template <size_t stages_count = 2 /* Pipeline with stages_count stages _/>
+
+__global__ void with_staging_unified(int_ global_out, int const* global_in, size_t size, size_t batch_sz) {
+
     auto grid = cooperative_groups::this_grid();
+
     auto block = cooperative_groups::this_thread_block();
+
     assert(size == batch_sz * grid.size()); // Assume input size fits batch_sz * grid_size
 
     extern __shared__ int shared[]; // stages_count * block.size() * sizeof(int) bytes
@@ -8294,9 +9412,11 @@ __global__ void with_staging_unified(int* global_out, int const* global_in, size
         compute(global_out + block_batch(batch_idx), shared + shared_offset[shared_idx]);
         pipeline.consumer_release();
     }
+
 }
 
 上面使用的`pipeline<thread_scope_block>`原语非常灵活，并支持我们上面的例子没有使用的两个功能：块中线程的任何任意子集都可以参与`pipeline`，从参与的线程中，任何子集都可以是生产者、消费者或两者兼而有之。在以下示例中，线程排名为“偶数”的线程是生产者，而其他线程是消费者：
+
 ```c++
 __device__ void compute(int* global_out, int shared_in);
 
@@ -8403,6 +9523,7 @@ __global__ void with_staging_scope_thread(int* global_out, int const* global_in,
     }
 }
 ```
+
 如果`compute`操作仅读取与当前线程相同的经编中其他线程写入的共享内存，则`__syncwarp()`就足够了。
 
 ### 10.28.3.管道接口[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pipeline-interface "这个标题的永久链接")
@@ -8412,11 +9533,8 @@ __global__ void with_staging_scope_thread(int* global_out, int const* global_in,
 `pipeline`接口需要
 
 - 至少CUDA 11.0，
-    
 - 至少ISO C++ 2011兼容性，例如，使用`-std=c++11`编译，以及
-    
 - `#include <cuda/pipeline>`.
-    
 
 对于类似C的接口，在没有ISO C++ 2011兼容性的情况下编译时，请参阅[管道原始接口](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pipeline-primitives-interface)。
 
@@ -8425,6 +9543,7 @@ __global__ void with_staging_scope_thread(int* global_out, int const* global_in,
 管道原语是`memcpy_async`功能的类似C的接口。管道原语接口可以通过包含`<cuda_pipeline.h>`标头获得。在没有ISO C++ 2011兼容性的情况下编译时，包括`<cuda_pipeline_primitives.h>`标题。
 
 #### 10.28.4.1. `memcpy_async` Primitive[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-primitive "这个标题的永久链接")
+
 ```c++
 void __pipeline_memcpy_async(void* __restrict__ dst_shared,
                              const void* __restrict__ src_global,
@@ -8438,64 +9557,50 @@ void __pipeline_memcpy_async(void* __restrict__ dst_shared,
     for (; i < size_and_align; ++i) ((char*)dst_shared)[i] = 0; /* zero-fill */
     ```
 - 要求：
-    
     - `dst_shared`必须是指向`memcpy_async`共享内存目的地的指针。
-        
     - `src_global`必须是指向`memcpy_async`的全局内存源的指针。
-        
     - `size_and_align`必须是4、8或16。
-        
     - `zfill <= size_and_align`.
-        
     - `size_and_align`必须是`dst_shared`和`src_global`的对齐。
-        
 - 在等待`memcpy_async`操作完成之前，任何线程修改源内存或观察目标内存都是一个竞赛条件。在提交`memcpy_async`操作和等待其完成之间，以下任何操作都引入了竞赛条件：
-    
     - 从`dst_shared`加载。
-        
     - 存储到`dst_shared`或`src_global`。
-        
     - 将原子更新应用于`dst_shared`或`src_global`。
-        
 
 #### 10.28.4.2.承诺原始[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#commit-primitive "这个标题的永久链接")
 
 void __pipeline_commit();
 
 - 提交将`memcpy_async`作为当前批处理提交到管道。
-    
 
 #### 10.28.4.3.等待原始的[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wait-primitive "这个标题的永久链接")
 
 void __pipeline_wait_prior(size_t N);
 
 - Let `{0, 1, 2, ..., L}` be the sequence of indices associated with invocations of `__pipeline_commit()` by a given thread.
-    
 - 等待批次完成，_至少_包括`L-N`。
-    
 
 #### 10.28.4.4.到达屏障原始[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#arrive-on-barrier-primitive "这个标题的永久链接")
 
 void __pipeline_arrive_on(__mbarrier_t* bar);
 
 - `bar`指向共享内存中的障碍。
-    
 - 将障碍到达计数增加一个，当此调用之前排序的所有memcpy_async操作都完成时，到达计数将减小一个，因此对到达计数的净影响为零。用户有责任确保到达计数的增量不超过`__mbarrier_maximum_count()`
-    
 
 ## 10.29.使用张量内存加速器（TMA）进行异步数据复制[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-data-copies-using-the-tensor-memory-accelerator-tma "这个标题的永久链接")
 
 许多应用程序需要将大量数据从全局内存移动到全局内存。通常，数据作为具有非顺序数据访问模式的多维数组排列在全局内存中。为了减少全局内存使用，在用于计算之前，将此类数组的子图将子图复制到共享内存中。加载和存储涉及地址计算，这些地址计算可能容易出错且重复。为了卸载这些计算，计算能力9.0引入了张量内存加速器（TMA）。TMA的主要目标是为多维阵列提供从全局内存到共享内存的高效数据传输机制。
 
-**命名**。张量内存加速器（TMA）是一个广义的术语，用于指代本节中描述的功能。为了向前兼容并减少与PTX ISA的差异，本节中的文本将TMA操作称为批量异步副本或批量张量异步副本，具体取决于所使用的副本类型。“散块”一词用于将这些操作与前几节中描述的异步内存操作进行对比。
+__命名__。张量内存加速器（TMA）是一个广义的术语，用于指代本节中描述的功能。为了向前兼容并减少与PTX ISA的差异，本节中的文本将TMA操作称为批量异步副本或批量张量异步副本，具体取决于所使用的副本类型。“散块”一词用于将这些操作与前几节中描述的异步内存操作进行对比。
 
-**尺寸**。TMA支持复制一维和多维数组（最多5维）。一维连续数组的**批量异步副本**的编程模型与多维数组的**批量张量异步副本**的编程模型不同。要执行多维数组的批量张量异步复制，硬件需要[张量图](https://docs.nvidia.com/cuda/cuda-driver-api/structCUtensorMap.html#structCUtensorMap)。此对象描述了全局和共享内存中多维数组的布局。张量映射通常使用thecuTensorMapEncode [API](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html#group__CUDA__TENSOR__MEMORY)在主机上创建，然后作为`const`核心参数从主机传输到设备，并用`__grid_constant__`注释。张量映射作为用`__grid_constant__`注释的`const`核心参数从主机传输到设备，可以在设备上用于在共享内存和全局内存之间复制数据图块。相比之下，执行连续一维数组的批量异步复制不需要张量映射：它可以在设备上使用指针和大小参数执行。
+__尺寸__。TMA支持复制一维和多维数组（最多5维）。一维连续数组的__批量异步副本__的编程模型与多维数组的__批量张量异步副本__的编程模型不同。要执行多维数组的批量张量异步复制，硬件需要[张量图](https://docs.nvidia.com/cuda/cuda-driver-api/structCUtensorMap.html#structCUtensorMap)。此对象描述了全局和共享内存中多维数组的布局。张量映射通常使用thecuTensorMapEncode [API](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html#group__CUDA__TENSOR__MEMORY)在主机上创建，然后作为`const`核心参数从主机传输到设备，并用`__grid_constant__`注释。张量映射作为用`__grid_constant__`注释的`const`核心参数从主机传输到设备，可以在设备上用于在共享内存和全局内存之间复制数据图块。相比之下，执行连续一维数组的批量异步复制不需要张量映射：它可以在设备上使用指针和大小参数执行。
 
-**来源和目的地**。批量异步复制操作的源地址和目标地址可以在共享或全局内存中。操作可以将数据从全局内存读取到共享内存，将数据从共享内存写入全局内存，还可以将共享内存复制到同一集群中另一个块的[分布式共享内存](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#distributed-shared-memory)。此外，在集群中，批量异步操作可以指定为组播。在这种情况下，数据可以从全局内存传输到集群内多个块的共享内存。组播功能针对目标架构`sm_90a`进行了优化，可能[显著降低了](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor)其他目标的[性能](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor)。因此，建议与[计算架构](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-feature-list)`sm_90a`一起使用。
+__来源和目的地__。批量异步复制操作的源地址和目标地址可以在共享或全局内存中。操作可以将数据从全局内存读取到共享内存，将数据从共享内存写入全局内存，还可以将共享内存复制到同一集群中另一个块的[分布式共享内存](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#distributed-shared-memory)。此外，在集群中，批量异步操作可以指定为组播。在这种情况下，数据可以从全局内存传输到集群内多个块的共享内存。组播功能针对目标架构`sm_90a`进行了优化，可能[显著降低了](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor)其他目标的[性能](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor)。因此，建议与[计算架构](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-feature-list)`sm_90a`一起使用。
 
-**非同步**。使用TMA的数据传输[是非同步](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-simt-programming-model)的。这允许启动线程继续计算，而硬件则异步复制数据。**数据传输在实践中是否异步发生取决于硬件实现，并且在未来可能会发生变化**。批量异步操作可以使用几种[完成机制](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-asynchronous-copy-completion-mechanisms)来表示已完成。当操作从全局读取到共享内存时，块中的任何线程都可以通过等待[共享内存屏障](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier)来等待共享内存中的数据可读。当批量异步操作将数据从共享内存写入全局或分布式共享内存时，只有启动线程可以等待操作完成。这是使用基于_批量异步组_的完成机制完成的。描述完成机制的表格可以在下面和[PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk)中找到。
+__非同步__。使用TMA的数据传输[是非同步](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-simt-programming-model)的。这允许启动线程继续计算，而硬件则异步复制数据。__数据传输在实践中是否异步发生取决于硬件实现，并且在未来可能会发生变化__。批量异步操作可以使用几种[完成机制](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-asynchronous-copy-completion-mechanisms)来表示已完成。当操作从全局读取到共享内存时，块中的任何线程都可以通过等待[共享内存屏障](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier)来等待共享内存中的数据可读。当批量异步操作将数据从共享内存写入全局或分布式共享内存时，只有启动线程可以等待操作完成。这是使用基于_批量异步组_的完成机制完成的。描述完成机制的表格可以在下面和[PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk)中找到。
 
 表8 具有可能的源和目标内存空间以及完成机制的异步副本。空单元格表示不支持源-目的地对。[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-tma-source-dest-state-spaces "此表的永久链接")
+
 |方向|   |完成机制|   |
 |---|---|---|---|
 |目的地|来源|异步复制|批量异步复制（TMA）|
@@ -8514,104 +9619,147 @@ void __pipeline_arrive_on(__mbarrier_t* bar);
 内核的代码包含在下面。某些功能需要内联PTX程序集，目前通过[libcu++](https://nvidia.github.io/cccl/libcudacxx/ptx.html)提供。可以通过以下代码检查这些包装纸的可用性：
 
 #if defined(__CUDA_MINIMUM_ARCH__) && __CUDA_MINIMUM_ARCH__ < 900
+
 static_assert(false, "Device code is being compiled with older architectures that are incompatible with TMA.");
+
 #endif // __CUDA_MINIMUM_ARCH__
 
 内核经历以下阶段：
 
 1. 初始化共享内存屏障。
-    
 2. 启动从全局内存到共享内存块的批量异步复制。
-    
 3. 到达并等待共享记忆屏障。
-    
 4. 增加共享内存缓冲值。
-    
 5. 等待共享内存写入对后续的批量异步副本可见，即在下一步之前，在[异步代理中](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#async-proxy)对共享内存写入进行排序。
-    
 6. 将共享内存中的缓冲区批量异步复制到全局内存。
-    
 7. 等待内核末尾的批量异步副本完成读取共享内存。
-    
 
 #include <cuda/barrier>
+
 #include <cuda/ptx>
+
 using barrier = cuda::barrier<cuda::thread_scope_block>;
+
 namespace ptx = cuda::ptx;
 
 static constexpr size_t buf_len = 1024;
+
 __global__ void add_one_kernel(int* data, size_t offset)
+
 {
+
   // Shared memory buffer. The destination shared memory buffer of
+
   // a bulk operations should be 16 byte aligned.
+
   __shared__ alignas(16) int smem_data[buf_len];
 
   // 1. a) Initialize shared memory barrier with the number of threads participating in the barrier.
+
   //    b) Make initialized barrier visible in async proxy.
+
   #pragma nv_diag_suppress static_var_with_dynamic_init
+
   __shared__ barrier bar;
+
   if (threadIdx.x == 0) { 
+
     init(&bar, blockDim.x);                      // a)
+
     ptx::fence_proxy_async(ptx::space_shared);   // b)
+
   }
+
   __syncthreads();
 
   // 2. Initiate TMA transfer to copy global to shared memory.
+
   if (threadIdx.x == 0) {
+
     // 3a. cuda::memcpy_async arrives on the barrier and communicates
+
     //     how many bytes are expected to come in (the transaction count)
+
     cuda::memcpy_async(
+
         smem_data, 
+
         data + offset, 
+
         cuda::aligned_size_t<16>(sizeof(smem_data)),
+
         bar
+
     );
+
   }
+
   // 3b. All threads arrive on the barrier
+
   barrier::arrival_token token = bar.arrive();
-  
+
   // 3c. Wait for the data to have arrived.
+
   bar.wait(std::move(token));
 
   // 4. Compute saxpy and write back to shared memory
+
   for (int i = threadIdx.x; i < buf_len; i += blockDim.x) {
+
     smem_data[i] += 1;
+
   }
 
   // 5. Wait for shared memory writes to be visible to TMA engine.
+
   ptx::fence_proxy_async(ptx::space_shared);   // b)
+
   __syncthreads();
+
   // After syncthreads, writes by all threads are visible to TMA engine.
 
   // 6. Initiate TMA transfer to copy shared memory to global memory
+
   if (threadIdx.x == 0) {
+
     ptx::cp_async_bulk(
+
         ptx::space_global,
+
         ptx::space_shared,
+
         data + offset, smem_data, sizeof(smem_data));
+
     // 7. Wait for TMA transfer to have finished reading shared memory.
+
     // Create a "bulk async-group" out of the previous bulk copy operation.
+
     ptx::cp_async_bulk_commit_group();
+
     // Wait for the group to have completed reading from shared memory.
+
     ptx::cp_async_bulk_wait_group_read(ptx::n32_t<0>());
+
   }
+
 }
 
-**屏障初始化**。屏障以参与区块的线程数量初始化。因此，只有当所有线程都到达该屏障时，屏障才会翻转。共享内存障碍在[使用cuda::barrier的异步数据副本](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-barrier)中进行了更详细的描述。为了使初始化的屏障对后续的批量异步副本可见，使用了`fence.proxy.async.shared::cta`指令。此指令确保后续的批量异步复制操作在初始化的屏障上运行。
+__屏障初始化__。屏障以参与区块的线程数量初始化。因此，只有当所有线程都到达该屏障时，屏障才会翻转。共享内存障碍在[使用cuda::barrier的异步数据副本](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-barrier)中进行了更详细的描述。为了使初始化的屏障对后续的批量异步副本可见，使用了`fence.proxy.async.shared::cta`指令。此指令确保后续的批量异步复制操作在初始化的屏障上运行。
 
-**TMA阅读**。批量异步复制指令指示硬件将大量数据复制到共享内存中，并在完成读取后更新共享内存屏障的[事务计数](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations)。一般来说，尽可能少地发布大尺寸的批量副本，效果最好。由于副本可以通过硬件异步执行，因此没有必要将副本分成更小的块。
+__TMA阅读__。批量异步复制指令指示硬件将大量数据复制到共享内存中，并在完成读取后更新共享内存屏障的[事务计数](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations)。一般来说，尽可能少地发布大尺寸的批量副本，效果最好。由于副本可以通过硬件异步执行，因此没有必要将副本分成更小的块。
 
-启动批量异步复制操作的线程使用`mbarrier.expect_tx`到达屏障。这是由`cuda::memcpy_async`自动执行的。这告诉了线程已经到达的障碍，以及预计到达的字节（tx/事务）有多少。只有一个线程需要更新预期的交易数量。如果多个线程更新交易计数，预期交易将是更新的总和。只有在所有线程到达**和所有**字节到达后，屏障才会翻转。一旦障碍翻转，字节就可以安全地从共享内存中读取，无论是线程还是通过后续的批量异步副本。有关障碍交易会计的更多信息可以在[PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations)中找到。
+启动批量异步复制操作的线程使用`mbarrier.expect_tx`到达屏障。这是由`cuda::memcpy_async`自动执行的。这告诉了线程已经到达的障碍，以及预计到达的字节（tx/事务）有多少。只有一个线程需要更新预期的交易数量。如果多个线程更新交易计数，预期交易将是更新的总和。只有在所有线程到达__和所有__字节到达后，屏障才会翻转。一旦障碍翻转，字节就可以安全地从共享内存中读取，无论是线程还是通过后续的批量异步副本。有关障碍交易会计的更多信息可以在[PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations)中找到。
 
-**屏障等待**。使用`mbarrier.try_wait`完成等待翻转的障碍。它可以返回true，表示等待已经结束，也可以返回false，这可能意味着等待超时。while循环等待完成，并在超时重新重做。
+__屏障等待__。使用`mbarrier.try_wait`完成等待翻转的障碍。它可以返回true，表示等待已经结束，也可以返回false，这可能意味着等待超时。while循环等待完成，并在超时重新重做。
 
-**SMEM写入和同步**。缓冲值的增量读取和写入共享内存。为了使写入对后续的批量异步副本可见，使用了`fence.proxy.async.shared::cta`指令。这在从批量异步复制操作中读取后续读取之前，将写入顺序分配到共享内存，该操作通过异步代理读取。因此，每个线程首先通过`fence.proxy.async.shared::cta`在异步代理中命令写入共享内存中的对象，所有线程的这些操作都在使用`__syncthreads()`在线程0中执行异步操作之前进行排序。
+__SMEM写入和同步__。缓冲值的增量读取和写入共享内存。为了使写入对后续的批量异步副本可见，使用了`fence.proxy.async.shared::cta`指令。这在从批量异步复制操作中读取后续读取之前，将写入顺序分配到共享内存，该操作通过异步代理读取。因此，每个线程首先通过`fence.proxy.async.shared::cta`在异步代理中命令写入共享内存中的对象，所有线程的这些操作都在使用`__syncthreads()`在线程0中执行异步操作之前进行排序。
 
-**TMA写入和同步**。从共享到全局内存的写入再次由单个线程启动。共享内存屏障不会跟踪写入的完成。相反，使用线程本地机制。多个写入可以批量合并到所谓的_批量异步组中_。之后，线程可以等待此组中的所有操作完成从共享内存中读取（如上面的代码）或完成写入全局内存，使写入对启动线程可见。有关更多信息，请参阅[cp.async.bulk.wait_group](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-wait-group)的PTX ISA文档。请注意，批量异步和非批量异步复制指令有不同的异步组：`cp.async.wait_group`和`cp.async.bulk.wait_group`指令都存在。
+__TMA写入和同步__。从共享到全局内存的写入再次由单个线程启动。共享内存屏障不会跟踪写入的完成。相反，使用线程本地机制。多个写入可以批量合并到所谓的_批量异步组中_。之后，线程可以等待此组中的所有操作完成从共享内存中读取（如上面的代码）或完成写入全局内存，使写入对启动线程可见。有关更多信息，请参阅[cp.async.bulk.wait_group](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-wait-group)的PTX ISA文档。请注意，批量异步和非批量异步复制指令有不同的异步组：`cp.async.wait_group`和`cp.async.bulk.wait_group`指令都存在。
 
 批量异步指令对其源地址和目标地址有特定的对齐要求。更多信息可以在下表中找到。
 
 表9计算能力9.0中一维批量异步操作的对齐要求。[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-alignment-one-dim-tma "此表的永久链接")
+
 |地址/尺寸|对齐|
 |---|---|
 |全局内存地址|必须对齐16字节。|
@@ -8623,73 +9771,120 @@ __global__ void add_one_kernel(int* data, size_t offset)
 
 一维和多维情况之间的主要区别在于，必须在主机上创建张量映射，并传递给CUDA内核。本节介绍如何使用CUDA驱动程序API创建张量图，如何将其传递给设备，以及如何在设备上使用它。
 
-**Driver API**. A tensor map is created using the [cuTensorMapEncodeTiled](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html) driver API. This API can be accessed by linking to the driver directly (`-lcuda`) or by using the [cudaGetDriverEntryPointByVersion](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DRIVER__ENTRY__POINT.html) API. Below, we show how to get a pointer to the `cuTensorMapEncodeTiled` API. For more information, refer to [Driver Entry Point Access](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-entry-point-access).
+__Driver API__. A tensor map is created using the [cuTensorMapEncodeTiled](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html) driver API. This API can be accessed by linking to the driver directly (`-lcuda`) or by using the [cudaGetDriverEntryPointByVersion](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DRIVER__ENTRY__POINT.html) API. Below, we show how to get a pointer to the `cuTensorMapEncodeTiled` API. For more information, refer to [Driver Entry Point Access](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-entry-point-access).
 
 #include <cudaTypedefs.h> // PFN_cuTensorMapEncodeTiled, CUtensorMap
 
 PFN_cuTensorMapEncodeTiled_v12000 get_cuTensorMapEncodeTiled() {
+
   // Get pointer to cuTensorMapEncodeTiled
+
   cudaDriverEntryPointQueryResult driver_status;
+
   void* cuTensorMapEncodeTiled_ptr = nullptr;
+
   CUDA_CHECK(cudaGetDriverEntryPointByVersion("cuTensorMapEncodeTiled", &cuTensorMapEncodeTiled_ptr, 12000, cudaEnableDefault, &driver_status));
+
   assert(driver_status == cudaDriverEntryPointSuccess);
 
   return reinterpret_cast<PFN_cuTensorMapEncodeTiled_v12000>(cuTensorMapEncodeTiled_ptr);
+
 }
 
-**Creation**. Creating a tensor map requires many parameters. Among them are the base pointer to an array in global memory, the size of the array (in number of elements), the stride from one row to the next (in bytes), the size of the shared memory buffer (in number of elements). The code below creates a tensor map to describe a two-dimensional row-major array of size `GMEM_HEIGHT x GMEM_WIDTH`. Note the order of the parameters: the fastest moving dimension comes first.
+__Creation__. Creating a tensor map requires many parameters. Among them are the base pointer to an array in global memory, the size of the array (in number of elements), the stride from one row to the next (in bytes), the size of the shared memory buffer (in number of elements). The code below creates a tensor map to describe a two-dimensional row-major array of size `GMEM_HEIGHT x GMEM_WIDTH`. Note the order of the parameters: the fastest moving dimension comes first.
 
   CUtensorMap tensor_map{};
+
   // rank is the number of dimensions of the array.
+
   constexpr uint32_t rank = 2;
+
   uint64_t size[rank] = {GMEM_WIDTH, GMEM_HEIGHT};
+
   // The stride is the number of bytes to traverse from the first element of one row to the next.
+
   // It must be a multiple of 16.
+
   uint64_t stride[rank - 1] = {GMEM_WIDTH * sizeof(int)};
+
   // The box_size is the size of the shared memory buffer that is used as the
+
   // destination of a TMA transfer.
+
   uint32_t box_size[rank] = {SMEM_WIDTH, SMEM_HEIGHT};
+
   // The distance between elements in units of sizeof(element). A stride of 2
+
   // can be used to load only the real component of a complex-valued tensor, for instance.
+
   uint32_t elem_stride[rank] = {1, 1};
 
   // Get a function pointer to the cuTensorMapEncodeTiled driver API.
+
   auto cuTensorMapEncodeTiled = get_cuTensorMapEncodeTiled();
 
   // Create the tensor descriptor.
+
   CUresult res = cuTensorMapEncodeTiled(
+
     &tensor_map,                // CUtensorMap *tensorMap,
+
     CUtensorMapDataType::CU_TENSOR_MAP_DATA_TYPE_INT32,
+
     rank,                       // cuuint32_t tensorRank,
+
     tensor_ptr,                 // void *globalAddress,
+
     size,                       // const cuuint64_t *globalDim,
+
     stride,                     // const cuuint64_t *globalStrides,
+
     box_size,                   // const cuuint32_t *boxDim,
+
     elem_stride,                // const cuuint32_t *elementStrides,
+
     // Interleave patterns can be used to accelerate loading of values that
+
     // are less than 4 bytes long.
+
     CUtensorMapInterleave::CU_TENSOR_MAP_INTERLEAVE_NONE,
+
     // Swizzling can be used to avoid shared memory bank conflicts.
+
     CUtensorMapSwizzle::CU_TENSOR_MAP_SWIZZLE_NONE,
+
     // L2 Promotion can be used to widen the effect of a cache-policy to a wider
+
     // set of L2 cache lines.
+
     CUtensorMapL2promotion::CU_TENSOR_MAP_L2_PROMOTION_NONE,
+
     // Any element that is outside of bounds will be set to zero by the TMA transfer.
+
     CUtensorMapFloatOOBfill::CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE
+
   );
 
-**主机到设备传输**。有三种方法可以让设备代码访问张量图。推荐的方法是将张量映射作为常量`__grid_constant__`参数传递给内核。其他可能性是使用`cudaMemcpyToSymbol`将张量映射复制到设备`__constant__`内存中，或者通过全局内存访问它。当将张量映射作为参数传递时，一些版本的GCC C++编译器会发出警告“在GCC 4.6中传递64字节对齐参数的ABI已经改变”。这个警告可以忽略。
+__主机到设备传输__。有三种方法可以让设备代码访问张量图。推荐的方法是将张量映射作为常量`__grid_constant__`参数传递给内核。其他可能性是使用`cudaMemcpyToSymbol`将张量映射复制到设备`__constant__`内存中，或者通过全局内存访问它。当将张量映射作为参数传递时，一些版本的GCC C++编译器会发出警告“在GCC 4.6中传递64字节对齐参数的ABI已经改变”。这个警告可以忽略。
 
 #include <cuda.h>
 
 __global__ void kernel(const __grid_constant__ CUtensorMap tensor_map)
+
 {
+
    // Use tensor_map here.
+
 }
+
 int main() {
+
   CUtensorMap map;
+
   // [ ..Initialize map.. ]
+
   kernel<<<1, 1>>>(map);
+
 }
 
 作为`__grid_constant__`内核参数的替代方案，可以使用全局[常量](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#constant)变量。下面包括一个例子。
@@ -8697,111 +9892,185 @@ int main() {
 #include <cuda.h>
 
 __constant__ CUtensorMap global_tensor_map;
+
 __global__ void kernel()
+
 {
+
   // Use global_tensor_map here.
+
 }
+
 int main() {
+
   CUtensorMap local_tensor_map;
+
   // [ ..Initialize map.. ]
+
   cudaMemcpyToSymbol(global_tensor_map, &local_tensor_map, sizeof(CUtensorMap));
+
   kernel<<<1, 1>>>();
+
 }
 
 最后，可以将张量图复制到全局内存。在全局设备内存中使用指向张量映射的指针，需要在块中的任何线程中使用更新的张量映射之前，在每个线程块中都有一个栅栏。除非再次修改张量图，否则不需要对该线程块对张量图的进一步使用进行围栏。请注意，这种机制可能比上面描述的两种机制慢。
 
 #include <cuda.h>
+
 #include <cuda/ptx>
+
 namespace ptx = cuda::ptx;
 
 __device__ CUtensorMap global_tensor_map;
+
 __global__ void kernel(CUtensorMap *tensor_map)
+
 {
+
   // Fence acquire tensor map:
+
   ptx::n32_t<128> size_bytes;
+
   // Since the tensor map was modified from the host using cudaMemcpy,
+
   // the scope should be .sys.
+
   ptx::fence_proxy_tensormap_generic(
+
      ptx::sem_acquire, ptx::scope_sys, tensor_map, size_bytes
+
  );
+
  // Safe to use tensor_map after fence inside this thread..
-}
-int main() {
-  CUtensorMap local_tensor_map;
-  // [ ..Initialize map.. ]
-  cudaMemcpy(&global_tensor_map, &local_tensor_map, sizeof(CUtensorMap), cudaMemcpyHostToDevice);
-  kernel<<<1, 1>>>(global_tensor_map);
+
 }
 
-**Use**. The kernel below loads a 2D tile of size `SMEM_HEIGHT x SMEM_WIDTH` from a larger 2D array. The top-left corner of the tile is indicated by the indices `x` and `y`. The tile is loaded into shared memory, modified, and written back to global memory.
+int main() {
+
+  CUtensorMap local_tensor_map;
+
+  // [ ..Initialize map.. ]
+
+  cudaMemcpy(&global_tensor_map, &local_tensor_map, sizeof(CUtensorMap), cudaMemcpyHostToDevice);
+
+  kernel<<<1, 1>>>(global_tensor_map);
+
+}
+
+__Use__. The kernel below loads a 2D tile of size `SMEM_HEIGHT x SMEM_WIDTH` from a larger 2D array. The top-left corner of the tile is indicated by the indices `x` and `y`. The tile is loaded into shared memory, modified, and written back to global memory.
 
 #include <cuda.h>         // CUtensormap
+
 #include <cuda/barrier>
+
 using barrier = cuda::barrier<cuda::thread_scope_block>;
+
 namespace cde = cuda::device::experimental;
 
 __global__ void kernel(const __grid_constant__ CUtensorMap tensor_map, int x, int y) {
+
   // The destination shared memory buffer of a bulk tensor operation should be
+
   // 128 byte aligned.
+
   __shared__ alignas(128) int smem_buffer[SMEM_HEIGHT][SMEM_WIDTH];
 
   // Initialize shared memory barrier with the number of threads participating in the barrier.
+
   #pragma nv_diag_suppress static_var_with_dynamic_init
+
   __shared__ barrier bar;
 
   if (threadIdx.x == 0) {
+
     // Initialize barrier. All `blockDim.x` threads in block participate.
+
     init(&bar, blockDim.x);
+
     // Make initialized barrier visible in async proxy.
+
     cde::fence_proxy_async_shared_cta();
+
   }
+
   // Syncthreads so initialized barrier is visible to all threads.
+
   __syncthreads();
 
   barrier::arrival_token token;
+
   if (threadIdx.x == 0) {
+
     // Initiate bulk tensor copy.
+
     cde::cp_async_bulk_tensor_2d_global_to_shared(&smem_buffer, &tensor_map, x, y, bar);
+
     // Arrive on the barrier and tell how many bytes are expected to come in.
+
     token = cuda::device::barrier_arrive_tx(bar, 1, sizeof(smem_buffer));
+
   } else {
+
     // Other threads just arrive.
+
     token = bar.arrive();
+
   }
+
   // Wait for the data to have arrived.
+
   bar.wait(std::move(token));
 
   // Symbolically modify a value in shared memory.
+
   smem_buffer[0][threadIdx.x] += threadIdx.x;
 
   // Wait for shared memory writes to be visible to TMA engine.
+
   cde::fence_proxy_async_shared_cta();
+
   __syncthreads();
+
   // After syncthreads, writes by all threads are visible to TMA engine.
 
   // Initiate TMA transfer to copy shared memory to global memory
+
   if (threadIdx.x == 0) {
+
     cde::cp_async_bulk_tensor_2d_shared_to_global(&tensor_map, x, y, &smem_buffer);
+
     // Wait for TMA transfer to have finished reading shared memory.
+
     // Create a "bulk async-group" out of the previous bulk copy operation.
+
     cde::cp_async_bulk_commit_group();
+
     // Wait for the group to have completed reading from shared memory.
+
     cde::cp_async_bulk_wait_group_read<0>();
+
   }
 
   // Destroy barrier. This invalidates the memory region of the barrier. If
+
   // further computations were to take place in the kernel, this allows the
+
   // memory location of the shared memory barrier to be reused.
+
   if (threadIdx.x == 0) {
+
     (&bar)->~barrier();
+
   }
+
 }
 
-**负指数和范围外**。当从全局_读取_到共享内存的部分图块超出界时，对应于超出界区域的共享内存为零填充。瓷砖的左上角索引也可能是负的。从共享到全局内存_写入_时，瓷砖的部分内容可能超出界，但左上角不能有任何负指数。
+__负指数和范围外__。当从全局_读取_到共享内存的部分图块超出界时，对应于超出界区域的共享内存为零填充。瓷砖的左上角索引也可能是负的。从共享到全局内存_写入_时，瓷砖的部分内容可能超出界，但左上角不能有任何负指数。
 
-**大小和步长**。张量的大小是一个维度上的元素数。所有尺寸必須大於1。步长是同一维度元素之间的字节数。例如，一个4 x 4的整数矩阵的大小为4和4。由于每个元素有4个字节，所以步数为4个字节和16个字节。由于对齐要求，4 x 3行整数大矩阵也必须有4和16字节的步长。每行都加了4个额外的字节，以确保下一行的开头与16字节对齐。有关对齐的更多信息，请参阅表 [10](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-alignment-multi-dim-tma)。
+__大小和步长__。张量的大小是一个维度上的元素数。所有尺寸必須大於1。步长是同一维度元素之间的字节数。例如，一个4 x 4的整数矩阵的大小为4和4。由于每个元素有4个字节，所以步数为4个字节和16个字节。由于对齐要求，4 x 3行整数大矩阵也必须有4和16字节的步长。每行都加了4个额外的字节，以确保下一行的开头与16字节对齐。有关对齐的更多信息，请参阅表 [10](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-alignment-multi-dim-tma)。
 
 表10计算能力9.0中多维批量张量异步复制操作的对齐要求。[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-alignment-multi-dim-tma "此表的永久链接")
+
 |地址/尺寸|对齐|
 |---|---|
 |全局内存地址|必须对齐16字节。|
@@ -8818,63 +10087,103 @@ __global__ void kernel(const __grid_constant__ CUtensorMap tensor_map, int x, in
 [cp.async.bulk.tensor](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor)指令在全局和共享内存之间启动批量张量异步复制。下面的包装器从全局读取到共享内存，从共享到全局内存写入。
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_1d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map , int c0, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_2d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map , int c0, int c1, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_3d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map, int c0, int c1, int c2, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_4d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map , int c0, int c1, int c2, int c3, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_5d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map , int c0, int c1, int c2, int c3, int c4, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_1d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, const void *src
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_2d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, int c1, const void *src
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_3d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, int c1, int c2, const void *src
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_4d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, int c1, int c2, int c3, const void *src
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_5d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, int c1, int c2, int c3, int c4, const void *src
+
 );
 
 ### 10.29.3.TMA Swizzle[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tma-swizzle "这个标题的永久链接")
@@ -8902,6 +10211,7 @@ void cuda::device::experimental::cp_async_bulk_tensor_5d_shared_to_global(
 [![与CU_TENSOR_MAP_SWIZZLE_128B swizzle共享内存数据布局。](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/example2.png)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/example2.png)
 
 Figure 28 The shared memory data layout with `CU_TENSOR_MAP_SWIZZLE_128B` swizzle. One row is stored in a column, each matrix element is from a different bank for both the rows and columns, and so without any bank conflicts.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id469 "此图像的永久链接")
+
 ```c++
 __global__ void kernel_tma(const __grid_constant__ CUtensorMap tensor_map) {
    // The destination shared memory buffer of a bulk tensor operation
@@ -9003,6 +10313,7 @@ int main(){
  ...
 }
 ```
+
 **备注。**这个例子应该展示swizzle的使用，“as-is”没有性能，也没有超出给定维度的扩展范围。
 
 解释。在数据传输过程中，TMA引擎根据抖动模式对数据进行洗牌，如下表所述。这些swizzle模式定义了沿swizzle宽度的16字节块映射到四个银行的子组。它的类型为`CUtensorMapSwizzle`，有四个选项：无、32字节、64字节和128字节。请注意，共享内存盒的内部尺寸必须小于或等于swizzle模式的跨度。
@@ -9018,17 +10329,14 @@ int main(){
 **考虑因素。**在应用TMA swizzle模式时，遵守特定的内存要求至关重要：
 
 - **全局内存对齐：**全局内存必须对齐到128字节。
-    
 - **共享内存对齐：**为了简单起见，共享内存应根据字节数对齐，之后旋转模式重复。当共享内存缓冲区与swizzle模式重复的字节数不一致时，swizzle模式和共享内存之间存在偏移。请参阅下面的[评论](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#swizzle-pattern-pointer-offset-computation)。
-    
 - **内部尺寸：**共享内存块的内部尺寸必须满足表[12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements)中规定的尺寸要求。如果不符合这些要求，则该指令将被视为无效。此外，如果swizzle宽度超过内部尺寸，请确保分配共享内存以适应完整的swizzle宽度。
-    
 - 粒度：swizzle映射的粒度固定在16字节。这意味着数据以16字节的块形式组织和访问，在规划内存布局和访问模式时必须考虑这一点。
-    
 
-**Swizzle模式指针偏移计算**。在这里，我们描述了如何确定swizzle模式和共享内存之间的偏移，当共享内存缓冲区没有按swizzle模式重复的字节数对齐时。使用TMA时，共享内存需要与128字节对齐。要找出共享内存缓冲区相对于swizzle模式的移动次数，请应用相应的偏移公式。
+__Swizzle模式指针偏移计算__。在这里，我们描述了如何确定swizzle模式和共享内存之间的偏移，当共享内存缓冲区没有按swizzle模式重复的字节数对齐时。使用TMA时，共享内存需要与128字节对齐。要找出共享内存缓冲区相对于swizzle模式的移动次数，请应用相应的偏移公式。
 
 表11 Swizzle模式指针偏移公式和指数关系[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-offset "此表的永久链接")
+
 |旋转模式|偏移公式|指数关系|
 |---|---|---|
 |CU_TENSOR_地图_SWIZZLE_128B|`(reinterpret_cast <uintptr_t>(smem_ptr)/128)%8`|`smem[y][x] <-> smem[y][((y+offset)%8)^x]`|
@@ -9036,14 +10344,17 @@ int main(){
 |CU_TENSOR_地图_SWIZZLE_32B|`(reinterpret_cast <uintptr_t>(smem_ptr)/128)%2`|`smem[y][x] <-> smem[y][((y+offset)%2)^x]`|
 
 在[图29中，](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#figure-swizzle-overview)这个偏移表示初始行偏移，因此，在swizzle指数计算中，它被添加到行索引y中。以下片段展示了如何在`CU_TENSOR_MAP_SWIZZLE_128B`模式下访问swizzled共享内存。
+
 ```c++
 data_t* smem_ptr = &smem[0][0];
 int offset = (reinterpret_cast<uintptr_t>(smem_ptr)/128)%8;
 smem[y][((y+offset)%8)^x] = ...
 ```
+
 **总结。**下表[12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements)总结了计算能力9的不同swizzle模式的要求和属性。
 
 表12计算能力9的不同swizzle模式的要求和属性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements "此表的永久链接")
+
 |模式|旋转宽度|共享盒子的内部尺寸|重复之后|共享内存对齐|全局内存对齐|
 |---|---|---|---|---|---|
 |CU_TENSOR_地图_SWIZZLE_128B|128字节|<=128字节|1024字节|128字节|128字节|
@@ -9060,59 +10371,83 @@ This section explains how to encode a tiled-type tensor map on device. This is u
 推荐的模式如下：
 
 1. 使用主机上的驱动程序API创建一个张量图“模板”，`template_tensor_map`。
-    
 2. 在设备内核中，复制`template_tensor_map`，修改副本，存储在全局内存中，并适当地围栏。
-    
 3. 在带有适当围栏的内核中使用张量映射。
-    
 
 高级代码结构如下：
 
 // Initialize device context:
+
 CUDA_CHECK(cudaDeviceSynchronize());
 
 // Create a tensor map template using the cuTensorMapEncodeTiled driver function
+
 CUtensorMap template_tensor_map = make_tensormap_template();
 
 // Allocate tensor map and tensor in global memory
+
 CUtensorMap* global_tensor_map;
+
 CUDA_CHECK(cudaMalloc(&global_tensor_map, sizeof(CUtensorMap)));
+
 char* global_buf;
+
 CUDA_CHECK(cudaMalloc(&global_buf, 8 * 256));
 
 // Fill global buffer with data.
+
 fill_global_buf<<<1, 1>>>(global_buf);
 
 // Define the parameters of the tensor map that will be created on device.
+
 tensormap_params p{};
+
 p.global_address    = global_buf;
+
 p.rank              = 2;
+
 p.box_dim[0]        = 128; // The box in shared memory has half the width of the full buffer
+
 p.box_dim[1]        = 4;   // The box in shared memory has half the height of the full buffer
+
 p.global_dim[0]     = 256; //
+
 p.global_dim[1]     = 8;   //
+
 p.global_stride[0]  = 256; //
+
 p.element_stride[0] = 1;   //
+
 p.element_stride[1] = 1;   //
 
 // Encode global_tensor_map on device:
+
 encode_tensor_map<<<1, 32>>>(template_tensor_map, p, global_tensor_map);
 
 // Use it from another kernel:
+
 consume_tensor_map<<<1, 1>>>(global_tensor_map);
 
 // Check for errors:
+
 CUDA_CHECK(cudaDeviceSynchronize());
 
 以下部分介绍高级步骤。在整个示例中，以下`tensormap_params`结构包含要更新的字段的新值。它包含在此处，以便在阅读示例时参考。
 
 struct tensormap_params {
+
   void* global_address;
+
   int rank;
+
   uint32_t box_dim[5];
+
   uint64_t global_dim[5];
+
   size_t global_stride[4];
+
   uint32_t element_stride[5];
+
 };
 
 ### 10.30.1.张量图的设备端编码和修改[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-side-encoding-and-modification-of-a-tensor-map "这个标题的永久链接")
@@ -9120,13 +10455,9 @@ struct tensormap_params {
 建议在全局内存中编码张量图的过程如下。
 
 1. 将现有的张量映射，即`template_tensor_map`传递给内核。与在`cp.async.bulk.tensor`指令中使用张量映射的内核相反，这可以通过任何方式完成：指向全局内存的指针、内核参数、`__const___`变量等。
-    
 2. 使用template_tensor_map值在共享内存中复制-初始化张量映射。
-    
 3. 使用[cuda::ptx::tensormap_replace](https://nvidia.github.io/cccl/libcudacxx/ptx/instructions/tensormap.replace.html)函数修改共享内存中的张量图。这些函数包裹[tensormap.replace](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-tensormap-replace) PTX指令，该指令可用于修改平铺式张量映射的任何字段，包括基本地址、大小、步长等。
-    
 4. 使用[cuda::ptx::tensormap_copy_fenceproxy](https://nvidia.github.io/cccl/libcudacxx/ptx/instructions/tensormap.cp_fenceproxy.html#tensormap-cp-fenceproxy)函数，将修改后的张量映射从共享内存复制到全局内存，并执行任何必要的围栏。
-    
 
 以下代码包含遵循这些步骤的内核。为了完整，它修改了张量图的所有字段。通常，内核只会修改几个字段。
 
@@ -9149,11 +10480,17 @@ The format of the tensor map may change over time. Therefore, the [cuda::ptx::t
 namespace ptx = cuda::ptx;
 
 // launch with 1 warp.
+
 __launch_bounds__(32)
+
 __global__ void encode_tensor_map(const __grid_constant__ CUtensorMap template_tensor_map, tensormap_params p, CUtensorMap* out) {
+
    __shared__ alignas(128) CUtensorMap smem_tmap;
+
    if (threadIdx.x == 0) {
+
       // Copy template to shared memory:
+
       smem_tmap = template_tensor_map;
 
       const auto space_shared = ptx::space_shared;
@@ -9196,14 +10533,23 @@ __global__ void encode_tensor_map(const __grid_constant__ CUtensorMap template_t
       ptx::tensormap_replace_swizzle_mode(space_shared, &smem_tmap, no_swizzle);
       auto zero_fill = ptx::n32_t<0>{};
       ptx::tensormap_replace_fill_mode(space_shared, &smem_tmap, zero_fill);
+
    }
+
    // Synchronize the modifications with other threads in warp
+
    __syncwarp();
+
    // Copy the tensor map to global memory collectively with threads in the warp.
+
    // In addition: make the updated tensor map visible to other threads on device that
+
    // for use with cp.async.bulk.
+
    ptx::n32_t<128> bytes_128;
+
    ptx::tensormap_cp_fenceproxy(ptx::sem_release, ptx::scope_gpu, out, &smem_tmap, bytes_128);
+
 }
 
 ### 10.30.2.修改后张量图的使用[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#usage-of-a-modified-tensor-map "这个标题的永久链接")
@@ -9217,39 +10563,64 @@ In contrast to using a tensor map that is passed as a `const __grid_constant__
 `fence`和随后的张量图的使用如以下示例所示。
 
 // Consumer of tensor map in global memory:
+
 __global__ void consume_tensor_map(CUtensorMap* tensor_map) {
+
   // Fence acquire tensor map:
+
   ptx::n32_t<128> size_bytes;
+
   ptx::fence_proxy_tensormap_generic(ptx::sem_acquire, ptx::scope_sys, tensor_map, size_bytes);
+
   // Safe to use tensor_map after fence..
 
   __shared__ uint64_t bar;
+
   __shared__ alignas(128) char smem_buf[4][128];
 
   if (threadIdx.x == 0) {
+
     // Initialize barrier
+
     ptx::mbarrier_init(&bar, 1);
+
     // Make barrier init visible in async proxy, i.e., to TMA engine
+
     ptx::fence_proxy_async(ptx::space_shared);
+
     // Issue TMA request
+
     ptx::cp_async_bulk_tensor(ptx::space_cluster, ptx::space_global, smem_buf, tensor_map, {0, 0}, &bar);
 
     // Arrive on barrier. Expect 4 * 128 bytes.
     ptx::mbarrier_arrive_expect_tx(ptx::sem_release, ptx::scope_cta, ptx::space_shared, &bar, sizeof(smem_buf));
+
   }
+
   const int parity = 0;
+
   // Wait for load to have completed
+
   while (!ptx::mbarrier_try_wait_parity(&bar, parity)) {}
 
   // print items:
+
   printf("Got:\n\n");
+
   for (int j = 0; j < 4; ++j) {
+
     for (int i = 0; i < 128; ++i) {
+
       printf("%3d ", smem_buf[j][i]);
+
       if (i % 32 == 31) { printf("\n"); };
+
     }
+
     printf("\n");
+
   }
+
 }
 
 ### 10.30.3.使用驱动程序API创建模板张量映射值[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-template-tensor-map-value-using-the-driver-api "这个标题的永久链接")
@@ -9257,30 +10628,49 @@ __global__ void consume_tensor_map(CUtensorMap* tensor_map) {
 以下代码创建了一个最小平铺型张量图，随后可以在设备上进行修改。
 
 CUtensorMap make_tensormap_template() {
+
   CUtensorMap template_tensor_map{};
+
   auto cuTensorMapEncodeTiled = get_cuTensorMapEncodeTiled();
 
   uint32_t dims_32         = 16;
+
   uint64_t dims_strides_64 = 16;
+
   uint32_t elem_strides    = 1;
 
   // Create the tensor descriptor.
+
   CUresult res = cuTensorMapEncodeTiled(
+
     &template_tensor_map, // CUtensorMap *tensorMap,
+
     CUtensorMapDataType::CU_TENSOR_MAP_DATA_TYPE_UINT8,
+
     1,                // cuuint32_t tensorRank,
+
     nullptr,          // void *globalAddress,
+
     &dims_strides_64, // const cuuint64_t *globalDim,
+
     &dims_strides_64, // const cuuint64_t *globalStrides,
+
     &dims_32,         // const cuuint32_t *boxDim,
+
     &elem_strides,    // const cuuint32_t *elementStrides,
+
     CUtensorMapInterleave::CU_TENSOR_MAP_INTERLEAVE_NONE,
+
     CUtensorMapSwizzle::CU_TENSOR_MAP_SWIZZLE_NONE,
+
     CUtensorMapL2promotion::CU_TENSOR_MAP_L2_PROMOTION_NONE,
+
     CUtensorMapFloatOOBfill::CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE);
 
   CU_CHECK(res);
+
   return template_tensor_map;
+
 }
 
 ## 10.31.分析器计数器功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#profiler-counter-function "这个标题的永久链接")
@@ -9296,21 +10686,26 @@ The value of counters 0, 1, …, 7 can be obtained via `nvprof` by `nvprof -
 ## 10.32.断言[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#assertion "这个标题的永久链接")
 
 断言仅由具有2.x及更高计算能力的设备支持。
+
 ```c++
 void assert(int expression);
 ```
+
 如果`expression`等于零，则停止内核执行。如果程序在调试器内运行，这会触发一个断点，调试器可用于检查设备的当前状态。否则，`expression`等于零的每个线程在通过`cudaDeviceSynchronize()``cudaStreamSynchronize()`或`cudaEventSynchronize()`与主机同步后向_stderr_打印消息。此消息的格式如下：
+
 ```c++
 <filename>:<line number>:<function>:
 block: [blockId.x,blockId.x,blockIdx.z],
 thread: [threadIdx.x,threadIdx.y,threadIdx.z]
 Assertion `<expression>` failed.
 ```
+
 任何后续针对同一设备的主机端同步调用都将返回`cudaErrorAssert`。在调用`cudaDeviceReset()`重新初始化设备之前，不能再向该设备发送命令。
 
 如果`expression`与零不同，则内核执行不受影响。
 
 例如，源文件_test.cu_中的以下程序
+
 ```c++
 #include <assert.h>
 
@@ -9334,6 +10729,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 ```
+
 将输出：
 
 test.cu:19: void testAssert(): block: [0,0,0], thread: [0,0,0] Assertion `should_be_one` failed.
@@ -9397,17 +10793,11 @@ int printf(const char *format[, arg, ...]);
 `printf()`的输出缓冲区在内核启动前被设置为固定大小（请参阅[关联主机端API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#associated-host-side-api)）。它是循环的，如果在内核执行期间产生的输出超过缓冲区，旧输出就会被覆盖。仅当执行以下操作之一时，它才会冲洗：
 
 - 通过`<<<>>>`或`cuLaunchKernel()`启动内核（在启动开始时，如果CUDA_LAUNCH_BLOCKING环境变量设置为1，也在启动结束时），
-    
 - 通过`cudaDeviceSynchronize()``cuCtxSynchronize()``cudaStreamSynchronize()``cuStreamSynchronize()``cudaEventSynchronize()`orcuEventSynchronize`cuEventSynchronize()`进行同步，
-    
 - 通过任何阻止版本的`cudaMemcpy*()`或`cuMemcpy*()`的内存复制，
-    
 - 通过`cuModuleLoad()`或`cuModuleUnload()`加载/卸载模块，
-    
 - 通过`cudaDeviceReset()`或`cuCtxDestroy()`破坏上下文。
-    
 - 在执行`cudaLaunchHostFunc`或`cuLaunchHostFunc`添加的流回调之前。
-    
 
 請注意，當程式退出時，緩衝區不會自動重新整理。用户必须显式调用`cudaDeviceReset()`或`cuCtxDestroy()`，如下例所示。
 
@@ -9418,13 +10808,12 @@ int printf(const char *format[, arg, ...]);
 以下API函数获取并设置用于将`printf()`参数和内部元数据传输到主机的缓冲区大小（默认为1兆字节）：
 
 - `cudaDeviceGetLimit(size_t* size,cudaLimitPrintfFifoSize)`
-    
 - `cudaDeviceSetLimit(cudaLimitPrintfFifoSize, size_t size)`
-    
 
 ### 10.35.4.实例[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#format-specifier-examples "这个标题的永久链接")
 
 以下代码示例：
+
 ```c++
 #include <stdio.h>
 
@@ -9440,17 +10829,23 @@ int main()
     return 0;
 }
 ```
+
 将输出：
 
 Hello thread 2, f=1.2345
+
 Hello thread 1, f=1.2345
+
 Hello thread 4, f=1.2345
+
 Hello thread 0, f=1.2345
+
 Hello thread 3, f=1.2345
 
 注意每个线程如何遇到`printf()`命令，因此输出行与网格中启动的线程一样多。不出所料，全局值（即`float`）在所有线程之间是共用的，局部值（即`threadIdx.x`）是每个线程不同的。
 
 以下代码示例：
+
 ```c++
 #include <stdio.h>
 
@@ -9467,6 +10862,7 @@ int main()
     return 0;
 }
 ```
+
 将输出：
 
 Hello thread 0, f=1.2345
@@ -9476,11 +10872,13 @@ Hello thread 0, f=1.2345
 ## 10.36.动态全局内存分配和操作[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dynamic-global-memory-allocation-and-operations "这个标题的永久链接")
 
 动态全局内存分配和操作仅由具有2.x及以上计算能力的设备支持。
+
 ```c++
 __host__ __device__ void* malloc(size_t size);
 __device__ void *__nv_aligned_device_malloc(size_t size, size_t align);
 __host__ __device__  void free(void* ptr);
 ```
+
 从全局内存中的固定大小堆中动态分配和释放内存。
 
 __host__ __device__ void* memcpy(void* dest, const void* src, size_t size);
@@ -9506,9 +10904,7 @@ CUDA内核`free()`函数去分配`ptr`指向的内存，该内存必须由之前
 以下API函数获取并设置堆大小：
 
 - `cudaDeviceGetLimit(size_t* size, cudaLimitMallocHeapSize)`
-    
 - `cudaDeviceSetLimit(cudaLimitMallocHeapSize, size_t size)`
-    
 
 授予的堆大小至少为字节。`cuCtxGetLimit()`和`cudaDeviceGetLimit()`返回当前请求的堆大小。
 
@@ -9533,33 +10929,53 @@ CUDA内核`free()`函数去分配`ptr`指向的内存，该内存必须由之前
 以下代码示例：
 
 #include <stdlib.h>
+
 #include <stdio.h>
 
 __global__ void mallocTest()
+
 {
+
     size_t size = 123;
+
     char* ptr = (char*)malloc(size);
+
     memset(ptr, 0, size);
+
     printf("Thread %d got pointer: %p\n", threadIdx.x, ptr);
+
     free(ptr);
+
 }
 
 int main()
+
 {
+
     // Set a heap size of 128 megabytes. Note that this must
+
     // be done before any kernel is launched.
-    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128*1024*1024);
+
+    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128_1024_1024);
+
     mallocTest<<<1, 5>>>();
+
     cudaDeviceSynchronize();
+
     return 0;
+
 }
 
 将输出：
 
 Thread 0 got pointer: 00057020
+
 Thread 1 got pointer: 0005708c
+
 Thread 2 got pointer: 000570f8
+
 Thread 3 got pointer: 00057164
+
 Thread 4 got pointer: 000571d0
 
 注意每个线程如何遇到`malloc()`和`memset()`命令，因此接收并初始化自己的分配。（确切的指针值会有所不同：这些是说明性的。）
@@ -9569,7 +10985,9 @@ Thread 4 got pointer: 000571d0
 #include <stdlib.h>
 
 __global__ void mallocTest()
+
 {
+
     __shared__ int* data;
 
     // The first thread in the block does the allocation and then
@@ -9597,17 +11015,25 @@ __global__ void mallocTest()
     // Only one thread may free the memory!
     if (threadIdx.x == 0)
         free(data);
+
 }
 
 int main()
+
 {
-    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128*1024*1024);
+
+    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128_1024_1024);
+
     mallocTest<<<10, 128>>>();
+
     cudaDeviceSynchronize();
+
     return 0;
+
 }
 
 #### 10.36.3.3.在内核启动之间持续分配[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocation-persisting-between-kernel-launches "这个标题的永久链接")
+
 ```c++
 #include <stdlib.h>
 #include <stdio.h>
@@ -9673,6 +11099,7 @@ int main()
     return 0;
 }
 ```
+
 ## 10.37.执行配置[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration "这个标题的永久链接")
 
 对`__global__`函数的任何调用都必须指定该调用的_执行配置_。执行配置定义了用于在设备上执行功能的网格和块的维度，以及相关的流（有关流的描述，请参阅[CUDA运行时](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-c-runtime)）。
@@ -9680,13 +11107,9 @@ int main()
 The execution configuration is specified by inserting an expression of the form `<<< Dg, Db, Ns, S >>>` between the function name and the parenthesized argument list, where:
 
 - `Dg` is of type `dim3` (see [dim3](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dim3)) and specifies the dimension and size of the grid, such that `Dg.x * Dg.y * Dg.z` equals the number of blocks being launched;
-    
 - `Db` is of type `dim3` (see [dim3](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dim3)) and specifies the dimension and size of each block, such that `Db.x * Db.y * Db.z` equals the number of threads per block;
-    
 - `Ns`类型为`size_t`，并指定除了静态分配的内存外，共享内存中每个块动态分配的字节数；如[__shared__](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared)中提到的，此动态分配内存由声明为外部数组的任何变量使用；`Ns`是一个可选参数，默认为0；
-    
 - `S`是`cudaStream_t`类型，并指定关联的流；S是一个可选参数，默认为0。
-    
 
 例如，一个声明为的函数
 
@@ -9707,6 +11130,7 @@ __global__ void __cluster_dims__(2, 1, 1) Func(float* parameter);
 `__cluster_dims__()`的默认形式指定内核将作为集群网格启动。通过不指定集群维度，用户可以在启动时自由指定维度。在启动时不指定维度将导致启动时间错误。
 
 Thread block cluster dimensions can also be specified at runtime and kernel with the cluster can be launched using `cudaLaunchKernelEx` API. The API takes a configuration argument of type `cudaLaunchConfig_t`, kernel function pointer and kernel arguments. Runtime kernel configuration is shown in the example below.
+
 ```c++
 __global__ void Func(float* parameter);
 
@@ -9732,6 +11156,7 @@ __global__ void Func(float* parameter);
     cudaLaunchKernelEx(&config, Func, parameter);
 }
 ```
+
 ## 10.38.发射边界[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#launch-bounds "这个标题的永久链接")
 
 正如在[多处理器级别](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#multiprocessor-level)中详细讨论的那样，内核使用的寄存器越少，多处理器上可能存在的线程和线程块就越多，这可以提高性能。
@@ -9739,29 +11164,27 @@ __global__ void Func(float* parameter);
 因此，编译器使用启发式方法来最大限度地减少寄存器的使用，同时将寄存器溢出（请参阅[设备内存访问](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-memory-accesses)）和指令计数保持在最低限度。应用程序可以选择通过在`__global__`函数定义中使用`__launch_bounds__()`限定符指定的启动边界的形式向编译器提供附加信息来帮助这些启发式方法：
 
 __global__ void
+
 __launch_bounds__(maxThreadsPerBlock, minBlocksPerMultiprocessor, maxBlocksPerCluster)
+
 MyKernel(...)
+
 {
+
     ...
+
 }
 
 - `maxThreadsPerBlock`指定应用程序将启动`MyKernel()`的每个块的最大线程数；它编译为`.maxntid`指令。
-    
 - `minBlocksPerMultiprocessor`是可选的，并指定每个多处理器所需的最小驻留块数；它编译为`.minnctapersm`指令。
-    
 - `maxBlocksPerCluster`是可选的，并指定每个集群所需的最大线程块数，应用程序将启动`MyKernel()`它编译为`.maxclusterrank`指令。
-    
 
 如果指定了启动边界，编译器首先从它们中推导出内核应该使用的寄存器数量的上限_L_，以确保`maxThreadsPerBlock`线程的`minBlocksPerMultiprocessor`块（如果没有指定`minBlocksPerMultiprocessor`，则为单个块）可以驻留在多处理器上（请参阅[硬件多线程](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#hardware-multithreading)，以了理内核使用的寄存器数量与每个块分配的寄存器数量之间的关系）。然后，编译器以以下方式优化寄存器的使用：
 
 - 如果初始寄存器使用率高于_L_，编译器将进一步减少它，直到它小于或等于_L_，通常以牺牲更多的本地内存使用量和/或更高的指令数量为代价；
-    
 - 如果初始寄存器使用率低于_L_
-    
     - 如果指定了`maxThreadsPerBlock`，而未指定`minBlocksPerMultiprocessor`，编译器将使用`maxThreadsPerBlock`来确定`n`和`n+1`驻留块之间转换的寄存器使用阈值（即，当少使用一个寄存器为额外的驻块留块留出空间时，如[多处理器级别](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#multiprocessor-level)示例），然后应用与未指定启动边界时类似的启发式方法；
-        
     - 如果同时指定了`minBlocksPerMultiprocessor`和`maxThreadsPerBlock`，编译器可能会将寄存器使用量增加到_L_，以减少指令数量并更好地隐藏单线程指令延迟。
-        
 
 如果内核执行的每个块线程数多于其启动绑定的`maxThreadsPerBlock`，则内核将无法启动。
 
@@ -9772,43 +11195,62 @@ CUDA内核所需的每线程资源可能会以不需要的方式限制最大块�
 给定内核的最佳启动边界通常会因主要架构修订版而异。下面的示例代码显示了如何使用[应用程序兼容性](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility)中引入的`__CUDA_ARCH__`宏在设备代码中通常如何处理此操作。
 
 #define THREADS_PER_BLOCK          256
+
 #if __CUDA_ARCH__ >= 200
+
     #define MY_KERNEL_MAX_THREADS  (2 * THREADS_PER_BLOCK)
+
     #define MY_KERNEL_MIN_BLOCKS   3
+
 #else
+
     #define MY_KERNEL_MAX_THREADS  THREADS_PER_BLOCK
+
     #define MY_KERNEL_MIN_BLOCKS   2
+
 #endif
 
 // Device code
+
 __global__ void
+
 __launch_bounds__(MY_KERNEL_MAX_THREADS, MY_KERNEL_MIN_BLOCKS)
+
 MyKernel(...)
+
 {
+
     ...
+
 }
 
 在使用每个块的最大线程数（指定为`__launch_bounds__()`的第一个参数）调用`MyKernel`的常见情况下，使用`MY_KERNEL_MAX_THREADS`作为执行配置中每个块的线程数是很诱人的：
 
 // Host code
+
 MyKernel<<<blocksPerGrid, MY_KERNEL_MAX_THREADS>>>(...);
 
 然而，这不会起作用，因为`__CUDA_ARCH__`在主机代码中未定义，如[应用程序兼容性](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility)中提到，因此即使`__CUDA_ARCH__`大于或等于200，`MyKernel`也会以每个块256个线程启动。相反，应该确定每个块的线程数：
 
 - 例如，在编译时使用不依赖于`__CUDA_ARCH__`的宏
-    
+
     // Host code
+
     MyKernel<<<blocksPerGrid, THREADS_PER_BLOCK>>>(...);
-    
+
 - 或者在运行时基于计算能力
-    
+
     // Host code
+
     cudaGetDeviceProperties(&deviceProp, device);
+
     int threadsPerBlock =
+
               (deviceProp.major >= 2 ?
+
                         2 * THREADS_PER_BLOCK : THREADS_PER_BLOCK);
+
     MyKernel<<<blocksPerGrid, threadsPerBlock>>>(...);
-    
 
 注册使用情况由`--ptxas-options=-v`编译器选项报告。常驻块的数量可以从CUDA分析器报告的占用率中得出（有用定义，请参阅[设备内存访问](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-memory-accesses)）。
 
@@ -9817,14 +11259,18 @@ MyKernel<<<blocksPerGrid, MY_KERNEL_MAX_THREADS>>>(...);
 为了提供低级性能调整的机制，CUDA C++提供了`__maxnreg__()`函数限定符，将性能调整信息传递给后端优化编译器。`__maxnreg__()`限定符指定了分配给线程块中单个线程的最大寄存器数。在`__global__`函数的定义中：
 
 __global__ void
+
 __maxnreg__(maxNumberRegistersPerThread)
+
 MyKernel(...)
+
 {
+
     ...
+
 }
 
 - `maxNumberRegistersPerThread`指定在kernelMyKernel`MyKernel()`的线程块中分配给单个线程的最大寄存器数；它编译为`.maxnreg`指令。
-    
 
 `__launch_bounds__()`和`__maxnreg__()`限定符不能应用于同一内核。
 
@@ -9835,6 +11281,7 @@ MyKernel(...)
 默认情况下，编译器以已知的行程计数展开小循环。然而，`#pragmaunroll`指令可用于控制任何给定循环的展开。它必须紧挨着循环，并且仅适用于该循环。可选的后面是一个整数常数表达式（ICE）[6](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn13)。如果没有ICE，如果它的行程计数是恒定的，循环将被完全展开。如果ICE评估为1，编译器将不会展开循环。如果ICE评估为非正整数或大于整数数据类型可表示的最大值的整数，则将忽略实用法。
 
 示例：
+
 ```c++
 struct S1_t { static const int value = 4; };
 template <int X, typename T2>
@@ -9865,6 +11312,7 @@ __global__ void bar(int *p1, int *p2) {
 foo<7, S1_t>(p1, p2);
 }
 ```
+
 ## 10.41.SIMD视频说明[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#simd-video-instructions "这个标题的永久链接")
 
 PTX ISA版本3.0包括SIMD（单指令，多数据）视频指令，这些指令在16位值对和8位值的四元上操作。这些在计算能力3.0的设备上可用。
@@ -9872,19 +11320,12 @@ PTX ISA版本3.0包括SIMD（单指令，多数据）视频指令，这些指令
 SIMD视频说明是：
 
 - 瓦德2，瓦德4
-    
 - vsub2，vsub4
-    
 - vavrg2，vavrg4
-    
 - vabsdiff2，vabsdiff4
-    
 - vmin2，vmin4
-    
 - vmax2，vmax4
-    
 - vset2，vset4
-    
 
 PTX指令，如SIMD视频指令，可以通过汇编程序、`asm()`语句包含在CUDA程序中。
 
@@ -9903,6 +11344,7 @@ asm("vabsdiff4.u32.u32.u32.add" " %0, %1, %2, %3;": "=r" (result):"r" (A), "r" (
 ## 10.42.诊断Pragmas[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#diagnostic-pragmas "这个标题的永久链接")
 
 以下实用程序可用于控制发出给定诊断消息时使用的错误严重程度。
+
 ```c++
 #pragma nv_diag_suppress
 #pragma nv_diag_warning
@@ -9910,6 +11352,7 @@ asm("vabsdiff4.u32.u32.u32.add" " %0, %1, %2, %3;": "=r" (result):"r" (A), "r" (
 #pragma nv_diag_default
 #pragma nv_diag_once
 ```
+
 这些词的用法有以下形式：
 
 #pragma nv_diag_xxx error_number, error_number ...
@@ -9917,33 +11360,53 @@ asm("vabsdiff4.u32.u32.u32.add" " %0, %1, %2, %3;": "=r" (result):"r" (A), "r" (
 The diagnostic affected is specified using an error number showed in a warning message. Any diagnostic may be overridden to be an error, but only warnings may have their severity suppressed or be restored to a warning after being promoted to an error. The `nv_diag_default` pragma is used to return the severity of a diagnostic to the one that was in effect before any pragmas were issued (i.e., the normal severity of the message as modified by any command-line options). The following example suppresses the `"declared but never referenced"` warning on the declaration of `foo`:
 
 #pragma nv_diag_suppress 177
+
 void foo()
+
 {
+
   int i=0;
+
 }
+
 #pragma nv_diag_default 177
+
 void bar()
+
 {
+
   int i=0;
+
 }
 
 以下实用程序可用于保存和恢复当前的诊断实用程序状态：
 
 #pragma nv_diagnostic push
+
 #pragma nv_diagnostic pop
 
 示例：
 
 #pragma nv_diagnostic push
+
 #pragma nv_diag_suppress 177
+
 void foo()
+
 {
+
   int i=0;
+
 }
+
 #pragma nv_diagnostic pop
+
 void bar()
+
 {
+
   int i=0;
+
 }
 
 请注意，pragmas只影响nvcc CUDA前端编译器；它们对主机编译器没有影响。
@@ -9975,9 +11438,7 @@ Note, the arguments that follow `#pragma nv_abi` are optional and can be prov
 `preserve_n`参数对函数调用期间保留的寄存器数量设置了限制：
 
 - `preserve_n_data(ICE)`限制数据寄存器的数量，以及
-    
 - `preserve_n_control(ICE)`限制控制寄存器的数量。
-    
 
 `#pragma nv_abi`可以紧挨着设备功能声明或定义。或者，它可以直接放在设备函数内的C++表达式语句中的间接函数调用之前。请注意，支持对自由函数的间接函数调用，但不支持通过函数参数引用或类成员函数进行间接调用。
 
@@ -9986,37 +11447,55 @@ When the pragma is applied to a device function declaration or definition, it mo
 如下例所示，我们有两个设备函数，`foo()`和`bar()`在本例中，pragma被放置在函数指针fptr的调用站点之前，以修改间接函数调用的ABI属性。请注意，将pragma放在直接呼叫之前不会影响呼叫的ABI属性。要更改直接函数调用的ABI属性，必须将pragma放在函数声明或定义之前。
 
 __device__ int foo()
+
 {
+
   int value{0};
+
   ...
+
   return value;
+
 }
 
 __device__ int bar()
+
 {
+
   int value{0};
+
   ...
+
   return value;
+
 }
 
 __device__ void baz()
+
 {
+
   int result{0};
+
   int (*fptr)() = foo;  // function pointer
 
   #pragma nv_abi preserve_n_data(16) preserve_n_control(8)
+
   result = fptr();      // The pragma affects the indirect call to foo() via fptr
 
   #pragma nv_abi preserve_n_data(16) preserve_n_control(8)
+
   result = (*fptr)();   // Alternate syntax for the indirect call to foo()
 
   #pragma nv_abi preserve_n_data(16) preserve_n_control(8)
+
   result += bar();      // The pragma does NOT affect the direct call to bar()
+
 }
 
 如以下示例所示，要修改直接函数调用，您必须将实用程序应用于函数声明或定义。
 
 #pragma nv_abi preserve_n_data(16)
+
 __device__ void foo();
 
 请注意，如果函数声明的语用参数及其相应定义不匹配，则程序就形成不良。
@@ -10042,28 +11521,21 @@ CUDA C++执行模型扩展了[CUDA C++执行模型文档](https://nvidia.github.
 ### 11.2.1.CUDA 13.0[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-13-0 "这个标题的永久链接")
 
 - `multi_grid_group`被移除了。
-    
 
 ### 11.2.2.CUDA 12.2[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-12-2 "这个标题的永久链接")
 
 - `barrier_arrive`并为[grid_group](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#grid-group-cg)和[thread_block](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-group-cg)添加了`barrier_wait`成员函数。API的描述可以[在这里](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-sync)找到。
-    
 
 ### 11.2.3.CUDA 12.1[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-12-1 "这个标题的永久链接")
 
 - 添加了[invoke_one和invoke_one_broadcast](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#invoke-one-and-invoke-one-broadcast) API。
-    
 
 ### 11.2.4.库达12.0[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-12-0 "这个标题的永久链接")
 
 - 以下实验性API现已移至主命名空间：
-    
     - 在CUDA 11.7中添加了异步减少和扫描更新
-        
     - `thread_block_tile`大于在CUDA 11.1中添加的32
-        
 - 为了在计算能力8.0或更高版本上创建这些大型图块，不再需要使用`block_tile_memory`对象提供内存。
-    
 
 ## 11.3.编程模型概念[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#programming-model-concept "这个标题的永久链接")
 
@@ -10072,19 +11544,12 @@ CUDA C++执行模型扩展了[CUDA C++执行模型文档](https://nvidia.github.
 合作小组编程模型由以下要素组成：
 
 - 表示合作线程组的数据类型；
-    
 - 获取CUDA启动API定义的隐式组的操作（例如，线程块）；
-    
 - 将现有组划分为新组的集体；
-    
 - 数据移动和操作的集体算法（例如memcpy_async、reduce、scan）；
-    
 - 同步组内所有线程的操作；
-    
 - 检查组属性的操作；
-    
 - 暴露低级、特定于群体和经常硬件加速操作的集体。
-    
 
 合作组的主要概念是对象命名作为其一部分的线程集。组作为一流程序对象的表达方式改善了软件的构成，因为集合函数可以接收一个表示参与线程组的显式对象。这个对象还使程序员的意图明确，这消除了不健全的架构假设，这些假设导致代码变得脆弱、编译器优化的不良限制，以及与新一代GPU的更好兼容性。
 
@@ -10093,18 +11558,27 @@ CUDA C++执行模型扩展了[CUDA C++执行模型文档](https://nvidia.github.
 合作团体需要CUDA 9.0或更高版本。要使用合作组，请包括标题文件：
 
 // Primary header is compatible with pre-C++11, collective algorithm headers require C++11
+
 #include <cooperative_groups.h>
+
 // Optionally include for memcpy_async() collective
+
 #include <cooperative_groups/memcpy_async.h>
+
 // Optionally include for reduce() collective
+
 #include <cooperative_groups/reduce.h>
+
 // Optionally include for inclusive_scan() and exclusive_scan() collectives
+
 #include <cooperative_groups/scan.h>
 
 并使用合作组命名空间：
 
 using namespace cooperative_groups;
+
 // Alternatively use an alias to avoid polluting the namespace with collective algorithms
+
 namespace cg = cooperative_groups;
 
 代码可以使用nvcc以正常方式编译，但是，如果您希望使用memcpy_async、减少或扫描功能，并且您的主机编译器的默认方言不是C++11或更高，那么您必须将`--std=c++11`添加到命令行中。
@@ -10114,31 +11588,49 @@ namespace cg = cooperative_groups;
 为了说明组的概念，这个例子试图执行整个块的总和减少。以前，在编写此代码时，实现上存在隐藏的约束：
 
 __device__ int sum(int *x, int n) {
+
     // ...
+
     __syncthreads();
+
     return total;
+
 }
 
 __global__ void parallel_kernel(float *x) {
+
     // ...
+
     // Entire thread block must call sum
+
     sum(x, n);
+
 }
 
 线程块中的所有线程必须到达`__syncthreads()`屏障，但是，这个约束对可能想要使用`sum(…)`的开发人员是隐藏的。对于合作团体，更好的写作方式是：
 
 __device__ int sum(const thread_block& g, int *x, int n) {
+
     // ...
+
     g.sync()
+
     return total;
+
 }
 
 __global__ void parallel_kernel(...) {
+
     // ...
+
     // Entire thread block must call sum
+
     thread_block tb = this_thread_block();
+
     sum(tb, x, n);
+
     // ...
+
 }
 
 ## 11.4.组类型[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-types "这个标题的永久链接")
@@ -10159,7 +11651,7 @@ __global__ void parallel_kernel(...) {
 
 thread_block g = this_thread_block();
 
-**公共成员职能：**
+__公共成员职能：__
 
 `static void sync()`：同步组中命名的线程，相当于`g.barrier_wait(g.barrier_arrive())`
 
@@ -10183,25 +11675,37 @@ thread_block g = this_thread_block();
 
 `static dim3 group_dim()`：启动块的尺寸（`dim_threads()`的别名）
 
-**示例：**
+__示例：__
 
 /// Loading an integer from global into shared memory
+
 __global__ void kernel(int *globalInput) {
+
     __shared__ int x;
+
     thread_block g = this_thread_block();
+
     // Choose a leader in the thread block
+
     if (g.thread_rank() == 0) {
+
         // load from global into shared for all threads to work with
+
         x = (*globalInput);
+
     }
+
     // After loading data into shared memory, you want to synchronize
+
     // if all threads in your thread block need to see it
+
     g.sync(); // equivalent to __syncthreads();
+
 }
 
 **注意：**组中的所有线程都必须参与集体操作，否则行为是未定义的。
 
-**相关：**`thread_block`数据类型来自更通用的`thread_group`数据类型，可用于表示更广泛的组类。
+__相关：__`thread_block`数据类型来自更通用的`thread_group`数据类型，可用于表示更广泛的组类。
 
 #### 11.4.1.2.集群组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group "这个标题的永久链接")
 
@@ -10213,7 +11717,7 @@ __global__ void kernel(int *globalInput) {
 
 cluster_group g = this_cluster();
 
-**公共成员职能：**
+__公共成员职能：__
 
 `static void sync()`：同步组中命名的线程，相当于`g.barrier_wait(g.barrier_arrive())`
 
@@ -10253,7 +11757,7 @@ cluster_group g = this_cluster();
 
 grid_group g = this_grid();
 
-**公共成员职能：**
+__公共成员职能：__
 
 `bool is_valid() const`：返回grid_group是否可以同步
 
@@ -10296,18 +11800,20 @@ grid_group g = this_grid();
 平铺组的模板版本，其中模板参数用于指定平铺的大小——在编译时已知这一点，有可能实现更优化的执行。
 
 template <unsigned int Size, typename ParentT = void>
+
 class thread_block_tile;
 
 通过以下方式构建：
 
 template <unsigned int Size, typename ParentT>
+
 _CG_QUALIFIER thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g)
 
 `Size`必须是2的次比，小于或等于1024。备注部分介绍了在具有计算能力 7.5 或更低的硬件上创建大小大于 32 的瓷砖所需的额外步骤。
 
 `ParentT`是分割此組的父类型。它是自动推断的，但无效值将将此信息存储在组句柄中，而不是类型中。
 
-**公共成员职能：**
+__公共成员职能：__
 
 `void sync() const`：同步组中命名的线程
 
@@ -10319,7 +11825,7 @@ _CG_QUALIFIER thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g)
 
 `unsigned long long meta_group_rank() const`：从父组中分区的瓷砖集中组的线性排名（由meta_group_size限制）
 
-`T shfl(T var, unsigned int src_rank) const`：参考[Warp Shuffle函数](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-functions)，**注意：对于大于32的大小，组中的所有线程必须指定相同的src_rank，否则行为是未定义的。**
+`T shfl(T var, unsigned int src_rank) const`：参考[Warp Shuffle函数](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-functions)，__注意：对于大于32的大小，组中的所有线程必须指定相同的src_rank，否则行为是未定义的。__
 
 `T shfl_up(T var, int delta) const`：参考[Warp Shuffle功能](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-functions)，仅适用于小于或等于32的尺寸。
 
@@ -10341,29 +11847,26 @@ _CG_QUALIFIER thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g)
 
 `unsigned long long size() const`：组中的线程总数（`num_threads()`的别名）
 
-**备注：**
+__备注：__
 
 - `thread_block_tile`这里使用模板数据结构，组的大小作为模板参数而不是参数传递到`tiled_partition`调用。
-    
 - `shfl, shfl_up, shfl_down, and shfl_xor`当使用C++11或更高版本编译时，函数接受任何类型的对象。这意味着，只要非整体类型满足以下约束，就可以洗牌：
-    
     - 符合可复制条件，即，`is_trivially_copyable<T>::value == true`
-        
     - `sizeof(T) <= 32` for tile sizes lower or equal 32, `sizeof(T) <= 8` for larger tiles
-        
 - 在具有计算能力7.5或更低的硬件上，尺寸大于32的瓷砖需要为它们保留少量内存。这可以使用`cooperative_groups::block_tile_memory`结构模板来完成，该模板必须位于共享或全局内存中。
     ```c++
     template <unsigned int MaxBlockSize = 1024>
     struct block_tile_memory;
     ```
-    `MaxBlockSize`指定当前线程块中线程的最大数量。此参数可用于最大限度地减少仅以较小线程计数启动的内核中`block_tile_memory`的共享内存使用。
-    
-    然后，这个`block_tile_memory`需要传递到`cooperative_groups::this_thread_block`，允许将生成的`thread_block`划分为大于32的瓷砖。接受`block_tile_memory`参数的`this_thread_block`过载是一个集体操作，必须与`thread_block`中的所有线程一起调用。
-    
-    `block_tile_memory`可以在具有计算能力8.0或更高版本的硬件上使用，以便能够针对多个不同的计算能力编写一个源。在不需要的情况下，在共享内存中实例化时，不应消耗内存。
-    
 
-**示例：**
+    `MaxBlockSize`指定当前线程块中线程的最大数量。此参数可用于最大限度地减少仅以较小线程计数启动的内核中`block_tile_memory`的共享内存使用。
+
+    然后，这个`block_tile_memory`需要传递到`cooperative_groups::this_thread_block`，允许将生成的`thread_block`划分为大于32的瓷砖。接受`block_tile_memory`参数的`this_thread_block`过载是一个集体操作，必须与`thread_block`中的所有线程一起调用。
+
+    `block_tile_memory`可以在具有计算能力8.0或更高版本的硬件上使用，以便能够针对多个不同的计算能力编写一个源。在不需要的情况下，在共享内存中实例化时，不应消耗内存。
+
+__示例：__
+
 ```c++
 /// The following code will create two sets of tiled groups, of size 32 and 4 respectively:
 /// The latter has the provenance encoded in the type, while the first stores it in the handle
@@ -10385,12 +11888,15 @@ __global__ void kernel(...) {
     // ...
 }
 ```
+
 ##### 11.4.2.1.1.扭曲同步代码模式[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-synchronous-code-pattern "这个标题的永久链接")
 
 开发人员可能有经编同步代码，他们之前对经编大小做出了隐性假设，并将围绕该数字进行编码。现在这需要明确指定。
 
 __global__ void cooperative_kernel(...) {
+
     // obtain default "current thread block" group
+
     thread_block my_block = this_thread_block();
 
     // subdivide into 32-thread, tiled subgroups
@@ -10404,6 +11910,7 @@ __global__ void cooperative_kernel(...) {
         // ...
         my_tile.sync();
     }
+
 }
 
 ##### 11.4.2.1.2.单线程组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#single-thread-group "这个标题的永久链接")
@@ -10415,6 +11922,7 @@ thread_block_tile<1> this_thread();
 The following `memcpy_async` API uses a `thread_group`, to copy an int element from source to destination:
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/memcpy_async.h>
 
 cooperative_groups::memcpy_async(cooperative_groups::this_thread(), dest, src, sizeof(int));
@@ -10433,7 +11941,7 @@ cooperative_groups::memcpy_async(cooperative_groups::this_thread(), dest, src, s
 
 coalesced_group active = coalesced_threads();
 
-**公共成员职能：**
+__公共成员职能：__
 
 `void sync() const`：同步组中命名的线程
 
@@ -10465,29 +11973,39 @@ coalesced_group active = coalesced_threads();
 
 `unsigned long long size() const`：组中的线程总数（`num_threads()`的别名）
 
-**备注：**
+__备注：__
 
 `shfl, shfl_up, and shfl_down`当使用C++11或更高版本编译时，函数接受任何类型的对象。这意味着，只要非整体类型满足以下约束，就可以洗牌：
 
 - 符合可复制条件，即`is_trivially_copyable<T>::value == true`
-    
 - `sizeof(T) <= 32`
-    
 
-**示例：**
+__示例：__
 
 /// Consider a situation whereby there is a branch in the
+
 /// code in which only the 2nd, 4th and 8th threads in each warp are
+
 /// active. The coalesced_threads() call, placed in that branch, will create (for each
+
 /// warp) a group, active, that has three threads (with
+
 /// ranks 0-2 inclusive).
+
 __global__ void kernel(int *globalInput) {
+
     // Lets say globalInput says that threads 2, 4, 8 should handle the data
+
     if (threadIdx.x == *globalInput) {
+
         coalesced_group active = coalesced_threads();
+
         // active contains 0-2 inclusive
+
         active.sync();
+
     }
+
 }
 
 ##### 11.4.2.2.1.发现模式[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#discovery-pattern "这个标题的永久链接")
@@ -10495,30 +12013,51 @@ __global__ void kernel(int *globalInput) {
 通常，开发人员需要使用当前的活动线程集。对存在的线程没有做出任何假设，而是开发人员使用恰好存在的线程。这在以下“在经编中跨线程的聚合原子增量”示例中可见（使用正确的CUDA 9.0内在集编写）：
 
 {
+
     unsigned int writemask = __activemask();
+
     unsigned int total = __popc(writemask);
+
     unsigned int prefix = __popc(writemask & __lanemask_lt());
+
     // Find the lowest-numbered active lane
+
     int elected_lane = __ffs(writemask) - 1;
+
     int base_offset = 0;
+
     if (prefix == 0) {
+
         base_offset = atomicAdd(p, total);
+
     }
+
     base_offset = __shfl_sync(writemask, base_offset, elected_lane);
+
     int thread_offset = prefix + base_offset;
+
     return thread_offset;
+
 }
 
 这可以用合作小组重写如下：
 
 {
+
     cg::coalesced_group g = cg::coalesced_threads();
+
     int prev;
+
     if (g.thread_rank() == 0) {
+
         prev = atomicAdd(p, g.num_threads());
+
     }
+
     prev = g.thread_rank() + g.shfl(prev, 0);
+
     return prev;
+
 }
 
 ## 11.5.分组[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-partitioning "这个标题的永久链接")
@@ -10526,6 +12065,7 @@ __global__ void kernel(int *globalInput) {
 ### 11.5.1.`tiled_partition`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tiled-partition "这个标题的永久链接")
 
 template <unsigned int Size, typename ParentT>
+
 thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g);
 
 thread_group tiled_partition(const thread_group& parent, unsigned int tilesz);
@@ -10536,16 +12076,20 @@ thread_group tiled_partition(const thread_group& parent, unsigned int tilesz);
 
 **Codegen要求：**计算能力5.0最低，大于32的C++11
 
-**示例：**
+__示例：__
 
 /// The following code will create a 32-thread tile
+
 thread_block block = this_thread_block();
+
 thread_block_tile<32> tile32 = tiled_partition<32>(block);
 
 我们可以将这些组分成更小的组，每个组大小为4个线程：
 
 auto tile4 = tiled_partition<4>(tile32);
+
 // or using a general group
+
 // thread_group tile4 = tiled_partition(tile32, 4);
 
 例如，如果我们要包含以下代码行：
@@ -10555,6 +12099,7 @@ if (tile4.thread_rank()==0) printf("Hello from tile4 rank 0\n");
 然后，该语句将由块中的每四个线程打印：每个`tile4`组中排名为0的线程，对应于`block`中排名为0、4、8、12等的线程。
 
 ### 11.5.2.`labeled_partition`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#labeled-partition "这个标题的永久链接")
+
 ```c++
 template <typename Label>
 coalesced_group labeled_partition(const coalesced_group& g, Label label);
@@ -10562,6 +12107,7 @@ coalesced_group labeled_partition(const coalesced_group& g, Label label);
 template <unsigned int Size, typename Label>
 coalesced_group labeled_partition(const thread_block_tile<Size>& g, Label label);
 ```
+
 `labeled_partition`方法是一种集体操作，将父组划分为线程合并的一维子组。实现将评估条件标签，并将具有相同标签值的线程分配到同一组中。
 
 `Label`可以是任何整数类型。
@@ -10575,10 +12121,12 @@ coalesced_group labeled_partition(const thread_block_tile<Size>& g, Label label)
 ### 11.5.3.`binary_partition`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#binary-partition "这个标题的永久链接")
 
 coalesced_group binary_partition(const coalesced_group& g, bool pred);
+
 ```c++
 template <unsigned int Size>
 coalesced_group binary_partition(const thread_block_tile<Size>& g, bool pred);
 ```
+
 `binary_partition()`方法是一种集体操作，将父组划分为一维子组，其中线程合并。实现将评估一个谓词，并将具有相同值的线程分配到同一组中。这是`labeled_partition()`的一种特殊形式，其中标签只能是0或1。
 
 实现可能会导致调用线程等待父组的所有成员调用该操作，然后再恢复执行。
@@ -10587,7 +12135,8 @@ coalesced_group binary_partition(const thread_block_tile<Size>& g, bool pred);
 
 **Codegen要求：**计算能力最低7.0，C++11
 
-**示例：**
+__示例：__
+
 ```c++
 /// This example divides a 32-sized tile into a group with odd
 /// numbers and a group with even numbers
@@ -10602,6 +12151,7 @@ _global__ void oddEven(int *inputArr) {
     auto subtile = cg::binary_partition(tile32, (elem & 1));
 }
 ```
+
 ## 11.6.团体集体[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-collectives "这个标题的永久链接")
 
 合作组库提供了一组可以由一组线程执行的集体操作。这些操作需要指定组中的所有线程参与才能完成操作。除非参数描述中明确允许不同的值，否则组中的所有线程都需要为每个集体调用传递相应的参数相同的值。否则，呼叫的行为是未定义的。
@@ -10611,11 +12161,13 @@ _global__ void oddEven(int *inputArr) {
 #### 11.6.1.1. `barrier_arrive`和`barrier_wait`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#barrier-arrive-and-barrier-wait "这个标题的永久链接")
 
 T::arrival_token T::barrier_arrive();
+
 void T::barrier_wait(T::arrival_token&&);
 
 `barrier_arrive`和`barrier_wait`成员函数提供了一个类似于`cuda::barrier`的同步API[（阅读更多）。](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier)合作组自动初始化组屏障，但由于这些操作的集体性质，到达和等待操作有额外的限制：组中的所有线程必须每个阶段到达并等待一次屏障。当与一个组一起调用`barrier_arrive`时，调用任何集体操作或该组的另一个障碍到达的结果是未定义的，直到`barrier_wait`调用观察到障碍阶段的完成。在其他线程调用`barrier_wait`之前，`barrier_wait`上被阻止的线程可能会从同步中释放，但只有在名为`barrier_arrive`的组中的所有线程之后。组类型T可以是任何[隐式组](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-types-implicit-cg)。这允许线程在到达后和等待同步解决之前进行独立工作，从而隐藏一些同步延迟。`barrier_arrive`返回一个`arrival_token`对象，该对象必须传递到相应的`barrier_wait`。令牌以这种方式消耗，不能用于另一个`barrier_wait`调用。
 
-**用于同步跨集群共享内存初始化的barrier_arrive和barrier_wait示例：**
+__用于同步跨集群共享内存初始化的barrier_arrive和barrier_wait示例：__
+
 ```c++
 #include <cooperative_groups.h>
 
@@ -10649,13 +12201,16 @@ __global__ void cluster_kernel() {
     cluster.sync();
 }
 ```
+
 #### 11.6.1.2.`sync`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sync "这个标题的永久链接")
+
 ```c++
 static void T::sync();
 
 template <typename T>
 void sync(T& group);
 ```
+
 `sync`同步组中命名的线程。组类型T可以是任何现有的组类型，因为它们都支持同步。它可作为每个组类型的成员函数，或作为将组作为参数的自由函数。如果该组是`grid_group`，则内核必须使用适当的合作启动API启动。相当于`T.barrier_wait(T.barrier_arrive())`
 
 ### 11.6.2.数据传输[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-transfer "这个标题的永久链接")
@@ -10664,9 +12219,10 @@ void sync(T& group);
 
 `memcpy_async` is a group-wide collective memcpy that utilizes hardware accelerated support for non-blocking memory transactions from global to shared memory. Given a set of threads named in the group, `memcpy_async` will move specified amount of bytes or elements of the input type through a single pipeline stage. Additionally for achieving best performance when using the `memcpy_async` API, an alignment of 16 bytes for both shared memory and global memory is required. It is important to note that while this is a memcpy in the general case, it is only asynchronous if the source is global memory and the destination is shared memory and both can be addressed with 16, 8, or 4 byte alignments. Asynchronously copied data should only be read following a call to wait or wait_prior which signals that the corresponding stage has completed moving data to shared memory.
 
-Having to wait on all outstanding requests can lose some flexibility (but gain simplicity). In order to efficiently overlap data transfer and execution, its important to be able to kick off an **N+1**`memcpy_async` request while waiting on and operating on request **N**. To do so, use `memcpy_async` and wait on it using the collective stage-based `wait_prior` API. See [wait and wait_prior](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-wait) for more details.
+Having to wait on all outstanding requests can lose some flexibility (but gain simplicity). In order to efficiently overlap data transfer and execution, its important to be able to kick off an __N+1__`memcpy_async` request while waiting on and operating on request __N__. To do so, use `memcpy_async` and wait on it using the collective stage-based `wait_prior` API. See [wait and wait_prior](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-wait) for more details.
 
 用法1
+
 ```c++
 template <typename TyGroup, typename TyElem, typename TyShape>
 void memcpy_async(
@@ -10676,22 +12232,30 @@ void memcpy_async(
   const TyShape &shape
 );
 ```
+
 执行**“形状”字节**的副本。
 
 用法2
 
 template <typename TyGroup, typename TyElem, typename TyDstLayout, typename TySrcLayout>
+
 void memcpy_async(
+
   const TyGroup &group,
+
   TyElem *__restrict__ dst,
+
   const TyDstLayout &dstLayout,
+
   const TyElem *__restrict__ src,
+
   const TySrcLayout &srcLayout
+
 );
 
 执行**``min(dstLayout, srcLayout)``元素**的副本。如果布局类型为`cuda::aligned_size_t<N>`，则两者必须指定相同的对齐方式。
 
-**Errata** The `memcpy_async` API introduced in CUDA 11.1 with both src and dst input layouts, expects the layout to be provided in elements rather than bytes. The element type is inferred from `TyElem` and has the size `sizeof(TyElem)`. If `cuda::aligned_size_t<N>` type is used as the layout, the number of elements specified times `sizeof(TyElem)` must be a multiple of N and it is recommended to use `std::byte` or `char` as the element type.
+__Errata__ The `memcpy_async` API introduced in CUDA 11.1 with both src and dst input layouts, expects the layout to be provided in elements rather than bytes. The element type is inferred from `TyElem` and has the size `sizeof(TyElem)`. If `cuda::aligned_size_t<N>` type is used as the layout, the number of elements specified times `sizeof(TyElem)` must be a multiple of N and it is recommended to use `std::byte` or `char` as the element type.
 
 If specified shape or layout of the copy is of type `cuda::aligned_size_t<N>`, alignment will be guaranteed to be at least `min(16, N)`. In that case both `dst` and `src` pointers need to be aligned to N bytes and the number of bytes copied needs to be a multiple of N.
 
@@ -10699,19 +12263,26 @@ If specified shape or layout of the copy is of type `cuda::aligned_size_t<N>`, 
 
 `cooperative_groups/memcpy_async.h`标题需要包含。
 
-**示例：**
+__示例：__
 
 /// This example streams elementsPerThreadBlock worth of data from global memory
+
 /// into a limited sized shared memory (elementsInShared) block to operate on.
+
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/memcpy_async.h>
 
 namespace cg = cooperative_groups;
 
 __global__ void kernel(int* global_data) {
+
     cg::thread_block tb = cg::this_thread_block();
+
     const size_t elementsPerThreadBlock = 16 * 1024;
+
     const size_t elementsInShared = 128;
+
     __shared__ int local_smem[elementsInShared];
 
     size_t copy_count;
@@ -10723,9 +12294,11 @@ __global__ void kernel(int* global_data) {
         // Work with local_smem
         index += copy_count;
     }
+
 }
 
 #### 11.6.2.2.`wait and wait_prior`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wait-and-wait-prior "这个标题的永久链接")
+
 ```c++
 template <typename TyGroup>
 void wait(TyGroup & group);
@@ -10733,12 +12306,15 @@ void wait(TyGroup & group);
 template <unsigned int NumStages, typename TyGroup>
 void wait_prior(TyGroup & group);
 ```
+
 `wait`和`wait_prior`集合允许等待memcpy_async副本完成。`wait`呼叫线程的块，直到所有之前的副本都完成。`wait_prior`允许最新的NumStages仍未完成，并等待之前的所有请求。因此，在请求的`N`副本总数中，它会等到第一个`N-NumStages`完成，最后一个`NumStages`可能仍在进行中。`wait`和`wait_prior`都会同步命名组。
 
 **Codegen要求：**最低计算能力5.0，非同步计算能力8.0，C++11
+
 cooperative_groups/memcpy_async.h 标题需要包含。
 
-**示例：**
+__示例：__
+
 ```c++
 /// This example streams elementsPerThreadBlock worth of data from global memory
 /// into a limited sized shared memory (elementsInShared) block to operate on in
@@ -10781,11 +12357,13 @@ __global__ void kernel(int* global_data) {
     // The last local_smem[stage] can be handled here
 }
 ```
+
 ### 11.6.3.数据操作[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-manipulation "这个标题的永久链接")
 
 #### 11.6.3.1.`reduce`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reduce "这个标题的永久链接")
 
 template <typename TyGroup, typename TyArg, typename TyOp>
+
 auto reduce(const TyGroup& group, TyArg&& val, TyOp&& op) -> decltype(op(val, val));
 
 `reduce`对传递的组中命名的每个线程提供的数据执行还原操作。这利用了计算加、最小或最大运算和逻辑AND、OR或XOR的硬件加速（在计算80及以上设备上），以及在旧一代硬件上提供软件回退。只有4B类型被硬件加速。
@@ -10795,11 +12373,8 @@ auto reduce(const TyGroup& group, TyArg&& val, TyOp&& op) -> decltype(op(val, va
 `val`：满足以下要求的任何类型：
 
 - 符合可复制条件，即`is_trivially_copyable<TyArg>::value == true`
-    
 - `sizeof(T) <= 32` for `coalesced_group` and tiles of size lower or equal 32, `sizeof(T) <= 8` for larger tiles
-    
 - 为给定的函数对象拥有合适的算术或比较运算符。
-    
 
 **注意：**组中不同的线程可以为这个参数传递不同的值。
 
@@ -10808,33 +12383,38 @@ auto reduce(const TyGroup& group, TyArg&& val, TyOp&& op) -> decltype(op(val, va
 异步减少
 
 template <typename TyGroup, typename TyArg, typename TyAtomic, typename TyOp>
+
 void reduce_update_async(const TyGroup& group, TyAtomic& atomic, TyArg&& val, TyOp&& op);
 
 template <typename TyGroup, typename TyArg, typename TyAtomic, typename TyOp>
+
 void reduce_store_async(const TyGroup& group, TyAtomic& atomic, TyArg&& val, TyOp&& op);
 
 template <typename TyGroup, typename TyArg, typename TyOp>
+
 void reduce_store_async(const TyGroup& group, TyArg* ptr, TyArg&& val, TyOp&& op);
 
 `*_async`API的变体异步计算结果，通过其中一个参与线程存储或更新指定目的地，而不是按每个线程返回。为了观察这些异步调用的效果，需要同步调用线程组或包含线程的更大组。
 
 - 在原子存储或更新变体的情况下，`atomic`参数可以是[CUDA C++标准库](https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives.html)中可用的`cuda::atomic`或`cuda::atomic_ref`。API的这种变体仅在CUDA C++标准库支持的平台和设备上可用，这些类型。还原结果用于根据指定的`op`对原子进行原子更新，例如，在`cg::plus()`的情况下，结果被原子添加到原子中。`atomic`持有的类型必须与`TyArg`的类型相匹配。原子的范围必须包括组中的所有线程，如果多个组同时使用同一原子，范围必须包括使用该组的所有线程。原子更新以轻松的内存排序进行。
-    
 - 在指针存储变体的情况下，还原的结果将微弱地存储在`dst`指针中。
-    
 
 **代码生成要求：**最低计算能力5.0，用于硬件加速的计算能力8.0，C++11。
 
 `cooperative_groups/reduce.h`标题需要包含。
 
-**整数向量的近似标准差示例：**
+__整数向量的近似标准差示例：__
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/reduce.h>
+
 namespace cg = cooperative_groups;
 
 /// Calculate approximate standard deviation of integers in vec
+
 __device__ int std_dev(const cg::thread_block_tile<32>& tile, int *vec, int length) {
+
     int thread_sum = 0;
 
     // calculate average first
@@ -10854,9 +12434,11 @@ __device__ int std_dev(const cg::thread_block_tile<32>& tile, int *vec, int leng
     float diff_sum = static_cast<float>(cg::reduce(tile, thread_diffs_sum, cg::plus<int>())) / length;
 
     return static_cast<int>(sqrtf(diff_sum));
+
 }
 
-**块宽缩的例子：**
+__块宽缩的例子：__
+
 ```c++
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
@@ -10882,9 +12464,11 @@ __device__ void block_reduce(const int* A, int count, cuda::atomic<int, cuda::th
     block.sync();
 }
 ```
+
 #### 11.6.3.2.`Reduce`操作员[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reduce-operators "这个标题的永久链接")
 
 以下是一些基本操作的函数对象原型，可以完成`reduce`
+
 ```c++
 namespace cooperative_groups {
   template <typename Ty>
@@ -10906,23 +12490,20 @@ namespace cooperative_groups {
   struct cg::bit_or;
 }
 ```
+
 减少仅限于编译时实现可用的信息。因此，为了利用CC 8.0中引入的内在，`cg::`命名空间暴露了几个反映硬件的功能对象。除了`less/greater`，这些对象看起来与C++ STL中呈现的对象相似。与STL的任何差异的原因是，这些功能对象被设计为实际反映硬件内在的操作。
 
-**功能描述：**
-- `cg::plus:`接受两个值，并使用运算符+返回两者的总和。
-    
-- `cg::less:`接受两个值，并使用运算符<返回较小的值。这不同之处在于**返回的是较低**的**值，**而不是布尔值。
-    
-- `cg::greater:`接受两个值，并使用运算符<返回更大的值。这不同之处在于**返回**的**是更大的值**而不是布尔值。
-    
-- `cg::bit_and:`接受两个值并返回运算符&的结果。
-    
-- `cg::bit_xor:`接受两个值并返回运算符^的结果。
-    
-- `cg::bit_or:`接受两个值并返回运算符|的结果。
-    
+__功能描述：__
 
-**示例：**
+- `cg::plus:`接受两个值，并使用运算符+返回两者的总和。
+- `cg::less:`接受两个值，并使用运算符<返回较小的值。这不同之处在于__返回的是较低__的**值，**而不是布尔值。
+- `cg::greater:`接受两个值，并使用运算符<返回更大的值。这不同之处在于__返回__的__是更大的值__而不是布尔值。
+- `cg::bit_and:`接受两个值并返回运算符&的结果。
+- `cg::bit_xor:`接受两个值并返回运算符^的结果。
+- `cg::bit_or:`接受两个值并返回运算符|的结果。
+
+__示例：__
+
 ```c++
 {
     // cg::plus<int> is specialized within cg::reduce and calls __reduce_add_sync(...) on CC 8.0+
@@ -10941,18 +12522,23 @@ namespace cooperative_groups {
     cg::reduce(tile, (int)val, [](int l, int r) -> int {return l + r;});
 }
 ```
+
 #### 11.6.3.3. `inclusive_scan`和`exclusive_scan`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inclusive-scan-and-exclusive-scan "这个标题的永久链接")
 
 template <typename TyGroup, typename TyVal, typename TyFn>
+
 auto inclusive_scan(const TyGroup& group, TyVal&& val, TyFn&& op) -> decltype(op(val, val));
 
 template <typename TyGroup, typename TyVal>
+
 TyVal inclusive_scan(const TyGroup& group, TyVal&& val);
 
 template <typename TyGroup, typename TyVal, typename TyFn>
+
 auto exclusive_scan(const TyGroup& group, TyVal&& val, TyFn&& op) -> decltype(op(val, val));
 
 template <typename TyGroup, typename TyVal>
+
 TyVal exclusive_scan(const TyGroup& group, TyVal&& val);
 
 `inclusive_scan`并且`exclusive_scan`对传递的组中命名的每个线程提供的数据执行扫描操作。在`exclusive_scan`的情况下，每个线程的结果都是从`thread_rank`低于该线程的线程中减少数据。`inclusive_scan`结果还包括减少中的调用线程数据。
@@ -10962,28 +12548,29 @@ TyVal exclusive_scan(const TyGroup& group, TyVal&& val);
 `val`：满足以下要求的任何类型：
 
 - 符合可复制条件，即`is_trivially_copyable<TyArg>::value == true`
-    
 - `sizeof(T) <= 32` for `coalesced_group` and tiles of size lower or equal 32, `sizeof(T) <= 8` for larger tiles
-    
 - 为给定的函数对象拥有合适的算术或比较运算符。
-    
 
 **注意：**组中不同的线程可以为这个参数传递不同的值。
 
 `op`：为方便起见定义的函数对象是“[减少运算符”](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-reduce-operators)中描述的`plus(),less(),greater(),bit_and(),bit_xor(),bit_or()`）。这些必须构建，因此需要TyVal模板参数，即`plus<int>()``inclusive_scan`和`exclusive_scan`还支持lambda和其他可以使用`operator()`调用的函数对象。没有此参数的过载使用`cg::plus<TyVal>()`
 
-**扫描更新**
+__扫描更新__
 
 template <typename TyGroup, typename TyAtomic, typename TyVal, typename TyFn>
+
 auto inclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val, TyFn&& op) -> decltype(op(val, val));
 
 template <typename TyGroup, typename TyAtomic, typename TyVal>
+
 TyVal inclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val);
 
 template <typename TyGroup, typename TyAtomic, typename TyVal, typename TyFn>
+
 auto exclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val, TyFn&& op) -> decltype(op(val, val));
 
 template <typename TyGroup, typename TyAtomic, typename TyVal>
+
 TyVal exclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val);
 
 `*_scan_update`集体使用额外的参数`atomic`，可以是[CUDA C++标准库](https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives.html)中的`cuda::atomic`或`cuda::atomic_ref`。API的这些变体仅在CUDA C++标准库支持的平台和设备上可用。这些变体将根据`op`对`atomic`进行更新，该组中所有线程的输入值之和的值。`atomic`的先前值将与每个线程的扫描结果相结合并返回。`atomic`持有的类型必须与`TyVal`的类型相匹配。原子的范围必须包括组中的所有线程，如果多个组同时使用同一原子，范围必须包括使用该组的所有线程。原子更新以轻松的内存排序进行。
@@ -10991,25 +12578,39 @@ TyVal exclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val)
 以下伪代码说明了扫描的更新变体是如何工作的：
 
 /*
+
  inclusive_scan_update behaves as the following block,
+
  except both reduce and inclusive_scan is calculated simultaneously.
+
 auto total = reduce(group, val, op);
+
 TyVal old;
+
 if (group.thread_rank() == selected_thread) {
+
     atomically {
+
         old = atomic.load();
+
         atomic.store(op(old, total));
+
     }
+
 }
+
 old = group.shfl(old, selected_thread);
+
 return op(inclusive_scan(group, val, op), old);
+
 */
 
 **编程要求：**最低计算能力5.0，C++11。
 
 `cooperative_groups/scan.h`标题需要包含。
 
-**示例：**
+__示例：__
+
 ```c++
 #include <stdio.h>
 #include <cooperative_groups.h>
@@ -11034,7 +12635,9 @@ __global__ void kernel() {
     7: 28
 */
 ```
-**使用exclusive_scan进行流压缩的示例：**
+
+__使用exclusive_scan进行流压缩的示例：__
+
 ```c++
 #include <cooperative_groups.h>
 #include <cooperative_groups/scan.h>
@@ -11071,24 +12674,35 @@ __device__ int stream_compaction(Group &g, Data *input, int count, TyFn&& test_f
     return g.shfl(my_idx + my_count, g.num_threads() - 1);
 }
 ```
-**使用exclusive_scan_update的动态缓冲空间分配示例：**
+
+__使用exclusive_scan_update的动态缓冲空间分配示例：__
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/scan.h>
+
 namespace cg = cooperative_groups;
 
 // Buffer partitioning is static to make the example easier to follow,
+
 // but any arbitrary dynamic allocation scheme can be implemented by replacing this function.
+
 __device__ int calculate_buffer_space_needed(cg::thread_block_tile<32>& tile) {
+
     return tile.thread_rank() % 2 + 1;
+
 }
 
 __device__ int my_thread_data(int i) {
+
     return i;
+
 }
 
 __global__ void kernel() {
+
     __shared__ extern int buffer[];
+
     __shared__ cuda::atomic<int, cuda::thread_scope_block> buffer_used;
 
     auto block = cg::this_thread_block();
@@ -11113,6 +12727,7 @@ __global__ void kernel() {
     block.sync();
     // buffer_used now holds total amount of memory allocated
     // buffer is {0, 0, 1, 0, 0, 1 ...};
+
 }
 
 ### 11.6.4.执行控制[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-control "这个标题的永久链接")
@@ -11120,14 +12735,16 @@ __global__ void kernel() {
 #### 11.6.4.1.`invoke_one`和`invoke_one_broadcast`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#invoke-one-and-invoke-one-broadcast "这个标题的永久链接")
 
 template<typename Group, typename Fn, typename... Args>
+
 void invoke_one(const Group& group, Fn&& fn, Args&&... args);
 
 template<typename Group, typename Fn, typename... Args>
+
 auto invoke_one_broadcast(const Group& group, Fn&& fn, Args&&... args) -> decltype(fn(args...));
 
 `invoke_one`从调用组中选择单个任意线程，并使用该线程使用提供的参数`args`调用提供的可调用`fn`。在`invoke_one_broadcast`的情况下，调用的结果也会分发到组中的所有线程，并从该集合返回。
 
-调用组可以在调用提供的可调用项之前和/或之后与选定的线程同步。这意味着呼叫组内的通信不允许在提供的可调用主体内进行，否则无法保证前进。允许在提供的可调用的正文中与调用组以外的线程进行通信。线程选择机制**不能**保证是确定的。
+调用组可以在调用提供的可调用项之前和/或之后与选定的线程同步。这意味着呼叫组内的通信不允许在提供的可调用主体内进行，否则无法保证前进。允许在提供的可调用的正文中与调用组以外的线程进行通信。线程选择机制__不能__保证是确定的。
 
 在具有计算能力9.0或更高版本的设备上，当调用[显式组类型](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-types-explicit-cg)时，可以使用硬件加速来选择线程。
 
@@ -11140,25 +12757,32 @@ auto invoke_one_broadcast(const Group& group, Fn&& fn, Args&&... args) -> declty
 在`invoke_one_broadcast`的情况下，提供的可调用`fn`的返回类型必须满足以下要求：
 
 - 符合可复制条件，即`is_trivially_copyable<T>::value == true`
-    
 - `sizeof(T) <= 32` for `coalesced_group` and tiles of size lower or equal 32, `sizeof(T) <= 8` for larger tiles
-    
 
 **Codegen要求：**最低计算能力5.0，用于硬件加速的计算能力9.0，C++11。
 
-**重写为使用invoke_one_broadcast的**[发现模式部分的](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#discovery-pattern-cg)**聚合原子示例****：**
+__重写为使用invoke_one_broadcast的__[发现模式部分的](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#discovery-pattern-cg)__聚合原子示例__**：**
 
 #include <cooperative_groups.h>
+
 #include <cuda/atomic>
+
 namespace cg = cooperative_groups;
 
 template<cuda::thread_scope Scope>
+
 __device__ unsigned int atomicAddOneRelaxed(cuda::atomic<unsigned int, Scope>& atomic) {
+
     auto g = cg::coalesced_threads();
+
     auto prev = cg::invoke_one_broadcast(g, [&] () {
+
         return atomic.fetch_add(g.num_threads(), cuda::memory_order_relaxed);
+
     });
+
     return prev + g.thread_rank();
+
 }
 
 ## 11.7.网格同步[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#grid-synchronization "这个标题的永久链接")
@@ -11170,49 +12794,64 @@ __device__ unsigned int atomicAddOneRelaxed(cuda::atomic<unsigned int, Scope>& a
 要跨网格同步，从内核内，您只需使用`grid.sync()`函数：
 
 grid_group grid = this_grid();
+
 grid.sync();
 
 And when launching the kernel it is necessary to use, instead of the `<<<...>>>` execution configuration syntax, the `cudaLaunchCooperativeKernel`CUDA runtime launch API or the `CUDA driver equivalent`.
 
-**示例：**
+__示例：__
 
 为了保证GPU上线程块的共同居住，需要仔细考虑启动的块数量。例如，SM的块数多，可以启动如下：
 
 int dev = 0;
+
 cudaDeviceProp deviceProp;
+
 cudaGetDeviceProperties(&deviceProp, dev);
+
 // initialize, then launch
+
 cudaLaunchCooperativeKernel((void*)my_kernel, deviceProp.multiProcessorCount, numThreads, args);
 
 或者，您可以使用占用计算器计算每个SM可以同时容纳多少块，从而最大化暴露的并行性，如下所示：
 
 /// This will launch a grid that can maximally fill the GPU, on the default stream with kernel arguments
+
 int numBlocksPerSm = 0;
+
  // Number of threads my_kernel will be launched with
+
 int numThreads = 128;
+
 cudaDeviceProp deviceProp;
+
 cudaGetDeviceProperties(&deviceProp, dev);
+
 cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocksPerSm, my_kernel, numThreads, 0);
+
 // launch
-void *kernelArgs[] = { /* add kernel args */ };
+
+void _kernelArgs[] = { /_ add kernel args _/ };
+
 dim3 dimBlock(numThreads, 1, 1);
-dim3 dimGrid(deviceProp.multiProcessorCount*numBlocksPerSm, 1, 1);
+
+dim3 dimGrid(deviceProp.multiProcessorCount_numBlocksPerSm, 1, 1);
+
 cudaLaunchCooperativeKernel((void*)my_kernel, dimGrid, dimBlock, kernelArgs);
 
 最佳做法是首先通过查询设备属性`cudaDevAttrCooperativeLaunch`来确保设备支持合作发布：
 
 int dev = 0;
+
 int supportsCoopLaunch = 0;
+
 cudaDeviceGetAttribute(&supportsCoopLaunch, cudaDevAttrCooperativeLaunch, dev);
 
 如果设备0支持该属性，则将`supportsCoopLaunch`设置为1。仅支持具有6.0及更高计算能力的设备。此外，您需要在以下任一方面运行：
 
 - 没有MPS的Linux平台
-    
 - 带有MPS的Linux平台，在具有7.0或更高计算能力的设备上
-    
 - 最新的Windows平台
-    
 
 # 12.集群启动控制[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-launch-control "这个标题的永久链接")
 
@@ -11222,37 +12861,35 @@ cudaDeviceGetAttribute(&supportsCoopLaunch, cudaDevAttrCooperativeLaunch, dev);
 
 在处理可变大小的问题时，有两种主要方法来确定内核线程块的数量。
 
-**方法1：每个线程块的固定工作：**
+__方法1：每个线程块的固定工作：__
 
 在这种方法中，线程块的数量由问题大小决定，而每个线程块完成的工作量保持不变或有限。
 
 这种方法的主要优势：
 
 - SM之间的负载平衡。
-    
-    特别是，当线程块运行时间表现出可变性和/或线程块的数量比GPU可以同时执行的要大得多（導致低尾效应），这种方法允许GPU调度器在某些SM上运行比其他SM上更多的线程块。
-    
-- 抢占。
-    
-    GPU调度器可以开始执行[高优先级内核](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-priorities)，即使它是在低优先级内核的执行已经开始后启动的，通过将高优先级内核的线程块安排为当前运行的低优先级内核的线程块完成。一旦高优先级内核完成，它就可以返回低优先级内核。
-    
 
-**方法2：固定数量的线程块：**
+    特别是，当线程块运行时间表现出可变性和/或线程块的数量比GPU可以同时执行的要大得多（導致低尾效应），这种方法允许GPU调度器在某些SM上运行比其他SM上更多的线程块。
+
+- 抢占。
+
+    GPU调度器可以开始执行[高优先级内核](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-priorities)，即使它是在低优先级内核的执行已经开始后启动的，通过将高优先级内核的线程块安排为当前运行的低优先级内核的线程块完成。一旦高优先级内核完成，它就可以返回低优先级内核。
+
+__方法2：固定数量的线程块：__
 
 在这种方法中，通常作为块步幅或网格步幅循环实现，线程块的数量并不直接取决于问题的大小。相反，每个线程块完成的工作量是问题大小的函数。通常，线程块的数量基于执行内核的GPU上的SM数量和所需的占用率。
 
 这种方法的主要优势：
 
 - 减少线程块开销。
-    
+
     这种方法不仅减少了摊销线程块启动延迟，而且还最大限度地减少了与所有线程块共享操作相关的计算开销。这些开销可能明显高于启动延迟开销。
-    
+
     例如，在卷积内核中，由于线程块数量固定，计算卷积系数的序言——独立于线程块索引——可以减少计算次数，从而减少冗余计算。
-    
 
-**集群发射控制方法：**
+__集群发射控制方法：__
 
-集群启动控制允许内核请求（**取消**）尚未开始执行的块的线程块索引。
+集群启动控制允许内核请求（__取消__）尚未开始执行的块的线程块索引。
 
 该机制允许线程块之间的工作窃取：线程块试图取消另一个尚未开始运行的线程块的启动。如果取消成功，它通过使用取消块索引来执行任务来“偷”其他线程块的工作。
 
@@ -11260,11 +12897,11 @@ cudaDeviceGetAttribute(&supportsCoopLaunch, cudaDevAttrCooperativeLaunch, dev);
 
 下表总结了三种方法的优缺点：
 
-||**每个线程块的固定工作**|**固定线程块数量**|**集群启动控制**|
+||__每个线程块的固定工作__|__固定线程块数量__|__集群启动控制__|
 |---|---|---|---|
-|减少开销|**X**|**V**|**V**|
-|抢占|**V**|**X**|**V**|
-|负载平衡|**V**|**X**|**V**|
+|减少开销|__X__|__V__|__V__|
+|抢占|__V__|__X__|__V__|
+|负载平衡|__V__|__X__|__V__|
 
 ## 12.2.集群启动控制API详细信息[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-launch-control-api-details "这个标题的永久链接")
 
@@ -11279,117 +12916,148 @@ cudaDeviceGetAttribute(&supportsCoopLaunch, cudaDevAttrCooperativeLaunch, dev);
 以下是线程块取消过程的五个步骤。前两个步骤是取消结果和同步变量的声明和初始化，这些在工作窃取之前完成。最后三个步骤通常在线程块索引上的工作窃窃循环中执行。
 
 1. 声明线程块取消的变量：
-    
+
     __shared__ uint4 result; // Request result.
+
     __shared__ uint64_t bar; // Synchronization barrier.
+
     int phase = 0;           // Synchronization barrier phase.
-    
+
 2. 用单个到达计数初始化共享内存屏障：
-    
+
     if (cg::thread_block::thread_rank() == 0)
+
         ptx::mbarrier_init(&bar, 1);
+
     __syncthreads();
-    
+
 3. 通过单个线程提交异步取消请求并设置交易计数：
-    
+
     if (cg::thread_block::thread_rank() == 0) {
+
         cg::invoke_one(cg::coalesced_threads(), ptx::clusterlaunchcontrol_try_cancel, &result, &bar);
+
         ptx::mbarrier_arrive_expect_tx(ptx::sem_relaxed, ptx::scope_cta, ptx::space_shared, &bar, sizeof(uint4));
+
     }
-    
+
     笔记
-    
+
     由于线程块取消是一个统一的指令，建议在[invoke_one](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#invoke-one-and-invoke-one-broadcast)线程选择器中提交。这允许编译器优化剥离环。
-    
+
 4. 同步（完成）异步取消请求：
-    
+
     while (!ptx::mbarrier_try_wait_parity(&bar, phase))
+
     {}
+
     phase ^= 1;
-    
+
 5. 检索取消状态和取消的线程块索引：
-    
+
     bool success = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result);
+
     if (success) {
+
         // Don't need all three for 1D/2D thread blocks:
+
         int bx = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_x(result);
+
         int by = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_y(result);
+
         int bz = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_z(result);
+
     }
-    
+
 6. 确保异步[代理](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#proxies)和通用[代理](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#proxies)之间的共享内存操作的可见性，并防止工作窃取循环迭代之间的数据竞赛。
-    
 
 ### 12.2.2.线程块取消约束[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-cancellation-constraints "这个标题的永久链接")
 
 约束与失败的取消请求有关：
 
-- 在**观察到**之前失败的请求后提交另一个取消请求是未定义的行为。
-    
+- 在__观察到__之前失败的请求后提交另一个取消请求是未定义的行为。
+
     在下面的两个代码示例中，假设第一个取消请求失败，只有第一个示例表现出未定义的行为。第二个示例是正确的，因为取消请求之间没有观察：
-    
-    **无效代码：**
-    
+
+    __无效代码：__
+
     // First request:
+
     ptx::clusterlaunchcontrol_try_cancel(&result0, &bar0);
-    
+
     // First request query:
+
     [Synchronize bar0 code here.]
+
     bool success0 = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result0);
+
     assert(!success0); // Observed failure; second cacellation will be invalid.
-    
+
     // Second request - next line is Undefined Behavior:
+
     ptx::clusterlaunchcontrol_try_cancel(&result1, &bar1);
-    
-    **有效代码：**
-    
+
+    __有效代码：__
+
     // First request:
+
     ptx::clusterlaunchcontrol_try_cancel(&result0, &bar0);
-    
+
     // Second request:
+
     ptx::clusterlaunchcontrol_try_cancel(&result1, &bar1);
-    
+
     // First request query:
+
     [Synchronize bar0 code here.]
+
     bool success0 = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result0);
+
     assert(!success0); // Observed failure; second cacellation was valid.
-    
+
 - 检索失败取消请求的线程块索引是未定义行为。
-    
 - 不建议从多个线程提交取消请求。它导致多个线程块被取消，需要小心处理，例如：
-    
     - 每个提交线程必须提供一个唯一的`__shared__`结果指针，以避免数据竞赛。
-        
     - 如果使用相同的障碍进行同步，必须相应地调整到达和交易计数。
-        
 
 ### 12.2.3.内核示例：向量标量乘法[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#kernel-example-vector-scalar-multiplication "这个标题的永久链接")
 
 以下三个内核展示了每个线程块的固定工作、线程块的固定数量和矢量标量乘法的聚类启动控制方法v―:=αv―.
 
 - 每个线程块的固定工作：
-    
+
     __global__
+
     void kernel_fixed_work (float* data, int n)
+
     {
+
         // Prologue:
+
         float alpha = compute_scalar();
+
     
         // Computation:
         int i = blockIdx.x * blockDim.x + threadIdx.x;
         if (i < n)
             data[i] *= alpha;
+
     }
-    
+
     // Launch: kernel_fixed_work<<<1024, (n + 1023) / 1024>>>(data, n);
-    
+
 - 固定线程块数量：
-    
+
     __global__
+
     void kernel_fixed_blocks (float* data, int n)
+
     {
+
         // Prologue:
+
         float alpha = compute_scalar();
+
     
         // Computation:
         int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -11397,25 +13065,35 @@ cudaDeviceGetAttribute(&supportsCoopLaunch, cudaDevAttrCooperativeLaunch, dev);
             data[i] *= alpha;
             i += gridDim.x * blockDim.x;
         }
+
     }
-    
+
     // Launch: kernel_fixed_blocks<<<1024, SM_COUNT>>>(data, n);
-    
+
 - 集群启动控制：
-    
+
     #include <cooperative_groups.h>
+
     #include <cuda/ptx>
-    
+
     namespace cg = cooperative_groups;
+
     namespace ptx = cuda::ptx;
-    
+
     __global__
+
     void kernel_cluster_launch_control (float* data, int n)
+
     {
+
         // Cluster launch control initialization:
+
         __shared__ uint4 result;
+
         __shared__ uint64_t bar;
+
         int phase = 0;
+
     
         if (cg::thread_block::thread_rank() == 0)
             ptx::mbarrier_init(&bar, 1);
@@ -11460,38 +13138,42 @@ cudaDeviceGetAttribute(&supportsCoopLaunch, cudaDevAttrCooperativeLaunch, dev);
             // Release read of result to the async proxy:
             ptx::fence_proxy_async_generic_sync_restrict(ptx::sem_release, ptx::space_shared, ptx::scope_cluster);
         }
+
     }
-    
+
     // Launch: kernel_cluster_launch_control<<<1024, (n + 1023) / 1024>>>(data, n);
-    
 
 ### 12.2.4.线程块集群的集群启动控制[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-launch-control-for-thread-block-clusters "这个标题的永久链接")
 
-在线[程块集群](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-clusters)的情况下，线程块取消步骤与非集群设置相同，但有轻微的调整。与非集群情况一样，不建议从**集群中的**多个线程提交取消请求，因为这将尝试取消多个集群。
+在线[程块集群](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-clusters)的情况下，线程块取消步骤与非集群设置相同，但有轻微的调整。与非集群情况一样，不建议从__集群中的__多个线程提交取消请求，因为这将尝试取消多个集群。
 
 - 取消由单个集群线程提交。
-    
 - The shared memory result of each cluster’s thread block will receive the same (encoded) value of the cancelled thread block index (i.e., the result value is multicasted). The result received by all thread blocks corresponds to the local block index `{0, 0, 0}` within a cluster. Therefore, thread blocks within the cluster need to add the local block index.
-    
 - 同步由每个集群的线程块使用本地`__shared__`内存屏障执行。必须使用`ptx::scope_cluster`范围执行屏障操作。
-    
 - 在集群案例中取消需要所有线程块都存在。用户可以通过使用来自[集群组](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group-cg)API的`cg::cluster_group::sync()`来保证所有线程块都在运行。
-    
 
 以下核心演示了线程块群集案例中的群集启动控制方法：
 
 #include <cooperative_groups.h>
+
 #include <cuda/ptx>
 
 namespace cg = cooperative_groups;
+
 namespace ptx = cuda::ptx;
 
 __global__ __cluster_dims__(2, 1, 1)
+
 void kernel_cluster_launch_control (float* data, int n)
+
 {
+
     // Cluster launch control initialization:
+
     __shared__ uint4 result;
+
     __shared__ uint64_t bar;
+
     int phase = 0;
 
     if (cg::thread_block::thread_rank() == 0) {
@@ -11543,6 +13225,7 @@ void kernel_cluster_launch_control (float* data, int n)
         // Release read of result to the async proxy:
         ptx::fence_proxy_async_generic_sync_restrict(ptx::sem_release, ptx::space_shared, ptx::scope_cluster);
     }
+
 }
 
 // Launch: kernel_cluster_launch_control<<<1024, (n + 1023) / 1024>>>(data, n);
@@ -11666,26 +13349,37 @@ _动态并行性_使并发性更容易在程序中表达；然而，设备运行
 在以下示例中，执行`child_launch`的子网格只能保证看到在子网格启动之前对`data`所做的修改。由于父线程0正在执行启动，因此子线程将与父线程0看到的内存一致。由于第一次`__syncthreads()`调用，子程序将看到`data[0]=0`，`data[1]=1`，...，`data[255]=255`（如果没有`__syncthreads()`调用，只能保证子程序看到`data[0]=0`）。子网格只能保证在隐式同步时返回。这意味着子网格中线程所做的修改永远不会保证父网格可用。要访问`child_launch`所做的修改，`tail_launch`内核被启动到`cudaStreamTailLaunch`流中。
 
 __global__ void tail_launch(int *data) {
+
    data[threadIdx.x] = data[threadIdx.x]+1;
+
 }
 
 __global__ void child_launch(int *data) {
+
    data[threadIdx.x] = data[threadIdx.x]+1;
+
 }
 
 __global__ void parent_launch(int *data) {
+
    data[threadIdx.x] = threadIdx.x;
 
    __syncthreads();
 
    if (threadIdx.x == 0) {
+
        child_launch<<< 1, 256 >>>(data);
+
        tail_launch<<< 1, 256, 0, cudaStreamTailLaunch >>>(data);
+
    }
+
 }
 
 void host_launch(int *data) {
+
     parent_launch<<< 1, 256 >>>(data);
+
 }
 
 ##### 13.2.2.1.2.零复制内存[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#zero-copy-memory "这个标题的永久链接")
@@ -11711,21 +13405,31 @@ NVIDIA编译器将尝试警告是否可以检测到指向本地或共享内存�
 例如，如果`child_launch`访问`x_array`则以下内容是非法的，行为未定义：
 
 int x_array[10];       // Creates x_array in parent's local memory
+
 child_launch<<< 1, 1 >>>(x_array);
 
 程序员有时很难意识到编译器何时将变量放入本地内存中。作为一般规则，传递给子内核的所有存储都应从全局内存堆中显式分配，无论是使用`cudaMalloc()``new()`还是通过在全局范围内声明`__device__`存储。例如：
 
 // Correct - "value" is global storage
+
 __device__ int value;
+
 __device__ void x() {
+
     value = 5;
+
     child<<< 1, 1 >>>(&value);
+
 }
 
 // Invalid - "value" is local storage
+
 __device__ void y() {
+
     int value = 5;
+
     child<<< 1, 1 >>>(&value);
+
 }
 
 ##### 13.2.2.1.6.纹理记忆[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-memory-cdp "这个标题的永久链接")
@@ -11749,13 +13453,9 @@ __device__ void y() {
 kernel_name<<< Dg, Db, Ns, S >>>([kernel arguments]);
 
 - `Dg`类型为`dim3`，并指定网格的尺寸和大小
-    
 - `Db`类型为`dim3`，并指定每个线程块的尺寸和大小
-    
 - `Ns`类型为`size_t`，除了静态分配的内存外，还指定了该调用每个线程块动态分配的共享内存的字节数。`Ns`是一个可选参数，默认为0。
-    
 - `S`是`cudaStream_t`类型，并指定与此调用关联的流。流必须分配到正在呼叫的同一网格中。`S`是一个可选参数，默认为NULL流。
-    
 
 ##### 13.3.1.1.1.发射是非同步的[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#launches-are-asynchronous "这个标题的永久链接")
 
@@ -11790,9 +13490,13 @@ kernel_name<<< Dg, Db, Ns, S >>>([kernel arguments]);
 火和忘记的发射计划立即发射，而不依赖于之前发射的网格的完成。除了通过父网格末尾的隐式同步，否则其他网格启动不能依赖于火和忘记发射的完成。因此，在父网格的发射和忘记工作完成之前，父网格流中的尾部启动或下一个网格不会启动。
 
 // In this example, C2's launch will not wait for C1's completion
+
 __global__ void P( ... ) {
+
    C1<<< ... , cudaStreamFireAndForget >>>( ... );
+
    C2<<< ... , cudaStreamFireAndForget >>>( ... );
+
 }
 
 火和忘记流不能用于记录或等待事件。尝试这样做会导致`cudaErrorInvalidValue`。当使用定义的`CUDA_FORCE_CDP1_IF_SUPPORTED`编译时，不支持fire-and-forget流。启动并忘记流的使用需要以64位模式进行编译。
@@ -11804,48 +13508,73 @@ __global__ void P( ... ) {
 每个网格都有自己的尾部发射流。在尾流启动之前，所有由网格启动的非尾部发射工作都隐式同步。即父网格的尾部启动不会启动，直到父网格和父网格向普通流或每线程或触发和忘记流发射的所有工作完成。如果两个网格被发射到同一网格的尾部发射流，则在早期网格及其所有后代工作完成之前，后期网格不会启动。
 
 // In this example, C2 will only launch after C1 completes.
+
 __global__ void P( ... ) {
+
    C1<<< ... , cudaStreamTailLaunch >>>( ... );
+
    C2<<< ... , cudaStreamTailLaunch >>>( ... );
+
 }
 
 启动到尾启动流的网格不会启动，直到父网格完成所有工作，包括父网格在所有非尾启动流中启动的所有其他网格（及其后代），包括尾启动后执行或启动的工作。
 
 // In this example, C will only launch after all X, F and P complete.
+
 __global__ void P( ... ) {
+
    C<<< ... , cudaStreamTailLaunch >>>( ... );
+
    X<<< ... , cudaStreamPerThread >>>( ... );
+
    F<<< ... , cudaStreamFireAndForget >>>( ... )
+
 }
 
 在父网格的尾部启动工作完成之前，父网格流中的下一个网格将不会启动。换句话说，尾部启动流的行为就像它被插入其父网格和父网格流中的下一个网格之间。
 
 // In this example, P2 will only launch after C completes.
+
 __global__ void P1( ... ) {
+
    C<<< ... , cudaStreamTailLaunch >>>( ... );
+
 }
 
 __global__ void P2( ... ) {
+
 }
 
 int main ( ... ) {
+
    ...
+
    P1<<< ... >>>( ... );
+
    P2<<< ... >>>( ... );
+
    ...
+
 }
 
 每个网格只得到一个尾部发射流。要尾部启动并发网格，可以像下面的示例一样完成。
 
 // In this example,  C1 and C2 will launch concurrently after P's completion
+
 __global__ void T( ... ) {
+
    C1<<< ... , cudaStreamFireAndForget >>>( ... );
+
    C2<<< ... , cudaStreamFireAndForget >>>( ... );
+
 }
 
 __global__ void P( ... ) {
+
    ...
+
    T<<< ... , cudaStreamTailLaunch >>>( ... );
+
 }
 
 尾部启动流不能用于记录或等待事件。尝试这样做会导致`cudaErrorInvalidValue`。当定义了`CUDA_FORCE_CDP1_IF_SUPPORTED`时，不支持尾部启动流。尾部启动流的使用需要以64位模式进行编译。
@@ -11885,28 +13614,41 @@ CUDA支持动态创建的纹理和表面对象[7](https://docs.nvidia.com/cuda/c
 在CUDA中，C++共享内存可以声明为静态大小的文件范围或函数范围变量，也可以声明为运行时由内核调用者通过启动配置参数确定大小的`extern`变量。两种类型的声明在设备运行时都有效。
 
 __global__ void permute(int n, int *data) {
+
    extern __shared__ int smem[];
+
    if (n <= 1)
+
        return;
 
    smem[threadIdx.x] = data[threadIdx.x];
+
    __syncthreads();
 
    permute_data(smem, n);
+
    __syncthreads();
 
    // Write back to GMEM since we can't pass SMEM to children.
+
    data[threadIdx.x] = smem[threadIdx.x];
+
    __syncthreads();
 
    if (threadIdx.x == 0) {
-       permute<<< 1, 256, n/2*sizeof(int) >>>(n/2, data);
-       permute<<< 1, 256, n/2*sizeof(int) >>>(n/2, data+n/2);
+
+       permute<<< 1, 256, n/2_sizeof(int) >>>(n/2, data);
+
+       permute<<< 1, 256, n/2_sizeof(int) >>>(n/2, data+n/2);
+
    }
+
 }
 
-void host_launch(int *data) {
-    permute<<< 1, 256, 256*sizeof(int) >>>(256, data);
+void host_launch(int _data) {
+
+    permute<<< 1, 256, 256_sizeof(int) >>>(256, data);
+
 }
 
 ##### 13.3.1.6.4.符号地址[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#symbol-addresses "这个标题的永久链接")
@@ -11930,6 +13672,7 @@ void host_launch(int *data) {
 与主机端启动一样，设备端运算符`<<<>>>`映射到底层内核启动API。这样，针对PTX的用户将能够执行启动，并且编译器前端可以将`<<<>>>`翻译成这些调用。
 
 表13新的设备专用启动实现功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id471 "此表的永久链接")
+
 |运行时API启动功能|与主机运行时行为的不同描述（如果没有描述，则行为是相同的）|
 |---|---|
 |`cudaGetParameterBuffer`|从`<<<>>>`自动生成。注意与主机等效的API不同。|
@@ -11938,10 +13681,15 @@ void host_launch(int *data) {
 这些启动函数的API与CUDA运行时API的API不同，定义如下：
 
 extern   device   cudaError_t cudaGetParameterBuffer(void **params);
+
 extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
+
                                         void *params, dim3 gridDim,
+
                                         dim3 blockDim,
+
                                         unsigned int sharedMemSize = 0,
+
                                         cudaStream_t stream = 0);
 
 #### 13.3.1.8.API参考[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#api-reference "这个标题的永久链接")
@@ -11949,6 +13697,7 @@ extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
 此处详细介绍了设备运行时中支持的CUDA运行时API的部分。主机和设备运行时API具有相同的语法；除非另有说明，否则语义是相同的。下表概述了与主机提供的版本相关的API。
 
 表14支持的API功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id472 "此表的永久链接")
+
 |运行时API函数|详情|
 |---|---|
 |`cudaDeviceGetCacheConfig`||
@@ -11992,24 +13741,39 @@ extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
 在PTX级别，`cudaLaunchDevice()`在使用之前需要以下所示的两种形式之一声明。
 
 // PTX-level Declaration of cudaLaunchDevice() when .address_size is 64
+
 .extern .func(.param .b32 func_retval0) cudaLaunchDevice
+
 (
+
   .param .b64 func,
+
   .param .b64 parameterBuffer,
+
   .param .align 4 .b8 gridDimension[12],
+
   .param .align 4 .b8 blockDimension[12],
+
   .param .b32 sharedMemSize,
+
   .param .b64 stream
+
 )
+
 ;
 
 下面的CUDA级声明映射到上述PTX级声明之一，并位于系统标题文件`cuda_device_runtime_api.h`中。该函数在`cudadevrt`系统库中定义，它必须与程序链接才能使用设备端内核启动功能。
 
 // CUDA-level declaration of cudaLaunchDevice()
+
 extern "C" __device__
+
 cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
+
                              dim3 gridDimension, dim3 blockDimension,
+
                              unsigned int sharedMemSize,
+
                              cudaStream_t stream);
 
 第一个参数是指向要启动的内核的指针，第二个参数是将实际参数保存到启动的内核的参数缓冲区。参数缓冲区的布局在下面的[参数缓冲区布局](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#parameter-buffer-layout)中进行了解释。其他参数指定启动配置，即网格维度、块维度、共享内存大小和与启动相关的流（有关启动配置的详细说明，请参阅[执行配置](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration)。
@@ -12019,17 +13783,25 @@ cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
 `cudaGetParameterBuffer()`在使用之前，需要在PTX级别声明。根据地址大小，PTX级声明必须以以下两种形式之一：
 
 // PTX-level Declaration of cudaGetParameterBuffer() when .address_size is 64
+
 .extern .func(.param .b64 func_retval0) cudaGetParameterBuffer
+
 (
+
   .param .b64 alignment,
+
   .param .b64 size
+
 )
+
 ;
 
 以下`cudaGetParameterBuffer()`的CUDA级声明映射到上述PTX级声明：
 
 // CUDA-level Declaration of cudaGetParameterBuffer()
+
 extern "C" __device__
+
 void *cudaGetParameterBuffer(size_t alignment, size_t size);
 
 第一个参数指定了参数缓冲区的对齐要求，第二个参数指定了以字节为单位的大小要求。在当前实现中，`cudaGetParameterBuffer()`返回的参数缓冲区始终保证为64字节对齐，对齐要求参数被忽略。然而，建议将正确的对齐要求值（这是放置在参数缓冲区中的任何参数的最大对齐）传递给`cudaGetParameterBuffer()`以确保未来的可移植性。
@@ -12059,6 +13831,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.cu -o hello -lcudadevrt
 也可以先将CUDA .cu源文件编译为对象文件，然后在两个阶段的过程中将它们链接在一起：
 
 $ nvcc -arch=sm_75 -dc hello_world.cu -o hello_world.o
+
 $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 
 有关更多详细信息，请参阅CUDA驱动程序编译器NVCC指南的“使用单独编译”部分。
@@ -12076,21 +13849,33 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 #include <stdio.h>
 
 __global__ void childKernel()
+
 {
+
     printf("Hello ");
+
 }
 
 __global__ void tailKernel()
+
 {
+
     printf("World!\n");
+
 }
 
 __global__ void parentKernel()
+
 {
+
     // launch child
+
     childKernel<<<1,1>>>();
+
     if (cudaSuccess != cudaGetLastError()) {
+
         return;
+
     }
 
     // launch tail into cudaStreamTailLaunch stream
@@ -12100,11 +13885,17 @@ __global__ void parentKernel()
 }
 
 int main(int argc, char *argv[])
+
 {
+
     // launch parent
+
     parentKernel<<<1,1>>>();
+
     if (cudaSuccess != cudaGetLastError()) {
+
         return 1;
+
     }
 
     // wait for parent to complete
@@ -12113,6 +13904,7 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+
 }
 
 该程序可以从命令行一步构建，如下所示：
@@ -12315,24 +14107,33 @@ _动态并行性_使并发性更容易在程序中表达；然而，设备运行
 在以下示例中，执行`child_launch`的子网格只能保证看到在子网格启动之前对`data`所做的修改。由于父线程0正在执行启动，因此子线程将与父线程0看到的内存一致。由于第一次`__syncthreads()`呼叫，子程序将看到`data[0]=0`，`data[1]=1`，...，`data[255]=255`（如果没有`__syncthreads()`调用，只能保证子程序看到`data[0]`）。当子网格返回时，保证线程0会看到线程在其子网格中所做的修改。只有在第二个`__syncthreads()`调用后，父网格的其他线程才能使用这些修改：
 
 __global__ void child_launch(int *data) {
+
    data[threadIdx.x] = data[threadIdx.x]+1;
+
 }
 
 __global__ void parent_launch(int *data) {
+
    data[threadIdx.x] = threadIdx.x;
 
    __syncthreads();
 
    if (threadIdx.x == 0) {
+
        child_launch<<< 1, 256 >>>(data);
+
        cudaDeviceSynchronize();
+
    }
 
    __syncthreads();
+
 }
 
 void host_launch(int *data) {
+
     parent_launch<<< 1, 256 >>>(data);
+
 }
 
 ###### 13.6.1.2.1.2.零复制内存 (CDP1)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#zero-copy-memory-cdp1 "这个标题的永久链接")
@@ -12368,21 +14169,31 @@ NVIDIA编译器将尝试警告是否可以检测到指向本地或共享内存�
 例如，如果`child_launch`访问`x_array`则以下内容是非法的，行为未定义：
 
 int x_array[10];       // Creates x_array in parent's local memory
+
 child_launch<<< 1, 1 >>>(x_array);
 
 程序员有时很难意识到编译器何时将变量放入本地内存中。作为一般规则，传递给子内核的所有存储都应从全局内存堆中显式分配，无论是使用`cudaMalloc()``new()`还是通过在全局范围内声明`__device__`存储。例如：
 
 // Correct - "value" is global storage
+
 __device__ int value;
+
 __device__ void x() {
+
     value = 5;
+
     child<<< 1, 1 >>>(&value);
+
 }
 
 // Invalid - "value" is local storage
+
 __device__ void y() {
+
     int value = 5;
+
     child<<< 1, 1 >>>(&value);
+
 }
 
 ###### 13.6.1.2.1.6.纹理记忆（CDP1）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-memory-cdp1 "这个标题的永久链接")
@@ -12418,13 +14229,9 @@ __device__ void y() {
 kernel_name<<< Dg, Db, Ns, S >>>([kernel arguments]);
 
 - `Dg`类型为`dim3`，并指定网格的尺寸和大小
-    
 - `Db`类型为`dim3`，并指定每个线程块的尺寸和大小
-    
 - `Ns`类型为`size_t`，并指定为该调用为每个线程块动态分配的共享内存字节数，并添加到静态分配的内存中。`Ns`是一个可选参数，默认为0。
-    
 - `S`是`cudaStream_t`类型，并指定与此调用关联的流。流必须分配到正在调用的同一线程块中。`S`是一个可选参数，默认为0。
-    
 
 ###### 13.6.2.1.1.1.发射是非同步的（CDP1）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#launches-are-asynchronous-cdp1 "这个标题的永久链接")
 
@@ -12529,28 +14336,41 @@ CUDA支持动态创建的纹理和表面对象[7](https://docs.nvidia.com/cuda/c
 在CUDA中，C++共享内存可以声明为静态大小的文件范围或函数范围变量，也可以声明为运行时由内核调用者通过启动配置参数确定大小的`extern`变量。两种类型的声明在设备运行时都有效。
 
 __global__ void permute(int n, int *data) {
+
    extern __shared__ int smem[];
+
    if (n <= 1)
+
        return;
 
    smem[threadIdx.x] = data[threadIdx.x];
+
    __syncthreads();
 
    permute_data(smem, n);
+
    __syncthreads();
 
    // Write back to GMEM since we can't pass SMEM to children.
+
    data[threadIdx.x] = smem[threadIdx.x];
+
    __syncthreads();
 
    if (threadIdx.x == 0) {
-       permute<<< 1, 256, n/2*sizeof(int) >>>(n/2, data);
-       permute<<< 1, 256, n/2*sizeof(int) >>>(n/2, data+n/2);
+
+       permute<<< 1, 256, n/2_sizeof(int) >>>(n/2, data);
+
+       permute<<< 1, 256, n/2_sizeof(int) >>>(n/2, data+n/2);
+
    }
+
 }
 
-void host_launch(int *data) {
-    permute<<< 1, 256, 256*sizeof(int) >>>(256, data);
+void host_launch(int _data) {
+
+    permute<<< 1, 256, 256_sizeof(int) >>>(256, data);
+
 }
 
 ###### 13.6.2.1.6.4.符号地址（CDP1）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#symbol-addresses-cdp1 "这个标题的永久链接")
@@ -12580,6 +14400,7 @@ void host_launch(int *data) {
 与主机端启动一样，设备端运算符`<<<>>>`映射到底层内核启动API。这样，针对PTX的用户将能够执行启动，并且编译器前端可以将`<<<>>>`翻译成这些调用。
 
 表15新的仅设备启动实现功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id473 "此表的永久链接")
+
 |运行时API启动功能|与主机运行时行为的不同描述（如果没有描述，则行为是相同的）|
 |---|---|
 |`cudaGetParameterBuffer`|从`<<<>>>`自动生成。注意与主机等效的API不同。|
@@ -12588,10 +14409,15 @@ void host_launch(int *data) {
 这些启动函数的API与CUDA运行时API的API不同，定义如下：
 
 extern   device   cudaError_t cudaGetParameterBuffer(void **params);
+
 extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
+
                                         void *params, dim3 gridDim,
+
                                         dim3 blockDim,
+
                                         unsigned int sharedMemSize = 0,
+
                                         cudaStream_t stream = 0);
 
 ##### 13.6.2.1.8.API 参考 (CDP1)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#api-reference-cdp1 "这个标题的永久链接")
@@ -12601,6 +14427,7 @@ extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
 此处详细介绍了设备运行时中支持的CUDA运行时API的部分。主机和设备运行时API具有相同的语法；除非另有说明，否则语义是相同的。下表概述了与主机提供的版本相关的API。
 
 表16支持的API功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id474 "此表的永久链接")
+
 |运行时API函数|详情|
 |---|---|
 |`cudaDeviceSynchronize`|仅从线程自己的块启动的工作同步。<br><br>警告：请注意，从设备代码调用此API在CUDA 11.6中已弃用，用于compute_90+编译，并计划在未来的CUDA版本中完全删除。|
@@ -12651,36 +14478,61 @@ extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
 在PTX级别，`cudaLaunchDevice()`在使用之前需要以下所示的两种形式之一声明。
 
 // PTX-level Declaration of cudaLaunchDevice() when .address_size is 64
+
 .extern .func(.param .b32 func_retval0) cudaLaunchDevice
+
 (
+
   .param .b64 func,
+
   .param .b64 parameterBuffer,
+
   .param .align 4 .b8 gridDimension[12],
+
   .param .align 4 .b8 blockDimension[12],
+
   .param .b32 sharedMemSize,
+
   .param .b64 stream
+
 )
+
 ;
 
 // PTX-level Declaration of cudaLaunchDevice() when .address_size is 32
+
 .extern .func(.param .b32 func_retval0) cudaLaunchDevice
+
 (
+
   .param .b32 func,
+
   .param .b32 parameterBuffer,
+
   .param .align 4 .b8 gridDimension[12],
+
   .param .align 4 .b8 blockDimension[12],
+
   .param .b32 sharedMemSize,
+
   .param .b32 stream
+
 )
+
 ;
 
 下面的CUDA级声明映射到上述PTX级声明之一，并位于系统标题文件`cuda_device_runtime_api.h`中。该函数在`cudadevrt`系统库中定义，它必须与程序链接才能使用设备端内核启动功能。
 
 // CUDA-level declaration of cudaLaunchDevice()
+
 extern "C" __device__
+
 cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
+
                              dim3 gridDimension, dim3 blockDimension,
+
                              unsigned int sharedMemSize,
+
                              cudaStream_t stream);
 
 第一个参数是指向要启动的内核的指针，第二个参数是将实际参数保存到启动的内核的参数缓冲区。参数缓冲区布局[（CDP1）在](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#parameter-buffer-layout-cdp1)下面的[参数缓冲区布局](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#parameter-buffer-layout-cdp1)中进行了解释。其他参数指定启动配置，即网格维度、块维度、共享内存大小和与启动相关的流（有关启动配置的详细说明，请参阅[执行配置](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration)。
@@ -12690,6 +14542,7 @@ cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
 请参阅上面的[cudaGetParameterBuffer](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cudagetparameterbuffer-cdp2)，了解CDP2版本的文档。
 
 `cudaGetParameterBuffer()`在使用之前，需要在PTX级别声明。根据地址大小，PTX级声明必须以以下两种形式之一：
+
 ```c++
 // PTX-level Declaration of cudaGetParameterBuffer() when .address_size is 64
 // When .address_size is 64
@@ -12708,10 +14561,13 @@ cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
 )
 ;
 ```
+
 以下`cudaGetParameterBuffer()`的CUDA级声明映射到上述PTX级声明：
 
 // CUDA-level Declaration of cudaGetParameterBuffer()
+
 extern "C" __device__
+
 void *cudaGetParameterBuffer(size_t alignment, size_t size);
 
 第一个参数指定了参数缓冲区的对齐要求，第二个参数指定了以字节为单位的大小要求。在当前实现中，`cudaGetParameterBuffer()`返回的参数缓冲区始终保证为64字节对齐，对齐要求参数被忽略。然而，建议将正确的对齐要求值（这是放置在参数缓冲区中的任何参数的最大对齐）传递给`cudaGetParameterBuffer()`以确保未来的可移植性。
@@ -12749,6 +14605,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.cu -o hello -lcudadevrt
 也可以先将CUDA .cu源文件编译为对象文件，然后在两个阶段的过程中将它们链接在一起：
 
 $ nvcc -arch=sm_75 -dc hello_world.cu -o hello_world.o
+
 $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 
 有关更多详细信息，请参阅CUDA驱动程序编译器NVCC指南的“使用单独编译”部分。
@@ -12774,16 +14631,25 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 #include <stdio.h>
 
 __global__ void childKernel()
+
 {
+
     printf("Hello ");
+
 }
 
 __global__ void parentKernel()
+
 {
+
     // launch child
+
     childKernel<<<1,1>>>();
+
     if (cudaSuccess != cudaGetLastError()) {
+
         return;
+
     }
 
     // wait for child to complete
@@ -12792,14 +14658,21 @@ __global__ void parentKernel()
     }
 
     printf("World!\n");
+
 }
 
 int main(int argc, char *argv[])
+
 {
+
     // launch parent
+
     parentKernel<<<1,1>>>();
+
     if (cudaSuccess != cudaGetLastError()) {
+
         return 1;
+
     }
 
     // wait for parent to complete
@@ -12808,6 +14681,7 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+
 }
 
 该程序可以从命令行一步构建，如下所示：
@@ -12937,22 +14811,15 @@ _动态并行性_保证了本文档中描述的所有语义，但是，某些硬
 CUDA虚拟内存管理API向用户公开精细控制，用于管理应用程序中的GPU内存。它提供API，让用户：
 
 - 将分配给不同设备的内存放入连续的VA范围内。
-    
 - 使用特定于平台的机制执行内存共享的进程间通信。
-    
 - 在支持它们的设备上选择较新的内存类型。
-    
 
 为了分配内存，虚拟内存管理编程模型公开了以下功能：
 
 - 分配物理内存。
-    
 - 保留VA范围。
-    
 - 将分配的内存映射到VA范围。
-    
 - 控制映射范围内的访问权限。
-    
 
 请注意，本节中描述的API套件需要一个支持UVA的系统。
 
@@ -12961,9 +14828,13 @@ CUDA虚拟内存管理API向用户公开精细控制，用于管理应用程序�
 在尝试使用虚拟内存管理API之前，应用程序必须确保他们想要使用的设备支持CUDA虚拟内存管理。以下代码示例显示了对虚拟内存管理支持的查询：
 
 int deviceSupportsVmm;
+
 CUresult result = cuDeviceGetAttribute(&deviceSupportsVmm, CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED, device);
+
 if (deviceSupportsVmm != 0) {
+
     // `device` supports Virtual Memory Management
+
 }
 
 ## 14.3.分配物理内存[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocating-physical-memory "这个标题的永久链接")
@@ -12971,9 +14842,13 @@ if (deviceSupportsVmm != 0) {
 The first step in memory allocation using Virtual Memory Management APIs is to create a physical memory chunk that will provide a backing for the allocation. In order to allocate physical memory, applications must use the `cuMemCreate` API. The allocation created by this function does not have any device or host mappings. The function argument `CUmemGenericAllocationHandle` describes the properties of the memory to allocate such as the location of the allocation, if the allocation is going to be shared to another process (or other Graphics APIs), or the physical attributes of the memory to be allocated. Users must ensure the requested allocation’s size must be aligned to appropriate granularity. Information regarding an allocation’s granularity requirements can be queried using `cuMemGetAllocationGranularity`. The following code snippet shows allocating physical memory with `cuMemCreate`:
 
 CUmemGenericAllocationHandle allocatePhysicalMemory(int device, size_t size) {
+
     CUmemAllocationProp prop = {};
+
     prop.type = CU_MEM_ALLOCATION_TYPE_PINNED;
+
     prop.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+
     prop.location.id = device;
 
     size_t granularity = 0;
@@ -12987,6 +14862,7 @@ CUmemGenericAllocationHandle allocatePhysicalMemory(int device, size_t size) {
     cuMemCreate(&allocHandle, padded_size, &prop, 0);
 
     return allocHandle;
+
 }
 
 The memory allocated by `cuMemCreate` is referenced by the `CUmemGenericAllocationHandle` it returns. This is a departure from the cudaMalloc-style of allocation, which returns a pointer to the GPU memory, which was directly accessible by CUDA kernel executing on the device. The memory allocated cannot be used for any operations other than querying properties using `cuMemGetAllocationPropertiesFromHandle`. In order to make this memory accessible, applications must map this memory into a VA range reserved by `cuMemAddressReserve` and provide suitable access rights to it. Applications must free the allocated memory using the `cuMemRelease` API.
@@ -13000,19 +14876,29 @@ CUDA虚拟内存管理API函数不支持其内存的传统进程间通信函数�
 在尝试导出使用`cuMemCreate`分配的内存之前，用户必须确保他们查询对请求的句柄类型的支持。以下代码片段以特定于平台的方式说明了对手柄类型支持的查询。
 
 int deviceSupportsIpcHandle;
+
 #if defined(__linux__)
+
     cuDeviceGetAttribute(&deviceSupportsIpcHandle, CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED, device));
+
 #else
+
     cuDeviceGetAttribute(&deviceSupportsIpcHandle, CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_HANDLE_SUPPORTED, device));
+
 #endif
 
 用户应适当设置`CUmemAllocationProp::requestedHandleTypes`，如下所示：
 
 #if defined(__linux__)
+
     prop.requestedHandleTypes = CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR;
+
 #else
+
     prop.requestedHandleTypes = CU_MEM_HANDLE_TYPE_WIN32;
+
     prop.win32HandleMetaData = // Windows specific LPSECURITYATTRIBUTES attribute.
+
 #endif
 
 [memMapIpcDrv](https://github.com/NVIDIA/cuda-samples/tree/master/Samples/3_CUDA_Features/memMapIPCDrv/)样本可以作为将IPC与虚拟内存管理分配一起使用的示例。
@@ -13026,6 +14912,7 @@ int deviceSupportsIpcHandle;
 可压缩内存可用于加速对非结构化稀疏和其他可压缩数据模式的数据的访问。压缩可以节省DRAM带宽、L2读取带宽和L2容量，具体取决于正在运行的数据。想要在支持计算数据压缩的设备上分配可压缩内存的应用程序可以通过将`CUmemAllocationProp::allocFlags::compressionType`设置为`CU_MEM_ALLOCATION_COMP_GENERIC`完成。用户必须使用`CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED`查询设备是否支持计算数据压缩。以下代码片段说明了查询可压缩内存supportcuDeviceGetAttribute。
 
 int compressionSupported = 0;
+
 cuDeviceGetAttribute(&compressionSupported, CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED, device);
 
 在支持计算数据压缩的设备上，用户必须在分配时间选择加入，如下所示：
@@ -13035,11 +14922,15 @@ prop.allocFlags.compressionType = CU_MEM_ALLOCATION_COMP_GENERIC;
 由于硬件资源有限等各种原因，分配可能没有压缩属性，用户需要使用`cuMemGetAllocationPropertiesFromHandle`查询分配内存的属性，并检查压缩属性。
 
 CUmemAllocationProp allocationProp = {};
+
 cuMemGetAllocationPropertiesFromHandle(&allocationProp, allocationHandle);
 
 if (allocationProp.allocFlags.compressionType == CU_MEM_ALLOCATION_COMP_GENERIC)
+
 {
+
     // Obtained compressible memory allocation
+
 }
 
 ## 14.4.保留虚拟地址范围[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reserving-a-virtual-address-range "这个标题的永久链接")
@@ -13049,7 +14940,9 @@ if (allocationProp.allocFlags.compressionType == CU_MEM_ALLOCATION_COMP_GENERIC)
 应用程序可以通过将适当的参数传递给`cuMemAddressReserve`保留虚拟地址范围。获得的地址范围不会包含与之关联的任何设备或主机物理内存。保留的虚拟地址范围可以映射到属于系统中任何设备的内存块，从而为应用程序提供由属于不同设备的内存支持和映射的连续VA范围。应用程序需要使用`cuMemAddressFree`将虚拟地址范围返回CUDA。在调用`cuMemAddressFree`之前，用户必须确保整个VA范围已取消映射。这些函数在概念上与mmap/munmap（在Linux上）或VirtualAlloc/VirtualFree（在Windows上）函数相似。以下代码片段说明了该函数的用法：
 
 CUdeviceptr ptr;
+
 // `ptr` holds the returned start of virtual address range reserved.
+
 CUresult result = cuMemAddressReserve(&ptr, size, 0, 0, 0); // alignment = 0 for default alignment
 
 ## 14.5.虚拟别名支持[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-aliasing-support "这个标题的永久链接")
@@ -13059,40 +14952,63 @@ CUresult result = cuMemAddressReserve(&ptr, size, 0, 0, 0); // alignment = 0 for
 例如，假设设备指针A和B是相同内存分配的虚拟别名，以下片段被视为未定义：
 
 __global__ void foo(char *A, char *B) {
+
   *A = 0x1;
+
   printf("%d\n", *B);    // Undefined behavior!  *B can take on either
+
 // the previous value or some value in-between.
+
 }
 
 以下是定义的行为，假设这两个内核是单调的（按流或事件）排序的。
 
 __global__ void foo1(char *A) {
+
   *A = 0x1;
+
 }
 
 __global__ void foo2(char *B) {
+
   printf("%d\n", *B);    // *B == *A == 0x1 assuming foo2 waits for foo1
+
 // to complete before launching
+
 }
 
 cudaMemcpyAsync(B, input, size, stream1);    // Aliases are allowed at
+
 // operation boundaries
+
 foo1<<<1,1,0,stream1>>>(A);                  // allowing foo1 to access A.
+
 cudaEventRecord(event, stream1);
+
 cudaStreamWaitEvent(stream2, event);
+
 foo2<<<1,1,0,stream2>>>(B);
+
 cudaStreamWaitEvent(stream3, event);
+
 cudaMemcpyAsync(output, B, size, stream3);  // Both launches of foo2 and
+
                                             // cudaMemcpy (which both
+
                                             // read) wait for foo1 (which writes)
+
                                             // to complete before proceeding
 
 如果在同一内核中需要通过不同的“代理”访问相同的分配，则可以在两个访问之间使用`fence.proxy.alias`。因此，上述示例可以通过内联PTX组装合法化：
 
 __global__ void foo(char *A, char *B) {
+
   *A = 0x1;
+
   asm volatile ("fence.proxy.alias;" ::: "memory");
+
   printf("%d\n", *B);    // *B == *A == 0x1
+
 }
 
 ## 14.6.映射内存[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-memory "这个标题的永久链接")
@@ -13102,8 +15018,11 @@ __global__ void foo(char *A, char *B) {
 用户可以将来自多个设备的分配关联到相邻的虚拟地址范围内，只要它们已经挖出了足够的地址空间。为了分离物理分配和地址范围，用户必须使用`cuMemUnmap`取消映射地址。用户可以将内存映射和取消映射到同一地址范围，只要他们确保不尝试在已映射的VA范围保留上创建映射。以下代码片段说明了该函数的用法：
 
 CUdeviceptr ptr;
+
 // `ptr`: address in the address range previously reserved by cuMemAddressReserve.
+
 // `allocHandle`: CUmemGenericAllocationHandle obtained by a previous call to cuMemCreate.
+
 CUresult result = cuMemMap(ptr, size, 0, allocHandle, 0);
 
 ## 14.7.控制访问权限[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#controlling-access-rights "这个标题的永久链接")
@@ -13111,13 +15030,18 @@ CUresult result = cuMemMap(ptr, size, 0, allocHandle, 0);
 虚拟内存管理API使应用程序能够通过访问控制机制明确保护其VA范围。使用`cuMemMap`将分配映射到地址范围的区域不会使地址可访问，如果由CUDA内核访问，将导致程序崩溃。用户必须使用`cuMemSetAccess`功能专门选择访问控制，该功能允许或限制特定设备访问映射地址范围。以下代码片段说明了该函数的用法：
 
 void setAccessOnDevice(int device, CUdeviceptr ptr, size_t size) {
+
     CUmemAccessDesc accessDesc = {};
+
     accessDesc.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+
     accessDesc.location.id = device;
+
     accessDesc.flags = CU_MEM_ACCESS_FLAGS_PROT_READWRITE;
 
     // Make the address accessible
     cuMemSetAccess(ptr, size, &accessDesc, 1);
+
 }
 
 虚拟内存管理公开的访问控制机制允许用户明确他们希望与系统上的其他对等设备共享哪些分配。如前所述，`cudaEnablePeerAccess`强制将所有之前和未来的cudaMalloc分配映射到目标对等设备。在许多情况下，这很方便，因为用户不必担心跟踪系统中每个设备的每个分配的映射状态。但对于关注应用程序性能的用户来说，这种方法[对性能有影响](https://devblogs.nvidia.com/introducing-low-level-gpu-virtual-memory-management/)。通过分配粒度访问控制，虚拟内存管理公开了一种机制，以最小的开销进行对等映射。
@@ -13133,9 +15057,13 @@ CUDA 12.4引入了新的VMM分配句柄类型`CU_MEM_HANDLE_TYPE_FABRIC`。在�
 在尝试使用Fabric Memory之前，应用程序必须确保他们想要使用的设备支持Fabric Memory。以下代码示例显示了对结构内存支持的查询：
 
 int deviceSupportsFabricMem;
+
 CUresult result = cuDeviceGetAttribute(&deviceSupportsFabricMem, CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_FABRIC_SUPPORTED, device);
+
 if (deviceSupportsFabricMem != 0) {
+
     // `device` supports Fabric Memory
+
 }
 
 除了使用`CU_MEM_HANDLE_TYPE_FABRIC`作为句柄类型，并且不需要OS原生机制进行进程间通信来交换可共享句柄外，与其他分配句柄类型相比，使用Fabric Memory没有区别。
@@ -13147,19 +15075,12 @@ if (deviceSupportsFabricMem != 0) {
 要使用多播对象，应用程序需要
 
 - 查询组播支持
-    
 - 使用`cuMulticastCreate`创建多播手柄。
-    
 - 与控制应参与组播团队的GPU的所有进程共享组播手柄。如上所述，这适用于`cuMemExportToShareableHandle`。
-    
 - 使用`cuMulticastAddDevice`添加所有应该参与组播团队的GPU。
-    
 - 对于每个参与的GPU，如上所述，将分配给`cuMemCreate`物理内存绑定到多播手柄。在任何设备上绑定内存之前，所有设备都需要添加到组播团队中。
-    
 - 保留地址范围，映射多播句柄，并设置上述常规单播映射的访问权限。可以将单播和多播映射到同一物理内存。请参阅上面的“[虚拟别名支持](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-aliasing-support)”部分，如何确保多个映射到同一物理内存之间的一致性。
-    
 - 将[multimem PTX指令](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-multimem-ld-reduce-multimem-st-multimem-red/)与组播映射一起使用。
-    
 
 [Multi GPU编程模型](https://github.com/NVIDIA/multi-gpu-programming-models/)GitHub存储库中的`multi_node_p2p`示例包含一个使用结构内存（包括多播对象）来利用NVLINK SHARP的完整示例。请注意，此示例适用于NCCL或NVSHMEM等库的开发人员。它展示了像NVSHMEM这样的更高级别的编程模型如何在（多节点）NVLINK域内内部工作。应用程序开发人员通常应该使用更高级别的MPI、NCCL或NVSHMEM接口，而不是此API。
 
@@ -13168,9 +15089,13 @@ if (deviceSupportsFabricMem != 0) {
 在尝试使用组播对象之前，应用程序必须确保它们想要使用的设备支持它们。以下代码示例显示了对结构内存支持的查询：
 
 int deviceSupportsMultiCast;
+
 CUresult result = cuDeviceGetAttribute(&deviceSupportsMultiCast, CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED, device);
+
 if (deviceSupportsMultiCast != 0) {
+
     // `device` supports Multicast Objects
+
 }
 
 ### 14.9.2.分配组播对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocating-multicast-objects "这个标题的永久链接")
@@ -13178,8 +15103,11 @@ if (deviceSupportsMultiCast != 0) {
 可以使用`cuMulticastCreate`创建多播对象：
 
 CUmemGenericAllocationHandle createMCHandle(int numDevices, size_t size) {
+
     CUmemAllocationProp mcProp = {};
+
     mcProp.numDevices = numDevices;
+
     mcProp.handleTypes = CU_MEM_HANDLE_TYPE_FABRIC; // or on single node CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
 
     size_t granularity = 0;
@@ -13195,6 +15123,7 @@ CUmemGenericAllocationHandle createMCHandle(int numDevices, size_t size) {
     cuMulticastCreate(&mcHandle, &mcProp);
 
     return mcHandle;
+
 }
 
 ### 14.9.3.将设备添加到多播对象[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#add-devices-to-multicast-objects "这个标题的永久链接")
@@ -13209,18 +15138,24 @@ cuMulticastAddDevice(&mcHandle, device);
 
 创建多播对象并将所有参与设备添加到多播对象后，需要为每个设备分配`cuMemCreate`的物理内存：
 
-cuMulticastBindMem(mcHandle, mcOffset, memHandle, memOffset, size, 0 /*flags*/);
+cuMulticastBindMem(mcHandle, mcOffset, memHandle, memOffset, size, 0 /_flags_/);
 
 ### 14.9.5.使用组播映射[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#use-multicast-mappings "这个标题的永久链接")
 
 要在CUDA C++中使用多播映射，需要将[multimem PTX指令](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-multimem-ld-reduce-multimem-st-multimem-red/)与Inline PTX Assembly一起使用：
 
 __global__ void all_reduce_norm_barrier_kernel(float* l2_norm,
+
                                                float* partial_l2_norm_mc,
+
                                                unsigned int* arrival_counter_uc, unsigned int* arrival_counter_mc,
+
                                                const unsigned int expected_count) {
+
     assert( 1 == blockDim.x * blockDim.y * blockDim.z * gridDim.x * gridDim.y * gridDim.z );
+
     float l2_norm_sum = 0.0;
+
 #if __CUDA_ARCH__ >= 900
 
     // atomic reduction to all replicas
@@ -13243,10 +15178,13 @@ __global__ void all_reduce_norm_barrier_kernel(float* l2_norm,
     asm volatile ("multimem.ld_reduce.relaxed.sys.global.add.f32 %0, [%1];" : "=f"(l2_norm_sum) : "l"(partial_l2_norm_mc) : "memory");
 
 #else
+
     #error "ERROR: multimem instructions require compute capability 9.0 or larger."
+
 #endif
 
     *l2_norm = std::sqrt(l2_norm_sum);
+
 }
 
 # 15.流有序内存分配器[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-ordered-memory-allocator "这个标题的永久链接")
@@ -13262,6 +15200,7 @@ __global__ void all_reduce_norm_barrier_kernel(float* l2_norm,
 用户可以通过调用带有设备属性`cudaDevAttrMemoryPoolsSupported``cudaDeviceGetAttribute()`来确定设备是否支持流有序内存分配器。
 
 从CUDA 11.3开始，IPC内存池支持可以通过`cudaDevAttrMemoryPoolSupportedHandleTypes`设备属性进行查询。之前的驱动程序将返回`cudaErrorInvalidValue`，因为这些驱动程序不知道属性枚舉。
+
 ```c++
 int driverVersion = 0;
 int deviceSupportsMemoryPools = 0;
@@ -13283,6 +15222,7 @@ if (poolSupportedHandleTypes & cudaMemHandleTypePosixFileDescriptor) {
    // Pools on the specified device can be created with posix file descriptor-based IPC
 }
 ```
+
 在查询之前执行驱动程序版本检查，避免在尚未定义属性的驱动程序上遇到`cudaErrorInvalidValue`错误。人们可以使用`cudaGetLastError`来清除错误，而不是避免它。
 
 ## 15.3.API基础知识（cudaMallocAsync和cudaFreeAsync）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#api-fundamentals-cudamallocasync-and-cudafreeasync "这个标题的永久链接")
@@ -13290,11 +15230,17 @@ if (poolSupportedHandleTypes & cudaMemHandleTypePosixFileDescriptor) {
 API `cudaMallocAsync`和`cudaFreeAsync`构成了分配器的核心。`cudaMallocAsync`返回分配，`cudaFreeAsync`释放分配。两个API都接受流参数来定义分配何时开始和停止使用。`cudaMallocAsync`返回的指针值是同步确定的，可用于构建未来的工作。需要注意的是，在确定分配的位置时，`cudaMallocAsync`忽略当前设备/上下文。相反，`cudaMallocAsync`指定的内存池或提供的流来确定驻留设备。最简单的使用模式是将内存分配、使用并释放回同一流中。
 
 void *ptr;
+
 size_t size = 512;
+
 cudaMallocAsync(&ptr, size, cudaStreamPerThread);
+
 // do work using the allocation
+
 kernel<<<..., cudaStreamPerThread>>>(ptr, ...);
+
 // An asynchronous free can be specified without synchronizing the cpu and GPU
+
 cudaFreeAsync(ptr, cudaStreamPerThread);
 
 在分配流以外的流中使用分配时，用户必须保证访问将在分配操作后发生，否则行为是未定义的。用户可以通过同步分配流或使用CUDA事件来同步生产和消费流来做出此保证。
@@ -13302,17 +15248,27 @@ cudaFreeAsync(ptr, cudaStreamPerThread);
 `cudaFreeAsync()`将自由操作插入到流中。用户必须保证在分配操作和分配的任何使用后进行自由操作。此外，在自由操作开始后，任何使用分配都会导致未定义的行为。事件和/或流同步操作应用于保证在释放流开始自由操作之前完成对其他流分配的任何访问。
 
 cudaMallocAsync(&ptr, size, stream1);
+
 cudaEventRecord(event1, stream1);
+
 //stream2 must wait for the allocation to be ready before accessing
+
 cudaStreamWaitEvent(stream2, event1);
+
 kernel<<<..., stream2>>>(ptr, ...);
+
 cudaEventRecord(event2, stream2);
+
 // stream3 must wait for stream2 to finish accessing the allocation before
+
 // freeing the allocation
+
 cudaStreamWaitEvent(stream3, event2);
+
 cudaFreeAsync(ptr, stream3);
 
 用户可以通过`cudaFreeAsync()`释放使用`cudaMalloc()`分配的分配。在免费操作开始之前，用户必须对访问完成做出同样的保证。
+
 ```c++
 cudaMalloc(&ptr, size);
 kernel<<<..., stream>>>(ptr, ...);
@@ -13326,6 +15282,7 @@ kernel<<<..., stream>>>(ptr, ...);
 cudaStreamSynchronize(stream);
 cudaFree(ptr);
 ```
+
 ## 15.4.记忆池和cudaMemPool_t[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-pools-and-the-cudamempool-t "这个标题的永久链接")
 
 内存池封装了根据池属性和属性分配和管理的虚拟地址和物理内存资源。内存池的主要方面是它管理的内存类型和位置。
@@ -13345,10 +15302,15 @@ The default memory pool of a device may be retrieved with the `cudaDeviceGetDef
 API `cudaMemPoolCreate`创建了一个显式池。这允许应用程序请求超出默认/隐含池提供的分配属性。这些包括IPC功能、最大池大小、驻留在受支持平台上的特定CPU NUMA节点上的分配等属性。
 
 // create a pool similar to the implicit pool on device 0
+
 int device = 0;
+
 cudaMemPoolProps poolProps = { };
+
 poolProps.allocType = cudaMemAllocationTypePinned;
+
 poolProps.location.id = device;
+
 poolProps.location.type = cudaMemLocationTypeDevice;
 
 cudaMemPoolCreate(&memPool, &poolProps));
@@ -13356,11 +15318,17 @@ cudaMemPoolCreate(&memPool, &poolProps));
 以下代码片段说明了在有效的CPU NUMA节点上创建支持IPC的内存池的示例。
 
 // create a pool resident on a CPU NUMA node that is capable of IPC sharing (via a file descriptor).
+
 int cpu_numa_id = 0;
+
 cudaMemPoolProps poolProps = { };
+
 poolProps.allocType = cudaMemAllocationTypePinned;
+
 poolProps.location.id = cpu_numa_id;
+
 poolProps.location.type = cudaMemLocationTypeHostNuma;
+
 poolProps.handleType = cudaMemHandleTypePosixFileDescriptor;
 
 cudaMemPoolCreate(&ipcMemPool, &poolProps));
@@ -13372,9 +15340,11 @@ cudaMemPoolCreate(&ipcMemPool, &poolProps));
 释放阈值是池在尝试将内存释放回操作系统之前应该保留的内存量（以字节为本为本）。当内存池保留的内存超过释放阈值字节时，分配器将尝试在下一次调用流、事件或设备同步时将内存释放回操作系统。将释放阈值设置为UINT64_MAX将防止驱动程序在每次同步后尝试缩小池。
 
 Cuuint64_t setVal = UINT64_MAX;
+
 cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrReleaseThreshold, &setVal);
 
 将`cudaMemPoolAttrReleaseThreshold`设置为足够高以有效禁用内存池缩减的应用程序可能希望显式缩小内存池的内存占用。`cudaMemPoolTrimTo`允许此类应用程序这样做。在修剪内存池的足迹时，theminBytesToKeep参数允许应用程序保留它期望在后续执行阶段所需的内存量。
+
 ```c++
 Cuuint64_t setVal = UINT64_MAX;
 cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrReleaseThreshold, &setVal);
@@ -13399,6 +15369,7 @@ cudaMemPoolTrimTo(mempool, 0);
 // Some other process/allocation mechanism can now use the physical memory
 // released by the trimming operation.
 ```
+
 ## 15.8.资源使用统计[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#resource-usage-statistics "这个标题的永久链接")
 
 在CUDA 11.3中，添加了池属性`cudaMemPoolAttrReservedMemCurrent`、`cudaMemPoolAttrReservedMemHigh`、`cudaMemPoolAttrUsedMemCurrent`和`cudaMemPoolAttrUsedMemHigh`来查询池的内存使用情况。
@@ -13406,6 +15377,7 @@ cudaMemPoolTrimTo(mempool, 0);
 查询池的`cudaMemPoolAttrReservedMemCurrent`属性报告池当前消耗的物理GPU内存总量。查询池的`cudaMemPoolAttrUsedMemCurrent`将返回池中分配的所有内存的总大小，并且无法重复使用。
 
 The`cudaMemPoolAttr*MemHigh` attributes are watermarks recording the max value achieved by the respective `cudaMemPoolAttr*MemCurrent` attribute since last reset. They can be reset to the current value by using the `cudaMemPoolSetAttribute` API.
+
 ```c++
 // sample helper functions for getting the usage statistics in bulk
 struct usageStatistics {
@@ -13431,6 +15403,7 @@ void resetStatistics(cudaMemoryPool_t memPool)
     cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrUsedMemHigh, &value);
 }
 ```
+
 ## 15.9.内存重复使用政策[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-reuse-policies "这个标题的永久链接")
 
 为了服务分配请求，驱动程序在尝试从操作系统中分配更多内存之前，尝试重复使用之前通过`cudaFreeAsync()`释放的内存。例如，流中释放的内存可以立即重复使用，用于同一流中的后续分配请求。同样，当一个流与CPU同步时，之前在该流中释放的内存可以用于任何流中的分配。
@@ -13442,15 +15415,23 @@ void resetStatistics(cudaMemoryPool_t memPool)
 在分配更多物理GPU内存之前，分配器会检查CUDA事件建立的依赖性信息，并尝试从另一个流中释放的内存中分配。
 
 cudaMallocAsync(&ptr, size, originalStream);
+
 kernel<<<..., originalStream>>>(ptr, ...);
+
 cudaFreeAsync(ptr, originalStream);
+
 cudaEventRecord(event,originalStream);
 
 // waiting on the event that captures the free in another stream
+
 // allows the allocator to reuse the memory to satisfy
+
 // a new allocation request in the other stream when
+
 // cudaMemPoolReuseFollowEventDependencies is enabled.
+
 cudaStreamWaitEvent(otherStream, event);
+
 cudaMallocAsync(&ptr2, size, otherStream);
 
 ### 15.9.2. cudaMemPoolReuseAllowOpportunistic[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cudamempoolreuseallowopportunistic "这个标题的永久链接")
@@ -13458,14 +15439,19 @@ cudaMallocAsync(&ptr2, size, otherStream);
 根据`cudaMemPoolReuseAllowOpportunistic`政策，分配器检查自由分配，看看是否满足了自由流的流顺序语义（例如流已经通过了自由指示的执行点）。当禁用此功能时，分配器仍将重复使用流与CPU同步时可用的内存。禁用此策略不会阻止`cudaMemPoolReuseFollowEventDependencies`的应用。
 
 cudaMallocAsync(&ptr, size, originalStream);
+
 kernel<<<..., originalStream>>>(ptr, ...);
+
 cudaFreeAsync(ptr, originalStream);
 
 // after some time, the kernel finishes running
+
 wait(10);
 
 // When cudaMemPoolReuseAllowOpportunistic is enabled this allocation request
+
 // can be fulfilled with the prior allocation based on the progress of originalStream.
+
 cudaMallocAsync(&ptr2, size, otherStream);
 
 ### 15.9.3. cudaMemPoolReuseAllow内部依赖[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cudamempoolreuseallowinternaldependencies "这个标题的永久链接")
@@ -13473,14 +15459,21 @@ cudaMallocAsync(&ptr2, size, otherStream);
 如果未能从操作系统分配和映射更多物理内存，驱动程序将查找内存，其可用性取决于另一个流的待定进度。如果找到此类内存，驱动程序将把所需的依赖项插入到分配流中，并重复使用内存。
 
 cudaMallocAsync(&ptr, size, originalStream);
+
 kernel<<<..., originalStream>>>(ptr, ...);
+
 cudaFreeAsync(ptr, originalStream);
 
 // When cudaMemPoolReuseAllowInternalDependencies is enabled
+
 // and the driver fails to allocate more physical memory, the driver may
+
 // effectively perform a cudaStreamWaitEvent in the allocating stream
+
 // to make sure that future work in ‘otherStream’ happens after the work
+
 // in the original stream that would be allowed to access the original allocation.
+
 cudaMallocAsync(&ptr2, size, otherStream);
 
 ### 15.9.4.禁用重复使用政策[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#disabling-reuse-policies "这个标题的永久链接")
@@ -13494,11 +15487,17 @@ cudaMallocAsync(&ptr2, size, otherStream);
 值得注意的是，`cudaMemPoolSetAccess`会影响内存池的所有分配，而不仅仅是未来的分配。此外，`cudaMemPoolGetAccess`报告的可访问性适用于池中的所有分配，而不仅仅是未来的分配。建议不要频繁更改给定GPU池的可访问性设置；一旦从给定GPU访问池，在池的生命周期内应保持从该GPU访问。
 
 // snippet showing usage of cudaMemPoolSetAccess:
+
 cudaError_t setAccessOnDevice(cudaMemPool_t memPool, int residentDevice,
+
               int accessingDevice) {
+
     cudaMemAccessDesc accessDesc = {};
+
     accessDesc.location.type = cudaMemLocationTypeDevice;
+
     accessDesc.location.id = accessingDevice;
+
     accessDesc.flags = cudaMemAccessFlagsProtReadWrite;
 
     int canAccess = 0;
@@ -13512,6 +15511,7 @@ cudaError_t setAccessOnDevice(cudaMemPool_t memPool, int residentDevice,
 
     // Make the address accessible
     return cudaMemPoolSetAccess(memPool, &accessDesc, 1);
+
 }
 
 ## 15.11.IPC内存池[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#ipc-memory-pools "这个标题的永久链接")
@@ -13525,39 +15525,61 @@ cudaError_t setAccessOnDevice(cudaMemPool_t memPool, int residentDevice,
 共享池的访问权限涉及将OS本机句柄检索到池（使用`cudaMemPoolExportToShareableHandle()`API），使用通常的OS本机IPC机制将句柄传输到导入过程，以及创建导入的内存池（使用`cudaMemPoolImportFromShareableHandle()`API）。为了使`cudaMemPoolExportToShareableHandle`成功，必须使用池属性结构中指定的请求句柄类型创建内存池。请参考适当的IPC机制的样本，以便在进程之间传输操作系统本机句柄。程序的其余部分可以在以下代码片段中找到。
 
 // in exporting process
+
 // create an exportable IPC capable pool on device 0
+
 cudaMemPoolProps poolProps = { };
+
 poolProps.allocType = cudaMemAllocationTypePinned;
+
 poolProps.location.id = 0;
+
 poolProps.location.type = cudaMemLocationTypeDevice;
 
 // Setting handleTypes to a non zero value will make the pool exportable (IPC capable)
+
 poolProps.handleTypes = CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR;
 
 cudaMemPoolCreate(&memPool, &poolProps));
 
 // FD based handles are integer types
+
 int fdHandle = 0;
 
 // Retrieve an OS native handle to the pool.
+
 // Note that a pointer to the handle memory is passed in here.
+
 cudaMemPoolExportToShareableHandle(&fdHandle,
+
              memPool,
+
              CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+
              0);
 
 // The handle must be sent to the importing process with the appropriate
+
 // OS specific APIs.
 
 // in importing process
+
  int fdHandle;
+
 // The handle needs to be retrieved from the exporting process with the
+
 // appropriate OS specific APIs.
+
 // Create an imported pool from the shareable handle.
+
 // Note that the handle is passed by value here.
+
 cudaMemPoolImportFromShareableHandle(&importedMemPool,
+
           (void*)fdHandle,
+
           CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+
           0);
 
 ### 15.11.2.在导入过程中设置访问权限[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#set-access-in-the-importing-process "这个标题的永久链接")
@@ -13573,69 +15595,101 @@ If the imported memory pool belongs to a non-visible device in the importing pro
 虽然分配可以导出甚至导入而不以任何方式与分配流同步，但导入过程在访问分配时必须遵循与导出过程相同的规则。也就是说，在分配流中分配操作的流排序之后，必须访问分配。以下两个代码片段显示`cudaMemPoolExportPointer()`和`cudaMemPoolImportPointer()`与IPC事件共享分配，用于保证在分配准备就绪之前不会在导入过程中访问分配。
 
 // preparing an allocation in the exporting process
+
 cudaMemPoolPtrExportData exportData;
+
 cudaEvent_t readyIpcEvent;
+
 cudaIpcEventHandle_t readyIpcEventHandle;
 
 // ipc event for coordinating between processes
+
 // cudaEventInterprocess flag makes the event an ipc event
+
 // cudaEventDisableTiming  is set for performance reasons
 
 cudaEventCreate(
+
         &readyIpcEvent, cudaEventDisableTiming | cudaEventInterprocess)
 
 // allocate from the exporting mem pool
+
 cudaMallocAsync(&ptr, size,exportMemPool, stream);
 
 // event for sharing when the allocation is ready.
+
 cudaEventRecord(readyIpcEvent, stream);
+
 cudaMemPoolExportPointer(&exportData, ptr);
+
 cudaIpcGetEventHandle(&readyIpcEventHandle, readyIpcEvent);
 
 // Share IPC event and pointer export data with the importing process using
+
 //  any mechanism. Here we copy the data into shared memory
+
 shmem->ptrData = exportData;
+
 shmem->readyIpcEventHandle = readyIpcEventHandle;
+
 // signal consumers data is ready
 
 // Importing an allocation
+
 cudaMemPoolPtrExportData *importData = &shmem->prtData;
+
 cudaEvent_t readyIpcEvent;
+
 cudaIpcEventHandle_t *readyIpcEventHandle = &shmem->readyIpcEventHandle;
 
 // Need to retrieve the ipc event handle and the export data from the
+
 // exporting process using any mechanism.  Here we are using shmem and just
+
 // need synchronization to make sure the shared memory is filled in.
 
 cudaIpcOpenEventHandle(&readyIpcEvent, readyIpcEventHandle);
 
 // import the allocation. The operation does not block on the allocation being ready.
+
 cudaMemPoolImportPointer(&ptr, importedMemPool, importData);
 
 // Wait for the prior stream operations in the allocating stream to complete before
+
 // using the allocation in the importing process.
+
 cudaStreamWaitEvent(stream, readyIpcEvent);
+
 kernel<<<..., stream>>>(ptr, ...);
 
 释放分配时，需要在导入过程中释放分配，然后再在出口过程中释放分配。以下代码片段演示了使用CUDA IPC事件来提供两个进程中`cudaFreeAsync`操作之间所需的同步。导入过程中对分配的访问显然受到导入过程中自由操作的限制。值得注意的是，`cudaFree`可用於釋放兩個程序中的分配，並且可以使用其他流同步API代替CUDA IPC事件。
 
 // The free must happen in importing process before the exporting process
+
 kernel<<<..., stream>>>(ptr, ...);
 
 // Last access in importing process
+
 cudaFreeAsync(ptr, stream);
 
 // Access not allowed in the importing process after the free
+
 cudaIpcEventRecord(finishedIpcEvent, stream);
 
 // Exporting process
+
 // The exporting process needs to coordinate its free with the stream order
+
 // of the importing process’s free.
+
 cudaStreamWaitEvent(stream, finishedIpcEvent);
+
 kernel<<<..., stream>>>(ptrInExportingProcess, ...);
 
 // The free in the importing process doesn’t stop the exporting process
+
 // from using the allocation.
+
 cudFreeAsync(ptrInExportingProcess,stream);
 
 ### 15.11.4.IPC出口池限制[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#ipc-export-pool-limitations "这个标题的永久链接")
@@ -13691,12 +15745,19 @@ CUDA可能会重复使用相同的物理内存进行跨多个图形的分配，�
 图形内存节点需要一个具有11.4功能的CUDA驱动程序，并支持GPU上的流有序分配器。以下片段展示了如何检查给定设备上的支持。
 
 int driverVersion = 0;
+
 int deviceSupportsMemoryPools = 0;
+
 int deviceSupportsMemoryNodes = 0;
+
 cudaDriverGetVersion(&driverVersion);
+
 if (driverVersion >= 11020) { // avoid invalid value error in cudaDeviceGetAttribute
+
     cudaDeviceGetAttribute(&deviceSupportsMemoryPools, cudaDevAttrMemoryPoolsSupported, device);
+
 }
+
 deviceSupportsMemoryNodes = (driverVersion >= 11040) && (deviceSupportsMemoryPools != 0);
 
 在驱动程序版本检查中进行属性查询可以避免在11.0和11.1驱动程序上出现无效的值返回代码。请注意，当计算机消毒器检测到CUDA返回错误代码时，它会发出警告，在读取属性之前进行版本检查可以避免这种情况。图形内存节点仅支持驱动程序版本11.4及更高版本。
@@ -13708,11 +15769,8 @@ deviceSupportsMemoryNodes = (driverVersion >= 11040) && (deviceSupportsMemoryPoo
 每次运行图表时，都会认为图表分配是重新创建的。图形分配的寿命与节点的寿命不同，从GPU执行到达分配的图形节点时开始，并在发生以下情况之一时结束：
 
 - GPU执行到达释放图节点
-    
 - GPU执行到达释放`cudaFreeAsync()`流调用
-    
 - 立即释放电话`cudaFree()`
-    
 
 笔记
 
@@ -13721,9 +15779,7 @@ deviceSupportsMemoryNodes = (driverVersion >= 11040) && (deviceSupportsMemoryPoo
 与其他[图结构](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#graph-structure)一样，图内存节点在图中按依赖边缘排序。程序必须保证访问图形内存的操作：
 
 - 在分配节点之后排序
-    
 - 在释放内存的操作之前被订购
-    
 
 图形分配寿命根据GPU执行开始，通常根据GPU执行（而不是API调用）结束。GPU排序是工作在GPU上运行的顺序，而不是工作被列入或描述的顺序。因此，图形分配被认为是“GPU有序”。
 
@@ -13731,7 +15787,7 @@ deviceSupportsMemoryNodes = (driverVersion >= 11040) && (deviceSupportsMemoryPoo
 
 图形内存节点可以使用内存节点创建API、`cudaGraphAddMemAllocNode`和`cudaGraphAddMemFreeNode`显式创建。由`cudaGraphAddMemAllocNode`分配的地址在传递的`CUDA_MEM_ALLOC_NODE_PARAMS`结构的`dptr`字段中返回给用户。在分配图中使用图分配的所有操作必须在分配节点之后排序。同样，任何空闲节点必须在图形中分配的所有使用后进行排序。`cudaGraphAddMemFreeNode`创建空闲节点。
 
-在下图中，有一个带有分配和自由节点的示例图。内核节点**a、b**和**c**在分配节点之后和自由节点之前排序，这样内核就可以访问分配。内核节点**e**在alloc节点之后没有排序，因此无法安全地访问内存。内核节点**d**不在自由节点之前排序，因此它无法安全地访问内存。
+在下图中，有一个带有分配和自由节点的示例图。内核节点__a、b__和__c__在分配节点之后和自由节点之前排序，这样内核就可以访问分配。内核节点__e__在alloc节点之后没有排序，因此无法安全地访问内存。内核节点__d__不在自由节点之前排序，因此它无法安全地访问内存。
 
 ![内核节点](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/kernel-nodes.png)
 
@@ -13740,57 +15796,85 @@ deviceSupportsMemoryNodes = (driverVersion >= 11040) && (deviceSupportsMemoryPoo
 以下代码片段建立了本图中的图形：
 
 // Create the graph - it starts out empty
+
 cudaGraphCreate(&graph, 0);
 
 // parameters for a basic allocation
+
 cudaMemAllocNodeParams params = {};
+
 params.poolProps.allocType = cudaMemAllocationTypePinned;
+
 params.poolProps.location.type = cudaMemLocationTypeDevice;
+
 // specify device 0 as the resident device
+
 params.poolProps.location.id = 0;
+
 params.bytesize = size;
 
 cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
+
 nodeParams->kernelParams[0] = params.dptr;
+
 cudaGraphAddKernelNode(&a, graph, &allocNode, 1, &nodeParams);
+
 cudaGraphAddKernelNode(&b, graph, &a, 1, &nodeParams);
+
 cudaGraphAddKernelNode(&c, graph, &a, 1, &nodeParams);
+
 cudaGraphNode_t dependencies[2];
+
 // kernel nodes b and c are using the graph allocation, so the freeing node must depend on them.  Since the dependency of node b on node a establishes an indirect dependency, the free node does not need to explicitly depend on node a.
+
 dependencies[0] = b;
+
 dependencies[1] = c;
+
 cudaGraphAddMemFreeNode(&freeNode, graph, dependencies, 2, params.dptr);
+
 // free node does not depend on kernel node d, so it must not access the freed graph allocation.
+
 cudaGraphAddKernelNode(&d, graph, &c, 1, &nodeParams);
 
 // node e does not depend on the allocation node, so it must not access the allocation.  This would be true even if the freeNode depended on kernel node e.
+
 cudaGraphAddKernelNode(&e, graph, NULL, 0, &nodeParams);
 
 ### 16.3.2.流捕获[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-capture "这个标题的永久链接")
 
 可以通过捕获相应的流有序分配和自由调用`cudaMallocAsync`和`cudaFreeAsync`来创建图形内存节点。在这种情况下，捕获的分配API返回的虚拟地址可以用于图形中的其他操作。由于流有序依赖关系将被捕获到图中，因此流有序分配API的排序要求保证了图内存节点将与捕获的流操作（对于正确编写的流代码）进行正确排序。
 
-忽略内核节点d和**e**，为了清楚起见，以下代码片段展示了如何使用流捕获来创建上图中的图形：
+忽略内核节点d和__e__，为了清楚起见，以下代码片段展示了如何使用流捕获来创建上图中的图形：
 
 cudaMallocAsync(&dptr, size, stream1);
+
 kernel_A<<< ..., stream1 >>>(dptr, ...);
 
 // Fork into stream2
+
 cudaEventRecord(event1, stream1);
+
 cudaStreamWaitEvent(stream2, event1);
 
 kernel_B<<< ..., stream1 >>>(dptr, ...);
+
 // event dependencies translated into graph dependencies, so the kernel node created by the capture of kernel C will depend on the allocation node created by capturing the cudaMallocAsync call.
+
 kernel_C<<< ..., stream2 >>>(dptr, ...);
 
 // Join stream2 back to origin stream (stream1)
+
 cudaEventRecord(event2, stream2);
+
 cudaStreamWaitEvent(stream1, event2);
 
 // Free depends on all work accessing the memory.
+
 cudaFreeAsync(dptr, stream1);
 
 // End capture in the origin stream
+
 cudaStreamEndCapture(stream1, &graph);
 
 ### 16.3.3.在分配图之外访问和释放图内存[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph "这个标题的永久链接")
@@ -13803,87 +15887,124 @@ cudaStreamEndCapture(stream1, &graph);
 
 以下代码片段演示了在分配图之外访问图分配，顺序正确建立：使用单个流，使用流之间的事件，以及使用嵌入分配和释放图的事件。
 
-**使用单一流建立的排序：**
+__使用单一流建立的排序：__
 
 void *dptr;
+
 cudaGraphAddMemAllocNode(&allocNode, allocGraph, NULL, 0, &params);
+
 dptr = params.dptr;
 
 cudaGraphInstantiate(&allocGraphExec, allocGraph, NULL, NULL, 0);
 
 cudaGraphLaunch(allocGraphExec, stream);
+
 kernel<<< …, stream >>>(dptr, …);
+
 cudaFreeAsync(dptr, stream);
 
-**通过记录和等待CUDA活动建立的订单：**
+__通过记录和等待CUDA活动建立的订单：__
 
 void *dptr;
 
 // Contents of allocating graph
+
 cudaGraphAddMemAllocNode(&allocNode, allocGraph, NULL, 0, &params);
+
 dptr = params.dptr;
 
 // contents of consuming/freeing graph
+
 nodeParams->kernelParams[0] = params.dptr;
+
 cudaGraphAddKernelNode(&a, graph, NULL, 0, &nodeParams);
+
 cudaGraphAddMemFreeNode(&freeNode, freeGraph, &a, 1, dptr);
 
 cudaGraphInstantiate(&allocGraphExec, allocGraph, NULL, NULL, 0);
+
 cudaGraphInstantiate(&freeGraphExec, freeGraph, NULL, NULL, 0);
 
 cudaGraphLaunch(allocGraphExec, allocStream);
 
 // establish the dependency of stream2 on the allocation node
+
 // note: the dependency could also have been established with a stream synchronize operation
+
 cudaEventRecord(allocEvent, allocStream)
+
 cudaStreamWaitEvent(stream2, allocEvent);
 
 kernel<<< …, stream2 >>> (dptr, …);
 
 // establish the dependency between the stream 3 and the allocation use
+
 cudaStreamRecordEvent(streamUseDoneEvent, stream2);
+
 cudaStreamWaitEvent(stream3, streamUseDoneEvent);
 
 // it is now safe to launch the freeing graph, which may also access the memory
+
 cudaGraphLaunch(freeGraphExec, stream3);
 
-**通过使用图形外部事件节点建立排序：**
+__通过使用图形外部事件节点建立排序：__
 
 void *dptr;
+
 cudaEvent_t allocEvent; // event indicating when the allocation will be ready for use.
+
 cudaEvent_t streamUseDoneEvent; // event indicating when the stream operations are done with the allocation.
 
 // Contents of allocating graph with event record node
+
 cudaGraphAddMemAllocNode(&allocNode, allocGraph, NULL, 0, &params);
+
 dptr = params.dptr;
+
 // note: this event record node depends on the alloc node
+
 cudaGraphAddEventRecordNode(&recordNode, allocGraph, &allocNode, 1, allocEvent);
+
 cudaGraphInstantiate(&allocGraphExec, allocGraph, NULL, NULL, 0);
 
 // contents of consuming/freeing graph with event wait nodes
+
 cudaGraphAddEventWaitNode(&streamUseDoneEventNode, waitAndFreeGraph, NULL, 0, streamUseDoneEvent);
+
 cudaGraphAddEventWaitNode(&allocReadyEventNode, waitAndFreeGraph, NULL, 0, allocEvent);
+
 nodeParams->kernelParams[0] = params.dptr;
 
 // The allocReadyEventNode provides ordering with the alloc node for use in a consuming graph.
+
 cudaGraphAddKernelNode(&kernelNode, waitAndFreeGraph, &allocReadyEventNode, 1, &nodeParams);
 
 // The free node has to be ordered after both external and internal users.
+
 // Thus the node must depend on both the kernelNode and the
+
 // streamUseDoneEventNode.
+
 dependencies[0] = kernelNode;
+
 dependencies[1] = streamUseDoneEventNode;
+
 cudaGraphAddMemFreeNode(&freeNode, waitAndFreeGraph, &dependencies, 2, dptr);
+
 cudaGraphInstantiate(&waitAndFreeGraphExec, waitAndFreeGraph, NULL, NULL, 0);
 
 cudaGraphLaunch(allocGraphExec, allocStream);
 
 // establish the dependency of stream2 on the event node satisfies the ordering requirement
+
 cudaStreamWaitEvent(stream2, allocEvent);
+
 kernel<<< …, stream2 >>> (dptr, …);
+
 cudaStreamRecordEvent(streamUseDoneEvent, stream2);
 
 // the event wait node in the waitAndFreeGraphExec establishes the dependency on the “readyForFreeEvent” that is needed to prevent the kernel running in stream two from accessing the allocation after the free node in execution order.
+
 cudaGraphLaunch(waitAndFreeGraphExec, stream3);
 
 ### 16.3.4. cudaGraphInstantiateFlagAutoFreeOnLaunch[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cudagraphinstantiateflagautofreeonlaunch "这个标题的永久链接")
@@ -13897,47 +16018,79 @@ cudaGraphLaunch(waitAndFreeGraphExec, stream3);
 `cudaGraphInstantiateFlagAutoFreeOnLaunch`标志不会改变图破坏的行为。应用程序必须明确释放未释放的内存，以避免内存泄漏，即使是用标志实例化的图形。以下代码显示了使用`cudaGraphInstantiateFlagAutoFreeOnLaunch`来简化单生产者/多消费者算法：
 
 // Create producer graph which allocates memory and populates it with data
+
 cudaStreamBeginCapture(cudaStreamPerThread, cudaStreamCaptureModeGlobal);
+
 cudaMallocAsync(&data1, blocks * threads, cudaStreamPerThread);
+
 cudaMallocAsync(&data2, blocks * threads, cudaStreamPerThread);
+
 produce<<<blocks, threads, 0, cudaStreamPerThread>>>(data1, data2);
+
 ...
+
 cudaStreamEndCapture(cudaStreamPerThread, &graph);
+
 cudaGraphInstantiateWithFlags(&producer,
+
                               graph,
+
                               cudaGraphInstantiateFlagAutoFreeOnLaunch);
+
 cudaGraphDestroy(graph);
 
 // Create first consumer graph by capturing an asynchronous library call
+
 cudaStreamBeginCapture(cudaStreamPerThread, cudaStreamCaptureModeGlobal);
+
 consumerFromLibrary(data1, cudaStreamPerThread);
+
 cudaStreamEndCapture(cudaStreamPerThread, &graph);
+
 cudaGraphInstantiateWithFlags(&consumer1, graph, 0); //regular instantiation
+
 cudaGraphDestroy(graph);
 
 // Create second consumer graph
+
 cudaStreamBeginCapture(cudaStreamPerThread, cudaStreamCaptureModeGlobal);
+
 consume2<<<blocks, threads, 0, cudaStreamPerThread>>>(data2);
+
 ...
+
 cudaStreamEndCapture(cudaStreamPerThread, &graph);
+
 cudaGraphInstantiateWithFlags(&consumer2, graph, 0);
+
 cudaGraphDestroy(graph);
 
 // Launch in a loop
+
 bool launchConsumer2 = false;
+
 do {
+
     cudaGraphLaunch(producer, myStream);
+
     cudaGraphLaunch(consumer1, myStream);
+
     if (launchConsumer2) {
+
         cudaGraphLaunch(consumer2, myStream);
+
     }
+
 } while (determineAction(&launchConsumer2));
 
 cudaFreeAsync(data1, myStream);
+
 cudaFreeAsync(data2, myStream);
 
 cudaGraphExecDestroy(producer);
+
 cudaGraphExecDestroy(consumer1);
+
 cudaGraphExecDestroy(consumer2);
 
 ## 16.4.优化内存重复使用[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#optimized-memory-reuse "这个标题的永久链接")
@@ -13945,9 +16098,7 @@ cudaGraphExecDestroy(consumer2);
 CUDA通过两种方式重复使用内存：
 
 - 图形中的虚拟和物理内存重用基于虚拟地址分配，如流有序分配器。
-    
 - 图形之间的物理内存重用通过虚拟锯齿完成：不同的图形可以将相同的物理内存映射到其唯一的虚拟地址。
-    
 
 ### 16.4.1.图表中的地址重复使用[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#address-reuse-within-a-graph "这个标题的永久链接")
 
@@ -13984,11 +16135,8 @@ CUDA可以在图形实例化、启动或执行期间随时更新物理内存映�
 一般来说，CUDA中图形内存的重新映射可能是由以下操作引起的：
 
 - 更改启动图形的流
-    
 - 图形内存池上的修剪操作，明确释放未使用的内存（在[物理内存占地面积](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#graph-memory-nodes-physical-memory-footprint)中讨论）
-    
 - 重新启动一个图形，而另一个图形的未自由分配映射到同一内存，将导致重新启动前重新映射内存
-    
 
 重新映射必须按照执行顺序进行，但在该图形之前的任何执行完成后（否则仍在使用的内存可能会被取消映射）。由于这种排序依赖性，以及由于映射操作是操作系统调用，映射操作可能相对昂贵。应用程序可以通过在同一流中持续启动包含分配内存节点的图形来避免这种成本。
 
@@ -14013,31 +16161,47 @@ The pool-management behavior of asynchronous allocation means that destroying a 
 The `cudaGraphAddMemAllocNode` API accepts mapping requests in the `accessDescs` array field of the node parameters structures. The `poolProps.location` embedded structure specifies the resident device for the allocation. Access from the allocating GPU is assumed to be needed, thus the application does not need to specify an entry for the resident device in the `accessDescs` array.
 
 cudaMemAllocNodeParams params = {};
+
 params.poolProps.allocType = cudaMemAllocationTypePinned;
+
 params.poolProps.location.type = cudaMemLocationTypeDevice;
+
 // specify device 1 as the resident device
+
 params.poolProps.location.id = 1;
+
 params.bytesize = size;
 
 // allocate an allocation resident on device 1 accessible from device 1
+
 cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
 
 accessDescs[2];
+
 // boilerplate for the access descs (only ReadWrite and Device access supported by the add node api)
+
 accessDescs[0].flags = cudaMemAccessFlagsProtReadWrite;
+
 accessDescs[0].location.type = cudaMemLocationTypeDevice;
+
 accessDescs[1].flags = cudaMemAccessFlagsProtReadWrite;
+
 accessDescs[1].location.type = cudaMemLocationTypeDevice;
 
 // access being requested for device 0 & 2.  Device 1 access requirement left implicit.
+
 accessDescs[0].location.id = 0;
+
 accessDescs[1].location.id = 2;
 
 // access request array has 2 entries.
+
 params.accessDescCount = 2;
+
 params.accessDescs = accessDescs;
 
 // allocate an allocation resident on device 1 accessible from devices 0, 1 and 2. (0 & 2 from the descriptors, 1 from it being the resident device).
+
 cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
 
 ### 16.7.2.带有流捕获的对等访问[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#peer-access-with-stream-capture "这个标题的永久链接")
@@ -14045,23 +16209,31 @@ cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
 对于流捕获，分配节点在捕获时记录分配池的对等可访问性。在捕获`cudaMallocFromPoolAsync`调用后更改分配池的对等可访问性不会影响图形将为分配所做的映射。
 
 // boilerplate for the access descs (only ReadWrite and Device access supported by the add node api)
+
 accessDesc.flags = cudaMemAccessFlagsProtReadWrite;
+
 accessDesc.location.type = cudaMemLocationTypeDevice;
+
 accessDesc.location.id = 1;
 
 // let memPool be resident and accessible on device 0
 
 cudaStreamBeginCapture(stream);
+
 cudaMallocAsync(&dptr1, size, memPool, stream);
+
 cudaStreamEndCapture(stream, &graph1);
 
 cudaMemPoolSetAccess(memPool, &accessDesc, 1);
 
 cudaStreamBeginCapture(stream);
+
 cudaMallocAsync(&dptr2, size, memPool, stream);
+
 cudaStreamEndCapture(stream, &graph2);
 
 //The graph node allocating dptr1 would only have the device 0 accessibility even though memPool now has device 1 accessibility.
+
 //The graph node allocating dptr2 will have device 0 and device 1 accessibility, since that was the pool accessibility at the time of the cudaMallocAsync call.
 
 ## 16.8.子图中的内存节点[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-nodes-in-child-graphs "这个标题的永久链接")
@@ -14071,36 +16243,46 @@ CUDA 12.9引入了将子图所有权转移到父图的能力。移至父图形�
 移动后，以下限制适用于子图：
 
 - 不能独立实例化或销毁。
-    
 - 不能添加为单独的父图的子图。
-    
 - 不能用作cuGraphExecUpdate的参数。
-    
 - 不能添加额外的内存分配或空闲节点。
-    
 
 // Create the child graph
+
 cudaGraphCreate(&child, 0);
 
 // parameters for a basic allocation
+
 cudaMemAllocNodeParams params = {};
+
 params.poolProps.allocType = cudaMemAllocationTypePinned;
+
 params.poolProps.location.type = cudaMemLocationTypeDevice;
+
 // specify device 0 as the resident device
+
 params.poolProps.location.id = 0;
+
 params.bytesize = size;
 
 cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
+
 // Additional nodes using the allocation could be added here
+
 cudaGraphAddMemFreeNode(&freeNode, graph, &allocNode, 1, params.dptr);
 
 // Create the parent graph
+
 cudaGraphCreate(&parent, 0);
 
 // Move the child graph to the parent graph
+
 cudaGraphNodeParams childNodeParams = { cudaGraphNodeTypeGraph };
+
 childNodeParams.graph.graph = child;
+
 childNodeParams.graph.ownership = cudaGraphChildGraphOwnershipMove;
+
 cudaGraphAddNode(&parentNode, parent, NULL, NULL, 0, &childNodeParams);
 
 # 17.数学函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mathematical-functions-appendix "这个标题的永久链接")
@@ -14119,13 +16301,14 @@ cudaGraphAddNode(&parentNode, parent, NULL, NULL, 0, &childNodeParams);
 
 误差边界是由广泛但非详尽的测试产生的，因此它们不是保证的边界。
 
-**单精密浮点函数**
+__单精密浮点函数__
 
 加法和乘法符合IEEE标准，因此最大误差为0.5 ulp。
 
 将单精度浮点操作数四舍五入为整数的推荐方法，结果为单精度浮点数为`rintf()`而不是`roundf()`原因是`roundf()`映射到设备上的4指令序列，而`rintf()`映射到单个指令。`truncf()``ceilf()`和`floorf()`也映射到单个指令。
 
 表17具有最大ULP误差的单精密数学标准库函数。最大误差表示为CUDA库函数返回的结果与根据最接近的溣到偶四舍五入模式获得的正确四舍五入的单精度结果之间的ulps差的绝对值。[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id479 "此表的永久链接")
+
 |功能|最大ulp误差|
 |---|---|
 |`x+y`|0（IEEE-754四舍五入至最接近偶七）|
@@ -14210,11 +16393,12 @@ cudaGraphAddNode(&parentNode, parent, NULL, NULL, 0, &childNodeParams);
 |`llrintf(x)`|0（全范围）|
 |`llroundf(x)`|0（全范围）|
 
-**双精密浮点函数**
+__双精密浮点函数__
 
 将双精度浮点操作数四舍五入到整数的推荐方法，结果为双精度浮点数是`rint()`而不是`round()`原因是`round()`映射到设备上的5个指令序列，而`rint()`映射到单个指令。`trunc()``ceil()`和`floor()`也映射到单个指令。
 
 表18最大ULP误差的双精密数学标准库函数。最大误差表示为CUDA库函数返回的结果与根据四舍五入到最近的偶数四舍五入模式获得的正确四舍五入双精度结果之间的ulps差的绝对值。[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id480 "此表的永久链接")
+
 |功能|最大ulp误差|
 |---|---|
 |`x+y`|0（IEEE-754四舍五入至最接近偶七）|
@@ -14299,11 +16483,12 @@ cudaGraphAddNode(&parentNode, parent, NULL, NULL, 0, &childNodeParams);
 |`llrint(x)`|0（全范围）|
 |`llround(x)`|0（全范围）|
 
-**四精密浮点函数**
+__四精密浮点函数__
 
 请注意，四精度数学函数目前仅适用于具有计算能力10.0及更高版本的设备。由于实现的细节，设备代码中对`__float128`和`_Float128`类型的支持也仅限于选择主机平台的组合，另请参阅[主机编译器扩展](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#host-compiler-extensions)。
 
 表19最大ULP误差的四精密数学标准库函数。最大误差表示为CUDA库函数返回的结果与根据四舍五入到最近的平复四舍五入模式获得的正确四精度结果之间的ulps差异的绝对值。[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id481 "此表的永久链接")
+
 |功能|最大ulp误差|
 |---|---|
 |`x+y` `__nv_fp128_add(x, y)`|0（IEEE-754四舍五入至最接近偶七）|
@@ -14358,6 +16543,7 @@ cudaGraphAddNode(&parentNode, parent, NULL, NULL, 0, &childNodeParams);
 在这些功能中，有一些[标准功能](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mathematical-functions-appendix-standard-functions)的功能不太准确，但速度更快。它们的名字相同，前缀为`__`（例如`__sinf(x)`）。它们的速度更快，因为它们映射到更少的本机指令。编译器有一个选项（`-use_fast_math`），该选项强制[表20](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#intrinsic-functions-functions-affected-use-fast-math)中的每个函数编译为其内在对应函数。除了降低受影响功能的准确性外，它还可能导致特殊情况处理方面的一些差异。一种更稳健的方法是选择性地用调用替换内在函数的数学函数调用，仅当性能增益值得并且可以容忍更改的属性，如精度降低和不同的特殊情况处理。
 
 表20受-use_fast_math影响的函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#intrinsic-functions-functions-affected-use-fast-math "此表的永久链接")
+
 |操作员/功能|设备功能|
 |---|---|
 |`x/y`|`__fdividef(x,y)`|
@@ -14373,7 +16559,7 @@ cudaGraphAddNode(&parentNode, parent, NULL, NULL, 0, &childNodeParams);
 |`powf(x,y)`|`__powf(x,y)`|
 |`tanhf(x)`|`__tanhf(x)`|
 
-**单精密浮点函数**
+__单精密浮点函数__
 
 `__fadd_[rn,rz,ru,rd]()`和`__fmul_[rn,rz,ru,rd]()`映射到编译器永远不会合并到FMAD的加法和乘法运算。相比之下，由“*”和“+”运算符生成的加法和乘法将经常合并到FMAD中。
 
@@ -14388,6 +16574,7 @@ cudaGraphAddNode(&parentNode, parent, NULL, NULL, 0, &childNodeParams);
 The accuracy of floating-point division varies depending on whether the code is compiled with `-prec-div=false` or `-prec-div=true`. When the code is compiled with `-prec-div=false`, both the regular division `/` operator and `__fdividef(x,y)` have the same accuracy, but for 2126 < `|y|` < 2128,`__fdividef(x,y)` delivers a result of zero, whereas the `/` operator delivers the correct result to within the accuracy stated in [Table 21](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#intrinsic-functions-single-precision-floating-point-intrinsic-functions-supported-by-cuda-runtime-library). Also, for 2126 < `|y|` < 2128, if `x` is infinity, `__fdividef(x,y)` delivers a `NaN` (as a result of multiplying infinity by zero), while the `/` operator returns infinity. On the other hand, the `/` operator is IEEE-compliant when the code is compiled with `-prec-div=true` or without any `-prec-div` option at all since its default value is true.
 
 表21单精密浮点内在函数。（由CUDA运行时库支持，具有各自的错误边界）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#intrinsic-functions-single-precision-floating-point-intrinsic-functions-supported-by-cuda-runtime-library "此表的永久链接")
+
 |功能|误差范围|
 |---|---|
 |`__fadd_[rn,rz,ru,rd](x,y)`|符合IEEE。|
@@ -14411,11 +16598,12 @@ The accuracy of floating-point division varies depending on whether the code is 
 |`__powf(x, y)`|Derived from its implementation as `exp2f(y * __log2f(x))`.|
 |`__tanhf(x)`|当前实现的最大相对误差是2−11.即使在`-ftz=true`编译器设置下，这种快速内在的亚常态结果也不会刷新到零。适用于计算能力至少为7.5的设备；默认为其他设备上的常规`tanhf()`函数行为。|
 
-**双精密浮点函数**
+__双精密浮点函数__
 
 `__dadd_rn()`和`__dmul_rn()`映射到编译器永远不会合并到FMAD的加法和乘法运算。相比之下，由“*”和“+”运算符生成的加法和乘法将经常合并到FMAD中。
 
 表22双精制浮点内在函数。（由CUDA运行时库支持，具有各自的错误边界）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id482 "此表的永久链接")
+
 |功能|误差范围|
 |---|---|
 |`__dadd_[rn,rz,ru,rd](x,y)`|符合IEEE。|
@@ -14437,6 +16625,7 @@ The accuracy of floating-point division varies depending on whether the code is 
 下表列出了已被C++11标准接受的新语言功能。“提案”列提供了描述该功能的ISO C++委员会提案的链接，而“在nvcc（设备代码）中可用”列表示nvcc的第一个版本，其中包含该功能（如果已实现）的设备代码实现。
 
 表23 C++11语言功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id483 "此表的永久链接")
+
 |语言特征|C++11提案|在nvcc（设备代码）中可用|
 |---|---|---|
 |R值引用|[N2118号](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2118.html)|7.0|
@@ -14488,7 +16677,7 @@ The accuracy of floating-point division varies depending on whether the code is 
 |对垃圾收集和基于可访问性的泄漏检测的最低支持|[N2670号](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2670.htm)|不适用（见[限制](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#language-restrictions)）|
 |允许移动构造函数投掷[noexcept]|[N3050](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3050.html)|7.0|
 |定义移动特殊成员功能|[N3053](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3053.html)|7.0|
-|**并发性**|   |   |
+|__并发性__|   |   |
 |序列点|[N2239号](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2239.html)||
 |原子操作|[N2427号](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2427.html)||
 |强有力的比较和交换|[N2748](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2748.html)||
@@ -14499,7 +16688,7 @@ The accuracy of floating-point division varies depending on whether the code is 
 |允许在信号处理程序中使用原子|[N2547](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2547.htm)||
 |线程本地存储|[N2659号](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2659.htm)||
 |并发的动态初始化和销毁|[N2660号](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2660.htm)||
-|**C++11中的C99功能**|   |   |
+|__C++11中的C99功能__|   |   |
 |`__func__`预定义标识符|[N2340](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2340.htm)|7.0|
 |C99预处理器|[N1653号](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2004/n1653.htm)|7.0|
 |`long long`|[N1811](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2005/n1811.pdf)|7.0|
@@ -14510,6 +16699,7 @@ The accuracy of floating-point division varies depending on whether the code is 
 下表列出了已被C++14标准接受的新语言功能。
 
 表24 C++14语言功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id484 "此表的永久链接")
+
 |语言特征|C++14提案|在nvcc（设备代码）中可用|
 |---|---|---|
 |调整某些C++上下文转换|[N3323号](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3323.pdf)|9.0|
@@ -14552,13 +16742,11 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
 1. 以下实体的类型签名不应取决于是否定义了`__CUDA_ARCH__`，也不取决于`__CUDA_ARCH__`的特定值：
     
     - `__global__`函数和函数模板
-        
     - `__device__`和`__constant__`变量
-        
     - 纹理和表面
-        
-    
+
     示例：
+
     ```c++
     #if !defined(__CUDA_ARCH__)
     typedef int mytype;
@@ -14574,8 +16762,9 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
     }
     ```
 1. 如果`__global__`函数模板被实例化并从主机启动，那么无论是否定义了`__CUDA_ARCH__`，也无论`__CUDA_ARCH__`的值如何，函数模板都必须使用相同的模板参数实例化。
-    
+
     示例：
+
     ```c++
     __device__ int result;
     template <typename T>
@@ -14600,18 +16789,23 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
     }
     ```
 1. 在单独的编译模式下，是否存在具有外部链接的函数或变量的定义不应取决于是否定义了`__CUDA_ARCH__`或`__CUDA_ARCH__`的特定值。
-    
+
     示例：
-    
+
     #if !defined(__CUDA_ARCH__)
+
     void foo(void) { }                  // error: The definition of foo()
+
                                         // is only present when __CUDA_ARCH__
+
                                         // is undefined
+
     #endif
-    
+
 2. 在单独的编译中，`__CUDA_ARCH__`不得用于标题，这样不同的对象可能包含不同的行为。或者，必须保证所有对象都将为相同的compute_arch编译。如果在标题中定义了弱函数或模板函数，并且其行为取决于`__CUDA_ARCH__`，那么如果对象为不同的计算arch编译，则对象中该函数的实例可能会发生冲突。
-    
+
     例如，如果a.h包含：
+
     ```c++
     template<typename T>
     __device__ T* getptr(void)
@@ -14624,14 +16818,16 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
     #endif
     }
     ```
+
     然后，如果`a.cu`和`b.cu`都包含`a.h`并实例化相同类型的`getptr`，`b.cu`期望一个非空地址，并用以下方式编译：
-    
+
     nvcc –arch=compute_70 –dc a.cu
+
     nvcc –arch=compute_80 –dc b.cu
+
     nvcc –arch=sm_80 a.o b.o
-    
+
     在链接时，只使用一个版本的`getptr`，因此行为将取决于选择哪个版本。为了避免这种情况，`a.cu`和`b.cu`必须为相同的计算拱进行编译，或者`__CUDA_ARCH__`不应在共享标头函数中使用。
-    
 
 编译器不保证会为上述`__CUDA_ARCH__`的不受支持的用途生成诊断。
 
@@ -14642,39 +16838,26 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
 `__device__`、`__shared__`、`__managed__`和`__constant__`内存空间指定符不允许：
 
 - `class`，`struct`和`union`数据成员，
-    
 - 形式参数，
-    
 - 在主机上执行的函数中的非外部变量声明。
-    
 
 `__device__`、`__constant__`和`__managed__`内存空间指定符不允许在设备上执行的函数中既不是外部的也不是静态的变量声明。
 
 `__device__`、`__constant__`、`__managed__`或`__shared__`变量定义不能具有非空构造函数或非空析构函数的类类型。类类型的构造函数在翻译单元的一点上被视为空，如果它要么是微不足道的构造函数，要么满足以下所有条件：
 
 - 建構函式已經定義。
-    
 - 构造函数没有参数，初始化器列表是空的，函数主体是一个空的复合语句。
-    
 - 它的类没有虚拟函数，没有虚拟基类，也没有非静态数据成员初始化器。
-    
 - 其类所有基类的默认构造函数都可以视为空。
-    
 - 对于其类中所有类类型（或其数组）的非静态数据成员，默认构造函数可以视为空。
-    
 
 类的析构器在翻译单元的一点上被视为空，如果它要么是微不足道的析构器，要么满足以下所有条件：
 
 - 析构函数已经定义。
-    
 - 析构函数体是一个空的复合语句。
-    
 - 它的类没有虚拟函数，也没有虚拟基类。
-    
 - 其类的所有基类的析构器都可以视为空。
-    
 - 对于其类中所有类类型（或其数组）的非静态数据成员，析构器可以视为空。
-    
 
 在整个程序编译模式下编译时（有关此模式的描述，请参阅nvcc用户手册），`__device__`、`__shared__`、`__managed__`和`__constant__`变量不能使用`extern`关键字定义为外部变量。唯一的例外是动态分配的`__shared__`变量，如[__shared__](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared)中所述。
 
@@ -14685,50 +16868,50 @@ nvcc版本12.0及更高版本支持所有C++20语言功能，但受[此处](http
 用`__managed__`内存空间指定符（“托管”变量）标记的变量有以下限制：
 
 - 托管变量的地址不是常数表达式。
-    
 - 托管变量不应具有恒定限定类型。
-    
 - 托管变量不应具有参考类型。
-    
 - 当CUDA运行时可能不处于有效状态时，不得使用托管变量的地址或值，包括以下情况：
-    
     - 在静态/动态初始化或销毁具有静态或线程本地存储持续时间的对象中。
-        
     - 在调用exit（）后执行的代码中（例如，用gcc的“`__attribute__((destructor))`”标记的函数）。
-        
     - 在CUDA运行时可能未初始化时执行的代码中（例如，用gcc的“`__attribute__((constructor))`”标记的函数）。
-        
 - 托管变量不能用作`decltype()`表达式的无括号id表达式参数。
-    
 - 托管变量具有与动态分配托管内存相同的一致性和一致性行为。
-    
 - 当包含托管变量的CUDA程序在具有多个GPU的执行平台上运行时，变量只分配一次，而不是每个GPU。
-    
 - 在主机上执行的函数中不允许没有外部链接的托管变量声明。
-    
 - 在设备上执行的函数中，不允许在没有外部或静态链接的情况下进行托管变量声明。
-    
 
 以下是合法和非法使用托管变量的示例：
 
 __device__ __managed__ int xxx = 10;         // OK
 
 int *ptr = &xxx;                             // error: use of managed variable
+
                                              // (xxx) in static initialization
+
 struct S1_t {
+
   int field;
+
   S1_t(void) : field(xxx) { };
+
 };
+
 struct S2_t {
+
   ~S2_t(void) { xxx = 10; }
+
 };
 
 S1_t temp1;                                 // error: use of managed variable
+
                                             // (xxx) in dynamic initialization
 
 S2_t temp2;                                 // error: use of managed variable
+
                                             // (xxx) in the destructor of
+
                                             // object with static storage
+
                                             // duration
 
 __device__ __managed__ const int yyy = 10;  // error: const qualified type
@@ -14736,26 +16919,43 @@ __device__ __managed__ const int yyy = 10;  // error: const qualified type
 __device__ __managed__ int &zzz = xxx;      // error: reference type
 
 template <int *addr> struct S3_t { };
+
 S3_t<&xxx> temp;                            // error: address of managed
+
                                             // variable(xxx) not a
+
                                             // constant expression
 
 __global__ void kern(int *ptr)
+
 {
+
   assert(ptr == &xxx);                      // OK
+
   xxx = 20;                                 // OK
+
 }
+
 int main(void)
+
 {
+
   int *ptr = &xxx;                          // OK
+
   kern<<<1,1>>>(ptr);
+
   cudaDeviceSynchronize();
+
   xxx++;                                    // OK
+
   decltype(xxx) qqq;                        // error: managed variable(xxx) used
+
                                             // as unparenthized argument to
+
                                             // decltype
 
   decltype((xxx)) zzz = yyy;                // OK
+
 }
 
 #### 18.5.3.3.挥发性限定符[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#volatile-qualifier "这个标题的永久链接")
@@ -14767,13 +16967,11 @@ int main(void)
 读取和写入易失性限定对象不是原子的，并被编译成一个或多个[.易失性指令](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#volatile-operation)，不保证：
 
 - 内存操作的排序，或者
-    
 - 硬件执行的内存操作数量与PTX指令的数量相匹配。
-    
 
 也就是说，CUDA C++不稳定不适合：
 
-- **线程间同步**：通过[cuda::atomic_ref](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/atomic_ref.html)、[cuda::atomic](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/atomic.html)或Atomic[函数](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomic-functions)使用原子运算。原子内存操作提供了线程间同步保证，并提供比易失性操作更好的性能。CUDA C++易失性操作不提供任何线程间同步保证，因此线程间同步不正确。以下示例展示了如何使用原子运算在两个线程中传递消息。
+- __线程间同步__：通过[cuda::atomic_ref](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/atomic_ref.html)、[cuda::atomic](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/atomic.html)或Atomic[函数](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomic-functions)使用原子运算。原子内存操作提供了线程间同步保证，并提供比易失性操作更好的性能。CUDA C++易失性操作不提供任何线程间同步保证，因此线程间同步不正确。以下示例展示了如何使用原子运算在两个线程中传递消息。
     
     > cuda::原子_ref
     > 
@@ -14783,7 +16981,7 @@ int main(void)
     > 
     > 库达::原子原子函数（`atomicAdd`和`atomicExch`）
     
-- **内存映射IO（MMIO**）：通过内联PTX使用[PTX MMIO操作](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#mmio-operation)。PTX MMIO操作严格保留执行的内存访问次数。CUDA C++易失性操作不保留执行的内存访问数量，并且可能会以非确定性方式执行比请求的访问多或少，使它们对MMIO不正确。以下示例展示了如何使用PTX mmio操作从寄存器中读取和写入。
+- __内存映射IO（MMIO__）：通过内联PTX使用[PTX MMIO操作](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#mmio-operation)。PTX MMIO操作严格保留执行的内存访问次数。CUDA C++易失性操作不保留执行的内存访问数量，并且可能会以非确定性方式执行比请求的访问多或少，使它们对MMIO不正确。以下示例展示了如何使用PTX mmio操作从寄存器中读取和写入。
     
     > __global__ void kernel(int* mmio_reg0, int* mmio_reg1) {
     >   // Write to MMIO register:
@@ -14795,7 +16993,6 @@ int main(void)
     >   
     >   if (value != 42) __trap(); // Errors if wrong data read
     > }
-    
 
 ### 18.5.4.指针[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pointers "这个标题的永久链接")
 
@@ -14822,11 +17019,8 @@ int main(void)
 主机代码支持以下与 RTTI 相关的功能，但设备代码不支持。
 
 - `typeid`操作员
-    
 - `std::type_info`
-    
 - `dynamic_cast`操作员
-    
 
 ### 18.5.7.例外处理[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#exception-handling "这个标题的永久链接")
 
@@ -14845,40 +17039,67 @@ int main(void)
 示例：
 
 namespace cuda{
+
    // Bad: class declaration added to namespace cuda
+
    struct foo{};
 
    // Bad: function definition added to namespace cuda
+
    cudaStream_t make_stream(){
+
       cudaStream_t s;
+
       cudaStreamCreate(&s);
+
       return s;
+
    }
+
 } // namespace cuda
 
 namespace cuda{
+
    namespace utils{
+
       // Bad: function definition added to namespace nested within cuda
+
       cudaStream_t make_stream(){
+
           cudaStream_t s;
+
           cudaStreamCreate(&s);
+
           return s;
+
       }
+
    } // namespace utils
+
 } // namespace cuda
 
 namespace utils{
+
    namespace cuda{
+
      // Okay: namespace cuda may be used nested within a non-reserved namespace
+
      cudaStream_t make_stream(){
+
           cudaStream_t s;
+
           cudaStreamCreate(&s);
+
           return s;
+
       }
+
    } // namespace cuda
+
 } // namespace utils
 
 // Bad: Equivalent to adding symbols to namespace cuda at global scope
+
 using namespace utils;
 
 ### 18.5.10.功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#functions "这个标题的永久链接")
@@ -14892,28 +17113,43 @@ using namespace utils;
 让F表示一个隐式声明或第一个声明时显式默认的非虚拟函数的函数。`F`的执行空间指定符（`__host__`，`__device__`）是调用它的所有函数的执行空间指定符的组合（请注意，`__global__`调用者将被视为此分析的`__device__`调用者）。例如：
 
 class Base {
+
   int x;
+
 public:
+
   __host__ __device__ Base(void) : x(10) {}
+
 };
 
 class Derived : public Base {
+
   int y;
+
 };
 
 class Other: public Base {
+
   int z;
+
 };
 
 __device__ void foo(void)
+
 {
+
   Derived D1;
+
   Other D2;
+
 }
 
 __host__ void bar(void)
+
 {
+
   Other D3;
+
 }
 
 Here, the implicitly-declared constructor function “Derived::Derived” will be treated as a `__device__` function, since it is invoked only from the `__device__` function “foo”. The implicitly-declared constructor function “Other::Other” will be treated as a `__host__ __device__` function, since it is invoked both from a `__device__` function “foo” and a `__host__` function “bar”.
@@ -14923,13 +17159,19 @@ Here, the implicitly-declared constructor function “Derived::Derived” will b
 例如：
 
 struct Base1 { virtual __host__ __device__ ~Base1() { } };
+
 struct Derived1 : Base1 { }; // implicitly-declared virtual destructor
+
                              // ~Derived1 has __host__ __device__
+
                              // execution space specifiers
 
 struct Base2 { virtual __device__ ~Base2() = default; };
+
 struct Derived2 : Base2 { }; // implicitly-declared virtual destructor
+
                              // ~Derived2 has __device__ execution
+
                              // space specifiers
 
 #### 18.5.10.3.函数参数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#function-parameters "这个标题的永久链接")
@@ -14945,19 +17187,27 @@ struct Derived2 : Base2 { }; // implicitly-declared virtual destructor
 示例：
 
 //first.cu:
+
 struct S;
+
 __device__ void foo(S); // error: type 'S' is incomplete
+
 __device__ auto *ptr = foo;
 
 int main() { }
 
 //second.cu:
+
 struct S { int x; };
+
 __device__ void foo(S) { }
 
 //compiler invocation
+
 $nvcc -std=c++14 -rdc=true first.cu second.cu -o first
+
 nvlink error   : Prototype doesn't match for '_Z3foo1S' in '/tmp/tmpxft_00005c8c_00000000-18_second.o', first defined in '/tmp/tmpxft_00005c8c_00000000-18_second.o'
+
 nvlink fatal   : merge_elf failed
 
 ##### 18.5.10.3.1. `__global__`函数参数处理[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#global-function-argument-processing "这个标题的永久链接")
@@ -14966,11 +17216,12 @@ nvlink fatal   : merge_elf failed
 
 当从主机代码中启动`__global__`函数时，每个参数类型都允许非平凡地复制或非平凡地可销毁，但此类类型的处理不遵循标准C++模型，如下所述。用户代码必须确保此工作流程不会影响程序的正确性。工作流程在两个方面与标准C++不同：
 
-1. **Memcpy而不是复制构造函数调用**
-    
+1. __Memcpy而不是复制构造函数调用__
+
     当从主机代码中降低`__global__`函数启动时，编译器会生成存根函数，这些函数按值复制参数一次或多次，然后最终使用`memcpy`将参数复制到设备上`__global__`函数的参数内存。即使参数不能平凡地复制，也会发生这种情况，因此可能会破坏复制构造函数有副作用的程序。
-    
+
     示例：
+
     ```c++
     #include <cassert>
     struct S {
@@ -14995,7 +17246,9 @@ nvlink fatal   : merge_elf failed
       cudaDeviceSynchronize();
     }
     ```
+
     示例：
+
     ```c++
     #include <cassert>
     
@@ -15022,42 +17275,50 @@ nvlink fatal   : merge_elf failed
     cudaDeviceSynchronize();
     }
     ```
-1. **在``__global__``函数完成之前可以调用析构函数**
-    
+1. __在``__global__``函数完成之前可以调用析构函数__
+
     内核启动与主机执行异步。因此，如果`__global__`函数参数具有非平凡的析构函数，则在`__global__`函数完成执行之前，析构函数也可能在主机代码中执行。这可能会破坏破坏者有副作用的程序。
-    
+
     示例：
-    
+
     struct S {
+
      int *ptr;
+
      S() : ptr(nullptr) { }
+
      S(const S &) { cudaMallocManaged(&ptr, sizeof(int)); }
+
      ~S() { cudaFree(ptr); }
+
     };
-    
+
     __global__ void foo(S in) {
-    
+
       //error: This store may write to memory that has already been
+
       //       freed (see below).
+
       *(in.ptr) = 4;
-    
+
     }
-    
+
     int main() {
+
      S V;
-    
+
      /* The object 'V' is first copied by value to a compiler-generated
-      * stub function that does the kernel launch, and the stub function
-      * bitwise copies the contents of the argument to kernel parameter
-      * memory.
-      * However, GPU kernel execution is asynchronous with host
-      * execution.
-      * As a result, S::~S() will execute when the stub function   returns, releasing allocated memory, even though the kernel may not have finished execution.
+
+      - stub function that does the kernel launch, and the stub function
+      - bitwise copies the contents of the argument to kernel parameter
+      - memory.
+      - However, GPU kernel execution is asynchronous with host
+      - execution.
+      - As a result, S::~S() will execute when the stub function   returns, releasing allocated memory, even though the kernel may not have finished execution.
       */
      foo<<<1,1>>>(V);
      cudaDeviceSynchronize();
     }
-    
 
 ##### 18.5.10.3.2.工具包和驱动程序兼容性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#toolkit-and-driver-compatibility "这个标题的永久链接")
 
@@ -15072,15 +17333,14 @@ nvlink fatal   : merge_elf failed
 在函数`F`的直接或嵌套块范围内的静态变量`V`的声明中允许变量内存空间指定符，其中：
 
 - `F`是一个`__global__`或`__device__`-only函数。
-    
 - `F` is a `__host__ __device__` function and `__CUDA_ARCH__` is defined [11](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn17).
-    
 
 如果`V`的声明中没有显式内存空间指定符，则在设备编译期间假定隐式`__device__`指定符。
 
 `V`具有与在命名空间范围内声明的具有相同内存空间指定符的变量相同的初始化限制，例如`__device__`变量不能有“非空”构造函数（请参阅[设备内存空间指定符](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-memory-specifiers)）。
 
 函数范围静态变量的合法和非法使用示例如下所示。
+
 ```c++
 struct S1_t {
   int x;
@@ -15136,6 +17396,7 @@ __host__ __device__ void f2() {
                              // i.e. when __CUDA_ARCH__ is not defined
 }
 ```
+
 #### 18.5.10.5.函数指针[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#function-pointers "这个标题的永久链接")
 
 主机代码中的`__global__`函数的地址不能用于设备代码（例如启动内核）。同样，设备代码中的a__global`__global__`函数的地址不能用于主机代码。
@@ -15151,6 +17412,7 @@ __host__ __device__ void f2() {
 `__global__`函数或函数模板不能在朋友声明中定义。
 
 示例：
+
 ```c++
 struct S1_t {
   friend __global__
@@ -15167,6 +17429,7 @@ struct S1_t {
   void foo4(void) { } // error: definition in friend declaration
 };
 ```
+
 #### 18.5.10.8.操作符功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#operator-function "这个标题的永久链接")
 
 运算符函数不能是`__global__`函数。
@@ -15198,6 +17461,7 @@ struct S1_t {
 有关使用微软主机编译器时的其他限制，请参阅[Windows-Specific](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#windows-specific)。
 
 示例：
+
 ```c++
 struct S1 { virtual __host__ __device__ void foo() { } };
 
@@ -15299,6 +17563,7 @@ void fn() {
   d2<int, decltype(lam1)> = 10;
 }
 ```
+
 ### 18.5.13.三叉戔和二叉戳[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#trigraphs-and-digraphs "这个标题的永久链接")
 
 任何平台都不支持Trigraphs。Windows不支持双图。
@@ -15310,27 +17575,27 @@ void fn() {
 V的值可以直接用于设备代码，如果
 
 - V在使用点之前已用常量表达式初始化，
-    
 - V型不是挥发性限定的，并且
-    
 - 它有以下类型之一：
-    
     - 内置浮点类型，除非微软编译器用作主机编译器，
-        
     - 内置积分类型。
-        
 
 设备源代码不能包含对V的引用或取V的地址。
 
 示例：
 
 const int xxx = 10;
+
 struct S1_t {  static const int yyy = 20; };
 
 extern const int zzz;
+
 const float www = 5.0;
+
 __device__ void foo(void) {
+
   int local1[xxx];          // OK
+
   int local2[S1_t::yyy];    // OK
 
   int val1 = xxx;           // OK
@@ -15338,13 +17603,19 @@ __device__ void foo(void) {
   int val2 = S1_t::yyy;     // OK
 
   int val3 = zzz;           // error: zzz not initialized with constant
+
                             // expression at the point of use.
 
   const int &val3 = xxx;    // error: reference to host variable
+
   const int *val4 = &xxx;   // error: address of host variable
+
   const float val5 = www;   // OK except when the Microsoft compiler is used as
+
                             // the host compiler.
+
 }
+
 const int zzz = 20;
 
 ### 18.5.15.长双[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#long-double "这个标题的永久链接")
@@ -15372,12 +17643,19 @@ nvcc supports the use of `noreturn` attribute when using `gcc`, `clang`, `x
 __device__ int foo(int x) {
 
  if (i < 10) [[likely]] { // the 'if' block will likely be entered
+
   return 4;
+
  }
+
  if (i < 20) [[unlikely]] { // the 'if' block will not likely be entered
+
   return 1;
+
  }
+
  return 0;
+
 }
 
 如果这些属性在`__CUDA_ARCH__`未定义时在主机代码中使用，那么它们将出现在主机编译器解析的代码中，如果属性不受支持，可能会生成警告。例如，`clang`主机编译器将生成一个“未知属性”警告。
@@ -15395,15 +17673,21 @@ __device__ int foo(int x) {
 __attribute__((const)) __device__ int get(int in);
 
 __device__ int doit(int in) {
+
 int sum = 0;
 
 //because 'get' is marked with 'const' attribute
+
 //device code optimizer can recognize that the
+
 //second call to get() can be commoned out.
+
 sum = get(in);
+
 sum += get(in);
 
 return sum;
+
 }
 
 ### 18.5.20. __nv_pure__属性[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-pure-attribute "这个标题的永久链接")
@@ -15429,34 +17713,49 @@ lambda表达式和计算执行空间指定符的示例如下所示（在注释�
 auto globalVar = [] { return 0; }; // __host__
 
 void f1(void) {
+
   auto l1 = [] { return 1; };      // __host__
+
 }
 
 __device__ void f2(void) {
+
   auto l2 = [] { return 2; };      // __device__
+
 }
 
 __host__ __device__ void f3(void) {
+
   auto l3 = [] { return 3; };      // __host__ __device__
+
 }
 
-__device__ void f4(int (*fp)() = [] { return 4; } /* __host__ */) {
+__device__ void f4(int (_fp)() = [] { return 4; } /_ __host__ */) {
+
 }
 
 __global__ void f5(void) {
+
   auto l5 = [] { return 5; };      // __device__
+
 }
 
 __device__ void f6(void) {
+
   struct S1_t {
-    static void helper(int (*fp)() = [] {return 6; } /* __device__ */) {
+
+    static void helper(int (_fp)() = [] {return 6; } /_ __device__ */) {
+
     }
+
   };
+
 }
 
 lambda表达式的闭包类型不能用于`__global__`函数模板实例化的类型或非类型参数，除非lambda是在`__device__`或`__global__`函数中定义的。
 
 示例：
+
 ```c++
 template <typename T>
 __global__ void foo(T in) { };
@@ -15473,11 +17772,13 @@ void bar(void) {
                                           // template type argument
 }
 ```
+
 #### 18.5.22.2. std::初始化器_列表[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#std-initializer-list "这个标题的永久链接")
 
 By default, the CUDA compiler will implicitly consider the member functions of `std::initializer_list` to have `__host__ __device__` execution space specifiers, and therefore they can be invoked directly from device code. The nvcc flag `--no-host-device-initializer-list` will disable this behavior; member functions of `std::initializer_list` will then be considered as `__host__` functions and will not be directly invokable from device code.
 
 示例：
+
 ```c++
 #include <initializer_list>
 
@@ -15494,6 +17795,7 @@ __device__ void bar(void)
                     // This form may have better performance than (a).
   }
 ```
+
 #### 18.5.22.3.R值引用[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#rvalue-references "这个标题的永久链接")
 
 By default, the CUDA compiler will implicitly consider `std::move` and `std::forward` function templates to have `__host__ __device__` execution space specifiers, and therefore they can be invoked directly from device code. The nvcc flag `--no-host-device-move-forward` will disable this behavior; `std::move` and `std::forward` will then be considered as `__host__` functions and will not be directly invokable from device code.
@@ -15511,30 +17813,49 @@ By default, a constexpr function cannot be called from a function with incompati
 示例：
 
 constexpr int xxx = 10;
+
 constexpr int yyy = xxx + 4;
+
 struct S1_t { static constexpr int qqq = 100; };
 
 constexpr int host_arr[] = { 1, 2, 3};
+
 constexpr __device__ int get(int idx) { return host_arr[idx]; }
 
 __device__ int foo(int idx) {
+
   int v1 = xxx + yyy + S1_t::qqq;  // OK
+
   const int &v2 = xxx;             // error: reference to host constexpr
+
                                    // variable
+
   const int *v3 = &xxx;            // error: address of host constexpr
+
                                    // variable
+
   const int &v4 = S1_t::qqq;       // error: reference to host constexpr
+
                                    // variable
+
   const int *v5 = &S1_t::qqq;      // error: address of host constexpr
+
                                    // variable
 
   v1 += get(2);                    // OK: 'get(2)' is a constant
+
                                    // expression.
+
   v1 += get(idx);                  // error: 'get(idx)' is not a constant
+
                                    // expression
+
   v1 += host_arr[2];               // error: 'host_arr' does not have
+
                                    // scalar type.
+
   return v1;
+
 }
 
 #### 18.5.22.6.内联命名空间[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inline-namespaces "这个标题的永久链接")
@@ -15542,11 +17863,8 @@ __device__ int foo(int idx) {
 对于输入CUDA翻译单元，CUDA编译器可以调用主机编译器来编译翻译单元中的主机代码。在传递给主机编译器的代码中，如果输入CUDA翻译单元包含以下任何实体的定义，CUDA编译器将注入额外的编译器生成代码：
 
 - `__global__`函数或函数模板实例化
-    
 - `__device__`，`__constant__`
-    
 - 具有表面或纹理类型的变量
-    
 
 编译器生成的代码包含对定义实体的引用。如果实体在内联命名空间中定义，而同一名称和类型签名的另一个实体在封闭命名空间中定义，则此引用可能被主机编译器视为模棱两可，主机编译将失败。
 
@@ -15555,28 +17873,41 @@ __device__ int foo(int idx) {
 示例：
 
 __device__ int Gvar;
+
 inline namespace N1 {
+
   __device__ int Gvar;
+
 }
 
 // <-- CUDA compiler inserts a reference to "Gvar" at this point in the
+
 // translation unit. This reference will be considered ambiguous by the
+
 // host compiler and compilation will fail.
 
 示例：
 
 inline namespace N1 {
+
   namespace N2 {
+
     __device__ int Gvar;
+
   }
+
 }
 
 namespace N2 {
+
   __device__ int Gvar;
+
 }
 
 // <-- CUDA compiler inserts reference to "::N2::Gvar" at this point in
+
 // the translation unit. This reference will be considered ambiguous by
+
 // the host compiler and compilation will fail.
 
 ##### 18.5.22.6.1.内联未命名的命名空间[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inline-unnamed-namespaces "这个标题的永久链接")
@@ -15584,13 +17915,11 @@ namespace N2 {
 无法在内联未命名命名空间的命名空间范围内声明以下实体：
 
 - `__managed__`，`__device__`，`__shared__`和`__constant__`变量
-    
 - `__global__`函数和函数模板
-    
 - 具有表面或纹理类型的变量
-    
 
 示例：
+
 ```c++
 inline namespace {
   namespace N2 {
@@ -15660,6 +17989,7 @@ void foo_host(void)
    kernel<<<1,1>>>( lam2);
 }
 ```
+
 `__global__`函数或函数模板不能声明为`constexpr`。
 
 `__global__`函数或函数模板不能具有`std::initializer_list`或`va_list`类型的参数。
@@ -15669,11 +17999,10 @@ void foo_host(void)
 可变量`__global__`函数模板有以下限制：
 
 - 只允许单个包参数。
-    
 - 包参数必须列在模板参数列表中的最后。
-    
 
 示例：
+
 ```c++
 // ok
 template <template <typename...> class Wrapper, typename... Pack>
@@ -15688,6 +18017,7 @@ template <typename... Pack1, int...Pack2, template<typename...> class Wrapper1,
           template<int...> class Wrapper2>
 __global__ void foo3(Wrapper1<Pack1...>, Wrapper2<Pack2...>);
 ```
+
 #### 18.5.22.9. __管理__和__共享__变量[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#managed-and-shared-variables "这个标题的永久链接")
 
 `` `__managed__ ``和`__shared__`变量不能用关键字`constexpr`标记。
@@ -15699,49 +18029,72 @@ CUDA编译器会忽略在第一个声明中明确默认的非虚拟函数上的�
 如果函数是：
 
 - 明确默认，但不是在其第一次声明中。
-    
 - 明确默认和虚拟。
-    
 
 示例：
 
  struct S1 {
+
    // warning: __host__ annotation is ignored on a non-virtual function that
+
    //          is explicitly-defaulted on its first declaration
+
    __host__ S1() = default;
+
  };
 
  __device__ void foo1() {
+
    //note: __device__ execution space is derived for S1::S1
+
    //       based on implicit call from within __device__ function
+
    //       foo1
+
    S1 s1;
+
  }
 
  struct S2 {
+
    __host__ S2();
+
  };
 
  //note: S2::S2 is not defaulted on its first declaration, and
+
  //      its execution space is fixed to __host__  based on its
+
  //      first declaration.
+
  S2::S2() = default;
 
  __device__ void foo2() {
+
     // error: call from __device__ function 'foo2' to
+
     //        __host__ function 'S2::S2'
+
     S2 s2;
+
  }
 
 struct S3 {
+
   //note: S3::~S3 has __host__ execution space
+
   virtual __host__ ~S3() = default;
+
 };
 
 __device__ void foo3() {
+
   S3 qqq;
+
 }  /*(implicit destructor call for 'qqq'):
+
       error: call from a __device__ fuction 'foo3' to a
+
      __host__ function 'S3::~S3' */
 
 ### 18.5.23.C++14功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#c-14-features "这个标题的永久链接")
@@ -15755,6 +18108,7 @@ nvcc也支持主机编译器默认启用的C++14功能。传递nvcc `-std=c++14
 如果`__device__`函数推导出了返回类型，CUDA前端编译器将在调用主机编译器之前将函数声明更改为`void`返回类型。这可能会导致在主机代码中内省`__device__`函数的推断返回类型时出现问题。因此，CUDA编译器将发出编译时错误，用于在设备函数体之外引用此类推断的返回类型，除非`__CUDA_ARCH__`未定义时没有引用。
 
 示例：
+
 ```c++
 __device__ auto fn1(int x) {
   return x;
@@ -15793,11 +18147,13 @@ template<typename T> struct S1_t { };
 // error: referenced outside device function bodies
 struct S1_derived_t : S1_t<decltype(fn1)> { };
 ```
+
 #### 18.5.23.2.可变模板[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#variable-templates "这个标题的永久链接")
 
 使用微软主机编译器时，`__device__/__constant__`变量模板不能具有常量限定类型。
 
 示例：
+
 ```c++
 // error: a __device__ variable template cannot
 // have a const qualified type on Windows
@@ -15822,6 +18178,7 @@ __device__ void fn() {
   const int *t3 = d3<int>;
 }
 ```
+
 ### 18.5.24.C++17功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#c-17-features "这个标题的永久链接")
 
 nvcc也支持主机编译器默认启用的C++17功能。传递nvcc `-std=c++17`标志可以打开所有C++17功能，并使用相应的C++17方言选项[21](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn28)调用主机预处理器、编译器和链接器。本节介绍受支持的C++17功能的限制。
@@ -15829,23 +18186,28 @@ nvcc也支持主机编译器默认启用的C++17功能。传递nvcc `-std=c++17
 #### 18.5.24.1.内联变量[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inline-variable "这个标题的永久链接")
 
 - 如果代码在整个程序编译模式下使用nvcc编译，则使用`__device__`或`__constant__`或`__managed__`内存空间指定符声明的命名空间范围内联变量必须具有内部链接。
-    
+
     示例：
-    
+
     inline __device__ int xxx; //error when compiled with nvcc in
+
                                //whole program compilation mode.
+
                                //ok when compiled with nvcc in
+
                                //separate compilation mode.
-    
+
     inline __shared__ int yyy0; // ok.
-    
+
     static inline __device__ int yyy; // ok: internal linkage
+
     namespace {
+
     inline __device__ int zzz; // ok: internal linkage
+
     }
-    
+
 - 使用g++主机编译器时，调试器可能看不到使用`__managed__`内存空间指定符声明的内联变量。
-    
 
 #### 18.5.24.2.结构化绑定[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#structured-binding "这个标题的永久链接")
 
@@ -15854,6 +18216,7 @@ nvcc也支持主机编译器默认启用的C++17功能。传递nvcc `-std=c++17
 示例：
 
 struct S { int x; int y; };
+
 __device__ auto [a1, b1] = S{4,5}; // error
 
 ### 18.5.25.C++20功能[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#c-20-features "这个标题的永久链接")
@@ -15873,6 +18236,7 @@ CUDA C++、主机或设备代码都不支持模块。`module`、`export`和`impo
 主机和设备代码都支持三方比较运算符，但一些用途隐含地依赖于主机实现提供的标准模板库的功能。使用这些运算符可能需要指定标志`--expt-relaxed-constexpr`来静音警告，该功能要求主机实现满足设备代码的要求。
 
 示例：
+
 ```c++
 #include<compare>
 struct S {
@@ -15887,11 +18251,13 @@ __host__ __device__ bool f(S a, S b) {
                 // a device-compatible std::strong_ordering implementation
 }
 ```
+
 #### 18.5.25.4.节数函数[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#consteval-functions "这个标题的永久链接")
 
 通常，不允许交叉执行空间调用，并导致编译器诊断（警告或错误）。当调用的函数使用`consteval`指定符声明时，此限制不适用。因此，`__device__`或`__global__`函数可以调用`__host__``consteval`函数，`__host__`函数可以调用`__device__consteval`函数。
 
 示例：
+
 ```c++
 namespace N1 {
 //consteval host function
@@ -15913,11 +18279,13 @@ __host__ __device__ int hdfunc() { return dcallee();  /* OK */ }
 int hfunc() { return dcallee(); /* OK */ }
 }
 ```
+
 ## 18.6.多态函数包装器[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#polymorphic-function-wrappers "这个标题的永久链接")
 
 `nvfunctional`标题中提供了多态函数包装器类模板`nvstd::function`。此类模板的实例可用于存储、复制和调用任何可调用的目标，例如lambda表达式。`nvstd::function`可用于主机和设备代码。
 
 示例：
+
 ```c++
 #include <nvfunctional>
 
@@ -15948,11 +18316,13 @@ __host__ void host_func(int *result) {
   *result = fn1() + fn2() + fn3();
 }
 ```
+
 主机代码中`nvstd::function`的实例不能用`__device__`函数的地址或`operator()`是`__device__`函数的函子初始化。设备代码中的`nvstd::function`实例不能用`__host__`函数的地址或`operator()`是`__host__`函数的函子初始化。
 
 `nvstd::function`实例不能在运行时从主机代码传递到设备代码（反之亦然）。如果`__global__`函数是从主机代码启动的，则不能在`__global__`函数的参数类型中使用`nvstd::function`。
 
 示例：
+
 ```c++
 #include <nvfunctional>
 
@@ -16043,6 +18413,7 @@ namespace nvstd {
   void swap(function<_R(_ArgTypes...)>&, function<_R(_ArgTypes...)>&);
 }
 ```
+
 ## 18.7.扩展的Lambdas[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-lambdas "这个标题的永久链接")
 
 nvcc标志`'--extended-lambda'`允许在lambda表达式[23](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn30)中显式执行空间注释。执行空间注释应出现在`'--extended-lambda'`之后和可选的“lambda-declarator”之前。当指定了“--extended-lambda”标志时，nvcc将定义宏__CUDACC_EXTENDED_LAMBDA__。
@@ -16058,46 +18429,69 @@ An ‘extended lambda’ denotes either an extended `__device__` lambda or an 
 示例：
 
 void foo_host(void) {
+
   // not an extended lambda: no explicit execution space annotations
+
   auto lam1 = [] { };
 
   // extended __device__ lambda
+
   auto lam2 = [] __device__ { };
 
   // extended __host__ __device__ lambda
+
   auto lam3 = [] __host__ __device__ { };
 
   // not an extended lambda: explicitly annotated with only '__host__'
+
   auto lam4 = [] __host__ { };
+
 }
 
 __host__ __device__ void foo_host_device(void) {
+
   // not an extended lambda: no explicit execution space annotations
+
   auto lam1 = [] { };
 
   // extended __device__ lambda
+
   auto lam2 = [] __device__ { };
 
   // extended __host__ __device__ lambda
+
   auto lam3 = [] __host__ __device__ { };
 
   // not an extended lambda: explicitly annotated with only '__host__'
+
   auto lam4 = [] __host__ { };
+
 }
 
 __device__ void foo_device(void) {
+
   // none of the lambdas within this function are extended lambdas,
+
   // because the enclosing function is not a __host__ or __host__ __device__
+
   // function.
+
   auto lam1 = [] { };
+
   auto lam2 = [] __device__ { };
+
   auto lam3 = [] __host__ __device__ { };
+
   auto lam4 = [] __host__ { };
+
 }
 
 // lam1 and lam2 are not extended lambdas because they are not defined
+
 // within a __host__ or __host__ __device__ function.
+
 auto lam1 = [] { };
+
 auto lam2 = [] __host__ __device__ { };
 
 ### 18.7.1.扩展的Lambda类型特征[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-lambda-type-traits "这个标题的永久链接")
@@ -16115,48 +18509,75 @@ auto lam2 = [] __host__ __device__ { };
 示例：
 
 #define IS_D_LAMBDA(X) __nv_is_extended_device_lambda_closure_type(X)
+
 #define IS_DPRT_LAMBDA(X) __nv_is_extended_device_lambda_with_preserved_return_type(X)
+
 #define IS_HD_LAMBDA(X) __nv_is_extended_host_device_lambda_closure_type(X)
 
 auto lam0 = [] __host__ __device__ { };
 
 void foo(void) {
+
   auto lam1 = [] { };
+
   auto lam2 = [] __device__ { };
+
   auto lam3 = [] __host__ __device__ { };
+
   auto lam4 = [] __device__ () --> double { return 3.14; }
+
   auto lam5 = [] __device__ (int x) --> decltype(&x) { return 0; }
 
   // lam0 is not an extended lambda (since defined outside function scope)
+
   static_assert(!IS_D_LAMBDA(decltype(lam0)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam0)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam0)), "");
 
   // lam1 is not an extended lambda (since no execution space annotations)
+
   static_assert(!IS_D_LAMBDA(decltype(lam1)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam1)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam1)), "");
 
   // lam2 is an extended __device__ lambda
+
   static_assert(IS_D_LAMBDA(decltype(lam2)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam2)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam2)), "");
 
   // lam3 is an extended __host__ __device__ lambda
+
   static_assert(!IS_D_LAMBDA(decltype(lam3)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam3)), "");
+
   static_assert(IS_HD_LAMBDA(decltype(lam3)), "");
 
   // lam4 is an extended __device__ lambda with preserved return type
+
   static_assert(IS_D_LAMBDA(decltype(lam4)), "");
+
   static_assert(IS_DPRT_LAMBDA(decltype(lam4)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam4)), "");
 
   // lam5 is not an extended __device__ lambda with preserved return type
+
   // because it references the operator()'s parameter types in the trailing return type.
+
   static_assert(IS_D_LAMBDA(decltype(lam5)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam5)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam5)), "");
+
 }
 
 ### 18.7.2.扩展的Lambda限制[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-lambda-restrictions "这个标题的永久链接")
@@ -16168,102 +18589,151 @@ void foo(void) {
 示例：
 
 void foo(void) {
+
   // enclosing function for lam1 is "foo"
+
   auto lam1 = [] __device__ { };
 
   auto lam2 = [] {
+
      auto lam3 = [] {
+
         // enclosing function for lam4 is "foo"
+
         auto lam4 = [] __host__ __device__ { };
+
      };
+
   };
+
 }
 
 auto lam6 = [] {
+
   // enclosing function for lam7 does not exist
+
   auto lam7 = [] __host__ __device__ { };
+
 };
 
 以下是对扩展lambda的限制：
 
 1. 扩展的lambda不能在另一个扩展的lambda表达式中定义。
-    
+
     示例：
-    
+
     void foo(void) {
+
       auto lam1 = [] __host__ __device__  {
+
         // error: extended lambda defined within another extended lambda
+
         auto lam2 = [] __host__ __device__ { };
+
       };
+
     }
-    
+
 2. 扩展的lambda不能在通用lambda表示式中定义。
-    
+
     示例：
-    
+
     void foo(void) {
+
       auto lam1 = [] (auto) {
+
         // error: extended lambda defined within a generic lambda
+
         auto lam2 = [] __host__ __device__ { };
+
       };
+
     }
-    
+
 3. 如果扩展的lambda是在一个或多个嵌套lambda表达式的直接或嵌套块范围内定义的，则最外层的lambda表达式必须在函数的直接或嵌套块范围内定义。
-    
+
     示例：
-    
+
     auto lam1 = []  {
+
       // error: outer enclosing lambda is not defined within a
+
       // non-lambda-operator() function.
+
       auto lam2 = [] __host__ __device__ { };
+
     };
-    
+
 4. 必须命名扩展lambda的包围函数，并且可以获取其地址。如果包含函数是类成员，则必须满足以下条件：
     
     - 包含成员函数的所有类都必须有一个名称。
-        
     - 成员函数不得在其父类内拥有私有或受保护的访问权限。
-        
     - 所有封闭类不得在其各自的父类中拥有私有或受保护的访问权限。
-        
-    
+
     示例：
-    
+
     void foo(void) {
+
       // OK
+
       auto lam1 = [] __device__ { return 0; };
+
       {
+
         // OK
+
         auto lam2 = [] __device__ { return 0; };
+
         // OK
+
         auto lam3 = [] __device__ __host__ { return 0; };
+
       }
+
     }
-    
+
     struct S1_t {
+
       S1_t(void) {
+
         // Error: cannot take address of enclosing function
+
         auto lam4 = [] __device__ { return 0; };
+
       }
+
     };
-    
+
     class C0_t {
+
       void foo(void) {
+
         // Error: enclosing function has private access in parent class
+
         auto temp1 = [] __device__ { return 10; };
+
       }
+
       struct S2_t {
+
         void foo(void) {
+
           // Error: enclosing class S2_t has private access in its
+
           // parent class
+
           auto temp1 = [] __device__ { return 10; };
+
         }
+
       };
+
     };
-    
+
 5. 在定义了扩展的lambda时，必须能够明确地取包围例程的地址。在某些情况下，这可能不可行，例如，当类typedef阴影相同名称的模板类型参数时。
-    
+
     示例：
+
     ```c++
     template <typename> struct A {
       typedef void Bar;
@@ -16295,53 +18765,69 @@ auto lam6 = [] {
     }
     ```
 1. 扩展的lambda无法在函数本地的类中定义。
-    
+
     示例：
-    
+
     void foo(void) {
+
       struct S1_t {
+
         void bar(void) {
+
           // Error: bar is member of a class that is local to a function.
+
           auto lam4 = [] __host__ __device__ { return 0; };
+
         }
+
       };
+
     }
-    
+
 2. 扩展lambda的包围函数不能有推断的返回类型。
-    
+
     示例：
-    
+
     auto foo(void) {
+
       // Error: the return type of foo is deduced.
+
       auto lam1 = [] __host__ __device__ { return 0; };
+
     }
-    
+
 3. __host__ __device__ extended lambda不能是通用的lambda。
-    
+
     示例：
-    
+
     void foo(void) {
+
       // Error: __host__ __device__ extended lambdas cannot be
+
       // generic lambdas.
+
       auto lam1 = [] __host__ __device__ (auto i) { return i; };
-    
+
       // Error: __host__ __device__ extended lambdas cannot be
+
       // generic lambdas.
+
       auto lam2 = [] __host__ __device__ (auto ...i) {
+
                    return sizeof...(i);
+
                   };
+
     }
-    
+
 4. 如果包含函数是函数模板或成员函数模板的实例化，并且/或者该函数是类模板的成员，则该模板必须满足以下约束：
     
     - 模板最多必须有一个变量参数，并且它必须列在模板参数列表中的最后。
-        
     - 模板参数必须命名。
-        
     - 模板实例化参数类型不能涉及函数的本地类型（扩展lambda的闭包类型除外）或私有或受保护的类成员。
-        
-    
+
     示例：
+
     ```c++
     template <typename T>
     __global__ void kern(T in) { in(); }
@@ -16379,7 +18865,9 @@ auto lam6 = [] {
       bar3<int, 10>();
     }
     ```
+
     示例：
+
 ```c++
     template <typename T>
     __global__ void kern(T in) { in(); }
@@ -16628,6 +19116,7 @@ auto lam6 = [] {
     }
     
 ```
+
 CUDA编译器将为1-12中描述的案例子集生成编译器诊断；不会为案例13-17生成诊断，但主机编译器可能无法编译生成的代码。
 
 ### 18.7.3.关于__host__ __device__ lambdas的注释[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#notes-on-host-device-lambdas "这个标题的永久链接")
@@ -16641,6 +19130,7 @@ The presence of the indirect function call may cause an extended `__host__ __d
 When a lambda is defined within a non-static class member function, and the body of the lambda refers to a class member variable, C++11/C++14 rules require that the `this` pointer of the class is captured by value, instead of the referenced member variable. If the lambda is an extended `__device__` or `__host__``__device__` lambda defined in a host function, and the lambda is executed on the GPU, accessing the referenced member variable on the GPU will cause a run time error if the `this` pointer points to host memory.
 
 示例：
+
 ```c++
 #include <cstdio>
 
@@ -16672,11 +19162,13 @@ int main(void) {
   s1.doit();
 }
 ```
+
 C++17通过添加一个新的“*this”捕获模式来解决这个问题。在此模式下，编译器复制了用“*this”表示的对象，而不是通过值捕获指针`this`。“*this”捕获模式在此处进行了更详细的描述：`http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0018r3.html`。
 
 The CUDA compiler supports the “*this” capture mode for lambdas defined within `__device__` and `__global__` functions and for extended `__device__` lambdas defined in host code, when the `--extended-lambda` nvcc flag is used.
 
 以下是修改为使用“*this”捕获模式的上述示例：
+
 ```c++
 #include <cstdio>
 
@@ -16710,10 +19202,13 @@ int main(void) {
   s1.doit();
 }
 ```
+
 除非所选语言方言启用了“*this”捕获，否则不允许用于主机代码中定义的未注释的lambda或扩展的`__host__``__device__`lambdas。支持和不支持的使用示例：
 
 struct S1_t {
+
   int xxx;
+
   __host__ __device__ S1_t(void) : xxx(10) { };
 
   void host_func(void) {
@@ -16728,6 +19223,7 @@ struct S1_t {
     // Use in an unannotated lambda in host function
     // Error if *this capture not enabled by language dialect
     auto lam3 = [=, *this]  { return xxx; };
+
   }
 
   __device__ void device_func(void) {
@@ -16740,6 +19236,7 @@ struct S1_t {
 
     // OK: use in a lambda defined in a __device__ function
     auto lam3 = [=, *this]  { return xxx; };
+
   }
 
    __host__ __device__ void host_device_func(void) {
@@ -16754,14 +19251,17 @@ struct S1_t {
     // Use in an unannotated lambda in a __host__ __device__ function
     // Error if *this capture not enabled by language dialect
     auto lam3 = [=, *this]  { return xxx; };
+
   }
+
 };
 
 ### 18.7.5.附加备注[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#additional-notes "这个标题的永久链接")
 
 1. `ADL Lookup`：如前所述，在调用主机编译器之前，CUDA编译器将用占位符类型的实例替换扩展的lambda表达式。占位符类型的一个模板参数使用包含原始lambda表达式的函数地址。这可能会导致其他命名空间参与参数依赖查找（ADL），对于任何参数类型涉及扩展lambda表达式的闭包类型的主机函数调用。这可能会导致主机编译器选择不正确的函数。
-    
+
     示例：
+
     ```c++
     namespace N1 {
       struct S1_t { };
@@ -16789,6 +19289,7 @@ struct S1_t {
     在上述示例中，CUDA编译器用涉及`N1`命名空间的占位符类型取代了扩展的lambda。因此，命名空间`N1`参与了`N2::doit`正文中`foo(in)`的ADL查找，主机编译失败，因为发现了多个过载候选者`N1::foo`和`N2::foo`。
     
 
+
 ## 18.8.放松的Constexpr（-expt-relaxed-constexpr）[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#relaxed-constexpr-expt-relaxed-constexpr "这个标题的永久链接")
 
 默认情况下，不支持以下交叉执行空间调用：
@@ -16807,7 +19308,6 @@ struct S1_t {
     > {
     >     int x = H();  //ERROR: calling a __host__-only constexpr function from device code
     > }
-    
 
 实验标志`-expt-relaxed-constexpr`可用于放松这个约束。当指定此标志时，编译器将支持上述交叉执行空间调用，如下所示：
 
@@ -16838,7 +19338,7 @@ struct S1_t {
     >     >   return in;
     >     > }
     >     
-    > 2. **适用于“__device__”函数的所有代码限制也适用于从设备代码调用的“constexpr host”-only函数“H”。然而，对于这些限制**[8，](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#frelaxedconstexpr1)**编译器可能不会为“H”发出任何构建时间诊断**。
+    > 2. __适用于“__device__”函数的所有代码限制也适用于从设备代码调用的“constexpr host”-only函数“H”。然而，对于这些限制__[8，](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#frelaxedconstexpr1)__编译器可能不会为“H”发出任何构建时间诊断__。
     >     
     >     > 例如，以下代码模式在`H`的主体中不受支持（与任何`__device__`函数一样），但不会生成编译器诊断：
     >     > 
@@ -16889,7 +19389,7 @@ struct S1_t {
     >     >   return *ptr;
     >     > }
     >     
-    > 4. **注意：鉴于上述限制和缺乏使用不当的编译器诊断，从设备代码中在标准C++标头中调用constexpr __host__函数时要小心**，因为该函数的实现将因主机平台而异，例如，基于gcc主机编译器的`libstdc++`版本。此类代码在移植到其他平台或主机编译器版本时可能会无声中断（如前所述，如果目标C++库实现odr-使用主机代码变量或函数）。
+    > 4. __注意：鉴于上述限制和缺乏使用不当的编译器诊断，从设备代码中在标准C++标头中调用constexpr __host__函数时要小心__，因为该函数的实现将因主机平台而异，例如，基于gcc主机编译器的`libstdc++`版本。此类代码在移植到其他平台或主机编译器版本时可能会无声中断（如前所述，如果目标C++库实现odr-使用主机代码变量或函数）。
     >     
     >     > 示例：
     >     > 
@@ -16899,7 +19399,6 @@ struct S1_t {
     >     >                          // code will not work correctly
     >     > }
     >     
-    
 
 [8](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id380)
 
@@ -16910,7 +19409,9 @@ struct S1_t {
 ### 18.9.1.数据聚合类[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-aggregation-class "这个标题的永久链接")
 
 class PixelRGBA {
+
 public:
+
     __device__ PixelRGBA(): r_(0), g_(0), b_(0), a_(0) { }
 
     __device__ PixelRGBA(unsigned char r, unsigned char g,
@@ -16918,55 +19419,93 @@ public:
                          r_(r), g_(g), b_(b), a_(a) { }
 
 private:
+
     unsigned char r_, g_, b_, a_;
 
     friend PixelRGBA operator+(const PixelRGBA&, const PixelRGBA&);
+
 };
 
 __device__
+
 PixelRGBA operator+(const PixelRGBA& p1, const PixelRGBA& p2)
+
 {
+
     return PixelRGBA(p1.r_ + p2.r_, p1.g_ + p2.g_,
+
                      p1.b_ + p2.b_, p1.a_ + p2.a_);
+
 }
 
 __device__ void func(void)
+
 {
+
     PixelRGBA p1, p2;
+
     // ...      // Initialization of p1 and p2 here
+
     PixelRGBA p3 = p1 + p2;
+
 }
 
 ### 18.9.2.衍生类[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#derived-class "这个标题的永久链接")
 
 __device__ void* operator new(size_t bytes, MemoryPool& p);
+
 __device__ void operator delete(void*, MemoryPool& p);
+
 class Shape {
+
 public:
+
     __device__ Shape(void) { }
+
     __device__ void putThis(PrintBuffer *p) const;
+
     __device__ virtual void Draw(PrintBuffer *p) const {
+
          p->put("Shapeless");
+
     }
+
     __device__ virtual ~Shape() {}
+
 };
+
 class Point : public Shape {
+
 public:
+
     __device__ Point() : x(0), y(0) {}
+
     __device__ Point(int ix, int iy) : x(ix), y(iy) { }
-    __device__ void PutCoord(PrintBuffer *p) const;
-    __device__ void Draw(PrintBuffer *p) const;
+
+    __device__ void PutCoord(PrintBuffer _p) const;
+
+    __device__ void Draw(PrintBuffer _p) const;
+
     __device__ ~Point() {}
+
 private:
+
     int x, y;
+
 };
-__device__ Shape* GetPointObj(MemoryPool& pool)
+
+__device__ Shape_ GetPointObj(MemoryPool& pool)
+
 {
-    Shape* shape = new(pool) Point(rand(-20,10), rand(-100,-20));
+
+    Shape_ shape = new(pool) Point(rand(-20,10), rand(-100,-20));
+
     return shape;
+
 }
 
 ### 18.9.3.班级模板[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#class-template "这个标题的永久链接")
+
 ```c++
 template <class T>
 class myValues {
@@ -16992,7 +19531,9 @@ int main()
     ...
 }
 ```
+
 ### 18.9.4.功能模板[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#function-template "这个标题的永久链接")
+
 ```c++
 template <typename T>
 __device__ bool func(T x)
@@ -17014,7 +19555,9 @@ bool result = func<double>(0.5);
 int x = 1;
 bool result = func(x);
 ```
+
 ### 18.9.5.函子类[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#functor-class "这个标题的永久链接")
+
 ```c++
 class Add {
 public:
