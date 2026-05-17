@@ -63,6 +63,7 @@ A GPU is built around an array of Streaming Multiprocessors (SMs) (see [Hardwar
 # 4. Changelog[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#changelog "Permalink to this headline")
 
 Table 1 Change Log[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id452 "Permalink to this table")
+
 |Version|Changes|
 |---|---|
 |13.0|Moved the instruction throughput table from the _Performance Guidelines_ section of the CUDA C++ Programming Guide to the [Instruction-optimization](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#instruction-optimization) section of the CUDA C++ Best Practices Guide. Removed unsupported architectures and corrected entries for integer arithmetic and type conversion.|
@@ -84,6 +85,7 @@ CUDA C++ extends C++ by allowing the programmer to define C++ functions, called�
 A kernel is defined using the `__global__` declaration specifier and the number of CUDA threads that execute that kernel for a given kernel call is specified using a new `<<<...>>>`_execution configuration_ syntax (see [Execution Configuration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#execution-configuration)). Each thread that executes the kernel is given a unique _thread ID_ that is accessible within the kernel through built-in variables.
 
 As an illustration, the following sample code, using the built-in variable `threadIdx`, adds two vectors _A_ and _B_ of size _N_ and stores the result into vector _C_.
+
 ```c++
 // Kernel definition
 __global__ void VecAdd(float* A, float* B, float* C)
@@ -100,6 +102,7 @@ int main()
     ...
 }
 ```
+
 Here, each of the _N_ threads that execute `VecAdd()` performs one pair-wise addition.
 
 ## 5.2. Thread Hierarchy[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-hierarchy "Permalink to this headline")
@@ -109,6 +112,7 @@ For convenience, `threadIdx` is a 3-component vector, so that threads can be i
 The index of a thread and its thread ID relate to each other in a straightforward way: For a one-dimensional block, they are the same; for a two-dimensional block of size _(Dx, Dy)_, the thread ID of a thread of index _(x, y)_ is _(x + y Dx)_; for a three-dimensional block of size _(Dx, Dy, Dz)_, the thread ID of a thread of index _(x, y, z)_ is _(x + y Dx + z Dx Dy)_.
 
 As an example, the following code adds two matrices _A_ and _B_ of size _NxN_ and stores the result into matrix _C_.
+
 ```c++
 // Kernel definition
 __global__ void MatAdd(float A[N][N], float B[N][N],
@@ -164,6 +168,7 @@ int main()
     ...
 }
 ```
+
 A thread block size of 16x16 (256 threads), although arbitrary in this case, is a common choice. The grid is created with enough blocks to have one thread per matrix element as before. For simplicity, this example assumes that the number of threads per grid in each dimension is evenly divisible by the number of threads per block in that dimension, although that need not be the case.
 
 Thread blocks are required to execute independently. It must be possible to execute blocks in any order, in parallel or in series. This independence requirement allows thread blocks to be scheduled in any order and across any number of cores as illustrated by [Figure 3](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#scalable-programming-model-automatic-scalability), enabling programmers to write code that scales with the number of cores.
@@ -187,6 +192,7 @@ Note
 In a kernel launched using cluster support, the gridDim variable still denotes the size in terms of number of thread blocks, for compatibility purposes. The rank of a block in a cluster can be found using the [Cluster Group](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group-cg) API.
 
 A thread block cluster can be enabled in a kernel either using a compile-time kernel attribute using `__cluster_dims__(X,Y,Z)` or using the CUDA kernel launch API `cudaLaunchKernelEx`. The example below shows how to launch a cluster using a compile-time kernel attribute. The cluster size using kernel attribute is fixed at compile time and then the kernel can be launched using the classical `<<< , >>>`. If a kernel uses compile-time cluster size, the cluster size cannot be modified when launching the kernel.
+
 ```c++
 // Kernel definition
 // Compile time cluster size 2 in X-dimension and 1 in Y and Z dimension
@@ -210,6 +216,7 @@ int main()
 ```
 
 A thread block cluster size can also be set at runtime and the kernel can be launched using the CUDA kernel launch API `cudaLaunchKernelEx`. The code example below shows how to launch a cluster kernel using the extensible API.
+
 ```c++
 // Kernel definition
 // No compile time attribute attached to the kernel
@@ -245,6 +252,7 @@ int main()
     }
 }
 ```
+
 In GPUs with compute capability 9.0, all the thread blocks in the cluster are guaranteed to be co-scheduled on a single GPU Processing Cluster (GPC) and allow thread blocks in the cluster to perform hardware-supported synchronization using the [Cluster Group](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group-cg) API `cluster.sync()`. Cluster group also provides member functions to query cluster group size in terms of number of threads or number of blocks using `num_threads()` and `num_blocks()` API respectively. The rank of a thread or block in the cluster group can be queried using `dim_threads()` and `dim_blocks()` API respectively.
 
 Thread blocks that belong to a cluster have access to the Distributed Shared Memory. Thread blocks in a cluster have the ability to read, write, and perform atomics to any address in the distributed shared memory. [Distributed Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#distributed-shared-memory) gives an example of performing histograms in distributed shared memory.
@@ -256,15 +264,19 @@ With `__cluster_dims__`, the number of launched clusters is kept implicit and c
 __cluster_dims__((2, 2, 2)) __global__ void foo();
 
 // 8x8x8 clusters each with 2x2x2 thread blocks.
+
 foo<<<dim3(16, 16, 16), dim3(1024, 1, 1)>>>();
 
 In the above example, the kernel is launched as a grid of 16x16x16 thread blocks, or in fact a grid of 8x8x8 clusters. Alternatively, with another compile-time kernel attribute `__block_size__`, one is allowed to launch a grid explicitly configured with the number of thread block clusters.
 
 // Implementation detail of how many threads per block and blocks per cluster
+
 // is handled as an attribute of the kernel.
+
 __block_size__((1024, 1, 1), (2, 2, 2)) __global__ void foo();
 
 // 8x8x8 clusters.
+
 foo<<<dim3(8, 8, 8)>>>();
 
 `__block_size__` requires two fields each being a tuple of 3 elements. The first tuple denotes block dimension and second cluster size. The second tuple is assumed to be `(1,1,1)` if it’s not passed. To specify the stream, one must pass `1` and `0` as the second and third arguments within `<<<>>>` and lastly the stream. Passing other values would lead to undefined behavior.
@@ -301,7 +313,7 @@ Serial code executes on the host while parallel code executes on the device.
 
 ## 5.5. Asynchronous SIMT Programming Model[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-simt-programming-model "Permalink to this headline")
 
-In the CUDA programming model a thread is the lowest level of abstraction for doing a computation or a memory operation. Starting with devices based on the **NVIDIA Ampere GPU Architecture**, the CUDA programming model provides acceleration to memory operations via the asynchronous programming model. The asynchronous programming model defines the behavior of asynchronous operations with respect to CUDA threads.
+In the CUDA programming model a thread is the lowest level of abstraction for doing a computation or a memory operation. Starting with devices based on the __NVIDIA Ampere GPU Architecture__, the CUDA programming model provides acceleration to memory operations via the asynchronous programming model. The asynchronous programming model defines the behavior of asynchronous operations with respect to CUDA threads.
 
 The asynchronous programming model defines the behavior of [Asynchronous Barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier) for synchronization between CUDA threads. The model also explains and defines how [cuda::memcpy_async](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-data-copies) can be used to move data asynchronously from global memory while computing in the GPU.
 
@@ -331,6 +343,7 @@ The compute capability comprises a major revision number _X_ and a minor revis
 The major revision number indicates the core GPU architecture of a device. Devices with the same major revision number share the same fundamental architecture. The table below lists the major revision numbers corresponding to each NVIDIA GPU architecture.
 
 Table 2 GPU Architecture and Major Revision Numbers[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id453 "Permalink to this table")
+
 |Major Revision Number|NVIDIA GPU Architecture|
 |---|---|
 |9|NVIDIA Hopper GPU Architecture|
@@ -343,6 +356,7 @@ Table 2 GPU Architecture and Major Revision Numbers[](https://docs.nvidia.co
 The minor revision number corresponds to an incremental improvement to the core architecture, possibly including new features.
 
 Table 3 Incremental Updates in GPU Architectures[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id454 "Permalink to this table")
+
 |Compute Capability|NVIDIA GPU Architecture|Based On|
 |---|---|---|
 |7.5|NVIDIA Turing GPU Architecture|NVIDIA Volta GPU Architecture|
@@ -380,18 +394,14 @@ Kernels can be written using the CUDA instruction set architecture, called _PTX
 Source files compiled with `nvcc` can include a mix of host code (i.e., code that executes on the host) and device code (i.e., code that executes on the device). `nvcc`’s basic workflow consists in separating device code from host code and then:
 
 - compiling the device code into an assembly form (_PTX_ code) and/or binary form (_cubin_ object),
-    
 - and modifying the host code by replacing the `<<<...>>>` syntax introduced in [Kernels](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#kernels) (and described in more details in [Execution Configuration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration)) by the necessary CUDA runtime function calls to load and launch each compiled kernel from the _PTX_ code and/or _cubin_ object.
-    
 
 The modified host code is output either as C++ code that is left to be compiled using another tool or as object code directly by letting `nvcc`invoke the host compiler during the last compilation stage.
 
 Applications can then:
 
 - Either link to the compiled host code (this is the most common case),
-    
 - Or ignore the modified host code (if any) and use the CUDA driver API (see [Driver API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-api)) to load and execute the _PTX_ code or _cubin_ object.
-    
 
 #### 6.1.1.2. Just-in-Time Compilation[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#just-in-time-compilation "Permalink to this headline")
 
@@ -428,8 +438,11 @@ To execute code on devices of specific compute capability, an application must l
 Which _PTX_ and binary code gets embedded in a CUDA C++ application is controlled by the `-arch` and `-code` compiler options or the `-gencode`compiler option as detailed in the `nvcc` user manual. For example,
 
 nvcc x.cu
+
         -gencode arch=compute_50,code=sm_50
+
         -gencode arch=compute_60,code=sm_60
+
         -gencode arch=compute_70,code=\"compute_70,sm_70\"
 
 embeds binary code compatible with compute capability 5.0 and 6.0 (first and second `-gencode` options) and _PTX_ and binary code compatible with compute capability 7.0 (third `-gencode` option).
@@ -437,13 +450,9 @@ embeds binary code compatible with compute capability 5.0 and 6.0 (first and sec
 Host code is generated to automatically select at runtime the most appropriate code to load and execute, which, in the above example, will be:
 
 - 5.0 binary code for devices with compute capability 5.0 and 5.2,
-    
 - 6.0 binary code for devices with compute capability 6.0 and 6.1,
-    
 - 7.0 binary code for devices with compute capability 7.0 and 7.5,
-    
 - _PTX_ code which is compiled to binary code at runtime for devices with compute capability later than 7.5
-    
 
 `x.cu` can have an optimized code path that uses warp reduction operations, for example, which are only supported in devices of compute capability 8.0 and higher. The `__CUDA_ARCH__` macro can be used to differentiate various code paths based on compute capability. It is only defined for device code. When compiling with `-arch=compute_80` for example, `__CUDA_ARCH__` is equal to `800`.
 
@@ -516,6 +525,7 @@ CUDA arrays are opaque memory layouts optimized for texture fetching. They are d
 Linear memory is allocated in a single unified address space, which means that separately allocated entities can reference one another via pointers, for example, in a binary tree or linked list. The size of the address space depends on the host system (CPU) and the compute capability of the used GPU:
 
 Table 4 Linear Memory Address Space[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id455 "Permalink to this table")
+
 ||x86_64 (AMD64)|POWER (ppc64le)|ARM64|
 |---|---|---|---|
 |up to compute capability 5.3 (Maxwell)|40bit|40bit|40bit|
@@ -528,17 +538,27 @@ On devices of compute capability 5.3 (Maxwell) and earlier, the CUDA driver crea
 Linear memory is typically allocated using `cudaMalloc()` and freed using `cudaFree()` and data transfer between host memory and device memory are typically done using `cudaMemcpy()`. In the vector addition code sample of [Kernels](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#kernels), the vectors need to be copied from host memory to device memory:
 
 // Device code
+
 __global__ void VecAdd(float* A, float* B, float* C, int N)
+
 {
+
     int i = blockDim.x * blockIdx.x + threadIdx.x;
+
     if (i < N)
+
         C[i] = A[i] + B[i];
+
 }
 
 // Host code
+
 int main()
+
 {
+
     int N = ...;
+
     size_t size = N * sizeof(float);
 
     // Allocate input vectors h_A and h_B in host memory
@@ -578,56 +598,95 @@ int main()
 
     // Free host memory
     ...
+
 }
 
 Linear memory can also be allocated through `cudaMallocPitch()` and `cudaMalloc3D()`. These functions are recommended for allocations of 2D or 3D arrays as it makes sure that the allocation is appropriately padded to meet the alignment requirements described in [Device Memory Accesses](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-memory-accesses), therefore ensuring best performance when accessing the row addresses or performing copies between 2D arrays and other regions of device memory (using the `cudaMemcpy2D()` and `cudaMemcpy3D()` functions). The returned pitch (or stride) must be used to access array elements. The following code sample allocates a `width` x `height` 2D array of floating-point values and shows how to loop over the array elements in device code:
 
 // Host code
+
 int width = 64, height = 64;
+
 float* devPtr;
+
 size_t pitch;
+
 cudaMallocPitch(&devPtr, &pitch,
+
                 width * sizeof(float), height);
+
 MyKernel<<<100, 512>>>(devPtr, pitch, width, height);
 
 // Device code
+
 __global__ void MyKernel(float* devPtr,
+
                          size_t pitch, int width, int height)
+
 {
+
     for (int r = 0; r < height; ++r) {
+
         float* row = (float*)((char*)devPtr + r * pitch);
+
         for (int c = 0; c < width; ++c) {
+
             float element = row[c];
+
         }
+
     }
+
 }
 
 The following code sample allocates a `width` x `height` x `depth` 3D array of floating-point values and shows how to loop over the array elements in device code:
 
 // Host code
+
 int width = 64, height = 64, depth = 64;
+
 cudaExtent extent = make_cudaExtent(width * sizeof(float),
+
                                     height, depth);
+
 cudaPitchedPtr devPitchedPtr;
+
 cudaMalloc3D(&devPitchedPtr, extent);
+
 MyKernel<<<100, 512>>>(devPitchedPtr, width, height, depth);
 
 // Device code
+
 __global__ void MyKernel(cudaPitchedPtr devPitchedPtr,
+
                          int width, int height, int depth)
+
 {
+
     char* devPtr = devPitchedPtr.ptr;
+
     size_t pitch = devPitchedPtr.pitch;
+
     size_t slicePitch = pitch * height;
+
     for (int z = 0; z < depth; ++z) {
+
         char* slice = devPtr + z * slicePitch;
+
         for (int y = 0; y < height; ++y) {
+
             float* row = (float*)(slice + y * pitch);
+
             for (int x = 0; x < width; ++x) {
+
                 float element = row[x];
+
             }
+
         }
+
     }
+
 }
 
 Note
@@ -639,17 +698,25 @@ The reference manual lists all the various functions used to copy memory between
 The following code sample illustrates various ways of accessing global variables via the runtime API:
 
 __constant__ float constData[256];
+
 float data[256];
+
 cudaMemcpyToSymbol(constData, data, sizeof(data));
+
 cudaMemcpyFromSymbol(data, constData, sizeof(data));
 
 __device__ float devData;
+
 float value = 3.14f;
+
 cudaMemcpyToSymbol(devData, &value, sizeof(float));
 
 __device__ float* devPointer;
+
 float* ptr;
+
 cudaMalloc(&ptr, 256 * sizeof(float));
+
 cudaMemcpyToSymbol(devPointer, &ptr, sizeof(ptr));
 
 `cudaGetSymbolAddress()` is used to retrieve the address pointing to the memory allocated for a variable declared in global memory space. The size of the allocated memory is obtained through `cudaGetSymbolSize()`.
@@ -667,7 +734,9 @@ A portion of the L2 cache can be set aside to be used for persisting data access
 The L2 cache set-aside size for persisting accesses may be adjusted, within limits:
 
 cudaGetDeviceProperties(&prop, device_id);
+
 size_t size = min(int(prop.l2CacheSize * 0.75), prop.persistingL2CacheMaxSize);
+
 cudaDeviceSetLimit(cudaLimitPersistingL2CacheSize, size); /* set-aside 3/4 of L2 cache for persisting accesses or the max allowed*/
 
 When the GPU is configured in Multi-Instance GPU (MIG) mode, the L2 cache set-aside functionality is disabled.
@@ -680,34 +749,48 @@ An access policy window specifies a contiguous region of global memory and a per
 
 The code example below shows how to set an L2 persisting access window using a CUDA Stream.
 
-**CUDA Stream Example**
+__CUDA Stream Example__
 
 cudaStreamAttrValue stream_attribute;                                         // Stream level attributes data structure
+
 stream_attribute.accessPolicyWindow.base_ptr  = reinterpret_cast<void*>(ptr); // Global Memory data pointer
+
 stream_attribute.accessPolicyWindow.num_bytes = num_bytes;                    // Number of bytes for persistence access.
+
                                                                               // (Must be less than cudaDeviceProp::accessPolicyMaxWindowSize)
+
 stream_attribute.accessPolicyWindow.hitRatio  = 0.6;                          // Hint for cache hit ratio
+
 stream_attribute.accessPolicyWindow.hitProp   = cudaAccessPropertyPersisting; // Type of access property on cache hit
+
 stream_attribute.accessPolicyWindow.missProp  = cudaAccessPropertyStreaming;  // Type of access property on cache miss.
 
 //Set the attributes to a CUDA stream of type cudaStream_t
+
 cudaStreamSetAttribute(stream, cudaStreamAttributeAccessPolicyWindow, &stream_attribute);
 
 When a kernel subsequently executes in CUDA `stream`, memory accesses within the global memory extent `[ptr..ptr+num_bytes)` are more likely to persist in the L2 cache than accesses to other global memory locations.
 
 L2 persistence can also be set for a CUDA Graph Kernel Node as shown in the example below:
 
-**CUDA GraphKernelNode Example**
+__CUDA GraphKernelNode Example__
 
 cudaKernelNodeAttrValue node_attribute;                                     // Kernel level attributes data structure
+
 node_attribute.accessPolicyWindow.base_ptr  = reinterpret_cast<void*>(ptr); // Global Memory data pointer
+
 node_attribute.accessPolicyWindow.num_bytes = num_bytes;                    // Number of bytes for persistence access.
+
                                                                             // (Must be less than cudaDeviceProp::accessPolicyMaxWindowSize)
+
 node_attribute.accessPolicyWindow.hitRatio  = 0.6;                          // Hint for cache hit ratio
+
 node_attribute.accessPolicyWindow.hitProp   = cudaAccessPropertyPersisting; // Type of access property on cache hit
+
 node_attribute.accessPolicyWindow.missProp  = cudaAccessPropertyStreaming;  // Type of access property on cache miss.
 
 //Set the attributes to a CUDA Graph Kernel node of type cudaGraphNode_t
+
 cudaGraphKernelNodeSetAttribute(node, cudaKernelNodeAttributeAccessPolicyWindow, &node_attribute);
 
 The `hitRatio` parameter can be used to specify the fraction of accesses that receive the `hitProp` property. In both of the examples above, 60% of the memory accesses in the global memory region `[ptr..ptr+num_bytes)` have the persisting property and 40% of the memory accesses have the streaming property. Which specific memory accesses are classified as persisting (the `hitProp`) is random with a probability of approximately `hitRatio`; the probability distribution depends upon the hardware architecture and the memory extent.
@@ -715,9 +798,7 @@ The `hitRatio` parameter can be used to specify the fraction of accesses that 
 For example, if the L2 set-aside cache size is 16KB and the `num_bytes` in the `accessPolicyWindow` is 32KB:
 
 - With a `hitRatio` of 0.5, the hardware will select, at random, 16KB of the 32KB window to be designated as persisting and cached in the set-aside L2 cache area.
-    
 - With a `hitRatio` of 1.0, the hardware will attempt to cache the whole 32KB window in the set-aside L2 cache area. Since the set-aside area is smaller than the window, cache lines will be evicted to keep the most recently used 16KB of the 32KB data in the set-aside portion of the L2 cache.
-    
 
 The `hitRatio` can therefore be used to avoid thrashing of cache lines and overall reduce the amount of data moved into and out of the L2 cache.
 
@@ -728,43 +809,55 @@ A `hitRatio` value below 1.0 can be used to manually control the amount of dat
 Three types of access properties are defined for different global memory data accesses:
 
 1. `cudaAccessPropertyStreaming`: Memory accesses that occur with the streaming property are less likely to persist in the L2 cache because these accesses are preferentially evicted.
-    
 2. `cudaAccessPropertyPersisting`: Memory accesses that occur with the persisting property are more likely to persist in the L2 cache because these accesses are preferentially retained in the set-aside portion of L2 cache.
-    
 3. `cudaAccessPropertyNormal`: This access property forcibly resets previously applied persisting access property to a normal status. Memory accesses with the persisting property from previous CUDA kernels may be retained in L2 cache long after their intended use. This persistence-after-use reduces the amount of L2 cache available to subsequent kernels that do not use the persisting property. Resetting an access property window with the `cudaAccessPropertyNormal` property removes the persisting (preferential retention) status of the prior access, as if the prior access had been without an access property.
-    
 
 #### 6.2.3.4. L2 Persistence Example[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#l2-persistence-example "Permalink to this headline")
 
 The following example shows how to set-aside L2 cache for persistent accesses, use the set-aside L2 cache in CUDA kernels via CUDA Stream and then reset the L2 cache.
 
 cudaStream_t stream;
+
 cudaStreamCreate(&stream);                                                                  // Create CUDA stream
 
 cudaDeviceProp prop;                                                                        // CUDA device properties variable
+
 cudaGetDeviceProperties( &prop, device_id);                                                 // Query GPU properties
+
 size_t size = min( int(prop.l2CacheSize * 0.75) , prop.persistingL2CacheMaxSize );
+
 cudaDeviceSetLimit( cudaLimitPersistingL2CacheSize, size);                                  // set-aside 3/4 of L2 cache for persisting accesses or the max allowed
 
 size_t window_size = min(prop.accessPolicyMaxWindowSize, num_bytes);                        // Select minimum of user defined num_bytes and max window size.
 
 cudaStreamAttrValue stream_attribute;                                                       // Stream level attributes data structure
+
 stream_attribute.accessPolicyWindow.base_ptr  = reinterpret_cast<void*>(data1);               // Global Memory data pointer
+
 stream_attribute.accessPolicyWindow.num_bytes = window_size;                                // Number of bytes for persistence access
+
 stream_attribute.accessPolicyWindow.hitRatio  = 0.6;                                        // Hint for cache hit ratio
+
 stream_attribute.accessPolicyWindow.hitProp   = cudaAccessPropertyPersisting;               // Persistence Property
+
 stream_attribute.accessPolicyWindow.missProp  = cudaAccessPropertyStreaming;                // Type of access property on cache miss
 
 cudaStreamSetAttribute(stream, cudaStreamAttributeAccessPolicyWindow, &stream_attribute);   // Set the attributes to a CUDA Stream
 
 for(int i = 0; i < 10; i++) {
+
     cuda_kernelA<<<grid_size,block_size,0,stream>>>(data1);                                 // This data1 is used by a kernel multiple times
+
 }                                                                                           // [data1 + num_bytes) benefits from L2 persistence
+
 cuda_kernelB<<<grid_size,block_size,0,stream>>>(data1);                                     // A different kernel in the same stream can also benefit
+
                                                                                             // from the persistence of data1
 
 stream_attribute.accessPolicyWindow.num_bytes = 0;                                          // Setting the window size to 0 disable it
+
 cudaStreamSetAttribute(stream, cudaStreamAttributeAccessPolicyWindow, &stream_attribute);   // Overwrite the access policy attribute to a CUDA Stream
+
 cudaCtxResetPersistingL2Cache();                                                            // Remove any persistent lines in L2
 
 cuda_kernelC<<<grid_size,block_size,0,stream>>>(data2);                                     // data2 can now benefit from full L2 in normal mode
@@ -774,11 +867,8 @@ cuda_kernelC<<<grid_size,block_size,0,stream>>>(data2);                         
 A persisting L2 cache line from a previous CUDA kernel may persist in L2 long after it has been used. Hence, a reset to normal for L2 cache is important for streaming or normal memory accesses to utilize the L2 cache with normal priority. There are three ways a persisting access can be reset to normal status.
 
 1. Reset a previous persisting memory region with the access property, `cudaAccessPropertyNormal`.
-    
 2. Reset all persisting L2 cache lines to normal by calling `cudaCtxResetPersistingL2Cache()`.
-    
-3. **Eventually** untouched lines are automatically reset to normal. Reliance on automatic reset is strongly discouraged because of the undetermined length of time required for automatic reset to occur.
-    
+3. __Eventually__ untouched lines are automatically reset to normal. Reliance on automatic reset is strongly discouraged because of the undetermined length of time required for automatic reset to occur.
 
 #### 6.2.3.6. Manage Utilization of L2 set-aside cache[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#manage-utilization-of-l2-set-aside-cache "Permalink to this headline")
 
@@ -787,13 +877,9 @@ Multiple CUDA kernels executing concurrently in different CUDA streams may have 
 To manage utilization of the set-aside L2 cache portion, an application must consider the following:
 
 - Size of L2 set-aside cache.
-    
 - CUDA kernels that may concurrently execute.
-    
 - The access policy window for all the CUDA kernels that may concurrently execute.
-    
 - When and how L2 reset is required to allow normal or streaming accesses to utilize the previously set-aside L2 cache with equal priority.
-    
 
 #### 6.2.3.7. Query L2 cache Properties[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#query-l2-cache-properties "Permalink to this headline")
 
@@ -802,19 +888,19 @@ Properties related to L2 cache are a part of `cudaDeviceProp` struct and can b
 CUDA Device Properties include:
 
 - `l2CacheSize`: The amount of available L2 cache on the GPU.
-    
 - `persistingL2CacheMaxSize`: The maximum amount of L2 cache that can be set-aside for persisting memory accesses.
-    
 - `accessPolicyMaxWindowSize`: The maximum size of the access policy window.
-    
 
 #### 6.2.3.8. Control L2 Cache Set-Aside Size for Persisting Memory Access[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#control-l2-cache-set-aside-size-for-persisting-memory-access "Permalink to this headline")
 
 The L2 set-aside cache size for persisting memory accesses is queried using CUDA runtime API `cudaDeviceGetLimit` and set using CUDA runtime API `cudaDeviceSetLimit` as a `cudaLimit`. The maximum value for setting this limit is `cudaDeviceProp::persistingL2CacheMaxSize`.
 
 enum cudaLimit {
+
     /* other fields not shown */
+
     cudaLimitPersistingL2CacheSize
+
 };
 
 ### 6.2.4. Shared Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory "Permalink to this headline")
@@ -826,35 +912,59 @@ Shared memory is expected to be much faster than global memory as mentioned in 
 The following code sample is a straightforward implementation of matrix multiplication that does not take advantage of shared memory. Each thread reads one row of _A_ and one column of _B_ and computes the corresponding element of _C_ as illustrated in [Figure 8](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-matrix-multiplication-no-shared-memory). _A_ is therefore read _B.width_times from global memory and _B_ is read _A.height_ times.
 
 // Matrices are stored in row-major order:
-// M(row, col) = *(M.elements + row * M.width + col)
+
+// M(row, col) = _(M.elements + row * M.width + col)
+
 typedef struct {
+
     int width;
+
     int height;
-    float* elements;
+
+    float_ elements;
+
 } Matrix;
 
 // Thread block size
+
 #define BLOCK_SIZE 16
 
 // Forward declaration of the matrix multiplication kernel
+
 __global__ void MatMulKernel(const Matrix, const Matrix, Matrix);
 
 // Matrix multiplication - Host code
+
 // Matrix dimensions are assumed to be multiples of BLOCK_SIZE
+
 void MatMul(const Matrix A, const Matrix B, Matrix C)
+
 {
+
     // Load A and B to device memory
+
     Matrix d_A;
+
     d_A.width = A.width; d_A.height = A.height;
+
     size_t size = A.width * A.height * sizeof(float);
+
     cudaMalloc(&d_A.elements, size);
+
     cudaMemcpy(d_A.elements, A.elements, size,
+
                cudaMemcpyHostToDevice);
+
     Matrix d_B;
+
     d_B.width = B.width; d_B.height = B.height;
+
     size = B.width * B.height * sizeof(float);
+
     cudaMalloc(&d_B.elements, size);
+
     cudaMemcpy(d_B.elements, B.elements, size,
+
                cudaMemcpyHostToDevice);
 
     // Allocate C in device memory
@@ -876,20 +986,33 @@ void MatMul(const Matrix A, const Matrix B, Matrix C)
     cudaFree(d_A.elements);
     cudaFree(d_B.elements);
     cudaFree(d_C.elements);
+
 }
 
 // Matrix multiplication kernel called by MatMul()
+
 __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C)
+
 {
+
     // Each thread computes one element of C
+
     // by accumulating results into Cvalue
+
     float Cvalue = 0;
+
     int row = blockIdx.y * blockDim.y + threadIdx.y;
+
     int col = blockIdx.x * blockDim.x + threadIdx.x;
+
     for (int e = 0; e < A.width; ++e)
+
         Cvalue += A.elements[row * A.width + e]
+
                 * B.elements[e * B.width + col];
+
     C.elements[row * C.width + col] = Cvalue;
+
 }
 
 ![_images/matrix-multiplication-without-shared-memory.png](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/matrix-multiplication-without-shared-memory.png)
@@ -903,119 +1026,233 @@ By blocking the computation this way, we take advantage of fast shared memory an
 The _Matrix_ type from the previous code sample is augmented with a _stride_ field, so that sub-matrices can be efficiently represented with the same type. [__device__](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-function-specifier) functions are used to get and set elements and build any sub-matrix from a matrix.
 
 // Matrices are stored in row-major order:
-// M(row, col) = *(M.elements + row * M.stride + col)
+
+// M(row, col) = _(M.elements + row * M.stride + col)
+
 typedef struct {
+
     int width;
+
     int height;
+
     int stride;
-    float* elements;
+
+    float_ elements;
+
 } Matrix;
+
 // Get a matrix element
+
 __device__ float GetElement(const Matrix A, int row, int col)
+
 {
+
     return A.elements[row * A.stride + col];
+
 }
+
 // Set a matrix element
+
 __device__ void SetElement(Matrix A, int row, int col,
+
                            float value)
+
 {
+
     A.elements[row * A.stride + col] = value;
+
 }
+
 // Get the BLOCK_SIZExBLOCK_SIZE sub-matrix Asub of A that is
+
 // located col sub-matrices to the right and row sub-matrices down
+
 // from the upper-left corner of A
+
  __device__ Matrix GetSubMatrix(Matrix A, int row, int col)
+
 {
+
     Matrix Asub;
+
     Asub.width    = BLOCK_SIZE;
+
     Asub.height   = BLOCK_SIZE;
+
     Asub.stride   = A.stride;
+
     Asub.elements = &A.elements[A.stride * BLOCK_SIZE * row
+
                                          + BLOCK_SIZE * col];
+
     return Asub;
+
 }
+
 // Thread block size
+
 #define BLOCK_SIZE 16
+
 // Forward declaration of the matrix multiplication kernel
+
 __global__ void MatMulKernel(const Matrix, const Matrix, Matrix);
+
 // Matrix multiplication - Host code
+
 // Matrix dimensions are assumed to be multiples of BLOCK_SIZE
+
 void MatMul(const Matrix A, const Matrix B, Matrix C)
+
 {
+
     // Load A and B to device memory
+
     Matrix d_A;
+
     d_A.width = d_A.stride = A.width; d_A.height = A.height;
+
     size_t size = A.width * A.height * sizeof(float);
+
     cudaMalloc(&d_A.elements, size);
+
     cudaMemcpy(d_A.elements, A.elements, size,
+
                cudaMemcpyHostToDevice);
+
     Matrix d_B;
+
     d_B.width = d_B.stride = B.width; d_B.height = B.height;
+
     size = B.width * B.height * sizeof(float);
+
     cudaMalloc(&d_B.elements, size);
+
     cudaMemcpy(d_B.elements, B.elements, size,
+
     cudaMemcpyHostToDevice);
+
     // Allocate C in device memory
+
     Matrix d_C;
+
     d_C.width = d_C.stride = C.width; d_C.height = C.height;
+
     size = C.width * C.height * sizeof(float);
+
     cudaMalloc(&d_C.elements, size);
+
     // Invoke kernel
+
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+
     dim3 dimGrid(B.width / dimBlock.x, A.height / dimBlock.y);
+
     MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_B, d_C);
+
     // Read C from device memory
+
     cudaMemcpy(C.elements, d_C.elements, size,
+
                cudaMemcpyDeviceToHost);
+
     // Free device memory
+
     cudaFree(d_A.elements);
+
     cudaFree(d_B.elements);
+
     cudaFree(d_C.elements);
+
 }
+
 // Matrix multiplication kernel called by MatMul()
+
  __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C)
+
 {
+
     // Block row and column
+
     int blockRow = blockIdx.y;
+
     int blockCol = blockIdx.x;
+
     // Each thread block computes one sub-matrix Csub of C
+
     Matrix Csub = GetSubMatrix(C, blockRow, blockCol);
+
     // Each thread computes one element of Csub
+
     // by accumulating results into Cvalue
+
     float Cvalue = 0;
+
     // Thread row and column within Csub
+
     int row = threadIdx.y;
+
     int col = threadIdx.x;
+
     // Loop over all the sub-matrices of A and B that are
+
     // required to compute Csub
+
     // Multiply each pair of sub-matrices together
+
     // and accumulate the results
+
     for (int m = 0; m < (A.width / BLOCK_SIZE); ++m) {
+
         // Get sub-matrix Asub of A
+
         Matrix Asub = GetSubMatrix(A, blockRow, m);
+
         // Get sub-matrix Bsub of B
+
         Matrix Bsub = GetSubMatrix(B, m, blockCol);
+
         // Shared memory used to store Asub and Bsub respectively
+
         __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+
         __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+
         // Load Asub and Bsub from device memory to shared memory
+
         // Each thread loads one element of each sub-matrix
+
         As[row][col] = GetElement(Asub, row, col);
+
         Bs[row][col] = GetElement(Bsub, row, col);
+
         // Synchronize to make sure the sub-matrices are loaded
+
         // before starting the computation
+
         __syncthreads();
+
         // Multiply Asub and Bsub together
+
         for (int e = 0; e < BLOCK_SIZE; ++e)
+
             Cvalue += As[row][e] * Bs[e][col];
+
         // Synchronize to make sure that the preceding
+
         // computation is done before loading two new
+
         // sub-matrices of A and B in the next iteration
+
         __syncthreads();
+
     }
+
     // Write Csub to device memory
+
     // Each thread writes one element
+
     SetElement(Csub, row, col, Cvalue);
+
 }
 
 ![_images/matrix-multiplication-with-shared-memory.png](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/matrix-multiplication-with-shared-memory.png)
@@ -1035,30 +1272,47 @@ The CUDA kernel example below shows how to compute histograms in shared memory o
 #include <cooperative_groups.h>
 
 // Distributed Shared memory histogram kernel
+
 __global__ void clusterHist_kernel(int *bins, const int nbins, const int bins_per_block, const int *__restrict__ input,
+
                                    size_t array_size)
+
 {
+
   extern __shared__ int smem[];
+
   namespace cg = cooperative_groups;
+
   int tid = cg::this_grid().thread_rank();
 
   // Cluster initialization, size and calculating local bin offsets.
+
   cg::cluster_group cluster = cg::this_cluster();
+
   unsigned int clusterBlockRank = cluster.block_rank();
+
   int cluster_size = cluster.dim_blocks().x;
 
   for (int i = threadIdx.x; i < bins_per_block; i += blockDim.x)
+
   {
+
     smem[i] = 0; //Initialize shared memory histogram to zeros
+
   }
 
   // cluster synchronization ensures that shared memory is initialized to zero in
+
   // all thread blocks in the cluster. It also ensures that all thread blocks
+
   // have started executing and they exist concurrently.
+
   cluster.sync();
 
   for (int i = tid; i < array_size; i += blockDim.x * gridDim.x)
+
   {
+
     int ldata = input[i];
 
     //Find the right histogram bin.
@@ -1078,50 +1332,75 @@ __global__ void clusterHist_kernel(int *bins, const int nbins, const int bins_pe
 
     //Perform atomic update of the histogram bin
     atomicAdd(dst_smem + dst_offset, 1);
+
   }
 
   // cluster synchronization is required to ensure all distributed shared
+
   // memory operations are completed and no thread block exits while
+
   // other thread blocks are still accessing distributed shared memory
+
   cluster.sync();
 
   // Perform global memory histogram, using the local distributed memory histogram
+
   int *lbins = bins + cluster.block_rank() * bins_per_block;
+
   for (int i = threadIdx.x; i < bins_per_block; i += blockDim.x)
+
   {
+
     atomicAdd(&lbins[i], smem[i]);
+
   }
+
 }
 
 The above kernel can be launched at runtime with a cluster size depending on the amount of distributed shared memory required. If histogram is small enough to fit in shared memory of just one block, user can launch kernel with cluster size 1. The code snippet below shows how to launch a cluster kernel dynamically based depending on shared memory requirements.
 
 // Launch via extensible launch
+
 {
+
   cudaLaunchConfig_t config = {0};
+
   config.gridDim = array_size / threads_per_block;
+
   config.blockDim = threads_per_block;
 
   // cluster_size depends on the histogram size.
+
   // ( cluster_size == 1 ) implies no distributed shared memory, just thread block local shared memory
+
   int cluster_size = 2; // size 2 is an example here
+
   int nbins_per_block = nbins / cluster_size;
 
   //dynamic shared memory size is per block.
+
   //Distributed shared memory size =  cluster_size * nbins_per_block * sizeof(int)
+
   config.dynamicSmemBytes = nbins_per_block * sizeof(int);
 
   CUDA_CHECK(::cudaFuncSetAttribute((void *)clusterHist_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, config.dynamicSmemBytes));
 
   cudaLaunchAttribute attribute[1];
+
   attribute[0].id = cudaLaunchAttributeClusterDimension;
+
   attribute[0].val.clusterDim.x = cluster_size;
+
   attribute[0].val.clusterDim.y = 1;
+
   attribute[0].val.clusterDim.z = 1;
 
   config.numAttrs = 1;
+
   config.attrs = attribute;
 
   cudaLaunchKernelEx(&config, clusterHist_kernel, bins, nbins, nbins_per_block, input, array_size);
+
 }
 
 ### 6.2.6. Page-Locked Host Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#page-locked-host-memory "Permalink to this headline")
@@ -1129,18 +1408,13 @@ The above kernel can be launched at runtime with a cluster size depending on the
 The runtime provides functions to allow the use of _page-locked_ (also known as _pinned_) host memory (as opposed to regular pageable host memory allocated by `malloc()`):
 
 - `cudaHostAlloc()` and `cudaFreeHost()` allocate and free page-locked host memory;
-    
 - `cudaHostRegister()` page-locks a range of memory allocated by `malloc()` (see reference manual for limitations).
-    
 
 Using page-locked host memory has several benefits:
 
 - Copies between page-locked host memory and device memory can be performed concurrently with kernel execution for some devices as mentioned in [Asynchronous Concurrent Execution](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-concurrent-execution).
-    
 - On some devices, page-locked host memory can be mapped into the address space of the device, eliminating the need to copy it to or from device memory as detailed in [Mapped Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapped-memory).
-    
 - On systems with a front-side bus, bandwidth between host memory and device memory is higher if host memory is allocated as page-locked and even higher if in addition it is allocated as write-combining as described in [Write-Combining Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#write-combining-memory).
-    
 
 Note
 
@@ -1167,9 +1441,7 @@ A block of page-locked host memory can also be mapped into the address space of 
 Accessing host memory directly from within a kernel does not provide the same bandwidth as device memory, but does have some advantages:
 
 - There is no need to allocate a block in device memory and copy data between this block and the block in host memory; data transfers are implicitly performed as needed by the kernel;
-    
 - There is no need to use streams (see [Concurrent Data Transfers](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#concurrent-data-transfers)) to overlap data transfers with kernel execution; the kernel-originated data transfers automatically overlap with kernel execution.
-    
 
 Since mapped page-locked memory is shared between host and device however, the application must synchronize memory accesses using streams or events (see [Asynchronous Concurrent Execution](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-concurrent-execution)) to avoid any potential read-after-write, write-after-read, or write-after-write hazards.
 
@@ -1206,7 +1478,7 @@ A common example is when a kernel is performing computation in local GPU memory,
 
 Beginning with Hopper architecture GPUs and CUDA 12.0, the memory synchronization domains feature provides a way to alleviate such interference. In exchange for explicit assistance from code, the GPU can reduce the net cast by a fence operation. Each kernel launch is given a domain ID. Writes and fences are tagged with the ID, and a fence will only order writes matching the fence’s domain. In the concurrent compute vs communication example, the communication kernels can be placed in a different domain.
 
-When using domains, code must abide by the rule that **ordering or synchronization between distinct domains on the same GPU requires system-scope fencing**. Within a domain, device-scope fencing remains sufficient. This is necessary for cumulativity as one kernel’s writes will not be encompassed by a fence issued from a kernel in another domain. In essence, cumulativity is satisfied by ensuring that cross-domain traffic is flushed to the system scope ahead of time.
+When using domains, code must abide by the rule that __ordering or synchronization between distinct domains on the same GPU requires system-scope fencing__. Within a domain, device-scope fencing remains sufficient. This is necessary for cumulativity as one kernel’s writes will not be encompassed by a fence issued from a kernel in another domain. In essence, cumulativity is satisfied by ensuring that cross-domain traffic is flushed to the system scope ahead of time.
 
 Note that this modifies the definition of `thread_scope_device`. However, because kernels will default to domain 0 as described below, backward compatibility is maintained.
 
@@ -1219,31 +1491,53 @@ The domain count can be queried via device attribute `cudaDevAttrMemSyncDomainC
 Having logical domains eases application composition. An individual kernel launch at a low level in the stack, such as from NCCL, can select a semantic logical domain without concern for the surrounding application architecture. Higher levels can steer logical domains using the mapping. The default value for the logical domain if it is not set is the default domain, and the default mapping is to map the default domain to 0 and the remote domain to 1 (on GPUs with more than 1 domain). Specific libraries may tag launches with the remote domain in CUDA 12.0 and later; for example, NCCL 2.16 will do so. Together, this provides a beneficial use pattern for common applications out of the box, with no code changes needed in other components, frameworks, or at application level. An alternative use pattern, for example in an application using nvshmem or with no clear separation of kernel types, could be to partition parallel streams. Stream A may map both logical domains to physical domain 0, stream B to 1, and so on.
 
 // Example of launching a kernel with the remote logical domain
+
 cudaLaunchAttribute domainAttr;
+
 domainAttr.id = cudaLaunchAttrMemSyncDomain;
+
 domainAttr.val = cudaLaunchMemSyncDomainRemote;
+
 cudaLaunchConfig_t config;
+
 // Fill out other config fields
+
 config.attrs = &domainAttr;
+
 config.numAttrs = 1;
+
 cudaLaunchKernelEx(&config, myKernel, kernelArg1, kernelArg2...);
 
 // Example of setting a mapping for a stream
+
 // (This mapping is the default for streams starting on Hopper if not
+
 // explicitly set, and provided for illustration)
+
 cudaLaunchAttributeValue mapAttr;
+
 mapAttr.memSyncDomainMap.default_ = 0;
+
 mapAttr.memSyncDomainMap.remote = 1;
+
 cudaStreamSetAttribute(stream, cudaLaunchAttributeMemSyncDomainMap, &mapAttr);
 
 // Example of mapping different streams to different physical domains, ignoring
+
 // logical domain settings
+
 cudaLaunchAttributeValue mapAttr;
+
 mapAttr.memSyncDomainMap.default_ = 0;
+
 mapAttr.memSyncDomainMap.remote = 0;
+
 cudaStreamSetAttribute(streamA, cudaLaunchAttributeMemSyncDomainMap, &mapAttr);
+
 mapAttr.memSyncDomainMap.default_ = 1;
+
 mapAttr.memSyncDomainMap.remote = 1;
+
 cudaStreamSetAttribute(streamB, cudaLaunchAttributeMemSyncDomainMap, &mapAttr);
 
 As with other launch attributes, these are exposed uniformly on CUDA streams, individual launches using `cudaLaunchKernelEx`, and kernel nodes in CUDA graphs. A typical use would set the mapping at stream level and the logical domain at launch level (or bracketing a section of stream use) as described above.
@@ -1255,17 +1549,11 @@ Both attributes are copied to graph nodes during stream capture. Graphs take bot
 CUDA exposes the following operations as independent tasks that can operate concurrently with one another:
 
 - Computation on the host;
-    
 - Computation on the device;
-    
 - Memory transfers from the host to the device;
-    
 - Memory transfers from the device to the host;
-    
 - Memory transfers within the memory of a given device;
-    
 - Memory transfers among devices.
-    
 
 The level of concurrency achieved between these operations will depend on the feature set and compute capability of the device as described below.
 
@@ -1274,15 +1562,10 @@ The level of concurrency achieved between these operations will depend on the fe
 Concurrent host execution is facilitated through asynchronous library functions that return control to the host thread before the device completes the requested task. Using asynchronous calls, many device operations can be queued up together to be executed by the CUDA driver when appropriate device resources are available. This relieves the host thread of much of the responsibility to manage the device, leaving it free for other tasks. The following device operations are asynchronous with respect to the host:
 
 - Kernel launches;
-    
 - Memory copies within a single device’s memory;
-    
 - Memory copies from host to device of a memory block of 64 KB or less;
-    
 - Memory copies performed by functions that are suffixed with `Async`;
-    
 - Memory set function calls.
-    
 
 Programmers can globally disable asynchronicity of kernel launches for all CUDA applications running on a system by setting the `CUDA_LAUNCH_BLOCKING` environment variable to 1. This feature is provided for debugging purposes only and should not be used as a way to make production software run reliably.
 
@@ -1317,20 +1600,31 @@ Applications manage the concurrent operations described above through _streams_
 A stream is defined by creating a stream object and specifying it as the stream parameter to a sequence of kernel launches and host `<->` device memory copies. The following code sample creates two streams and allocates an array `hostPtr` of `float` in page-locked memory.
 
 cudaStream_t stream[2];
+
 for (int i = 0; i < 2; ++i)
+
     cudaStreamCreate(&stream[i]);
+
 float* hostPtr;
+
 cudaMallocHost(&hostPtr, 2 * size);
 
 Each of these streams is defined by the following code sample as a sequence of one memory copy from host to device, one kernel launch, and one memory copy from device to host:
 
 for (int i = 0; i < 2; ++i) {
+
     cudaMemcpyAsync(inputDevPtr + i * size, hostPtr + i * size,
+
                     size, cudaMemcpyHostToDevice, stream[i]);
+
     MyKernel <<<100, 512, 0, stream[i]>>>
+
           (outputDevPtr + i * size, inputDevPtr + i * size, size);
+
     cudaMemcpyAsync(hostPtr + i * size, outputDevPtr + i * size,
+
                     size, cudaMemcpyDeviceToHost, stream[i]);
+
 }
 
 Each stream copies its portion of input array `hostPtr` to array `inputDevPtr` in device memory, processes `inputDevPtr` on the device by calling `MyKernel()`, and copies the result `outputDevPtr` back to the same portion of `hostPtr`. [Overlapping Behavior](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#overlapping-behavior) describes how the streams overlap in this example depending on the capability of the device. Note that `hostPtr` must point to page-locked host memory for any overlap to occur.
@@ -1338,6 +1632,7 @@ Each stream copies its portion of input array `hostPtr` to array `inputDevPtr
 Streams are released by calling `cudaStreamDestroy()`.
 
 for (int i = 0; i < 2; ++i)
+
     cudaStreamDestroy(stream[i]);
 
 In case the device is still doing work in the stream when `cudaStreamDestroy()` is called, the function will return immediately and the resources associated with the stream will be released automatically once the device has completed all work in the stream.
@@ -1375,9 +1670,7 @@ Two operations from different streams cannot run concurrently if any CUDA operat
 Applications should follow these guidelines to improve their potential for concurrent kernel execution:
 
 - All independent operations should be issued before dependent operations,
-    
 - Synchronization of any kind should be delayed as long as possible.
-    
 
 ##### 6.2.8.5.5. Overlapping Behavior[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#overlapping-behavior "Permalink to this headline")
 
@@ -1386,13 +1679,21 @@ The amount of execution overlap between two streams depends on the order in whic
 For example, on devices that do not support concurrent data transfers, the two streams of the code sample of [Creation and Destruction of Streams](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creation-and-destruction-streams) do not overlap at all because the memory copy from host to device is issued to stream[1] after the memory copy from device to host is issued to stream[0], so it can only start once the memory copy from device to host issued to stream[0] has completed. If the code is rewritten the following way (and assuming the device supports overlap of data transfer and kernel execution)
 
 for (int i = 0; i < 2; ++i)
+
     cudaMemcpyAsync(inputDevPtr + i * size, hostPtr + i * size,
+
                     size, cudaMemcpyHostToDevice, stream[i]);
+
 for (int i = 0; i < 2; ++i)
+
     MyKernel<<<100, 512, 0, stream[i]>>>
+
           (outputDevPtr + i * size, inputDevPtr + i * size, size);
+
 for (int i = 0; i < 2; ++i)
+
     cudaMemcpyAsync(hostPtr + i * size, outputDevPtr + i * size,
+
                     size, cudaMemcpyDeviceToHost, stream[i]);
 
 then the memory copy from host to device issued to stream[1] overlaps with the kernel launch issued to stream[0].
@@ -1405,15 +1706,24 @@ The runtime provides a way to insert a CPU function call at any point into a str
 
 The following code sample adds the host function `MyCallback` to each of two streams after issuing a host-to-device memory copy, a kernel launch and a device-to-host memory copy into each stream. The function will begin execution on the host after each of the device-to-host memory copies completes.
 
-void CUDART_CB MyCallback(void *data){
+void CUDART_CB MyCallback(void _data){
+
     printf("Inside callback %d\n", (size_t)data);
+
 }
+
 ...
+
 for (size_t i = 0; i < 2; ++i) {
+
     cudaMemcpyAsync(devPtrIn[i], hostPtr[i], size, cudaMemcpyHostToDevice, stream[i]);
+
     MyKernel<<<100, 512, 0, stream[i]>>>(devPtrOut[i], devPtrIn[i], size);
+
     cudaMemcpyAsync(hostPtr[i], devPtrOut[i], size, cudaMemcpyDeviceToHost, stream[i]);
-    cudaLaunchHostFunc(stream[i], MyCallback, (void*)i);
+
+    cudaLaunchHostFunc(stream[i], MyCallback, (void_)i);
+
 }
 
 The commands that are issued in a stream after a host function do not start executing before the function has completed.
@@ -1427,11 +1737,17 @@ The relative priorities of streams can be specified at creation using `cudaStre
 The following code sample obtains the allowable range of priorities for the current device, and creates streams with the highest and lowest available priorities.
 
 // get the range of stream priorities for this device
+
 int leastPriority, greatestPriority;
+
 cudaDeviceGetStreamPriorityRange(&leastPriority, &greatestPriority);
+
 // create streams with highest and lowest available priorities
+
 cudaStream_t st_high, st_low;
+
 cudaStreamCreateWithPriority(&st_high, cudaStreamNonBlocking, greatestPriority));
+
 cudaStreamCreateWithPriority(&st_low, cudaStreamNonBlocking, leastPriority);
 
 #### 6.2.8.6. Programmatic Dependent Launch and Synchronization[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#programmatic-dependent-launch-and-synchronization "Permalink to this headline")
@@ -1467,31 +1783,43 @@ _Programmatic Dependent Launch_ introduces changes to the CUDA kernel launch AP
 In Programmatic Dependent Launch, a primary and a secondary kernel are launched in the same CUDA stream. The primary kernel should execute `cudaTriggerProgrammaticLaunchCompletion` with all thread blocks when it’s ready for the secondary kernel to launch. The secondary kernel must be launched using the extensible launch API as shown.
 
 __global__ void primary_kernel() {
+
    // Initial work that should finish before starting secondary kernel
 
    // Trigger the secondary kernel
+
    cudaTriggerProgrammaticLaunchCompletion();
 
    // Work that can coincide with the secondary kernel
+
 }
 
 __global__ void secondary_kernel()
+
 {
+
    // Independent work
 
    // Will block until all primary kernels the secondary kernel is dependent on have completed and flushed results to global memory
+
    cudaGridDependencySynchronize();
 
    // Dependent work
+
 }
 
 cudaLaunchAttribute attribute[1];
+
 attribute[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+
 attribute[0].val.programmaticStreamSerializationAllowed = 1;
+
 configSecondary.attrs = attribute;
+
 configSecondary.numAttrs = 1;
 
 primary_kernel<<<grid_dim, block_dim, 0, stream>>>();
+
 cudaLaunchKernelEx(&configSecondary, secondary_kernel);
 
 When the secondary kernel is launched using the `cudaLaunchAttributeProgrammaticStreamSerialization` attribute, the CUDA driver is safe to launch the secondary kernel early and not wait on the completion and memory flush of the primary before launching the secondary.
@@ -1523,11 +1851,8 @@ To see the optimizations possible with graphs, consider what happens in a stream
 Work submission using graphs is separated into three distinct stages: definition, instantiation, and execution.
 
 - During the definition phase, a program creates a description of the operations in the graph along with the dependencies between them.
-    
 - Instantiation takes a snapshot of the graph template, validates it, and performs much of the setup and initialization of work with the aim of minimizing what needs to be done at launch. The resulting instance is known as an _executable graph._
-    
 - An executable graph may be launched into a stream, similar to any other CUDA work. It may be launched any number of times without repeating the instantiation.
-    
 
 ##### 6.2.8.7.1. Graph Structure[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#graph-structure "Permalink to this headline")
 
@@ -1540,29 +1865,17 @@ An operation may be scheduled at any time once the nodes on which it depends are
 A graph node can be one of:
 
 - kernel
-    
 - CPU function call
-    
 - memory copy
-    
 - memset
-    
 - empty node
-    
 - waiting on an [event](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#events)
-    
 - recording an [event](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#events)
-    
 - signalling an [external semaphore](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#external-resource-interoperability)
-    
 - waiting on an [external semaphore](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#external-resource-interoperability)
-    
 - [conditional node](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-graph-nodes)
-    
 - [Graph Memory Nodes](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#graph-memory-nodes)
-    
 - child graph: To execute a separate nested graph, as shown in the following figure.
-    
 
 [![Child Graph Example](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/child-graph.png)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/child-graph.png)
 
@@ -1589,22 +1902,35 @@ Graphs can be created via two mechanisms: explicit API and stream capture. The f
 Figure 14 Creating a Graph Using Graph APIs Example[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-api-fig-creating-using-graph-apis "Permalink to this image")
 
 // Create the graph - it starts out empty
+
 cudaGraphCreate(&graph, 0);
 
 // For the purpose of this example, we'll create
+
 // the nodes separately from the dependencies to
+
 // demonstrate that it can be done in two stages.
+
 // Note that dependencies can also be specified
+
 // at node creation.
+
 cudaGraphAddKernelNode(&a, graph, NULL, 0, &nodeParams);
+
 cudaGraphAddKernelNode(&b, graph, NULL, 0, &nodeParams);
+
 cudaGraphAddKernelNode(&c, graph, NULL, 0, &nodeParams);
+
 cudaGraphAddKernelNode(&d, graph, NULL, 0, &nodeParams);
 
 // Now set up dependencies on each node
+
 cudaGraphAddDependencies(graph, &a, &b, NULL, 1);     // A->B
+
 cudaGraphAddDependencies(graph, &a, &c, NULL, 1);     // A->C
+
 cudaGraphAddDependencies(graph, &b, &d, NULL, 1);     // B->D
+
 cudaGraphAddDependencies(graph, &c, &d, NULL, 1);     // C->D
 
 ##### 6.2.8.7.3. Creating a Graph Using Stream Capture[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-stream-capture "Permalink to this headline")
@@ -1616,8 +1942,11 @@ cudaGraph_t graph;
 cudaStreamBeginCapture(stream);
 
 kernel_A<<< ..., stream >>>(...);
+
 kernel_B<<< ..., stream >>>(...);
+
 libraryCall(stream);
+
 kernel_C<<< ..., stream >>>(...);
 
 cudaStreamEndCapture(stream, &graph);
@@ -1641,24 +1970,31 @@ When a captured event is waited on by a stream, it places the stream in capture 
 When cross-stream dependencies are present in stream capture, `cudaStreamEndCapture()` must still be called in the same stream where `cudaStreamBeginCapture()` was called; this is the _origin stream_. Any other streams which are being captured to the same capture graph, due to event-based dependencies, must also be joined back to the origin stream. This is illustrated below. All streams being captured to the same capture graph are taken out of capture mode upon `cudaStreamEndCapture()`. Failure to rejoin to the origin stream will result in failure of the overall capture operation.
 
 // stream1 is the origin stream
+
 cudaStreamBeginCapture(stream1);
 
 kernel_A<<< ..., stream1 >>>(...);
 
 // Fork into stream2
+
 cudaEventRecord(event1, stream1);
+
 cudaStreamWaitEvent(stream2, event1);
 
 kernel_B<<< ..., stream1 >>>(...);
+
 kernel_C<<< ..., stream2 >>>(...);
 
 // Join stream2 back to origin stream (stream1)
+
 cudaEventRecord(event2, stream2);
+
 cudaStreamWaitEvent(stream1, event2);
 
 kernel_D<<< ..., stream1 >>>(...);
 
 // End capture in the origin stream
+
 cudaStreamEndCapture(stream1, &graph);
 
 // stream1 and stream2 no longer in capture mode
@@ -1696,25 +2032,43 @@ CUDA User Objects can be used to help manage the lifetime of resources used by a
 Various resource management schemes are not compatible with CUDA graphs. Consider for example an event-based pool or a synchronous-create, asynchronous-destroy scheme.
 
 // Library API with pool allocation
+
 void libraryWork(cudaStream_t stream) {
+
     auto &resource = pool.claimTemporaryResource();
+
     resource.waitOnReadyEventInStream(stream);
+
     launchWork(stream, resource);
+
     resource.recordReadyEvent(stream);
+
 }
 
 // Library API with asynchronous resource deletion
+
 void libraryWork(cudaStream_t stream) {
+
     Resource *resource = new Resource(...);
+
     launchWork(stream, resource);
+
     cudaLaunchHostFunc(
+
         stream,
+
         [](void *resource) {
+
             delete static_cast<Resource *>(resource);
+
         },
+
         resource,
+
         0);
+
     // Error handling considerations not shown
+
 }
 
 These schemes are difficult with CUDA graphs because of the non-fixed pointer or handle for the resource which requires indirection or graph update, and the synchronous CPU code needed each time the work is submitted. They also do not work with stream capture if these considerations are hidden from the caller of the library, and because of use of disallowed APIs during capture. Various solutions exist such as exposing the resource to the caller. CUDA user objects present another approach.
@@ -1728,34 +2082,63 @@ Here is an example use.
 cudaGraph_t graph;  // Preexisting graph
 
 Object *object = new Object;  // C++ object with possibly nontrivial destructor
+
 cudaUserObject_t cuObject;
+
 cudaUserObjectCreate(
+
     &cuObject,
+
     object,  // Here we use a CUDA-provided template wrapper for this API,
+
              // which supplies a callback to delete the C++ object pointer
+
     1,  // Initial refcount
+
     cudaUserObjectNoDestructorSync  // Acknowledge that the callback cannot be
+
                                     // waited on via CUDA
+
 );
+
 cudaGraphRetainUserObject(
+
     graph,
+
     cuObject,
+
     1,  // Number of references
+
     cudaGraphUserObjectMove  // Transfer a reference owned by the caller (do
+
                              // not modify the total reference count)
+
 );
+
 // No more references owned by this thread; no need to call release API
+
 cudaGraphExec_t graphExec;
+
 cudaGraphInstantiate(&graphExec, graph, nullptr, nullptr, 0);  // Will retain a
+
                                                                // new reference
+
 cudaGraphDestroy(graph);  // graphExec still owns a reference
+
 cudaGraphLaunch(graphExec, 0);  // Async launch has access to the user objects
+
 cudaGraphExecDestroy(graphExec);  // Launch is not synchronized; the release
+
                                   // will be deferred if needed
+
 cudaStreamSynchronize(0);  // After the launch is synchronized, the remaining
+
                            // reference is released and the destructor will
+
                            // execute. Note this happens asynchronously.
+
 // If the destructor callback had signaled a synchronization object, it would
+
 // be safe to wait on it at this point.
 
 References owned by graphs in child graph nodes are associated to the child graphs, not the parents. If a child graph is updated or deleted, the references change accordingly. If an executable graph or child graph is updated with `cudaGraphExecUpdate` or `cudaGraphExecChildGraphNodeSetParams`, the references in the new source graph are cloned and replace the references in the target graph. In either case, if previous launches are not synchronized, any references which would be released are held until the launches have finished executing.
@@ -1785,42 +2168,31 @@ The following sections explain each approach in more detail.
 Kernel nodes:
 
 - The owning context of the function cannot change.
-    
 - A node whose function originally did not use CUDA dynamic parallelism cannot be updated to a function which uses CUDA dynamic parallelism.
-    
 
 `cudaMemset` and `cudaMemcpy` nodes:
 
 - The CUDA device(s) to which the operand(s) was allocated/mapped cannot change.
-    
 - The source/destination memory must be allocated from the same context as the original source/destination memory.
-    
 - Only 1D `cudaMemset`/`cudaMemcpy` nodes can be changed.
-    
 
 Additional memcpy node restrictions:
 
 - Changing either the source or destination memory type (i.e., `cudaPitchedPtr`, `cudaArray_t`, etc.), or the type of transfer (i.e., `cudaMemcpyKind`) is not supported.
-    
 
 External semaphore wait nodes and record nodes:
 
 - Changing the number of semaphores is not supported.
-    
 
 Conditional nodes:
 
 - The order of handle creation and assignment must match between the graphs.
-    
 - Changing node parameters is not supported (i.e. number of graphs in the conditional, node context, etc).
-    
 - Changing parameters of nodes within the conditional body graph is subject to the rules above.
-    
 
 Memory nodes:
 
 - It is not possible to update a `cudaGraphExec_t` with a `cudaGraph_t` if the `cudaGraph_t` is currently instantiated as a different `cudaGraphExec_t`.
-    
 
 There are no restrictions on updates to host nodes, event record nodes, or event wait nodes.
 
@@ -1831,27 +2203,24 @@ There are no restrictions on updates to host nodes, event record nodes, or event
 More explicitly, following the following rules will cause `cudaGraphExecUpdate()` to pair the nodes in the original graph and the updating graph deterministically:
 
 1. For any capturing stream, the API calls operating on that stream must be made in the same order, including event wait and other api calls not directly corresponding to node creation.
-    
 2. The API calls which directly manipulate a given graph node’s incoming edges (including captured stream APIs, node add APIs, and edge addition / removal APIs) must be made in the same order. Moreover, when dependencies are specified in arrays to these APIs, the order in which the dependencies are specified inside those arrays must match.
-    
 3. Sink nodes must be consistently ordered. Sink nodes are nodes without dependent nodes / outgoing edges in the final graph at the time of the `cudaGraphExecUpdate()` invocation. The following operations affect sink node ordering (if present) and must (as a combined set) be made in the same order:
     
     - Node add APIs resulting in a sink node.
-        
     - Edge removal resulting in a node becoming a sink node.
-        
     - `cudaStreamUpdateCaptureDependencies()`, if it removes a sink node from a capturing stream’s dependency set.
-        
     - `cudaStreamEndCapture()`.
-        
 
 The following example shows how the API could be used to update an instantiated graph:
 
 cudaGraphExec_t graphExec = NULL;
 
 for (int i = 0; i < 10; i++) {
+
     cudaGraph_t graph;
+
     cudaGraphExecUpdateResult updateResult;
+
     cudaGraphNode_t errorNode;
 
     // In this example we use stream capture to create the graph.
@@ -1889,6 +2258,7 @@ for (int i = 0; i < 10; i++) {
     cudaGraphDestroy(graph);
     cudaGraphLaunch(graphExec, stream);
     cudaStreamSynchronize(stream);
+
 }
 
 A typical workflow is to create the initial `cudaGraph_t` using either the stream capture or graph API. The `cudaGraph_t` is then instantiated and launched as normal. After the initial launch, a new `cudaGraph_t` is created using the same method as the initial graph and `cudaGraphExecUpdate()` is called. If the graph update is successful, indicated by the `updateResult` parameter in the above example, the updated `cudaGraphExec_t` is launched. If the update fails for any reason, the `cudaGraphExecDestroy()` and `cudaGraphInstantiate()` are called to destroy the original `cudaGraphExec_t` and instantiate a new one.
@@ -1904,23 +2274,14 @@ Please see the [Graph API](https://docs.nvidia.com/cuda/cuda-runtime-api/group_
 Instantiated graph node parameters can be updated directly. This eliminates the overhead of instantiation as well as the overhead of creating a new `cudaGraph_t`. If the number of nodes requiring update is small relative to the total number of nodes in the graph, it is better to update the nodes individually. The following methods are available for updating `cudaGraphExec_t` nodes:
 
 - `cudaGraphExecKernelNodeSetParams()`
-    
 - `cudaGraphExecMemcpyNodeSetParams()`
-    
 - `cudaGraphExecMemsetNodeSetParams()`
-    
 - `cudaGraphExecHostNodeSetParams()`
-    
 - `cudaGraphExecChildGraphNodeSetParams()`
-    
 - `cudaGraphExecEventRecordNodeSetEvent()`
-    
 - `cudaGraphExecEventWaitNodeSetEvent()`
-    
 - `cudaGraphExecExternalSemaphoresSignalNodeSetParams()`
-    
 - `cudaGraphExecExternalSemaphoresWaitNodeSetParams()`
-    
 
 Please see the [Graph API](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH) for more information on usage and current limitations.
 
@@ -1933,9 +2294,7 @@ A disabled node is functionally equivalent to empty node until it is reenabled. 
 The following methods are available for enabling/disabling `cudaGraphExec_t` nodes, as well as querying their status:
 
 - `cudaGraphNodeSetEnabled()`
-    
 - `cudaGraphNodeGetEnabled()`
-    
 
 Refer to the [Graph API](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH) for more information on usage and current limitations.
 
@@ -1968,25 +2327,18 @@ In order for a graph to be launched from the device, it must be instantiated exp
 General requirements:
 
 - The graph’s nodes must all reside on a single device.
-    
 - The graph can only contain kernel nodes, memcpy nodes, memset nodes, and child graph nodes.
-    
 
 Kernel nodes:
 
 - Use of CUDA Dynamic Parallelism by kernels in the graph is not permitted.
-    
 - Cooperative launches are permitted so long as MPS is not in use.
-    
 
 Memcpy nodes:
 
 - Only copies involving device memory and/or pinned device-mapped host memory are permitted.
-    
 - Copies involving CUDA arrays are not permitted.
-    
 - Both operands must be accessible from the current device at time of instantiation. Note that the copy operation will be performed from the device on which the graph resides, even if it is targeting memory on another device.
-    
 
 6.2.8.7.7.1.2. Device Graph Upload[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-graph-upload "Permalink to this headline")
 
@@ -1999,17 +2351,25 @@ Alternatively, the graph can first be launched from the host, which will perform
 Examples of all three methods can be seen below:
 
 // Explicit upload after instantiation
+
 cudaGraphInstantiate(&deviceGraphExec1, deviceGraph1, cudaGraphInstantiateFlagDeviceLaunch);
+
 cudaGraphUpload(deviceGraphExec1, stream);
 
 // Explicit upload as part of instantiation
+
 cudaGraphInstantiateParams instantiateParams = {0};
+
 instantiateParams.flags = cudaGraphInstantiateFlagDeviceLaunch | cudaGraphInstantiateFlagUpload;
+
 instantiateParams.uploadStream = stream;
+
 cudaGraphInstantiateWithParams(&deviceGraphExec2, deviceGraph2, &instantiateParams);
 
 // Implicit upload via host launch
+
 cudaGraphInstantiate(&deviceGraphExec3, deviceGraph3, cudaGraphInstantiateFlagDeviceLaunch);
+
 cudaGraphLaunch(deviceGraphExec3, stream);
 
 6.2.8.7.7.1.3. Device Graph Update[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-graph-update "Permalink to this headline")
@@ -2027,6 +2387,7 @@ Device-side graph launch is per-thread and multiple launches may occur from diff
 Unlike host launch, device graphs cannot be launched into regular CUDA streams, and can only be launched into distinct named streams, which each denote a specific launch mode:
 
 Table 5 Device-only Graph Launch Streams[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id456 "Permalink to this table")
+
 |Stream|Launch Mode|
 |---|---|
 |`cudaStreamGraphFireAndForget`|Fire and forget launch|
@@ -2044,11 +2405,15 @@ Figure 15 Fire and forget launch[](https://docs.nvidia.com/cuda/cuda-c-progr
 The above diagram can be generated by the sample code below:
 
 __global__ void launchFireAndForgetGraph(cudaGraphExec_t graph) {
+
     cudaGraphLaunch(graph, cudaStreamGraphFireAndForget);
+
 }
 
 void graphSetup() {
+
     cudaGraphExec_t gExec1, gExec2;
+
     cudaGraph_t g1, g2;
 
     // Create, instantiate, and upload the device graph.
@@ -2064,6 +2429,7 @@ void graphSetup() {
 
     // Launch the host graph, which will in turn launch the device graph.
     cudaGraphLaunch(gExec1, stream);
+
 }
 
 A graph can have up to 120 total fire-and-forget graphs during the course of its execution. This total resets between launches of the same parent graph.
@@ -2105,11 +2471,15 @@ Figure 19 A simple tail launch[](https://docs.nvidia.com/cuda/cuda-c-program
 The above execution flow can be generated by the code below:
 
 __global__ void launchTailGraph(cudaGraphExec_t graph) {
+
     cudaGraphLaunch(graph, cudaStreamGraphTailLaunch);
+
 }
 
 void graphSetup() {
+
     cudaGraphExec_t gExec1, gExec2;
+
     cudaGraph_t g1, g2;
 
     // Create, instantiate, and upload the device graph.
@@ -2125,6 +2495,7 @@ void graphSetup() {
 
     // Launch the host graph, which will in turn launch the device graph.
     cudaGraphLaunch(gExec1, stream);
+
 }
 
 Tail launches enqueued by a given graph will execute one at a time, in order of when they were enqueued. So the first enqueued graph will run first, and then the second, and so on.
@@ -2154,6 +2525,7 @@ Below is sample code showing usage of this function for a relaunch loop:
 __device__ int relaunchCount = 0;
 
 __global__ void relaunchSelf() {
+
     int relaunchMax = 100;
 
     if (threadIdx.x == 0) {
@@ -2163,6 +2535,7 @@ __global__ void relaunchSelf() {
 
         relaunchCount++;
     }
+
 }
 
 6.2.8.7.7.2.1.4. Sibling Launch[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sibling-launch "Permalink to this headline")
@@ -2176,11 +2549,15 @@ Figure 22 A simple sibling launch[](https://docs.nvidia.com/cuda/cuda-c-prog
 The above diagram can be generated by the sample code below:
 
 __global__ void launchSiblingGraph(cudaGraphExec_t graph) {
+
     cudaGraphLaunch(graph, cudaStreamGraphFireAndForgetAsSibling);
+
 }
 
 void graphSetup() {
+
     cudaGraphExec_t gExec1, gExec2;
+
     cudaGraph_t g1, g2;
 
     // Create, instantiate, and upload the device graph.
@@ -2196,6 +2573,7 @@ void graphSetup() {
 
     // Launch the host graph, which will in turn launch the device graph.
     cudaGraphLaunch(gExec1, stream);
+
 }
 
 Since sibling launches are not launched into the launching graph’s execution environment, they will not gate tail launches enqueued by the launching graph.
@@ -2207,11 +2585,8 @@ Conditional nodes allow conditional execution and looping of a graph contained w
 Evaluation of the condition value is performed on the device when the dependencies of the conditional node have been met. Conditional nodes can be one of the following types:
 
 - Conditional [IF nodes](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-if-nodes) execute their body graph once if the condition value is non-zero when the node is executed. An optional second body graph can be provided and this will be executed once if the condition value is zero when the node is executed.
-    
 - Conditional [WHILE nodes](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-while-nodes) execute their body graph if the condition value is non-zero when the node is executed and will continue to execute their body graph until the condition value is zero.
-    
 - Conditional [SWITCH nodes](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-switch-nodes) execute the nth body graph once if the condition value is equal to n. If the condition value does not correspond to a body graph, no body graph is launched.
-    
 
 A condition value is accessed by a [conditional handle](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-handles) , which must be created before the node. The condition value can be set by device code using `cudaGraphSetConditional()`. A default value, applied on each graph launch, can also be specified when the handle is created.
 
@@ -2234,25 +2609,18 @@ The default value and flags associated with a handle will be updated during [wh
 General requirements:
 
 - The graph’s nodes must all reside on a single device.
-    
 - The graph can only contain kernel nodes, empty nodes, memcpy nodes, memset nodes, child graph nodes, and conditional nodes.
-    
 
 Kernel nodes:
 
 - Use of CUDA Dynamic Parallelism or Device Graph Launch by kernels in the graph is not permitted.
-    
 - Cooperative launches are permitted so long as MPS is not in use.
-    
 
 Memcpy/Memset nodes:
 
 - Only copies/memsets involving device memory and/or pinned device-mapped host memory are permitted.
-    
 - Copies/memsets involving CUDA arrays are not permitted.
-    
 - Both operands must be accessible from the current device at time of instantiation. Note that the copy operation will be performed from the device on which the graph resides, even if it is targeting memory on another device.
-    
 
 ###### 6.2.8.7.8.3. Conditional IF Nodes[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-if-nodes "Permalink to this headline")
 
@@ -2265,17 +2633,27 @@ Figure 23 Conditional IF Node[](https://docs.nvidia.com/cuda/cuda-c-programm
 The following code illustrates the creation of a graph containing an IF conditional node. The default value of the condition is set using an upstream kernel. The body of the conditional is populated using the [graph API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-graph-apis).
 
 __global__ void setHandle(cudaGraphConditionalHandle handle)
+
 {
+
     ...
+
     cudaGraphSetConditional(handle, value);
+
     ...
+
 }
 
 void graphSetup() {
+
     cudaGraph_t graph;
+
     cudaGraphExec_t graphExec;
+
     cudaGraphNode_t node;
+
     void *kernelArgs[1];
+
     int value = 1;
 
     cudaGraphCreate(&graph, 0);
@@ -2310,15 +2688,21 @@ void graphSetup() {
 
     cudaGraphExecDestroy(graphExec);
     cudaGraphDestroy(graph);
+
 }
 
 Starting in CUDA 12.8, IF nodes can also have an optional second body graph which is executed once when the node is executed if the condition value is zero.
 
 void graphSetup() {
+
     cudaGraph_t graph;
+
     cudaGraphExec_t graphExec;
+
     cudaGraphNode_t node;
+
     void *kernelArgs[1];
+
     int value = 1;
 
     cudaGraphCreate(&graph, 0);
@@ -2356,6 +2740,7 @@ void graphSetup() {
 
     cudaGraphExecDestroy(graphExec);
     cudaGraphDestroy(graph);
+
 }
 
 ###### 6.2.8.7.8.4. Conditional WHILE Nodes[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-while-nodes "Permalink to this headline")
@@ -2369,15 +2754,23 @@ Figure 24 Conditional WHILE Node[](https://docs.nvidia.com/cuda/cuda-c-progr
 The following code illustrates the creation of a graph containing a WHILE conditional node. The handle is created using _cudaGraphCondAssignDefault_ to avoid the need for an upstream kernel. The body of the conditional is populated using the [graph API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-graph-apis).
 
 __global__ void loopKernel(cudaGraphConditionalHandle handle)
+
 {
+
     static int count = 10;
+
     cudaGraphSetConditional(handle, --count ? 1 : 0);
+
 }
 
 void graphSetup() {
+
     cudaGraph_t graph;
+
     cudaGraphExec_t graphExec;
+
     cudaGraphNode_t node;
+
     void *kernelArgs[1];
 
     cuGraphCreate(&graph, 0);
@@ -2407,6 +2800,7 @@ void graphSetup() {
 
     cudaGraphExecDestroy(graphExec);
     cudaGraphDestroy(graph);
+
 }
 
 ###### 6.2.8.7.8.5. Conditional SWITCH Nodes[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#conditional-switch-nodes "Permalink to this headline")
@@ -2420,17 +2814,27 @@ Figure 25 Conditional SWITCH Node[](https://docs.nvidia.com/cuda/cuda-c-prog
 The following code illustrates the creation of a graph containing a SWITCH conditional node. The value of the condition is set using an upstream kernel. The bodies of the conditional are populated using the [graph API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-graph-using-graph-apis).
 
 __global__ void setHandle(cudaGraphConditionalHandle handle)
+
 {
+
     ...
+
     cudaGraphSetConditional(handle, value);
+
     ...
+
 }
 
 void graphSetup() {
+
     cudaGraph_t graph;
+
     cudaGraphExec_t graphExec;
+
     cudaGraphNode_t node;
+
     void *kernelArgs[1];
+
     int value = 1;
 
     cudaGraphCreate(&graph, 0);
@@ -2468,6 +2872,7 @@ void graphSetup() {
 
     cudaGraphExecDestroy(graphExec);
     cudaGraphDestroy(graph);
+
 }
 
 #### 6.2.8.8. Events[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#events "Permalink to this headline")
@@ -2479,12 +2884,15 @@ The runtime also provides a way to closely monitor the device’s progress, as w
 The following code sample creates two events:
 
 cudaEvent_t start, stop;
+
 cudaEventCreate(&start);
+
 cudaEventCreate(&stop);
 
 They are destroyed this way:
 
 cudaEventDestroy(start);
+
 cudaEventDestroy(stop);
 
 ##### 6.2.8.8.2. Elapsed Time[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#elapsed-time "Permalink to this headline")
@@ -2492,17 +2900,29 @@ cudaEventDestroy(stop);
 The events created in [Creation and Destruction of Events](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creation-and-destruction-events) can be used to time the code sample of [Creation and Destruction of Streams](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creation-and-destruction-streams) the following way:
 
 cudaEventRecord(start, 0);
+
 for (int i = 0; i < 2; ++i) {
+
     cudaMemcpyAsync(inputDev + i * size, inputHost + i * size,
+
                     size, cudaMemcpyHostToDevice, stream[i]);
+
     MyKernel<<<100, 512, 0, stream[i]>>>
+
                (outputDev + i * size, inputDev + i * size, size);
+
     cudaMemcpyAsync(outputHost + i * size, outputDev + i * size,
+
                     size, cudaMemcpyDeviceToHost, stream[i]);
+
 }
+
 cudaEventRecord(stop, 0);
+
 cudaEventSynchronize(stop);
+
 float elapsedTime;
+
 cudaEventElapsedTime(&elapsedTime, start, stop);
 
 #### 6.2.8.9. Synchronous Calls[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synchronous-calls "Permalink to this headline")
@@ -2516,13 +2936,21 @@ When a synchronous function is called, control is not returned to the host threa
 A host system can have multiple devices. The following code sample shows how to enumerate these devices, query their properties, and determine the number of CUDA-enabled devices.
 
 int deviceCount;
+
 cudaGetDeviceCount(&deviceCount);
+
 int device;
+
 for (device = 0; device < deviceCount; ++device) {
+
     cudaDeviceProp deviceProp;
+
     cudaGetDeviceProperties(&deviceProp, device);
+
     printf("Device %d has compute capability %d.%d.\n",
+
            device, deviceProp.major, deviceProp.minor);
+
 }
 
 #### 6.2.9.2. Device Selection[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-selection "Permalink to this headline")
@@ -2532,13 +2960,21 @@ A host thread can set the device it operates on at any time by calling `cudaSet
 The following code sample illustrates how setting the current device affects memory allocation and kernel execution.
 
 size_t size = 1024 * sizeof(float);
+
 cudaSetDevice(0);            // Set device 0 as current
+
 float* p0;
+
 cudaMalloc(&p0, size);       // Allocate memory on device 0
+
 MyKernel<<<1000, 128>>>(p0); // Launch kernel on device 0
+
 cudaSetDevice(1);            // Set device 1 as current
+
 float* p1;
+
 cudaMalloc(&p1, size);       // Allocate memory on device 1
+
 MyKernel<<<1000, 128>>>(p1); // Launch kernel on device 1
 
 #### 6.2.9.3. Stream and Event Behavior[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-and-event-behavior "Permalink to this headline")
@@ -2546,15 +2982,23 @@ MyKernel<<<1000, 128>>>(p1); // Launch kernel on device 1
 A kernel launch will fail if it is issued to a stream that is not associated to the current device as illustrated in the following code sample.
 
 cudaSetDevice(0);               // Set device 0 as current
+
 cudaStream_t s0;
+
 cudaStreamCreate(&s0);          // Create stream s0 on device 0
+
 MyKernel<<<100, 64, 0, s0>>>(); // Launch kernel on device 0 in s0
+
 cudaSetDevice(1);               // Set device 1 as current
+
 cudaStream_t s1;
+
 cudaStreamCreate(&s1);          // Create stream s1 on device 1
+
 MyKernel<<<100, 64, 0, s1>>>(); // Launch kernel on device 1 in s1
 
 // This kernel launch will fail:
+
 MyKernel<<<100, 64, 0, s0>>>(); // Launch kernel on device 1 in s0
 
 A memory copy will succeed even if it is issued to a stream that is not associated to the current device.
@@ -2578,16 +3022,25 @@ Peer-to-peer memory access is only supported in 64-bit applications and must be 
 A unified address space is used for both devices (see [Unified Virtual Address Space](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#unified-virtual-address-space)), so the same pointer can be used to address memory from both devices as shown in the code sample below.
 
 cudaSetDevice(0);                   // Set device 0 as current
+
 float* p0;
+
 size_t size = 1024 * sizeof(float);
+
 cudaMalloc(&p0, size);              // Allocate memory on device 0
+
 MyKernel<<<1000, 128>>>(p0);        // Launch kernel on device 0
+
 cudaSetDevice(1);                   // Set device 1 as current
+
 cudaDeviceEnablePeerAccess(0, 0);   // Enable peer-to-peer access
+
                                     // with device 0
 
 // Launch kernel on device 1
+
 // This kernel launch can access memory on device 0 at address p0
+
 MyKernel<<<1000, 128>>>(p0);
 
 ##### 6.2.9.4.1. IOMMU on Linux[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#iommu-on-linux "Permalink to this headline")
@@ -2607,24 +3060,33 @@ When a unified address space is used for both devices (see [Unified Virtual Add
 Otherwise, this is done using `cudaMemcpyPeer()`, `cudaMemcpyPeerAsync()`, `cudaMemcpy3DPeer()`, or `cudaMemcpy3DPeerAsync()` as illustrated in the following code sample.
 
 cudaSetDevice(0);                   // Set device 0 as current
+
 float* p0;
+
 size_t size = 1024 * sizeof(float);
+
 cudaMalloc(&p0, size);              // Allocate memory on device 0
+
 cudaSetDevice(1);                   // Set device 1 as current
+
 float* p1;
+
 cudaMalloc(&p1, size);              // Allocate memory on device 1
+
 cudaSetDevice(0);                   // Set device 0 as current
+
 MyKernel<<<1000, 128>>>(p0);        // Launch kernel on device 0
+
 cudaSetDevice(1);                   // Set device 1 as current
+
 cudaMemcpyPeer(p1, 1, p0, 0, size); // Copy p0 to p1
+
 MyKernel<<<1000, 128>>>(p1);        // Launch kernel on device 1
 
 A copy (in the implicit _NULL_ stream) between the memories of two different devices:
 
 - does not start until all commands previously issued to either device have completed and
-    
 - runs to completion before any commands (see [Asynchronous Concurrent Execution](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-concurrent-execution)) issued after the copy to either device can start.
-    
 
 Consistent with the normal behavior of streams, an asynchronous copy between the memories of two devices may overlap with copies or kernels in another stream.
 
@@ -2635,11 +3097,8 @@ Note that if peer-to-peer access is enabled between two devices via `cudaDevice
 When the application is run as a 64-bit process, a single address space is used for the host and all the devices of compute capability 2.0 and higher. All host memory allocations made via CUDA API calls and all device memory allocations on supported devices are within this virtual address range. As a consequence:
 
 - The location of any memory on the host allocated through CUDA, or on any of the devices which use the unified address space, can be determined from the value of the pointer using `cudaPointerGetAttributes()`.
-    
 - When copying to or from the memory of any device which uses the unified address space, the `cudaMemcpyKind` parameter of `cudaMemcpy*()` can be set to `cudaMemcpyDefault` to determine locations from the pointers. This also works for host pointers not allocated through CUDA, as long as the current device uses unified addressing.
-    
 - Allocations via `cudaHostAlloc()` are automatically portable (see [Portable Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#portable-memory)) across all the devices for which the unified address space is used, and pointers returned by `cudaHostAlloc()` can be used directly from within kernels running on these devices (i.e., there is no need to obtain a device pointer via `cudaHostGetDevicePointer()` as described in [Mapped Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapped-memory).
-    
 
 Applications may query if the unified address space is used for a particular device by checking that the `unifiedAddressing` device property (see [Device Enumeration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-enumeration)) is equal to 1.
 
@@ -2690,19 +3149,12 @@ Texture memory is read from kernels using the device functions described in [Te
 The texture object specifies:
 
 - The _texture_, which is the piece of texture memory that is fetched. Texture objects are created at runtime and the texture is specified when creating the texture object as described in [Texture Object API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-object-api).
-    
 - Its _dimensionality_ that specifies whether the texture is addressed as a one dimensional array using one texture coordinate, a two-dimensional array using two texture coordinates, or a three-dimensional array using three texture coordinates. Elements of the array are called _texels_, short for _texture elements_. The _texture width_, _height_, and _depth_ refer to the size of the array in each dimension. [Table 27](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#features-and-technical-specifications-technical-specifications-per-compute-capability) lists the maximum texture width, height, and depth depending on the compute capability of the device.
-    
 - The type of a texel, which is restricted to the basic integer and single-precision floating-point types and any of the 1-, 2-, and 4-component vector types defined in [Built-in Vector Types](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#built-in-vector-types) that are derived from the basic integer and single-precision floating-point types.
-    
 - The _read mode_, which is equal to `cudaReadModeNormalizedFloat` or `cudaReadModeElementType`. If it is `cudaReadModeNormalizedFloat` and the type of the texel is a 16-bit or 8-bit integer type, the value returned by the texture fetch is actually returned as floating-point type and the full range of the integer type is mapped to [0.0, 1.0] for unsigned integer type and [-1.0, 1.0] for signed integer type; for example, an unsigned 8-bit texture element with the value 0xff reads as 1. If it is `cudaReadModeElementType`, no conversion is performed.
-    
 - Whether texture coordinates are normalized or not. By default, textures are referenced (by the functions of [Texture Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-functions)) using floating-point coordinates in the range [0, N-1] where N is the size of the texture in the dimension corresponding to the coordinate. For example, a texture that is 64x32 in size will be referenced with coordinates in the range [0, 63] and [0, 31] for the x and y dimensions, respectively. Normalized texture coordinates cause the coordinates to be specified in the range [0.0, 1.0-1/N] instead of [0, N-1], so the same 64x32 texture would be addressed by normalized coordinates in the range [0, 1-1/N] in both the x and y dimensions. Normalized texture coordinates are a natural fit to some applications’ requirements, if it is preferable for the texture coordinates to be independent of the texture size.
-    
 - The _addressing mode_. It is valid to call the device functions of Section B.8 with coordinates that are out of range. The addressing mode defines what happens in that case. The default addressing mode is to clamp the coordinates to the valid range: [0, N) for non-normalized coordinates and [0.0, 1.0) for normalized coordinates. If the border mode is specified instead, texture fetches with out-of-range texture coordinates return zero. For normalized coordinates, the wrap mode and the mirror mode are also available. When using the wrap mode, each coordinate x is converted to _frac(x)=x - floor(x)_ where _floor(x)_ is the largest integer not greater than _x_. When using the mirror mode, each coordinate _x_ is converted to _frac(x)_ if _floor(x)_ is even and _1-frac(x)_ if _floor(x)_ is odd. The addressing mode is specified as an array of size three whose first, second, and third elements specify the addressing mode for the first, second, and third texture coordinates, respectively; the addressing mode are `cudaAddressModeBorder`, `cudaAddressModeClamp`, `cudaAddressModeWrap`, and `cudaAddressModeMirror`; `cudaAddressModeWrap` and `cudaAddressModeMirror` are only supported for normalized texture coordinates
-    
 - The _filtering_ mode which specifies how the value returned when fetching the texture is computed based on the input texture coordinates. Linear texture filtering may be done only for textures that are configured to return floating-point data. It performs low-precision interpolation between neighboring texels. When enabled, the texels surrounding a texture fetch location are read and the return value of the texture fetch is interpolated based on where the texture coordinates fell between the texels. Simple linear interpolation is performed for one-dimensional textures, bilinear interpolation for two-dimensional textures, and trilinear interpolation for three-dimensional textures. [Texture Fetching](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-fetching) gives more details on texture fetching. The filtering mode is equal to `cudaFilterModePoint` or `cudaFilterModeLinear`. If it is `cudaFilterModePoint`, the returned value is the texel whose texture coordinates are the closest to the input texture coordinates. If it is `cudaFilterModeLinear`, the returned value is the linear interpolation of the two (for a one-dimensional texture), four (for a two dimensional texture), or eight (for a three dimensional texture) texels whose texture coordinates are the closest to the input texture coordinates. `cudaFilterModeLinear` is only valid for returned values of floating-point type.
-    
 
 [Texture Object API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-object-api) introduces the texture object API.
 
@@ -2719,40 +3171,55 @@ Textures can also be layered as described in [Layered Textures](https://docs.nv
 A texture object is created using `cudaCreateTextureObject()` from a resource description of type `struct cudaResourceDesc`, which specifies the texture, and from a texture description defined as such:
 
 struct cudaTextureDesc
+
 {
+
     enum cudaTextureAddressMode addressMode[3];
+
     enum cudaTextureFilterMode  filterMode;
+
     enum cudaTextureReadMode    readMode;
+
     int                         sRGB;
+
     int                         normalizedCoords;
+
     unsigned int                maxAnisotropy;
+
     enum cudaTextureFilterMode  mipmapFilterMode;
+
     float                       mipmapLevelBias;
+
     float                       minMipmapLevelClamp;
+
     float                       maxMipmapLevelClamp;
+
 };
 
 - `addressMode` specifies the addressing mode;
-    
 - `filterMode` specifies the filter mode;
-    
 - `readMode` specifies the read mode;
-    
 - `normalizedCoords` specifies whether texture coordinates are normalized or not;
-    
 - See reference manual for `sRGB`, `maxAnisotropy`, `mipmapFilterMode`, `mipmapLevelBias`, `minMipmapLevelClamp`, and `maxMipmapLevelClamp`.
-    
 
 The following code sample applies some simple transformation kernel to a texture.
 
 // Simple transformation kernel
+
 __global__ void transformKernel(float* output,
+
                                 cudaTextureObject_t texObj,
+
                                 int width, int height,
+
                                 float theta)
+
 {
+
     // Calculate normalized texture coordinates
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     float u = x / (float)width;
@@ -2766,13 +3233,19 @@ __global__ void transformKernel(float* output,
 
     // Read from texture and write to global memory
     output[y * width + x] = tex2D<float>(texObj, tu, tv);
+
 }
 
 // Host code
+
 int main()
+
 {
+
     const int height = 1024;
+
     const int width = 1024;
+
     float angle = 0.5;
 
     // Allocate and set some host data
@@ -2837,6 +3310,7 @@ int main()
     free(h_data);
 
     return 0;
+
 }
 
 ##### 6.2.14.1.2. 16-Bit Floating-Point Textures[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#bit-floating-point-textures "Permalink to this headline")
@@ -2866,11 +3340,10 @@ Layered textures are only supported on devices of compute capability 2.0 and hig
 A _cubemap_ texture is a special type of two-dimensional layered texture that has six layers representing the faces of a cube:
 
 - The width of a layer is equal to its height.
-    
 - The cubemap is addressed using three texture coordinates _x_, _y_, and _z_ that are interpreted as a direction vector emanating from the center of the cube and pointing to one face of the cube and a texel within the layer corresponding to that face. More specifically, the face is selected by the coordinate with largest magnitude _m_ and the corresponding layer is addressed using coordinates _(s/m+1)/2_ and _(t/m+1)/2_ where _s_ and _t_are defined in [Table 6](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures-cubemap-fetch).
-    
 
 Table 6 Cubemap Fetch[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures-cubemap-fetch "Permalink to this table")
+
 ||   |face|m|s|t|
 |---|---|---|---|---|---|
 |`\|x\| > \|y\|` and `\|x\| > \|z\|`|x ≥ 0|0|x|-z|-y|
@@ -2921,26 +3394,45 @@ A surface object is created using `cudaCreateSurfaceObject()` from a resource 
 The following code sample applies some simple transformation kernel to a surface.
 
 // Simple copy kernel
+
 __global__ void copyKernel(cudaSurfaceObject_t inputSurfObj,
+
                            cudaSurfaceObject_t outputSurfObj,
+
                            int width, int height)
+
 {
+
     // Calculate surface coordinates
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+
     if (x < width && y < height) {
+
         uchar4 data;
+
         // Read from input surface
+
         surf2Dread(&data,  inputSurfObj, x * 4, y);
+
         // Write to output surface
+
         surf2Dwrite(data, outputSurfObj, x * 4, y);
+
     }
+
 }
 
 // Host code
+
 int main()
+
 {
+
     const int height = 1024;
+
     const int width = 1024;
 
     // Allocate and set some host data
@@ -3004,6 +3496,7 @@ int main()
     free(h_data);
 
   return 0;
+
 }
 
 ##### 6.2.14.2.2. Cubemap Surfaces[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-surfaces "Permalink to this headline")
@@ -3044,18 +3537,24 @@ A texture or renderbuffer object is registered using `cudaGraphicsGLRegisterIma
 
 The OpenGL context whose resources are being shared has to be current to the host thread making any OpenGL interoperability API calls.
 
-Please note: When an OpenGL texture is made bindless (say for example by requesting an image or texture handle using the `glGetTextureHandle`*/`glGetImageHandle`* APIs) it cannot be registered with CUDA. The application needs to register the texture for interop before requesting an image or texture handle.
+Please note: When an OpenGL texture is made bindless (say for example by requesting an image or texture handle using the `glGetTextureHandle`_/`glGetImageHandle`_ APIs) it cannot be registered with CUDA. The application needs to register the texture for interop before requesting an image or texture handle.
 
 The following code sample uses a kernel to dynamically modify a 2D `width` x `height` grid of vertices stored in a vertex buffer object:
 
 GLuint positionsVBO;
+
 struct cudaGraphicsResource* positionsVBO_CUDA;
 
 int main()
+
 {
+
     // Initialize OpenGL and GLUT for device 0
+
     // and make the OpenGL context current
+
     ...
+
     glutDisplayFunc(display);
 
     // Explicitly set device 0
@@ -3075,16 +3574,25 @@ int main()
     glutMainLoop();
 
     ...
+
 }
 
 void display()
+
 {
+
     // Map buffer object for writing from CUDA
+
     float4* positions;
+
     cudaGraphicsMapResources(1, &positionsVBO_CUDA, 0);
+
     size_t num_bytes;
+
     cudaGraphicsResourceGetMappedPointer((void**)&positions,
+
                                          &num_bytes,
+
                                          positionsVBO_CUDA));
 
     // Execute kernel
@@ -3107,18 +3615,27 @@ void display()
     // Swap buffers
     glutSwapBuffers();
     glutPostRedisplay();
+
 }
 
 void deleteVBO()
+
 {
+
     cudaGraphicsUnregisterResource(positionsVBO_CUDA);
+
     glDeleteBuffers(1, &positionsVBO);
+
 }
 
 __global__ void createVertices(float4* positions, float time,
+
                                unsigned int width, unsigned int height)
+
 {
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     // Calculate uv coordinates
@@ -3134,6 +3651,7 @@ __global__ void createVertices(float4* positions, float time,
 
     // Write positions
     positions[y * width + x] = make_float4(u, w, v, 1.0f);
+
 }
 
 On Windows and for Quadro GPUs, `cudaWGLGetDevice()` can be used to retrieve the CUDA device associated to the handle returned by `wglEnumGpusNV()`. Quadro GPUs offer higher performance OpenGL interoperability than GeForce and Tesla GPUs in a multi-GPU configuration where OpenGL rendering is performed on the Quadro GPU and CUDA computations are performed on other GPUs in the system.
@@ -3151,18 +3669,29 @@ The following code sample uses a kernel to dynamically modify a 2D `width` x 
 ##### 6.2.15.2.1. Direct3D 9 Version[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-9-version "Permalink to this headline")
 
 IDirect3D9* D3D;
+
 IDirect3DDevice9* device;
+
 struct CUSTOMVERTEX {
+
     FLOAT x, y, z;
+
     DWORD color;
+
 };
+
 IDirect3DVertexBuffer9* positionsVB;
+
 struct cudaGraphicsResource* positionsVB_CUDA;
 
 int main()
+
 {
+
     int dev;
+
     // Initialize Direct3D
+
     D3D = Direct3DCreate9Ex(D3D_SDK_VERSION);
 
     // Get a CUDA-enabled adapter
@@ -3201,16 +3730,25 @@ int main()
         ...
     }
     ...
+
 }
 
 void Render()
+
 {
+
     // Map vertex buffer for writing from CUDA
+
     float4* positions;
+
     cudaGraphicsMapResources(1, &positionsVB_CUDA, 0);
+
     size_t num_bytes;
+
     cudaGraphicsResourceGetMappedPointer((void**)&positions,
+
                                          &num_bytes,
+
                                          positionsVB_CUDA));
 
     // Execute kernel
@@ -3224,18 +3762,27 @@ void Render()
 
     // Draw and present
     ...
+
 }
 
 void releaseVB()
+
 {
+
     cudaGraphicsUnregisterResource(positionsVB_CUDA);
+
     positionsVB->Release();
+
 }
 
 __global__ void createVertices(float4* positions, float time,
+
                                unsigned int width, unsigned int height)
+
 {
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     // Calculate uv coordinates
@@ -3252,32 +3799,53 @@ __global__ void createVertices(float4* positions, float time,
     // Write positions
     positions[y * width + x] =
                 make_float4(u, w, v, __int_as_float(0xff00ff00));
+
 }
 
 ##### 6.2.15.2.2. Direct3D 10 Version[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-10-version "Permalink to this headline")
 
 ID3D10Device* device;
+
 struct CUSTOMVERTEX {
+
     FLOAT x, y, z;
+
     DWORD color;
+
 };
+
 ID3D10Buffer* positionsVB;
+
 struct cudaGraphicsResource* positionsVB_CUDA;
 
 int main()
+
 {
+
     int dev;
+
     // Get a CUDA-enabled adapter
+
     IDXGIFactory* factory;
+
     CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
+
     IDXGIAdapter* adapter = 0;
+
     for (unsigned int i = 0; !adapter; ++i) {
+
         if (FAILED(factory->EnumAdapters(i, &adapter))
+
             break;
+
         if (cudaD3D10GetDevice(&dev, adapter) == cudaSuccess)
+
             break;
+
         adapter->Release();
+
     }
+
     factory->Release();
 
     // Create swap chain and device
@@ -3315,16 +3883,25 @@ int main()
         ...
     }
     ...
+
 }
 
 void Render()
+
 {
+
     // Map vertex buffer for writing from CUDA
+
     float4* positions;
+
     cudaGraphicsMapResources(1, &positionsVB_CUDA, 0);
+
     size_t num_bytes;
+
     cudaGraphicsResourceGetMappedPointer((void**)&positions,
+
                                          &num_bytes,
+
                                          positionsVB_CUDA));
 
     // Execute kernel
@@ -3338,18 +3915,27 @@ void Render()
 
     // Draw and present
     ...
+
 }
 
 void releaseVB()
+
 {
+
     cudaGraphicsUnregisterResource(positionsVB_CUDA);
+
     positionsVB->Release();
+
 }
 
 __global__ void createVertices(float4* positions, float time,
+
                                unsigned int width, unsigned int height)
+
 {
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     // Calculate uv coordinates
@@ -3366,32 +3952,53 @@ __global__ void createVertices(float4* positions, float time,
     // Write positions
     positions[y * width + x] =
                 make_float4(u, w, v, __int_as_float(0xff00ff00));
+
 }
 
 ##### 6.2.15.2.3. Direct3D 11 Version[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-11-version "Permalink to this headline")
 
 ID3D11Device* device;
+
 struct CUSTOMVERTEX {
+
     FLOAT x, y, z;
+
     DWORD color;
+
 };
+
 ID3D11Buffer* positionsVB;
+
 struct cudaGraphicsResource* positionsVB_CUDA;
 
 int main()
+
 {
+
     int dev;
+
     // Get a CUDA-enabled adapter
+
     IDXGIFactory* factory;
+
     CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
+
     IDXGIAdapter* adapter = 0;
+
     for (unsigned int i = 0; !adapter; ++i) {
+
         if (FAILED(factory->EnumAdapters(i, &adapter))
+
             break;
+
         if (cudaD3D11GetDevice(&dev, adapter) == cudaSuccess)
+
             break;
+
         adapter->Release();
+
     }
+
     factory->Release();
 
     // Create swap chain and device
@@ -3433,16 +4040,25 @@ int main()
         ...
     }
     ...
+
 }
 
 void Render()
+
 {
+
     // Map vertex buffer for writing from CUDA
+
     float4* positions;
+
     cudaGraphicsMapResources(1, &positionsVB_CUDA, 0);
+
     size_t num_bytes;
+
     cudaGraphicsResourceGetMappedPointer((void**)&positions,
+
                                          &num_bytes,
+
                                          positionsVB_CUDA));
 
     // Execute kernel
@@ -3456,24 +4072,36 @@ void Render()
 
     // Draw and present
     ...
+
 }
 
 void releaseVB()
+
 {
+
     cudaGraphicsUnregisterResource(positionsVB_CUDA);
+
     positionsVB->Release();
+
 }
 
     __global__ void createVertices(float4* positions, float time,
                           unsigned int width, unsigned int height)
+
 {
+
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
 // Calculate uv coordinates
+
     float u = x / (float)width;
+
     float v = y / (float)height;
+
     u = u * 2.0f - 1.0f;
+
     v = v * 2.0f - 1.0f;
 
     // Calculate simple sine wave pattern
@@ -3484,6 +4112,7 @@ void releaseVB()
     // Write positions
     positions[y * width + x] =
                 make_float4(u, w, v, __int_as_float(0xff00ff00));
+
 }
 
 #### 6.2.15.3. SLI Interoperability[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sli-interoperability "Permalink to this headline")
@@ -3513,8 +4142,11 @@ Synchronization objects can be imported into CUDA using `cudaImportExternalSema
 When importing memory and synchronization objects exported by Vulkan, they must be imported and mapped on the same device as they were created on. The CUDA device that corresponds to the Vulkan physical device on which the objects were created can be determined by comparing the UUID of a CUDA device with that of the Vulkan physical device, as shown in the following code sample. Note that the Vulkan physical device should not be part of a device group that contains more than one Vulkan physical device. The device group as returned by `vkEnumeratePhysicalDeviceGroups` that contains the given Vulkan physical device must have a physical device count of 1.
 
 int getCudaDeviceForVulkanPhysicalDevice(VkPhysicalDevice vkPhysicalDevice) {
+
     VkPhysicalDeviceIDProperties vkPhysicalDeviceIDProperties = {};
+
     vkPhysicalDeviceIDProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES;
+
     vkPhysicalDeviceIDProperties.pNext = NULL;
 
     VkPhysicalDeviceProperties2 vkPhysicalDeviceProperties2 = {};
@@ -3534,6 +4166,7 @@ int getCudaDeviceForVulkanPhysicalDevice(VkPhysicalDevice vkPhysicalDevice) {
         }
     }
     return cudaInvalidDeviceId;
+
 }
 
 ##### 6.2.16.1.2. Importing Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-memory-objects "Permalink to this headline")
@@ -3543,7 +4176,9 @@ On Linux and Windows 10, both dedicated and non-dedicated memory objects exporte
 A Vulkan memory object exported using `VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT` can be imported into CUDA using the file descriptor associated with that object as shown below. Note that CUDA assumes ownership of the file descriptor once it is imported. Using the file descriptor after a successful import results in undefined behavior.
 
 cudaExternalMemory_t importVulkanMemoryObjectFromFileDescriptor(int fd, unsigned long long size, bool isDedicated) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3560,12 +4195,15 @@ cudaExternalMemory_t importVulkanMemoryObjectFromFileDescriptor(int fd, unsigned
     // Input parameter 'fd' should not be used beyond this point as CUDA has assumed ownership of it
 
     return extMem;
+
 }
 
 A Vulkan memory object exported using `VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT` can be imported into CUDA using the NT handle associated with that object as shown below. Note that CUDA does not assume ownership of the NT handle and it is the application’s responsibility to close the handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying memory can be freed.
 
 cudaExternalMemory_t importVulkanMemoryObjectFromNTHandle(HANDLE handle, unsigned long long size, bool isDedicated) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3583,12 +4221,15 @@ cudaExternalMemory_t importVulkanMemoryObjectFromNTHandle(HANDLE handle, unsigne
     CloseHandle(handle);
 
     return extMem;
+
 }
 
 A Vulkan memory object exported using `VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT` can also be imported using a named handle if one exists as shown below.
 
 cudaExternalMemory_t importVulkanMemoryObjectFromNamedNTHandle(LPCWSTR name, unsigned long long size, bool isDedicated) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3603,12 +4244,15 @@ cudaExternalMemory_t importVulkanMemoryObjectFromNamedNTHandle(LPCWSTR name, uns
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 A Vulkan memory object exported using VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT can be imported into CUDA using the globally shared D3DKMT handle associated with that object as shown below. Since a globally shared D3DKMT handle does not hold a reference to the underlying memory it is automatically destroyed when all other references to the resource are destroyed.
 
 cudaExternalMemory_t importVulkanMemoryObjectFromKMTHandle(HANDLE handle, unsigned long long size, bool isDedicated) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3623,6 +4267,7 @@ cudaExternalMemory_t importVulkanMemoryObjectFromKMTHandle(HANDLE handle, unsign
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 ##### 6.2.16.1.3. Mapping Buffers onto Imported Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-buffers-onto-imported-memory-objects "Permalink to this headline")
@@ -3654,7 +4299,9 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 A CUDA mipmapped array can be mapped onto an imported memory object as shown below. The offset, dimensions, format and number of mip levels must match that specified when creating the mapping using the corresponding Vulkan API. Additionally, if the mipmapped array is bound as a color target in Vulkan, the flag`cudaArrayColorAttachment` must be set. All mapped mipmapped arrays must be freed using `cudaFreeMipmappedArray()`. The following code sample shows how to convert Vulkan parameters into the corresponding CUDA parameters when mapping mipmapped arrays onto imported memory objects.
 
 cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, cudaChannelFormatDesc *formatDesc, cudaExtent *extent, unsigned int flags, unsigned int numLevels) {
+
     cudaMipmappedArray_t mipmap = NULL;
+
     cudaExternalMemoryMipmappedArrayDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3669,10 +4316,13 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
     cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &desc);
 
     return mipmap;
+
 }
 
 cudaChannelFormatDesc getCudaChannelFormatDescForVulkanFormat(VkFormat format)
+
 {
+
     cudaChannelFormatDesc d;
 
     memset(&d, 0, sizeof(d));
@@ -3703,9 +4353,11 @@ cudaChannelFormatDesc getCudaChannelFormatDescForVulkanFormat(VkFormat format)
     }
 
     return d;
+
 }
 
 cudaExtent getCudaExtentForVulkanExtent(VkExtent3D vkExt, uint32_t arrayLayers, VkImageViewType vkImageViewType) {
+
     cudaExtent e = { 0, 0, 0 };
 
     switch (vkImageViewType) {
@@ -3720,9 +4372,11 @@ cudaExtent getCudaExtentForVulkanExtent(VkExtent3D vkExt, uint32_t arrayLayers, 
     }
 
     return e;
+
 }
 
 unsigned int getCudaMipmappedArrayFlagsForVulkanImage(VkImageViewType vkImageViewType, VkImageUsageFlags vkImageUsageFlags, bool allowSurfaceLoadStore) {
+
     unsigned int flags = 0;
 
     switch (vkImageViewType) {
@@ -3741,6 +4395,7 @@ unsigned int getCudaMipmappedArrayFlagsForVulkanImage(VkImageViewType vkImageVie
         flags |= cudaArraySurfaceLoadStore;
     }
     return flags;
+
 }
 
 ##### 6.2.16.1.5. Importing Synchronization Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects "Permalink to this headline")
@@ -3748,7 +4403,9 @@ unsigned int getCudaMipmappedArrayFlagsForVulkanImage(VkImageViewType vkImageVie
 A Vulkan semaphore object exported using `VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT`can be imported into CUDA using the file descriptor associated with that object as shown below. Note that CUDA assumes ownership of the file descriptor once it is imported. Using the file descriptor after a successful import results in undefined behavior.
 
 cudaExternalSemaphore_t importVulkanSemaphoreObjectFromFileDescriptor(int fd) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3761,12 +4418,15 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromFileDescriptor(int fd) {
     // Input parameter 'fd' should not be used beyond this point as CUDA has assumed ownership of it
 
     return extSem;
+
 }
 
 A Vulkan semaphore object exported using `VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT` can be imported into CUDA using the NT handle associated with that object as shown below. Note that CUDA does not assume ownership of the NT handle and it is the application’s responsibility to close the handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying semaphore can be freed.
 
 cudaExternalSemaphore_t importVulkanSemaphoreObjectFromNTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3780,12 +4440,15 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromNTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 A Vulkan semaphore object exported using `VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT` can also be imported using a named handle if one exists as shown below.
 
 cudaExternalSemaphore_t importVulkanSemaphoreObjectFromNamedNTHandle(LPCWSTR name) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3796,12 +4459,15 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromNamedNTHandle(LPCWSTR nam
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 A Vulkan semaphore object exported using `VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT` can be imported into CUDA using the globally shared D3DKMT handle associated with that object as shown below. Since a globally shared D3DKMT handle does not hold a reference to the underlying semaphore it is automatically destroyed when all other references to the resource are destroyed.
 
 cudaExternalSemaphore_t importVulkanSemaphoreObjectFromKMTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3812,6 +4478,7 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromKMTHandle(HANDLE handle) 
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 ##### 6.2.16.1.6. Signaling/Waiting on Imported Synchronization Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#signaling-waiting-on-imported-synchronization-objects "Permalink to this headline")
@@ -3819,21 +4486,25 @@ cudaExternalSemaphore_t importVulkanSemaphoreObjectFromKMTHandle(HANDLE handle) 
 An imported Vulkan semaphore object can be signaled as shown below. Signaling such a semaphore object sets it to the signaled state. The corresponding wait that waits on this signal must be issued in Vulkan. Additionally, the wait that waits on this signal must be issued after this signal has been issued.
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream) {
+
     cudaExternalSemaphoreSignalParams params = {};
 
     memset(&params, 0, sizeof(params));
 
     cudaSignalExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 An imported Vulkan semaphore object can be waited on as shown below. Waiting on such a semaphore object waits until it reaches the signaled state and then resets it back to the unsignaled state. The corresponding signal that this wait is waiting on must be issued in Vulkan. Additionally, the signal must be issued before this wait can be issued.
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream) {
+
     cudaExternalSemaphoreWaitParams params = {};
 
     memset(&params, 0, sizeof(params));
 
     cudaWaitExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 #### 6.2.16.2. OpenGL Interoperability[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#opengl-interoperability-ext-res-int "Permalink to this headline")
@@ -3841,17 +4512,11 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream) 
 Traditional OpenGL-CUDA interop as outlined in [OpenGL Interoperability](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#opengl-interoperability) works by CUDA directly consuming handles created in OpenGL. However, since OpenGL can also consume memory and synchronization objects created in Vulkan, there exists an alternative approach to doing OpenGL-CUDA interop. Essentially, memory and synchronization objects exported by Vulkan could be imported into both, OpenGL and CUDA, and then used to coordinate memory accesses between OpenGL and CUDA. Please refer to the following OpenGL extensions for further details on how to import memory and synchronization objects exported by Vulkan:
 
 - GL_EXT_memory_object
-    
 - GL_EXT_memory_object_fd
-    
 - GL_EXT_memory_object_win32
-    
 - GL_EXT_semaphore
-    
 - GL_EXT_semaphore_fd
-    
 - GL_EXT_semaphore_win32
-    
 
 #### 6.2.16.3. Direct3D 12 Interoperability[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-12-interoperability "Permalink to this headline")
 
@@ -3860,6 +4525,7 @@ Traditional OpenGL-CUDA interop as outlined in [OpenGL Interoperability](https:
 When importing memory and synchronization objects exported by Direct3D 12, they must be imported and mapped on the same device as they were created on. The CUDA device that corresponds to the Direct3D 12 device on which the objects were created can be determined by comparing the LUID of a CUDA device with that of the Direct3D 12 device, as shown in the following code sample. Note that the Direct3D 12 device must not be created on a linked node adapter. I.e. the node count as returned by `ID3D12Device::GetNodeCount` must be 1.
 
 int getCudaDeviceForD3D12Device(ID3D12Device *d3d12Device) {
+
     LUID d3d12Luid = d3d12Device->GetAdapterLuid();
 
     int cudaDeviceCount;
@@ -3876,6 +4542,7 @@ int getCudaDeviceForD3D12Device(ID3D12Device *d3d12Device) {
         }
     }
     return cudaInvalidDeviceId;
+
 }
 
 ##### 6.2.16.3.2. Importing Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-memory-objects-dir3d-12-int "Permalink to this headline")
@@ -3883,7 +4550,9 @@ int getCudaDeviceForD3D12Device(ID3D12Device *d3d12Device) {
 A shareable Direct3D 12 heap memory object, created by setting the flag `D3D12_HEAP_FLAG_SHARED` in the call to `ID3D12Device::CreateHeap`, can be imported into CUDA using the NT handle associated with that object as shown below. Note that it is the application’s responsibility to close the NT handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying memory can be freed.
 
 cudaExternalMemory_t importD3D12HeapFromNTHandle(HANDLE handle, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3898,12 +4567,15 @@ cudaExternalMemory_t importD3D12HeapFromNTHandle(HANDLE handle, unsigned long lo
     CloseHandle(handle);
 
     return extMem;
+
 }
 
 A shareable Direct3D 12 heap memory object can also be imported using a named handle if one exists as shown below.
 
 cudaExternalMemory_t importD3D12HeapFromNamedNTHandle(LPCWSTR name, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3915,12 +4587,15 @@ cudaExternalMemory_t importD3D12HeapFromNamedNTHandle(LPCWSTR name, unsigned lon
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 A shareable Direct3D 12 committed resource, created by setting the flag `D3D12_HEAP_FLAG_SHARED` in the call to `D3D12Device::CreateCommittedResource`, can be imported into CUDA using the NT handle associated with that object as shown below. When importing a Direct3D 12 committed resource, the flag `cudaExternalMemoryDedicated` must be set. Note that it is the application’s responsibility to close the NT handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying memory can be freed.
 
 cudaExternalMemory_t importD3D12CommittedResourceFromNTHandle(HANDLE handle, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3936,12 +4611,15 @@ cudaExternalMemory_t importD3D12CommittedResourceFromNTHandle(HANDLE handle, uns
     CloseHandle(handle);
 
     return extMem;
+
 }
 
 A shareable Direct3D 12 committed resource can also be imported using a named handle if one exists as shown below.
 
 cudaExternalMemory_t importD3D12CommittedResourceFromNamedNTHandle(LPCWSTR name, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3954,6 +4632,7 @@ cudaExternalMemory_t importD3D12CommittedResourceFromNamedNTHandle(LPCWSTR name,
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 ##### 6.2.16.3.3. Mapping Buffers onto Imported Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-buffers-onto-imported-memory-objects-dir3d-12-int "Permalink to this headline")
@@ -3961,7 +4640,9 @@ cudaExternalMemory_t importD3D12CommittedResourceFromNamedNTHandle(LPCWSTR name,
 A device pointer can be mapped onto an imported memory object as shown below. The offset and size of the mapping must match that specified when creating the mapping using the corresponding Direct3D 12 API. All mapped device pointers must be freed using `cudaFree()`.
 
 void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, unsigned long long size) {
+
     void *ptr = NULL;
+
     cudaExternalMemoryBufferDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3973,6 +4654,7 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 
     // Note: 'ptr' must eventually be freed using cudaFree()
     return ptr;
+
 }
 
 ##### 6.2.16.3.4. Mapping Mipmapped Arrays onto Imported Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-mipmapped-arrays-onto-imported-memory-objects-dir3d-12-int "Permalink to this headline")
@@ -3980,7 +4662,9 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 A CUDA mipmapped array can be mapped onto an imported memory object as shown below. The offset, dimensions, format and number of mip levels must match that specified when creating the mapping using the corresponding Direct3D 12 API. Additionally, if the mipmapped array can be bound as a render target in Direct3D 12, the flag `cudaArrayColorAttachment` must be set. All mapped mipmapped arrays must be freed using `cudaFreeMipmappedArray()`. The following code sample shows how to convert Vulkan parameters into the corresponding CUDA parameters when mapping mipmapped arrays onto imported memory objects.
 
 cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, cudaChannelFormatDesc *formatDesc, cudaExtent *extent, unsigned int flags, unsigned int numLevels) {
+
     cudaMipmappedArray_t mipmap = NULL;
+
     cudaExternalMemoryMipmappedArrayDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -3995,10 +4679,13 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
     cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &desc);
 
     return mipmap;
+
 }
 
 cudaChannelFormatDesc getCudaChannelFormatDescForDxgiFormat(DXGI_FORMAT dxgiFormat)
+
 {
+
     cudaChannelFormatDesc d;
 
     memset(&d, 0, sizeof(d));
@@ -4030,9 +4717,11 @@ cudaChannelFormatDesc getCudaChannelFormatDescForDxgiFormat(DXGI_FORMAT dxgiForm
     }
 
     return d;
+
 }
 
 cudaExtent getCudaExtentForD3D12Extent(UINT64 width, UINT height, UINT16 depthOrArraySize, D3D12_SRV_DIMENSION d3d12SRVDimension) {
+
     cudaExtent e = { 0, 0, 0 };
 
     switch (d3d12SRVDimension) {
@@ -4047,9 +4736,11 @@ cudaExtent getCudaExtentForD3D12Extent(UINT64 width, UINT height, UINT16 depthOr
     }
 
     return e;
+
 }
 
 unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D12_SRV_DIMENSION d3d12SRVDimension, D3D12_RESOURCE_FLAGS d3d12ResourceFlags, bool allowSurfaceLoadStore) {
+
     unsigned int flags = 0;
 
     switch (d3d12SRVDimension) {
@@ -4068,6 +4759,7 @@ unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D12_SRV_DIMENSION d3d1
     }
 
     return flags;
+
 }
 
 ##### 6.2.16.3.5. Importing Synchronization Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects-dir3d-12-int "Permalink to this headline")
@@ -4075,7 +4767,9 @@ unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D12_SRV_DIMENSION d3d1
 A shareable Direct3D 12 fence object, created by setting the flag `D3D12_FENCE_FLAG_SHARED` in the call to `ID3D12Device::CreateFence`, can be imported into CUDA using the NT handle associated with that object as shown below. Note that it is the application’s responsibility to close the handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying semaphore can be freed.
 
 cudaExternalSemaphore_t importD3D12FenceFromNTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4089,12 +4783,15 @@ cudaExternalSemaphore_t importD3D12FenceFromNTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 A shareable Direct3D 12 fence object can also be imported using a named handle if one exists as shown below.
 
 cudaExternalSemaphore_t importD3D12FenceFromNamedNTHandle(LPCWSTR name) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4105,6 +4802,7 @@ cudaExternalSemaphore_t importD3D12FenceFromNamedNTHandle(LPCWSTR name) {
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 ##### 6.2.16.3.6. Signaling/Waiting on Imported Synchronization Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#signaling-waiting-on-imported-synchronization-objects-dir3d-12-int "Permalink to this headline")
@@ -4112,6 +4810,7 @@ cudaExternalSemaphore_t importD3D12FenceFromNamedNTHandle(LPCWSTR name) {
 An imported Direct3D 12 fence object can be signaled as shown below. Signaling such a fence object sets its value to the one specified. The corresponding wait that waits on this signal must be issued in Direct3D 12. Additionally, the wait that waits on this signal must be issued after this signal has been issued.
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long value, cudaStream_t stream) {
+
     cudaExternalSemaphoreSignalParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4119,11 +4818,13 @@ void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long 
     params.params.fence.value = value;
 
     cudaSignalExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 An imported Direct3D 12 fence object can be waited on as shown below. Waiting on such a fence object waits until its value becomes greater than or equal to the specified value. The corresponding signal that this wait is waiting on must be issued in Direct3D 12. Additionally, the signal must be issued before this wait can be issued.
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long value, cudaStream_t stream) {
+
     cudaExternalSemaphoreWaitParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4131,6 +4832,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long va
     params.params.fence.value = value;
 
     cudaWaitExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 #### 6.2.16.4. Direct3D 11 Interoperability[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct3d-11-interoperability "Permalink to this headline")
@@ -4140,7 +4842,9 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long va
 When importing memory and synchronization objects exported by Direct3D 11, they must be imported and mapped on the same device as they were created on. The CUDA device that corresponds to the Direct3D 11 device on which the objects were created can be determined by comparing the LUID of a CUDA device with that of the Direct3D 11 device, as shown in the following code sample.
 
 int getCudaDeviceForD3D11Device(ID3D11Device *d3d11Device) {
+
     IDXGIDevice *dxgiDevice;
+
     d3d11Device->QueryInterface(__uuidof(IDXGIDevice), (void **)&dxgiDevice);
 
     IDXGIAdapter *dxgiAdapter;
@@ -4165,6 +4869,7 @@ int getCudaDeviceForD3D11Device(ID3D11Device *d3d11Device) {
         }
     }
     return cudaInvalidDeviceId;
+
 }
 
 ##### 6.2.16.4.2. Importing Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-memory-objects-dir3d-11-int "Permalink to this headline")
@@ -4172,7 +4877,9 @@ int getCudaDeviceForD3D11Device(ID3D11Device *d3d11Device) {
 A shareable Direct3D 11 texture resource, viz, `ID3D11Texture1D`, `ID3D11Texture2D` or `ID3D11Texture3D`, can be created by setting either the `D3D11_RESOURCE_MISC_SHARED` or `D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX` (on Windows 7) or `D3D11_RESOURCE_MISC_SHARED_NTHANDLE` (on Windows 10) when calling `ID3D11Device:CreateTexture1D`, `ID3D11Device:CreateTexture2D` or `ID3D11Device:CreateTexture3D` respectively. A shareable Direct3D 11 buffer resource, `ID3D11Buffer`, can be created by specifying either of the above flags when calling `ID3D11Device::CreateBuffer`. A shareable resource created by specifying the `D3D11_RESOURCE_MISC_SHARED_NTHANDLE` can be imported into CUDA using the NT handle associated with that object as shown below. Note that it is the application’s responsibility to close the NT handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying memory can be freed. When importing a Direct3D 11 resource, the flag `cudaExternalMemoryDedicated` must be set.
 
 cudaExternalMemory_t importD3D11ResourceFromNTHandle(HANDLE handle, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4188,12 +4895,15 @@ cudaExternalMemory_t importD3D11ResourceFromNTHandle(HANDLE handle, unsigned lon
     CloseHandle(handle);
 
     return extMem;
+
 }
 
 A shareable Direct3D 11 resource can also be imported using a named handle if one exists as shown below.
 
 cudaExternalMemory_t importD3D11ResourceFromNamedNTHandle(LPCWSTR name, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4206,12 +4916,15 @@ cudaExternalMemory_t importD3D11ResourceFromNamedNTHandle(LPCWSTR name, unsigned
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 A shareable Direct3D 11 resource, created by specifying the `D3D11_RESOURCE_MISC_SHARED` or `D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX`, can be imported into CUDA using the globally shared `D3DKMT` handle associated with that object as shown below. Since a globally shared `D3DKMT` handle does not hold a reference to the underlying memory it is automatically destroyed when all other references to the resource are destroyed.
 
 cudaExternalMemory_t importD3D11ResourceFromKMTHandle(HANDLE handle, unsigned long long size) {
+
     cudaExternalMemory_t extMem = NULL;
+
     cudaExternalMemoryHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4224,6 +4937,7 @@ cudaExternalMemory_t importD3D11ResourceFromKMTHandle(HANDLE handle, unsigned lo
     cudaImportExternalMemory(&extMem, &desc);
 
     return extMem;
+
 }
 
 ##### 6.2.16.4.3. Mapping Buffers onto Imported Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-buffers-onto-imported-memory-objects-dir3d-11-int "Permalink to this headline")
@@ -4231,7 +4945,9 @@ cudaExternalMemory_t importD3D11ResourceFromKMTHandle(HANDLE handle, unsigned lo
 A device pointer can be mapped onto an imported memory object as shown below. The offset and size of the mapping must match that specified when creating the mapping using the corresponding Direct3D 11 API. All mapped device pointers must be freed using `cudaFree()`.
 
 void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, unsigned long long size) {
+
     void *ptr = NULL;
+
     cudaExternalMemoryBufferDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4243,6 +4959,7 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 
     // Note: ‘ptr’ must eventually be freed using cudaFree()
     return ptr;
+
 }
 
 ##### 6.2.16.4.4. Mapping Mipmapped Arrays onto Imported Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-mipmapped-arrays-onto-imported-memory-objects-dir3d-11-int "Permalink to this headline")
@@ -4250,7 +4967,9 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 A CUDA mipmapped array can be mapped onto an imported memory object as shown below. The offset, dimensions, format and number of mip levels must match that specified when creating the mapping using the corresponding Direct3D 11 API. Additionally, if the mipmapped array can be bound as a render target in Direct3D 12, the flag `cudaArrayColorAttachment` must be set. All mapped mipmapped arrays must be freed using `cudaFreeMipmappedArray()`. The following code sample shows how to convert Direct3D 11 parameters into the corresponding CUDA parameters when mapping mipmapped arrays onto imported memory objects.
 
 cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, cudaChannelFormatDesc *formatDesc, cudaExtent *extent, unsigned int flags, unsigned int numLevels) {
+
     cudaMipmappedArray_t mipmap = NULL;
+
     cudaExternalMemoryMipmappedArrayDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4265,41 +4984,71 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
     cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &desc);
 
     return mipmap;
+
 }
 
 cudaChannelFormatDesc getCudaChannelFormatDescForDxgiFormat(DXGI_FORMAT dxgiFormat)
+
 {
+
     cudaChannelFormatDesc d;
+
     memset(&d, 0, sizeof(d));
+
     switch (dxgiFormat) {
+
     case DXGI_FORMAT_R8_UINT:            d.x = 8;  d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R8_SINT:            d.x = 8;  d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R8G8_UINT:          d.x = 8;  d.y = 8;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R8G8_SINT:          d.x = 8;  d.y = 8;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R8G8B8A8_UINT:      d.x = 8;  d.y = 8;  d.z = 8;  d.w = 8;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R8G8B8A8_SINT:      d.x = 8;  d.y = 8;  d.z = 8;  d.w = 8;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R16_UINT:           d.x = 16; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R16_SINT:           d.x = 16; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R16G16_UINT:        d.x = 16; d.y = 16; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R16G16_SINT:        d.x = 16; d.y = 16; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R16G16B16A16_UINT:  d.x = 16; d.y = 16; d.z = 16; d.w = 16; d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R16G16B16A16_SINT:  d.x = 16; d.y = 16; d.z = 16; d.w = 16; d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R32_UINT:           d.x = 32; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R32_SINT:           d.x = 32; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R32_FLOAT:          d.x = 32; d.y = 0;  d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindFloat;    break;
+
     case DXGI_FORMAT_R32G32_UINT:        d.x = 32; d.y = 32; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R32G32_SINT:        d.x = 32; d.y = 32; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R32G32_FLOAT:       d.x = 32; d.y = 32; d.z = 0;  d.w = 0;  d.f = cudaChannelFormatKindFloat;    break;
+
     case DXGI_FORMAT_R32G32B32A32_UINT:  d.x = 32; d.y = 32; d.z = 32; d.w = 32; d.f = cudaChannelFormatKindUnsigned; break;
+
     case DXGI_FORMAT_R32G32B32A32_SINT:  d.x = 32; d.y = 32; d.z = 32; d.w = 32; d.f = cudaChannelFormatKindSigned;   break;
+
     case DXGI_FORMAT_R32G32B32A32_FLOAT: d.x = 32; d.y = 32; d.z = 32; d.w = 32; d.f = cudaChannelFormatKindFloat;    break;
+
     default: assert(0);
+
     }
 
     return d;
+
 }
 
 cudaExtent getCudaExtentForD3D11Extent(UINT64 width, UINT height, UINT16 depthOrArraySize, D3D12_SRV_DIMENSION d3d11SRVDimension) {
+
     cudaExtent e = { 0, 0, 0 };
 
     switch (d3d11SRVDimension) {
@@ -4313,9 +5062,11 @@ cudaExtent getCudaExtentForD3D11Extent(UINT64 width, UINT height, UINT16 depthOr
     default: assert(0);
     }
     return e;
+
 }
 
 unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D11_SRV_DIMENSION d3d11SRVDimension, D3D11_BIND_FLAG d3d11BindFlags, bool allowSurfaceLoadStore) {
+
     unsigned int flags = 0;
 
     switch (d3d11SRVDimension) {
@@ -4335,6 +5086,7 @@ unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D11_SRV_DIMENSION d3d1
     }
 
     return flags;
+
 }
 
 ##### 6.2.16.4.5. Importing Synchronization Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects-dir3d-11-int "Permalink to this headline")
@@ -4342,7 +5094,9 @@ unsigned int getCudaMipmappedArrayFlagsForD3D12Resource(D3D11_SRV_DIMENSION d3d1
 A shareable Direct3D 11 fence object, created by setting the flag `D3D11_FENCE_FLAG_SHARED` in the call to `ID3D11Device5::CreateFence`, can be imported into CUDA using the NT handle associated with that object as shown below. Note that it is the application’s responsibility to close the handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying semaphore can be freed.
 
 cudaExternalSemaphore_t importD3D11FenceFromNTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4356,12 +5110,15 @@ cudaExternalSemaphore_t importD3D11FenceFromNTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 A shareable Direct3D 11 fence object can also be imported using a named handle if one exists as shown below.
 
 cudaExternalSemaphore_t importD3D11FenceFromNamedNTHandle(LPCWSTR name) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4372,12 +5129,15 @@ cudaExternalSemaphore_t importD3D11FenceFromNamedNTHandle(LPCWSTR name) {
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 A shareable Direct3D 11 keyed mutex object associated with a shareable Direct3D 11 resource, viz, `IDXGIKeyedMutex`, created by setting the flag `D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX`, can be imported into CUDA using the NT handle associated with that object as shown below. Note that it is the application’s responsibility to close the handle when it is not required anymore. The NT handle holds a reference to the resource, so it must be explicitly freed before the underlying semaphore can be freed.
 
 cudaExternalSemaphore_t importD3D11KeyedMutexFromNTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4391,12 +5151,15 @@ cudaExternalSemaphore_t importD3D11KeyedMutexFromNTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 A shareable Direct3D 11 keyed mutex object can also be imported using a named handle if one exists as shown below.
 
 cudaExternalSemaphore_t importD3D11KeyedMutexFromNamedNTHandle(LPCWSTR name) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4407,12 +5170,15 @@ cudaExternalSemaphore_t importD3D11KeyedMutexFromNamedNTHandle(LPCWSTR name) {
     cudaImportExternalSemaphore(&extSem, &desc);
 
     return extSem;
+
 }
 
 A shareable Direct3D 11 keyed mutex object can be imported into CUDA using the globally shared D3DKMT handle associated with that object as shown below. Since a globally shared D3DKMT handle does not hold a reference to the underlying memory it is automatically destroyed when all other references to the resource are destroyed.
 
 cudaExternalSemaphore_t importD3D11FenceFromKMTHandle(HANDLE handle) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4426,6 +5192,7 @@ cudaExternalSemaphore_t importD3D11FenceFromKMTHandle(HANDLE handle) {
     CloseHandle(handle);
 
     return extSem;
+
 }
 
 ##### 6.2.16.4.6. Signaling/Waiting on Imported Synchronization Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#signaling-waiting-on-imported-synchronization-objects-dir3d-11-int "Permalink to this headline")
@@ -4433,6 +5200,7 @@ cudaExternalSemaphore_t importD3D11FenceFromKMTHandle(HANDLE handle) {
 An imported Direct3D 11 fence object can be signaled as shown below. Signaling such a fence object sets its value to the one specified. The corresponding wait that waits on this signal must be issued in Direct3D 11. Additionally, the wait that waits on this signal must be issued after this signal has been issued.
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long value, cudaStream_t stream) {
+
     cudaExternalSemaphoreSignalParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4440,11 +5208,13 @@ void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long 
     params.params.fence.value = value;
 
     cudaSignalExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 An imported Direct3D 11 fence object can be waited on as shown below. Waiting on such a fence object waits until its value becomes greater than or equal to the specified value. The corresponding signal that this wait is waiting on must be issued in Direct3D 11. Additionally, the signal must be issued before this wait can be issued.
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long value, cudaStream_t stream) {
+
     cudaExternalSemaphoreWaitParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4452,11 +5222,13 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long va
     params.params.fence.value = value;
 
     cudaWaitExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 An imported Direct3D 11 keyed mutex object can be signaled as shown below. Signaling such a keyed mutex object by specifying a key value releases the keyed mutex for that value. The corresponding wait that waits on this signal must be issued in Direct3D 11 with the same key value. Additionally, the Direct3D 11 wait must be issued after this signal has been issued.
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long key, cudaStream_t stream) {
+
     cudaExternalSemaphoreSignalParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4464,11 +5236,13 @@ void signalExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long 
     params.params.keyedmutex.key = key;
 
     cudaSignalExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 An imported Direct3D 11 keyed mutex object can be waited on as shown below. A timeout value in milliseconds is needed when waiting on such a keyed mutex. The wait operation waits until the keyed mutex value is equal to the specified key value or until the timeout has elapsed. The timeout interval can also be an infinite value. In case an infinite value is specified the timeout never elapses. The windows INFINITE macro must be used to specify an infinite timeout. The corresponding signal that this wait is waiting on must be issued in Direct3D 11. Additionally, the Direct3D 11 signal must be issued before this wait can be issued.
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long key, unsigned int timeoutMs, cudaStream_t stream) {
+
     cudaExternalSemaphoreWaitParams params = {};
 
     memset(&params, 0, sizeof(params));
@@ -4477,6 +5251,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long ke
     params.params.keyedmutex.timeoutMs = timeoutMs;
 
     cudaWaitExternalSemaphoresAsync(&extSem, &params, 1, stream);
+
 }
 
 #### 6.2.16.5. NVIDIA Software Communication Interface Interoperability (NVSCI)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nvidia-software-communication-interface-interoperability-nvsci "Permalink to this headline")
@@ -4484,9 +5259,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, unsigned long long ke
 NvSciBuf and NvSciSync are interfaces developed for serving the following purposes:
 
 - NvSciBuf: Allows applications to allocate and exchange buffers in memory
-    
 - NvSciSync: Allows applications to manage synchronization objects at operation boundaries
-    
 
 More details on these interfaces are available at: [https://docs.nvidia.com/drive](https://docs.nvidia.com/drive).
 
@@ -4495,15 +5268,10 @@ More details on these interfaces are available at: [https://docs.nvidia.com/dri
 For allocating an NvSciBuf object compatible with a given CUDA device, the corresponding GPU id must be set with `NvSciBufGeneralAttrKey_GpuId`in the NvSciBuf attribute list as shown below. Optionally, applications can specify the following attributes -
 
 - `NvSciBufGeneralAttrKey_NeedCpuAccess`: Specifies if CPU access is required for the buffer
-    
 - `NvSciBufRawBufferAttrKey_Align`: Specifies the alignment requirement of `NvSciBufType_RawBuffer`
-    
 - `NvSciBufGeneralAttrKey_RequiredPerm`: Different access permissions can be configured for different UMDs per NvSciBuf memory object instance. For example, to provide the GPU with read-only access permissions to the buffer, create a duplicate NvSciBuf object using `NvSciBufObjDupWithReducePerm()` with `NvSciBufAccessPerm_Readonly` as the input parameter. Then import this newly created duplicate object with reduced permission into CUDA as shown
-    
 - `NvSciBufGeneralAttrKey_EnableGpuCache`: To control GPU L2 cacheability
-    
 - `NvSciBufGeneralAttrKey_EnableGpuCompression`: To specify GPU compression
-    
 
 Note
 
@@ -4512,11 +5280,17 @@ For more details on these attributes and their valid input options, refer to NvS
 The following code snippet illustrates their sample usage.
 
 NvSciBufObj createNvSciBufObject() {
+
    // Raw Buffer Attributes for CUDA
+
     NvSciBufType bufType = NvSciBufType_RawBuffer;
+
     uint64_t rawsize = SIZE;
+
     uint64_t align = 0;
+
     bool cpuaccess_flag = true;
+
     NvSciBufAttrValAccessPerm perm = NvSciBufAccessPerm_ReadWrite;
 
     NvSciRmGpuId gpuid[] ={};
@@ -4550,11 +5324,15 @@ NvSciBufObj createNvSciBufObject() {
                        &attrListConflictBuffer)
     NvSciBufObjAlloc(attrListReconciledBuffer, &bufferObjRaw);
     return bufferObjRaw;
+
 }
 
 NvSciBufObj bufferObjRo; // Readonly NvSciBuf memory obj
+
 // Create a duplicate handle to the same memory buffer with reduced permissions
+
 NvSciBufObjDupWithReducePerm(bufferObjRaw, NvSciBufAccessPerm_Readonly, &bufferObjRo);
+
 return bufferObjRo;
 
 The allocated NvSciBuf memory object can be imported in CUDA using the NvSciBufObj handle as shown below. Application should query the allocated NvSciBufObj for attributes required for filling CUDA External Memory Descriptor. Note that the attribute list and NvSciBuf objects should be maintained by the application. If the NvSciBuf object imported into CUDA is also mapped by other drivers, then based on `NvSciBufGeneralAttrKey_GpuSwNeedCacheCoherency` output attribute value the application must use NvSciSync objects (refer to [Importing Synchronization Objects](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects-nvsci)) as appropriate barriers to maintain coherence between CUDA and the other drivers.
@@ -4608,6 +5386,7 @@ cudaExternalMemory_t importNvSciBufObject (NvSciBufObj bufferObjRaw) {
     memHandleDesc.size = ret_size;
     cudaImportExternalMemory(&extMemBuffer, &memHandleDesc);
     return extMemBuffer;
+
  }
 
 ##### 6.2.16.5.2. Mapping Buffers onto Imported Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-buffers-onto-imported-memory-objects-nvsci "Permalink to this headline")
@@ -4615,7 +5394,9 @@ cudaExternalMemory_t importNvSciBufObject (NvSciBufObj bufferObjRaw) {
 A device pointer can be mapped onto an imported memory object as shown below. The offset and size of the mapping can be filled as per the attributes of the allocated `NvSciBufObj`. All mapped device pointers must be freed using `cudaFree()`.
 
 void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, unsigned long long size) {
+
     void *ptr = NULL;
+
     cudaExternalMemoryBufferDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4627,6 +5408,7 @@ void * mapBufferOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long lo
 
     // Note: 'ptr' must eventually be freed using cudaFree()
     return ptr;
+
 }
 
 ##### 6.2.16.5.3. Mapping Mipmapped Arrays onto Imported Memory Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-mipmapped-arrays-onto-imported-memory-objects-nvsci "Permalink to this headline")
@@ -4638,7 +5420,9 @@ Note
 The number of mip levels must be 1.
 
 cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t extMem, unsigned long long offset, cudaChannelFormatDesc *formatDesc, cudaExtent *extent, unsigned int flags, unsigned int numLevels) {
+
     cudaMipmappedArray_t mipmap = NULL;
+
     cudaExternalMemoryMipmappedArrayDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4653,6 +5437,7 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
     cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &desc);
 
     return mipmap;
+
 }
 
 ##### 6.2.16.5.4. Importing Synchronization Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#importing-synchronization-objects-nvsci "Permalink to this headline")
@@ -4660,12 +5445,19 @@ cudaMipmappedArray_t mapMipmappedArrayOntoExternalMemory(cudaExternalMemory_t ex
 NvSciSync attributes that are compatible with a given CUDA device can be generated using `cudaDeviceGetNvSciSyncAttributes()`. The returned attribute list can be used to create a `NvSciSyncObj` that is guaranteed compatibility with a given CUDA device.
 
 NvSciSyncObj createNvSciSyncObject() {
+
     NvSciSyncObj nvSciSyncObj
+
     int cudaDev0 = 0;
+
     int cudaDev1 = 1;
+
     NvSciSyncAttrList signalerAttrList = NULL;
+
     NvSciSyncAttrList waiterAttrList = NULL;
+
     NvSciSyncAttrList reconciledList = NULL;
+
     NvSciSyncAttrList newConflictList = NULL;
 
     NvSciSyncAttrListCreate(module, &signalerAttrList);
@@ -4682,12 +5474,15 @@ NvSciSyncObj createNvSciSyncObject() {
     NvSciSyncObjAlloc(reconciledList, &nvSciSyncObj);
 
     return nvSciSyncObj;
+
 }
 
 An NvSciSync object (created as above) can be imported into CUDA using the NvSciSyncObj handle as shown below. Note that ownership of the NvSciSyncObj handle continues to lie with the application even after it is imported.
 
 cudaExternalSemaphore_t importNvSciSyncObject(void* nvSciSyncObj) {
+
     cudaExternalSemaphore_t extSem = NULL;
+
     cudaExternalSemaphoreHandleDesc desc = {};
 
     memset(&desc, 0, sizeof(desc));
@@ -4700,6 +5495,7 @@ cudaExternalSemaphore_t importNvSciSyncObject(void* nvSciSyncObj) {
     // Deleting/Freeing the nvSciSyncObj beyond this point will lead to undefined behavior in CUDA
 
     return extSem;
+
 }
 
 ##### 6.2.16.5.5. Signaling/Waiting on Imported Synchronization Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#signaling-waiting-on-imported-synchronization-objects-nvsci "Permalink to this headline")
@@ -4707,6 +5503,7 @@ cudaExternalSemaphore_t importNvSciSyncObject(void* nvSciSyncObj) {
 An imported `NvSciSyncObj` object can be signaled as outlined below. Signaling NvSciSync backed semaphore object initializes the _fence_ parameter passed as input. This fence parameter is waited upon by a wait operation that corresponds to the aforementioned signal. Additionally, the wait that waits on this signal must be issued after this signal has been issued. If the flags are set to `cudaExternalSemaphoreSignalSkipNvSciBufMemSync`then memory synchronization operations (over all the imported NvSciBuf in this process) that are executed as a part of the signal operation by default are skipped. When `NvsciBufGeneralAttrKey_GpuSwNeedCacheCoherency` is FALSE, this flag should be set.
 
 void signalExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream, void *fence) {
+
     cudaExternalSemaphoreSignalParams signalParams = {};
 
     memset(&signalParams, 0, sizeof(signalParams));
@@ -4721,6 +5518,7 @@ void signalExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream
 An imported `NvSciSyncObj` object can be waited upon as outlined below. Waiting on NvSciSync backed semaphore object waits until the input _fence_ parameter is signaled by the corresponding signaler. Additionally, the signal must be issued before the wait can be issued. If the flags are set to `cudaExternalSemaphoreWaitSkipNvSciBufMemSync` then memory synchronization operations (over all the imported NvSciBuf in this process) that are executed as a part of the signal operation by default are skipped. When `NvsciBufGeneralAttrKey_GpuSwNeedCacheCoherency` is FALSE, this flag should be set.
 
 void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream, void *fence) {
+
      cudaExternalSemaphoreWaitParams waitParams = {};
 
     memset(&waitParams, 0, sizeof(waitParams));
@@ -4729,6 +5527,7 @@ void waitExternalSemaphore(cudaExternalSemaphore_t extSem, cudaStream_t stream, 
     waitParams.flags = 0; //OR cudaExternalSemaphoreWaitSkipNvSciBufMemSync
 
     cudaWaitExternalSemaphoresAsync(&extSem, &waitParams, 1, stream);
+
 }
 
 ## 6.3. Versioning and Compatibility[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#versioning-and-compatibility "Permalink to this headline")
@@ -4740,11 +5539,8 @@ The version of the driver API is defined in the driver header file as `CUDA_VER
 It is important to note that there are limitations on the mixing and matching of versions that is supported:
 
 - Since only one version of the CUDA Driver can be installed at a time on a system, the installed driver must be of the same or higher version than the maximum Driver API version against which any application, plug-ins, or libraries that must run on that system were built.
-    
 - All plug-ins and libraries used by an application must use the same version of the CUDA Runtime unless they statically link to the Runtime, in which case multiple versions of the runtime can coexist in the same process space. Note that if `nvcc` is used to link the application, the static version of the CUDA Runtime library will be used by default, and all CUDA Toolkit libraries are statically linked against the CUDA Runtime.
-    
 - All plug-ins and libraries used by an application must use the same version of any libraries that use the runtime (such as cuFFT, cuBLAS, …) unless statically linking to those libraries.
-    
 
 ![The Driver API Is Backward but Not Forward Compatible](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/compatibility-of-cuda-versions.png)
 
@@ -4757,11 +5553,8 @@ For Tesla GPU products, CUDA 10 introduced a new forward-compatible upgrade path
 On Tesla solutions running Windows Server 2008 and later or Linux, one can set any device in a system in one of the three following modes using NVIDIA’s System Management Interface (nvidia-smi), which is a tool distributed as part of the driver:
 
 - _Default_ compute mode: Multiple host threads can use the device (by calling `cudaSetDevice()` on this device, when using the runtime API, or by making current a context associated to the device, when using the driver API) at the same time.
-    
 - _Exclusive-process_ compute mode: Only one CUDA context may be created on the device across all processes in the system. The context may be current to as many threads as desired within the process that created that context.
-    
 - _Prohibited_ compute mode: No CUDA context can be created on the device.
-    
 
 This means, in particular, that a host thread using the runtime API without explicitly calling `cudaSetDevice()` might be associated with a device other than device 0 if device 0 turns out to be in prohibited mode or in exclusive-process mode and used by another process. `cudaSetValidDevices()` can be used to set a device from a prioritized list of devices.
 
@@ -4828,14 +5621,13 @@ The total number of warps in a block is as follows:
 ceil(TWsize,1)
 
 - _T_ is the number of threads per block,
-    
 - _Wsize_ is the warp size, which is equal to 32,
-    
 - ceil(x, y) is equal to x rounded up to the nearest multiple of y.
-    
+
 The total number of registers and total amount of shared memory allocated for a block are documented in the CUDA Occupancy Calculator provided in the CUDA Toolkit.
 
 [2](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id126)The term _warp-synchronous_ refers to code that implicitly assumes threads in the same warp are synchronized at every instruction.
+
 # 8. Performance Guidelines[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#performance-guidelines "Permalink to this headline")
 
 ## 8.1. Overall Performance Optimization Strategies[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#overall-performance-optimization-strategies "Permalink to this headline")
@@ -4843,13 +5635,9 @@ The total number of registers and total amount of shared memory allocated for a 
 Performance optimization revolves around four basic strategies:
 
 - Maximize parallel execution to achieve maximum utilization;
-    
 - Optimize memory usage to achieve maximum memory throughput;
-    
 - Optimize instruction usage to achieve maximum instruction throughput;
-    
 - Minimize memory thrashing.
-    
 
 Which strategies will yield the best performance gain for a particular portion of an application depends on the performance limiters for that portion; optimizing instruction usage of a kernel that is mostly limited by memory accesses will not yield any significant performance gain, for example. Optimization efforts should therefore be constantly directed by measuring and monitoring the performance limiters, for example using the CUDA profiler. Also, comparing the floating-point operation throughput or memory throughput—whichever makes more sense—of a particular kernel to the corresponding peak theoretical throughput of the device indicates how much room for improvement there is for the kernel.
 
@@ -4876,9 +5664,7 @@ At an even lower level, the application should maximize parallel execution betwe
 As described in [Hardware Multithreading](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#hardware-multithreading), a GPU multiprocessor primarily relies on thread-level parallelism to maximize utilization of its functional units. Utilization is therefore directly linked to the number of resident warps. At every instruction issue time, a warp scheduler selects an instruction that is ready to execute. This instruction can be another independent instruction of the same warp, exploiting instruction-level parallelism, or more commonly an instruction of another warp, exploiting thread-level parallelism. If a ready to execute instruction is selected it is issued to the [active](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#simt-architecture-notes) threads of the warp. The number of clock cycles it takes for a warp to be ready to execute its next instruction is called the _latency_, and full utilization is achieved when all warp schedulers always have some instruction to issue for some warp at every clock cycle during that latency period, or in other words, when latency is completely “hidden”. The number of instructions required to hide a latency of L clock cycles depends on the respective throughputs of these instructions (see the [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#arithmetic-instructions) for the throughputs of various arithmetic instructions). If we assume instructions with maximum throughput, it is equal to:
 
 - _4L_ for devices of compute capability 5.x, 6.1, 6.2, 7.x and 8.x since for these devices, a multiprocessor issues one instruction per warp over one clock cycle for four warps at a time, as mentioned in [Compute Capabilities](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capabilities).
-    
 - _2L_ for devices of compute capability 6.0 since for these devices, the two instructions issued every cycle are one instruction for two different warps.
-    
 
 The most common reason a warp is not ready to execute its next instruction is that the instruction’s input operands are not available yet.
 
@@ -4905,27 +5691,32 @@ The number of threads per block should be chosen as a multiple of the warp size 
 Several API functions exist to assist programmers in choosing thread block size and cluster size based on register and shared memory requirements.
 
 - The occupancy calculator API, `cudaOccupancyMaxActiveBlocksPerMultiprocessor`, can provide an occupancy prediction based on the block size and shared memory usage of a kernel. This function reports occupancy in terms of the number of concurrent thread blocks per multiprocessor.
-    
     - Note that this value can be converted to other metrics. Multiplying by the number of warps per block yields the number of concurrent warps per multiprocessor; further dividing concurrent warps by max warps per multiprocessor gives the occupancy as a percentage.
-        
 - The occupancy-based launch configurator APIs, `cudaOccupancyMaxPotentialBlockSize` and `cudaOccupancyMaxPotentialBlockSizeVariableSMem`, heuristically calculate an execution configuration that achieves the maximum multiprocessor-level occupancy.
-    
 - The occupancy calculator API, `cudaOccupancyMaxActiveClusters`, can provided occupancy prediction based on the cluster size, block size and shared memory usage of a kernel. This function reports occupancy in terms of number of max active clusters of a given size on the GPU present in the system.
-    
 
 The following code sample calculates the occupancy of MyKernel. It then reports the occupancy level with the ratio between concurrent warps versus maximum warps per multiprocessor.
 
 // Device code
+
 __global__ void MyKernel(int *d, int *a, int *b)
+
 {
+
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
     d[idx] = a[idx] * b[idx];
+
 }
 
 // Host code
+
 int main()
+
 {
+
     int numBlocks;        // Occupancy in terms of active blocks
+
     int blockSize = 32;
 
     // These variables are used to convert occupancy to warps
@@ -4949,27 +5740,43 @@ int main()
     std::cout << "Occupancy: " << (double)activeWarps / maxWarps * 100 << "%" << std::endl;
 
     return 0;
+
 }
 
 The following code sample configures an occupancy-based kernel launch of MyKernel according to the user input.
 
 // Device code
+
 __global__ void MyKernel(int *array, int arrayCount)
+
 {
+
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
     if (idx < arrayCount) {
+
         array[idx] *= array[idx];
+
     }
+
 }
 
 // Host code
+
 int launchMyKernel(int *array, int arrayCount)
+
 {
+
     int blockSize;      // The launch configurator returned block size
+
     int minGridSize;    // The minimum grid size needed to achieve the
+
                         // maximum occupancy for a full device
+
                         // launch
+
     int gridSize;       // The actual grid size needed, based on input
+
                         // size
 
     cudaOccupancyMaxPotentialBlockSize(
@@ -4989,6 +5796,7 @@ int launchMyKernel(int *array, int arrayCount)
     // cudaOccupancyMaxActiveBlocksPerMultiprocessor
 
     return 0;
+
 }
 
 The following code sample shows how to use the cluster occupancy API to find the max number of active clusters of a given size. Example code below calcualtes occupancy for cluster of size 2 and 128 threads per block.
@@ -4996,26 +5804,39 @@ The following code sample shows how to use the cluster occupancy API to find the
 Cluster size of 8 is forward compatible starting compute capability 9.0, except on GPU hardware or MIG configurations which are too small to support 8 multiprocessors in which case the maximum cluster size will be reduced. But it is recommended that the users query the maximum cluster size before launching a cluster kernel. Max cluster size can be queried using `cudaOccupancyMaxPotentialClusterSize` API.
 
 {
+
   cudaLaunchConfig_t config = {0};
+
   config.gridDim = number_of_blocks;
+
   config.blockDim = 128; // threads_per_block = 128
+
   config.dynamicSmemBytes = dynamic_shared_memory_size;
 
   cudaLaunchAttribute attribute[1];
+
   attribute[0].id = cudaLaunchAttributeClusterDimension;
+
   attribute[0].val.clusterDim.x = 2; // cluster_size = 2
+
   attribute[0].val.clusterDim.y = 1;
+
   attribute[0].val.clusterDim.z = 1;
+
   config.attrs = attribute;
+
   config.numAttrs = 1;
 
   int max_cluster_size = 0;
+
   cudaOccupancyMaxPotentialClusterSize(&max_cluster_size, (void *)kernel, &config);
 
   int max_active_clusters = 0;
+
   cudaOccupancyMaxActiveClusters(&max_active_clusters, (void *)kernel, &config);
 
   std::cout << "Max Active Clusters of size 2: " << max_active_clusters << std::endl;
+
 }
 
 The CUDA Nsight Compute User Interface also provides a standalone occupancy calculator and launch configurator implementation in `<CUDA_Toolkit_Path>/include/cuda_occupancy.h` for any use cases that cannot depend on the CUDA software stack. The Nsight Compute version of the occupancy calculator is particularly useful as a learning tool that visualizes the impact of changes to the parameters that affect occupancy (block size, registers per thread, and shared memory per thread).
@@ -5031,15 +5852,10 @@ That also means minimizing data transfers between global memory and the device b
 Shared memory is equivalent to a user-managed cache: The application explicitly allocates and accesses it. As illustrated in [CUDA Runtime](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-c-runtime), a typical programming pattern is to stage data coming from device memory into shared memory; in other words, to have each thread of a block:
 
 - Load data from device memory to shared memory,
-    
 - Synchronize with all the other threads of the block so that each thread can safely read shared memory locations that were populated by different threads,
-    
 - Process the data in shared memory,
-    
 - Synchronize again if necessary to make sure that shared memory has been updated with the results,
-    
 - Write the results back to device memory.
-    
 
 For some applications (for example, for which global memory access patterns are data-dependent), a traditional hardware-managed cache is more appropriate to exploit data locality. As mentioned in [Compute Capability 7.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-7-x), [Compute Capability 8.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-8-x) and [Compute Capability 9.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-9-0), for devices of compute capability 7.x, 8.x and 9.0, the same on-chip memory is used for both L1 and shared memory, and how much of it is dedicated to L1 versus shared memory is configurable for each kernel call.
 
@@ -5061,7 +5877,7 @@ On integrated systems where device memory and host memory are physically the sam
 
 An instruction that accesses addressable memory (i.e., global, local, shared, constant, or texture memory) might need to be re-issued multiple times depending on the distribution of the memory addresses across the threads within the warp. How the distribution affects the instruction throughput this way is specific to each type of memory and described in the following sections. For example, for global memory, as a general rule, the more scattered the addresses are, the more reduced the throughput is.
 
-**Global Memory**
+__Global Memory__
 
 Global memory resides in device memory and device memory is accessed via 32-, 64-, or 128-byte memory transactions. These memory transactions must be naturally aligned: Only the 32-, 64-, or 128-byte segments of device memory that are aligned to their size (i.e., whose first address is a multiple of their size) can be read or written by memory transactions.
 
@@ -5072,13 +5888,10 @@ How many transactions are necessary and how much throughput is ultimately affect
 To maximize global memory throughput, it is therefore important to maximize coalescing by:
 
 - Following the most optimal access patterns based on [Compute Capability 5.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-5-x), [Compute Capability 6.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-6-x), [Compute Capability 7.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-7-x), [Compute Capability 8.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-8-x),  [Compute Capability 9.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-9-0), [Compute Capability 10.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-10-0), and [Compute Capability 12.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-12-0).
-    
 - Using data types that meet the size and alignment requirement detailed in the section Size and Alignment Requirement below,
-    
 - Padding data in some cases, for example, when accessing a two-dimensional array as described in the section Two-Dimensional Arrays below.
-    
 
-**Size and Alignment Requirement**
+__Size and Alignment Requirement__
 
 Global memory instructions support reading or writing words of size equal to 1, 2, 4, 8, or 16 bytes. Any access (via a variable or a pointer) to data residing in global memory compiles to a single global memory instruction if and only if the size of the data type is 1, 2, 4, 8, or 16 bytes and the data is naturally aligned (i.e., its address is a multiple of that size).
 
@@ -5089,23 +5902,30 @@ The alignment requirement is automatically fulfilled for the [Built-in Vector T
 For structures, the size and alignment requirements can be enforced by the compiler using the alignment specifiers`__align__(8) or __align__(16)`, such as
 
 struct __align__(8) {
+
     float x;
+
     float y;
+
 };
 
 or
 
 struct __align__(16) {
+
     float x;
+
     float y;
+
     float z;
+
 };
 
 Any address of a variable residing in global memory or returned by one of the memory allocation routines from the driver or runtime API is always aligned to at least 256 bytes.
 
 Reading non-naturally aligned 8-byte or 16-byte words produces incorrect results (off by a few words), so special care must be taken to maintain alignment of the starting address of any value or array of values of these types. A typical case where this might be easily overlooked is when using some custom global memory allocation scheme, whereby the allocations of multiple arrays (with multiple calls to `cudaMalloc()` or `cuMemAlloc()`) is replaced by the allocation of a single large block of memory partitioned into multiple arrays, in which case the starting address of each array is offset from the block’s starting address.
 
-**Two-Dimensional Arrays**
+__Two-Dimensional Arrays__
 
 A common global memory access pattern is when each thread of index `(tx,ty)` uses the following address to access one element of a 2D array of width `width`, located at address `BaseAddress` of type `type*` (where `type` meets the requirement described in [Maximize Utilization](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#maximize-utilization)):
 
@@ -5115,16 +5935,13 @@ For these accesses to be fully coalesced, both the width of the thread block and
 
 In particular, this means that an array whose width is not a multiple of this size will be accessed much more efficiently if it is actually allocated with a width rounded up to the closest multiple of this size and its rows padded accordingly. The `cudaMallocPitch()` and `cuMemAllocPitch()`functions and associated memory copy functions described in the reference manual enable programmers to write non-hardware-dependent code to allocate arrays that conform to these constraints.
 
-**Local Memory**
+__Local Memory__
 
 Local memory accesses only occur for some automatic variables as mentioned in [Variable Memory Space Specifiers](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#variable-memory-space-specifiers). Automatic variables that the compiler is likely to place in local memory are:
 
 - Arrays for which it cannot determine that they are indexed with constant quantities,
-    
 - Large structures or arrays that would consume too much register space,
-    
 - Any variable if the kernel uses more registers than available (this is also known as _register spilling_).
-    
 
 Inspection of the _PTX_ assembly code (obtained by compiling with the `-ptx` or`-keep` option) will tell if a variable has been placed in local memory during the first compilation phases as it will be declared using the `.local` mnemonic and accessed using the `ld.local` and `st.local` mnemonics. Even if it has not, subsequent compilation phases might still decide otherwise though if they find it consumes too much register space for the targeted architecture: Inspection of the _cubin_ object using `cuobjdump` will tell if this is the case. Also, the compiler reports total local memory usage per kernel (`lmem`) when compiling with the `--ptxas-options=-v` option. Note that some mathematical functions have implementation paths that might access local memory.
 
@@ -5132,7 +5949,7 @@ The local memory space resides in device memory, so local memory accesses have t
 
 On devices of compute capability 5.x onwards, local memory accesses are always cached in L2 in the same way as global memory accesses (see [Compute Capability 5.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-5-x) and [Compute Capability 6.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-6-x)).
 
-**Shared Memory**
+__Shared Memory__
 
 Because it is on-chip, shared memory has much higher bandwidth and much lower latency than local or global memory.
 
@@ -5142,7 +5959,7 @@ However, if two addresses of a memory request fall in the same memory bank, ther
 
 To get maximum performance, it is therefore important to understand how memory addresses map to memory banks in order to schedule the memory requests so as to minimize bank conflicts. This is described in [Compute Capability 5.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-5-x), [Compute Capability 6.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-6-x), [Compute Capability 7.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-7-x), [Compute Capability 8.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-8-x), [Compute Capability 9.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-9-0), [Compute Capability 10.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-10-0), and [Compute Capability 12.0](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compute-capability-12-0) for devices of these compute capabilities respectively.
 
-**Constant Memory**
+__Constant Memory__
 
 The constant memory space resides in device memory and is cached in the constant cache.
 
@@ -5150,20 +5967,16 @@ A request is then split into as many separate requests as there are different me
 
 The resulting requests are then serviced at the throughput of the constant cache in case of a cache hit, or at the throughput of device memory otherwise.
 
-**Texture and Surface Memory**
+__Texture and Surface Memory__
 
 The texture and surface memory spaces reside in device memory and are cached in texture cache, so a texture fetch or surface read costs one memory read from device memory only on a cache miss, otherwise it just costs one read from texture cache. The texture cache is optimized for 2D spatial locality, so threads of the same warp that read texture or surface addresses that are close together in 2D will achieve best performance. Also, it is designed for streaming fetches with a constant latency; a cache hit reduces DRAM bandwidth demand but not fetch latency.
 
 Reading device memory through texture or surface fetching present some benefits that can make it an advantageous alternative to reading device memory from global or constant memory:
 
 - If the memory reads do not follow the access patterns that global or constant memory reads must follow to get good performance, higher bandwidth can be achieved providing that there is locality in the texture fetches or surface reads;
-    
 - Addressing calculations are performed outside the kernel by dedicated units;
-    
 - Packed data may be broadcast to separate variables in a single operation;
-    
 - 8-bit and 16-bit integer input data may be optionally converted to 32 bit floating-point values in the range [0.0, 1.0] or [-1.0, 1.0] (see [Texture Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-memory)).
-    
 
 ## 8.4. Maximize Instruction Throughput[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#maximize-instruction-throughput "Permalink to this headline")
 
@@ -5174,13 +5987,9 @@ See the [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-bes
 Applications that constantly allocate and free memory too often may find that the allocation calls tend to get slower over time up to a limit. This is typically expected due to the nature of releasing memory back to the operating system for its own use. For best performance in this regard, we recommend the following:
 
 - Try to size your allocation to the problem at hand. Don’t try to allocate all available memory with `cudaMalloc` / `cudaMallocHost` / `cuMemCreate`, as this forces memory to be resident immediately and prevents other applications from being able to use that memory. This can put more pressure on operating system schedulers, or just prevent other applications using the same GPU from running entirely.
-    
 - Try to allocate memory in appropriately sized allocations early in the application and allocations only when the application does not have any use for it. Reduce the number of `cudaMalloc`+`cudaFree` calls in the application, especially in performance-critical regions.
-    
 - If an application cannot allocate enough device memory, consider falling back on other memory types such as `cudaMallocHost` or `cudaMallocManaged`, which may not be as performant, but will enable the application to make progress.
-    
 - For platforms that support the feature, `cudaMallocManaged` allows for oversubscription, and with the correct `cudaMemAdvise` policies enabled, will allow the application to retain most if not all the performance of `cudaMalloc`. `cudaMallocManaged` also won’t force an allocation to be resident until it is needed or prefetched, reducing the overall pressure on the operating system schedulers and better enabling multi-tenet use cases.
-    
 
 # 9. CUDA-Enabled GPUs[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-enabled-gpus "Permalink to this headline")
 
@@ -5199,11 +6008,8 @@ Function execution space specifiers denote whether a function executes on the ho
 The `__global__` execution space specifier declares a function as being a kernel. Such a function is:
 
 - Executed on the device,
-    
 - Callable from the host,
-    
 - Callable from the device for devices of compute capability 5.0 or higher (see [CUDA Dynamic Parallelism](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-dynamic-parallelism) for more details).
-    
 
 A `__global__` function must have void return type, and cannot be a member of a class.
 
@@ -5216,9 +6022,7 @@ A call to a `__global__` function is asynchronous, meaning it returns before t
 The `__device__` execution space specifier declares a function that is:
 
 - Executed on the device,
-    
 - Callable from the device only.
-    
 
 The `__global__` and `__device__` execution space specifiers cannot be used together.
 
@@ -5227,9 +6031,7 @@ The `__global__` and `__device__` execution space specifiers cannot be used 
 The `__host__` execution space specifier declares a function that is:
 
 - Executed on the host,
-    
 - Callable from the host only.
-    
 
 It is equivalent to declare a function with only the `__host__` execution space specifier or to declare it without any of the `__host__`, `__device__`, or `__global__` execution space specifier; in either case the function is compiled for the host only.
 
@@ -5238,18 +6040,31 @@ The `__global__` and `__host__` execution space specifiers cannot be used to
 The `__device__` and `__host__` execution space specifiers can be used together however, in which case the function is compiled for both the host and the device. The `__CUDA_ARCH__` macro introduced in [Application Compatibility](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility) can be used to differentiate code paths between host and device:
 
 __host__ __device__ func()
+
 {
+
 #if __CUDA_ARCH__ >= 800
+
    // Device code path for compute capability 8.x
+
 #elif __CUDA_ARCH__ >= 700
+
    // Device code path for compute capability 7.x
+
 #elif __CUDA_ARCH__ >= 600
+
    // Device code path for compute capability 6.x
+
 #elif __CUDA_ARCH__ >= 500
+
    // Device code path for compute capability 5.x
+
 #elif !defined(__CUDA_ARCH__)
+
    // Host code path
+
 #endif
+
 }
 
 ### 10.1.4. Undefined behavior[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#undefined-behavior "Permalink to this headline")
@@ -5257,9 +6072,7 @@ __host__ __device__ func()
 A ‘cross-execution space’ call has undefined behavior when:
 
 - `__CUDA_ARCH__` is defined, a call from within a `__global__`, `__device__` or `__host__ __device__` function to a `__host__` function.
-    
 - `__CUDA_ARCH__` is undefined, a call from within a `__host__` function to a `__device__` function. [4](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn11)
-    
 
 ### 10.1.5. __noinline__ and __forceinline__[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#noinline-and-forceinline "Permalink to this headline")
 
@@ -5290,26 +6103,18 @@ The `__device__` memory space specifier declares a variable that resides on th
 At most one of the other memory space specifiers defined in the next three sections may be used together with `__device__` to further denote which memory space the variable belongs to. If none of them is present, the variable:
 
 - Resides in global memory space,
-    
 - Has the lifetime of the CUDA context in which it is created,
-    
 - Has a distinct object per device,
-    
 - Is accessible from all the threads within the grid and from the host through the runtime library `(cudaGetSymbolAddress()` / `cudaGetSymbolSize()` / `cudaMemcpyToSymbol()` / `cudaMemcpyFromSymbol()`).
-    
 
 ### 10.2.2. __constant__[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#constant "Permalink to this headline")
 
 The `__constant__` memory space specifier, optionally used together with `__device__`, declares a variable that:
 
 - Resides in constant memory space,
-    
 - Has the lifetime of the CUDA context in which it is created,
-    
 - Has a distinct object per device,
-    
 - Is accessible from all the threads within the grid and from the host through the runtime library (`cudaGetSymbolAddress()` / `cudaGetSymbolSize()` / `cudaMemcpyToSymbol()` / `cudaMemcpyFromSymbol()`).
-    
 
 The behavior of modifying a constant from the host while there is a concurrent grid that access that constant at any point of this grid’s lifetime is undefined.
 
@@ -5318,15 +6123,10 @@ The behavior of modifying a constant from the host while there is a concurrent g
 The `__shared__` memory space specifier, optionally used together with `__device__`, declares a variable that:
 
 - Resides in the shared memory space of a thread block,
-    
 - Has the lifetime of the block,
-    
 - Has a distinct object per block,
-    
 - Is only accessible from all the threads within the block,
-    
 - Does not have a constant address.
-    
 
 When declaring a variable in shared memory as an external array such as
 
@@ -5335,26 +6135,39 @@ extern __shared__ float shared[];
 the size of the array is determined at launch time (see [Execution Configuration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration)). All variables declared in this fashion, start at the same address in memory, so that the layout of the variables in the array must be explicitly managed through offsets. For example, if one wants the equivalent of
 
 short array0[128];
+
 float array1[64];
+
 int   array2[256];
 
 in dynamically allocated shared memory, one could declare and initialize the arrays the following way:
 
 extern __shared__ float array[];
+
 __device__ void func()      // __device__ or __global__ function
+
 {
+
     short* array0 = (short*)array;
+
     float* array1 = (float*)&array0[128];
+
     int*   array2 =   (int*)&array1[64];
+
 }
 
 Note that pointers need to be aligned to the type they point to, so the following code, for example, does not work since array1 is not aligned to 4 bytes.
 
 extern __shared__ float array[];
+
 __device__ void func()      // __device__ or __global__ function
+
 {
+
     short* array0 = (short*)array;
+
     float* array1 = (float*)&array0[127];
+
 }
 
 Alignment requirements for the built-in vector types are listed in [Table 7](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#vector-types-alignment-requirements-in-device-code).
@@ -5364,33 +6177,29 @@ Alignment requirements for the built-in vector types are listed in [Table 7](ht
 The `__grid_constant__` annotation for compute architectures greater or equal to 7.0 annotates a `const`-qualified `__global__` function parameter of non-reference type that:
 
 - Has the lifetime of the grid,
-    
 - Is private to the grid, i.e., the object is not accessible to host threads and threads from other grids, including sub-grids,
-    
 - Has a distinct object per grid, i.e., all threads in the grid see the same address,
-    
 - Is read-only, i.e., modifying a `__grid_constant__` object or any of its sub-objects is _undefined behavior_, including `mutable` members.
-    
 
 Requirements:
 
 - Kernel parameters annotated with `__grid_constant__` must have `const`-qualified non-reference types.
-    
 - All function declarations must match with respect to any `__grid_constant_` parameters.
-    
 - A function template specialization must match the primary template declaration with respect to any `__grid_constant__` parameters.
-    
 - A function template instantiation directive must match the primary template declaration with respect to any `__grid_constant__` parameters.
-    
 
 If the address of a `__global__` function parameter is taken, the compiler will ordinarily make a copy of the kernel parameter in thread local memory and use the address of the copy, to partially support C++ semantics, which allow each thread to modify its own local copy of function parameters. Annotating a `__global__` function parameter with `__grid_constant__` ensures that the compiler will not create a copy of the kernel parameter in thread local memory, but will instead use the generic address of the parameter itself. Avoiding the local copy may result in improved performance.
 
 __device__ void unknown_function(S const&);
+
 __global__ void kernel(const __grid_constant__ S s) {
+
    s.x += threadIdx.x;  // Undefined Behavior: tried to modify read-only memory
 
    // Compiler will _not_ create a per-thread thread local copy of "s":
+
    unknown_function(s);
+
 }
 
 ### 10.2.5. __managed__[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#managed "Permalink to this headline")
@@ -5398,9 +6207,7 @@ __global__ void kernel(const __grid_constant__ S s) {
 The `__managed__` memory space specifier, optionally used together with `__device__`, declares a variable that:
 
 - Can be referenced from both device and host code, for example, its address can be taken or it can be read or written directly from a device or host function.
-    
 - Has the lifetime of an application.
-    
 
 See [__managed__ Memory Space Specifier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#managed-specifier) for more details.
 
@@ -5413,16 +6220,27 @@ Restricted pointers were introduced in C99 to alleviate the aliasing problem tha
 Here is an example subject to the aliasing issue, where use of restricted pointer can help the compiler to reduce the number of instructions:
 
 void foo(const float* a,
+
          const float* b,
+
          float* c)
+
 {
+
     c[0] = a[0] * b[0];
+
     c[1] = a[0] * b[0];
+
     c[2] = a[0] * b[0] * a[1];
+
     c[3] = a[0] * a[1];
+
     c[4] = a[0] * b[0];
+
     c[5] = b[0];
+
     ...
+
 }
 
 In C-type languages, the pointers `a`, `b`, and `c` may be aliased, so any write through `c` could modify elements of `a` or `b`. This means that to guarantee functional correctness, the compiler cannot load `a[0]` and `b[0]` into registers, multiply them, and store the result to both `c[0]` and `c[1]`, because the results would differ from the abstract execution model if, say, `a[0]` is really the same location as `c[0]`. So the compiler cannot take advantage of the common sub-expression. Likewise, the compiler cannot just reorder the computation of `c[4]` into the proximity of the computation of `c[0]` and `c[1]` because the preceding write to `c[3]` could change the inputs to the computation of `c[4]`.
@@ -5430,26 +6248,43 @@ In C-type languages, the pointers `a`, `b`, and `c` may be aliased, so any w
 By making `a`, `b`, and `c` restricted pointers, the programmer asserts to the compiler that the pointers are in fact not aliased, which in this case means writes through `c` would never overwrite elements of `a` or `b`. This changes the function prototype as follows:
 
 void foo(const float* __restrict__ a,
+
          const float* __restrict__ b,
+
          float* __restrict__ c);
 
 Note that all pointer arguments need to be made restricted for the compiler optimizer to derive any benefit. With the `__restrict__` keywords added, the compiler can now reorder and do common sub-expression elimination at will, while retaining functionality identical with the abstract execution model:
 
 void foo(const float* __restrict__ a,
+
          const float* __restrict__ b,
+
          float* __restrict__ c)
+
 {
+
     float t0 = a[0];
+
     float t1 = b[0];
+
     float t2 = t0 * t1;
+
     float t3 = a[1];
+
     c[0] = t2;
+
     c[1] = t2;
+
     c[4] = t2;
+
     c[2] = t2 * t3;
+
     c[3] = t0 * t3;
+
     c[5] = t1;
+
     ...
+
 }
 
 The effects here are a reduced number of memory accesses and reduced number of computations. This is balanced by an increase in register pressure due to “cached” loads and common sub-expressions.
@@ -5469,6 +6304,7 @@ which creates a vector of type `int2` with value`(x, y)`.
 The alignment requirements of the vector types are detailed in [Table 7](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#vector-types-alignment-requirements-in-device-code).
 
 Table 7 Alignment Requirements[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#vector-types-alignment-requirements-in-device-code "Permalink to this table")
+
 |Type|Alignment|
 |---|---|
 |char1, uchar1|1|
@@ -5553,15 +6389,23 @@ In the following example, thread 1 executes `writeXY()`, while thread 2 execute
 __device__ int X = 1, Y = 2;
 
 __device__ void writeXY()
+
 {
+
     X = 10;
+
     Y = 20;
+
 }
 
 __device__ void readXY()
+
 {
+
     int B = Y;
+
     int A = X;
+
 }
 
 The two threads read and write from the same memory locations `X` and `Y` simultaneously. Any data-race is undefined behavior, and has no defined semantics. The resulting values for `A` and `B` can be anything.
@@ -5573,9 +6417,7 @@ void __threadfence_block();
 is equivalent to [cuda::atomic_thread_fence(cuda::memory_order_seq_cst, cuda::thread_scope_block)](https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html) and ensures that:
 
 - All writes to all memory made by the calling thread before the call to `__threadfence_block()` are observed by all threads in the block of the calling thread as occurring before all writes to all memory made by the calling thread after the call to `__threadfence_block()`;
-    
 - All reads from all memory made by the calling thread before the call to `__threadfence_block()` are ordered before all reads from all memory made by the calling thread after the call to `__threadfence_block()`.
-    
 
 void __threadfence();
 
@@ -5592,27 +6434,34 @@ In the previous code sample, we can insert fences in the codes as follows:
 __device__ int X = 1, Y = 2;
 
 __device__ void writeXY()
+
 {
+
     X = 10;
+
     __threadfence();
+
     Y = 20;
+
 }
 
 __device__ void readXY()
+
 {
+
     int B = Y;
+
     __threadfence();
+
     int A = X;
+
 }
 
 For this code, the following outcomes can be observed:
 
 - `A` equal to 1 and `B` equal to 2,
-    
 - `A` equal to 10 and `B` equal to 2,
-    
 - `A` equal to 10 and `B` equal to 20.
-    
 
 The fourth outcome is not possible, because the first write must be visible before the second write. If thread 1 and 2 belong to the same block, it is enough to use `__threadfence_block()`. If thread 1 and 2 do not belong to the same block, `__threadfence()` must be used if they are CUDA threads from the same device and `__threadfence_system()` must be used if they are CUDA threads from two different devices.
 
@@ -5621,11 +6470,17 @@ A common use case is when threads consume some data produced by other threads as
 Memory fence functions only affect the ordering of memory operations by a thread; they do not, by themselves, ensure that these memory operations are visible to other threads (like `__syncthreads()` does for threads within a block; see [Synchronization Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synchronization-functions)). In the code sample below, the visibility of memory operations on the `result` variable is ensured by declaring it as volatile (see [Volatile Qualifier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#volatile-qualifier)).
 
 __device__ unsigned int count = 0;
+
 __shared__ bool isLastBlockDone;
+
 __global__ void sum(const float* array, unsigned int N,
+
                     volatile float* result)
+
 {
+
     // Each block sums a subset of the input array.
+
     float partialSum = calculatePartialSum(array, N);
 
     if (threadIdx.x == 0) {
@@ -5672,6 +6527,7 @@ __global__ void sum(const float* array, unsigned int N,
             count = 0;
         }
     }
+
 }
 
 ## 10.6. Synchronization Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synchronization-functions "Permalink to this headline")
@@ -5725,6 +6581,7 @@ Texture fetching is described in [Texture Fetching](https://docs.nvidia.com/cud
 #### 10.8.1.1. tex1Dfetch()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dfetch "Permalink to this headline")
 
 template<class T>
+
 T tex1Dfetch(cudaTextureObject_t texObj, int x);
 
 fetches from the region of linear memory specified by the one-dimensional texture object `texObj` using integer texture coordinate `x`. `tex1Dfetch()` only works with non-normalized coordinates, so only the border and clamp addressing modes are supported. It does not perform any texture filtering. For integer types, it may optionally promote the integer to single-precision floating point.
@@ -5732,6 +6589,7 @@ fetches from the region of linear memory specified by the one-dimensional textur
 #### 10.8.1.2. tex1D()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1d "Permalink to this headline")
 
 template<class T>
+
 T tex1D(cudaTextureObject_t texObj, float x);
 
 fetches from the CUDA array specified by the one-dimensional texture object `texObj` using texture coordinate `x`.
@@ -5739,6 +6597,7 @@ fetches from the CUDA array specified by the one-dimensional texture object `te
 #### 10.8.1.3. tex1DLod()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlod "Permalink to this headline")
 
 template<class T>
+
 T tex1DLod(cudaTextureObject_t texObj, float x, float level);
 
 fetches from the CUDA array specified by the one-dimensional texture object `texObj` using texture coordinate `x` at the level-of-detail `level`.
@@ -5746,6 +6605,7 @@ fetches from the CUDA array specified by the one-dimensional texture object `te
 #### 10.8.1.4. tex1DGrad()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dgrad "Permalink to this headline")
 
 template<class T>
+
 T tex1DGrad(cudaTextureObject_t texObj, float x, float dx, float dy);
 
 fetches from the CUDA array specified by the one-dimensional texture object `texObj` using texture coordinate `x`. The level-of-detail is derived from the X-gradient `dx` and Y-gradient `dy`.
@@ -5753,6 +6613,7 @@ fetches from the CUDA array specified by the one-dimensional texture object `te
 #### 10.8.1.5. tex2D()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2d "Permalink to this headline")
 
 template<class T>
+
 T tex2D(cudaTextureObject_t texObj, float x, float y);
 
 fetches from the CUDA array or the region of linear memory specified by the two-dimensional texture object `texObj` using texture coordinate `(x,y)`.
@@ -5760,6 +6621,7 @@ fetches from the CUDA array or the region of linear memory specified by the two-
 #### 10.8.1.6. tex2D() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2d-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex2D(cudaTextureObject_t texObj, float x, float y, bool* isResident);
 
 fetches from the CUDA array specified by the two-dimensional texture object `texObj` using texture coordinate `(x,y)`. Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5767,7 +6629,9 @@ fetches from the CUDA array specified by the two-dimensional texture object `te
 #### 10.8.1.7. tex2Dgather()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgather "Permalink to this headline")
 
 template<class T>
+
 T tex2Dgather(cudaTextureObject_t texObj,
+
               float x, float y, int comp = 0);
 
 fetches from the CUDA array specified by the 2D texture object `texObj` using texture coordinates `x` and `y` and the `comp` parameter as described in [Texture Gather](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-gather).
@@ -5775,7 +6639,9 @@ fetches from the CUDA array specified by the 2D texture object `texObj` using 
 #### 10.8.1.8. tex2Dgather() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgather-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex2Dgather(cudaTextureObject_t texObj,
+
             float x, float y, bool* isResident, int comp = 0);
 
 fetches from the CUDA array specified by the 2D texture object `texObj` using texture coordinates `x` and `y` and the `comp` parameter as described in [Texture Gather](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-gather). Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5783,7 +6649,9 @@ fetches from the CUDA array specified by the 2D texture object `texObj` using 
 #### 10.8.1.9. tex2DGrad()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgrad "Permalink to this headline")
 
 template<class T>
+
 T tex2DGrad(cudaTextureObject_t texObj, float x, float y,
+
             float2 dx, float2 dy);
 
 fetches from the CUDA array specified by the two-dimensional texture object `texObj` using texture coordinate `(x,y)`. The level-of-detail is derived from the `dx` and `dy` gradients.
@@ -5791,7 +6659,9 @@ fetches from the CUDA array specified by the two-dimensional texture object `te
 #### 10.8.1.10. tex2DGrad() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dgrad-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex2DGrad(cudaTextureObject_t texObj, float x, float y,
+
         float2 dx, float2 dy, bool* isResident);
 
 fetches from the CUDA array specified by the two-dimensional texture object `texObj` using texture coordinate `(x,y)`. The level-of-detail is derived from the `dx` and `dy` gradients. Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5799,6 +6669,7 @@ fetches from the CUDA array specified by the two-dimensional texture object `te
 #### 10.8.1.11. tex2DLod()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlod "Permalink to this headline")
 
 template<class T>
+
 tex2DLod(cudaTextureObject_t texObj, float x, float y, float level);
 
 fetches from the CUDA array or the region of linear memory specified by the two-dimensional texture object `texObj` using texture coordinate `(x,y)` at level-of-detail `level`.
@@ -5806,6 +6677,7 @@ fetches from the CUDA array or the region of linear memory specified by the two-
 #### 10.8.1.12. tex2DLod() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlod-for-sparse-cuda-arrays "Permalink to this headline")
 
         template<class T>
+
 tex2DLod(cudaTextureObject_t texObj, float x, float y, float level, bool* isResident);
 
 fetches from the CUDA array specified by the two-dimensional texture object `texObj` using texture coordinate `(x,y)` at level-of-detail `level`. Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5813,6 +6685,7 @@ fetches from the CUDA array specified by the two-dimensional texture object `te
 #### 10.8.1.13. tex3D()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3d "Permalink to this headline")
 
 template<class T>
+
 T tex3D(cudaTextureObject_t texObj, float x, float y, float z);
 
 fetches from the CUDA array specified by the three-dimensional texture object `texObj` using texture coordinate `(x,y,z)`.
@@ -5820,6 +6693,7 @@ fetches from the CUDA array specified by the three-dimensional texture object `
 #### 10.8.1.14. tex3D() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3d-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex3D(cudaTextureObject_t texObj, float x, float y, float z, bool* isResident);
 
 fetches from the CUDA array specified by the three-dimensional texture object `texObj` using texture coordinate `(x,y,z)`. Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5827,6 +6701,7 @@ fetches from the CUDA array specified by the three-dimensional texture object `
 #### 10.8.1.15. tex3DLod()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dlod "Permalink to this headline")
 
 template<class T>
+
 T tex3DLod(cudaTextureObject_t texObj, float x, float y, float z, float level);
 
 fetches from the CUDA array or the region of linear memory specified by the three-dimensional texture object `texObj` using texture coordinate `(x,y,z)` at level-of-detail `level`.
@@ -5834,6 +6709,7 @@ fetches from the CUDA array or the region of linear memory specified by the thre
 #### 10.8.1.16. tex3DLod() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dlod-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex3DLod(cudaTextureObject_t texObj, float x, float y, float z, float level, bool* isResident);
 
 fetches from the CUDA array or the region of linear memory specified by the three-dimensional texture object `texObj` using texture coordinate `(x,y,z)` at level-of-detail `level`. Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5841,7 +6717,9 @@ fetches from the CUDA array or the region of linear memory specified by the thre
 #### 10.8.1.17. tex3DGrad()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dgrad "Permalink to this headline")
 
 template<class T>
+
 T tex3DGrad(cudaTextureObject_t texObj, float x, float y, float z,
+
             float4 dx, float4 dy);
 
 fetches from the CUDA array specified by the three-dimensional texture object `texObj` using texture coordinate `(x,y,z)` at a level-of-detail derived from the X and Y gradients `dx` and `dy`.
@@ -5849,7 +6727,9 @@ fetches from the CUDA array specified by the three-dimensional texture object `
 #### 10.8.1.18. tex3DGrad() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex3dgrad-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex3DGrad(cudaTextureObject_t texObj, float x, float y, float z,
+
         float4 dx, float4 dy, bool* isResident);
 
 fetches from the CUDA array specified by the three-dimensional texture object `texObj` using texture coordinate `(x,y,z)` at a level-of-detail derived from the X and Y gradients `dx` and `dy`. Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5857,6 +6737,7 @@ fetches from the CUDA array specified by the three-dimensional texture object `
 #### 10.8.1.19. tex1DLayered()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayered "Permalink to this headline")
 
 template<class T>
+
 T tex1DLayered(cudaTextureObject_t texObj, float x, int layer);
 
 fetches from the CUDA array specified by the one-dimensional texture object `texObj` using texture coordinate `x` and index `layer`, as described in [Layered Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures).
@@ -5864,6 +6745,7 @@ fetches from the CUDA array specified by the one-dimensional texture object `te
 #### 10.8.1.20. tex1DLayeredLod()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayeredlod "Permalink to this headline")
 
 template<class T>
+
 T tex1DLayeredLod(cudaTextureObject_t texObj, float x, int layer, float level);
 
 fetches from the CUDA array specified by the one-dimensional [Layered Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures) at layer `layer` using texture coordinate `x` and level-of-detail `level`.
@@ -5871,7 +6753,9 @@ fetches from the CUDA array specified by the one-dimensional [Layered Textures]
 #### 10.8.1.21. tex1DLayeredGrad()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex1dlayeredgrad "Permalink to this headline")
 
 template<class T>
+
 T tex1DLayeredGrad(cudaTextureObject_t texObj, float x, int layer,
+
                    float dx, float dy);
 
 fetches from the CUDA array specified by the one-dimensional [layered texture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures) at layer `layer` using texture coordinate `x` and a level-of-detail derived from the `dx` and `dy` gradients.
@@ -5879,7 +6763,9 @@ fetches from the CUDA array specified by the one-dimensional [layered texture](
 #### 10.8.1.22. tex2DLayered()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayered "Permalink to this headline")
 
 template<class T>
+
 T tex2DLayered(cudaTextureObject_t texObj,
+
                float x, float y, int layer);
 
 fetches from the CUDA array specified by the two-dimensional texture object `texObj` using texture coordinate `(x,y)` and index `layer`, as described in [Layered Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures).
@@ -5887,7 +6773,9 @@ fetches from the CUDA array specified by the two-dimensional texture object `te
 #### 10.8.1.23. tex2DLayered() for Sparse CUDA Arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayered-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex2DLayered(cudaTextureObject_t texObj,
+
             float x, float y, int layer, bool* isResident);
 
 fetches from the CUDA array specified by the two-dimensional texture object `texObj` using texture coordinate `(x,y)` and index `layer`, as described in [Layered Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures). Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5895,7 +6783,9 @@ fetches from the CUDA array specified by the two-dimensional texture object `te
 #### 10.8.1.24. tex2DLayeredLod()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredlod "Permalink to this headline")
 
 template<class T>
+
 T tex2DLayeredLod(cudaTextureObject_t texObj, float x, float y, int layer,
+
                   float level);
 
 fetches from the CUDA array specified by the two-dimensional [layered texture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures) at layer `layer` using texture coordinate `(x,y)`.
@@ -5903,7 +6793,9 @@ fetches from the CUDA array specified by the two-dimensional [layered texture](
 #### 10.8.1.25. tex2DLayeredLod() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredlod-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex2DLayeredLod(cudaTextureObject_t texObj, float x, float y, int layer,
+
                 float level, bool* isResident);
 
 fetches from the CUDA array specified by the two-dimensional [layered texture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures) at layer `layer` using texture coordinate `(x,y)`. Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5911,7 +6803,9 @@ fetches from the CUDA array specified by the two-dimensional [layered texture](
 #### 10.8.1.26. tex2DLayeredGrad()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredgrad "Permalink to this headline")
 
 template<class T>
+
 T tex2DLayeredGrad(cudaTextureObject_t texObj, float x, float y, int layer,
+
                    float2 dx, float2 dy);
 
 fetches from the CUDA array specified by the two-dimensional [layered texture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures) at layer `layer` using texture coordinate `(x,y)` and a level-of-detail derived from the `dx` and `dy` gradients.
@@ -5919,7 +6813,9 @@ fetches from the CUDA array specified by the two-dimensional [layered texture](
 #### 10.8.1.27. tex2DLayeredGrad() for sparse CUDA arrays[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tex2dlayeredgrad-for-sparse-cuda-arrays "Permalink to this headline")
 
                 template<class T>
+
 T tex2DLayeredGrad(cudaTextureObject_t texObj, float x, float y, int layer,
+
                 float2 dx, float2 dy, bool* isResident);
 
 fetches from the CUDA array specified by the two-dimensional [layered texture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#layered-textures) at layer `layer` using texture coordinate `(x,y)` and a level-of-detail derived from the `dx` and `dy` gradients. Also returns whether the texel is resident in memory via `isResident` pointer. If not, the values fetched will be zeros.
@@ -5927,6 +6823,7 @@ fetches from the CUDA array specified by the two-dimensional [layered texture](
 #### 10.8.1.28. texCubemap()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemap "Permalink to this headline")
 
 template<class T>
+
 T texCubemap(cudaTextureObject_t texObj, float x, float y, float z);
 
 fetches the CUDA array specified by the cubemap texture object `texObj` using texture coordinate `(x,y,z)`, as described in [Cubemap Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures).
@@ -5934,7 +6831,9 @@ fetches the CUDA array specified by the cubemap texture object `texObj` using 
 #### 10.8.1.29. texCubemapGrad()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemapgrad "Permalink to this headline")
 
 template<class T>
+
 T texCubemapGrad(cudaTextureObject_t texObj, float x, float, y, float z,
+
                 float4 dx, float4 dy);
 
 fetches from the CUDA array specified by the cubemap texture object `texObj` using texture coordinate `(x,y,z)` as described in [Cubemap Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures). The level-of-detail used is derived from the `dx` and `dy` gradients.
@@ -5942,7 +6841,9 @@ fetches from the CUDA array specified by the cubemap texture object `texObj` u
 #### 10.8.1.30. texCubemapLod()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplod "Permalink to this headline")
 
 template<class T>
+
 T texCubemapLod(cudaTextureObject_t texObj, float x, float, y, float z,
+
                 float level);
 
 fetches from the CUDA array specified by the cubemap texture object `texObj` using texture coordinate `(x,y,z)` as described in [Cubemap Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-textures). The level-of-detail used is given by `level`.
@@ -5950,7 +6851,9 @@ fetches from the CUDA array specified by the cubemap texture object `texObj` u
 #### 10.8.1.31. texCubemapLayered()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayered "Permalink to this headline")
 
 template<class T>
+
 T texCubemapLayered(cudaTextureObject_t texObj,
+
                     float x, float y, float z, int layer);
 
 fetches from the CUDA array specified by the cubemap layered texture object `texObj` using texture coordinates `(x,y,z)`, and index `layer`, as described in [Cubemap Layered Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures).
@@ -5958,7 +6861,9 @@ fetches from the CUDA array specified by the cubemap layered texture object `te
 #### 10.8.1.32. texCubemapLayeredGrad()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayeredgrad "Permalink to this headline")
 
 template<class T>
+
 T texCubemapLayeredGrad(cudaTextureObject_t texObj, float x, float y, float z,
+
                        int layer, float4 dx, float4 dy);
 
 fetches from the CUDA array specified by the cubemap layered texture object `texObj` using texture coordinate `(x,y,z)` and index `layer`, as described in [Cubemap Layered Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures), at level-of-detail derived from the `dx` and `dy` gradients.
@@ -5966,7 +6871,9 @@ fetches from the CUDA array specified by the cubemap layered texture object `te
 #### 10.8.1.33. texCubemapLayeredLod()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texcubemaplayeredlod "Permalink to this headline")
 
 template<class T>
+
 T texCubemapLayeredLod(cudaTextureObject_t texObj, float x, float y, float z,
+
                        int layer, float level);
 
 fetches from the CUDA array specified by the cubemap layered texture object `texObj` using texture coordinate `(x,y,z)` and index `layer`, as described in [Cubemap Layered Textures](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cubemap-layered-textures), at level-of-detail level `level`.
@@ -5984,7 +6891,9 @@ In the sections below, `boundaryMode` specifies the boundary mode, that is how
 #### 10.9.1.1. surf1Dread()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dread "Permalink to this headline")
 
 template<class T>
+
 T surf1Dread(cudaSurfaceObject_t surfObj, int x,
+
                boundaryMode = cudaBoundaryModeTrap);
 
 reads the CUDA array specified by the one-dimensional surface object `surfObj` using byte coordinate x.
@@ -5992,9 +6901,13 @@ reads the CUDA array specified by the one-dimensional surface object `surfObj`�
 #### 10.9.1.2. surf1Dwrite[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dwrite "Permalink to this headline")
 
 template<class T>
+
 void surf1Dwrite(T data,
+
                   cudaSurfaceObject_t surfObj,
+
                   int x,
+
                   boundaryMode = cudaBoundaryModeTrap);
 
 writes value data to the CUDA array specified by the one-dimensional surface object `surfObj` at byte coordinate x.
@@ -6002,13 +6915,21 @@ writes value data to the CUDA array specified by the one-dimensional surface obj
 #### 10.9.1.3. surf2Dread()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dread "Permalink to this headline")
 
 template<class T>
+
 T surf2Dread(cudaSurfaceObject_t surfObj,
+
               int x, int y,
+
               boundaryMode = cudaBoundaryModeTrap);
+
 template<class T>
+
 void surf2Dread(T* data,
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int y,
+
                  boundaryMode = cudaBoundaryModeTrap);
 
 reads the CUDA array specified by the two-dimensional surface object `surfObj` using byte coordinates x and y.
@@ -6016,9 +6937,13 @@ reads the CUDA array specified by the two-dimensional surface object `surfObj`�
 #### 10.9.1.4. surf2Dwrite()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dwrite "Permalink to this headline")
 
 template<class T>
+
 void surf2Dwrite(T data,
+
                   cudaSurfaceObject_t surfObj,
+
                   int x, int y,
+
                   boundaryMode = cudaBoundaryModeTrap);
 
 writes value data to the CUDA array specified by the two-dimensional surface object `surfObj` at byte coordinate x and y.
@@ -6026,13 +6951,21 @@ writes value data to the CUDA array specified by the two-dimensional surface obj
 #### 10.9.1.5. surf3Dread()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf3dread "Permalink to this headline")
 
 template<class T>
+
 T surf3Dread(cudaSurfaceObject_t surfObj,
+
               int x, int y, int z,
+
               boundaryMode = cudaBoundaryModeTrap);
+
 template<class T>
+
 void surf3Dread(T* data,
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int y, int z,
+
                  boundaryMode = cudaBoundaryModeTrap);
 
 reads the CUDA array specified by the three-dimensional surface object `surfObj` using byte coordinates x, y, and z.
@@ -6040,9 +6973,13 @@ reads the CUDA array specified by the three-dimensional surface object `surfObj
 #### 10.9.1.6. surf3Dwrite()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf3dwrite "Permalink to this headline")
 
 template<class T>
+
 void surf3Dwrite(T data,
+
                   cudaSurfaceObject_t surfObj,
+
                   int x, int y, int z,
+
                   boundaryMode = cudaBoundaryModeTrap);
 
 writes value data to the CUDA array specified by the three-dimensional object `surfObj` at byte coordinate x, y, and z.
@@ -6050,14 +6987,23 @@ writes value data to the CUDA array specified by the three-dimensional object `
 #### 10.9.1.7. surf1DLayeredread()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dlayeredread "Permalink to this headline")
 
 template<class T>
+
 T surf1DLayeredread(
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int layer,
+
                  boundaryMode = cudaBoundaryModeTrap);
+
 template<class T>
+
 void surf1DLayeredread(T data,
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int layer,
+
                  boundaryMode = cudaBoundaryModeTrap);
 
 reads the CUDA array specified by the one-dimensional layered surface object `surfObj` using byte coordinate x and index `layer`.
@@ -6065,9 +7011,13 @@ reads the CUDA array specified by the one-dimensional layered surface object `s
 #### 10.9.1.8. surf1DLayeredwrite()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf1dlayeredwrite "Permalink to this headline")
 
 template<class Type>
+
 void surf1DLayeredwrite(T data,
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int layer,
+
                  boundaryMode = cudaBoundaryModeTrap);
 
 writes value data to the CUDA array specified by the two-dimensional layered surface object `surfObj` at byte coordinate x and index `layer`.
@@ -6075,14 +7025,23 @@ writes value data to the CUDA array specified by the two-dimensional layered sur
 #### 10.9.1.9. surf2DLayeredread()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dlayeredread "Permalink to this headline")
 
 template<class T>
+
 T surf2DLayeredread(
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int y, int layer,
+
                  boundaryMode = cudaBoundaryModeTrap);
+
 template<class T>
+
 void surf2DLayeredread(T data,
+
                          cudaSurfaceObject_t surfObj,
+
                          int x, int y, int layer,
+
                          boundaryMode = cudaBoundaryModeTrap);
 
 reads the CUDA array specified by the two-dimensional layered surface object `surfObj` using byte coordinate x and y, and index `layer`.
@@ -6090,9 +7049,13 @@ reads the CUDA array specified by the two-dimensional layered surface object `s
 #### 10.9.1.10. surf2DLayeredwrite()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surf2dlayeredwrite "Permalink to this headline")
 
 template<class T>
+
 void surf2DLayeredwrite(T data,
+
                           cudaSurfaceObject_t surfObj,
+
                           int x, int y, int layer,
+
                           boundaryMode = cudaBoundaryModeTrap);
 
 writes value data to the CUDA array specified by the one-dimensional layered surface object `surfObj` at byte coordinate x and y, and index `layer`.
@@ -6100,14 +7063,23 @@ writes value data to the CUDA array specified by the one-dimensional layered sur
 #### 10.9.1.11. surfCubemapread()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemapread "Permalink to this headline")
 
 template<class T>
+
 T surfCubemapread(
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int y, int face,
+
                  boundaryMode = cudaBoundaryModeTrap);
+
 template<class T>
+
 void surfCubemapread(T data,
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int y, int face,
+
                  boundaryMode = cudaBoundaryModeTrap);
 
 reads the CUDA array specified by the cubemap surface object `surfObj` using byte coordinate x and y, and face index face.
@@ -6115,9 +7087,13 @@ reads the CUDA array specified by the cubemap surface object `surfObj` using b
 #### 10.9.1.12. surfCubemapwrite()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemapwrite "Permalink to this headline")
 
 template<class T>
+
 void surfCubemapwrite(T data,
+
                  cudaSurfaceObject_t surfObj,
+
                  int x, int y, int face,
+
                  boundaryMode = cudaBoundaryModeTrap);
 
 writes value data to the CUDA array specified by the cubemap object `surfObj` at byte coordinate x and y, and face index face.
@@ -6125,14 +7101,23 @@ writes value data to the CUDA array specified by the cubemap object `surfObj` 
 #### 10.9.1.13. surfCubemapLayeredread()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemaplayeredread "Permalink to this headline")
 
 template<class T>
+
 T surfCubemapLayeredread(
+
              cudaSurfaceObject_t surfObj,
+
              int x, int y, int layerFace,
+
              boundaryMode = cudaBoundaryModeTrap);
+
 template<class T>
+
 void surfCubemapLayeredread(T data,
+
              cudaSurfaceObject_t surfObj,
+
              int x, int y, int layerFace,
+
              boundaryMode = cudaBoundaryModeTrap);
 
 reads the CUDA array specified by the cubemap layered surface object `surfObj` using byte coordinate x and y, and index `layerFace.`
@@ -6140,9 +7125,13 @@ reads the CUDA array specified by the cubemap layered surface object `surfObj`�
 #### 10.9.1.14. surfCubemapLayeredwrite()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#surfcubemaplayeredwrite "Permalink to this headline")
 
 template<class T>
+
 void surfCubemapLayeredwrite(T data,
+
              cudaSurfaceObject_t surfObj,
+
              int x, int y, int layerFace,
+
              boundaryMode = cudaBoundaryModeTrap);
 
 writes value data to the CUDA array specified by the cubemap layered object `surfObj` at byte coordinate `x` and `y`, and index `layerFace`.
@@ -6160,9 +7149,13 @@ returns the data of type `T` located at address `address`, where `T` is `c
 These load functions are only supported by devices of compute capability 5.0 and higher.
 
 T __ldcg(const T* address);
+
 T __ldca(const T* address);
+
 T __ldcs(const T* address);
+
 T __ldlu(const T* address);
+
 T __ldcv(const T* address);
 
 returns the data of type `T` located at address `address`, where `T` is `char`, `signed char`, `short`, `int`, `long`, `long long``unsigned char`, `unsignedshort`, `unsigned int`, `unsigned long`, `unsigned long long`, `char2`, `char4`, `short2`, `short4`, `int2`, `int4`, `longlong2``uchar2`, `uchar4`, `ushort2`, `ushort4`, `uint2`, `uint4`, `ulonglong2``float`, `float2`, `float4`, `double`, or `double2`. With the `cuda_fp16.h` header included, `T` can be `__half` or `__half2`. Similarly, with the `cuda_bf16.h` header included, `T` can also be `__nv_bfloat16` or `__nv_bfloat162`. The operation is using the corresponding cache operator (see [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#cache-operators))
@@ -6172,8 +7165,11 @@ returns the data of type `T` located at address `address`, where `T` is `c
 These store functions are only supported by devices of compute capability 5.0 and higher.
 
 void __stwb(T* address, T value);
+
 void __stcg(T* address, T value);
+
 void __stcs(T* address, T value);
+
 void __stwt(T* address, T value);
 
 stores the `value` argument of type `T` to the location at address `address`, where `T` is `char`, `signed char`, `short`, `int`, `long`, `long long``unsignedchar`, `unsigned short`, `unsigned int`, `unsigned long`, `unsigned long long`, `char2`, `char4`, `short2`, `short4`, `int2`, `int4`, `longlong2``uchar2`, `uchar4`, `ushort2`, `ushort4`, `uint2`, `uint4`, `ulonglong2``float`, `float2`, `float4`, `double`, or `double2`. With the `cuda_fp16.h` header included, `T` can be `__half` or `__half2`. Similarly, with the `cuda_bf16.h` header included, `T` can also be `__nv_bfloat16` or `__nv_bfloat162`. The operation is using the corresponding cache operator (see [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#cache-operators) )
@@ -6181,6 +7177,7 @@ stores the `value` argument of type `T` to the location at address `address
 ## 10.13. Time Function[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#time-function "Permalink to this headline")
 
 clock_t clock();
+
 long long int clock64();
 
 when executed in device code, returns the value of a per-multiprocessor counter that is incremented every clock cycle. Sampling this counter at the beginning and at the end of a kernel, taking the difference of the two samples, and recording the result per thread provides a measure for each thread of the number of clock cycles taken by the device to completely execute the thread, but not of the number of clock cycles the device actually spent executing thread instructions. The former number is greater than the latter since threads are time sliced.
@@ -6192,34 +7189,43 @@ An atomic function performs a read-modify-write atomic operation on one 32-bit, 
 The atomic functions described in this section have ordering [cuda::memory_order_relaxed](https://en.cppreference.com/w/cpp/atomic/memory_order) and are only atomic at a particular [scope](https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#thread-scopes):
 
 - Atomic APIs with `_system` suffix (example: `atomicAdd_system`) are atomic at scope `cuda::thread_scope_system` if they meet particular [conditions](https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#atomicity).
-    
 - Atomic APIs without a suffix (example: `atomicAdd`) are atomic at scope `cuda::thread_scope_device`.
-    
 - Atomic APIs with `_block` suffix (example: `atomicAdd_block`) are atomic at scope `cuda::thread_scope_block`.
-    
 
 In the following example both the CPU and the GPU atomically update an integer value at address `addr`:
 
 __global__ void mykernel(int *addr) {
+
   atomicAdd_system(addr, 10);       // only available on devices with compute capability 6.x
+
 }
 
 void foo() {
+
   int *addr;
+
   cudaMallocManaged(&addr, 4);
+
   *addr = 0;
 
    mykernel<<<...>>>(addr);
+
    __sync_fetch_and_add(addr, 10);  // CPU atomic operation
+
 }
 
 Note that any atomic operation can be implemented based on `atomicCAS()` (Compare And Swap). For example, `atomicAdd()` for double-precision floating-point numbers is not available on devices with compute capability lower than 6.0 but it can be implemented as follows:
 
 #if __CUDA_ARCH__ < 600
+
 __device__ double atomicAdd(double* address, double val)
+
 {
+
     unsigned long long int* address_as_ull =
+
                               (unsigned long long int*)address;
+
     unsigned long long int old = *address_as_ull, assumed;
 
     do {
@@ -6232,33 +7238,46 @@ __device__ double atomicAdd(double* address, double val)
     } while (assumed != old);
 
     return __longlong_as_double(old);
+
 }
+
 #endif
 
 There are system-wide and block-wide variants of the following device-wide atomic APIs, with the following exceptions:
 
 - Devices with compute capability less than 6.0 only support device-wide atomic operations,
-    
 - Tegra devices with compute capability less than 7.2 do not support system-wide atomic operations.
-    
 
 CUDA 12.8 and later support CUDA compiler builtin functions for atomic operations with memory order and thread scope. We follows the [GNU’s atomic built-in function signature](https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html) with an extra argument of thread scope. We use the following atomic operation memory orders and thread scopes:
 
 enum {
+
    __NV_ATOMIC_RELAXED,
+
    __NV_ATOMIC_CONSUME,
+
    __NV_ATOMIC_ACQUIRE,
+
    __NV_ATOMIC_RELEASE,
+
    __NV_ATOMIC_ACQ_REL,
+
    __NV_ATOMIC_SEQ_CST
+
 };
 
 enum {
+
    __NV_THREAD_SCOPE_THREAD,
+
    __NV_THREAD_SCOPE_BLOCK,
+
    __NV_THREAD_SCOPE_CLUSTER,
+
    __NV_THREAD_SCOPE_DEVICE,
+
    __NV_THREAD_SCOPE_SYSTEM
+
 };
 
 Example:
@@ -6270,40 +7289,63 @@ T can be any integral type that is size of 1, 2, 4, 8 and 16 bytes.
 These atomic functions cannot operate on local memory. For example:
 
 __device__ void foo() {
+
    int a = 1; // defined in local memory
+
    int b;
+
    __nv_atomic_load(&a, &b, __NV_ATOMIC_RELAXED, __NV_THREAD_SCOPE_SYSTEM);
+
 }
 
 These functions must only be used within the block scope of a `__device__` function. For example:
 
 __device__ void foo() {
+
    __shared__ unsigned int u1 = 1;
+
    __shared__ unsigned int u2 = 2;
+
    __nv_atomic_load(&u1, &u2, __NV_ATOMIC_RELAXED, __NV_THREAD_SCOPE_SYSTEM);
+
 }
 
 And these functions’ address cannot be taken. Here are three unsupported examples:
 
 // Not permitted to be used in a host function
+
 __host__ void bar() {
+
    __shared__ unsigned int u1 = 1;
+
    __shared__ unsigned int u2 = 2;
+
    __nv_atomic_load(&u1, &u2, __NV_ATOMIC_RELAXED, __NV_THREAD_SCOPE_SYSTEM);
+
 }
 
 // Not permitted to be used as a template default argument.
+
 // The function address cannot be taken.
+
 template<void *F = __nv_atomic_load_n>
+
 class X {
+
    void *f = F;
+
 };
 
 // Not permitted to be called in a constructor initialization list.
+
 class Y {
+
    int a;
+
 public:
+
    __device__ Y(int *b): a(__nv_atomic_load_n(b, __NV_ATOMIC_RELAXED)) {}
+
 };
 
 The memory order corresponds to [C++ standard atomic operation’s memory order](https://en.cppreference.com/w/cpp/atomic/memory_order). And for thread scope, we follows cuda::thread_scope’s [definition](https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes).
@@ -6319,18 +7361,30 @@ For the supported data types, please refer to the corresponding section of diffe
 #### 10.14.1.1. atomicAdd()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicadd "Permalink to this headline")
 
 int atomicAdd(int* address, int val);
+
 unsigned int atomicAdd(unsigned int* address,
+
                        unsigned int val);
+
 unsigned long long int atomicAdd(unsigned long long int* address,
+
                                  unsigned long long int val);
+
 float atomicAdd(float* address, float val);
+
 double atomicAdd(double* address, double val);
+
 __half2 atomicAdd(__half2 *address, __half2 val);
+
 __half atomicAdd(__half *address, __half val);
-__nv_bfloat162 atomicAdd(__nv_bfloat162 *address, __nv_bfloat162 val);
-__nv_bfloat16 atomicAdd(__nv_bfloat16 *address, __nv_bfloat16 val);
-float2 atomicAdd(float2* address, float2 val);
-float4 atomicAdd(float4* address, float4 val);
+
+__nv_bfloat162 atomicAdd(__nv_bfloat162 _address, __nv_bfloat162 val);
+
+__nv_bfloat16 atomicAdd(__nv_bfloat16 _address, __nv_bfloat16 val);
+
+float2 atomicAdd(float2_ address, float2 val);
+
+float4 atomicAdd(float4_ address, float4 val);
 
 reads the 16-bit, 32-bit or 64-bit `old` located at the address `address` in global or shared memory, computes `(old + val)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
 
@@ -6353,7 +7407,9 @@ The `float2` and `float4` floating-point vector versions of `atomicAdd()` 
 #### 10.14.1.2. atomicSub()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicsub "Permalink to this headline")
 
 int atomicSub(int* address, int val);
+
 unsigned int atomicSub(unsigned int* address,
+
                        unsigned int val);
 
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `(old - val)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6361,10 +7417,15 @@ reads the 32-bit word `old` located at the address `address` in global or sh
 #### 10.14.1.3. atomicExch()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicexch "Permalink to this headline")
 
 int atomicExch(int* address, int val);
+
 unsigned int atomicExch(unsigned int* address,
+
                         unsigned int val);
+
 unsigned long long int atomicExch(unsigned long long int* address,
+
                                   unsigned long long int val);
+
 float atomicExch(float* address, float val);
 
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory and stores `val` back to memory at the same address. These two operations are performed in one atomic transaction. The function returns `old`.
@@ -6374,9 +7435,13 @@ template<typename T> T atomicExch(T* address, T val);
 reads the 128-bit word `old` located at the address `address` in global or shared memory and stores `val` back to memory at the same address. These two operations are performed in one atomic transaction. The function returns `old`. The type `T` must meet the following requirements:
 
 sizeof(T) == 16
+
 alignof(T) >= 16
+
 std::is_trivially_copyable<T>::value == true
+
 // for C++03 and older
+
 std::is_default_constructible<T>::value == true
 
 So, `T` must be 128-bit and properly aligned, be trivially copyable, and on C++03 or older, it must also be default constructible.
@@ -6386,11 +7451,17 @@ The 128-bit `atomicExch()` is only supported by devices of compute capability 
 #### 10.14.1.4. atomicMin()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicmin "Permalink to this headline")
 
 int atomicMin(int* address, int val);
+
 unsigned int atomicMin(unsigned int* address,
+
                        unsigned int val);
+
 unsigned long long int atomicMin(unsigned long long int* address,
+
                                  unsigned long long int val);
+
 long long int atomicMin(long long int* address,
+
                                 long long int val);
 
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory, computes the minimum of `old` and `val`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6400,11 +7471,17 @@ The 64-bit version of `atomicMin()` is only supported by devices of compute ca
 #### 10.14.1.5. atomicMax()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicmax "Permalink to this headline")
 
 int atomicMax(int* address, int val);
+
 unsigned int atomicMax(unsigned int* address,
+
                        unsigned int val);
+
 unsigned long long int atomicMax(unsigned long long int* address,
+
                                  unsigned long long int val);
+
 long long int atomicMax(long long int* address,
+
                                  long long int val);
 
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory, computes the maximum of `old` and `val`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6414,6 +7491,7 @@ The 64-bit version of `atomicMax()` is only supported by devices of compute ca
 #### 10.14.1.6. atomicInc()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicinc "Permalink to this headline")
 
 unsigned int atomicInc(unsigned int* address,
+
                        unsigned int val);
 
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `((old >= val) ? 0 : (old+1))`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6421,6 +7499,7 @@ reads the 32-bit word `old` located at the address `address` in global or sh
 #### 10.14.1.7. atomicDec()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicdec "Permalink to this headline")
 
 unsigned int atomicDec(unsigned int* address,
+
                        unsigned int val);
 
 reads the 32-bit word `old` located at the address `address` in global or shared memory, computes `(((old == 0) || (old > val)) ? val : (old-1)` ), and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6428,14 +7507,23 @@ reads the 32-bit word `old` located at the address `address` in global or sh
 #### 10.14.1.8. atomicCAS()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomiccas "Permalink to this headline")
 
 int atomicCAS(int* address, int compare, int val);
+
 unsigned int atomicCAS(unsigned int* address,
+
                        unsigned int compare,
+
                        unsigned int val);
+
 unsigned long long int atomicCAS(unsigned long long int* address,
+
                                  unsigned long long int compare,
+
                                  unsigned long long int val);
+
 unsigned short int atomicCAS(unsigned short int *address,
+
                              unsigned short int compare,
+
                              unsigned short int val);
 
 reads the 16-bit, 32-bit or 64-bit word `old` located at the address `address` in global or shared memory, computes `(old == compare ? val : old)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old` (Compare And Swap).
@@ -6445,9 +7533,13 @@ template<typename T> T atomicCAS(T* address, T compare, T val);
 reads the 128-bit word `old` located at the address `address` in global or shared memory, computes `(old == compare ? val : old)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old` (Compare And Swap). The type `T` must meet the following requirements:
 
 sizeof(T) == 16
+
 alignof(T) >= 16
+
 std::is_trivially_copyable<T>::value == true
+
 // for C++03 and older
+
 std::is_default_constructible<T>::value == true
 
 So, `T` must be 128-bit and properly aligned, be trivially copyable, and on C++03 or older, it must also be default constructible.
@@ -6525,6 +7617,7 @@ The arguments `order` and `scope` need to be integer literals, i.e., the arg
 #### 10.14.1.13. __nv_atomic_fetch_add() and __nv_atomic_add()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-add-and-nv-atomic-add "Permalink to this headline")
 
 __device__ T __nv_atomic_fetch_add (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_add (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 These two atomic functions are introduced in CUDA 12.8. It reads the value where `ptr` points to, adds with `val`, and stores the result back to where `ptr` points to. `__nv_atomic_fetch_add` returns the old value where `ptr` points to. `__nv_atomic_add` does not have return value.
@@ -6540,6 +7633,7 @@ The arguments `order` and `scope` need to be integer literals, i.e., the arg
 #### 10.14.1.14. __nv_atomic_fetch_sub() and __nv_atomic_sub()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-sub-and-nv-atomic-sub "Permalink to this headline")
 
 __device__ T __nv_atomic_fetch_sub (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_sub (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 These two atomic functions are introduced in CUDA 12.8. It reads the value where `ptr` points to, subtracts with `val`, and stores the result back to where `ptr` points to. `__nv_atomic_fetch_sub` returns the old value where `ptr` points to. `__nv_atomic_sub` does not have return value.
@@ -6555,6 +7649,7 @@ The arguments `order` and `scope` need to be integer literals, i.e., the arg
 #### 10.14.1.15. __nv_atomic_fetch_min() and __nv_atomic_min()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-min-and-nv-atomic-min "Permalink to this headline")
 
 __device__ T __nv_atomic_fetch_min (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_min (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 These two atomic functions are introduced in CUDA 12.8. It reads the value where `ptr` points to, compares with `val`, and stores the smaller value back to where `ptr` points to. `__nv_atomic_fetch_min` returns the old value where `ptr` points to. `__nv_atomic_min` does not have return value.
@@ -6570,6 +7665,7 @@ The arguments `order` and `scope` need to be integer literals, i.e., the arg
 #### 10.14.1.16. __nv_atomic_fetch_max() and __nv_atomic_max()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-max-and-nv-atomic-max "Permalink to this headline")
 
 __device__ T __nv_atomic_fetch_max (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_max (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 These two atomic functions are introduced in CUDA 12.8. It reads the value where `ptr` points to, compares with `val`, and stores the bigger value back to where `ptr` points to. `__nv_atomic_fetch_max` returns the old value where `ptr` points to. `__nv_atomic_max` does not have return value.
@@ -6587,9 +7683,13 @@ The arguments `order` and `scope` need to be integer literals, i.e., the arg
 #### 10.14.2.1. atomicAnd()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicand "Permalink to this headline")
 
 int atomicAnd(int* address, int val);
+
 unsigned int atomicAnd(unsigned int* address,
+
                        unsigned int val);
+
 unsigned long long int atomicAnd(unsigned long long int* address,
+
                                  unsigned long long int val);
 
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory, computes `(old & val`), and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6599,9 +7699,13 @@ The 64-bit version of `atomicAnd()` is only supported by devices of compute ca
 #### 10.14.2.2. atomicOr()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicor "Permalink to this headline")
 
 int atomicOr(int* address, int val);
+
 unsigned int atomicOr(unsigned int* address,
+
                       unsigned int val);
+
 unsigned long long int atomicOr(unsigned long long int* address,
+
                                 unsigned long long int val);
 
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory, computes `(old | val)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6611,9 +7715,13 @@ The 64-bit version of `atomicOr()` is only supported by devices of compute cap
 #### 10.14.2.3. atomicXor()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomicxor "Permalink to this headline")
 
 int atomicXor(int* address, int val);
+
 unsigned int atomicXor(unsigned int* address,
+
                        unsigned int val);
+
 unsigned long long int atomicXor(unsigned long long int* address,
+
                                  unsigned long long int val);
 
 reads the 32-bit or 64-bit word `old` located at the address `address` in global or shared memory, computes `(old ^ val)`, and stores the result back to memory at the same address. These three operations are performed in one atomic transaction. The function returns `old`.
@@ -6623,6 +7731,7 @@ The 64-bit version of `atomicXor()` is only supported by devices of compute ca
 #### 10.14.2.4. __nv_atomic_fetch_or() and __nv_atomic_or()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-or-and-nv-atomic-or "Permalink to this headline")
 
 __device__ T __nv_atomic_fetch_or (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_or (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 These two atomic functions are introduced in CUDA 12.8. It reads the value where `ptr` points to, `or` with `val`, and stores the result back to where `ptr` points to. `__nv_atomic_fetch_or` returns the old value where `ptr` points to. `__nv_atomic_or` does not have return value.
@@ -6638,6 +7747,7 @@ The arguments `order` and `scope` need to be integer literals, i.e., the arg
 #### 10.14.2.5. __nv_atomic_fetch_xor() and __nv_atomic_xor()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-xor-and-nv-atomic-xor "Permalink to this headline")
 
 __device__ T __nv_atomic_fetch_xor (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_xor (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 These two atomic functions are introduced in CUDA 12.8. It reads the value where `ptr` points to, `xor` with `val`, and stores the result back to where `ptr` points to. `__nv_atomic_fetch_xor` returns the old value where `ptr` points to. `__nv_atomic_xor` does not have return value.
@@ -6653,6 +7763,7 @@ The arguments `order` and `scope` need to be integer literals, i.e., the arg
 #### 10.14.2.6. __nv_atomic_fetch_and() and __nv_atomic_and()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-atomic-fetch-and-and-nv-atomic-and "Permalink to this headline")
 
 __device__ T __nv_atomic_fetch_and (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
+
 __device__ void __nv_atomic_and (T* ptr, T val, int order, int scope = __NV_THREAD_SCOPE_SYSTEM);
 
 These two atomic functions are introduced in CUDA 12.8. It reads the value where `ptr` points to, `and` with `val`, and stores the result back to where `ptr` points to. `__nv_atomic_fetch_and` returns the old value where `ptr` points to. `__nv_atomic_and` does not have return value.
@@ -6844,9 +7955,13 @@ It is supported with compute capability 5.2 or higher.
 ### 10.17.3. Example[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#example "Permalink to this headline")
 
 __device__ void foo(unsigned int num) {
+
     int4 *ptr = (int4 *)alloca(num * sizeof(int4));
+
     // use of ptr
+
     ...
+
 }
 
 ## 10.18. Compiler Optimization Hint Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#compiler-optimization-hint-functions "Permalink to this headline")
@@ -6854,6 +7969,7 @@ __device__ void foo(unsigned int num) {
 The functions described in this section can be used to provide additional information to the compiler optimizer.
 
 ### 10.18.1. __builtin_assume_aligned()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#builtin-assume-aligned "Permalink to this headline")
+
 ```c++
 void * __builtin_assume_aligned (const void *exp, size_t align)
 
@@ -6875,7 +7991,9 @@ Allows the compiler to assume that `(char *)exp - offset` is aligned to at 
 Example:
 
 void *res = __builtin_assume_aligned(ptr, 32, 8); // compiler can assume
+
                                                   // '(char *)res - 8' is
+
                                                   // at least 32-byte aligned.
 
 ### 10.18.2. __builtin_assume()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#builtin-assume "Permalink to this headline")
@@ -6887,8 +8005,11 @@ Allows the compiler to assume that the Boolean argument is true. If the argument
 Example:
 
  __device__ int get(int *ptr, int idx) {
+
    __builtin_assume(idx <= 2);
+
    return ptr[idx];
+
 }
 
 ### 10.18.3. __assume()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#assume "Permalink to this headline")
@@ -6900,8 +8021,11 @@ Allows the compiler to assume that the Boolean argument is true. If the argument
 Example:
 
  __device__ int get(int *ptr, int idx) {
+
    __assume(idx <= 2);
+
    return ptr[idx];
+
 }
 
 ### 10.18.4. __builtin_expect()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#builtin-expect "Permalink to this headline")
@@ -6913,9 +8037,13 @@ Indicates to the compiler that it is expected that `exp == c`, and returns th
 Example:
 
 // indicate to the compiler that likely "var == 0",
+
 // so the body of the if-block is unlikely to be
+
 // executed at run time.
+
 if (__builtin_expect (var, 0))
+
   doit ();
 
 ### 10.18.5. __builtin_unreachable()[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#builtin-unreachable "Permalink to this headline")
@@ -6927,10 +8055,15 @@ Indicates to the compiler that control flow never reaches the point where this f
 Example:
 
 // indicates to the compiler that the default case label is never reached.
+
 switch (in) {
+
 case 1: return 4;
+
 case 2: return 10;
+
 default: __builtin_unreachable();
+
 }
 
 ### 10.18.6. Restrictions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#restrictions "Permalink to this headline")
@@ -6938,15 +8071,16 @@ default: __builtin_unreachable();
 `__assume()` is only supported when using `cl.exe` host compiler. The other functions are supported on all platforms, subject to the following restrictions:
 
 - If the host compiler supports the function, the function can be invoked from anywhere in translation unit.
-    
 - Otherwise, the function must be invoked from within the body of a `__device__`/ `__global__`function, or only when the `__CUDA_ARCH__` macro is defined[5](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn12).
-    
 
 ## 10.19. Warp Vote Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-vote-functions "Permalink to this headline")
 
 int __all_sync(unsigned mask, int predicate);
+
 int __any_sync(unsigned mask, int predicate);
+
 unsigned __ballot_sync(unsigned mask, int predicate);
+
 unsigned __activemask();
 
 Deprecation notice: `__any`, `__all`, and `__ballot` have been deprecated in CUDA 9.0 for all devices.
@@ -6984,6 +8118,7 @@ Supported by devices of compute capability 7.x or higher.
 ### 10.20.1. Synopsis[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#synopsis-match "Permalink to this headline")
 
 unsigned int __match_any_sync(unsigned mask, T value);
+
 unsigned int __match_all_sync(unsigned mask, T value, int *pred);
 
 `T` can be `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`, `float` or `double`.
@@ -7013,16 +8148,25 @@ Supported by devices of compute capability 8.x or higher.
 ### 10.21.1. Synopsis[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-reduce-synopsis "Permalink to this headline")
 
 // add/min/max
+
 unsigned __reduce_add_sync(unsigned mask, unsigned value);
+
 unsigned __reduce_min_sync(unsigned mask, unsigned value);
+
 unsigned __reduce_max_sync(unsigned mask, unsigned value);
+
 int __reduce_add_sync(unsigned mask, int value);
+
 int __reduce_min_sync(unsigned mask, int value);
+
 int __reduce_max_sync(unsigned mask, int value);
 
 // and/or/xor
+
 unsigned __reduce_and_sync(unsigned mask, unsigned value);
+
 unsigned __reduce_or_sync(unsigned mask, unsigned value);
+
 unsigned __reduce_xor_sync(unsigned mask, unsigned value);
 
 ### 10.21.2. Description[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-reduce-description "Permalink to this headline")
@@ -7052,8 +8196,11 @@ Removal Notice: When targeting devices with compute capability 7.x or higher, `
 ### 10.22.1. Synopsis[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-synopsis "Permalink to this headline")
 
 T __shfl_sync(unsigned mask, T var, int srcLane, int width=warpSize);
+
 T __shfl_up_sync(unsigned mask, T var, unsigned int delta, int width=warpSize);
+
 T __shfl_down_sync(unsigned mask, T var, unsigned int delta, int width=warpSize);
+
 T __shfl_xor_sync(unsigned mask, T var, int laneMask, int width=warpSize);
 
 `T` can be `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`, `float` or `double`. With the `cuda_fp16.h` header included, `T`can also be `__half` or `__half2`. Similarly, with the `cuda_bf16.h` header included, `T` can also be `__nv_bfloat16` or `__nv_bfloat162`.
@@ -7105,20 +8252,31 @@ These intrinsics do not imply a memory barrier. They do not guarantee any memory
 #include <stdio.h>
 
 __global__ void bcast(int arg) {
+
     int laneId = threadIdx.x & 0x1f;
+
     int value;
+
     if (laneId == 0)        // Note unused variable for
+
         value = arg;        // all threads except lane 0
+
     value = __shfl_sync(0xffffffff, value, 0);   // Synchronize all threads in warp, and get "value" from lane 0
+
     if (value != arg)
+
         printf("Thread %d failed.\n", threadIdx.x);
+
 }
 
 int main() {
+
     bcast<<< 1, 32 >>>(1234);
+
     cudaDeviceSynchronize();
 
     return 0;
+
 }
 
 #### 10.22.3.2. Inclusive plus-scan across sub-partitions of 8 threads[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inclusive-plus-scan-across-sub-partitions-of-8-threads "Permalink to this headline")
@@ -7126,8 +8284,11 @@ int main() {
 #include <stdio.h>
 
 __global__ void scan4() {
+
     int laneId = threadIdx.x & 0x1f;
+
     // Seed sample starting value (inverse of lane ID)
+
     int value = 31 - laneId;
 
     // Loop to accumulate scan within my partition.
@@ -7144,13 +8305,17 @@ __global__ void scan4() {
     }
 
     printf("Thread %d final value = %d\n", threadIdx.x, value);
+
 }
 
 int main() {
+
     scan4<<< 1, 32 >>>();
+
     cudaDeviceSynchronize();
 
     return 0;
+
 }
 
 #### 10.22.3.3. Reduction across a warp[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reduction-across-a-warp "Permalink to this headline")
@@ -7158,8 +8323,11 @@ int main() {
 #include <stdio.h>
 
 __global__ void warpReduce() {
+
     int laneId = threadIdx.x & 0x1f;
+
     // Seed starting value as inverse lane ID
+
     int value = 31 - laneId;
 
     // Use XOR mode to perform butterfly reduction
@@ -7168,13 +8336,17 @@ __global__ void warpReduce() {
 
     // "value" now contains the sum across all threads
     printf("Thread %d final value = %d\n", threadIdx.x, value);
+
 }
 
 int main() {
+
     warpReduce<<< 1, 32 >>>();
+
     cudaDeviceSynchronize();
 
     return 0;
+
 }
 
 ## 10.23. Nanosleep Function[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nanosleep-function "Permalink to this headline")
@@ -7194,17 +8366,27 @@ It is supported with compute capability 7.0 or higher.
 The following code implements a mutex with exponential back-off.
 
 __device__ void mutex_lock(unsigned int *mutex) {
+
     unsigned int ns = 8;
+
     while (atomicCAS(mutex, 0, 1) == 1) {
+
         __nanosleep(ns);
+
         if (ns < 256) {
+
             ns *= 2;
+
         }
+
     }
+
 }
 
 __device__ void mutex_unlock(unsigned int *mutex) {
+
     atomicExch(mutex, 0);
+
 }
 
 ## 10.24. Warp Matrix Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-matrix-functions "Permalink to this headline")
@@ -7218,9 +8400,13 @@ All following functions and types are defined in the namespace `nvcuda::wmma`. 
 template<typename Use, int m, int n, int k, typename T, typename Layout=void> class fragment;
 
 void load_matrix_sync(fragment<...> &a, const T* mptr, unsigned ldm);
+
 void load_matrix_sync(fragment<...> &a, const T* mptr, unsigned ldm, layout_t layout);
+
 void store_matrix_sync(T* mptr, const fragment<...> &a, unsigned ldm, layout_t layout);
+
 void fill_fragment(fragment<...> &a, const T& v);
+
 void mma_sync(fragment<...> &d, const fragment<...> &a, const fragment<...> &b, const fragment<...> &c, bool satf=false);
 
 `fragment`
@@ -7230,15 +8416,12 @@ An overloaded class containing a section of a matrix distributed across all thre
 Only certain combinations of template arguments are allowed. The first template parameter specifies how the fragment will participate in the matrix operation. Acceptable values for `Use` are:
 
 - `matrix_a` when the fragment is used as the first multiplicand, `A`,
-    
 - `matrix_b` when the fragment is used as the second multiplicand, `B`, or
-    
 - `accumulator` when the fragment is used as the source or destination accumulators (`C` or `D`, respectively).
-    
+
     The `m`, `n` and `k` sizes describe the shape of the warp-wide matrix tiles participating in the multiply-accumulate operation. The dimension of each tile depends on its role. For `matrix_a` the tile takes dimension `m x k`; for `matrix_b` the dimension is `k x n`, and `accumulator` tiles are `m xn`.
-    
+
     The data type, `T`, may be `double`, `float`, `__half`, `__nv_bfloat16`, `char`, or `unsigned char` for multiplicands and `double`, `float`, `int`, or `__half` for accumulators. As documented in [Element Types and Matrix Sizes](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma-type-sizes), limited combinations of accumulator and multiplicand types are supported. The Layout parameter must be specified for `matrix_a` and `matrix_b` fragments. `row_major` or `col_major` indicate that elements within a matrix row or column are contiguous in memory, respectively. The `Layout` parameter for an `accumulator` matrix should retain the default value of `void`. A row or column layout is specified only when the accumulator is loaded or stored as described below.
-    
 
 `load_matrix_sync`
 
@@ -7259,23 +8442,25 @@ Waits until all warp lanes have arrived at mma_sync, and then performs the warp-
 If `satf` (saturate to finite value) mode is `true`, the following additional numerical properties apply for the destination accumulator:
 
 - If an element result is +Infinity, the corresponding accumulator will contain `+MAX_NORM`
-    
 - If an element result is -Infinity, the corresponding accumulator will contain `-MAX_NORM`
-    
 - If an element result is NaN, the corresponding accumulator will contain `+0`
-    
 
 Because the map of matrix elements into each thread’s `fragment` is unspecified, individual matrix elements must be accessed from memory (shared or global) after calling `store_matrix_sync`. In the special case where all threads in the warp will apply an element-wise operation uniformly to all fragment elements, direct element access can be implemented using the following `fragment` class members.
 
 enum fragment<Use, m, n, k, T, Layout>::num_elements;
+
 T fragment<Use, m, n, k, T, Layout>::x[num_elements];
 
 As an example, the following code scales an `accumulator` matrix tile by half.
 
 wmma::fragment<wmma::accumulator, 16, 16, 16, float> frag;
+
 float alpha = 0.5f; // Same value for all threads in warp
-/*...*/
+
+/_..._/
+
 for(int t=0; t<frag.num_elements; t++)
+
 frag.x[t] *= alpha;
 
 ### 10.24.2. Alternate Floating Point[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#alternate-floating-point "Permalink to this headline")
@@ -7307,23 +8492,37 @@ Tensor Cores support double-precision floating point operations on devices with 
 Sub-byte WMMA operations provide a way to access the low-precision capabilities of Tensor Cores. They are considered a preview feature i.e. the data structures and APIs for them are subject to change and may not be compatible with future releases. This functionality is available via the `nvcuda::wmma::experimental` namespace:
 
 namespace experimental {
+
     namespace precision {
+
         struct u4; // 4-bit unsigned
+
         struct s4; // 4-bit signed
+
         struct b1; // 1-bit
+
    }
+
     enum bmmaBitOp {
+
         bmmaBitOpXOR = 1, // compute_75 minimum
+
         bmmaBitOpAND = 2  // compute_80 minimum
+
     };
+
     enum bmmaAccumulateOp { bmmaAccumulateOpPOPC = 1 };
+
 }
 
 For 4 bit precision, the APIs available remain the same, but you must specify `experimental::precision::u4` or `experimental::precision::s4` as the fragment data type. Since the elements of the fragment are packed together, `num_storage_elements` will be smaller than `num_elements` for that fragment. The `num_elements` variable for a sub-byte fragment, hence returns the number of elements of sub-byte type `element_type<T>`. This is true for single bit precision as well, in which case, the mapping from `element_type<T>` to `storage_element_type<T>` is as follows:
 
 experimental::precision::u4 -> unsigned (8 elements in 1 storage element)
+
 experimental::precision::s4 -> int (8 elements in 1 storage element)
+
 experimental::precision::b1 -> unsigned (32 elements in 1 storage element)
+
 T -> T  //all other types
 
 The allowed layouts for sub-byte fragments is always `row_major` for `matrix_a` and `col_major` for `matrix_b`.
@@ -7360,13 +8559,19 @@ Since fragments are architecture-specific, it is unsafe to pass them from functi
 An example of two link-compatible architectures, where the layout of the fragment differs, is sm_70 and sm_75.
 
 fragA.cu: void foo() { wmma::fragment<...> mat_a; bar(&mat_a); }
+
 fragB.cu: void bar(wmma::fragment<...> *mat_a) { // operate on mat_a }
 
 // sm_70 fragment layout
+
 $> nvcc -dc -arch=compute_70 -code=sm_70 fragA.cu -o fragA.o
+
 // sm_75 fragment layout
+
 $> nvcc -dc -arch=compute_75 -code=sm_75 fragB.cu -o fragB.o
+
 // Linking the two together
+
 $> nvcc -dlink -arch=sm_75 fragA.o fragB.o -o frag.o
 
 This undefined behavior might also be undetectable at compilation time and by tools at runtime, so extra care is needed to make sure the layout of the fragments is consistent. This linking hazard is most likely to appear when linking with a legacy library that is both built for a different link-compatible architecture and expecting to be passed a WMMA fragment.
@@ -7424,26 +8629,37 @@ Experimental support for sub-byte operations:
 The following code implements a 16x16x16 matrix multiplication in a single warp.
 
 #include <mma.h>
+
 using namespace nvcuda;
 
 __global__ void wmma_ker(half *a, half *b, float *c) {
+
    // Declare the fragments
+
    wmma::fragment<wmma::matrix_a, 16, 16, 16, half, wmma::col_major> a_frag;
+
    wmma::fragment<wmma::matrix_b, 16, 16, 16, half, wmma::row_major> b_frag;
+
    wmma::fragment<wmma::accumulator, 16, 16, 16, float> c_frag;
 
    // Initialize the output to zero
+
    wmma::fill_fragment(c_frag, 0.0f);
 
    // Load the inputs
+
    wmma::load_matrix_sync(a_frag, a, 16);
+
    wmma::load_matrix_sync(b_frag, b, 16);
 
    // Perform the matrix multiplication
+
    wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
 
    // Store the output
+
    wmma::store_matrix_sync(c, c_frag, 16, wmma::mem_row_major);
+
 }
 
 ## 10.25. DPX[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dpx "Permalink to this headline")
@@ -7451,17 +8667,11 @@ __global__ void wmma_ker(half *a, half *b, float *c) {
 DPX is a set of functions that enable finding min and max values, as well as fused addition and min/max, for up to three 16 and 32-bit signed or unsigned integer parameters, with optional ReLU (clamping to zero):
 
 - three parameters: `__vimax3_s32`, `__vimax3_s16x2`, `__vimax3_u32`, `__vimax3_u16x2`, `__vimin3_s32`, `__vimin3_s16x2`, `__vimin3_u32`, `__vimin3_u16x2`
-    
 - two parameters, with ReLU: `__vimax_s32_relu`, `__vimax_s16x2_relu`, `__vimin_s32_relu`, `__vimin_s16x2_relu`
-    
 - three parameters, with ReLU: `__vimax3_s32_relu`, `__vimax3_s16x2_relu`, `__vimin3_s32_relu`, `__vimin3_s16x2_relu`
-    
 - two parameters, also returning which parameter was smaller/larger: `__vibmax_s32`, `__vibmax_u32`, `__vibmin_s32`, `__vibmin_u32`, `__vibmax_s16x2`, `__vibmax_u16x2`, `__vibmin_s16x2`, `__vibmin_u16x2`
-    
 - three parameters, comparing (first + second) with the third: `__viaddmax_s32`, `__viaddmax_s16x2`, `__viaddmax_u32`, `__viaddmax_u16x2`, `__viaddmin_s32`, `__viaddmin_s16x2`, `__viaddmin_u32`, `__viaddmin_u16x2`
-    
 - three parameters, with ReLU, comparing (first + second) with the third and a zero: `__viaddmax_s32_relu`, `__viaddmax_s16x2_relu`, `__viaddmin_s32_relu`, `__viaddmin_s16x2_relu`
-    
 
 These instructions are hardware-accelerated on devices with compute capability 9 and higher, and software emulation on older devices.
 
@@ -7474,34 +8684,51 @@ DPX is exceptionally useful when implementing dynamic programming algorithms, su
 Max value of three signed 32-bit integers, with ReLU
 
 const int a = -15;
+
 const int b = 8;
+
 const int c = 5;
+
 int max_value_0 = __vimax3_s32_relu(a, b, c); // max(-15, 8, 5, 0) = 8
+
 const int d = -2;
+
 const int e = -4;
+
 int max_value_1 = __vimax3_s32_relu(a, d, e); // max(-15, -2, -4, 0) = 0
 
 Min value of the sum of two 32-bit signed integers, another 32-bit signed integer and a zero (ReLU)
 
 const int a = -5;
+
 const int b = 6;
+
 const int c = -2;
+
 int max_value_0 = __viaddmax_s32_relu(a, b, c); // max(-5 + 6, -2, 0) = max(1, -2, 0) = 1
+
 const int d = 4;
+
 int max_value_1 = __viaddmax_s32_relu(a, d, c); // max(-5 + 4, -2, 0) = max(-1, -2, 0) = 0
 
 Min value of two unsigned 32-bit integers and determining which value is smaller
 
 const unsigned int a = 9;
+
 const unsigned int b = 6;
+
 bool smaller_value;
+
 unsigned int min_value = __vibmin_u32(a, b, &smaller_value); // min_value is 6, smaller_value is true
 
 Max values of three pairs of unsigned 16-bit integers
 
 const unsigned a = 0x00050002;
+
 const unsigned b = 0x00070004;
+
 const unsigned c = 0x00020006;
+
 unsigned int max_value = __vimax3_u16x2(a, b, c); // max(5, 7, 2) and max(2, 4, 6), so max_value is 0x00070006
 
 ## 10.26. Asynchronous Barrier[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-barrier "Permalink to this headline")
@@ -7517,6 +8744,7 @@ Without the arrive/wait barrier, synchronization is achieved using `__syncthrea
 #include <cooperative_groups.h>
 
 __global__ void simple_sync(int iteration_count) {
+
     auto block = cooperative_groups::this_thread_block();
 
     for (int i = 0; i < iteration_count; ++i) {
@@ -7524,31 +8752,33 @@ __global__ void simple_sync(int iteration_count) {
         block.sync(); /* wait for all threads to arrive here */
         /* code after wait */
     }
+
 }
 
 Threads are blocked at the synchronization point (`block.sync()`) until all threads have reached the synchronization point. In addition, memory updates that happened before the synchronization point are guaranteed to be visible to all threads in the block after the synchronization point, i.e., equivalent to `atomic_thread_fence(memory_order_seq_cst, thread_scope_block)` as well as the `sync`.
 
 This pattern has three stages:
 
-- Code **before** sync performs memory updates that will be read **after** the sync.
-    
+- Code __before__ sync performs memory updates that will be read __after__ the sync.
 - Synchronization point
-    
-- Code **after** sync point with visibility of memory updates that happened **before** sync point.
-    
+- Code __after__ sync point with visibility of memory updates that happened __before__ sync point.
 
 ### 10.26.2. Temporal Splitting and Five Stages of Synchronization[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#temporal-splitting-and-five-stages-of-synchronization "Permalink to this headline")
 
 The temporally-split synchronization pattern with the `std::barrier` is as follows.
 
 #include <cuda/barrier>
+
 #include <cooperative_groups.h>
 
 __device__ void compute(float* data, int curr_iteration);
 
 __global__ void split_arrive_wait(int iteration_count, float *data) {
+
     using barrier = cuda::barrier<cuda::thread_scope_block>;
+
     __shared__  barrier bar;
+
     auto block = cooperative_groups::this_thread_block();
 
     if (block.thread_rank() == 0) {
@@ -7563,43 +8793,43 @@ __global__ void split_arrive_wait(int iteration_count, float *data) {
        bar.wait(std::move(token)); /* wait for all threads participating in the barrier to complete bar.arrive()*/
         /* code after wait */
     }
+
 }
 
 In this pattern, the synchronization point (`block.sync()`) is split into an arrive point (`bar.arrive()`) and a wait point (`bar.wait(std::move(token))`). A thread begins participating in a `cuda::barrier` with its first call to `bar.arrive()`. When a thread calls `bar.wait(std::move(token))` it will be blocked until participating threads have completed `bar.arrive()` the expected number of times as specified by the expected arrival count argument passed to `init()`. Memory updates that happen before participating threads’ call to `bar.arrive()` are guaranteed to be visible to participating threads after their call to `bar.wait(std::move(token))`. Note that the call to `bar.arrive()` does not block a thread, it can proceed with other work that does not depend upon memory updates that happen before other participating threads’ call to `bar.arrive()`.
 
 The _arrive and then wait_ pattern has five stages which may be iteratively repeated:
 
-- Code **before** arrive performs memory updates that will be read **after** the wait.
-    
+- Code __before__ arrive performs memory updates that will be read __after__ the wait.
 - Arrive point with implicit memory fence (i.e., equivalent to `atomic_thread_fence(memory_order_seq_cst, thread_scope_block)`).
-    
-- Code **between** arrive and wait.
-    
+- Code __between__ arrive and wait.
 - Wait point.
-    
-- Code **after** the wait, with visibility of updates that were performed **before** the arrive.
-    
+- Code __after__ the wait, with visibility of updates that were performed __before__ the arrive.
 
 ### 10.26.3. Bootstrap Initialization, Expected Arrival Count, and Participation[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#bootstrap-initialization-expected-arrival-count-and-participation "Permalink to this headline")
 
 Initialization must happen before any thread begins participating in a `cuda::barrier`.
 
 #include <cuda/barrier>
+
 #include <cooperative_groups.h>
 
 __global__ void init_barrier() {
+
     __shared__ cuda::barrier<cuda::thread_scope_block> bar;
+
     auto block = cooperative_groups::this_thread_block();
 
     if (block.thread_rank() == 0) {
         init(&bar, block.size()); // Single thread initializes the total expected arrival count.
     }
     block.sync();
+
 }
 
-Before any thread can participate in `cuda::barrier`, the barrier must be initialized using `init()` with an **expected arrival count**, `block.size()` in this example. Initialization must happen before any thread calls `bar.arrive()`. This poses a bootstrapping challenge in that threads must synchronize before participating in the `cuda::barrier`, but threads are creating a `cuda::barrier` in order to synchronize. In this example, threads that will participate are part of a cooperative group and use `block.sync()` to bootstrap initialization. In this example a whole thread block is participating in initialization, hence `__syncthreads()` could also be used.
+Before any thread can participate in `cuda::barrier`, the barrier must be initialized using `init()` with an __expected arrival count__, `block.size()` in this example. Initialization must happen before any thread calls `bar.arrive()`. This poses a bootstrapping challenge in that threads must synchronize before participating in the `cuda::barrier`, but threads are creating a `cuda::barrier` in order to synchronize. In this example, threads that will participate are part of a cooperative group and use `block.sync()` to bootstrap initialization. In this example a whole thread block is participating in initialization, hence `__syncthreads()` could also be used.
 
-The second parameter of `init()` is the **expected arrival count**, i.e., the number of times `bar.arrive()` will be called by participating threads before a participating thread is unblocked from its call to `bar.wait(std::move(token))`. In the prior example the `cuda::barrier` is initialized with the number of threads in the thread block i.e., `cooperative_groups::this_thread_block().size()`, and all threads within the thread block participate in the barrier.
+The second parameter of `init()` is the __expected arrival count__, i.e., the number of times `bar.arrive()` will be called by participating threads before a participating thread is unblocked from its call to `bar.wait(std::move(token))`. In the prior example the `cuda::barrier` is initialized with the number of threads in the thread block i.e., `cooperative_groups::this_thread_block().size()`, and all threads within the thread block participate in the barrier.
 
 A `cuda::barrier` is flexible in specifying how threads participate (split arrive/wait) and which threads participate. In contrast `this_thread_block.sync()` from cooperative groups or `__syncthreads()` is applicable to whole-thread-block and `__syncwarp(mask)` is a specified subset of a warp. If the intention of the user is to synchronize a full thread block or a full warp we recommend using `__syncthreads()` and `__syncwarp(mask)` respectively for performance reasons.
 
@@ -7609,14 +8839,11 @@ A `cuda::barrier` counts down from the expected arrival count to zero as parti
 
 A `token` object of class `cuda::barrier::arrival_token`, as returned from `token=bar.arrive()`, is associated with the current phase of the barrier. A call to `bar.wait(std::move(token))` blocks the calling thread while the `cuda::barrier` is in the current phase, i.e., while the phase associated with the token matches the phase of the `cuda::barrier`. If the phase is advanced (because the countdown reaches zero) before the call to `bar.wait(std::move(token))` then the thread does not block; if the phase is advanced while the thread is blocked in `bar.wait(std::move(token))`, the thread is unblocked.
 
-**It is essential to know when a reset could or could not occur, especially in non-trivial arrive/wait synchronization patterns.**
+__It is essential to know when a reset could or could not occur, especially in non-trivial arrive/wait synchronization patterns.__
 
 - A thread’s calls to `token=bar.arrive()` and `bar.wait(std::move(token))` must be sequenced such that `token=bar.arrive()` occurs during the `cuda::barrier`’s current phase, and `bar.wait(std::move(token))` occurs during the same or next phase.
-    
 - A thread’s call to `bar.arrive()` must occur when the barrier’s counter is non-zero. After barrier initialization, if a thread’s call to `bar.arrive()`causes the countdown to reach zero then a call to `bar.wait(std::move(token))` must happen before the barrier can be reused for a subsequent call to `bar.arrive()`.
-    
 - `bar.wait()` must only be called using a `token` object of the current phase or the immediately preceding phase. For any other values of the `token` object, the behavior is undefined.
-    
 
 For simple arrive/wait synchronization patterns, compliance with these usage rules is straightforward.
 
@@ -7636,31 +8863,49 @@ A producer/consumer spatial partitioning pattern requires two one sided synchron
 Producer threads wait for consumer threads to signal that the buffer is ready to be filled; however, consumer threads do not wait for this signal. Consumer threads wait for producer threads to signal that the buffer is filled; however, producer threads do not wait for this signal. For full producer/consumer concurrency this pattern has (at least) double buffering where each buffer requires two `cuda::barrier`s.
 
 #include <cuda/barrier>
+
 #include <cooperative_groups.h>
 
 using barrier = cuda::barrier<cuda::thread_scope_block>;
 
 __device__ void producer(barrier ready[], barrier filled[], float* buffer, float* in, int N, int buffer_len)
+
 {
+
     for (int i = 0; i < (N/buffer_len); ++i) {
-        ready[i%2].arrive_and_wait(); /* wait for buffer_(i%2) to be ready to be filled */
-        /* produce, i.e., fill in, buffer_(i%2)  */
-        barrier::arrival_token token = filled[i%2].arrive(); /* buffer_(i%2) is filled */
+
+        ready[i%2].arrive_and_wait(); /* wait for buffer_(i%2) to be ready to be filled _/
+
+        /_ produce, i.e., fill in, buffer_(i%2)  _/
+
+        barrier::arrival_token token = filled[i%2].arrive(); /_ buffer_(i%2) is filled */
+
     }
+
 }
 
 __device__ void consumer(barrier ready[], barrier filled[], float* buffer, float* out, int N, int buffer_len)
+
 {
-    barrier::arrival_token token1 = ready[0].arrive(); /* buffer_0 is ready for initial fill */
-    barrier::arrival_token token2 = ready[1].arrive(); /* buffer_1 is ready for initial fill */
+
+    barrier::arrival_token token1 = ready[0].arrive(); /* buffer_0 is ready for initial fill _/
+
+    barrier::arrival_token token2 = ready[1].arrive(); /_ buffer_1 is ready for initial fill _/
+
     for (int i = 0; i < (N/buffer_len); ++i) {
-        filled[i%2].arrive_and_wait(); /* wait for buffer_(i%2) to be filled */
-        /* consume buffer_(i%2) */
-        barrier::arrival_token token = ready[i%2].arrive(); /* buffer_(i%2) is ready to be re-filled */
+
+        filled[i%2].arrive_and_wait(); /_ wait for buffer_(i%2) to be filled _/
+
+        /_ consume buffer_(i%2) _/
+
+        barrier::arrival_token token = ready[i%2].arrive(); /_ buffer_(i%2) is ready to be re-filled */
+
     }
+
 }
 
 //N is the total number of float elements in arrays in and out
+
 __global__ void producer_consumer_pattern(int N, int buffer_len, float* in, float* out) {
 
     // Shared memory buffer declared below is of size 2 * buffer_len
@@ -7681,6 +8926,7 @@ __global__ void producer_consumer_pattern(int N, int buffer_len, float* in, floa
         producer(bar, bar+2, buffer, in, N, buffer_len);
     else
         consumer(bar, bar+2, buffer, out, N, buffer_len);
+
 }
 
 In this example the first warp is specialized as the producer and the remaining warps are specialized as the consumer. All producer and consumer threads participate (call `bar.arrive()` or `bar.arrive_and_wait()`) in each of the four `cuda::barrier`s so the expected arrival counts are equal to `block.size()`.
@@ -7688,7 +8934,9 @@ In this example the first warp is specialized as the producer and the remaining 
 A producer thread waits for the consumer threads to signal that the shared memory buffer can be filled. In order to wait for a `cuda::barrier` a producer thread must first arrive on that `ready[i%2].arrive()` to get a token and then `ready[i%2].wait(token)` with that token. For simplicity `ready[i%2].arrive_and_wait()` combines these operations.
 
 bar.arrive_and_wait();
+
 /* is equivalent to */
+
 bar.wait(bar.arrive());
 
 Producer threads compute and fill the ready buffer, they then signal that the buffer is filled by arriving on the filled barrier, `filled[i%2].arrive()`. A producer thread does not wait at this point, instead it waits until the next iteration’s buffer (double buffering) is ready to be filled.
@@ -7700,13 +8948,17 @@ A consumer thread begins by signaling that both buffers are ready to be filled. 
 When a thread that is participating in a sequence of synchronizations must exit early from that sequence, that thread must explicitly drop out of participation before exiting. The remaining participating threads can proceed normally with subsequent `cuda::barrier` arrive and wait operations.
 
 #include <cuda/barrier>
+
 #include <cooperative_groups.h>
 
 __device__ bool condition_check();
 
 __global__ void early_exit_kernel(int N) {
+
     using barrier = cuda::barrier<cuda::thread_scope_block>;
+
     __shared__ barrier bar;
+
     auto block = cooperative_groups::this_thread_block();
 
     if (block.thread_rank() == 0)
@@ -7724,66 +8976,105 @@ __global__ void early_exit_kernel(int N) {
         bar.wait(std::move(token)); /* wait for all threads to arrive */
         /* code after wait */
     }
+
 }
 
-This operation arrives on the `cuda::barrier` to fulfill the participating thread’s obligation to arrive in the **current** phase, and then decrements the expected arrival count for the **next** phase so that this thread is no longer expected to arrive on the barrier.
+This operation arrives on the `cuda::barrier` to fulfill the participating thread’s obligation to arrive in the __current__ phase, and then decrements the expected arrival count for the __next__ phase so that this thread is no longer expected to arrive on the barrier.
 
 ### 10.26.7. Completion Function[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#completion-function "Permalink to this headline")
 
 The `CompletionFunction` of `cuda::barrier<Scope, CompletionFunction>` is executed once per phase, after the last thread _arrives_ and before any thread is unblocked from the `wait`. Memory operations performed by the threads that arrived at the `barrier` during the phase are visible to the thread executing the `CompletionFunction`, and all memory operations performed within the `CompletionFunction` are visible to all threads waiting at the `barrier` once they are unblocked from the `wait`.
 
 #include <cuda/barrier>
+
 #include <cooperative_groups.h>
+
 #include <functional>
+
 namespace cg = cooperative_groups;
 
 __device__ int divergent_compute(int*, int);
+
 __device__ int independent_computation(int*, int);
 
 __global__ void psum(int* data, int n, int* acc) {
+
   auto block = cg::this_thread_block();
 
   constexpr int BlockSize = 128;
+
   __shared__ int smem[BlockSize];
+
   assert(BlockSize == block.size());
+
   assert(n % 128 == 0);
 
   auto completion_fn = [&] {
+
     int sum = 0;
+
     for (int i = 0; i < 128; ++i) sum += smem[i];
+
     *acc += sum;
+
   };
 
   // Barrier storage
+
   // Note: the barrier is not default-constructible because
+
   //       completion_fn is not default-constructible due
+
   //       to the capture.
+
   using completion_fn_t = decltype(completion_fn);
+
   using barrier_t = cuda::barrier<cuda::thread_scope_block,
+
                                   completion_fn_t>;
+
   __shared__ std::aligned_storage<sizeof(barrier_t),
+
                                   alignof(barrier_t)> bar_storage;
 
   // Initialize barrier:
+
   barrier_t* bar = (barrier_t*)&bar_storage;
+
   if (block.thread_rank() == 0) {
+
     assert(*acc == 0);
+
     assert(blockDim.x == blockDim.y == blockDim.y == 1);
+
     new (bar) barrier_t{block.size(), completion_fn};
+
     // equivalent to: init(bar, block.size(), completion_fn);
+
   }
+
   block.sync();
 
   // Main loop
+
   for (int i = 0; i < n; i += block.size()) {
+
     smem[block.thread_rank()] = data[i] + *acc;
+
     auto t = bar->arrive();
+
     // We can do independent computation here
+
     bar->wait(std::move(t));
+
     // shared-memory is safe to re-use in the next iteration
+
     // since all threads are done with it, including the one
+
     // that did the reduction
+
   }
+
 }
 
 ### 10.26.8. Memory Barrier Primitives Interface[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-barrier-primitives-interface "Permalink to this headline")
@@ -7792,58 +9083,46 @@ Memory barrier primitives are C-like interfaces to `cuda::barrier` functionali
 
 #### 10.26.8.1. Data Types[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-types "Permalink to this headline")
 
-typedef /* implementation defined */ __mbarrier_t;
-typedef /* implementation defined */ __mbarrier_token_t;
+typedef /* implementation defined _/ __mbarrier_t;
+
+typedef /_ implementation defined */ __mbarrier_token_t;
 
 #### 10.26.8.2. Memory Barrier Primitives API[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-barrier-primitives-api "Permalink to this headline")
 
 uint32_t __mbarrier_maximum_count();
+
 void __mbarrier_init(__mbarrier_t* bar, uint32_t expected_count);
 
 - `bar` must be a pointer to `__shared__` memory.
-    
 - `expected_count <= __mbarrier_maximum_count()`
-    
 - Initialize `*bar` expected arrival count for the current and next phase to `expected_count`.
-    
 
 void __mbarrier_inval(__mbarrier_t* bar);
 
 - `bar` must be a pointer to the mbarrier object residing in shared memory.
-    
 - Invalidation of `*bar` is required before the corresponding shared memory can be repurposed.
-    
 
 __mbarrier_token_t __mbarrier_arrive(__mbarrier_t* bar);
 
 - Initialization of `*bar` must happen before this call.
-    
 - Pending count must not be zero.
-    
 - Atomically decrement the pending count for the current phase of the barrier.
-    
 - Return an arrival token associated with the barrier state immediately prior to the decrement.
-    
 
 __mbarrier_token_t __mbarrier_arrive_and_drop(__mbarrier_t* bar);
 
 - Initialization of `*bar` must happen before this call.
-    
 - Pending count must not be zero.
-    
 - Atomically decrement the pending count for the current phase and expected count for the next phase of the barrier.
-    
 - Return an arrival token associated with the barrier state immediately prior to the decrement.
-    
 
 bool __mbarrier_test_wait(__mbarrier_t* bar, __mbarrier_token_t token);
 
 - `token` must be associated with the immediately preceding phase or current phase of `*this`.
-    
 - Returns `true` if `token` is associated with the immediately preceding phase of `*bar`, otherwise returns `false`.
-    
 
 //Note: This API has been deprecated in CUDA 11.1
+
 uint32_t __mbarrier_pending_count(__mbarrier_token_t token);
 
 ## 10.27. Asynchronous Data Copies[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-data-copies "Permalink to this headline")
@@ -7869,24 +9148,16 @@ The `memcpy_async` APIs that use [cuda::barrier](https://docs.nvidia.com/cuda
 CUDA applications often employ a _copy and compute_ pattern that:
 
 - fetches data from global memory,
-    
 - stores data to shared memory, and
-    
 - performs computations on shared memory data, and potentially writes results back to global memory.
-    
 
 The following sections illustrate how this pattern can be expressed without and with the `memcpy_async` feature:
 
 - [Without memcpy_async](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#without-memcpy-async) introduces an example that does not overlap computation with data movement and uses an intermediate register to copy data.
-    
 - [With memcpy_async](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#with-memcpy-async) improves the previous example by introducing the [memcpy_async](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-memcpy-async) and the `cuda::memcpy_async` APIs to directly copy data from global to shared memory without using intermediate registers.
-    
 - [Asynchronous Data Copies using cuda::barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-barrier) shows memcpy with cooperative groups and barrier.
-    
 - [Single-Stage Asynchronous Data Copies using cuda::pipeline](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#with-memcpy-async-pipeline-pattern-single) shows memcpy with single stage pipeline.
-    
 - [Multi-Stage Asynchronous Data Copies using cuda::pipeline](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#with-memcpy-async-pipeline-pattern-multi) shows memcpy with multi stage pipeline.
-    
 
 ### 10.27.3. Without `memcpy_async`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#without-memcpy-async "Permalink to this headline")
 
@@ -7895,14 +9166,21 @@ Without `memcpy_async`, the _copy_ phase of the _copy and compute_ pattern 
 When this pattern occurs within an iterative algorithm, each thread block needs to synchronize after the `shared[local_idx] = global[global_idx]`assignment, to ensure all writes to shared memory have completed before the compute phase can begin. The thread block also needs to synchronize again after the compute phase, to prevent overwriting shared memory before all threads have completed their computations. This pattern is illustrated in the following code snippet.
 
 #include <cooperative_groups.h>
+
 __device__ void compute(int* global_out, int const* shared_in) {
+
     // Computes using all values of current batch from shared memory.
+
     // Stores this thread's result back to global memory.
+
 }
 
 __global__ void without_memcpy_async(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
   auto grid = cooperative_groups::this_grid();
+
   auto block = cooperative_groups::this_thread_block();
+
   assert(size == batch_sz * grid.size()); // Exposition: input size fits batch_sz * grid_size
 
   extern __shared__ int shared[]; // block.size() * sizeof(int) bytes
@@ -7910,9 +9188,13 @@ __global__ void without_memcpy_async(int* global_out, int const* global_in, size
   size_t local_idx = block.thread_rank();
 
   for (size_t batch = 0; batch < batch_sz; ++batch) {
+
     // Compute the index of the current batch for this block in global memory:
+
     size_t block_batch_idx = block.group_index().x * block.size() + grid.size() * batch;
+
     size_t global_idx = block_batch_idx + threadIdx.x;
+
     shared[local_idx] = global_in[global_idx];
 
     block.sync(); // Wait for all copies to complete
@@ -7920,7 +9202,9 @@ __global__ void without_memcpy_async(int* global_out, int const* global_in, size
     compute(global_out + block_batch_idx, shared); // Compute and write result to global memory
 
     block.sync(); // Wait for compute using shared memory to finish
+
   }
+
 }
 
 ### 10.27.4. With `memcpy_async`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#with-memcpy-async "Permalink to this headline")
@@ -7938,20 +9222,27 @@ The [cooperative_groups::memcpy_async](https://docs.nvidia.com/cuda/cuda-c-prog
 On devices with compute capability 8.0 or higher, `memcpy_async` transfers from global to shared memory can benefit from hardware acceleration, which avoids transferring the data through an intermediate register.
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/memcpy_async.h>
 
 __device__ void compute(int* global_out, int const* shared_in);
 
 __global__ void with_memcpy_async(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
   auto grid = cooperative_groups::this_grid();
+
   auto block = cooperative_groups::this_thread_block();
+
   assert(size == batch_sz * grid.size()); // Exposition: input size fits batch_sz * grid_size
 
   extern __shared__ int shared[]; // block.size() * sizeof(int) bytes
 
   for (size_t batch = 0; batch < batch_sz; ++batch) {
+
     size_t block_batch_idx = block.group_index().x * block.size() + grid.size() * batch;
+
     // Whole thread-group cooperatively copies whole batch to shared memory:
+
     cooperative_groups::memcpy_async(block, shared, global_in + block_batch_idx, sizeof(int) * block.size());
 
     cooperative_groups::wait(block); // Joins all threads, waits for all copies to complete
@@ -7959,7 +9250,9 @@ __global__ void with_memcpy_async(int* global_out, int const* global_in, size_t 
     compute(global_out + block_batch_idx, shared);
 
     block.sync();
+
   }
+
 }}
 
 ### 10.27.5. Asynchronous Data Copies using `cuda::barrier`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-data-copies-using-cuda-barrier "Permalink to this headline")
@@ -7967,25 +9260,37 @@ __global__ void with_memcpy_async(int* global_out, int const* global_in, size_t 
 The `cuda::memcpy_async` overload for [cuda::barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier) enables synchronizing asynchronous data transfers using a `barrier`. This overloads executes the copy operation as-if performed by another thread bound to the barrier by: incrementing the expected count of the current phase on creation, and decrementing it on completion of the copy operation, such that the phase of the `barrier` will only advance when all threads participating in the barrier have arrived, and all `memcpy_async` bound to the current phase of the barrier have completed. The following example uses a block-wide `barrier`, where all block threads participate, and swaps the wait operation with a barrier `arrive_and_wait`, while providing the same functionality as the previous example:
 
 #include <cooperative_groups.h>
+
 #include <cuda/barrier>
+
 __device__ void compute(int* global_out, int const* shared_in);
 
 __global__ void with_barrier(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
   auto grid = cooperative_groups::this_grid();
+
   auto block = cooperative_groups::this_thread_block();
+
   assert(size == batch_sz * grid.size()); // Assume input size fits batch_sz * grid_size
 
   extern __shared__ int shared[]; // block.size() * sizeof(int) bytes
 
   // Create a synchronization object (C++20 barrier)
+
   __shared__ cuda::barrier<cuda::thread_scope::thread_scope_block> barrier;
+
   if (block.thread_rank() == 0) {
+
     init(&barrier, block.size()); // Friend function initializes barrier
+
   }
+
   block.sync();
 
   for (size_t batch = 0; batch < batch_sz; ++batch) {
+
     size_t block_batch_idx = block.group_index().x * block.size() + grid.size() * batch;
+
     cuda::memcpy_async(block, shared, global_in + block_batch_idx, sizeof(int) * block.size(), barrier);
 
     barrier.arrive_and_wait(); // Waits for all copies to complete
@@ -7993,7 +9298,9 @@ __global__ void with_barrier(int* global_out, int const* global_in, size_t size,
     compute(global_out + block_batch_idx, shared);
 
     block.sync();
+
   }
+
 }
 
 ### 10.27.6. Performance Guidance for `memcpy_async`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#performance-guidance-for-memcpy-async "Permalink to this headline")
@@ -8025,34 +9332,27 @@ On devices with compute capability 8.0, the [cp.async family of instructions](h
 The sequence of `memcpy_async` batches is shared across the warp. The commit operation is coalesced such that the sequence is incremented once for all converged threads that invoke the commit operation. If the warp is fully converged, the sequence is incremented by one; if the warp is fully diverged, the sequence is incremented by 32.
 
 - Let _PB_ be the warp-shared pipeline’s _actual_ sequence of batches.
-    
+
     `PB = {BP0, BP1, BP2, …, BPL}`
-    
+
 - Let _TB_ be a thread’s _perceived_ sequence of batches, as if the sequence were only incremented by this thread’s invocation of the commit operation.
-    
+
     `TB = {BT0, BT1, BT2, …, BTL}`
-    
+
     The `pipeline::producer_commit()` return value is from the thread’s _perceived_ batch sequence.
-    
+
 - An index in a thread’s perceived sequence always aligns to an equal or larger index in the actual warp-shared sequence. The sequences are equal only when all commit operations are invoked from converged threads.
-    
+
     `BTn ≡ BPm` where `n <= m`
-    
 
 For example, when a warp is fully diverged:
 
 - The warp-shared pipeline’s actual sequence would be: `PB = {0, 1, 2, 3, ..., 31}` (`PL=31`).
-    
 - The perceived sequence for each thread of this warp would be:
-    
     - Thread 0: `TB = {0}` (`TL=0`)
-        
     - Thread 1: `TB = {0}` (`TL=0`)
-        
     - `…`
-        
     - Thread 31: `TB = {0}` (`TL=0`)
-        
 
 #### 10.27.6.4. Warp Entanglement - Wait[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-entanglement-wait "Permalink to this headline")
 
@@ -8071,9 +9371,7 @@ Warp-divergence affects the number of times an `arrive_on(bar)` operation upda
 It is recommended that commit and arrive-on invocations are by converged threads:
 
 - to not over-wait, by keeping threads’ perceived sequence of batches aligned with the actual sequence, and
-    
 - to minimize updates to the barrier object.
-    
 
 When code preceding these operations diverges threads, then the warp should be re-converged, via `__syncwarp` before invoking commit or arrive-on operations.
 
@@ -8093,6 +9391,7 @@ The API documentation for `cuda::pipeline` is provided in the [libcudacxx API
 ### 10.28.1. Single-Stage Asynchronous Data Copies using `cuda::pipeline`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#single-stage-asynchronous-data-copies-using-cuda-pipeline "Permalink to this headline")
 
 In previous examples we showed how to use [cooperative_groups](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-wait) and [cuda::barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier) to do asynchronous data transfers. In this section, we will use the `cuda::pipeline` API with a single stage to schedule asynchronous copies. And later we will expand this example to show multi staged overlapped compute and copy.
+
 ```c++
 #include <cooperative_groups/memcpy_async.h>
 #include <cuda/pipeline>
@@ -8152,23 +9451,24 @@ In the previous examples with [cooperative_groups::wait](https://docs.nvidia.co
 For that we use the CUDA [pipeline](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pipeline-interface) feature in the following example. It provides a mechanism for managing a sequence of `memcpy_async` batches, enabling CUDA kernels to overlap memory transfers with computation. The following example implements a two-stage pipeline that overlaps data-transfer with computation. It:
 
 - Initializes the pipeline shared state (more below)
-    
 - Kickstarts the pipeline by scheduling a `memcpy_async` for the first batch.
-    
 - Loops over all the batches: it schedules `memcpy_async` for the next batch, blocks all threads on the completion of the `memcpy_async` for the previous batch, and then overlaps the computation on the previous batch with the asynchronous copy of the memory for the next batch.
-    
 - Finally, it drains the pipeline by performing the computation on the last batch.
-    
 
 Note that, for interoperability with `cuda::pipeline`, `cuda::memcpy_async` from the `cuda/pipeline` header is used here.
 
 #include <cooperative_groups/memcpy_async.h>
+
 #include <cuda/pipeline>
 
 __device__ void compute(int* global_out, int const* shared_in);
+
 __global__ void with_staging(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
     auto grid = cooperative_groups::this_grid();
+
     auto block = cooperative_groups::this_thread_block();
+
     assert(size == batch_sz * grid.size()); // Assume input size fits batch_sz * grid_size
 
     constexpr size_t stages_count = 2; // Pipeline with two stages
@@ -8227,33 +9527,31 @@ __global__ void with_staging(int* global_out, int const* global_in, size_t size,
     pipeline.consumer_wait();
     compute(global_out + block_batch(batch_sz-1), shared + shared_offset[(batch_sz - 1) % 2]);
     pipeline.consumer_release();
+
 }
 
 A [pipeline object](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pipeline-interface) is a double-ended queue with a _head_ and a _tail_, and is used to process work in a first-in first-out (FIFO) order. Producer threads commit work to the pipeline’s head, while consumer threads pull work from the pipeline’s tail. In the example above, all threads are both producer and consumer threads. The threads first _commit_`memcpy_async` operations to fetch the _next_ batch while they _wait_ on the _previous_ batch of `memcpy_async` operations to complete.
 
 - Committing work to a pipeline stage involves:
-    
     - Collectively _acquiring_ the pipeline _head_ from a set of producer threads using `pipeline.producer_acquire()`.
-        
     - Submitting `memcpy_async` operations to the pipeline head.
-        
     - Collectively _committing_ (advancing) the pipeline head using `pipeline.producer_commit()`.
-        
 - Using a previously commited stage involves:
-    
     - Collectively waiting for the stage to complete, e.g., using `pipeline.consumer_wait()` to wait on the tail (oldest) stage.
-        
     - Collectively _releasing_ the stage using `pipeline.consumer_release()`.
-        
 
 `cuda::pipeline_shared_state<scope, count>` encapsulates the finite resources that allow a pipeline to process up to `count` concurrent stages. If all resources are in use, `pipeline.producer_acquire()` blocks producer threads until the resources of the next pipeline stage are released by consumer threads.
 
 This example can be written in a more concise manner by merging the prolog and epilog of the loop with the loop itself as follows:
 
-template <size_t stages_count = 2 /* Pipeline with stages_count stages */>
-__global__ void with_staging_unified(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+template <size_t stages_count = 2 /* Pipeline with stages_count stages _/>
+
+__global__ void with_staging_unified(int_ global_out, int const* global_in, size_t size, size_t batch_sz) {
+
     auto grid = cooperative_groups::this_grid();
+
     auto block = cooperative_groups::this_thread_block();
+
     assert(size == batch_sz * grid.size()); // Assume input size fits batch_sz * grid_size
 
     extern __shared__ int shared[]; // stages_count * block.size() * sizeof(int) bytes
@@ -8289,6 +9587,7 @@ __global__ void with_staging_unified(int* global_out, int const* global_in, size
         compute(global_out + block_batch(batch_idx), shared + shared_offset[shared_idx]);
         pipeline.consumer_release();
     }
+
 }
 
 The `pipeline<thread_scope_block>` primitive used above is very flexible, and supports two features that our examples above are not using: any arbitrary subset of threads in the block can participate in the `pipeline`, and from the threads that participate, any subsets can be producers, consumers, or both. In the following example, threads with an “even” thread rank are producers, while other threads are consumers:
@@ -8296,8 +9595,11 @@ The `pipeline<thread_scope_block>` primitive used above is very flexible, and 
 __device__ void compute(int* global_out, int shared_in);
 
 template <size_t stages_count = 2>
+
 __global__ void with_specialized_staging_unified(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
     auto grid = cooperative_groups::this_grid();
+
     auto block = cooperative_groups::this_thread_block();
 
     // In this example, threads with "even" thread rank are producers, while threads with "odd" thread rank are consumers:
@@ -8354,6 +9656,7 @@ __global__ void with_specialized_staging_unified(int* global_out, int const* glo
             pipeline.consumer_release();
         }
     }
+
 }
 
 There are some optimizations that `pipeline` performs, for example, when all threads are both producers and consumers, but in general, the cost of supporting all these features cannot be fully eliminated. For example, `pipeline` stores and uses a set of barriers in shared memory for synchronization, which is not really necessary if all threads in the block participate in the pipeline.
@@ -8361,10 +9664,15 @@ There are some optimizations that `pipeline` performs, for example, when all t
 For the particular case in which all threads in the block participate in the `pipeline`, we can do better than `pipeline<thread_scope_block>` by using a `pipeline<thread_scope_thread>` combined with `__syncthreads()`:
 
 template<size_t stages_count>
+
 __global__ void with_staging_scope_thread(int* global_out, int const* global_in, size_t size, size_t batch_sz) {
+
     auto grid = cooperative_groups::this_grid();
+
     auto block = cooperative_groups::this_thread_block();
+
     auto thread = cooperative_groups::this_thread();
+
     assert(size == batch_sz * grid.size()); // Assume input size fits batch_sz * grid_size
 
     extern __shared__ int shared[]; // stages_count * block.size() * sizeof(int) bytes
@@ -8396,6 +9704,7 @@ __global__ void with_staging_scope_thread(int* global_out, int const* global_in,
         compute(global_out + block_batch(batch_idx), shared + shared_offset[shared_idx]);
         pipeline.consumer_release();
     }
+
 }
 
 If the `compute` operation only reads shared memory written to by other threads in the same warp as the current thread, `__syncwarp()` suffices.
@@ -8407,11 +9716,8 @@ The complete API documentation for `cuda::memcpy_async` is provided in the [l
 The `pipeline` interface requires
 
 - at least CUDA 11.0,
-    
 - at least ISO C++ 2011 compatibility, e.g., to be compiled with `-std=c++11`, and
-    
 - `#include <cuda/pipeline>`.
-    
 
 For a C-like interface, when compiling without ISO C++ 2011 compatibility, see [Pipeline Primitives Interface](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pipeline-primitives-interface).
 
@@ -8422,75 +9728,66 @@ Pipeline primitives are a C-like interface for `memcpy_async` functionality. T
 #### 10.28.4.1. `memcpy_async` Primitive[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-primitive "Permalink to this headline")
 
 void __pipeline_memcpy_async(void* __restrict__ dst_shared,
+
                              const void* __restrict__ src_global,
+
                              size_t size_and_align,
+
                              size_t zfill=0);
 
 - Request that the following operation be submitted for asynchronous evaluation:
-    
+
     size_t i = 0;
-    for (; i < size_and_align - zfill; ++i) ((char*)dst_shared)[i] = ((char*)src_global)[i]; /* copy */
-    for (; i < size_and_align; ++i) ((char*)dst_shared)[i] = 0; /* zero-fill */
-    
+
+    for (; i < size_and_align - zfill; ++i) ((char*)dst_shared)[i] = ((char*)src_global)[i]; /* copy _/
+
+    for (; i < size_and_align; ++i) ((char_)dst_shared)[i] = 0; /* zero-fill */
+
 - Requirements:
-    
     - `dst_shared` must be a pointer to the shared memory destination for the `memcpy_async`.
-        
     - `src_global` must be a pointer to the global memory source for the `memcpy_async`.
-        
     - `size_and_align` must be 4, 8, or 16.
-        
     - `zfill <= size_and_align`.
-        
     - `size_and_align` must be the alignment of `dst_shared` and `src_global`.
-        
 - It is a race condition for any thread to modify the source memory or observe the destination memory prior to waiting for the `memcpy_async`operation to complete. Between submitting a `memcpy_async` operation and waiting for its completion, any of the following actions introduces a race condition:
-    
     - Loading from `dst_shared`.
-        
     - Storing to `dst_shared` or `src_global`.
-        
     - Applying an atomic update to `dst_shared` or `src_global`.
-        
 
 #### 10.28.4.2. Commit Primitive[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#commit-primitive "Permalink to this headline")
 
 void __pipeline_commit();
 
 - Commit submitted `memcpy_async` to the pipeline as the current batch.
-    
 
 #### 10.28.4.3. Wait Primitive[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wait-primitive "Permalink to this headline")
 
 void __pipeline_wait_prior(size_t N);
 
 - Let `{0, 1, 2, ..., L}` be the sequence of indices associated with invocations of `__pipeline_commit()` by a given thread.
-    
 - Wait for completion of batches _at least_ up to and including `L-N`.
-    
 
 #### 10.28.4.4. Arrive On Barrier Primitive[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#arrive-on-barrier-primitive "Permalink to this headline")
 
 void __pipeline_arrive_on(__mbarrier_t* bar);
 
 - `bar` points to a barrier in shared memory.
-    
 - Increments the barrier arrival count by one, when all memcpy_async operations sequenced before this call have completed, the arrival count is decremented by one and hence the net effect on the arrival count is zero. It is user’s responsibility to make sure that the increment on the arrival count does not exceed `__mbarrier_maximum_count()`.
-    
 
 ## 10.29. Asynchronous Data Copies using the Tensor Memory Accelerator (TMA)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-data-copies-using-the-tensor-memory-accelerator-tma "Permalink to this headline")
 
 Many applications require movement of large amounts of data from and to global memory. Often, the data is laid out in global memory as a multi-dimensional array with non-sequential data acess patterns. To reduce global memory usage, sub-tiles of such arrays are copied to shared memory before use in computations. The loading and storing involves address-calculations that can be error-prone and repetitive. To offload these computations, Compute Capability 9.0 introduces the Tensor Memory Accelerator (TMA). The primary goal of TMA is to provide an efficient data transfer mechanism from global memory to shared memory for multi-dimensional arrays.
 
-**Naming**. Tensor memory accelerator (TMA) is a broad term used to refer to the features described in this section. For the purpose of forward-compatibility and to reduce discrepancies with the PTX ISA, the text in this section refers to TMA operations as either bulk-asynchronous copies or bulk tensor asynchronous copies, depending on the specific type of copy used. The term “bulk” is used to contrast these operations with the asynchronous memory operations described in the previous sections.
+__Naming__. Tensor memory accelerator (TMA) is a broad term used to refer to the features described in this section. For the purpose of forward-compatibility and to reduce discrepancies with the PTX ISA, the text in this section refers to TMA operations as either bulk-asynchronous copies or bulk tensor asynchronous copies, depending on the specific type of copy used. The term “bulk” is used to contrast these operations with the asynchronous memory operations described in the previous sections.
 
-**Dimensions**. TMA supports copying both one-dimensional and multi-dimensional arrays (up to 5-dimensional). The programming model for **bulk-asynchronous copies** of one-dimensional contiguous arrays is different from the programming model for **bulk tensor asynchronous copies** of multi-dimensional arrays. To perform a bulk tensor asynchronous copy of a multi-dimensional array, the hardware requires a [tensor map](https://docs.nvidia.com/cuda/cuda-driver-api/structCUtensorMap.html#structCUtensorMap). This object describes the layout of the multi-dimensional array in global and shared memory. A tensor map is typically created on the host using the [cuTensorMapEncode API](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html#group__CUDA__TENSOR__MEMORY) and then transferred from host to device as a `const` kernel parameter annotated with `__grid_constant__`. The tensor map is transferred from host to device as a `const` kernel parameter annotated with `__grid_constant__`, and can be used on the device to copy a tile of data between shared and global memory. In contrast, performing a bulk-asynchronous copy of a contiguous one-dimensional array does not require a tensor map: it can be performed on-device with a pointer and size parameter.
+__Dimensions__. TMA supports copying both one-dimensional and multi-dimensional arrays (up to 5-dimensional). The programming model for __bulk-asynchronous copies__ of one-dimensional contiguous arrays is different from the programming model for __bulk tensor asynchronous copies__ of multi-dimensional arrays. To perform a bulk tensor asynchronous copy of a multi-dimensional array, the hardware requires a [tensor map](https://docs.nvidia.com/cuda/cuda-driver-api/structCUtensorMap.html#structCUtensorMap). This object describes the layout of the multi-dimensional array in global and shared memory. A tensor map is typically created on the host using the [cuTensorMapEncode API](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html#group__CUDA__TENSOR__MEMORY) and then transferred from host to device as a `const` kernel parameter annotated with `__grid_constant__`. The tensor map is transferred from host to device as a `const` kernel parameter annotated with `__grid_constant__`, and can be used on the device to copy a tile of data between shared and global memory. In contrast, performing a bulk-asynchronous copy of a contiguous one-dimensional array does not require a tensor map: it can be performed on-device with a pointer and size parameter.
 
-**Source and destination**. The source and destination addresses of bulk-asynchronous copy operations can be in shared or global memory. The operations can read data from global to shared memory, write data from shared to global memory, and also copy from shared memory to [Distributed Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#distributed-shared-memory) of another block in the same cluster. In addition, when in a cluster, a bulk-asynchronous operation can be specified as being multicast. In this case, data can be transferred from global memory to the shared memory of multiple blocks within the cluster. The multicast feature is optimized for target architecture `sm_90a` and may have [significantly reduced performance](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor) on other targets. Hence, it is advised to be used with [compute architecture](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-feature-list) `sm_90a`.
+__Source and destination__. The source and destination addresses of bulk-asynchronous copy operations can be in shared or global memory. The operations can read data from global to shared memory, write data from shared to global memory, and also copy from shared memory to [Distributed Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#distributed-shared-memory) of another block in the same cluster. In addition, when in a cluster, a bulk-asynchronous operation can be specified as being multicast. In this case, data can be transferred from global memory to the shared memory of multiple blocks within the cluster. The multicast feature is optimized for target architecture `sm_90a` and may have [significantly reduced performance](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor) on other targets. Hence, it is advised to be used with [compute architecture](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-feature-list) `sm_90a`.
 
-**Asynchronous**. Data transfers using TMA are [asynchronous](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-simt-programming-model). This allows the initiating thread to continue computing while the hardware asynchronously copies the data. **Whether the data transfer occurs asynchronously in practice is up to the hardware implementation and may change in the future**. There are several [completion mechanisms](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-asynchronous-copy-completion-mechanisms) that bulk-asynchronous operations can use to signal that they have completed. When the operation reads from global to shared memory, any thread in the block can wait for the data to be readable in shared memory by waiting on a [Shared Memory Barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier). When the bulk-asynchronous operation writes data from shared memory to global or distributed shared memory, only the initiating thread can wait for the operation to have completed. This is accomplished using a _bulk async-group_ based completion mechanism. A table describing the completion mechanisms can be found below and in the [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk).
+__Asynchronous__. Data transfers using TMA are [asynchronous](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#asynchronous-simt-programming-model). This allows the initiating thread to continue computing while the hardware asynchronously copies the data. __Whether the data transfer occurs asynchronously in practice is up to the hardware implementation and may change in the future__. There are several [completion mechanisms](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-asynchronous-copy-completion-mechanisms) that bulk-asynchronous operations can use to signal that they have completed. When the operation reads from global to shared memory, any thread in the block can wait for the data to be readable in shared memory by waiting on a [Shared Memory Barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier). When the bulk-asynchronous operation writes data from shared memory to global or distributed shared memory, only the initiating thread can wait for the operation to have completed. This is accomplished using a _bulk async-group_ based completion mechanism. A table describing the completion mechanisms can be found below and in the [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk).
 
 Table 8 Asynchronous copies with possible source and destinations memory spaces and completion mechanisms. An empty cell indicates that a source-destination pair is not supported.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-tma-source-dest-state-spaces "Permalink to this table")
+
 |Direction|   |Completion mechanism|   |
 |---|---|---|---|
 |Destination|Source|Asynchronous copy|Bulk-asynchronous copy (TMA)|
@@ -8509,104 +9806,147 @@ This section demonstrates how to write a simple kernel that read-modify-writes a
 The code of the kernel is included below. Some functionality requires inline PTX assembly that is currently made available through [libcu++](https://nvidia.github.io/cccl/libcudacxx/ptx.html). The availability of these wrappers can be checked with the following code:
 
 #if defined(__CUDA_MINIMUM_ARCH__) && __CUDA_MINIMUM_ARCH__ < 900
+
 static_assert(false, "Device code is being compiled with older architectures that are incompatible with TMA.");
+
 #endif // __CUDA_MINIMUM_ARCH__
 
 The kernel goes through the following stages:
 
 1. Initialize shared memory barrier.
-    
 2. Initiate bulk-asynchronous copy of a block of memory from global to shared memory.
-    
 3. Arrive and wait on the shared memory barrier.
-    
 4. Increment the shared memory buffer values.
-    
 5. Wait for shared memory writes to be visible to the subsequent bulk-asynchronous copy, i.e., order the shared memory writes in the [async proxy](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#async-proxy) before the next step.
-    
 6. Initiate bulk-asynchronous copy of the buffer in shared memory to global memory.
-    
 7. Wait at end of kernel for bulk-asynchronous copy to have finished reading shared memory.
-    
 
 #include <cuda/barrier>
+
 #include <cuda/ptx>
+
 using barrier = cuda::barrier<cuda::thread_scope_block>;
+
 namespace ptx = cuda::ptx;
 
 static constexpr size_t buf_len = 1024;
+
 __global__ void add_one_kernel(int* data, size_t offset)
+
 {
+
   // Shared memory buffer. The destination shared memory buffer of
+
   // a bulk operations should be 16 byte aligned.
+
   __shared__ alignas(16) int smem_data[buf_len];
 
   // 1. a) Initialize shared memory barrier with the number of threads participating in the barrier.
+
   //    b) Make initialized barrier visible in async proxy.
+
   #pragma nv_diag_suppress static_var_with_dynamic_init
+
   __shared__ barrier bar;
+
   if (threadIdx.x == 0) { 
+
     init(&bar, blockDim.x);                      // a)
+
     ptx::fence_proxy_async(ptx::space_shared);   // b)
+
   }
+
   __syncthreads();
 
   // 2. Initiate TMA transfer to copy global to shared memory.
+
   if (threadIdx.x == 0) {
+
     // 3a. cuda::memcpy_async arrives on the barrier and communicates
+
     //     how many bytes are expected to come in (the transaction count)
+
     cuda::memcpy_async(
+
         smem_data, 
+
         data + offset, 
+
         cuda::aligned_size_t<16>(sizeof(smem_data)),
+
         bar
+
     );
+
   }
+
   // 3b. All threads arrive on the barrier
+
   barrier::arrival_token token = bar.arrive();
-  
+
   // 3c. Wait for the data to have arrived.
+
   bar.wait(std::move(token));
 
   // 4. Compute saxpy and write back to shared memory
+
   for (int i = threadIdx.x; i < buf_len; i += blockDim.x) {
+
     smem_data[i] += 1;
+
   }
 
   // 5. Wait for shared memory writes to be visible to TMA engine.
+
   ptx::fence_proxy_async(ptx::space_shared);   // b)
+
   __syncthreads();
+
   // After syncthreads, writes by all threads are visible to TMA engine.
 
   // 6. Initiate TMA transfer to copy shared memory to global memory
+
   if (threadIdx.x == 0) {
+
     ptx::cp_async_bulk(
+
         ptx::space_global,
+
         ptx::space_shared,
+
         data + offset, smem_data, sizeof(smem_data));
+
     // 7. Wait for TMA transfer to have finished reading shared memory.
+
     // Create a "bulk async-group" out of the previous bulk copy operation.
+
     ptx::cp_async_bulk_commit_group();
+
     // Wait for the group to have completed reading from shared memory.
+
     ptx::cp_async_bulk_wait_group_read(ptx::n32_t<0>());
+
   }
+
 }
 
-**Barrier initialization**. The barrier is initialized with the number of threads participating in the block. As a result, the barrier will flip only if all threads have arrived on this barrier. Shared memory barriers are described in more detail in [Asynchronous Data Copies using cuda::barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-barrier). To make the initialized barrier visible to subsequent bulk-asynchronous copies, the `fence.proxy.async.shared::cta` instruction is used. This instruction ensures that subsequent bulk-asynchronous copy operations operate on the initialized barrier.
+__Barrier initialization__. The barrier is initialized with the number of threads participating in the block. As a result, the barrier will flip only if all threads have arrived on this barrier. Shared memory barriers are described in more detail in [Asynchronous Data Copies using cuda::barrier](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memcpy-async-barrier). To make the initialized barrier visible to subsequent bulk-asynchronous copies, the `fence.proxy.async.shared::cta` instruction is used. This instruction ensures that subsequent bulk-asynchronous copy operations operate on the initialized barrier.
 
-**TMA read**. The bulk-asynchronous copy instruction directs the hardware to copy a large chunk of data into shared memory, and to update the[transaction count](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations) of the shared memory barrier after completing the read. In general, issuing as few bulk copies with as big a size as possible results in the best performance. Because the copy can be performed asynchronously by the hardware, it is not necessary to split the copy into smaller chunks.
+__TMA read__. The bulk-asynchronous copy instruction directs the hardware to copy a large chunk of data into shared memory, and to update the[transaction count](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations) of the shared memory barrier after completing the read. In general, issuing as few bulk copies with as big a size as possible results in the best performance. Because the copy can be performed asynchronously by the hardware, it is not necessary to split the copy into smaller chunks.
 
-The thread that initiates the bulk-asynchronous copy operation arrives at the barrier using `mbarrier.expect_tx`. This is automatically performed by `cuda::memcpy_async`. This tells the barrier that the thread has arrived and also how many bytes (tx / transactions) are expected to arrive. Only a single thread has to update the expected transaction count. If multiple threads update the transaction count, the expected transaction will be the sum of the updates. The barrier will only flip once all threads have arrived **and** all bytes have arrived. Once the barrier has flipped, the bytes are safe to read from shared memory, both by the threads as well as by subsequent bulk-asynchronous copies. More information about barrier transaction accounting can be found in the [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations).
+The thread that initiates the bulk-asynchronous copy operation arrives at the barrier using `mbarrier.expect_tx`. This is automatically performed by `cuda::memcpy_async`. This tells the barrier that the thread has arrived and also how many bytes (tx / transactions) are expected to arrive. Only a single thread has to update the expected transaction count. If multiple threads update the transaction count, the expected transaction will be the sum of the updates. The barrier will only flip once all threads have arrived __and__ all bytes have arrived. Once the barrier has flipped, the bytes are safe to read from shared memory, both by the threads as well as by subsequent bulk-asynchronous copies. More information about barrier transaction accounting can be found in the [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations).
 
-**Barrier wait**. Waiting for the barrier to flip is done using `mbarrier.try_wait`. It can either return true, indicating that the wait is over, or return false, which may mean that the wait timed out. The while loop waits for completion, and retries on time-out.
+__Barrier wait__. Waiting for the barrier to flip is done using `mbarrier.try_wait`. It can either return true, indicating that the wait is over, or return false, which may mean that the wait timed out. The while loop waits for completion, and retries on time-out.
 
-**SMEM write and sync**. The increment of the buffer values reads and writes to shared memory. To make the writes visible to subsequent bulk-asynchronous copies, the `fence.proxy.async.shared::cta` instruction is used. This orders the writes to shared memory before subsequent reads from bulk-asynchronous copy operations, which read through the async proxy. So each thread first orders the writes to objects in shared memory in the async proxy via the `fence.proxy.async.shared::cta`, and these operations by all threads are ordered before the async operation performed in thread 0 using `__syncthreads()`.
+__SMEM write and sync__. The increment of the buffer values reads and writes to shared memory. To make the writes visible to subsequent bulk-asynchronous copies, the `fence.proxy.async.shared::cta` instruction is used. This orders the writes to shared memory before subsequent reads from bulk-asynchronous copy operations, which read through the async proxy. So each thread first orders the writes to objects in shared memory in the async proxy via the `fence.proxy.async.shared::cta`, and these operations by all threads are ordered before the async operation performed in thread 0 using `__syncthreads()`.
 
-**TMA write and sync**. The write from shared to global memory is again initiated by a single thread. The completion of the write is not tracked by a shared memory barrier. Instead, a thread-local mechanism is used. Multiple writes can be batched into a so-called _bulk async-group_. Afterwards, the thread can wait for all operations in this group to have completed reading from shared memory (as in the code above) or to have completed writing to global memory, making the writes visible to the initiating thread. For more information, refer to the PTX ISA documentation of [cp.async.bulk.wait_group](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-wait-group). Note that the bulk-asynchronous and non-bulk asynchronous copy instructions have different async-groups: there exist both `cp.async.wait_group` and `cp.async.bulk.wait_group` instructions.
+__TMA write and sync__. The write from shared to global memory is again initiated by a single thread. The completion of the write is not tracked by a shared memory barrier. Instead, a thread-local mechanism is used. Multiple writes can be batched into a so-called _bulk async-group_. Afterwards, the thread can wait for all operations in this group to have completed reading from shared memory (as in the code above) or to have completed writing to global memory, making the writes visible to the initiating thread. For more information, refer to the PTX ISA documentation of [cp.async.bulk.wait_group](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-wait-group). Note that the bulk-asynchronous and non-bulk asynchronous copy instructions have different async-groups: there exist both `cp.async.wait_group` and `cp.async.bulk.wait_group` instructions.
 
 The bulk-asynchronous instructions have specific alignment requirements on their source and destination addresses. More information can be found in the table below.
 
 Table 9 Alignment requirements for one-dimensional bulk-asynchronous operations in Compute Capability 9.0.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-alignment-one-dim-tma "Permalink to this table")
+
 |Address / Size|Alignment|
 |---|---|
 |Global memory address|Must be 16 byte aligned.|
@@ -8618,62 +9958,102 @@ Table 9 Alignment requirements for one-dimensional bulk-asynchronous operations
 
 The primary difference between the one-dimensional and multi-dimensional case is that a tensor map must be created on the host and passed to the CUDA kernel. This section describes how to create a tensor map using the CUDA driver API, how to pass it to device, and how to use it on device.
 
-**Driver API**. A tensor map is created using the [cuTensorMapEncodeTiled](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html) driver API. This API can be accessed by linking to the driver directly (`-lcuda`) or by using the [cudaGetDriverEntryPointByVersion](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DRIVER__ENTRY__POINT.html) API. Below, we show how to get a pointer to the `cuTensorMapEncodeTiled` API. For more information, refer to [Driver Entry Point Access](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-entry-point-access).
+__Driver API__. A tensor map is created using the [cuTensorMapEncodeTiled](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html) driver API. This API can be accessed by linking to the driver directly (`-lcuda`) or by using the [cudaGetDriverEntryPointByVersion](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DRIVER__ENTRY__POINT.html) API. Below, we show how to get a pointer to the `cuTensorMapEncodeTiled` API. For more information, refer to [Driver Entry Point Access](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-entry-point-access).
 
 #include <cudaTypedefs.h> // PFN_cuTensorMapEncodeTiled, CUtensorMap
 
 PFN_cuTensorMapEncodeTiled_v12000 get_cuTensorMapEncodeTiled() {
+
   // Get pointer to cuTensorMapEncodeTiled
+
   cudaDriverEntryPointQueryResult driver_status;
+
   void* cuTensorMapEncodeTiled_ptr = nullptr;
+
   CUDA_CHECK(cudaGetDriverEntryPointByVersion("cuTensorMapEncodeTiled", &cuTensorMapEncodeTiled_ptr, 12000, cudaEnableDefault, &driver_status));
+
   assert(driver_status == cudaDriverEntryPointSuccess);
 
   return reinterpret_cast<PFN_cuTensorMapEncodeTiled_v12000>(cuTensorMapEncodeTiled_ptr);
+
 }
 
-**Creation**. Creating a tensor map requires many parameters. Among them are the base pointer to an array in global memory, the size of the array (in number of elements), the stride from one row to the next (in bytes), the size of the shared memory buffer (in number of elements). The code below creates a tensor map to describe a two-dimensional row-major array of size `GMEM_HEIGHT x GMEM_WIDTH`. Note the order of the parameters: the fastest moving dimension comes first.
+__Creation__. Creating a tensor map requires many parameters. Among them are the base pointer to an array in global memory, the size of the array (in number of elements), the stride from one row to the next (in bytes), the size of the shared memory buffer (in number of elements). The code below creates a tensor map to describe a two-dimensional row-major array of size `GMEM_HEIGHT x GMEM_WIDTH`. Note the order of the parameters: the fastest moving dimension comes first.
 
   CUtensorMap tensor_map{};
+
   // rank is the number of dimensions of the array.
+
   constexpr uint32_t rank = 2;
+
   uint64_t size[rank] = {GMEM_WIDTH, GMEM_HEIGHT};
+
   // The stride is the number of bytes to traverse from the first element of one row to the next.
+
   // It must be a multiple of 16.
+
   uint64_t stride[rank - 1] = {GMEM_WIDTH * sizeof(int)};
+
   // The box_size is the size of the shared memory buffer that is used as the
+
   // destination of a TMA transfer.
+
   uint32_t box_size[rank] = {SMEM_WIDTH, SMEM_HEIGHT};
+
   // The distance between elements in units of sizeof(element). A stride of 2
+
   // can be used to load only the real component of a complex-valued tensor, for instance.
+
   uint32_t elem_stride[rank] = {1, 1};
 
   // Get a function pointer to the cuTensorMapEncodeTiled driver API.
+
   auto cuTensorMapEncodeTiled = get_cuTensorMapEncodeTiled();
 
   // Create the tensor descriptor.
+
   CUresult res = cuTensorMapEncodeTiled(
+
     &tensor_map,                // CUtensorMap *tensorMap,
+
     CUtensorMapDataType::CU_TENSOR_MAP_DATA_TYPE_INT32,
+
     rank,                       // cuuint32_t tensorRank,
+
     tensor_ptr,                 // void *globalAddress,
+
     size,                       // const cuuint64_t *globalDim,
+
     stride,                     // const cuuint64_t *globalStrides,
+
     box_size,                   // const cuuint32_t *boxDim,
+
     elem_stride,                // const cuuint32_t *elementStrides,
+
     // Interleave patterns can be used to accelerate loading of values that
+
     // are less than 4 bytes long.
+
     CUtensorMapInterleave::CU_TENSOR_MAP_INTERLEAVE_NONE,
+
     // Swizzling can be used to avoid shared memory bank conflicts.
+
     CUtensorMapSwizzle::CU_TENSOR_MAP_SWIZZLE_NONE,
+
     // L2 Promotion can be used to widen the effect of a cache-policy to a wider
+
     // set of L2 cache lines.
+
     CUtensorMapL2promotion::CU_TENSOR_MAP_L2_PROMOTION_NONE,
+
     // Any element that is outside of bounds will be set to zero by the TMA transfer.
+
     CUtensorMapFloatOOBfill::CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE
+
   );
 
-**Host-to-device transfer**. There are three ways to make a tensor map accessible to device code. The recommended approach is to pass the tensor map as a const `__grid_constant__` parameter to a kernel. The other possibilities are copying the tensor map into device `__constant__` memory using `cudaMemcpyToSymbol` or accessing it via global memory. When passing the tensor map as a parameter, some versions of the GCC C++ compiler issue the warning “the ABI for passing parameters with 64-byte alignment has changed in GCC 4.6”. This warning can be ignored.
+__Host-to-device transfer__. There are three ways to make a tensor map accessible to device code. The recommended approach is to pass the tensor map as a const `__grid_constant__` parameter to a kernel. The other possibilities are copying the tensor map into device `__constant__` memory using `cudaMemcpyToSymbol` or accessing it via global memory. When passing the tensor map as a parameter, some versions of the GCC C++ compiler issue the warning “the ABI for passing parameters with 64-byte alignment has changed in GCC 4.6”. This warning can be ignored.
+
 ```c++
 #include <cuda.h>
 
@@ -8693,111 +10073,185 @@ As an alternative to the `__grid_constant__` kernel parameter, a global [cons
 #include <cuda.h>
 
 __constant__ CUtensorMap global_tensor_map;
+
 __global__ void kernel()
+
 {
+
   // Use global_tensor_map here.
+
 }
+
 int main() {
+
   CUtensorMap local_tensor_map;
+
   // [ ..Initialize map.. ]
+
   cudaMemcpyToSymbol(global_tensor_map, &local_tensor_map, sizeof(CUtensorMap));
+
   kernel<<<1, 1>>>();
+
 }
 
 Finally, it is possible to copy the tensor map to global memory. Using a pointer to a tensor map in global device memory requires a fence in each thread block before any thread in the block uses the updated tensor map. Further uses of the tensor map by that thread block do not need to be fenced unless the tensor map is modified again. Note that this mechanism may be slower than the two mechanisms described above.
 
 #include <cuda.h>
+
 #include <cuda/ptx>
+
 namespace ptx = cuda::ptx;
 
 __device__ CUtensorMap global_tensor_map;
+
 __global__ void kernel(CUtensorMap *tensor_map)
+
 {
+
   // Fence acquire tensor map:
+
   ptx::n32_t<128> size_bytes;
+
   // Since the tensor map was modified from the host using cudaMemcpy,
+
   // the scope should be .sys.
+
   ptx::fence_proxy_tensormap_generic(
+
      ptx::sem_acquire, ptx::scope_sys, tensor_map, size_bytes
+
  );
+
  // Safe to use tensor_map after fence inside this thread..
-}
-int main() {
-  CUtensorMap local_tensor_map;
-  // [ ..Initialize map.. ]
-  cudaMemcpy(&global_tensor_map, &local_tensor_map, sizeof(CUtensorMap), cudaMemcpyHostToDevice);
-  kernel<<<1, 1>>>(global_tensor_map);
+
 }
 
-**Use**. The kernel below loads a 2D tile of size `SMEM_HEIGHT x SMEM_WIDTH` from a larger 2D array. The top-left corner of the tile is indicated by the indices `x` and `y`. The tile is loaded into shared memory, modified, and written back to global memory.
+int main() {
+
+  CUtensorMap local_tensor_map;
+
+  // [ ..Initialize map.. ]
+
+  cudaMemcpy(&global_tensor_map, &local_tensor_map, sizeof(CUtensorMap), cudaMemcpyHostToDevice);
+
+  kernel<<<1, 1>>>(global_tensor_map);
+
+}
+
+__Use__. The kernel below loads a 2D tile of size `SMEM_HEIGHT x SMEM_WIDTH` from a larger 2D array. The top-left corner of the tile is indicated by the indices `x` and `y`. The tile is loaded into shared memory, modified, and written back to global memory.
 
 #include <cuda.h>         // CUtensormap
+
 #include <cuda/barrier>
+
 using barrier = cuda::barrier<cuda::thread_scope_block>;
+
 namespace cde = cuda::device::experimental;
 
 __global__ void kernel(const __grid_constant__ CUtensorMap tensor_map, int x, int y) {
+
   // The destination shared memory buffer of a bulk tensor operation should be
+
   // 128 byte aligned.
+
   __shared__ alignas(128) int smem_buffer[SMEM_HEIGHT][SMEM_WIDTH];
 
   // Initialize shared memory barrier with the number of threads participating in the barrier.
+
   #pragma nv_diag_suppress static_var_with_dynamic_init
+
   __shared__ barrier bar;
 
   if (threadIdx.x == 0) {
+
     // Initialize barrier. All `blockDim.x` threads in block participate.
+
     init(&bar, blockDim.x);
+
     // Make initialized barrier visible in async proxy.
+
     cde::fence_proxy_async_shared_cta();
+
   }
+
   // Syncthreads so initialized barrier is visible to all threads.
+
   __syncthreads();
 
   barrier::arrival_token token;
+
   if (threadIdx.x == 0) {
+
     // Initiate bulk tensor copy.
+
     cde::cp_async_bulk_tensor_2d_global_to_shared(&smem_buffer, &tensor_map, x, y, bar);
+
     // Arrive on the barrier and tell how many bytes are expected to come in.
+
     token = cuda::device::barrier_arrive_tx(bar, 1, sizeof(smem_buffer));
+
   } else {
+
     // Other threads just arrive.
+
     token = bar.arrive();
+
   }
+
   // Wait for the data to have arrived.
+
   bar.wait(std::move(token));
 
   // Symbolically modify a value in shared memory.
+
   smem_buffer[0][threadIdx.x] += threadIdx.x;
 
   // Wait for shared memory writes to be visible to TMA engine.
+
   cde::fence_proxy_async_shared_cta();
+
   __syncthreads();
+
   // After syncthreads, writes by all threads are visible to TMA engine.
 
   // Initiate TMA transfer to copy shared memory to global memory
+
   if (threadIdx.x == 0) {
+
     cde::cp_async_bulk_tensor_2d_shared_to_global(&tensor_map, x, y, &smem_buffer);
+
     // Wait for TMA transfer to have finished reading shared memory.
+
     // Create a "bulk async-group" out of the previous bulk copy operation.
+
     cde::cp_async_bulk_commit_group();
+
     // Wait for the group to have completed reading from shared memory.
+
     cde::cp_async_bulk_wait_group_read<0>();
+
   }
 
   // Destroy barrier. This invalidates the memory region of the barrier. If
+
   // further computations were to take place in the kernel, this allows the
+
   // memory location of the shared memory barrier to be reused.
+
   if (threadIdx.x == 0) {
+
     (&bar)->~barrier();
+
   }
+
 }
 
-**Negative indices and out of bounds**. When part of the tile that is being _read_ from global to shared memory is out of bounds, the shared memory that corresponds to the out of bounds area is zero-filled. The top-left corner indices of the tile may also be negative. When _writing_ from shared to global memory, parts of the tile may be out of bounds, but the top left corner cannot have any negative indices.
+__Negative indices and out of bounds__. When part of the tile that is being _read_ from global to shared memory is out of bounds, the shared memory that corresponds to the out of bounds area is zero-filled. The top-left corner indices of the tile may also be negative. When _writing_ from shared to global memory, parts of the tile may be out of bounds, but the top left corner cannot have any negative indices.
 
-**Size and stride**. The size of a tensor is the number of elements along one dimension. All sizes must be greater than one. The stride is the number of bytes between elements of the same dimension. For instance, a 4 x 4 matrix of integers has sizes 4 and 4. Since it has 4 bytes per element, the strides are 4 and 16 bytes. Due to alignment requirements, a 4 x 3 row-major matrix of integers must have strides of 4 and 16 bytes as well. Each row is padded with 4 extra bytes to ensure that the start of the next row is aligned to 16 bytes. For more information regarding alignment, refer to [Table 10](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-alignment-multi-dim-tma).
+__Size and stride__. The size of a tensor is the number of elements along one dimension. All sizes must be greater than one. The stride is the number of bytes between elements of the same dimension. For instance, a 4 x 4 matrix of integers has sizes 4 and 4. Since it has 4 bytes per element, the strides are 4 and 16 bytes. Due to alignment requirements, a 4 x 3 row-major matrix of integers must have strides of 4 and 16 bytes as well. Each row is padded with 4 extra bytes to ensure that the start of the next row is aligned to 16 bytes. For more information regarding alignment, refer to [Table 10](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-alignment-multi-dim-tma).
 
 Table 10 Alignment requirements for multi-dimensional bulk tensor asynchronous copy operations in Compute Capability 9.0.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-alignment-multi-dim-tma "Permalink to this table")
+
 |Address / Size|Alignment|
 |---|---|
 |Global memory address|Must be 16 byte aligned.|
@@ -8814,63 +10268,103 @@ Below, the PTX instructions are ordered by their use in the example code above.
 The [cp.async.bulk.tensor](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor) instructions initiate a bulk tensor asynchronous copy between global and shared memory. The wrappers below read from global to shared memory and write from shared to global memory.
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_1d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map , int c0, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_2d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map , int c0, int c1, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_3d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map, int c0, int c1, int c2, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_4d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map , int c0, int c1, int c2, int c3, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_5d_global_to_shared(
+
     void *dest, const CUtensorMap *tensor_map , int c0, int c1, int c2, int c3, int c4, cuda::barrier<cuda::thread_scope_block> &bar
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_1d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, const void *src
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_2d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, int c1, const void *src
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_3d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, int c1, int c2, const void *src
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_4d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, int c1, int c2, int c3, const void *src
+
 );
 
 // https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor
+
 inline __device__
+
 void cuda::device::experimental::cp_async_bulk_tensor_5d_shared_to_global(
+
     const CUtensorMap *tensor_map, int c0, int c1, int c2, int c3, int c4, const void *src
+
 );
 
 ### 10.29.3. TMA Swizzle[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tma-swizzle "Permalink to this headline")
@@ -8900,63 +10394,103 @@ Figure 27 In the shared memory data layout without swizzle, the shared memory i
 Figure 28 The shared memory data layout with `CU_TENSOR_MAP_SWIZZLE_128B` swizzle. One row is stored in a column, each matrix element is from a different bank for both the rows and columns, and so without any bank conflicts.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id469 "Permalink to this image")
 
 __global__ void kernel_tma(const __grid_constant__ CUtensorMap tensor_map) {
+
    // The destination shared memory buffer of a bulk tensor operation
+
    // with the 128-byte swizzle mode, it should be 1024 bytes aligned.
+
    __shared__ alignas(1024) int4 smem_buffer[8][8];
+
    __shared__ alignas(1024) int4 smem_buffer_tr[8][8];
 
    // Initialize shared memory barrier
+
    #pragma nv_diag_suppress static_var_with_dynamic_init
+
    __shared__ barrier bar;
 
    if (threadIdx.x == 0) {
+
      init(&bar, blockDim.x);
+
      cde::fence_proxy_async_shared_cta();
+
    }
 
    __syncthreads();
 
    barrier::arrival_token token;
+
    if (threadIdx.x == 0) {
+
      // Initiate bulk tensor copy from global to shared memory,
+
      // in the same way as without swizzle.
+
      cde::cp_async_bulk_tensor_2d_global_to_shared(&smem_buffer, &tensor_map, 0, 0, bar);
+
      token = cuda::device::barrier_arrive_tx(bar, 1, sizeof(smem_buffer));
+
    } else {
+
      token = bar.arrive();
+
    }
 
    bar.wait(std::move(token));
 
    /* Matrix transpose
+
     *  When using the normal shared memory layout, there are eight
+
     *  8-way shared memory bank conflict when storing to the transpose.
+
     *  When enabling the 128-byte swizzle pattern and using the according access pattern,
+
     *  they are eliminated both for load and store. */
+
    for(int sidx_j =threadIdx.x; sidx_j < 8; sidx_j+= blockDim.x){
+
       for(int sidx_i = 0; sidx_i < 8; ++sidx_i){
+
          const int swiz_j_idx = (sidx_i % 8) ^ sidx_j;
+
          const int swiz_i_idx_tr = (sidx_j % 8) ^ sidx_i;
+
          smem_buffer_tr[sidx_j][swiz_i_idx_tr] = smem_buffer[sidx_i][swiz_j_idx];
+
       }
+
    }
 
    // Wait for shared memory writes to be visible to TMA engine.
+
    cde::fence_proxy_async_shared_cta();
+
    __syncthreads();
 
    /* Initiate TMA transfer to copy the transposed shared memory buffer back to global memory,
+
     * it will 'unswizzle' the data. */
+
    if (threadIdx.x == 0) {
+
       cde::cp_async_bulk_tensor_2d_shared_to_global(&tensor_map, 0, 0, &smem_buffer_tr);
+
       cde::cp_async_bulk_commit_group();
+
       cde::cp_async_bulk_wait_group_read<0>();
+
    }
 
    // Destroy barrier
+
    if (threadIdx.x == 0) {
+
      (&bar)->~barrier();
+
    }
+
 }
 
 // --------------------------------- main ----------------------------------------
@@ -8964,44 +10498,70 @@ __global__ void kernel_tma(const __grid_constant__ CUtensorMap tensor_map) {
 int main(){
 
 ...
+
    void* tensor_ptr = d_data;
 
    CUtensorMap tensor_map{};
+
    // rank is the number of dimensions of the array.
+
    constexpr uint32_t rank = 2;
+
    // global memory size
-   uint64_t size[rank] = {4*8, 8};
+
+   uint64_t size[rank] = {4_8, 8};
+
    // global memory stride, must be a multiple of 16.
+
    uint64_t stride[rank - 1] = {8 * sizeof(int4)};
+
    // The inner shared memory box dimension in bytes, equal to the swizzle span.
-   uint32_t box_size[rank] = {4*8, 8};
+
+   uint32_t box_size[rank] = {4_8, 8};
 
    uint32_t elem_stride[rank] = {1, 1};
 
    // Create the tensor descriptor.
+
    CUresult res = cuTensorMapEncodeTiled(
+
        &tensor_map,                // CUtensorMap *tensorMap,
+
        CUtensorMapDataType::CU_TENSOR_MAP_DATA_TYPE_INT32,
+
        rank,                       // cuuint32_t tensorRank,
+
        tensor_ptr,                 // void *globalAddress,
+
        size,                       // const cuuint64_t *globalDim,
+
        stride,                     // const cuuint64_t *globalStrides,
+
        box_size,                   // const cuuint32_t *boxDim,
+
        elem_stride,                // const cuuint32_t *elementStrides,
+
        CUtensorMapInterleave::CU_TENSOR_MAP_INTERLEAVE_NONE,
+
        // Using a swizzle pattern of 128 bytes.
+
        CUtensorMapSwizzle::CU_TENSOR_MAP_SWIZZLE_128B,
+
        CUtensorMapL2promotion::CU_TENSOR_MAP_L2_PROMOTION_NONE,
+
        CUtensorMapFloatOOBfill::CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE
+
    );
 
    kernel_tma<<<1, 8>>>(tensor_map);
+
  ...
+
 }
 
-**Remark.** This example is supposed to show the use of swizzle and ‘as-is’ is not performant nor does it scale beyond the given dimensions.
+__Remark.__ This example is supposed to show the use of swizzle and ‘as-is’ is not performant nor does it scale beyond the given dimensions.
 
-**Explanation.** During data transfer, the TMA engine shuffles the data according to the swizzle pattern, as described in the following tables. These swizzle patterns define the mapping of the 16-byte chunks along the swizzle width to subgroups of four banks. It is of type `CUtensorMapSwizzle`and has four options: none, 32 bytes, 64 bytes and 128 bytes. Note that the shared memory box’s inner dimension must be less or equal to the span of the swizzle pattern.
+__Explanation.__ During data transfer, the TMA engine shuffles the data according to the swizzle pattern, as described in the following tables. These swizzle patterns define the mapping of the 16-byte chunks along the swizzle width to subgroups of four banks. It is of type `CUtensorMapSwizzle`and has four options: none, 32 bytes, 64 bytes and 128 bytes. Note that the shared memory box’s inner dimension must be less or equal to the span of the swizzle pattern.
 
 #### 10.29.3.2. The Swizzle Modes[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#the-swizzle-modes "Permalink to this headline")
 
@@ -9011,20 +10571,17 @@ As previously mentioned, there are four swizzle modes. The following tables show
 
 Figure 29 An Overview of TMA Swizzle Patterns[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id470 "Permalink to this image")
 
-**Considerations.** When applying a TMA swizzle pattern, it is crucial to adhere to specific memory requirements:
+__Considerations.__ When applying a TMA swizzle pattern, it is crucial to adhere to specific memory requirements:
 
-- **Global memory alignment:** Global memory must be aligned to 128 bytes.
-    
-- **Shared memory alignment:** For simplicity shared memory should be aligned according to the number of bytes after which the swizzle pattern repeats. When the shared memory buffer is not aligned by the number of bytes by which the swizzle pattern repeats itself, there is an offset between the swizzle pattern and the shared memory. See [comment](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#swizzle-pattern-pointer-offset-computation), below.
-    
-- **Inner dimension:** The inner dimension of the shared memory block must meet the size requirements specified in [Table 12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements). If these requirements are not met, the instruction is considered invalid. Additionally, if the swizzle width exceeds the inner dimension, ensure that the shared memory is allocated to accommodate the full swizzle width.
-    
-- **Granularity:** The granularity of swizzle mapping is fixed at 16 bytes. This means that data is organized and accessed in chunks of 16 bytes, which must be considered when planning memory layout and access patterns.
-    
+- __Global memory alignment:__ Global memory must be aligned to 128 bytes.
+- __Shared memory alignment:__ For simplicity shared memory should be aligned according to the number of bytes after which the swizzle pattern repeats. When the shared memory buffer is not aligned by the number of bytes by which the swizzle pattern repeats itself, there is an offset between the swizzle pattern and the shared memory. See [comment](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#swizzle-pattern-pointer-offset-computation), below.
+- __Inner dimension:__ The inner dimension of the shared memory block must meet the size requirements specified in [Table 12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements). If these requirements are not met, the instruction is considered invalid. Additionally, if the swizzle width exceeds the inner dimension, ensure that the shared memory is allocated to accommodate the full swizzle width.
+- __Granularity:__ The granularity of swizzle mapping is fixed at 16 bytes. This means that data is organized and accessed in chunks of 16 bytes, which must be considered when planning memory layout and access patterns.
 
-**Swizzle Pattern Pointer Offset Computation**. Here, we describe how to determine the offset between the swizzle pattern and the shared memory, when the shared memory buffer is not aligned by the number of bytes by which the swizzle pattern repeats itself. When using TMA, the shared memory is required to be aligned to 128 bytes. To find how many times the shared memory buffer relative to the swizzle pattern is shifted by that, apply the corresponding offset formula.
+__Swizzle Pattern Pointer Offset Computation__. Here, we describe how to determine the offset between the swizzle pattern and the shared memory, when the shared memory buffer is not aligned by the number of bytes by which the swizzle pattern repeats itself. When using TMA, the shared memory is required to be aligned to 128 bytes. To find how many times the shared memory buffer relative to the swizzle pattern is shifted by that, apply the corresponding offset formula.
 
 Table 11 Swizzle Pattern Pointer Offset Formula and Index Relation[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-offset "Permalink to this table")
+
 |Swizzle Mode|Offset Formula|Index Relation|
 |---|---|---|
 |CU_TENSOR_MAP_SWIZZLE_128B|`(reinterpret_cast <uintptr_t>(smem_ptr)/128)%8`|`smem[y][x] <-> smem[y][((y+offset)%8)^x]`|
@@ -9034,12 +10591,15 @@ Table 11 Swizzle Pattern Pointer Offset Formula and Index Relation[](https:/
 In [Figure 29](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#figure-swizzle-overview), this offset represents the initial row offset, thus, in the swizzle index calculation, it is added to the row index `y`. The following snippet shows how to access the swizzled shared memory in the `CU_TENSOR_MAP_SWIZZLE_128B` mode.
 
 data_t* smem_ptr = &smem[0][0];
+
 int offset = (reinterpret_cast<uintptr_t>(smem_ptr)/128)%8;
+
 smem[y][((y+offset)%8)^x] = ...
 
-**Summary.** The following [Table 12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements) summarizes the requirements and properties of the different swizzle patterns for Compute Capability 9.
+__Summary.__ The following [Table 12](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements) summarizes the requirements and properties of the different swizzle patterns for Compute Capability 9.
 
 Table 12 Requirements and properties of the different swizzle patterns for Compute Capability 9[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-swizzle-pattern-properties-and-requirements "Permalink to this table")
+
 |Pattern|Swizzle width|Shared box’s inner dimension|Repeats after|Shared memory alignment|Global memory alignment|
 |---|---|---|---|---|---|
 |CU_TENSOR_MAP_SWIZZLE_128B|128 bytes|<=128 bytes|1024 bytes|128 bytes|128 bytes|
@@ -9056,59 +10616,83 @@ This section explains how to encode a tiled-type tensor map on device. This is u
 The recommended pattern is as follows:
 
 1. Create a tensor map “template”, `template_tensor_map`, using the Driver API on the host.
-    
 2. In a device kernel, copy the `template_tensor_map`, modify the copy, store in global memory, and appropriately fence.
-    
 3. Use the tensor map in a kernel with appropriate fencing.
-    
 
 The high-level code structure is as follows:
 
 // Initialize device context:
+
 CUDA_CHECK(cudaDeviceSynchronize());
 
 // Create a tensor map template using the cuTensorMapEncodeTiled driver function
+
 CUtensorMap template_tensor_map = make_tensormap_template();
 
 // Allocate tensor map and tensor in global memory
+
 CUtensorMap* global_tensor_map;
+
 CUDA_CHECK(cudaMalloc(&global_tensor_map, sizeof(CUtensorMap)));
+
 char* global_buf;
+
 CUDA_CHECK(cudaMalloc(&global_buf, 8 * 256));
 
 // Fill global buffer with data.
+
 fill_global_buf<<<1, 1>>>(global_buf);
 
 // Define the parameters of the tensor map that will be created on device.
+
 tensormap_params p{};
+
 p.global_address    = global_buf;
+
 p.rank              = 2;
+
 p.box_dim[0]        = 128; // The box in shared memory has half the width of the full buffer
+
 p.box_dim[1]        = 4;   // The box in shared memory has half the height of the full buffer
+
 p.global_dim[0]     = 256; //
+
 p.global_dim[1]     = 8;   //
+
 p.global_stride[0]  = 256; //
+
 p.element_stride[0] = 1;   //
+
 p.element_stride[1] = 1;   //
 
 // Encode global_tensor_map on device:
+
 encode_tensor_map<<<1, 32>>>(template_tensor_map, p, global_tensor_map);
 
 // Use it from another kernel:
+
 consume_tensor_map<<<1, 1>>>(global_tensor_map);
 
 // Check for errors:
+
 CUDA_CHECK(cudaDeviceSynchronize());
 
 The following sections describe the high-level steps. Throughout the examples, the following `tensormap_params` struct contains the new values of the fields to be updated. It is included here to reference when reading the examples.
 
 struct tensormap_params {
+
   void* global_address;
+
   int rank;
+
   uint32_t box_dim[5];
+
   uint64_t global_dim[5];
+
   size_t global_stride[4];
+
   uint32_t element_stride[5];
+
 };
 
 ### 10.30.1. Device-side Encoding and Modification of a Tensor Map[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-side-encoding-and-modification-of-a-tensor-map "Permalink to this headline")
@@ -9116,13 +10700,9 @@ struct tensormap_params {
 The recommended process of encoding a tensor map in global memory proceeds as follows.
 
 1. Pass an existing tensor map, the `template_tensor_map`, to the kernel. In contrast to kernels that use the tensor map in a `cp.async.bulk.tensor`instruction, this may be done in any way: a pointer to global memory, kernel parameter, a `__const___` variable, and so on.
-    
 2. Copy-initialize a tensor map in shared memory with the template_tensor_map value.
-    
 3. Modify the tensor map in shared memory using the [cuda::ptx::tensormap_replace](https://nvidia.github.io/cccl/libcudacxx/ptx/instructions/tensormap.replace.html) functions. These functions wrap the [tensormap.replace](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-tensormap-replace)PTX instruction, which can be used to modify any field of a tiled-type tensor map, including the base address, size, stride, and so on.
-    
 4. Using the [cuda::ptx::tensormap_copy_fenceproxy](https://nvidia.github.io/cccl/libcudacxx/ptx/instructions/tensormap.cp_fenceproxy.html#tensormap-cp-fenceproxy) function, copy the modified tensor map from shared memory to global memory and perform any necessary fencing.
-    
 
 The following code contains a kernel that follows these steps. For completeness, it modifies all the fields of the tensor map. Typically, a kernel will modify just a few fields.
 
@@ -9145,11 +10725,17 @@ On-device modification is only supported for tiled-type tensor maps; other tenso
 namespace ptx = cuda::ptx;
 
 // launch with 1 warp.
+
 __launch_bounds__(32)
+
 __global__ void encode_tensor_map(const __grid_constant__ CUtensorMap template_tensor_map, tensormap_params p, CUtensorMap* out) {
+
    __shared__ alignas(128) CUtensorMap smem_tmap;
+
    if (threadIdx.x == 0) {
+
       // Copy template to shared memory:
+
       smem_tmap = template_tensor_map;
 
       const auto space_shared = ptx::space_shared;
@@ -9192,14 +10778,23 @@ __global__ void encode_tensor_map(const __grid_constant__ CUtensorMap template_t
       ptx::tensormap_replace_swizzle_mode(space_shared, &smem_tmap, no_swizzle);
       auto zero_fill = ptx::n32_t<0>{};
       ptx::tensormap_replace_fill_mode(space_shared, &smem_tmap, zero_fill);
+
    }
+
    // Synchronize the modifications with other threads in warp
+
    __syncwarp();
+
    // Copy the tensor map to global memory collectively with threads in the warp.
+
    // In addition: make the updated tensor map visible to other threads on device that
+
    // for use with cp.async.bulk.
+
    ptx::n32_t<128> bytes_128;
+
    ptx::tensormap_cp_fenceproxy(ptx::sem_release, ptx::scope_gpu, out, &smem_tmap, bytes_128);
+
 }
 
 ### 10.30.2. Usage of a Modified Tensor Map[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#usage-of-a-modified-tensor-map "Permalink to this headline")
@@ -9213,39 +10808,64 @@ The acquire part is accomplished using the [cuda::ptx::fence_proxy_tensormap_ge
 The `fence` and subsequent use of the tensor map is shown in the following example.
 
 // Consumer of tensor map in global memory:
+
 __global__ void consume_tensor_map(CUtensorMap* tensor_map) {
+
   // Fence acquire tensor map:
+
   ptx::n32_t<128> size_bytes;
+
   ptx::fence_proxy_tensormap_generic(ptx::sem_acquire, ptx::scope_sys, tensor_map, size_bytes);
+
   // Safe to use tensor_map after fence..
 
   __shared__ uint64_t bar;
+
   __shared__ alignas(128) char smem_buf[4][128];
 
   if (threadIdx.x == 0) {
+
     // Initialize barrier
+
     ptx::mbarrier_init(&bar, 1);
+
     // Make barrier init visible in async proxy, i.e., to TMA engine
+
     ptx::fence_proxy_async(ptx::space_shared);
+
     // Issue TMA request
+
     ptx::cp_async_bulk_tensor(ptx::space_cluster, ptx::space_global, smem_buf, tensor_map, {0, 0}, &bar);
 
     // Arrive on barrier. Expect 4 * 128 bytes.
     ptx::mbarrier_arrive_expect_tx(ptx::sem_release, ptx::scope_cta, ptx::space_shared, &bar, sizeof(smem_buf));
+
   }
+
   const int parity = 0;
+
   // Wait for load to have completed
+
   while (!ptx::mbarrier_try_wait_parity(&bar, parity)) {}
 
   // print items:
+
   printf("Got:\n\n");
+
   for (int j = 0; j < 4; ++j) {
+
     for (int i = 0; i < 128; ++i) {
+
       printf("%3d ", smem_buf[j][i]);
+
       if (i % 32 == 31) { printf("\n"); };
+
     }
+
     printf("\n");
+
   }
+
 }
 
 ### 10.30.3. Creating a Template Tensor Map Value Using the Driver API[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#creating-a-template-tensor-map-value-using-the-driver-api "Permalink to this headline")
@@ -9253,30 +10873,49 @@ __global__ void consume_tensor_map(CUtensorMap* tensor_map) {
 The following code creates a minimal tiled-type tensor map that can be subsequently modified on device.
 
 CUtensorMap make_tensormap_template() {
+
   CUtensorMap template_tensor_map{};
+
   auto cuTensorMapEncodeTiled = get_cuTensorMapEncodeTiled();
 
   uint32_t dims_32         = 16;
+
   uint64_t dims_strides_64 = 16;
+
   uint32_t elem_strides    = 1;
 
   // Create the tensor descriptor.
+
   CUresult res = cuTensorMapEncodeTiled(
+
     &template_tensor_map, // CUtensorMap *tensorMap,
+
     CUtensorMapDataType::CU_TENSOR_MAP_DATA_TYPE_UINT8,
+
     1,                // cuuint32_t tensorRank,
+
     nullptr,          // void *globalAddress,
+
     &dims_strides_64, // const cuuint64_t *globalDim,
+
     &dims_strides_64, // const cuuint64_t *globalStrides,
+
     &dims_32,         // const cuuint32_t *boxDim,
+
     &elem_strides,    // const cuuint32_t *elementStrides,
+
     CUtensorMapInterleave::CU_TENSOR_MAP_INTERLEAVE_NONE,
+
     CUtensorMapSwizzle::CU_TENSOR_MAP_SWIZZLE_NONE,
+
     CUtensorMapL2promotion::CU_TENSOR_MAP_L2_PROMOTION_NONE,
+
     CUtensorMapFloatOOBfill::CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE);
 
   CU_CHECK(res);
+
   return template_tensor_map;
+
 }
 
 ## 10.31. Profiler Counter Function[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#profiler-counter-function "Permalink to this headline")
@@ -9298,8 +10937,11 @@ void assert(int expression);
 stops the kernel execution if `expression` is equal to zero. If the program is run within a debugger, this triggers a breakpoint and the debugger can be used to inspect the current state of the device. Otherwise, each thread for which `expression` is equal to zero prints a message to _stderr_ after synchronization with the host via `cudaDeviceSynchronize()`, `cudaStreamSynchronize()`, or `cudaEventSynchronize()`. The format of this message is as follows:
 
 <filename>:<line number>:<function>:
+
 block: [blockId.x,blockId.x,blockIdx.z],
+
 thread: [threadIdx.x,threadIdx.y,threadIdx.z]
+
 Assertion `<expression>` failed.
 
 Any subsequent host-side synchronization calls made for the same device will return `cudaErrorAssert`. No more commands can be sent to this device until `cudaDeviceReset()` is called to reinitialize the device.
@@ -9311,8 +10953,11 @@ For example, the following program from source file _test.cu_
 #include <assert.h>
 
 __global__ void testAssert(void)
+
 {
+
     int is_one = 1;
+
     int should_be_one = 0;
 
     // This will have no effect
@@ -9320,14 +10965,19 @@ __global__ void testAssert(void)
 
     // This will halt kernel execution
     assert(should_be_one);
+
 }
 
 int main(int argc, char* argv[])
+
 {
+
     testAssert<<<1,1>>>();
+
     cudaDeviceSynchronize();
 
     return 0;
+
 }
 
 will output:
@@ -9373,15 +11023,10 @@ As for standard `printf()`, format specifiers take the form: `%[flags][width][
 The following fields are supported (see widely-available documentation for a complete description of all behaviors):
 
 - Flags: `'#' ' ' '0' '+' '-'`
-    
 - Width: `'*' '0-9'`
-    
 - Precision: `'0-9'`
-    
 - Size: `'h' 'l' 'll'`
-    
 - Type: `"%cdiouxXpeEfgGaAs"`
-    
 
 Note that CUDA’s `printf()`will accept any combination of flag, width, precision, size and type, whether or not overall they form a valid format specifier. In other words, “`%hd`” will be accepted and printf will expect a double-precision variable in the corresponding location in the argument list.
 
@@ -9398,17 +11043,11 @@ Owing to the differing size of the `long` type on 64-bit Windows platforms (fo
 The output buffer for `printf()` is set to a fixed size before kernel launch (see [Associated Host-Side API](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#associated-host-side-api)). It is circular and if more output is produced during kernel execution than can fit in the buffer, older output is overwritten. It is flushed only when one of these actions is performed:
 
 - Kernel launch via `<<<>>>` or `cuLaunchKernel()` (at the start of the launch, and if the CUDA_LAUNCH_BLOCKING environment variable is set to 1, at the end of the launch as well),
-    
 - Synchronization via `cudaDeviceSynchronize()`, `cuCtxSynchronize()`, `cudaStreamSynchronize()`, `cuStreamSynchronize()`, `cudaEventSynchronize()`, or `cuEventSynchronize()`,
-    
 - Memory copies via any blocking version of `cudaMemcpy*()` or `cuMemcpy*()`,
-    
 - Module loading/unloading via `cuModuleLoad()` or `cuModuleUnload()`,
-    
 - Context destruction via `cudaDeviceReset()` or `cuCtxDestroy()`.
-    
 - Prior to executing a stream callback added by `cudaLaunchHostFunc` or `cuLaunchHostFunc`.
-    
 
 Note that the buffer is not flushed automatically when the program exits. The user must call `cudaDeviceReset()` or `cuCtxDestroy()` explicitly, as shown in the examples below.
 
@@ -9419,9 +11058,7 @@ Internally `printf()` uses a shared data structure and so it is possible that 
 The following API functions get and set the size of the buffer used to transfer the `printf()` arguments and internal metadata to the host (default is 1 megabyte):
 
 - `cudaDeviceGetLimit(size_t* size,cudaLimitPrintfFifoSize)`
-    
 - `cudaDeviceSetLimit(cudaLimitPrintfFifoSize, size_t size)`
-    
 
 ### 10.35.4. Examples[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#format-specifier-examples "Permalink to this headline")
 
@@ -9430,23 +11067,35 @@ The following code sample:
 #include <stdio.h>
 
 __global__ void helloCUDA(float f)
+
 {
+
     printf("Hello thread %d, f=%f\n", threadIdx.x, f);
+
 }
 
 int main()
+
 {
+
     helloCUDA<<<1, 5>>>(1.2345f);
+
     cudaDeviceSynchronize();
+
     return 0;
+
 }
 
 will output:
 
 Hello thread 2, f=1.2345
+
 Hello thread 1, f=1.2345
+
 Hello thread 4, f=1.2345
+
 Hello thread 0, f=1.2345
+
 Hello thread 3, f=1.2345
 
 Notice how each thread encounters the `printf()` command, so there are as many lines of output as there were threads launched in the grid. As expected, global values (i.e., `float f`) are common between all threads, and local values (i.e., `threadIdx.x`) are distinct per-thread.
@@ -9456,16 +11105,25 @@ The following code sample:
 #include <stdio.h>
 
 __global__ void helloCUDA(float f)
+
 {
+
     if (threadIdx.x == 0)
+
         printf("Hello thread %d, f=%f\n", threadIdx.x, f) ;
+
 }
 
 int main()
+
 {
+
     helloCUDA<<<1, 5>>>(1.2345f);
+
     cudaDeviceSynchronize();
+
     return 0;
+
 }
 
 will output:
@@ -9479,8 +11137,10 @@ Self-evidently, the `if()` statement limits which threads will call `printf`,
 Dynamic global memory allocation and operations are only supported by devices of compute capability 2.x and higher.
 
 __host__ __device__ void* malloc(size_t size);
-__device__ void *__nv_aligned_device_malloc(size_t size, size_t align);
-__host__ __device__  void free(void* ptr);
+
+__device__ void ___nv_aligned_device_malloc(size_t size, size_t align);
+
+__host__ __device__  void free(void_ ptr);
 
 allocate and free memory dynamically from a fixed-size heap in global memory.
 
@@ -9507,9 +11167,7 @@ The device memory heap has a fixed size that must be specified before any progra
 The following API functions get and set the heap size:
 
 - `cudaDeviceGetLimit(size_t* size, cudaLimitMallocHeapSize)`
-    
 - `cudaDeviceSetLimit(cudaLimitMallocHeapSize, size_t size)`
-    
 
 The heap size granted will be at least `size` bytes. `cuCtxGetLimit()`and `cudaDeviceGetLimit()` return the currently requested heap size.
 
@@ -9534,33 +11192,53 @@ In addition, memory allocated by a call to `malloc()` or `__nv_aligned_device
 The following code sample:
 
 #include <stdlib.h>
+
 #include <stdio.h>
 
 __global__ void mallocTest()
+
 {
+
     size_t size = 123;
+
     char* ptr = (char*)malloc(size);
+
     memset(ptr, 0, size);
+
     printf("Thread %d got pointer: %p\n", threadIdx.x, ptr);
+
     free(ptr);
+
 }
 
 int main()
+
 {
+
     // Set a heap size of 128 megabytes. Note that this must
+
     // be done before any kernel is launched.
-    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128*1024*1024);
+
+    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128_1024_1024);
+
     mallocTest<<<1, 5>>>();
+
     cudaDeviceSynchronize();
+
     return 0;
+
 }
 
 will output:
 
 Thread 0 got pointer: 00057020
+
 Thread 1 got pointer: 0005708c
+
 Thread 2 got pointer: 000570f8
+
 Thread 3 got pointer: 00057164
+
 Thread 4 got pointer: 000571d0
 
 Notice how each thread encounters the `malloc()` and `memset()` commands and so receives and initializes its own allocation. (Exact pointer values will vary: these are illustrative.)
@@ -9570,7 +11248,9 @@ Notice how each thread encounters the `malloc()` and `memset()` commands and
 #include <stdlib.h>
 
 __global__ void mallocTest()
+
 {
+
     __shared__ int* data;
 
     // The first thread in the block does the allocation and then
@@ -9598,19 +11278,27 @@ __global__ void mallocTest()
     // Only one thread may free the memory!
     if (threadIdx.x == 0)
         free(data);
+
 }
 
 int main()
+
 {
-    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128*1024*1024);
+
+    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128_1024_1024);
+
     mallocTest<<<10, 128>>>();
+
     cudaDeviceSynchronize();
+
     return 0;
+
 }
 
 #### 10.36.3.3. Allocation Persisting Between Kernel Launches[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocation-persisting-between-kernel-launches "Permalink to this headline")
 
 #include <stdlib.h>
+
 #include <stdio.h>
 
 #define NUM_BLOCKS 20
@@ -9618,11 +11306,17 @@ int main()
 __device__ int* dataptr[NUM_BLOCKS]; // Per-block pointer
 
 __global__ void allocmem()
+
 {
+
     // Only the first thread in the block does the allocation
+
     // since we want only one allocation per block.
+
     if (threadIdx.x == 0)
+
         dataptr[blockIdx.x] = (int*)malloc(blockDim.x * 4);
+
     __syncthreads();
 
     // Check for failure
@@ -9631,32 +11325,48 @@ __global__ void allocmem()
 
     // Zero the data with all threads in parallel
     dataptr[blockIdx.x][threadIdx.x] = 0;
+
 }
 
 // Simple example: store thread ID into each element
+
 __global__ void usemem()
+
 {
+
     int* ptr = dataptr[blockIdx.x];
+
     if (ptr != NULL)
+
         ptr[threadIdx.x] += threadIdx.x;
+
 }
 
 // Print the content of the buffer before freeing it
+
 __global__ void freemem()
+
 {
+
     int* ptr = dataptr[blockIdx.x];
+
     if (ptr != NULL)
+
         printf("Block %d, Thread %d: final value = %d\n",
+
                       blockIdx.x, threadIdx.x, ptr[threadIdx.x]);
 
     // Only free from one thread!
     if (threadIdx.x == 0)
         free(ptr);
+
 }
 
 int main()
+
 {
-    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128*1024*1024);
+
+    cudaDeviceSetLimit(cudaLimitMallocHeapSize, 128_1024_1024);
 
     // Allocate memory
     allocmem<<< NUM_BLOCKS, 10 >>>();
@@ -9672,6 +11382,7 @@ int main()
     cudaDeviceSynchronize();
 
     return 0;
+
 }
 
 ## 10.37. Execution Configuration[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration "Permalink to this headline")
@@ -9681,13 +11392,9 @@ Any call to a `__global__` function must specify the _execution configuration
 The execution configuration is specified by inserting an expression of the form `<<< Dg, Db, Ns, S >>>` between the function name and the parenthesized argument list, where:
 
 - `Dg` is of type `dim3` (see [dim3](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dim3)) and specifies the dimension and size of the grid, such that `Dg.x * Dg.y * Dg.z` equals the number of blocks being launched;
-    
 - `Db` is of type `dim3` (see [dim3](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#dim3)) and specifies the dimension and size of each block, such that `Db.x * Db.y * Db.z` equals the number of threads per block;
-    
 - `Ns` is of type `size_t` and specifies the number of bytes in shared memory that is dynamically allocated per block for this call in addition to the statically allocated memory; this dynamically allocated memory is used by any of the variables declared as an external array as mentioned in [__shared__](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared); `Ns` is an optional argument which defaults to 0;
-    
 - `S` is of type `cudaStream_t` and specifies the associated stream; `S` is an optional argument which defaults to 0.
-    
 
 As an example, a function declared as
 
@@ -9712,13 +11419,21 @@ Thread block cluster dimensions can also be specified at runtime and kernel with
 __global__ void Func(float* parameter);
 
 // Kernel invocation with runtime cluster size
+
 {
+
     cudaLaunchConfig_t config = {0};
+
     // The grid dimension is not affected by cluster launch, and is still enumerated
+
     // using number of blocks.
+
     // The grid dimension should be a multiple of cluster size.
+
     config.gridDim = Dg;
+
     config.blockDim = Db;
+
     config.dynamicSmemBytes = Ns;
 
     cudaLaunchAttribute attribute[1];
@@ -9731,6 +11446,7 @@ __global__ void Func(float* parameter);
 
     float* parameter;
     cudaLaunchKernelEx(&config, Func, parameter);
+
 }
 
 ## 10.38. Launch Bounds[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#launch-bounds "Permalink to this headline")
@@ -9740,29 +11456,27 @@ As discussed in detail in [Multiprocessor Level](https://docs.nvidia.com/cuda/c
 Therefore, the compiler uses heuristics to minimize register usage while keeping register spilling (see [Device Memory Accesses](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-memory-accesses)) and instruction count to a minimum. An application can optionally aid these heuristics by providing additional information to the compiler in the form of launch bounds that are specified using the `__launch_bounds__()` qualifier in the definition of a `__global__` function:
 
 __global__ void
+
 __launch_bounds__(maxThreadsPerBlock, minBlocksPerMultiprocessor, maxBlocksPerCluster)
+
 MyKernel(...)
+
 {
+
     ...
+
 }
 
 - `maxThreadsPerBlock` specifies the maximum number of threads per block with which the application will ever launch `MyKernel()`; it compiles to the `.maxntid`_PTX_ directive.
-    
 - `minBlocksPerMultiprocessor` is optional and specifies the desired minimum number of resident blocks per multiprocessor; it compiles to the `.minnctapersm`_PTX_ directive.
-    
 - `maxBlocksPerCluster` is optional and specifies the desired maximum number thread blocks per cluster with which the application will ever launch `MyKernel()`; it compiles to the `.maxclusterrank`_PTX_ directive.
-    
 
 If launch bounds are specified, the compiler first derives from them the upper limit _L_ on the number of registers the kernel should use to ensure that `minBlocksPerMultiprocessor` blocks (or a single block if `minBlocksPerMultiprocessor` is not specified) of `maxThreadsPerBlock` threads can reside on the multiprocessor (see [Hardware Multithreading](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#hardware-multithreading) for the relationship between the number of registers used by a kernel and the number of registers allocated per block). The compiler then optimizes register usage in the following way:
 
 - If the initial register usage is higher than _L_, the compiler reduces it further until it becomes less or equal to _L_, usually at the expense of more local memory usage and/or higher number of instructions;
-    
 - If the initial register usage is lower than _L_
-    
     - If `maxThreadsPerBlock` is specified and `minBlocksPerMultiprocessor` is not, the compiler uses `maxThreadsPerBlock` to determine the register usage thresholds for the transitions between `n` and `n+1` resident blocks (i.e., when using one less register makes room for an additional resident block as in the example of [Multiprocessor Level](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#multiprocessor-level)) and then applies similar heuristics as when no launch bounds are specified;
-        
     - If both `minBlocksPerMultiprocessor` and `maxThreadsPerBlock` are specified, the compiler may increase register usage as high as _L_ to reduce the number of instructions and better hide single thread instruction latency.
-        
 
 A kernel will fail to launch if it is executed with more threads per block than its launch bound `maxThreadsPerBlock`.
 
@@ -9773,43 +11487,62 @@ Per thread resources required by a CUDA kernel might limit the maximum block siz
 Optimal launch bounds for a given kernel will usually differ across major architecture revisions. The sample code below shows how this is typically handled in device code using the `__CUDA_ARCH__` macro introduced in [Application Compatibility](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility).
 
 #define THREADS_PER_BLOCK          256
+
 #if __CUDA_ARCH__ >= 200
+
     #define MY_KERNEL_MAX_THREADS  (2 * THREADS_PER_BLOCK)
+
     #define MY_KERNEL_MIN_BLOCKS   3
+
 #else
+
     #define MY_KERNEL_MAX_THREADS  THREADS_PER_BLOCK
+
     #define MY_KERNEL_MIN_BLOCKS   2
+
 #endif
 
 // Device code
+
 __global__ void
+
 __launch_bounds__(MY_KERNEL_MAX_THREADS, MY_KERNEL_MIN_BLOCKS)
+
 MyKernel(...)
+
 {
+
     ...
+
 }
 
 In the common case where `MyKernel` is invoked with the maximum number of threads per block (specified as the first parameter of `__launch_bounds__()`), it is tempting to use `MY_KERNEL_MAX_THREADS` as the number of threads per block in the execution configuration:
 
 // Host code
+
 MyKernel<<<blocksPerGrid, MY_KERNEL_MAX_THREADS>>>(...);
 
 This will not work however since `__CUDA_ARCH__` is undefined in host code as mentioned in [Application Compatibility](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility), so `MyKernel` will launch with 256 threads per block even when `__CUDA_ARCH__` is greater or equal to 200. Instead the number of threads per block should be determined:
 
 - Either at compile time using a macro that does not depend on `__CUDA_ARCH__`, for example
-    
+
     // Host code
+
     MyKernel<<<blocksPerGrid, THREADS_PER_BLOCK>>>(...);
-    
+
 - Or at runtime based on the compute capability
-    
+
     // Host code
+
     cudaGetDeviceProperties(&deviceProp, device);
+
     int threadsPerBlock =
+
               (deviceProp.major >= 2 ?
+
                         2 * THREADS_PER_BLOCK : THREADS_PER_BLOCK);
+
     MyKernel<<<blocksPerGrid, threadsPerBlock>>>(...);
-    
 
 Register usage is reported by the `--ptxas-options=-v` compiler option. The number of resident blocks can be derived from the occupancy reported by the CUDA profiler (see [Device Memory Accesses](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#device-memory-accesses) for a definition of occupancy).
 
@@ -9818,14 +11551,18 @@ Register usage is reported by the `--ptxas-options=-v` compiler option. The nu
 To provide a mechanism for low-level performance tuning, CUDA C++ provides the `__maxnreg__()` function qualifier to pass performance tuning information to the backend optimizing compiler. The `__maxnreg__()` qualifier specifies the maximum number of registers to be allocated to a single thread in a thread block. In the definition of a `__global__` function:
 
 __global__ void
+
 __maxnreg__(maxNumberRegistersPerThread)
+
 MyKernel(...)
+
 {
+
     ...
+
 }
 
 - `maxNumberRegistersPerThread` specifies the maximum number of registers to be allocated to a single thread in a thread block of the kernel `MyKernel()`; it compiles to the `.maxnreg`_PTX_ directive.
-    
 
 The `__launch_bounds__()` and `__maxnreg__()` qualifiers cannot be applied to the same kernel.
 
@@ -9838,32 +11575,49 @@ By default, the compiler unrolls small loops with a known trip count. The `#pra
 Examples:
 
 struct S1_t { static const int value = 4; };
+
 template <int X, typename T2>
+
 __device__ void foo(int *p1, int *p2) {
 
 // no argument specified, loop will be completely unrolled
+
 #pragma unroll
+
 for (int i = 0; i < 12; ++i)
+
   p1[i] += p2[i]*2;
 
 // unroll value = 8
+
 #pragma unroll (X+1)
+
 for (int i = 0; i < 12; ++i)
+
   p1[i] += p2[i]*4;
 
 // unroll value = 1, loop unrolling disabled
+
 #pragma unroll 1
+
 for (int i = 0; i < 12; ++i)
+
   p1[i] += p2[i]*8;
 
 // unroll value = 4
+
 #pragma unroll (T2::value)
+
 for (int i = 0; i < 12; ++i)
+
   p1[i] += p2[i]*16;
+
 }
 
 __global__ void bar(int *p1, int *p2) {
+
 foo<7, S1_t>(p1, p2);
+
 }
 
 ## 10.41. SIMD Video Instructions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#simd-video-instructions "Permalink to this headline")
@@ -9873,19 +11627,12 @@ PTX ISA version 3.0 includes SIMD (Single Instruction, Multiple Data) video inst
 The SIMD video instructions are:
 
 - vadd2, vadd4
-    
 - vsub2, vsub4
-    
 - vavrg2, vavrg4
-    
 - vabsdiff2, vabsdiff4
-    
 - vmin2, vmin4
-    
 - vmax2, vmax4
-    
 - vset2, vset4
-    
 
 PTX instructions, such as the SIMD video instructions, can be included in CUDA programs by way of the assembler, `asm()`, statement.
 
@@ -9906,9 +11653,13 @@ Refer to the document “Using Inline PTX Assembly in CUDA” for details on usi
 The following pragmas may be used to control the error severity used when a given diagnostic message is issued.
 
 #pragma nv_diag_suppress
+
 #pragma nv_diag_warning
+
 #pragma nv_diag_error
+
 #pragma nv_diag_default
+
 #pragma nv_diag_once
 
 Uses of these pragmas have the following form:
@@ -9918,33 +11669,53 @@ Uses of these pragmas have the following form:
 The diagnostic affected is specified using an error number showed in a warning message. Any diagnostic may be overridden to be an error, but only warnings may have their severity suppressed or be restored to a warning after being promoted to an error. The `nv_diag_default` pragma is used to return the severity of a diagnostic to the one that was in effect before any pragmas were issued (i.e., the normal severity of the message as modified by any command-line options). The following example suppresses the `"declared but never referenced"` warning on the declaration of `foo`:
 
 #pragma nv_diag_suppress 177
+
 void foo()
+
 {
+
   int i=0;
+
 }
+
 #pragma nv_diag_default 177
+
 void bar()
+
 {
+
   int i=0;
+
 }
 
 The following pragmas may be used to save and restore the current diagnostic pragma state:
 
 #pragma nv_diagnostic push
+
 #pragma nv_diagnostic pop
 
 Examples:
 
 #pragma nv_diagnostic push
+
 #pragma nv_diag_suppress 177
+
 void foo()
+
 {
+
   int i=0;
+
 }
+
 #pragma nv_diagnostic pop
+
 void bar()
+
 {
+
   int i=0;
+
 }
 
 Note that the pragmas only affect the nvcc CUDA frontend compiler; they have no effect on the host compiler.
@@ -9976,9 +11747,7 @@ Note, the arguments that follow `#pragma nv_abi` are optional and can be prov
 The `preserve_n` arguments set a limit on the number of registers preserved during a function call:
 
 - `preserve_n_data(ICE)` limits the number of data registers, and
-    
 - `preserve_n_control(ICE)` limits the number of control registers.
-    
 
 `#pragma nv_abi` can be placed immediately before a device function declaration or definition. Alternatively, it can be placed directly before an indirect function call within a C++ expression statement inside a device function. Note, indirect function calls to free functions are supported, but indirect calls through function argument references or class member functions are not.
 
@@ -9987,37 +11756,55 @@ When the pragma is applied to a device function declaration or definition, it mo
 As shown in the following example, we have two device functions, `foo()` and `bar()`. In this example the pragma is placed before the call site of the function pointer fptr to modify the ABI properties of the indirect function call. Notice that placing the pragma before the direct call does not affect the ABI properties of the call. To alter the ABI properties of a direct function call, the pragma must be placed before the function declaration or definition.
 
 __device__ int foo()
+
 {
+
   int value{0};
+
   ...
+
   return value;
+
 }
 
 __device__ int bar()
+
 {
+
   int value{0};
+
   ...
+
   return value;
+
 }
 
 __device__ void baz()
+
 {
+
   int result{0};
+
   int (*fptr)() = foo;  // function pointer
 
   #pragma nv_abi preserve_n_data(16) preserve_n_control(8)
+
   result = fptr();      // The pragma affects the indirect call to foo() via fptr
 
   #pragma nv_abi preserve_n_data(16) preserve_n_control(8)
+
   result = (*fptr)();   // Alternate syntax for the indirect call to foo()
 
   #pragma nv_abi preserve_n_data(16) preserve_n_control(8)
+
   result += bar();      // The pragma does NOT affect the direct call to bar()
+
 }
 
 As shown in the following example, to modify direct function calls, you must apply the pragma to the function declaration or definition.
 
 #pragma nv_abi preserve_n_data(16)
+
 __device__ void foo();
 
 Note that a program is ill-formed if the pragma arguments for a function declaration and its corresponding definition do not match.
@@ -10043,28 +11830,21 @@ Historically, the CUDA programming model has provided a single, simple construct
 ### 11.2.1. CUDA 13.0[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-13-0 "Permalink to this headline")
 
 - `multi_grid_group` was removed.
-    
 
 ### 11.2.2. CUDA 12.2[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-12-2 "Permalink to this headline")
 
 - `barrier_arrive` and `barrier_wait` member functions were added for [grid_group](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#grid-group-cg) and [thread_block](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-group-cg). Description of the API is available [here](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-sync).
-    
 
 ### 11.2.3. CUDA 12.1[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-12-1 "Permalink to this headline")
 
 - [invoke_one and invoke_one_broadcast](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#invoke-one-and-invoke-one-broadcast) APIs were added.
-    
 
 ### 11.2.4. CUDA 12.0[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cuda-12-0 "Permalink to this headline")
 
 - The following experimental APIs are now moved to the main namespace:
-    
     - asynchronous reduce and scan update added in CUDA 11.7
-        
     - `thread_block_tile` larger than 32 added in CUDA 11.1
-        
 - It is no longer required to provide memory using the `block_tile_memory` object in order to create these large tiles on Compute Capability 8.0 or higher.
-    
 
 ## 11.3. Programming Model Concept[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#programming-model-concept "Permalink to this headline")
 
@@ -10073,19 +11853,12 @@ The Cooperative Groups programming model describes synchronization patterns both
 The Cooperative Groups programming model consists of the following elements:
 
 - Data types for representing groups of cooperating threads;
-    
 - Operations to obtain implicit groups defined by the CUDA launch API (e.g., thread blocks);
-    
 - Collectives for partitioning existing groups into new groups;
-    
 - Collective Algorithms for data movement and manipulation (e.g. memcpy_async, reduce, scan);
-    
 - An operation to synchronize all threads within the group;
-    
 - Operations to inspect the group properties;
-    
 - Collectives that expose low-level, group-specific and often HW accelerated, operations.
-    
 
 The main concept in Cooperative Groups is that of objects naming the set of threads that are part of it. This expression of groups as first-class program objects improves software composition, since collective functions can receive an explicit object representing the group of participating threads. This object also makes programmer intent explicit, which eliminates unsound architectural assumptions that result in brittle code, undesirable restrictions upon compiler optimizations, and better compatibility with new GPU generations.
 
@@ -10094,18 +11867,27 @@ To write efficient code, its best to use specialized groups (going generic loses
 Cooperative Groups requires CUDA 9.0 or later. To use Cooperative Groups, include the header file:
 
 // Primary header is compatible with pre-C++11, collective algorithm headers require C++11
+
 #include <cooperative_groups.h>
+
 // Optionally include for memcpy_async() collective
+
 #include <cooperative_groups/memcpy_async.h>
+
 // Optionally include for reduce() collective
+
 #include <cooperative_groups/reduce.h>
+
 // Optionally include for inclusive_scan() and exclusive_scan() collectives
+
 #include <cooperative_groups/scan.h>
 
 and use the Cooperative Groups namespace:
 
 using namespace cooperative_groups;
+
 // Alternatively use an alias to avoid polluting the namespace with collective algorithms
+
 namespace cg = cooperative_groups;
 
 The code can be compiled in a normal way using nvcc, however if you wish to use memcpy_async, reduce or scan functionality and your host compiler’s default dialect is not C++11 or higher, then you must add `--std=c++11` to the command line.
@@ -10115,31 +11897,49 @@ The code can be compiled in a normal way using nvcc, however if you wish to use 
 To illustrate the concept of groups, this example attempts to perform a block-wide sum reduction. Previously, there were hidden constraints on the implementation when writing this code:
 
 __device__ int sum(int *x, int n) {
+
     // ...
+
     __syncthreads();
+
     return total;
+
 }
 
 __global__ void parallel_kernel(float *x) {
+
     // ...
+
     // Entire thread block must call sum
+
     sum(x, n);
+
 }
 
 All threads in the thread block must arrive at the `__syncthreads()` barrier, however, this constraint is hidden from the developer who might want to use `sum(…)`. With Cooperative Groups, a better way of writing this would be:
 
 __device__ int sum(const thread_block& g, int *x, int n) {
+
     // ...
+
     g.sync()
+
     return total;
+
 }
 
 __global__ void parallel_kernel(...) {
+
     // ...
+
     // Entire thread block must call sum
+
     thread_block tb = this_thread_block();
+
     sum(tb, x, n);
+
     // ...
+
 }
 
 ## 11.4. Group Types[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-types "Permalink to this headline")
@@ -10160,7 +11960,7 @@ Constructed via:
 
 thread_block g = this_thread_block();
 
-**Public Member Functions:**
+__Public Member Functions:__
 
 `static void sync()`: Synchronize the threads named in the group, equivalent to `g.barrier_wait(g.barrier_arrive())`
 
@@ -10184,25 +11984,37 @@ Legacy member functions (aliases):
 
 `static dim3 group_dim()`: Dimensions of the launched block (alias of `dim_threads()`)
 
-**Example:**
+__Example:__
 
 /// Loading an integer from global into shared memory
+
 __global__ void kernel(int *globalInput) {
+
     __shared__ int x;
+
     thread_block g = this_thread_block();
+
     // Choose a leader in the thread block
+
     if (g.thread_rank() == 0) {
+
         // load from global into shared for all threads to work with
+
         x = (*globalInput);
+
     }
+
     // After loading data into shared memory, you want to synchronize
+
     // if all threads in your thread block need to see it
+
     g.sync(); // equivalent to __syncthreads();
+
 }
 
-**Note:** that all threads in the group must participate in collective operations, or the behavior is undefined.
+__Note:__ that all threads in the group must participate in collective operations, or the behavior is undefined.
 
-**Related:** The `thread_block` datatype is derived from the more generic `thread_group` datatype, which can be used to represent a wider class of groups.
+__Related:__ The `thread_block` datatype is derived from the more generic `thread_group` datatype, which can be used to represent a wider class of groups.
 
 #### 11.4.1.2. Cluster Group[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group "Permalink to this headline")
 
@@ -10214,7 +12026,7 @@ Constructed via:
 
 cluster_group g = this_cluster();
 
-**Public Member Functions:**
+__Public Member Functions:__
 
 `static void sync()`: Synchronize the threads named in the group, equivalent to `g.barrier_wait(g.barrier_arrive())`
 
@@ -10254,7 +12066,7 @@ Constructed via:
 
 grid_group g = this_grid();
 
-**Public Member Functions:**
+__Public Member Functions:__
 
 `bool is_valid() const`: Returns whether the grid_group can synchronize
 
@@ -10297,18 +12109,20 @@ Legacy member functions (aliases):
 A templated version of a tiled group, where a template parameter is used to specify the size of the tile - with this known at compile time there is the potential for more optimal execution.
 
 template <unsigned int Size, typename ParentT = void>
+
 class thread_block_tile;
 
 Constructed via:
 
 template <unsigned int Size, typename ParentT>
+
 _CG_QUALIFIER thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g)
 
 `Size` must be a power of 2 and less than or equal to 1024. Notes section describes extra steps needed to create tiles of size larger than 32 on hardware with Compute Capability 7.5 or lower.
 
 `ParentT` is the parent-type from which this group was partitioned. It is automatically inferred, but a value of void will store this information in the group handle rather than in the type.
 
-**Public Member Functions:**
+__Public Member Functions:__
 
 `void sync() const`: Synchronize the threads named in the group
 
@@ -10320,7 +12134,7 @@ _CG_QUALIFIER thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g)
 
 `unsigned long long meta_group_rank() const`: Linear rank of the group within the set of tiles partitioned from a parent group (bounded by meta_group_size)
 
-`T shfl(T var, unsigned int src_rank) const`: Refer to [Warp Shuffle Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-functions), **Note: For sizes larger than 32 all threads in the group have to specify the same src_rank, otherwise the behavior is undefined.**
+`T shfl(T var, unsigned int src_rank) const`: Refer to [Warp Shuffle Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-functions), __Note: For sizes larger than 32 all threads in the group have to specify the same src_rank, otherwise the behavior is undefined.__
 
 `T shfl_up(T var, int delta) const`: Refer to [Warp Shuffle Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-functions), available only for sizes lower or equal to 32.
 
@@ -10342,48 +12156,55 @@ Legacy member functions (aliases):
 
 `unsigned long long size() const`: Total number of threads in the group (alias of `num_threads()`)
 
-**Notes:**
+__Notes:__
 
 - `thread_block_tile` templated data structure is being used here, the size of the group is passed to the `tiled_partition` call as a template parameter rather than an argument.
-    
 - `shfl, shfl_up, shfl_down, and shfl_xor` functions accept objects of any type when compiled with C++11 or later. This means it’s possible to shuffle non-integral types as long as they satisfy the below constraints:
-    
     - Qualifies as trivially copyable i.e., `is_trivially_copyable<T>::value == true`
-        
     - `sizeof(T) <= 32` for tile sizes lower or equal 32, `sizeof(T) <= 8` for larger tiles
-        
 - On hardware with Compute Capability 7.5 or lower tiles of size larger than 32 need small amount of memory reserved for them. This can be done using `cooperative_groups::block_tile_memory` struct template that has to reside in either shared or global memory.
-    
-    template <unsigned int MaxBlockSize = 1024>
-    struct block_tile_memory;
-    
-    `MaxBlockSize` Specifies the maximal number of threads in the current thread block. This parameter can be used to minimize the shared memory usage of `block_tile_memory` in kernels launched only with smaller thread counts.
-    
-    This `block_tile_memory` needs be then passed into `cooperative_groups::this_thread_block`, allowing the resulting `thread_block` to be partitioned into tiles of sizes larger than 32. Overload of `this_thread_block` accepting `block_tile_memory` argument is a collective operation and has to be called with all threads in the `thread_block`.
-    
-    `block_tile_memory` can be used on hardware with Compute Capability 8.0 or higher in order to be able to write one source targeting multiple different Compute Capabilities. It should consume no memory when instantiated in shared memory in cases where its not required.
-    
 
-**Examples:**
+    template <unsigned int MaxBlockSize = 1024>
+
+    struct block_tile_memory;
+
+    `MaxBlockSize` Specifies the maximal number of threads in the current thread block. This parameter can be used to minimize the shared memory usage of `block_tile_memory` in kernels launched only with smaller thread counts.
+
+    This `block_tile_memory` needs be then passed into `cooperative_groups::this_thread_block`, allowing the resulting `thread_block` to be partitioned into tiles of sizes larger than 32. Overload of `this_thread_block` accepting `block_tile_memory` argument is a collective operation and has to be called with all threads in the `thread_block`.
+
+    `block_tile_memory` can be used on hardware with Compute Capability 8.0 or higher in order to be able to write one source targeting multiple different Compute Capabilities. It should consume no memory when instantiated in shared memory in cases where its not required.
+
+__Examples:__
 
 /// The following code will create two sets of tiled groups, of size 32 and 4 respectively:
+
 /// The latter has the provenance encoded in the type, while the first stores it in the handle
+
 thread_block block = this_thread_block();
+
 thread_block_tile<32> tile32 = tiled_partition<32>(block);
+
 thread_block_tile<4, thread_block> tile4 = tiled_partition<4>(block);
 
 /// The following code will create tiles of size 128 on all Compute Capabilities.
+
 /// block_tile_memory can be omitted on Compute Capability 8.0 or higher.
+
 __global__ void kernel(...) {
+
     // reserve shared memory for thread_block_tile usage,
+
     //   specify that block size will be at most 256 threads.
+
     __shared__ block_tile_memory<256> shared;
+
     thread_block thb = this_thread_block(shared);
 
     // Create tiles with 128 threads.
     auto tile = tiled_partition<128>(thb);
 
     // ...
+
 }
 
 ##### 11.4.2.1.1. Warp-Synchronous Code Pattern[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-synchronous-code-pattern "Permalink to this headline")
@@ -10391,7 +12212,9 @@ __global__ void kernel(...) {
 Developers might have had warp-synchronous codes that they previously made implicit assumptions about the warp size and would code around that number. Now this needs to be specified explicitly.
 
 __global__ void cooperative_kernel(...) {
+
     // obtain default "current thread block" group
+
     thread_block my_block = this_thread_block();
 
     // subdivide into 32-thread, tiled subgroups
@@ -10405,6 +12228,7 @@ __global__ void cooperative_kernel(...) {
         // ...
         my_tile.sync();
     }
+
 }
 
 ##### 11.4.2.1.2. Single Thread Group[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#single-thread-group "Permalink to this headline")
@@ -10416,6 +12240,7 @@ thread_block_tile<1> this_thread();
 The following `memcpy_async` API uses a `thread_group`, to copy an int element from source to destination:
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/memcpy_async.h>
 
 cooperative_groups::memcpy_async(cooperative_groups::this_thread(), dest, src, sizeof(int));
@@ -10434,7 +12259,7 @@ Constructed via:
 
 coalesced_group active = coalesced_threads();
 
-**Public Member Functions:**
+__Public Member Functions:__
 
 `void sync() const`: Synchronize the threads named in the group
 
@@ -10466,29 +12291,39 @@ Legacy member functions (aliases):
 
 `unsigned long long size() const`: Total number of threads in the group (alias of `num_threads()`)
 
-**Notes:**
+__Notes:__
 
 `shfl, shfl_up, and shfl_down` functions accept objects of any type when compiled with C++11 or later. This means it’s possible to shuffle non-integral types as long as they satisfy the below constraints:
 
 - Qualifies as trivially copyable i.e. `is_trivially_copyable<T>::value == true`
-    
 - `sizeof(T) <= 32`
-    
 
-**Example:**
+__Example:__
 
 /// Consider a situation whereby there is a branch in the
+
 /// code in which only the 2nd, 4th and 8th threads in each warp are
+
 /// active. The coalesced_threads() call, placed in that branch, will create (for each
+
 /// warp) a group, active, that has three threads (with
+
 /// ranks 0-2 inclusive).
+
 __global__ void kernel(int *globalInput) {
+
     // Lets say globalInput says that threads 2, 4, 8 should handle the data
+
     if (threadIdx.x == *globalInput) {
+
         coalesced_group active = coalesced_threads();
+
         // active contains 0-2 inclusive
+
         active.sync();
+
     }
+
 }
 
 ##### 11.4.2.2.1. Discovery Pattern[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#discovery-pattern "Permalink to this headline")
@@ -10496,30 +12331,51 @@ __global__ void kernel(int *globalInput) {
 Commonly developers need to work with the current active set of threads. No assumption is made about the threads that are present, and instead developers work with the threads that happen to be there. This is seen in the following “aggregating atomic increment across threads in a warp” example (written using the correct CUDA 9.0 set of intrinsics):
 
 {
+
     unsigned int writemask = __activemask();
+
     unsigned int total = __popc(writemask);
+
     unsigned int prefix = __popc(writemask & __lanemask_lt());
+
     // Find the lowest-numbered active lane
+
     int elected_lane = __ffs(writemask) - 1;
+
     int base_offset = 0;
+
     if (prefix == 0) {
+
         base_offset = atomicAdd(p, total);
+
     }
+
     base_offset = __shfl_sync(writemask, base_offset, elected_lane);
+
     int thread_offset = prefix + base_offset;
+
     return thread_offset;
+
 }
 
 This can be re-written with Cooperative Groups as follows:
 
 {
+
     cg::coalesced_group g = cg::coalesced_threads();
+
     int prev;
+
     if (g.thread_rank() == 0) {
+
         prev = atomicAdd(p, g.num_threads());
+
     }
+
     prev = g.thread_rank() + g.shfl(prev, 0);
+
     return prev;
+
 }
 
 ## 11.5. Group Partitioning[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-partitioning "Permalink to this headline")
@@ -10527,6 +12383,7 @@ This can be re-written with Cooperative Groups as follows:
 ### 11.5.1. `tiled_partition`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#tiled-partition "Permalink to this headline")
 
 template <unsigned int Size, typename ParentT>
+
 thread_block_tile<Size, ParentT> tiled_partition(const ParentT& g);
 
 thread_group tiled_partition(const thread_group& parent, unsigned int tilesz);
@@ -10535,18 +12392,22 @@ The `tiled_partition` method is a collective operation that partitions the par
 
 The implementation may cause the calling thread to wait until all the members of the parent group have invoked the operation before resuming execution. Functionality is limited to native hardware sizes, 1/2/4/8/16/32 and the `cg::size(parent)` must be greater than the `Size` parameter. The templated version of `tiled_partition` supports 64/128/256/512 sizes as well, but some additional steps are required on Compute Capability 7.5 or lower, refer to [Thread Block Tile](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-tile-group-cg) for details.
 
-**Codegen Requirements:** Compute Capability 5.0 minimum, C++11 for sizes larger than 32
+__Codegen Requirements:__ Compute Capability 5.0 minimum, C++11 for sizes larger than 32
 
-**Example:**
+__Example:__
 
 /// The following code will create a 32-thread tile
+
 thread_block block = this_thread_block();
+
 thread_block_tile<32> tile32 = tiled_partition<32>(block);
 
 We can partition each of these groups into even smaller groups, each of size 4 threads:
 
 auto tile4 = tiled_partition<4>(tile32);
+
 // or using a general group
+
 // thread_group tile4 = tiled_partition(tile32, 4);
 
 If, for instance, if we were to then include the following line of code:
@@ -10558,9 +12419,11 @@ then the statement would be printed by every fourth thread in the block: the thr
 ### 11.5.2. `labeled_partition`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#labeled-partition "Permalink to this headline")
 
 template <typename Label>
+
 coalesced_group labeled_partition(const coalesced_group& g, Label label);
 
 template <unsigned int Size, typename Label>
+
 coalesced_group labeled_partition(const thread_block_tile<Size>& g, Label label);
 
 The `labeled_partition` method is a collective operation that partitions the parent group into one-dimensional subgroups within which the threads are coalesced. The implementation will evaluate a condition label and assign threads that have the same value for label into the same group.
@@ -10569,31 +12432,36 @@ The `labeled_partition` method is a collective operation that partitions the p
 
 The implementation may cause the calling thread to wait until all the members of the parent group have invoked the operation before resuming execution.
 
-**Note:** This functionality is still being evaluated and may slightly change in the future.
+__Note:__ This functionality is still being evaluated and may slightly change in the future.
 
-**Codegen Requirements:** Compute Capability 7.0 minimum, C++11
+__Codegen Requirements:__ Compute Capability 7.0 minimum, C++11
 
 ### 11.5.3. `binary_partition`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#binary-partition "Permalink to this headline")
 
 coalesced_group binary_partition(const coalesced_group& g, bool pred);
 
 template <unsigned int Size>
+
 coalesced_group binary_partition(const thread_block_tile<Size>& g, bool pred);
 
 The `binary_partition()` method is a collective operation that partitions the parent group into one-dimensional subgroups within which the threads are coalesced. The implementation will evaluate a predicate and assign threads that have the same value into the same group. This is a specialized form of `labeled_partition()`, where the label can only be 0 or 1.
 
 The implementation may cause the calling thread to wait until all the members of the parent group have invoked the operation before resuming execution.
 
-**Note:** This functionality is still being evaluated and may slightly change in the future.
+__Note:__ This functionality is still being evaluated and may slightly change in the future.
 
-**Codegen Requirements:** Compute Capability 7.0 minimum, C++11
+__Codegen Requirements:__ Compute Capability 7.0 minimum, C++11
 
-**Example:**
+__Example:__
 
 /// This example divides a 32-sized tile into a group with odd
+
 /// numbers and a group with even numbers
+
 _global__ void oddEven(int *inputArr) {
+
     auto block = cg::this_thread_block();
+
     auto tile32 = cg::tiled_partition<32>(block);
 
     // inputArr contains random integers
@@ -10601,6 +12469,7 @@ _global__ void oddEven(int *inputArr) {
     // after this, tile32 is split into 2 groups,
     // a subtile where elem&1 is true and one where its false
     auto subtile = cg::binary_partition(tile32, (elem & 1));
+
 }
 
 ## 11.6. Group Collectives[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-collectives "Permalink to this headline")
@@ -10612,23 +12481,29 @@ Cooperative Groups library provides a set of collective operations that can be p
 #### 11.6.1.1. `barrier_arrive` and `barrier_wait`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#barrier-arrive-and-barrier-wait "Permalink to this headline")
 
 T::arrival_token T::barrier_arrive();
+
 void T::barrier_wait(T::arrival_token&&);
 
 `barrier_arrive` and `barrier_wait` member functions provide a synchronization API similar to `cuda::barrier` [(read more)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#aw-barrier). Cooperative Groups automatically initializes the group barrier, but arrive and wait operations have an additional restriction resulting from collective nature of those operations: All threads in the group must arrive and wait at the barrier once per phase. When `barrier_arrive` is called with a group, result of calling any collective operation or another barrier arrival with that group is undefined until completion of the barrier phase is observed with `barrier_wait` call. Threads blocked on `barrier_wait` might be released from the synchronization before other threads call `barrier_wait`, but only after all threads in the group called `barrier_arrive`. Group type `T` can be any of the [implicit groups](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-types-implicit-cg).This allows threads to do independent work after they arrive and before they wait for the synchronization to resolve, allowing to hide some of the synchronization latency. `barrier_arrive`returns an `arrival_token` object that must be passed into the corresponding `barrier_wait`. Token is consumed this way and can not be used for another `barrier_wait` call.
 
-**Example of barrier_arrive and barrier_wait used to synchronize initalization of shared memory across the cluster:**
+__Example of barrier_arrive and barrier_wait used to synchronize initalization of shared memory across the cluster:__
 
 #include <cooperative_groups.h>
 
 using namespace cooperative_groups;
 
 void __device__ init_shared_data(const thread_block& block, int *data);
+
 void __device__ local_processing(const thread_block& block);
+
 void __device__ process_shared_data(const thread_block& block, int *data);
 
 __global__ void cluster_kernel() {
+
     extern __shared__ int array[];
+
     auto cluster = this_cluster();
+
     auto block   = this_thread_block();
 
     // Use this thread block to initialize some shared state
@@ -10648,6 +12523,7 @@ __global__ void cluster_kernel() {
     // Consume data in distributed shared memory
     process_shared_data(block, dsmem);
     cluster.sync();
+
 }
 
 #### 11.6.1.2. `sync`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#sync "Permalink to this headline")
@@ -10655,6 +12531,7 @@ __global__ void cluster_kernel() {
 static void T::sync();
 
 template <typename T>
+
 void sync(T& group);
 
 `sync` synchronizes the threads named in the group. Group type `T` can be any of the existing group types, as all of them support synchronization. Its available as a member function in every group type or as a free function taking a group as parameter. If the group is a `grid_group` the kernel must have been launched using the appropriate cooperative launch APIs. Equivalent to `T.barrier_wait(T.barrier_arrive())`.
@@ -10665,54 +12542,74 @@ void sync(T& group);
 
 `memcpy_async` is a group-wide collective memcpy that utilizes hardware accelerated support for non-blocking memory transactions from global to shared memory. Given a set of threads named in the group, `memcpy_async` will move specified amount of bytes or elements of the input type through a single pipeline stage. Additionally for achieving best performance when using the `memcpy_async` API, an alignment of 16 bytes for both shared memory and global memory is required. It is important to note that while this is a memcpy in the general case, it is only asynchronous if the source is global memory and the destination is shared memory and both can be addressed with 16, 8, or 4 byte alignments. Asynchronously copied data should only be read following a call to wait or wait_prior which signals that the corresponding stage has completed moving data to shared memory.
 
-Having to wait on all outstanding requests can lose some flexibility (but gain simplicity). In order to efficiently overlap data transfer and execution, its important to be able to kick off an **N+1**`memcpy_async` request while waiting on and operating on request **N**. To do so, use `memcpy_async` and wait on it using the collective stage-based `wait_prior` API. See [wait and wait_prior](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-wait) for more details.
+Having to wait on all outstanding requests can lose some flexibility (but gain simplicity). In order to efficiently overlap data transfer and execution, its important to be able to kick off an __N+1__`memcpy_async` request while waiting on and operating on request __N__. To do so, use `memcpy_async` and wait on it using the collective stage-based `wait_prior` API. See [wait and wait_prior](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-wait) for more details.
 
 Usage 1
 
 template <typename TyGroup, typename TyElem, typename TyShape>
+
 void memcpy_async(
+
   const TyGroup &group,
+
   TyElem *__restrict__ _dst,
+
   const TyElem *__restrict__ _src,
+
   const TyShape &shape
+
 );
 
-Performs a copy of **``shape`` bytes**.
+Performs a copy of __``shape`` bytes__.
 
 Usage 2
 
 template <typename TyGroup, typename TyElem, typename TyDstLayout, typename TySrcLayout>
+
 void memcpy_async(
+
   const TyGroup &group,
+
   TyElem *__restrict__ dst,
+
   const TyDstLayout &dstLayout,
+
   const TyElem *__restrict__ src,
+
   const TySrcLayout &srcLayout
+
 );
 
-Performs a copy of **``min(dstLayout, srcLayout)`` elements**. If layouts are of type `cuda::aligned_size_t<N>`, both must specify the same alignment.
+Performs a copy of __``min(dstLayout, srcLayout)`` elements__. If layouts are of type `cuda::aligned_size_t<N>`, both must specify the same alignment.
 
-**Errata** The `memcpy_async` API introduced in CUDA 11.1 with both src and dst input layouts, expects the layout to be provided in elements rather than bytes. The element type is inferred from `TyElem` and has the size `sizeof(TyElem)`. If `cuda::aligned_size_t<N>` type is used as the layout, the number of elements specified times `sizeof(TyElem)` must be a multiple of N and it is recommended to use `std::byte` or `char` as the element type.
+__Errata__ The `memcpy_async` API introduced in CUDA 11.1 with both src and dst input layouts, expects the layout to be provided in elements rather than bytes. The element type is inferred from `TyElem` and has the size `sizeof(TyElem)`. If `cuda::aligned_size_t<N>` type is used as the layout, the number of elements specified times `sizeof(TyElem)` must be a multiple of N and it is recommended to use `std::byte` or `char` as the element type.
 
 If specified shape or layout of the copy is of type `cuda::aligned_size_t<N>`, alignment will be guaranteed to be at least `min(16, N)`. In that case both `dst` and `src` pointers need to be aligned to N bytes and the number of bytes copied needs to be a multiple of N.
 
-**Codegen Requirements:** Compute Capability 5.0 minimum, Compute Capability 8.0 for asynchronicity, C++11
+__Codegen Requirements:__ Compute Capability 5.0 minimum, Compute Capability 8.0 for asynchronicity, C++11
 
 `cooperative_groups/memcpy_async.h` header needs to be included.
 
-**Example:**
+__Example:__
 
 /// This example streams elementsPerThreadBlock worth of data from global memory
+
 /// into a limited sized shared memory (elementsInShared) block to operate on.
+
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/memcpy_async.h>
 
 namespace cg = cooperative_groups;
 
 __global__ void kernel(int* global_data) {
+
     cg::thread_block tb = cg::this_thread_block();
+
     const size_t elementsPerThreadBlock = 16 * 1024;
+
     const size_t elementsInShared = 128;
+
     __shared__ int local_smem[elementsInShared];
 
     size_t copy_count;
@@ -10724,46 +12621,67 @@ __global__ void kernel(int* global_data) {
         // Work with local_smem
         index += copy_count;
     }
+
 }
 
 #### 11.6.2.2. `wait and wait_prior`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wait-and-wait-prior "Permalink to this headline")
 
 template <typename TyGroup>
+
 void wait(TyGroup & group);
 
 template <unsigned int NumStages, typename TyGroup>
+
 void wait_prior(TyGroup & group);
 
 `wait` and `wait_prior` collectives allow to wait for memcpy_async copies to complete. `wait` blocks calling threads until all previous copies are done. `wait_prior` allows that the latest NumStages are still not done and waits for all the previous requests. So with `N` total copies requested, it waits until the first `N-NumStages` are done and the last `NumStages` might still be in progress. Both `wait` and `wait_prior` will synchronize the named group.
 
-**Codegen Requirements:** Compute Capability 5.0 minimum, Compute Capability 8.0 for asynchronicity, C++11
+__Codegen Requirements:__ Compute Capability 5.0 minimum, Compute Capability 8.0 for asynchronicity, C++11
 
 `cooperative_groups/memcpy_async.h` header needs to be included.
 
-**Example:**
+__Example:__
 
 /// This example streams elementsPerThreadBlock worth of data from global memory
+
 /// into a limited sized shared memory (elementsInShared) block to operate on in
+
 /// multiple (two) stages. As stage N is kicked off, we can wait on and operate on stage N-1.
+
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/memcpy_async.h>
 
 namespace cg = cooperative_groups;
 
 __global__ void kernel(int* global_data) {
+
     cg::thread_block tb = cg::this_thread_block();
+
     const size_t elementsPerThreadBlock = 16 * 1024 + 64;
+
     const size_t elementsInShared = 128;
+
     __align__(16) __shared__ int local_smem[2][elementsInShared];
+
     int stage = 0;
+
     // First kick off an extra request
+
     size_t copy_count = elementsInShared;
+
     size_t index = copy_count;
+
     cg::memcpy_async(tb, local_smem[stage], elementsInShared, global_data, elementsPerThreadBlock - index);
+
     while (index < elementsPerThreadBlock) {
+
         // Now we kick off the next request...
+
         cg::memcpy_async(tb, local_smem[stage ^ 1], elementsInShared, global_data + index, elementsPerThreadBlock - index);
+
         // ... but we wait on the one before it
+
         cg::wait_prior<1>(tb);
 
         // Its now available and we can work with local_smem[stage] here
@@ -10781,6 +12699,7 @@ __global__ void kernel(int* global_data) {
     }
     cg::wait(tb);
     // The last local_smem[stage] can be handled here
+
 }
 
 ### 11.6.3. Data Manipulation[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-manipulation "Permalink to this headline")
@@ -10788,6 +12707,7 @@ __global__ void kernel(int* global_data) {
 #### 11.6.3.1. `reduce`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reduce "Permalink to this headline")
 
 template <typename TyGroup, typename TyArg, typename TyOp>
+
 auto reduce(const TyGroup& group, TyArg&& val, TyOp&& op) -> decltype(op(val, val));
 
 `reduce` performs a reduction operation on the data provided by each thread named in the group passed in. This takes advantage of hardware acceleration (on compute 80 and higher devices) for the arithmetic add, min, or max operations and the logical AND, OR, or XOR, as well as providing a software fallback on older generation hardware. Only 4B types are accelerated by hardware.
@@ -10797,46 +12717,48 @@ auto reduce(const TyGroup& group, TyArg&& val, TyOp&& op) -> decltype(op(val, va
 `val`: Any type that satisfies the below requirements:
 
 - Qualifies as trivially copyable i.e. `is_trivially_copyable<TyArg>::value == true`
-    
 - `sizeof(T) <= 32` for `coalesced_group` and tiles of size lower or equal 32, `sizeof(T) <= 8` for larger tiles
-    
 - Has suitable arithmetic or comparative operators for the given function object.
-    
 
-**Note:** Different threads in the group can pass different values for this argument.
+__Note:__ Different threads in the group can pass different values for this argument.
 
 `op`: Valid function objects that will provide hardware acceleration with integral types are `plus(), less(), greater(), bit_and(), bit_xor(),bit_or()`. These must be constructed, hence the TyVal template argument is required, i.e. `plus<int>()`. Reduce also supports lambdas and other function objects that can be invoked using `operator()`
 
 Asynchronous reduce
 
 template <typename TyGroup, typename TyArg, typename TyAtomic, typename TyOp>
+
 void reduce_update_async(const TyGroup& group, TyAtomic& atomic, TyArg&& val, TyOp&& op);
 
 template <typename TyGroup, typename TyArg, typename TyAtomic, typename TyOp>
+
 void reduce_store_async(const TyGroup& group, TyAtomic& atomic, TyArg&& val, TyOp&& op);
 
 template <typename TyGroup, typename TyArg, typename TyOp>
+
 void reduce_store_async(const TyGroup& group, TyArg* ptr, TyArg&& val, TyOp&& op);
 
 `*_async` variants of the API are asynchronously calculating the result to either store to or update a specified destination by one of the participating threads, instead of returning it by each thread. To observe the effect of these asynchronous calls, calling group of threads or a larger group containing them need to be synchronized.
 
 - In case of the atomic store or update variant, `atomic` argument can be either of `cuda::atomic` or `cuda::atomic_ref` available in [CUDA C++ Standard Library](https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives.html). This variant of the API is available only on platforms and devices, where these types are supported by the CUDA C++ Standard Library. Result of the reduction is used to atomically update the atomic according to the specified `op`, eg. the result is atomically added to the atomic in case of `cg::plus()`. Type held by the `atomic` must match the type of `TyArg`. Scope of the atomic must include all the threads in the group and if multiple groups are using the same atomic concurrently, scope must include all threads in all groups using it. Atomic update is performed with relaxed memory ordering.
-    
 - In case of the pointer store variant, result of the reduction will be weakly stored into the `dst` pointer.
-    
 
-**Codegen Requirements:** Compute Capability 5.0 minimum, Compute Capability 8.0 for HW acceleration, C++11.
+__Codegen Requirements:__ Compute Capability 5.0 minimum, Compute Capability 8.0 for HW acceleration, C++11.
 
 `cooperative_groups/reduce.h` header needs to be included.
 
-**Example of approximate standard deviation for integer vector:**
+__Example of approximate standard deviation for integer vector:__
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/reduce.h>
+
 namespace cg = cooperative_groups;
 
 /// Calculate approximate standard deviation of integers in vec
+
 __device__ int std_dev(const cg::thread_block_tile<32>& tile, int *vec, int length) {
+
     int thread_sum = 0;
 
     // calculate average first
@@ -10856,19 +12778,27 @@ __device__ int std_dev(const cg::thread_block_tile<32>& tile, int *vec, int leng
     float diff_sum = static_cast<float>(cg::reduce(tile, thread_diffs_sum, cg::plus<int>())) / length;
 
     return static_cast<int>(sqrtf(diff_sum));
+
 }
 
-**Example of block wide reduction:**
+__Example of block wide reduction:__
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/reduce.h>
+
 namespace cg=cooperative_groups;
 
-/// The following example accepts input in *A and outputs a result into *sum
+/// The following example accepts input in *A and outputs a result into _sum
+
 /// It spreads the data equally within the block
-__device__ void block_reduce(const int* A, int count, cuda::atomic<int, cuda::thread_scope_block>& total_sum) {
+
+__device__ void block_reduce(const int_ A, int count, cuda::atomic<int, cuda::thread_scope_block>& total_sum) {
+
     auto block = cg::this_thread_block();
+
     auto tile = cg::tiled_partition<32>(block);
+
     int thread_sum = 0;
 
     // Stride loop over all values, each thread accumulates its part of the array.
@@ -10878,10 +12808,13 @@ __device__ void block_reduce(const int* A, int count, cuda::atomic<int, cuda::th
 
     // reduce thread sums across the tile, add the result to the atomic
     // cg::plus<int> allows cg::reduce() to know it can use hardware acceleration for addition
+
  cg::reduce_update_async(tile, total_sum, thread_sum, cg::plus<int>());
 
  // synchronize the block, to ensure all async reductions are ready
+
     block.sync();
+
 }
 
 #### 11.6.3.2. `Reduce` Operators[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reduce-operators "Permalink to this headline")
@@ -10889,46 +12822,50 @@ __device__ void block_reduce(const int* A, int count, cuda::atomic<int, cuda::th
 Below are the prototypes of function objects for some of the basic operations that can be done with `reduce`
 
 namespace cooperative_groups {
+
   template <typename Ty>
+
   struct cg::plus;
 
   template <typename Ty>
+
   struct cg::less;
 
   template <typename Ty>
+
   struct cg::greater;
 
   template <typename Ty>
+
   struct cg::bit_and;
 
   template <typename Ty>
+
   struct cg::bit_xor;
 
   template <typename Ty>
+
   struct cg::bit_or;
+
 }
 
 Reduce is limited to the information available to the implementation at compile time. Thus in order to make use of intrinsics introduced in CC 8.0, the `cg::` namespace exposes several functional objects that mirror the hardware. These objects appear similar to those presented in the C++ STL, with the exception of `less/greater`. The reason for any difference from the STL is that these function objects are designed to actually mirror the operation of the hardware intrinsics.
 
-**Functional description:**
+__Functional description:__
 
 - `cg::plus:` Accepts two values and returns the sum of both using operator+.
-    
-- `cg::less:` Accepts two values and returns the lesser using operator<. This differs in that the **lower value is returned** rather than a Boolean.
-    
-- `cg::greater:` Accepts two values and returns the greater using operator<. This differs in that the **greater value is returned** rather than a Boolean.
-    
+- `cg::less:` Accepts two values and returns the lesser using operator<. This differs in that the __lower value is returned__ rather than a Boolean.
+- `cg::greater:` Accepts two values and returns the greater using operator<. This differs in that the __greater value is returned__ rather than a Boolean.
 - `cg::bit_and:` Accepts two values and returns the result of operator&.
-    
 - `cg::bit_xor:` Accepts two values and returns the result of operator^.
-    
 - `cg::bit_or:` Accepts two values and returns the result of operator|.
-    
 
-**Example:**
+__Example:__
 
 {
+
     // cg::plus<int> is specialized within cg::reduce and calls __reduce_add_sync(...) on CC 8.0+
+
     cg::reduce(tile, (int)val, cg::plus<int>());
 
     // cg::plus<float> fails to match with an accelerator and instead performs a standard shuffle based reduction
@@ -10942,20 +12879,25 @@ Reduce is limited to the information available to the implementation at compile 
     // Finally lambdas and other function objects cannot be inspected for dispatch
     // and will instead perform shuffle based reductions using the provided function object.
     cg::reduce(tile, (int)val, [](int l, int r) -> int {return l + r;});
+
 }
 
 #### 11.6.3.3. `inclusive_scan` and `exclusive_scan`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inclusive-scan-and-exclusive-scan "Permalink to this headline")
 
 template <typename TyGroup, typename TyVal, typename TyFn>
+
 auto inclusive_scan(const TyGroup& group, TyVal&& val, TyFn&& op) -> decltype(op(val, val));
 
 template <typename TyGroup, typename TyVal>
+
 TyVal inclusive_scan(const TyGroup& group, TyVal&& val);
 
 template <typename TyGroup, typename TyVal, typename TyFn>
+
 auto exclusive_scan(const TyGroup& group, TyVal&& val, TyFn&& op) -> decltype(op(val, val));
 
 template <typename TyGroup, typename TyVal>
+
 TyVal exclusive_scan(const TyGroup& group, TyVal&& val);
 
 `inclusive_scan` and `exclusive_scan` performs a scan operation on the data provided by each thread named in the group passed in. Result for each thread is a reduction of data from threads with lower `thread_rank` than that thread in case of `exclusive_scan`. `inclusive_scan` result also includes the calling thread data in the reduction.
@@ -10965,28 +12907,29 @@ TyVal exclusive_scan(const TyGroup& group, TyVal&& val);
 `val`: Any type that satisfies the below requirements:
 
 - Qualifies as trivially copyable i.e. `is_trivially_copyable<TyArg>::value == true`
-    
 - `sizeof(T) <= 32` for `coalesced_group` and tiles of size lower or equal 32, `sizeof(T) <= 8` for larger tiles
-    
 - Has suitable arithmetic or comparative operators for the given function object.
-    
 
-**Note:** Different threads in the group can pass different values for this argument.
+__Note:__ Different threads in the group can pass different values for this argument.
 
 `op`: Function objects defined for convenience are `plus(), less(), greater(), bit_and(), bit_xor(), bit_or()` described in [Reduce Operators](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#collectives-cg-reduce-operators). These must be constructed, hence the TyVal template argument is required, i.e. `plus<int>()`. `inclusive_scan` and `exclusive_scan` also supports lambdas and other function objects that can be invoked using `operator()`. Overloads without this argument use `cg::plus<TyVal>()`.
 
-**Scan update**
+__Scan update__
 
 template <typename TyGroup, typename TyAtomic, typename TyVal, typename TyFn>
+
 auto inclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val, TyFn&& op) -> decltype(op(val, val));
 
 template <typename TyGroup, typename TyAtomic, typename TyVal>
+
 TyVal inclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val);
 
 template <typename TyGroup, typename TyAtomic, typename TyVal, typename TyFn>
+
 auto exclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val, TyFn&& op) -> decltype(op(val, val));
 
 template <typename TyGroup, typename TyAtomic, typename TyVal>
+
 TyVal exclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val);
 
 `*_scan_update` collectives take an additional argument `atomic` that can be either of `cuda::atomic` or `cuda::atomic_ref` available in [CUDA C++ Standard Library](https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives.html). These variants of the API are available only on platforms and devices, where these types are supported by the CUDA C++ Standard Library. These variants will perform an update to the `atomic` according to `op` with value of the sum of input values of all threads in the group. Previous value of the `atomic` will be combined with the result of scan by each thread and returned. Type held by the `atomic` must match the type of `TyVal`. Scope of the atomic must include all the threads in the group and if multiple groups are using the same atomic concurrently, scope must include all threads in all groups using it. Atomic update is performed with relaxed memory ordering.
@@ -10994,60 +12937,97 @@ TyVal exclusive_scan_update(const TyGroup& group, TyAtomic& atomic, TyVal&& val)
 Following pseudocode illustrates how the update variant of scan works:
 
 /*
+
  inclusive_scan_update behaves as the following block,
+
  except both reduce and inclusive_scan is calculated simultaneously.
+
 auto total = reduce(group, val, op);
+
 TyVal old;
+
 if (group.thread_rank() == selected_thread) {
+
     atomically {
+
         old = atomic.load();
+
         atomic.store(op(old, total));
+
     }
+
 }
+
 old = group.shfl(old, selected_thread);
+
 return op(inclusive_scan(group, val, op), old);
+
 */
 
-**Codegen Requirements:** Compute Capability 5.0 minimum, C++11.
+__Codegen Requirements:__ Compute Capability 5.0 minimum, C++11.
 
 `cooperative_groups/scan.h` header needs to be included.
 
-**Example:**
+__Example:__
 
 #include <stdio.h>
+
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/scan.h>
+
 namespace cg = cooperative_groups;
 
 __global__ void kernel() {
+
     auto thread_block = cg::this_thread_block();
+
     auto tile = cg::tiled_partition<8>(thread_block);
+
     unsigned int val = cg::inclusive_scan(tile, tile.thread_rank());
+
     printf("%u: %u\n", tile.thread_rank(), val);
+
 }
 
 /*  prints for each group:
+
     0: 0
+
     1: 1
+
     2: 3
+
     3: 6
+
     4: 10
+
     5: 15
+
     6: 21
+
     7: 28
+
 */
 
-**Example of stream compaction using exclusive_scan:**
+__Example of stream compaction using exclusive_scan:__
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/scan.h>
+
 namespace cg = cooperative_groups;
 
 // put data from input into output only if it passes test_fn predicate
+
 template<typename Group, typename Data, typename TyFn>
+
 __device__ int stream_compaction(Group &g, Data *input, int count, TyFn&& test_fn, Data *output) {
+
     int per_thread = count / g.num_threads();
+
     int thread_start = min(g.thread_rank() * per_thread, count);
+
     int my_count = min(per_thread, count - thread_start);
 
     // get all passing items from my part of the input
@@ -11072,26 +13052,37 @@ __device__ int stream_compaction(Group &g, Data *input, int count, TyFn&& test_f
     }
     // return the total number of items in the output
     return g.shfl(my_idx + my_count, g.num_threads() - 1);
+
 }
 
-**Example of dynamic buffer space allocation using exclusive_scan_update:**
+__Example of dynamic buffer space allocation using exclusive_scan_update:__
 
 #include <cooperative_groups.h>
+
 #include <cooperative_groups/scan.h>
+
 namespace cg = cooperative_groups;
 
 // Buffer partitioning is static to make the example easier to follow,
+
 // but any arbitrary dynamic allocation scheme can be implemented by replacing this function.
+
 __device__ int calculate_buffer_space_needed(cg::thread_block_tile<32>& tile) {
+
     return tile.thread_rank() % 2 + 1;
+
 }
 
 __device__ int my_thread_data(int i) {
+
     return i;
+
 }
 
 __global__ void kernel() {
+
     __shared__ extern int buffer[];
+
     __shared__ cuda::atomic<int, cuda::thread_scope_block> buffer_used;
 
     auto block = cg::this_thread_block();
@@ -11116,6 +13107,7 @@ __global__ void kernel() {
     block.sync();
     // buffer_used now holds total amount of memory allocated
     // buffer is {0, 0, 1, 0, 0, 1 ...};
+
 }
 
 ### 11.6.4. Execution control[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-control "Permalink to this headline")
@@ -11123,14 +13115,16 @@ __global__ void kernel() {
 #### 11.6.4.1. `invoke_one` and `invoke_one_broadcast`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#invoke-one-and-invoke-one-broadcast "Permalink to this headline")
 
 template<typename Group, typename Fn, typename... Args>
+
 void invoke_one(const Group& group, Fn&& fn, Args&&... args);
 
 template<typename Group, typename Fn, typename... Args>
+
 auto invoke_one_broadcast(const Group& group, Fn&& fn, Args&&... args) -> decltype(fn(args...));
 
 `invoke_one` selects a single arbitrary thread from the calling `group` and uses that thread to call the supplied invocable `fn` with the supplied arguments `args`. In case of `invoke_one_broadcast` the result of the call is also distributed to all threads in the group and returned from this collective.
 
-Calling group can be synchronized with the selected thread before and/or after it calls the supplied invocable. It means that communication within the calling group is not allowed inside the supplied invocable body, otherwise forward progress is not guaranteed. Communication with threads outside of the calling group is allowed in the body of the supplied invocable. Thread selection mechanism is **not** guaranteed to be deterministic.
+Calling group can be synchronized with the selected thread before and/or after it calls the supplied invocable. It means that communication within the calling group is not allowed inside the supplied invocable body, otherwise forward progress is not guaranteed. Communication with threads outside of the calling group is allowed in the body of the supplied invocable. Thread selection mechanism is __not__ guaranteed to be deterministic.
 
 On devices with Compute Capability 9.0 or higher hardware acceleration might be used to select the thread when called with [explicit group types](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#group-types-explicit-cg).
 
@@ -11143,25 +13137,32 @@ On devices with Compute Capability 9.0 or higher hardware acceleration might be 
 In case of `invoke_one_broadcast` the return type of the supplied invocable `fn` must satisfy the below requirements:
 
 - Qualifies as trivially copyable i.e. `is_trivially_copyable<T>::value == true`
-    
 - `sizeof(T) <= 32` for `coalesced_group` and tiles of size lower or equal 32, `sizeof(T) <= 8` for larger tiles
-    
 
-**Codegen Requirements:** Compute Capability 5.0 minimum, Compute Capability 9.0 for hardware acceleration, C++11.
+__Codegen Requirements:__ Compute Capability 5.0 minimum, Compute Capability 9.0 for hardware acceleration, C++11.
 
-**Aggregated atomic example from** [Discovery pattern section](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#discovery-pattern-cg) **re-written to use invoke_one_broadcast:**
+__Aggregated atomic example from__ [Discovery pattern section](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#discovery-pattern-cg) __re-written to use invoke_one_broadcast:__
 
 #include <cooperative_groups.h>
+
 #include <cuda/atomic>
+
 namespace cg = cooperative_groups;
 
 template<cuda::thread_scope Scope>
+
 __device__ unsigned int atomicAddOneRelaxed(cuda::atomic<unsigned int, Scope>& atomic) {
+
     auto g = cg::coalesced_threads();
+
     auto prev = cg::invoke_one_broadcast(g, [&] () {
+
         return atomic.fetch_add(g.num_threads(), cuda::memory_order_relaxed);
+
     });
+
     return prev + g.thread_rank();
+
 }
 
 ## 11.7. Grid Synchronization[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#grid-synchronization "Permalink to this headline")
@@ -11173,49 +13174,64 @@ For example, in certain use cases, applications have a large number of small ker
 To synchronize across the grid, from within a kernel, you would simply use the `grid.sync()` function:
 
 grid_group grid = this_grid();
+
 grid.sync();
 
 And when launching the kernel it is necessary to use, instead of the `<<<...>>>` execution configuration syntax, the `cudaLaunchCooperativeKernel`CUDA runtime launch API or the `CUDA driver equivalent`.
 
-**Example:**
+__Example:__
 
 To guarantee co-residency of the thread blocks on the GPU, the number of blocks launched needs to be carefully considered. For example, as many blocks as there are SMs can be launched as follows:
 
 int dev = 0;
+
 cudaDeviceProp deviceProp;
+
 cudaGetDeviceProperties(&deviceProp, dev);
+
 // initialize, then launch
+
 cudaLaunchCooperativeKernel((void*)my_kernel, deviceProp.multiProcessorCount, numThreads, args);
 
 Alternatively, you can maximize the exposed parallelism by calculating how many blocks can fit simultaneously per-SM using the occupancy calculator as follows:
 
 /// This will launch a grid that can maximally fill the GPU, on the default stream with kernel arguments
+
 int numBlocksPerSm = 0;
+
  // Number of threads my_kernel will be launched with
+
 int numThreads = 128;
+
 cudaDeviceProp deviceProp;
+
 cudaGetDeviceProperties(&deviceProp, dev);
+
 cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocksPerSm, my_kernel, numThreads, 0);
+
 // launch
-void *kernelArgs[] = { /* add kernel args */ };
+
+void _kernelArgs[] = { /_ add kernel args _/ };
+
 dim3 dimBlock(numThreads, 1, 1);
-dim3 dimGrid(deviceProp.multiProcessorCount*numBlocksPerSm, 1, 1);
+
+dim3 dimGrid(deviceProp.multiProcessorCount_numBlocksPerSm, 1, 1);
+
 cudaLaunchCooperativeKernel((void*)my_kernel, dimGrid, dimBlock, kernelArgs);
 
 It is good practice to first ensure the device supports cooperative launches by querying the device attribute `cudaDevAttrCooperativeLaunch`:
 
 int dev = 0;
+
 int supportsCoopLaunch = 0;
+
 cudaDeviceGetAttribute(&supportsCoopLaunch, cudaDevAttrCooperativeLaunch, dev);
 
 which will set `supportsCoopLaunch` to 1 if the property is supported on device 0. Only devices with compute capability of 6.0 and higher are supported. In addition, you need to be running on either of these:
 
 - The Linux platform without MPS
-    
 - The Linux platform with MPS and on a device with compute capability 7.0 or higher
-    
 - The latest Windows platform
-    
 
 # 12. Cluster Launch Control[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-launch-control "Permalink to this headline")
 
@@ -11225,37 +13241,35 @@ Compute Capability 10.0 introduces Cluster Launch Control, a new feature that pr
 
 When dealing with problems of variable size, there are two main approaches to determining the number of kernel thread blocks.
 
-**Approach 1: Fixed Work per Thread Block:**
+__Approach 1: Fixed Work per Thread Block:__
 
 In this approach, the number of thread blocks is determined by the problem size, while the amount of work done by each thread block remains constant or is limited.
 
 Key advantages of this approach:
 
 - Load balancing between SMs.
-    
-    In particular, when thread block run-times exhibit variability and/or when the number of thread blocks is much larger than what the GPU can execute simultaneously (resulting in a low-tail effect), this approach allows the GPU scheduler to run more thread blocks on some SMs than others.
-    
-- Preemption.
-    
-    The GPU scheduler can start executing a [higher-priority kernel](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-priorities), even if it is launched after the execution of a lower-priority kernel has already begun, by scheduling the higher-priority kernel’s thread blocks as the currently running lower-priority kernel’s thread blocks finish. It can then return to the lower-priority kernel once the higher-priority kernel has finished.
-    
 
-**Approach 2: Fixed Number of Thread Blocks:**
+    In particular, when thread block run-times exhibit variability and/or when the number of thread blocks is much larger than what the GPU can execute simultaneously (resulting in a low-tail effect), this approach allows the GPU scheduler to run more thread blocks on some SMs than others.
+
+- Preemption.
+
+    The GPU scheduler can start executing a [higher-priority kernel](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-priorities), even if it is launched after the execution of a lower-priority kernel has already begun, by scheduling the higher-priority kernel’s thread blocks as the currently running lower-priority kernel’s thread blocks finish. It can then return to the lower-priority kernel once the higher-priority kernel has finished.
+
+__Approach 2: Fixed Number of Thread Blocks:__
 
 In this approach, often implemented as a block-stride or grid-stride loop, the number of thread blocks does not directly depend on the problem size. Instead, the amount of work done by each thread block is a function of the problem size. Typically, the number of thread blocks is based on the number of SMs on the GPU where the kernel is executed and the desired occupancy.
 
 Key advantage of this approach:
 
 - Reduced thread block overheads.
-    
+
     This approach not only reduces amortized thread block launch latency but also minimizes the computational overhead associated with shared operations across all thread blocks. These overheads can be significantly higher than launch latency overheads.
-    
+
     For example, in convolution kernels, a prologue for calculating convolution coefficients – independent of the thread block index – can be computed fewer times due to the fixed number of thread blocks, thus reducing redundant computations.
-    
 
-**Cluster Launch Control Approach:**
+__Cluster Launch Control Approach:__
 
-Cluster Launch Control allows a kernel to request (**cancel**) the thread block index of a block that has not yet started execution.
+Cluster Launch Control allows a kernel to request (__cancel__) the thread block index of a block that has not yet started execution.
 
 This mechanism enables work-stealing among thread blocks: a thread block attempts to cancel the launch of another thread block that has not started running yet. If cancellation succeeds, it “steals” the other thread block’s work by using cancelled block index to perform the task.
 
@@ -11263,11 +13277,11 @@ The cancellation will fail if there are no more thread block indices available a
 
 The table below summarizes advantages and disadvantages of the three approaches:
 
-||**Fixed Work per Thread Block**|**Fixed Number of Thread Blocks**|**Cluster Launch Control**|
+||__Fixed Work per Thread Block__|__Fixed Number of Thread Blocks__|__Cluster Launch Control__|
 |---|---|---|---|
-|Reduced overheads|**X**|**V**|**V**|
-|Preemption|**V**|**X**|**V**|
-|Load balancing|**V**|**X**|**V**|
+|Reduced overheads|__X__|__V__|__V__|
+|Preemption|__V__|__X__|__V__|
+|Load balancing|__V__|__X__|__V__|
 
 ## 12.2. Cluster Launch Control API Details[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-launch-control-api-details "Permalink to this headline")
 
@@ -11282,117 +13296,148 @@ The preferred way to use Cluster Launch Control is from a single thread, i.e., o
 The following are the five steps of the thread block cancellation process. The first two steps are declarations and initialization of cancellation result and synchronization variables, which are done before the work-stealing. The last three steps are typically executed inside a work-stealing loop over thread block indices.
 
 1. Declare variables for thread block cancellation:
-    
+
     __shared__ uint4 result; // Request result.
+
     __shared__ uint64_t bar; // Synchronization barrier.
+
     int phase = 0;           // Synchronization barrier phase.
-    
+
 2. Initialize shared memory barrier with a single arrival count:
-    
+
     if (cg::thread_block::thread_rank() == 0)
+
         ptx::mbarrier_init(&bar, 1);
+
     __syncthreads();
-    
+
 3. Submit asynchronous cancellation request by a single thread and set transaction count:
-    
+
     if (cg::thread_block::thread_rank() == 0) {
+
         cg::invoke_one(cg::coalesced_threads(), ptx::clusterlaunchcontrol_try_cancel, &result, &bar);
+
         ptx::mbarrier_arrive_expect_tx(ptx::sem_relaxed, ptx::scope_cta, ptx::space_shared, &bar, sizeof(uint4));
+
     }
-    
+
     Note
-    
+
     Since thread block cancellation is a uniform instruction, it is recommended to submit it inside [invoke_one](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#invoke-one-and-invoke-one-broadcast) thread selector. This allows the compliler to optimize out the peeling loop.
-    
+
 4. Synchronize (complete) asynchronous cancellation request:
-    
+
     while (!ptx::mbarrier_try_wait_parity(&bar, phase))
+
     {}
+
     phase ^= 1;
-    
+
 5. Retrieve cancellation status and cancelled thread block index:
-    
+
     bool success = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result);
+
     if (success) {
+
         // Don't need all three for 1D/2D thread blocks:
+
         int bx = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_x(result);
+
         int by = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_y(result);
+
         int bz = ptx::clusterlaunchcontrol_query_cancel_get_first_ctaid_z(result);
+
     }
-    
+
 6. Ensure visibility of shared memory operations between async and generic [proxies](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#proxies), and protect against data races between iterations of the work-stealing loop.
-    
 
 ### 12.2.2. Thread block cancellation constraints[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-cancellation-constraints "Permalink to this headline")
 
 The constraints are related to failed cancellation requests:
 
-- Submitting another cancellation request after **observing** a previously failed request is Undefined Behavior.
-    
+- Submitting another cancellation request after __observing__ a previously failed request is Undefined Behavior.
+
     In the two code examples below, assuming the first cancellation request fails, only the first example exhibits undefined behavior. The second example is correct because there is no observation between the cancellation requests:
-    
-    **Invalid code:**
-    
+
+    __Invalid code:__
+
     // First request:
+
     ptx::clusterlaunchcontrol_try_cancel(&result0, &bar0);
-    
+
     // First request query:
+
     [Synchronize bar0 code here.]
+
     bool success0 = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result0);
+
     assert(!success0); // Observed failure; second cacellation will be invalid.
-    
+
     // Second request - next line is Undefined Behavior:
+
     ptx::clusterlaunchcontrol_try_cancel(&result1, &bar1);
-    
-    **Valid code:**
-    
+
+    __Valid code:__
+
     // First request:
+
     ptx::clusterlaunchcontrol_try_cancel(&result0, &bar0);
-    
+
     // Second request:
+
     ptx::clusterlaunchcontrol_try_cancel(&result1, &bar1);
-    
+
     // First request query:
+
     [Synchronize bar0 code here.]
+
     bool success0 = ptx::clusterlaunchcontrol_query_cancel_is_canceled(result0);
+
     assert(!success0); // Observed failure; second cacellation was valid.
-    
+
 - Retrieving the thread block index of a failed cancellation request is Undefined Behavior.
-    
 - Submitting a cancellation request from multiple threads is not recommended. It results in the cancellation of multiple thread blocks and requires careful handling, such as:
-    
     - Each submitting thread must proivde a unique `__shared__` result pointer to avoid data races.
-        
     - If the same barrier is used for synchronization, the arrival and transaction counts must be adjusted accordingly.
-        
 
 ### 12.2.3. Kernel Example: Vector-Scalar Multiplication[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#kernel-example-vector-scalar-multiplication "Permalink to this headline")
 
 The three kernels below demonstrate the Fixed Work per Thread Block, Fixed Number of Thread Blocks, and Cluster Launch Control approaches for vector-scalar multiplication v―:=αv―.
 
 - Fixed Work per Thread Block:
-    
+
     __global__
+
     void kernel_fixed_work (float* data, int n)
+
     {
+
         // Prologue:
+
         float alpha = compute_scalar();
+
     
         // Computation:
         int i = blockIdx.x * blockDim.x + threadIdx.x;
         if (i < n)
             data[i] *= alpha;
+
     }
-    
+
     // Launch: kernel_fixed_work<<<1024, (n + 1023) / 1024>>>(data, n);
-    
+
 - Fixed Number of Thread Blocks:
-    
+
     __global__
+
     void kernel_fixed_blocks (float* data, int n)
+
     {
+
         // Prologue:
+
         float alpha = compute_scalar();
+
     
         // Computation:
         int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -11400,25 +13445,35 @@ The three kernels below demonstrate the Fixed Work per Thread Block, Fixed Numbe
             data[i] *= alpha;
             i += gridDim.x * blockDim.x;
         }
+
     }
-    
+
     // Launch: kernel_fixed_blocks<<<1024, SM_COUNT>>>(data, n);
-    
+
 - Cluster Launch Control:
-    
+
     #include <cooperative_groups.h>
+
     #include <cuda/ptx>
-    
+
     namespace cg = cooperative_groups;
+
     namespace ptx = cuda::ptx;
-    
+
     __global__
+
     void kernel_cluster_launch_control (float* data, int n)
+
     {
+
         // Cluster launch control initialization:
+
         __shared__ uint4 result;
+
         __shared__ uint64_t bar;
+
         int phase = 0;
+
     
         if (cg::thread_block::thread_rank() == 0)
             ptx::mbarrier_init(&bar, 1);
@@ -11463,38 +13518,42 @@ The three kernels below demonstrate the Fixed Work per Thread Block, Fixed Numbe
             // Release read of result to the async proxy:
             ptx::fence_proxy_async_generic_sync_restrict(ptx::sem_release, ptx::space_shared, ptx::scope_cluster);
         }
+
     }
-    
+
     // Launch: kernel_cluster_launch_control<<<1024, (n + 1023) / 1024>>>(data, n);
-    
 
 ### 12.2.4. Cluster Launch Control for Thread Block Clusters[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-launch-control-for-thread-block-clusters "Permalink to this headline")
 
-In the case of a [thread block clusters](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-clusters), the thread block cancellation steps are the same as in a non-cluster setting, with minor adjustments. As in the non-cluster case, submitting a cancellation request from multiple threads **within a cluster** is not recommended, as this will attempt to cancel multiple clusters.
+In the case of a [thread block clusters](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-block-clusters), the thread block cancellation steps are the same as in a non-cluster setting, with minor adjustments. As in the non-cluster case, submitting a cancellation request from multiple threads __within a cluster__ is not recommended, as this will attempt to cancel multiple clusters.
 
 - The cancellation is submitted by a single cluster thread.
-    
 - The shared memory result of each cluster’s thread block will receive the same (encoded) value of the cancelled thread block index (i.e., the result value is multicasted). The result received by all thread blocks corresponds to the local block index `{0, 0, 0}` within a cluster. Therefore, thread blocks within the cluster need to add the local block index.
-    
 - Synchronization is performed by each cluster’s thread block using a local `__shared__` memory barrier. Barrier operations must be performed with the `ptx::scope_cluster` scope.
-    
 - Cancelling in the cluster case requires all the thread blocks to exist. A user can guarantee that all thread blocks are running by using`cg::cluster_group::sync()` from [Cluster Group](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cluster-group-cg) API.
-    
 
 The kernel below demonstrates Cluster Launch Control approach in a thread block cluster case:
 
 #include <cooperative_groups.h>
+
 #include <cuda/ptx>
 
 namespace cg = cooperative_groups;
+
 namespace ptx = cuda::ptx;
 
 __global__ __cluster_dims__(2, 1, 1)
+
 void kernel_cluster_launch_control (float* data, int n)
+
 {
+
     // Cluster launch control initialization:
+
     __shared__ uint4 result;
+
     __shared__ uint64_t bar;
+
     int phase = 0;
 
     if (cg::thread_block::thread_rank() == 0) {
@@ -11546,6 +13605,7 @@ void kernel_cluster_launch_control (float* data, int n)
         // Release read of result to the async proxy:
         ptx::fence_proxy_async_generic_sync_restrict(ptx::sem_release, ptx::space_shared, ptx::scope_cluster);
     }
+
 }
 
 // Launch: kernel_cluster_launch_control<<<1024, (n + 1023) / 1024>>>(data, n);
@@ -11669,26 +13729,37 @@ All global memory operations in the parent thread prior to the child grid’s in
 In the following example, the child grid executing `child_launch` is only guaranteed to see the modifications to `data` made before the child grid was launched. Since thread 0 of the parent is performing the launch, the child will be consistent with the memory seen by thread 0 of the parent. Due to the first `__syncthreads()` call, the child will see `data[0]=0`, `data[1]=1`, …, `data[255]=255` (without the `__syncthreads()` call, only `data[0]=0`would be guaranteed to be seen by the child). The child grid is only guaranteed to return at an implicit synchronization. This means that the modifications made by the threads in the child grid are never guaranteed to become available to the parent grid. To access modifications made by `child_launch`, a `tail_launch` kernel is launched into the `cudaStreamTailLaunch` stream.
 
 __global__ void tail_launch(int *data) {
+
    data[threadIdx.x] = data[threadIdx.x]+1;
+
 }
 
 __global__ void child_launch(int *data) {
+
    data[threadIdx.x] = data[threadIdx.x]+1;
+
 }
 
 __global__ void parent_launch(int *data) {
+
    data[threadIdx.x] = threadIdx.x;
 
    __syncthreads();
 
    if (threadIdx.x == 0) {
+
        child_launch<<< 1, 256 >>>(data);
+
        tail_launch<<< 1, 256, 0, cudaStreamTailLaunch >>>(data);
+
    }
+
 }
 
 void host_launch(int *data) {
+
     parent_launch<<< 1, 256 >>>(data);
+
 }
 
 ##### 13.2.2.1.2. Zero Copy Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#zero-copy-memory "Permalink to this headline")
@@ -11714,21 +13785,31 @@ Local memory is private storage for an executing thread, and is not visible outs
 For example the following is illegal, with undefined behavior if `x_array` is accessed by `child_launch`:
 
 int x_array[10];       // Creates x_array in parent's local memory
+
 child_launch<<< 1, 1 >>>(x_array);
 
 It is sometimes difficult for a programmer to be aware of when a variable is placed into local memory by the compiler. As a general rule, all storage passed to a child kernel should be allocated explicitly from the global-memory heap, either with `cudaMalloc()`, `new()` or by declaring `__device__`storage at global scope. For example:
 
 // Correct - "value" is global storage
+
 __device__ int value;
+
 __device__ void x() {
+
     value = 5;
+
     child<<< 1, 1 >>>(&value);
+
 }
 
 // Invalid - "value" is local storage
+
 __device__ void y() {
+
     int value = 5;
+
     child<<< 1, 1 >>>(&value);
+
 }
 
 ##### 13.2.2.1.6. Texture Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-memory-cdp "Permalink to this headline")
@@ -11752,13 +13833,9 @@ Kernels may be launched from the device using the standard CUDA <<< >>> syntax:
 kernel_name<<< Dg, Db, Ns, S >>>([kernel arguments]);
 
 - `Dg` is of type `dim3` and specifies the dimensions and size of the grid
-    
 - `Db` is of type `dim3` and specifies the dimensions and size of each thread block
-    
 - `Ns` is of type `size_t` and specifies the number of bytes of shared memory that is dynamically allocated per thread block for this call in addition to statically allocated memory. `Ns` is an optional argument that defaults to 0.
-    
 - `S` is of type `cudaStream_t` and specifies the stream associated with this call. The stream must have been allocated in the same grid where the call is being made. `S` is an optional argument that defaults to the NULL stream.
-    
 
 ##### 13.3.1.1.1. Launches are Asynchronous[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#launches-are-asynchronous "Permalink to this headline")
 
@@ -11793,9 +13870,13 @@ The fire-and-forget named stream (`cudaStreamFireAndForget`) allows the user to 
 Fire-and-forget launches are immediately scheduled for launch without any dependency on the completion of previously launched grids. No other grid launches can depend on the completion of a fire-and-forget launch, except through the implicit synchronization at the end of the parent grid. So a tail launch or the next grid in parent grid’s stream won’t launch before a parent grid’s fire-and-forget work has completed.
 
 // In this example, C2's launch will not wait for C1's completion
+
 __global__ void P( ... ) {
+
    C1<<< ... , cudaStreamFireAndForget >>>( ... );
+
    C2<<< ... , cudaStreamFireAndForget >>>( ... );
+
 }
 
 The fire-and-forget stream cannot be used to record or wait on events. Attempting to do so results in `cudaErrorInvalidValue`. The fire-and-forget stream is not supported when compiled with `CUDA_FORCE_CDP1_IF_SUPPORTED` defined. Fire-and-forget stream usage requires compilation to be in 64-bit mode.
@@ -11807,48 +13888,73 @@ The tail launch named stream (`cudaStreamTailLaunch`) allows a grid to schedule 
 Each grid has its own tail launch stream. All non-tail launch work launched by a grid is implicitly synchronized before the tail stream is kicked off. I.e. A parent grid’s tail launch does not launch until the parent grid and all work launched by the parent grid to ordinary streams or per-thread or fire-and-forget streams have completed. If two grids are launched to the same grid’s tail launch stream, the later grid does not launch until the earlier grid and all its descendent work has completed.
 
 // In this example, C2 will only launch after C1 completes.
+
 __global__ void P( ... ) {
+
    C1<<< ... , cudaStreamTailLaunch >>>( ... );
+
    C2<<< ... , cudaStreamTailLaunch >>>( ... );
+
 }
 
 Grids launched into the tail launch stream will not launch until the completion of all work by the parent grid, including all other grids (and their descendants) launched by the parent in all non-tail launched streams, including work executed or launched after the tail launch.
 
 // In this example, C will only launch after all X, F and P complete.
+
 __global__ void P( ... ) {
+
    C<<< ... , cudaStreamTailLaunch >>>( ... );
+
    X<<< ... , cudaStreamPerThread >>>( ... );
+
    F<<< ... , cudaStreamFireAndForget >>>( ... )
+
 }
 
 The next grid in the parent grid’s stream will not be launched before a parent grid’s tail launch work has completed. In other words, the tail launch stream behaves as if it were inserted between its parent grid and the next grid in its parent grid’s stream.
 
 // In this example, P2 will only launch after C completes.
+
 __global__ void P1( ... ) {
+
    C<<< ... , cudaStreamTailLaunch >>>( ... );
+
 }
 
 __global__ void P2( ... ) {
+
 }
 
 int main ( ... ) {
+
    ...
+
    P1<<< ... >>>( ... );
+
    P2<<< ... >>>( ... );
+
    ...
+
 }
 
 Each grid only gets one tail launch stream. To tail launch concurrent grids, it can be done like the example below.
 
 // In this example,  C1 and C2 will launch concurrently after P's completion
+
 __global__ void T( ... ) {
+
    C1<<< ... , cudaStreamFireAndForget >>>( ... );
+
    C2<<< ... , cudaStreamFireAndForget >>>( ... );
+
 }
 
 __global__ void P( ... ) {
+
    ...
+
    T<<< ... , cudaStreamTailLaunch >>>( ... );
+
 }
 
 The tail launch stream cannot be used to record or wait on events. Attempting to do so results in `cudaErrorInvalidValue`. The tail launch stream is not supported when compiled with `CUDA_FORCE_CDP1_IF_SUPPORTED` defined. Tail launch stream usage requires compilation to be in 64-bit mode.
@@ -11886,6 +13992,7 @@ The device runtime does not support legacy module-scope (i.e., Fermi-style) text
 ##### 13.3.1.6.3. Shared Memory Variable Declarations[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-variable-declarations "Permalink to this headline")
 
 In CUDA C++ shared memory can be declared either as a statically sized file-scope or function-scoped variable, or as an `extern` variable with the size determined at runtime by the kernel’s caller via a launch configuration argument. Both types of declarations are valid under the device runtime.
+
 ```c++
 __global__ void permute(int n, int *data) {
    extern __shared__ int smem[];
@@ -11934,6 +14041,7 @@ Kernel launch is a system-level mechanism exposed through the device runtime lib
 As with host-side launch, the device-side operator `<<<>>>` maps to underlying kernel launch APIs. This is so that users targeting PTX will be able to enact a launch, and so that the compiler front-end can translate `<<<>>>` into these calls.
 
 Table 13 New Device-only Launch Implementation Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id471 "Permalink to this table")
+
 |Runtime API Launch Functions|Description of Difference From Host Runtime Behaviour (behavior is identical if no description)|
 |---|---|
 |`cudaGetParameterBuffer`|Generated automatically from `<<<>>>`. Note different API to host equivalent.|
@@ -11942,10 +14050,15 @@ Table 13 New Device-only Launch Implementation Functions[](https://docs.nvid
 The APIs for these launch functions are different to those of the CUDA Runtime API, and are defined as follows:
 
 extern   device   cudaError_t cudaGetParameterBuffer(void **params);
+
 extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
+
                                         void *params, dim3 gridDim,
+
                                         dim3 blockDim,
+
                                         unsigned int sharedMemSize = 0,
+
                                         cudaStream_t stream = 0);
 
 #### 13.3.1.8. API Reference[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#api-reference "Permalink to this headline")
@@ -11953,6 +14066,7 @@ extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
 The portions of the CUDA Runtime API supported in the device runtime are detailed here. Host and device runtime APIs have identical syntax; semantics are the same except where indicated. The following table provides an overview of the API relative to the version available from the host.
 
 Table 14 Supported API Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id472 "Permalink to this table")
+
 |Runtime API Functions|Details|
 |---|---|
 |`cudaDeviceGetCacheConfig`||
@@ -11996,24 +14110,39 @@ Device-side kernel launches can be implemented using the following two APIs acce
 At the PTX level, `cudaLaunchDevice()`needs to be declared in one of the two forms shown below before it is used.
 
 // PTX-level Declaration of cudaLaunchDevice() when .address_size is 64
+
 .extern .func(.param .b32 func_retval0) cudaLaunchDevice
+
 (
+
   .param .b64 func,
+
   .param .b64 parameterBuffer,
+
   .param .align 4 .b8 gridDimension[12],
+
   .param .align 4 .b8 blockDimension[12],
+
   .param .b32 sharedMemSize,
+
   .param .b64 stream
+
 )
+
 ;
 
 The CUDA-level declaration below is mapped to one of the aforementioned PTX-level declarations and is found in the system header file `cuda_device_runtime_api.h`. The function is defined in the `cudadevrt` system library, which must be linked with a program in order to use device-side kernel launch functionality.
 
 // CUDA-level declaration of cudaLaunchDevice()
+
 extern "C" __device__
+
 cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
+
                              dim3 gridDimension, dim3 blockDimension,
+
                              unsigned int sharedMemSize,
+
                              cudaStream_t stream);
 
 The first parameter is a pointer to the kernel to be is launched, and the second parameter is the parameter buffer that holds the actual parameters to the launched kernel. The layout of the parameter buffer is explained in [Parameter Buffer Layout](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#parameter-buffer-layout), below. Other parameters specify the launch configuration, i.e., as grid dimension, block dimension, shared memory size, and the stream associated with the launch (please refer to [Execution Configuration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration) for the detailed description of launch configuration.
@@ -12023,17 +14152,25 @@ The first parameter is a pointer to the kernel to be is launched, and the second
 `cudaGetParameterBuffer()` needs to be declared at the PTX level before it’s used. The PTX-level declaration must be in one of the two forms given below, depending on address size:
 
 // PTX-level Declaration of cudaGetParameterBuffer() when .address_size is 64
+
 .extern .func(.param .b64 func_retval0) cudaGetParameterBuffer
+
 (
+
   .param .b64 alignment,
+
   .param .b64 size
+
 )
+
 ;
 
 The following CUDA-level declaration of `cudaGetParameterBuffer()` is mapped to the aforementioned PTX-level declaration:
 
 // CUDA-level Declaration of cudaGetParameterBuffer()
+
 extern "C" __device__
+
 void *cudaGetParameterBuffer(size_t alignment, size_t size);
 
 The first parameter specifies the alignment requirement of the parameter buffer and the second parameter the size requirement in bytes. In the current implementation, the parameter buffer returned by `cudaGetParameterBuffer()` is always guaranteed to be 64- byte aligned, and the alignment requirement parameter is ignored. However, it is recommended to pass the correct alignment requirement value - which is the largest alignment of any parameter to be placed in the parameter buffer - to `cudaGetParameterBuffer()` to ensure portability in the future.
@@ -12063,6 +14200,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.cu -o hello -lcudadevrt
 It is also possible to compile CUDA .cu source files first to object files, and then link these together in a two-stage process:
 
 $ nvcc -arch=sm_75 -dc hello_world.cu -o hello_world.o
+
 $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 
 Please see the Using Separate Compilation section of The CUDA Driver Compiler NVCC guide for more details.
@@ -12080,21 +14218,33 @@ The following example shows a simple _Hello World_ program incorporating dynam
 #include <stdio.h>
 
 __global__ void childKernel()
+
 {
+
     printf("Hello ");
+
 }
 
 __global__ void tailKernel()
+
 {
+
     printf("World!\n");
+
 }
 
 __global__ void parentKernel()
+
 {
+
     // launch child
+
     childKernel<<<1,1>>>();
+
     if (cudaSuccess != cudaGetLastError()) {
+
         return;
+
     }
 
     // launch tail into cudaStreamTailLaunch stream
@@ -12104,11 +14254,17 @@ __global__ void parentKernel()
 }
 
 int main(int argc, char *argv[])
+
 {
+
     // launch parent
+
     parentKernel<<<1,1>>>();
+
     if (cudaSuccess != cudaGetLastError()) {
+
         return 1;
+
     }
 
     // wait for parent to complete
@@ -12117,6 +14273,7 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+
 }
 
 This program may be built in a single step from the command line as follows:
@@ -12319,24 +14476,33 @@ All global memory operations in the parent thread prior to the child grid’s in
 In the following example, the child grid executing `child_launch` is only guaranteed to see the modifications to `data` made before the child grid was launched. Since thread 0 of the parent is performing the launch, the child will be consistent with the memory seen by thread 0 of the parent. Due to the first `__syncthreads()` call, the child will see `data[0]=0`, `data[1]=1`, …, `data[255]=255` (without the `__syncthreads()` call, only `data[0]`would be guaranteed to be seen by the child). When the child grid returns, thread 0 is guaranteed to see modifications made by the threads in its child grid. Those modifications become available to the other threads of the parent grid only after the second `__syncthreads()` call:
 
 __global__ void child_launch(int *data) {
+
    data[threadIdx.x] = data[threadIdx.x]+1;
+
 }
 
 __global__ void parent_launch(int *data) {
+
    data[threadIdx.x] = threadIdx.x;
 
    __syncthreads();
 
    if (threadIdx.x == 0) {
+
        child_launch<<< 1, 256 >>>(data);
+
        cudaDeviceSynchronize();
+
    }
 
    __syncthreads();
+
 }
 
 void host_launch(int *data) {
+
     parent_launch<<< 1, 256 >>>(data);
+
 }
 
 ###### 13.6.1.2.1.2. Zero Copy Memory (CDP1)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#zero-copy-memory-cdp1 "Permalink to this headline")
@@ -12372,21 +14538,31 @@ Local memory is private storage for an executing thread, and is not visible outs
 For example the following is illegal, with undefined behavior if `x_array` is accessed by `child_launch`:
 
 int x_array[10];       // Creates x_array in parent's local memory
+
 child_launch<<< 1, 1 >>>(x_array);
 
 It is sometimes difficult for a programmer to be aware of when a variable is placed into local memory by the compiler. As a general rule, all storage passed to a child kernel should be allocated explicitly from the global-memory heap, either with `cudaMalloc()`, `new()` or by declaring `__device__`storage at global scope. For example:
 
 // Correct - "value" is global storage
+
 __device__ int value;
+
 __device__ void x() {
+
     value = 5;
+
     child<<< 1, 1 >>>(&value);
+
 }
 
 // Invalid - "value" is local storage
+
 __device__ void y() {
+
     int value = 5;
+
     child<<< 1, 1 >>>(&value);
+
 }
 
 ###### 13.6.1.2.1.6. Texture Memory (CDP1)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-memory-cdp1 "Permalink to this headline")
@@ -12422,13 +14598,9 @@ Kernels may be launched from the device using the standard CUDA <<< >>> syntax:
 kernel_name<<< Dg, Db, Ns, S >>>([kernel arguments]);
 
 - `Dg` is of type `dim3` and specifies the dimensions and size of the grid
-    
 - `Db` is of type `dim3` and specifies the dimensions and size of each thread block
-    
 - `Ns` is of type `size_t` and specifies the number of bytes of shared memory that is dynamically allocated per thread block for this call and addition to statically allocated memory. `Ns` is an optional argument that defaults to 0.
-    
 - `S` is of type `cudaStream_t` and specifies the stream associated with this call. The stream must have been allocated in the same thread block where the call is being made. `S` is an optional argument that defaults to 0.
-    
 
 ###### 13.6.2.1.1.1. Launches are Asynchronous (CDP1)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#launches-are-asynchronous-cdp1 "Permalink to this headline")
 
@@ -12533,28 +14705,41 @@ See [Shared Memory Variable Declarations](https://docs.nvidia.com/cuda/cuda-c-p
 In CUDA C++ shared memory can be declared either as a statically sized file-scope or function-scoped variable, or as an `extern` variable with the size determined at runtime by the kernel’s caller via a launch configuration argument. Both types of declarations are valid under the device runtime.
 
 __global__ void permute(int n, int *data) {
+
    extern __shared__ int smem[];
+
    if (n <= 1)
+
        return;
 
    smem[threadIdx.x] = data[threadIdx.x];
+
    __syncthreads();
 
    permute_data(smem, n);
+
    __syncthreads();
 
    // Write back to GMEM since we can't pass SMEM to children.
+
    data[threadIdx.x] = smem[threadIdx.x];
+
    __syncthreads();
 
    if (threadIdx.x == 0) {
-       permute<<< 1, 256, n/2*sizeof(int) >>>(n/2, data);
-       permute<<< 1, 256, n/2*sizeof(int) >>>(n/2, data+n/2);
+
+       permute<<< 1, 256, n/2_sizeof(int) >>>(n/2, data);
+
+       permute<<< 1, 256, n/2_sizeof(int) >>>(n/2, data+n/2);
+
    }
+
 }
 
-void host_launch(int *data) {
-    permute<<< 1, 256, 256*sizeof(int) >>>(256, data);
+void host_launch(int _data) {
+
+    permute<<< 1, 256, 256_sizeof(int) >>>(256, data);
+
 }
 
 ###### 13.6.2.1.6.4. Symbol Addresses (CDP1)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#symbol-addresses-cdp1 "Permalink to this headline")
@@ -12584,6 +14769,7 @@ Kernel launch is a system-level mechanism exposed through the device runtime lib
 As with host-side launch, the device-side operator `<<<>>>` maps to underlying kernel launch APIs. This is so that users targeting PTX will be able to enact a launch, and so that the compiler front-end can translate `<<<>>>` into these calls.
 
 Table 15 New Device-only Launch Implementation Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id473 "Permalink to this table")
+
 |Runtime API Launch Functions|Description of Difference From Host Runtime Behaviour (behavior is identical if no description)|
 |---|---|
 |`cudaGetParameterBuffer`|Generated automatically from `<<<>>>`. Note different API to host equivalent.|
@@ -12592,10 +14778,15 @@ Table 15 New Device-only Launch Implementation Functions[](https://docs.nvid
 The APIs for these launch functions are different to those of the CUDA Runtime API, and are defined as follows:
 
 extern   device   cudaError_t cudaGetParameterBuffer(void **params);
+
 extern __device__ cudaError_t cudaLaunchDevice(void *kernel,
+
                                         void *params, dim3 gridDim,
+
                                         dim3 blockDim,
+
                                         unsigned int sharedMemSize = 0,
+
                                         cudaStream_t stream = 0);
 
 ##### 13.6.2.1.8. API Reference (CDP1)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#api-reference-cdp1 "Permalink to this headline")
@@ -12605,6 +14796,7 @@ See [API Reference](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#api-
 The portions of the CUDA Runtime API supported in the device runtime are detailed here. Host and device runtime APIs have identical syntax; semantics are the same except where indicated. The table below provides an overview of the API relative to the version available from the host.
 
 Table 16 Supported API Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id474 "Permalink to this table")
+
 |Runtime API Functions|Details|
 |---|---|
 |`cudaDeviceSynchronize`|Synchronizes on work launched from thread’s own block only.<br><br>Warning: Note that calling this API from device code is deprecated in CUDA 11.6, removed for compute_90+ compilation, and is slated for full removal in a future CUDA release.|
@@ -12655,36 +14847,61 @@ See [cudaLaunchDevice](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#c
 At the PTX level, `cudaLaunchDevice()`needs to be declared in one of the two forms shown below before it is used.
 
 // PTX-level Declaration of cudaLaunchDevice() when .address_size is 64
+
 .extern .func(.param .b32 func_retval0) cudaLaunchDevice
+
 (
+
   .param .b64 func,
+
   .param .b64 parameterBuffer,
+
   .param .align 4 .b8 gridDimension[12],
+
   .param .align 4 .b8 blockDimension[12],
+
   .param .b32 sharedMemSize,
+
   .param .b64 stream
+
 )
+
 ;
 
 // PTX-level Declaration of cudaLaunchDevice() when .address_size is 32
+
 .extern .func(.param .b32 func_retval0) cudaLaunchDevice
+
 (
+
   .param .b32 func,
+
   .param .b32 parameterBuffer,
+
   .param .align 4 .b8 gridDimension[12],
+
   .param .align 4 .b8 blockDimension[12],
+
   .param .b32 sharedMemSize,
+
   .param .b32 stream
+
 )
+
 ;
 
 The CUDA-level declaration below is mapped to one of the aforementioned PTX-level declarations and is found in the system header file `cuda_device_runtime_api.h`. The function is defined in the `cudadevrt` system library, which must be linked with a program in order to use device-side kernel launch functionality.
 
 // CUDA-level declaration of cudaLaunchDevice()
+
 extern "C" __device__
+
 cudaError_t cudaLaunchDevice(void *func, void *parameterBuffer,
+
                              dim3 gridDimension, dim3 blockDimension,
+
                              unsigned int sharedMemSize,
+
                              cudaStream_t stream);
 
 The first parameter is a pointer to the kernel to be is launched, and the second parameter is the parameter buffer that holds the actual parameters to the launched kernel. The layout of the parameter buffer is explained in [Parameter Buffer Layout (CDP1)](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#parameter-buffer-layout-cdp1), below. Other parameters specify the launch configuration, i.e., as grid dimension, block dimension, shared memory size, and the stream associated with the launch (please refer to [Execution Configuration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#execution-configuration) for the detailed description of launch configuration.
@@ -12696,26 +14913,41 @@ See [cudaGetParameterBuffer](https://docs.nvidia.com/cuda/cuda-c-programming-gu
 `cudaGetParameterBuffer()` needs to be declared at the PTX level before it’s used. The PTX-level declaration must be in one of the two forms given below, depending on address size:
 
 // PTX-level Declaration of cudaGetParameterBuffer() when .address_size is 64
+
 // When .address_size is 64
+
 .extern .func(.param .b64 func_retval0) cudaGetParameterBuffer
+
 (
+
   .param .b64 alignment,
+
   .param .b64 size
+
 )
+
 ;
 
 // PTX-level Declaration of cudaGetParameterBuffer() when .address_size is 32
+
 .extern .func(.param .b32 func_retval0) cudaGetParameterBuffer
+
 (
+
   .param .b32 alignment,
+
   .param .b32 size
+
 )
+
 ;
 
 The following CUDA-level declaration of `cudaGetParameterBuffer()` is mapped to the aforementioned PTX-level declaration:
 
 // CUDA-level Declaration of cudaGetParameterBuffer()
+
 extern "C" __device__
+
 void *cudaGetParameterBuffer(size_t alignment, size_t size);
 
 The first parameter specifies the alignment requirement of the parameter buffer and the second parameter the size requirement in bytes. In the current implementation, the parameter buffer returned by `cudaGetParameterBuffer()` is always guaranteed to be 64- byte aligned, and the alignment requirement parameter is ignored. However, it is recommended to pass the correct alignment requirement value - which is the largest alignment of any parameter to be placed in the parameter buffer - to `cudaGetParameterBuffer()` to ensure portability in the future.
@@ -12753,6 +14985,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.cu -o hello -lcudadevrt
 It is also possible to compile CUDA .cu source files first to object files, and then link these together in a two-stage process:
 
 $ nvcc -arch=sm_75 -dc hello_world.cu -o hello_world.o
+
 $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 
 Please see the Using Separate Compilation section of The CUDA Driver Compiler NVCC guide for more details.
@@ -12778,16 +15011,25 @@ The following example shows a simple _Hello World_ program incorporating dynam
 #include <stdio.h>
 
 __global__ void childKernel()
+
 {
+
     printf("Hello ");
+
 }
 
 __global__ void parentKernel()
+
 {
+
     // launch child
+
     childKernel<<<1,1>>>();
+
     if (cudaSuccess != cudaGetLastError()) {
+
         return;
+
     }
 
     // wait for child to complete
@@ -12796,14 +15038,21 @@ __global__ void parentKernel()
     }
 
     printf("World!\n");
+
 }
 
 int main(int argc, char *argv[])
+
 {
+
     // launch parent
+
     parentKernel<<<1,1>>>();
+
     if (cudaSuccess != cudaGetLastError()) {
+
         return 1;
+
     }
 
     // wait for parent to complete
@@ -12812,6 +15061,7 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+
 }
 
 This program may be built in a single step from the command line as follows:
@@ -12941,22 +15191,15 @@ In the case of enabling peer device access to memory allocations by using `cuda
 The CUDA Virtual Memory Management APIs expose fine grained control to the user for managing the GPU memory in applications. It provides APIs that let users:
 
 - Place memory allocated on different devices into a contiguous VA range.
-    
 - Perform interprocess communication for memory sharing using platform-specific mechanisms.
-    
 - Opt into newer memory types on the devices that support them.
-    
 
 In order to allocate memory, the Virtual Memory Management programming model exposes the following functionality:
 
 - Allocating physical memory.
-    
 - Reserving a VA range.
-    
 - Mapping allocated memory to the VA range.
-    
 - Controlling access rights on the mapped range.
-    
 
 Note that the suite of APIs described in this section require a system that supports UVA.
 
@@ -12965,9 +15208,13 @@ Note that the suite of APIs described in this section require a system that supp
 Before attempting to use Virtual Memory Management APIs, applications must ensure that the devices they want to use support CUDA Virtual Memory Management. The following code sample shows querying for Virtual Memory Management support:
 
 int deviceSupportsVmm;
+
 CUresult result = cuDeviceGetAttribute(&deviceSupportsVmm, CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED, device);
+
 if (deviceSupportsVmm != 0) {
+
     // `device` supports Virtual Memory Management
+
 }
 
 ## 14.3. Allocating Physical Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocating-physical-memory "Permalink to this headline")
@@ -12975,9 +15222,13 @@ if (deviceSupportsVmm != 0) {
 The first step in memory allocation using Virtual Memory Management APIs is to create a physical memory chunk that will provide a backing for the allocation. In order to allocate physical memory, applications must use the `cuMemCreate` API. The allocation created by this function does not have any device or host mappings. The function argument `CUmemGenericAllocationHandle` describes the properties of the memory to allocate such as the location of the allocation, if the allocation is going to be shared to another process (or other Graphics APIs), or the physical attributes of the memory to be allocated. Users must ensure the requested allocation’s size must be aligned to appropriate granularity. Information regarding an allocation’s granularity requirements can be queried using `cuMemGetAllocationGranularity`. The following code snippet shows allocating physical memory with `cuMemCreate`:
 
 CUmemGenericAllocationHandle allocatePhysicalMemory(int device, size_t size) {
+
     CUmemAllocationProp prop = {};
+
     prop.type = CU_MEM_ALLOCATION_TYPE_PINNED;
+
     prop.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+
     prop.location.id = device;
 
     size_t granularity = 0;
@@ -12991,6 +15242,7 @@ CUmemGenericAllocationHandle allocatePhysicalMemory(int device, size_t size) {
     cuMemCreate(&allocHandle, padded_size, &prop, 0);
 
     return allocHandle;
+
 }
 
 The memory allocated by `cuMemCreate` is referenced by the `CUmemGenericAllocationHandle` it returns. This is a departure from the cudaMalloc-style of allocation, which returns a pointer to the GPU memory, which was directly accessible by CUDA kernel executing on the device. The memory allocated cannot be used for any operations other than querying properties using `cuMemGetAllocationPropertiesFromHandle`. In order to make this memory accessible, applications must map this memory into a VA range reserved by `cuMemAddressReserve` and provide suitable access rights to it. Applications must free the allocated memory using the `cuMemRelease` API.
@@ -13004,19 +15256,29 @@ The CUDA Virtual Memory Management API functions do not support the legacy inter
 Users must ensure they query for support of the requested handle type before attempting to export memory allocated with `cuMemCreate`. The following code snippet illustrates query for handle type support in a platform-specific way.
 
 int deviceSupportsIpcHandle;
+
 #if defined(__linux__)
+
     cuDeviceGetAttribute(&deviceSupportsIpcHandle, CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED, device));
+
 #else
+
     cuDeviceGetAttribute(&deviceSupportsIpcHandle, CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_HANDLE_SUPPORTED, device));
+
 #endif
 
 Users should set the `CUmemAllocationProp::requestedHandleTypes` appropriately as shown below:
 
 #if defined(__linux__)
+
     prop.requestedHandleTypes = CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR;
+
 #else
+
     prop.requestedHandleTypes = CU_MEM_HANDLE_TYPE_WIN32;
+
     prop.win32HandleMetaData = // Windows specific LPSECURITYATTRIBUTES attribute.
+
 #endif
 
 The [memMapIpcDrv](https://github.com/NVIDIA/cuda-samples/tree/master/Samples/3_CUDA_Features/memMapIPCDrv/) sample can be used as an example for using IPC with Virtual Memory Management allocations.
@@ -13030,6 +15292,7 @@ Before CUDA 10.2, applications had no user-controlled way of allocating any spec
 Compressible memory can be used to accelerate accesses to data with unstructured sparsity and other compressible data patterns. Compression can save DRAM bandwidth, L2 read bandwidth and L2 capacity depending on the data being operated on. Applications that want to allocate compressible memory on devices that support Compute Data Compression can do so by setting `CUmemAllocationProp::allocFlags::compressionType`to `CU_MEM_ALLOCATION_COMP_GENERIC`. Users must query if device supports Compute Data Compression by using `CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED`. The following code snippet illustrates querying compressible memory support `cuDeviceGetAttribute`.
 
 int compressionSupported = 0;
+
 cuDeviceGetAttribute(&compressionSupported, CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED, device);
 
 On devices that support Compute Data Compression, users must opt in at allocation time as shown below:
@@ -13039,11 +15302,15 @@ prop.allocFlags.compressionType = CU_MEM_ALLOCATION_COMP_GENERIC;
 Due to various reasons such as limited HW resources, the allocation may not have compression attributes, the user is expected to query back the properties of the allocated memory using `cuMemGetAllocationPropertiesFromHandle` and check for compression attribute.
 
 CUmemAllocationProp allocationProp = {};
+
 cuMemGetAllocationPropertiesFromHandle(&allocationProp, allocationHandle);
 
 if (allocationProp.allocFlags.compressionType == CU_MEM_ALLOCATION_COMP_GENERIC)
+
 {
+
     // Obtained compressible memory allocation
+
 }
 
 ## 14.4. Reserving a Virtual Address Range[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#reserving-a-virtual-address-range "Permalink to this headline")
@@ -13053,7 +15320,9 @@ Since with Virtual Memory Management the notions of address and memory are disti
 Applications can reserve a virtual address range by passing appropriate parameters to `cuMemAddressReserve`. The address range obtained will not have any device or host physical memory associated with it. The reserved virtual address range can be mapped to memory chunks belonging to any device in the system, thus providing the application a continuous VA range backed and mapped by memory belonging to different devices. Applications are expected to return the virtual address range back to CUDA using `cuMemAddressFree`. Users must ensure that the entire VA range is unmapped before calling `cuMemAddressFree`. These functions are conceptually similar to mmap/munmap (on Linux) or VirtualAlloc/VirtualFree (on Windows) functions. The following code snippet illustrates the usage for the function:
 
 CUdeviceptr ptr;
+
 // `ptr` holds the returned start of virtual address range reserved.
+
 CUresult result = cuMemAddressReserve(&ptr, size, 0, 0, 0); // alignment = 0 for default alignment
 
 ## 14.5. Virtual Aliasing Support[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-aliasing-support "Permalink to this headline")
@@ -13063,40 +15332,63 @@ The Virtual Memory Management APIs provide a way to create multiple virtual memo
 For example, the following snippet is considered undefined, assuming device pointers A and B are virtual aliases of the same memory allocation:
 
 __global__ void foo(char *A, char *B) {
+
   *A = 0x1;
+
   printf("%d\n", *B);    // Undefined behavior!  *B can take on either
+
 // the previous value or some value in-between.
+
 }
 
 The following is defined behavior, assuming these two kernels are ordered monotonically (by streams or events).
 
 __global__ void foo1(char *A) {
+
   *A = 0x1;
+
 }
 
 __global__ void foo2(char *B) {
+
   printf("%d\n", *B);    // *B == *A == 0x1 assuming foo2 waits for foo1
+
 // to complete before launching
+
 }
 
 cudaMemcpyAsync(B, input, size, stream1);    // Aliases are allowed at
+
 // operation boundaries
+
 foo1<<<1,1,0,stream1>>>(A);                  // allowing foo1 to access A.
+
 cudaEventRecord(event, stream1);
+
 cudaStreamWaitEvent(stream2, event);
+
 foo2<<<1,1,0,stream2>>>(B);
+
 cudaStreamWaitEvent(stream3, event);
+
 cudaMemcpyAsync(output, B, size, stream3);  // Both launches of foo2 and
+
                                             // cudaMemcpy (which both
+
                                             // read) wait for foo1 (which writes)
+
                                             // to complete before proceeding
 
 If accessing same allocation through different “proxies” is required in the same kernel a `fence.proxy.alias` can be used between the two accesses. The above example can thus be made legal with inline PTX assembly:
 
 __global__ void foo(char *A, char *B) {
+
   *A = 0x1;
+
   asm volatile ("fence.proxy.alias;" ::: "memory");
+
   printf("%d\n", *B);    // *B == *A == 0x1
+
 }
 
 ## 14.6. Mapping Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mapping-memory "Permalink to this headline")
@@ -13106,8 +15398,11 @@ The allocated physical memory and the carved out virtual address space from the 
 Users can associate allocations from multiple devices to reside in contiguous virtual address ranges as long as they have carved out enough address space. In order to decouple the physical allocation and the address range, users must unmap the address of the mapping by using `cuMemUnmap`. Users can map and unmap memory to the same address range as many times as they want, as long as they ensure that they don’t attempt to create mappings on VA range reservations that are already mapped. The following code snippet illustrates the usage for the function:
 
 CUdeviceptr ptr;
+
 // `ptr`: address in the address range previously reserved by cuMemAddressReserve.
+
 // `allocHandle`: CUmemGenericAllocationHandle obtained by a previous call to cuMemCreate.
+
 CUresult result = cuMemMap(ptr, size, 0, allocHandle, 0);
 
 ## 14.7. Controlling Access Rights[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#controlling-access-rights "Permalink to this headline")
@@ -13115,13 +15410,18 @@ CUresult result = cuMemMap(ptr, size, 0, allocHandle, 0);
 The Virtual Memory Management APIs enable applications to explicitly protect their VA ranges with access control mechanisms. Mapping the allocation to a region of the address range using `cuMemMap` does not make the address accessible, and would result in a program crash if accessed by a CUDA kernel. Users must specifically select access control using the `cuMemSetAccess` function, which allows or restricts access for specific devices to a mapped address range. The following code snippet illustrates the usage for the function:
 
 void setAccessOnDevice(int device, CUdeviceptr ptr, size_t size) {
+
     CUmemAccessDesc accessDesc = {};
+
     accessDesc.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+
     accessDesc.location.id = device;
+
     accessDesc.flags = CU_MEM_ACCESS_FLAGS_PROT_READWRITE;
 
     // Make the address accessible
     cuMemSetAccess(ptr, size, &accessDesc, 1);
+
 }
 
 The access control mechanism exposed with Virtual Memory Management allows users to be explicit about which allocations they want to share with other peer devices on the system. As specified earlier, `cudaEnablePeerAccess` forces all prior and future cudaMalloc’d allocations to be mapped to the target peer device. This can be convenient in many cases as user doesn’t have to worry about tracking the mapping state of every allocation to every device in the system. But for users concerned with performance of their applications this approach [has performance implications](https://devblogs.nvidia.com/introducing-low-level-gpu-virtual-memory-management/). With access control at allocation granularity Virtual Memory Management exposes a mechanism to have peer mappings with minimal overhead.
@@ -13137,12 +15437,17 @@ CUDA 12.4 introduced a new VMM allocation handle type `CU_MEM_HANDLE_TYPE_FABRI
 Before attempting to use Fabric Memory, applications must ensure that the devices they want to use support Fabric Memory. The following code sample shows querying for Fabric Memory support:
 
 int deviceSupportsFabricMem;
+
 CUresult result = cuDeviceGetAttribute(&deviceSupportsFabricMem, CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_FABRIC_SUPPORTED, device);
+
 if (deviceSupportsFabricMem != 0) {
+
     // `device` supports Fabric Memory
+
 }
 
 Aside from using `CU_MEM_HANDLE_TYPE_FABRIC` as handle type and not requiring OS native mechanisms for inter process communication to exchange sharable handles there is no difference in using Fabric Memory compared to other allocation handle types.
+
 ## 14.9. Multicast Support[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#multicast-support "Permalink to this headline")
 
 The [Multicast Object Management APIs](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__MULTICAST.html#group__CUDA__MULTICAST/) provide a way for the application to create Multicast Objects and in combination with the [Virtual Memory Management APIs](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__VA.html/) described above allow applications to leverage NVLINK SHARP on supported NVLINK connected GPUs if they are connected with NVSWITCH. NVLINK SHARP allows CUDA applications to leverage in fabric computing to accelerate operations like broadcast and reductions between GPUs connected with NVSWITCH. For this to work multiple NVLINK connected GPUs form a Multicast Team and each GPU from the team backs up a Multicast Object with physical memory. So a Multicast Team of N GPUs has N physical replicas, each local to one participating GPU, of a Multicast Object. The [multimem PTX instructions](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-multimem-ld-reduce-multimem-st-multimem-red/) using mappings of Multicast Objects work with all replicas of the Multicast Object.
@@ -13150,19 +15455,12 @@ The [Multicast Object Management APIs](https://docs.nvidia.com/cuda/cuda-driver
 To work with Multicast Objects an application needs to
 
 - Query Multicast Support
-    
 - Create a Multicast Handle with `cuMulticastCreate`.
-    
 - Share the Multicast Handle with all processes that control a GPU which should participate in a Multicast Team. This works with `cuMemExportToShareableHandle` as described above.
-    
 - Add all GPUs that should participate in the Multicast Team with `cuMulticastAddDevice`.
-    
 - For each participating GPU bind physical memory allocated with `cuMemCreate` as described above to the Multicast Handle. All devices need to be added to the Multicast Team before binding memory on any device.
-    
 - Reserve an address range, map the Multicast Handle and set Access Rights as described above for regular Unicast mappings. Unicast and Multicast mappings to the same physical memory are possible. See the [Virtual Aliasing Support](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-aliasing-support) section above how to ensure consistency between multiple mappings to the same physical memory.
-    
 - Use the [multimem PTX instructions](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-multimem-ld-reduce-multimem-st-multimem-red/) with the multicast mappings.
-    
 
 The `multi_node_p2p` example in the [Multi GPU Programming Models](https://github.com/NVIDIA/multi-gpu-programming-models/) GitHub repository contains a complete example using Fabric Memory including Multicast Objects to leverage NVLINK SHARP. Please note that this example is for developers of libraries like NCCL or NVSHMEM. It shows how higher-level programming models like NVSHMEM work internally within a (multinode) NVLINK domain. Application developers generally should use the higher-level MPI, NCCL, or NVSHMEM interfaces instead of this API.
 
@@ -13171,9 +15469,13 @@ The `multi_node_p2p` example in the [Multi GPU Programming Models](https://gi
 Before attempting to use Multicast Objects, applications must ensure that the devices they want to use support them. The following code sample shows querying for Fabric Memory support:
 
 int deviceSupportsMultiCast;
+
 CUresult result = cuDeviceGetAttribute(&deviceSupportsMultiCast, CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED, device);
+
 if (deviceSupportsMultiCast != 0) {
+
     // `device` supports Multicast Objects
+
 }
 
 ### 14.9.2. Allocating Multicast Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocating-multicast-objects "Permalink to this headline")
@@ -13181,8 +15483,11 @@ if (deviceSupportsMultiCast != 0) {
 Multicast Objects can be created with `cuMulticastCreate`:
 
 CUmemGenericAllocationHandle createMCHandle(int numDevices, size_t size) {
+
     CUmemAllocationProp mcProp = {};
+
     mcProp.numDevices = numDevices;
+
     mcProp.handleTypes = CU_MEM_HANDLE_TYPE_FABRIC; // or on single node CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
 
     size_t granularity = 0;
@@ -13198,6 +15503,7 @@ CUmemGenericAllocationHandle createMCHandle(int numDevices, size_t size) {
     cuMulticastCreate(&mcHandle, &mcProp);
 
     return mcHandle;
+
 }
 
 ### 14.9.3. Add Devices to Multicast Objects[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#add-devices-to-multicast-objects "Permalink to this headline")
@@ -13212,18 +15518,24 @@ This step needs to be completed on all processes controlling devices that should
 
 After a Multicast Object has been created and all participating devices have been added to the Multicast Object it needs to be backed with physical memory allocated with `cuMemCreate` for each device:
 
-cuMulticastBindMem(mcHandle, mcOffset, memHandle, memOffset, size, 0 /*flags*/);
+cuMulticastBindMem(mcHandle, mcOffset, memHandle, memOffset, size, 0 /_flags_/);
 
 ### 14.9.5. Use Multicast Mappings[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#use-multicast-mappings "Permalink to this headline")
 
 To use Multicast Mappings in CUDA C++ it is required to use the [multimem PTX instructions](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-multimem-ld-reduce-multimem-st-multimem-red/) with Inline PTX Assembly:
 
 __global__ void all_reduce_norm_barrier_kernel(float* l2_norm,
+
                                                float* partial_l2_norm_mc,
+
                                                unsigned int* arrival_counter_uc, unsigned int* arrival_counter_mc,
+
                                                const unsigned int expected_count) {
+
     assert( 1 == blockDim.x * blockDim.y * blockDim.z * gridDim.x * gridDim.y * gridDim.z );
+
     float l2_norm_sum = 0.0;
+
 #if __CUDA_ARCH__ >= 900
 
     // atomic reduction to all replicas
@@ -13246,10 +15558,13 @@ __global__ void all_reduce_norm_barrier_kernel(float* l2_norm,
     asm volatile ("multimem.ld_reduce.relaxed.sys.global.add.f32 %0, [%1];" : "=f"(l2_norm_sum) : "l"(partial_l2_norm_mc) : "memory");
 
 #else
+
     #error "ERROR: multimem instructions require compute capability 9.0 or larger."
+
 #endif
 
     *l2_norm = std::sqrt(l2_norm_sum);
+
 }
 
 # 15. Stream Ordered Memory Allocator[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-ordered-memory-allocator "Permalink to this headline")
@@ -13267,23 +15582,39 @@ The user can determine whether or not a device supports the stream ordered memor
 Starting with CUDA 11.3, IPC memory pool support can be queried with the `cudaDevAttrMemoryPoolSupportedHandleTypes` device attribute. Previous drivers will return `cudaErrorInvalidValue` as those drivers are unaware of the attribute enum.
 
 int driverVersion = 0;
+
 int deviceSupportsMemoryPools = 0;
+
 int poolSupportedHandleTypes = 0;
+
 cudaDriverGetVersion(&driverVersion);
+
 if (driverVersion >= 11020) {
+
     cudaDeviceGetAttribute(&deviceSupportsMemoryPools,
+
                            cudaDevAttrMemoryPoolsSupported, device);
+
 }
+
 if (deviceSupportsMemoryPools != 0) {
+
     // `device` supports the Stream Ordered Memory Allocator
+
 }
 
 if (driverVersion >= 11030) {
+
     cudaDeviceGetAttribute(&poolSupportedHandleTypes,
+
               cudaDevAttrMemoryPoolSupportedHandleTypes, device);
+
 }
+
 if (poolSupportedHandleTypes & cudaMemHandleTypePosixFileDescriptor) {
+
    // Pools on the specified device can be created with posix file descriptor-based IPC
+
 }
 
 Performing the driver version check before the query avoids hitting a `cudaErrorInvalidValue` error on drivers where the attribute was not yet defined. One can use `cudaGetLastError` to clear the error instead of avoiding it.
@@ -13293,11 +15624,17 @@ Performing the driver version check before the query avoids hitting a `cudaErro
 The APIs `cudaMallocAsync` and `cudaFreeAsync` form the core of the allocator. `cudaMallocAsync` returns an allocation and `cudaFreeAsync` frees an allocation. Both APIs accept stream arguments to define when the allocation will become and stop being available for use. The pointer value returned by `cudaMallocAsync` is determined synchronously and is available for constructing future work. It is important to note that `cudaMallocAsync` ignores the current device/context when determining where the allocation will reside. Instead, `cudaMallocAsync` determines the resident device based on the specified memory pool or the supplied stream. The simplest use pattern is when the memory is allocated, used, and freed back into the same stream.
 
 void *ptr;
+
 size_t size = 512;
+
 cudaMallocAsync(&ptr, size, cudaStreamPerThread);
+
 // do work using the allocation
+
 kernel<<<..., cudaStreamPerThread>>>(ptr, ...);
+
 // An asynchronous free can be specified without synchronizing the cpu and GPU
+
 cudaFreeAsync(ptr, cudaStreamPerThread);
 
 When using an allocation in a stream other than the allocating stream, the user must guarantee that the access will happen after the allocation operation, otherwise the behavior is undefined. The user may make this guarantee either by synchronizing the allocating stream, or by using CUDA events to synchronize the producing and consuming streams.
@@ -13305,28 +15642,43 @@ When using an allocation in a stream other than the allocating stream, the user 
 `cudaFreeAsync()` inserts a free operation into the stream. The user must guarantee that the free operation happens after the allocation operation and any use of the allocation. Also, any use of the allocation after the free operation starts results in undefined behavior. Events and/or stream synchronizing operations should be used to guarantee any access to the allocation on other streams is complete before the freeing stream begins the free operation.
 
 cudaMallocAsync(&ptr, size, stream1);
+
 cudaEventRecord(event1, stream1);
+
 //stream2 must wait for the allocation to be ready before accessing
+
 cudaStreamWaitEvent(stream2, event1);
+
 kernel<<<..., stream2>>>(ptr, ...);
+
 cudaEventRecord(event2, stream2);
+
 // stream3 must wait for stream2 to finish accessing the allocation before
+
 // freeing the allocation
+
 cudaStreamWaitEvent(stream3, event2);
+
 cudaFreeAsync(ptr, stream3);
 
 The user can free allocations allocated with `cudaMalloc()` with `cudaFreeAsync()`. The user must make the same guarantees about accesses being complete before the free operation begins.
 
 cudaMalloc(&ptr, size);
+
 kernel<<<..., stream>>>(ptr, ...);
+
 cudaFreeAsync(ptr, stream);
 
 The user can free memory allocated with `cudaMallocAsync` with `cudaFree()`. When freeing such allocations through the `cudaFree()` API, the driver assumes that all accesses to the allocation are complete and performs no further synchronization. The user can use `cudaStreamQuery` / `cudaStreamSynchronize` / `cudaEventQuery` / `cudaEventSynchronize` / `cudaDeviceSynchronize` to guarantee that the appropriate asynchronous work is complete and that the GPU will not try to access the allocation.
 
 cudaMallocAsync(&ptr, size,stream);
+
 kernel<<<..., stream>>>(ptr, ...);
+
 // synchronize is needed to avoid prematurely freeing the memory
+
 cudaStreamSynchronize(stream);
+
 cudaFree(ptr);
 
 ## 15.4. Memory Pools and the cudaMemPool_t[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-pools-and-the-cudamempool-t "Permalink to this headline")
@@ -13352,10 +15704,15 @@ The default memory pool of a device may be retrieved with the `cudaDeviceGetDef
 The API `cudaMemPoolCreate` creates an explicit pool. This allows applications to request properties for their allocation beyond what is provided by the default/implict pools. These include properties such as IPC capability, maximum pool size, allocations resident on a specific CPU NUMA node on supported platforms etc.
 
 // create a pool similar to the implicit pool on device 0
+
 int device = 0;
+
 cudaMemPoolProps poolProps = { };
+
 poolProps.allocType = cudaMemAllocationTypePinned;
+
 poolProps.location.id = device;
+
 poolProps.location.type = cudaMemLocationTypeDevice;
 
 cudaMemPoolCreate(&memPool, &poolProps));
@@ -13363,11 +15720,17 @@ cudaMemPoolCreate(&memPool, &poolProps));
 The following code snippet illustrates an example of creating an IPC capable memory pool on a valid CPU NUMA node.
 
 // create a pool resident on a CPU NUMA node that is capable of IPC sharing (via a file descriptor).
+
 int cpu_numa_id = 0;
+
 cudaMemPoolProps poolProps = { };
+
 poolProps.allocType = cudaMemAllocationTypePinned;
+
 poolProps.location.id = cpu_numa_id;
+
 poolProps.location.type = cudaMemLocationTypeHostNuma;
+
 poolProps.handleType = cudaMemHandleTypePosixFileDescriptor;
 
 cudaMemPoolCreate(&ipcMemPool, &poolProps));
@@ -13379,31 +15742,47 @@ By default, the allocator tries to minimize the physical memory owned by a pool.
 The release threshold is the amount of memory in bytes a pool should hold onto before trying to release memory back to the OS. When more than the release threshold bytes of memory are held by the memory pool, the allocator will try to release memory back to the OS on the next call to stream, event or device synchronize. Setting the release threshold to UINT64_MAX will prevent the driver from attempting to shrink the pool after every synchronization.
 
 Cuuint64_t setVal = UINT64_MAX;
+
 cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrReleaseThreshold, &setVal);
 
 Applications that set `cudaMemPoolAttrReleaseThreshold` high enough to effectively disable memory pool shrinking may wish to explicitly shrink a memory pool’s memory footprint. `cudaMemPoolTrimTo` allows such applications to do so. When trimming a memory pool’s footprint, the `minBytesToKeep` parameter allows an application to hold onto an amount of memory it expects to need in a subsequent phase of execution.
 
 Cuuint64_t setVal = UINT64_MAX;
+
 cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrReleaseThreshold, &setVal);
 
 // application phase needing a lot of memory from the stream ordered allocator
+
 for (i=0; i<10; i++) {
+
     for (j=0; j<10; j++) {
+
         cudaMallocAsync(&ptrs[j],size[j], stream);
+
     }
+
     kernel<<<...,stream>>>(ptrs,...);
+
     for (j=0; j<10; j++) {
+
         cudaFreeAsync(ptrs[j], stream);
+
     }
+
 }
 
 // Process does not need as much memory for the next phase.
+
 // Synchronize so that the trim operation will know that the allocations are no
+
 // longer in use.
+
 cudaStreamSynchronize(stream);
+
 cudaMemPoolTrimTo(mempool, 0);
 
 // Some other process/allocation mechanism can now use the physical memory
+
 // released by the trimming operation.
 
 ## 15.8. Resource Usage Statistics[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#resource-usage-statistics "Permalink to this headline")
@@ -13415,27 +15794,45 @@ Querying the `cudaMemPoolAttrReservedMemCurrent` attribute of a pool reports t
 The`cudaMemPoolAttr*MemHigh` attributes are watermarks recording the max value achieved by the respective `cudaMemPoolAttr*MemCurrent` attribute since last reset. They can be reset to the current value by using the `cudaMemPoolSetAttribute` API.
 
 // sample helper functions for getting the usage statistics in bulk
+
 struct usageStatistics {
+
     cuuint64_t reserved;
+
     cuuint64_t reservedHigh;
+
     cuuint64_t used;
+
     cuuint64_t usedHigh;
+
 };
 
 void getUsageStatistics(cudaMemoryPool_t memPool, struct usageStatistics *statistics)
+
 {
+
     cudaMemPoolGetAttribute(memPool, cudaMemPoolAttrReservedMemCurrent, statistics->reserved);
+
     cudaMemPoolGetAttribute(memPool, cudaMemPoolAttrReservedMemHigh, statistics->reservedHigh);
+
     cudaMemPoolGetAttribute(memPool, cudaMemPoolAttrUsedMemCurrent, statistics->used);
+
     cudaMemPoolGetAttribute(memPool, cudaMemPoolAttrUsedMemHigh, statistics->usedHigh);
+
 }
 
 // resetting the watermarks will make them take on the current value.
+
 void resetStatistics(cudaMemoryPool_t memPool)
+
 {
+
     cuuint64_t value = 0;
+
     cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrReservedMemHigh, &value);
+
     cudaMemPoolSetAttribute(memPool, cudaMemPoolAttrUsedMemHigh, &value);
+
 }
 
 ## 15.9. Memory Reuse Policies[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-reuse-policies "Permalink to this headline")
@@ -13449,15 +15846,23 @@ The stream ordered allocator has a few controllable allocation policies. The poo
 Before allocating more physical GPU memory, the allocator examines dependency information established by CUDA events and tries to allocate from memory freed in another stream.
 
 cudaMallocAsync(&ptr, size, originalStream);
+
 kernel<<<..., originalStream>>>(ptr, ...);
+
 cudaFreeAsync(ptr, originalStream);
+
 cudaEventRecord(event,originalStream);
 
 // waiting on the event that captures the free in another stream
+
 // allows the allocator to reuse the memory to satisfy
+
 // a new allocation request in the other stream when
+
 // cudaMemPoolReuseFollowEventDependencies is enabled.
+
 cudaStreamWaitEvent(otherStream, event);
+
 cudaMallocAsync(&ptr2, size, otherStream);
 
 ### 15.9.2. cudaMemPoolReuseAllowOpportunistic[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cudamempoolreuseallowopportunistic "Permalink to this headline")
@@ -13465,14 +15870,19 @@ cudaMallocAsync(&ptr2, size, otherStream);
 According to the `cudaMemPoolReuseAllowOpportunistic` policy, the allocator examines freed allocations to see if the free’s stream order semantic has been met (such as the stream has passed the point of execution indicated by the free). When this is disabled, the allocator will still reuse memory made available when a stream is synchronized with the CPU. Disabling this policy does not stop the `cudaMemPoolReuseFollowEventDependencies` from applying.
 
 cudaMallocAsync(&ptr, size, originalStream);
+
 kernel<<<..., originalStream>>>(ptr, ...);
+
 cudaFreeAsync(ptr, originalStream);
 
 // after some time, the kernel finishes running
+
 wait(10);
 
 // When cudaMemPoolReuseAllowOpportunistic is enabled this allocation request
+
 // can be fulfilled with the prior allocation based on the progress of originalStream.
+
 cudaMallocAsync(&ptr2, size, otherStream);
 
 ### 15.9.3. cudaMemPoolReuseAllowInternalDependencies[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cudamempoolreuseallowinternaldependencies "Permalink to this headline")
@@ -13480,14 +15890,21 @@ cudaMallocAsync(&ptr2, size, otherStream);
 Failing to allocate and map more physical memory from the OS, the driver will look for memory whose availability depends on another stream’s pending progress. If such memory is found, the driver will insert the required dependency into the allocating stream and reuse the memory.
 
 cudaMallocAsync(&ptr, size, originalStream);
+
 kernel<<<..., originalStream>>>(ptr, ...);
+
 cudaFreeAsync(ptr, originalStream);
 
 // When cudaMemPoolReuseAllowInternalDependencies is enabled
+
 // and the driver fails to allocate more physical memory, the driver may
+
 // effectively perform a cudaStreamWaitEvent in the allocating stream
+
 // to make sure that future work in ‘otherStream’ happens after the work
+
 // in the original stream that would be allowed to access the original allocation.
+
 cudaMallocAsync(&ptr2, size, otherStream);
 
 ### 15.9.4. Disabling Reuse Policies[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#disabling-reuse-policies "Permalink to this headline")
@@ -13501,11 +15918,17 @@ Just like allocation accessibility controlled through the virtual memory managem
 It is worth noting that `cudaMemPoolSetAccess` affects all allocations from the memory pool, not just future ones. Also the accessibility reported by `cudaMemPoolGetAccess` applies to all allocations from the pool, not just future ones. It is recommended that the accessibility settings of a pool for a given GPU not be changed frequently; once a pool is made accessible from a given GPU, it should remain accessible from that GPU for the lifetime of the pool.
 
 // snippet showing usage of cudaMemPoolSetAccess:
+
 cudaError_t setAccessOnDevice(cudaMemPool_t memPool, int residentDevice,
+
               int accessingDevice) {
+
     cudaMemAccessDesc accessDesc = {};
+
     accessDesc.location.type = cudaMemLocationTypeDevice;
+
     accessDesc.location.id = accessingDevice;
+
     accessDesc.flags = cudaMemAccessFlagsProtReadWrite;
 
     int canAccess = 0;
@@ -13519,6 +15942,7 @@ cudaError_t setAccessOnDevice(cudaMemPool_t memPool, int residentDevice,
 
     // Make the address accessible
     return cudaMemPoolSetAccess(memPool, &accessDesc, 1);
+
 }
 
 ## 15.11. IPC Memory Pools[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#ipc-memory-pools "Permalink to this headline")
@@ -13532,39 +15956,61 @@ There are two phases to sharing memory between processes with memory pools. The 
 Sharing access to a pool involves retrieving an OS native handle to the pool (with the `cudaMemPoolExportToShareableHandle()` API), transferring the handle to the importing process using the usual OS native IPC mechanisms, and creating an imported memory pool (with the `cudaMemPoolImportFromShareableHandle()` API). For `cudaMemPoolExportToShareableHandle` to succeed, the memory pool had to be created with the requested handle type specified in the pool properties structure. Please reference samples for the appropriate IPC mechanisms to transfer the OS native handle between processes. The rest of the procedure can be found in the following code snippets.
 
 // in exporting process
+
 // create an exportable IPC capable pool on device 0
+
 cudaMemPoolProps poolProps = { };
+
 poolProps.allocType = cudaMemAllocationTypePinned;
+
 poolProps.location.id = 0;
+
 poolProps.location.type = cudaMemLocationTypeDevice;
 
 // Setting handleTypes to a non zero value will make the pool exportable (IPC capable)
+
 poolProps.handleTypes = CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR;
 
 cudaMemPoolCreate(&memPool, &poolProps));
 
 // FD based handles are integer types
+
 int fdHandle = 0;
 
 // Retrieve an OS native handle to the pool.
+
 // Note that a pointer to the handle memory is passed in here.
+
 cudaMemPoolExportToShareableHandle(&fdHandle,
+
              memPool,
+
              CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+
              0);
 
 // The handle must be sent to the importing process with the appropriate
+
 // OS specific APIs.
 
 // in importing process
+
  int fdHandle;
+
 // The handle needs to be retrieved from the exporting process with the
+
 // appropriate OS specific APIs.
+
 // Create an imported pool from the shareable handle.
+
 // Note that the handle is passed by value here.
+
 cudaMemPoolImportFromShareableHandle(&importedMemPool,
+
           (void*)fdHandle,
+
           CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+
           0);
 
 ### 15.11.2. Set Access in the Importing Process[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#set-access-in-the-importing-process "Permalink to this headline")
@@ -13580,69 +16026,101 @@ Once the pool has been shared, allocations made with `cudaMallocAsync()` from 
 While allocations may be exported and even imported without synchronizing with the allocating stream in any way, the importing process must follow the same rules as the exporting process when accessing the allocation. Namely, access to the allocation must happen after the stream ordering of the allocation operation in the allocating stream. The two following code snippets show `cudaMemPoolExportPointer()` and `cudaMemPoolImportPointer()` sharing the allocation with an IPC event used to guarantee that the allocation isn’t accessed in the importing process before the allocation is ready.
 
 // preparing an allocation in the exporting process
+
 cudaMemPoolPtrExportData exportData;
+
 cudaEvent_t readyIpcEvent;
+
 cudaIpcEventHandle_t readyIpcEventHandle;
 
 // ipc event for coordinating between processes
+
 // cudaEventInterprocess flag makes the event an ipc event
+
 // cudaEventDisableTiming  is set for performance reasons
 
 cudaEventCreate(
+
         &readyIpcEvent, cudaEventDisableTiming | cudaEventInterprocess)
 
 // allocate from the exporting mem pool
+
 cudaMallocAsync(&ptr, size,exportMemPool, stream);
 
 // event for sharing when the allocation is ready.
+
 cudaEventRecord(readyIpcEvent, stream);
+
 cudaMemPoolExportPointer(&exportData, ptr);
+
 cudaIpcGetEventHandle(&readyIpcEventHandle, readyIpcEvent);
 
 // Share IPC event and pointer export data with the importing process using
+
 //  any mechanism. Here we copy the data into shared memory
+
 shmem->ptrData = exportData;
+
 shmem->readyIpcEventHandle = readyIpcEventHandle;
+
 // signal consumers data is ready
 
 // Importing an allocation
+
 cudaMemPoolPtrExportData *importData = &shmem->prtData;
+
 cudaEvent_t readyIpcEvent;
+
 cudaIpcEventHandle_t *readyIpcEventHandle = &shmem->readyIpcEventHandle;
 
 // Need to retrieve the ipc event handle and the export data from the
+
 // exporting process using any mechanism.  Here we are using shmem and just
+
 // need synchronization to make sure the shared memory is filled in.
 
 cudaIpcOpenEventHandle(&readyIpcEvent, readyIpcEventHandle);
 
 // import the allocation. The operation does not block on the allocation being ready.
+
 cudaMemPoolImportPointer(&ptr, importedMemPool, importData);
 
 // Wait for the prior stream operations in the allocating stream to complete before
+
 // using the allocation in the importing process.
+
 cudaStreamWaitEvent(stream, readyIpcEvent);
+
 kernel<<<..., stream>>>(ptr, ...);
 
 When freeing the allocation, the allocation needs to be freed in the importing process before it is freed in the exporting process. The following code snippet demonstrates the use of CUDA IPC events to provide the required synchronization between the `cudaFreeAsync` operations in both processes. Access to the allocation from the importing process is obviously restricted by the free operation in the importing process side. It is worth noting that `cudaFree` can be used to free the allocation in both processes and that other stream synchronization APIs may be used instead of CUDA IPC events.
 
 // The free must happen in importing process before the exporting process
+
 kernel<<<..., stream>>>(ptr, ...);
 
 // Last access in importing process
+
 cudaFreeAsync(ptr, stream);
 
 // Access not allowed in the importing process after the free
+
 cudaIpcEventRecord(finishedIpcEvent, stream);
 
 // Exporting process
+
 // The exporting process needs to coordinate its free with the stream order
+
 // of the importing process’s free.
+
 cudaStreamWaitEvent(stream, finishedIpcEvent);
+
 kernel<<<..., stream>>>(ptrInExportingProcess, ...);
 
 // The free in the importing process doesn’t stop the exporting process
+
 // from using the allocation.
+
 cudFreeAsync(ptrInExportingProcess,stream);
 
 ### 15.11.4. IPC Export Pool Limitations[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#ipc-export-pool-limitations "Permalink to this headline")
@@ -13698,12 +16176,19 @@ CUDA may reuse the same physical memory for allocations across multiple graphs, 
 Graph memory nodes require an 11.4 capable CUDA driver and support for the stream ordered allocator on the GPU. The following snippet shows how to check for support on a given device.
 
 int driverVersion = 0;
+
 int deviceSupportsMemoryPools = 0;
+
 int deviceSupportsMemoryNodes = 0;
+
 cudaDriverGetVersion(&driverVersion);
+
 if (driverVersion >= 11020) { // avoid invalid value error in cudaDeviceGetAttribute
+
     cudaDeviceGetAttribute(&deviceSupportsMemoryPools, cudaDevAttrMemoryPoolsSupported, device);
+
 }
+
 deviceSupportsMemoryNodes = (driverVersion >= 11040) && (deviceSupportsMemoryPools != 0);
 
 Doing the attribute query inside the driver version check avoids an invalid value return code on 11.0 and 11.1 drivers. Be aware that the compute sanitizer emits warnings when it detects CUDA returning error codes, and a version check before reading the attribute will avoid this. Graph memory nodes are only supported on driver versions 11.4 and newer.
@@ -13715,11 +16200,8 @@ Graph memory nodes are graph nodes representing either memory allocation or free
 Graph allocations are considered recreated every time a graph runs. A graph allocation’s lifetime, which differs from the node’s lifetime, begins when GPU execution reaches the allocating graph node and ends when one of the following occurs:
 
 - GPU execution reaches the freeing graph node
-    
 - GPU execution reaches the freeing `cudaFreeAsync()` stream call
-    
 - immediately upon the freeing call to `cudaFree()`
-    
 
 Note
 
@@ -13728,9 +16210,7 @@ Graph destruction does not automatically free any live graph-allocated memory, e
 Just like other [Graph Structure](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#graph-structure), graph memory nodes are ordered within a graph by dependency edges. A program must guarantee that operations accessing graph memory:
 
 - are ordered after the allocation node
-    
 - are ordered before the operation freeing the memory
-    
 
 Graph allocation lifetimes begin and usually end according to GPU execution (as opposed to API invocation). GPU ordering is the order that work runs on the GPU as opposed to the order that the work is enqueued or described. Thus, graph allocations are considered ‘GPU ordered.’
 
@@ -13738,7 +16218,7 @@ Graph allocation lifetimes begin and usually end according to GPU execution (as 
 
 Graph memory nodes may be explicitly created with the memory node creation APIs, `cudaGraphAddMemAllocNode` and `cudaGraphAddMemFreeNode`. The address allocated by `cudaGraphAddMemAllocNode` is returned to the user in the `dptr` field of the passed `CUDA_MEM_ALLOC_NODE_PARAMS` structure. All operations using graph allocations inside the allocating graph must be ordered after the allocating node. Similarly, any free nodes must be ordered after all uses of the allocation within the graph. `cudaGraphAddMemFreeNode` creates free nodes.
 
-In the following figure, there is an example graph with an alloc and a free node. Kernel nodes **a**, **b**, and **c** are ordered after the allocation node and before the free node such that the kernels can access the allocation. Kernel node **e** is not ordered after the alloc node and therefore cannot safely access the memory. Kernel node **d** is not ordered before the free node, therefore it cannot safely access the memory.
+In the following figure, there is an example graph with an alloc and a free node. Kernel nodes __a__, __b__, and __c__ are ordered after the allocation node and before the free node such that the kernels can access the allocation. Kernel node __e__ is not ordered after the alloc node and therefore cannot safely access the memory. Kernel node __d__ is not ordered before the free node, therefore it cannot safely access the memory.
 
 ![Kernel Nodes](https://docs.nvidia.com/cuda/cuda-c-programming-guide/_images/kernel-nodes.png)
 
@@ -13747,57 +16227,85 @@ Figure 32 Kernel Nodes[](https://docs.nvidia.com/cuda/cuda-c-programming-gui
 The following code snippet establishes the graph in this figure:
 
 // Create the graph - it starts out empty
+
 cudaGraphCreate(&graph, 0);
 
 // parameters for a basic allocation
+
 cudaMemAllocNodeParams params = {};
+
 params.poolProps.allocType = cudaMemAllocationTypePinned;
+
 params.poolProps.location.type = cudaMemLocationTypeDevice;
+
 // specify device 0 as the resident device
+
 params.poolProps.location.id = 0;
+
 params.bytesize = size;
 
 cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
+
 nodeParams->kernelParams[0] = params.dptr;
+
 cudaGraphAddKernelNode(&a, graph, &allocNode, 1, &nodeParams);
+
 cudaGraphAddKernelNode(&b, graph, &a, 1, &nodeParams);
+
 cudaGraphAddKernelNode(&c, graph, &a, 1, &nodeParams);
+
 cudaGraphNode_t dependencies[2];
+
 // kernel nodes b and c are using the graph allocation, so the freeing node must depend on them.  Since the dependency of node b on node a establishes an indirect dependency, the free node does not need to explicitly depend on node a.
+
 dependencies[0] = b;
+
 dependencies[1] = c;
+
 cudaGraphAddMemFreeNode(&freeNode, graph, dependencies, 2, params.dptr);
+
 // free node does not depend on kernel node d, so it must not access the freed graph allocation.
+
 cudaGraphAddKernelNode(&d, graph, &c, 1, &nodeParams);
 
 // node e does not depend on the allocation node, so it must not access the allocation.  This would be true even if the freeNode depended on kernel node e.
+
 cudaGraphAddKernelNode(&e, graph, NULL, 0, &nodeParams);
 
 ### 16.3.2. Stream Capture[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#stream-capture "Permalink to this headline")
 
 Graph memory nodes can be created by capturing the corresponding stream ordered allocation and free calls `cudaMallocAsync` and `cudaFreeAsync`. In this case, the virtual addresses returned by the captured allocation API can be used by other operations inside the graph. Since the stream ordered dependencies will be captured into the graph, the ordering requirements of the stream ordered allocation APIs guarantee that the graph memory nodes will be properly ordered with respect to the captured stream operations (for correctly written stream code).
 
-Ignoring kernel nodes **d** and **e**, for clarity, the following code snippet shows how to use stream capture to create the graph from the previous figure:
+Ignoring kernel nodes __d__ and __e__, for clarity, the following code snippet shows how to use stream capture to create the graph from the previous figure:
 
 cudaMallocAsync(&dptr, size, stream1);
+
 kernel_A<<< ..., stream1 >>>(dptr, ...);
 
 // Fork into stream2
+
 cudaEventRecord(event1, stream1);
+
 cudaStreamWaitEvent(stream2, event1);
 
 kernel_B<<< ..., stream1 >>>(dptr, ...);
+
 // event dependencies translated into graph dependencies, so the kernel node created by the capture of kernel C will depend on the allocation node created by capturing the cudaMallocAsync call.
+
 kernel_C<<< ..., stream2 >>>(dptr, ...);
 
 // Join stream2 back to origin stream (stream1)
+
 cudaEventRecord(event2, stream2);
+
 cudaStreamWaitEvent(stream1, event2);
 
 // Free depends on all work accessing the memory.
+
 cudaFreeAsync(dptr, stream1);
 
 // End capture in the origin stream
+
 cudaStreamEndCapture(stream1, &graph);
 
 ### 16.3.3. Accessing and Freeing Graph Memory Outside of the Allocating Graph[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph "Permalink to this headline")
@@ -13810,87 +16318,124 @@ Because graph allocations may share underlying physical memory with each other, 
 
 The following code snippets demonstrate accessing graph allocations outside of the allocating graph with ordering properly established by: using a single stream, using events between streams, and using events baked into the allocating and freeing graph.
 
-**Ordering established by using a single stream:**
+__Ordering established by using a single stream:__
 
 void *dptr;
+
 cudaGraphAddMemAllocNode(&allocNode, allocGraph, NULL, 0, &params);
+
 dptr = params.dptr;
 
 cudaGraphInstantiate(&allocGraphExec, allocGraph, NULL, NULL, 0);
 
 cudaGraphLaunch(allocGraphExec, stream);
+
 kernel<<< …, stream >>>(dptr, …);
+
 cudaFreeAsync(dptr, stream);
 
-**Ordering established by recording and waiting on CUDA events:**
+__Ordering established by recording and waiting on CUDA events:__
 
 void *dptr;
 
 // Contents of allocating graph
+
 cudaGraphAddMemAllocNode(&allocNode, allocGraph, NULL, 0, &params);
+
 dptr = params.dptr;
 
 // contents of consuming/freeing graph
+
 nodeParams->kernelParams[0] = params.dptr;
+
 cudaGraphAddKernelNode(&a, graph, NULL, 0, &nodeParams);
+
 cudaGraphAddMemFreeNode(&freeNode, freeGraph, &a, 1, dptr);
 
 cudaGraphInstantiate(&allocGraphExec, allocGraph, NULL, NULL, 0);
+
 cudaGraphInstantiate(&freeGraphExec, freeGraph, NULL, NULL, 0);
 
 cudaGraphLaunch(allocGraphExec, allocStream);
 
 // establish the dependency of stream2 on the allocation node
+
 // note: the dependency could also have been established with a stream synchronize operation
+
 cudaEventRecord(allocEvent, allocStream)
+
 cudaStreamWaitEvent(stream2, allocEvent);
 
 kernel<<< …, stream2 >>> (dptr, …);
 
 // establish the dependency between the stream 3 and the allocation use
+
 cudaStreamRecordEvent(streamUseDoneEvent, stream2);
+
 cudaStreamWaitEvent(stream3, streamUseDoneEvent);
 
 // it is now safe to launch the freeing graph, which may also access the memory
+
 cudaGraphLaunch(freeGraphExec, stream3);
 
-**Ordering established by using graph external event nodes:**
+__Ordering established by using graph external event nodes:__
 
 void *dptr;
+
 cudaEvent_t allocEvent; // event indicating when the allocation will be ready for use.
+
 cudaEvent_t streamUseDoneEvent; // event indicating when the stream operations are done with the allocation.
 
 // Contents of allocating graph with event record node
+
 cudaGraphAddMemAllocNode(&allocNode, allocGraph, NULL, 0, &params);
+
 dptr = params.dptr;
+
 // note: this event record node depends on the alloc node
+
 cudaGraphAddEventRecordNode(&recordNode, allocGraph, &allocNode, 1, allocEvent);
+
 cudaGraphInstantiate(&allocGraphExec, allocGraph, NULL, NULL, 0);
 
 // contents of consuming/freeing graph with event wait nodes
+
 cudaGraphAddEventWaitNode(&streamUseDoneEventNode, waitAndFreeGraph, NULL, 0, streamUseDoneEvent);
+
 cudaGraphAddEventWaitNode(&allocReadyEventNode, waitAndFreeGraph, NULL, 0, allocEvent);
+
 nodeParams->kernelParams[0] = params.dptr;
 
 // The allocReadyEventNode provides ordering with the alloc node for use in a consuming graph.
+
 cudaGraphAddKernelNode(&kernelNode, waitAndFreeGraph, &allocReadyEventNode, 1, &nodeParams);
 
 // The free node has to be ordered after both external and internal users.
+
 // Thus the node must depend on both the kernelNode and the
+
 // streamUseDoneEventNode.
+
 dependencies[0] = kernelNode;
+
 dependencies[1] = streamUseDoneEventNode;
+
 cudaGraphAddMemFreeNode(&freeNode, waitAndFreeGraph, &dependencies, 2, dptr);
+
 cudaGraphInstantiate(&waitAndFreeGraphExec, waitAndFreeGraph, NULL, NULL, 0);
 
 cudaGraphLaunch(allocGraphExec, allocStream);
 
 // establish the dependency of stream2 on the event node satisfies the ordering requirement
+
 cudaStreamWaitEvent(stream2, allocEvent);
+
 kernel<<< …, stream2 >>> (dptr, …);
+
 cudaStreamRecordEvent(streamUseDoneEvent, stream2);
 
 // the event wait node in the waitAndFreeGraphExec establishes the dependency on the “readyForFreeEvent” that is needed to prevent the kernel running in stream two from accessing the allocation after the free node in execution order.
+
 cudaGraphLaunch(waitAndFreeGraphExec, stream3);
 
 ### 16.3.4. cudaGraphInstantiateFlagAutoFreeOnLaunch[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#cudagraphinstantiateflagautofreeonlaunch "Permalink to this headline")
@@ -13904,47 +16449,79 @@ Note
 The `cudaGraphInstantiateFlagAutoFreeOnLaunch` flag does not change the behavior of graph destruction. The application must explicitly free the unfreed memory in order to avoid memory leaks, even for graphs instantiated with the flag. The following code shows the use of `cudaGraphInstantiateFlagAutoFreeOnLaunch` to simplify a single-producer / multiple-consumer algorithm:
 
 // Create producer graph which allocates memory and populates it with data
+
 cudaStreamBeginCapture(cudaStreamPerThread, cudaStreamCaptureModeGlobal);
+
 cudaMallocAsync(&data1, blocks * threads, cudaStreamPerThread);
+
 cudaMallocAsync(&data2, blocks * threads, cudaStreamPerThread);
+
 produce<<<blocks, threads, 0, cudaStreamPerThread>>>(data1, data2);
+
 ...
+
 cudaStreamEndCapture(cudaStreamPerThread, &graph);
+
 cudaGraphInstantiateWithFlags(&producer,
+
                               graph,
+
                               cudaGraphInstantiateFlagAutoFreeOnLaunch);
+
 cudaGraphDestroy(graph);
 
 // Create first consumer graph by capturing an asynchronous library call
+
 cudaStreamBeginCapture(cudaStreamPerThread, cudaStreamCaptureModeGlobal);
+
 consumerFromLibrary(data1, cudaStreamPerThread);
+
 cudaStreamEndCapture(cudaStreamPerThread, &graph);
+
 cudaGraphInstantiateWithFlags(&consumer1, graph, 0); //regular instantiation
+
 cudaGraphDestroy(graph);
 
 // Create second consumer graph
+
 cudaStreamBeginCapture(cudaStreamPerThread, cudaStreamCaptureModeGlobal);
+
 consume2<<<blocks, threads, 0, cudaStreamPerThread>>>(data2);
+
 ...
+
 cudaStreamEndCapture(cudaStreamPerThread, &graph);
+
 cudaGraphInstantiateWithFlags(&consumer2, graph, 0);
+
 cudaGraphDestroy(graph);
 
 // Launch in a loop
+
 bool launchConsumer2 = false;
+
 do {
+
     cudaGraphLaunch(producer, myStream);
+
     cudaGraphLaunch(consumer1, myStream);
+
     if (launchConsumer2) {
+
         cudaGraphLaunch(consumer2, myStream);
+
     }
+
 } while (determineAction(&launchConsumer2));
 
 cudaFreeAsync(data1, myStream);
+
 cudaFreeAsync(data2, myStream);
 
 cudaGraphExecDestroy(producer);
+
 cudaGraphExecDestroy(consumer1);
+
 cudaGraphExecDestroy(consumer2);
 
 ## 16.4. Optimized Memory Reuse[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#optimized-memory-reuse "Permalink to this headline")
@@ -13952,9 +16529,7 @@ cudaGraphExecDestroy(consumer2);
 CUDA reuses memory in two ways:
 
 - Virtual and physical memory reuse within a graph is based on virtual address assignment, like in the stream ordered allocator.
-    
 - Physical memory reuse between graphs is done with virtual aliasing: different graphs can map the same physical memory to their unique virtual addresses.
-    
 
 ### 16.4.1. Address Reuse within a Graph[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#address-reuse-within-a-graph "Permalink to this headline")
 
@@ -13991,11 +16566,8 @@ When multiple graphs are launched into the same stream, CUDA attempts to allocat
 In general, remapping of graph memory in CUDA is likely caused by these operations:
 
 - Changing the stream into which a graph is launched
-    
 - A trim operation on the graph memory pool, which explicitly frees unused memory (discussed in [Physical Memory Footprint](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#graph-memory-nodes-physical-memory-footprint))
-    
 - Relaunching a graph while an unfreed allocation from another graph is mapped to the same memory will cause a remap of memory before relaunch
-    
 
 Remapping must happen in execution order, but after any previous execution of that graph is complete (otherwise memory that is still in use could be unmapped). Due to this ordering dependency, as well as because mapping operations are OS calls, mapping operations can be relatively expensive. Applications can avoid this cost by launching graphs containing allocation memory nodes consistently into the same stream.
 
@@ -14020,31 +16592,47 @@ Graph allocations can be configured for access from multiple GPUs, in which case
 The `cudaGraphAddMemAllocNode` API accepts mapping requests in the `accessDescs` array field of the node parameters structures. The `poolProps.location` embedded structure specifies the resident device for the allocation. Access from the allocating GPU is assumed to be needed, thus the application does not need to specify an entry for the resident device in the `accessDescs` array.
 
 cudaMemAllocNodeParams params = {};
+
 params.poolProps.allocType = cudaMemAllocationTypePinned;
+
 params.poolProps.location.type = cudaMemLocationTypeDevice;
+
 // specify device 1 as the resident device
+
 params.poolProps.location.id = 1;
+
 params.bytesize = size;
 
 // allocate an allocation resident on device 1 accessible from device 1
+
 cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
 
 accessDescs[2];
+
 // boilerplate for the access descs (only ReadWrite and Device access supported by the add node api)
+
 accessDescs[0].flags = cudaMemAccessFlagsProtReadWrite;
+
 accessDescs[0].location.type = cudaMemLocationTypeDevice;
+
 accessDescs[1].flags = cudaMemAccessFlagsProtReadWrite;
+
 accessDescs[1].location.type = cudaMemLocationTypeDevice;
 
 // access being requested for device 0 & 2.  Device 1 access requirement left implicit.
+
 accessDescs[0].location.id = 0;
+
 accessDescs[1].location.id = 2;
 
 // access request array has 2 entries.
+
 params.accessDescCount = 2;
+
 params.accessDescs = accessDescs;
 
 // allocate an allocation resident on device 1 accessible from devices 0, 1 and 2. (0 & 2 from the descriptors, 1 from it being the resident device).
+
 cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
 
 ### 16.7.2. Peer Access with Stream Capture[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#peer-access-with-stream-capture "Permalink to this headline")
@@ -14052,23 +16640,31 @@ cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
 For stream capture, the allocation node records the peer accessibility of the allocating pool at the time of the capture. Altering the peer accessibility of the allocating pool after a `cudaMallocFromPoolAsync` call is captured does not affect the mappings that the graph will make for the allocation.
 
 // boilerplate for the access descs (only ReadWrite and Device access supported by the add node api)
+
 accessDesc.flags = cudaMemAccessFlagsProtReadWrite;
+
 accessDesc.location.type = cudaMemLocationTypeDevice;
+
 accessDesc.location.id = 1;
 
 // let memPool be resident and accessible on device 0
 
 cudaStreamBeginCapture(stream);
+
 cudaMallocAsync(&dptr1, size, memPool, stream);
+
 cudaStreamEndCapture(stream, &graph1);
 
 cudaMemPoolSetAccess(memPool, &accessDesc, 1);
 
 cudaStreamBeginCapture(stream);
+
 cudaMallocAsync(&dptr2, size, memPool, stream);
+
 cudaStreamEndCapture(stream, &graph2);
 
 //The graph node allocating dptr1 would only have the device 0 accessibility even though memPool now has device 1 accessibility.
+
 //The graph node allocating dptr2 will have device 0 and device 1 accessibility, since that was the pool accessibility at the time of the cudaMallocAsync call.
 
 ## 16.8. Memory Nodes in Child Graphs[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-nodes-in-child-graphs "Permalink to this headline")
@@ -14078,36 +16674,46 @@ CUDA 12.9 introduces the ability to move child graph ownership to a parent graph
 The following restrictions apply to child graphs after they have been moved:
 
 - Cannot be independently instantiated or destroyed.
-    
 - Cannot be added as a child graph of a separate parent graph.
-    
 - Cannot be used as an argument to cuGraphExecUpdate.
-    
 - Cannot have additional memory allocation or free nodes added.
-    
 
 // Create the child graph
+
 cudaGraphCreate(&child, 0);
 
 // parameters for a basic allocation
+
 cudaMemAllocNodeParams params = {};
+
 params.poolProps.allocType = cudaMemAllocationTypePinned;
+
 params.poolProps.location.type = cudaMemLocationTypeDevice;
+
 // specify device 0 as the resident device
+
 params.poolProps.location.id = 0;
+
 params.bytesize = size;
 
 cudaGraphAddMemAllocNode(&allocNode, graph, NULL, 0, &params);
+
 // Additional nodes using the allocation could be added here
+
 cudaGraphAddMemFreeNode(&freeNode, graph, &allocNode, 1, params.dptr);
 
 // Create the parent graph
+
 cudaGraphCreate(&parent, 0);
 
 // Move the child graph to the parent graph
+
 cudaGraphNodeParams childNodeParams = { cudaGraphNodeTypeGraph };
+
 childNodeParams.graph.graph = child;
+
 childNodeParams.graph.ownership = cudaGraphChildGraphOwnershipMove;
+
 cudaGraphAddNode(&parentNode, parent, NULL, NULL, 0, &childNodeParams);
 
 # 17. Mathematical Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mathematical-functions-appendix "Permalink to this headline")
@@ -14126,13 +16732,14 @@ This section specifies the error bounds of each function when executed on the de
 
 The error bounds are generated from extensive but not exhaustive tests, so they are not guaranteed bounds.
 
-**Single-Precision Floating-Point Functions**
+__Single-Precision Floating-Point Functions__
 
 Addition and multiplication are IEEE-compliant, so have a maximum error of 0.5 ulp.
 
 The recommended way to round a single-precision floating-point operand to an integer, with the result being a single-precision floating-point number is `rintf()`, not `roundf()`. The reason is that `roundf()` maps to a 4-instruction sequence on the device, whereas `rintf()` maps to a single instruction. `truncf()`, `ceilf()`, and `floorf()` each map to a single instruction as well.
 
 Table 17 Single-Precision Mathematical Standard Library Functions with Maximum ULP Error. The maximum error is stated as the absolute value of the difference in ulps between the result returned by the CUDA library function and a correctly rounded single-precision result obtained according to the round-to-nearest ties-to-even rounding mode.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id479 "Permalink to this table")
+
 |Function|Maximum ulp error|
 |---|---|
 |`x+y`|0 (IEEE-754 round-to-nearest-even)|
@@ -14217,11 +16824,12 @@ Table 17 Single-Precision Mathematical Standard Library Functions with Maximum 
 |`llrintf(x)`|0 (full range)|
 |`llroundf(x)`|0 (full range)|
 
-**Double-Precision Floating-Point Functions**
+__Double-Precision Floating-Point Functions__
 
 The recommended way to round a double-precision floating-point operand to an integer, with the result being a double-precision floating-point number is `rint()`, not `round()`. The reason is that `round()` maps to a 5-instruction sequence on the device, whereas `rint()` maps to a single instruction. `trunc()`, `ceil()`, and `floor()` each map to a single instruction as well.
 
 Table 18 Double-Precision Mathematical Standard Library Functions with Maximum ULP Error. The maximum error is stated as the absolute value of the difference in ulps between the result returned by the CUDA library function and a correctly rounded double-precision result obtained according to the round-to-nearest ties-to-even rounding mode.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id480 "Permalink to this table")
+
 |Function|Maximum ulp error|
 |---|---|
 |`x+y`|0 (IEEE-754 round-to-nearest-even)|
@@ -14306,11 +16914,12 @@ Table 18 Double-Precision Mathematical Standard Library Functions with Maximum 
 |`llrint(x)`|0 (full range)|
 |`llround(x)`|0 (full range)|
 
-**Quad-Precision Floating-Point Functions**
+__Quad-Precision Floating-Point Functions__
 
 Note that the quad-precision mathematical functions are currently only available to devices with compute capability 10.0 and later. Due to the specifics of implementation, the support of `__float128` and `_Float128` types in device code is also limited to select combinations of host platforms, see also [Host Compiler Extensions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#host-compiler-extensions).
 
 Table 19 Quad-Precision Mathematical Standard Library Functions with Maximum ULP Error. The maximum error is stated as the absolute value of the difference in ulps between the result returned by the CUDA library function and a correctly rounded quad-precision result obtained according to the round-to-nearest ties-to-even rounding mode.[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id481 "Permalink to this table")
+
 |Function|Maximum ulp error|
 |---|---|
 |`x+y` `__nv_fp128_add(x, y)`|0 (IEEE-754 round-to-nearest-even)|
@@ -14365,6 +16974,7 @@ The functions from this section can only be used in device code.
 Among these functions are the less accurate, but faster versions of some of the functions of [Standard Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#mathematical-functions-appendix-standard-functions). They have the same name prefixed with `__` (such as `__sinf(x)`). They are faster as they map to fewer native instructions. The compiler has an option (`-use_fast_math`) that forces each function in [Table 20](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#intrinsic-functions-functions-affected-use-fast-math) to compile to its intrinsic counterpart. In addition to reducing the accuracy of the affected functions, it may also cause some differences in special case handling. A more robust approach is to selectively replace mathematical function calls by calls to intrinsic functions only where it is merited by the performance gains and where changed properties such as reduced accuracy and different special case handling can be tolerated.
 
 Table 20 Functions Affected by -use_fast_math[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#intrinsic-functions-functions-affected-use-fast-math "Permalink to this table")
+
 |Operator/Function|Device Function|
 |---|---|
 |`x/y`|`__fdividef(x,y)`|
@@ -14380,7 +16990,7 @@ Table 20 Functions Affected by -use_fast_math[](https://docs.nvidia.com/cuda
 |`powf(x,y)`|`__powf(x,y)`|
 |`tanhf(x)`|`__tanhf(x)`|
 
-**Single-Precision Floating-Point Functions**
+__Single-Precision Floating-Point Functions__
 
 `__fadd_[rn,rz,ru,rd]()` and `__fmul_[rn,rz,ru,rd]()` map to addition and multiplication operations that the compiler never merges into FMADs. By contrast, additions and multiplications generated from the ‘*’ and ‘+’ operators will frequently be combined into FMADs.
 
@@ -14395,6 +17005,7 @@ Functions suffixed with `_rd` operate using the round down (to negative infini
 The accuracy of floating-point division varies depending on whether the code is compiled with `-prec-div=false` or `-prec-div=true`. When the code is compiled with `-prec-div=false`, both the regular division `/` operator and `__fdividef(x,y)` have the same accuracy, but for 2126 < `|y|` < 2128,`__fdividef(x,y)` delivers a result of zero, whereas the `/` operator delivers the correct result to within the accuracy stated in [Table 21](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#intrinsic-functions-single-precision-floating-point-intrinsic-functions-supported-by-cuda-runtime-library). Also, for 2126 < `|y|` < 2128, if `x` is infinity, `__fdividef(x,y)` delivers a `NaN` (as a result of multiplying infinity by zero), while the `/` operator returns infinity. On the other hand, the `/` operator is IEEE-compliant when the code is compiled with `-prec-div=true` or without any `-prec-div` option at all since its default value is true.
 
 Table 21 Single-Precision Floating-Point Intrinsic Functions. (Supported by the CUDA Runtime Library with Respective Error Bounds)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#intrinsic-functions-single-precision-floating-point-intrinsic-functions-supported-by-cuda-runtime-library "Permalink to this table")
+
 |Function|Error bounds|
 |---|---|
 |`__fadd_[rn,rz,ru,rd](x,y)`|IEEE-compliant.|
@@ -14418,11 +17029,12 @@ Table 21 Single-Precision Floating-Point Intrinsic Functions. (Supported by the
 |`__powf(x, y)`|Derived from its implementation as `exp2f(y * __log2f(x))`.|
 |`__tanhf(x)`|The maximum relative error of the current implementation is 2−11. Subnormal results of this fast intrinsic are not flushed to zero even under `-ftz=true` compiler setting. Available for devices with compute capability of at least 7.5; and defaults to regular `tanhf()` function behavior on other devices.|
 
-**Double-Precision Floating-Point Functions**
+__Double-Precision Floating-Point Functions__
 
 `__dadd_rn()` and `__dmul_rn()` map to addition and multiplication operations that the compiler never merges into FMADs. By contrast, additions and multiplications generated from the ‘*’ and ‘+’ operators will frequently be combined into FMADs.
 
 Table 22 Double-Precision Floating-Point Intrinsic Functions. (Supported by the CUDA Runtime Library with Respective Error Bounds)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id482 "Permalink to this table")
+
 |Function|Error bounds|
 |---|---|
 |`__dadd_[rn,rz,ru,rd](x,y)`|IEEE-compliant.|
@@ -14444,6 +17056,7 @@ As described in [Compilation with NVCC](https://docs.nvidia.com/cuda/cuda-c-pro
 The following table lists new language features that have been accepted into the C++11 standard. The “Proposal” column provides a link to the ISO C++ committee proposal that describes the feature, while the “Available in nvcc (device code)” column indicates the first version of nvcc that contains an implementation of this feature (if it has been implemented) for device code.
 
 Table 23 C++11 Language Features[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id483 "Permalink to this table")
+
 |Language Feature|C++11 Proposal|Available in nvcc (device code)|
 |---|---|---|
 |Rvalue references|[N2118](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2118.html)|7.0|
@@ -14495,7 +17108,7 @@ Table 23 C++11 Language Features[](https://docs.nvidia.com/cuda/cuda-c-progr
 |Minimal support for garbage collection and reachability-based leak detection|[N2670](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2670.htm)|N/A (see [Restrictions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#language-restrictions))|
 |Allowing move constructors to throw [noexcept]|[N3050](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3050.html)|7.0|
 |Defining move special member functions|[N3053](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2010/n3053.html)|7.0|
-|**Concurrency**|   |   |
+|__Concurrency__|   |   |
 |Sequence points|[N2239](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2239.html)||
 |Atomic operations|[N2427](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2427.html)||
 |Strong Compare and Exchange|[N2748](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2748.html)||
@@ -14506,7 +17119,7 @@ Table 23 C++11 Language Features[](https://docs.nvidia.com/cuda/cuda-c-progr
 |Allow atomics use in signal handlers|[N2547](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2547.htm)||
 |Thread-local storage|[N2659](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2659.htm)||
 |Dynamic initialization and destruction with concurrency|[N2660](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2660.htm)||
-|**C99 Features in C++11**|   |   |
+|__C99 Features in C++11__|   |   |
 |`__func__` predefined identifier|[N2340](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2340.htm)|7.0|
 |C99 preprocessor|[N1653](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2004/n1653.htm)|7.0|
 |`long long`|[N1811](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2005/n1811.pdf)|7.0|
@@ -14517,6 +17130,7 @@ Table 23 C++11 Language Features[](https://docs.nvidia.com/cuda/cuda-c-progr
 The following table lists new language features that have been accepted into the C++14 standard.
 
 Table 24 C++14 Language Features[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id484 "Permalink to this table")
+
 |Language Feature|C++14 Proposal|Available in nvcc (device code)|
 |---|---|---|
 |Tweak to certain C++ contextual conversions|[N3323](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3323.pdf)|9.0|
@@ -14559,86 +17173,122 @@ Host compiler specific language extensions are not supported in device code.
 1. The type signature of the following entities shall not depend on whether `__CUDA_ARCH__` is defined or not, or on a particular value of `__CUDA_ARCH__`:
     
     - `__global__` functions and function templates
-        
     - `__device__` and `__constant__` variables
-        
     - textures and surfaces
-        
-    
+
     Example:
-    
+
     #if !defined(__CUDA_ARCH__)
+
     typedef int mytype;
+
     #else
+
     typedef double mytype;
+
     #endif
-    
+
     __device__ mytype xxx;         // error: xxx's type depends on __CUDA_ARCH__
+
     __global__ void foo(mytype in, // error: foo's type depends on __CUDA_ARCH__
+
                         mytype *ptr)
+
     {
+
       *ptr = in;
+
     }
-    
+
 2. If a `__global__` function template is instantiated and launched from the host, then the function template must be instantiated with the same template arguments irrespective of whether `__CUDA_ARCH__` is defined and regardless of the value of `__CUDA_ARCH__`.
-    
+
     Example:
-    
+
     __device__ int result;
+
     template <typename T>
+
     __global__ void kern(T in)
+
     {
+
       result = in;
+
     }
-    
+
     __host__ __device__ void foo(void)
+
     {
+
     #if !defined(__CUDA_ARCH__)
+
       kern<<<1,1>>>(1);      // error: "kern<int>" instantiation only
+
                              // when __CUDA_ARCH__ is undefined!
+
     #endif
+
     }
-    
+
     int main(void)
+
     {
+
       foo();
+
       cudaDeviceSynchronize();
+
       return 0;
+
     }
-    
+
 3. In separate compilation mode, the presence or absence of a definition of a function or variable with external linkage shall not depend on whether `__CUDA_ARCH__` is defined or on a particular value of `__CUDA_ARCH__`[7](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn14).
-    
+
     Example:
-    
+
     #if !defined(__CUDA_ARCH__)
+
     void foo(void) { }                  // error: The definition of foo()
+
                                         // is only present when __CUDA_ARCH__
+
                                         // is undefined
+
     #endif
-    
+
 4. In separate compilation, `__CUDA_ARCH__` must not be used in headers such that different objects could contain different behavior. Or, it must be guaranteed that all objects will compile for the same compute_arch. If a weak function or template function is defined in a header and its behavior depends on `__CUDA_ARCH__`, then the instances of that function in the objects could conflict if the objects are compiled for different compute arch.
-    
+
     For example, if an a.h contains:
-    
+
     template<typename T>
+
     __device__ T* getptr(void)
+
     {
+
     #if __CUDA_ARCH__ == 700
+
       return NULL; /* no address */
+
     #else
+
       __shared__ T arr[256];
+
       return arr;
+
     #endif
+
     }
-    
+
     Then if `a.cu` and `b.cu` both include `a.h` and instantiate `getptr` for the same type, and `b.cu` expects a non-NULL address, and compile with:
-    
+
     nvcc –arch=compute_70 –dc a.cu
+
     nvcc –arch=compute_80 –dc b.cu
+
     nvcc –arch=sm_80 a.o b.o
-    
+
     At link time only one version of the `getptr` is used, so the behavior would depend on which version is chosen. To avoid this, either `a.cu` and `b.cu` must be compiled for the same compute arch, or `__CUDA_ARCH__` should not be used in the shared header function.
-    
 
 The compiler does not guarantee that a diagnostic will be generated for the unsupported uses of `__CUDA_ARCH__` described above.
 
@@ -14649,39 +17299,26 @@ The compiler does not guarantee that a diagnostic will be generated for the unsu
 The `__device__`, `__shared__`, `__managed__` and `__constant__` memory space specifiers are not allowed on:
 
 - `class`, `struct`, and `union` data members,
-    
 - formal parameters,
-    
 - non-extern variable declarations within a function that executes on the host.
-    
 
 The `__device__`, `__constant__` and `__managed__` memory space specifiers are not allowed on variable declarations that are neither extern nor static within a function that executes on the device.
 
 A `__device__`, `__constant__`, `__managed__` or `__shared__` variable definition cannot have a class type with a non-empty constructor or a non-empty destructor. A constructor for a class type is considered empty at a point in the translation unit, if it is either a trivial constructor or it satisfies all of the following conditions:
 
 - The constructor function has been defined.
-    
 - The constructor function has no parameters, the initializer list is empty and the function body is an empty compound statement.
-    
 - Its class has no virtual functions, no virtual base classes and no non-static data member initializers.
-    
 - The default constructors of all base classes of its class can be considered empty.
-    
 - For all the nonstatic data members of its class that are of class type (or array thereof), the default constructors can be considered empty.
-    
 
 A destructor for a class is considered empty at a point in the translation unit, if it is either a trivial destructor or it satisfies all of the following conditions:
 
 - The destructor function has been defined.
-    
 - The destructor function body is an empty compound statement.
-    
 - Its class has no virtual functions and no virtual base classes.
-    
 - The destructors of all base classes of its class can be considered empty.
-    
 - For all the nonstatic data members of its class that are of class type (or array thereof), the destructor can be considered empty.
-    
 
 When compiling in the whole program compilation mode (see the nvcc user manual for a description of this mode), `__device__`, `__shared__`, `__managed__` and `__constant__` variables cannot be defined as external using the `extern` keyword. The only exception is for dynamically allocated `__shared__` variables as described in [__shared__](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared).
 
@@ -14692,50 +17329,50 @@ When compiling in the separate compilation mode (see the nvcc user manual for a 
 Variables marked with the `__managed__` memory space specifier (“managed” variables) have the following restrictions:
 
 - The address of a managed variable is not a constant expression.
-    
 - A managed variable shall not have a const qualified type.
-    
 - A managed variable shall not have a reference type.
-    
 - The address or value of a managed variable shall not be used when the CUDA runtime may not be in a valid state, including the following cases:
-    
     - In static/dynamic initialization or destruction of an object with static or thread local storage duration.
-        
     - In code that executes after exit() has been called (for example, a function marked with gcc’s “`__attribute__((destructor))`”).
-        
     - In code that executes when CUDA runtime may not be initialized (for example, a function marked with gcc’s “`__attribute__((constructor))`”).
-        
 - A managed variable cannot be used as an unparenthesized id-expression argument to a `decltype()` expression.
-    
 - Managed variables have the same coherence and consistency behavior as specified for dynamically allocated managed memory.
-    
 - When a CUDA program containing managed variables is run on an execution platform with multiple GPUs, the variables are allocated only once, and not per GPU.
-    
 - A managed variable declaration without the extern linkage is not allowed within a function that executes on the host.
-    
 - A managed variable declaration without the extern or static linkage is not allowed within a function that executes on the device.
-    
 
 Here are examples of legal and illegal uses of managed variables:
 
 __device__ __managed__ int xxx = 10;         // OK
 
 int *ptr = &xxx;                             // error: use of managed variable
+
                                              // (xxx) in static initialization
+
 struct S1_t {
+
   int field;
+
   S1_t(void) : field(xxx) { };
+
 };
+
 struct S2_t {
+
   ~S2_t(void) { xxx = 10; }
+
 };
 
 S1_t temp1;                                 // error: use of managed variable
+
                                             // (xxx) in dynamic initialization
 
 S2_t temp2;                                 // error: use of managed variable
+
                                             // (xxx) in the destructor of
+
                                             // object with static storage
+
                                             // duration
 
 __device__ __managed__ const int yyy = 10;  // error: const qualified type
@@ -14743,26 +17380,43 @@ __device__ __managed__ const int yyy = 10;  // error: const qualified type
 __device__ __managed__ int &zzz = xxx;      // error: reference type
 
 template <int *addr> struct S3_t { };
+
 S3_t<&xxx> temp;                            // error: address of managed
+
                                             // variable(xxx) not a
+
                                             // constant expression
 
 __global__ void kern(int *ptr)
+
 {
+
   assert(ptr == &xxx);                      // OK
+
   xxx = 20;                                 // OK
+
 }
+
 int main(void)
+
 {
+
   int *ptr = &xxx;                          // OK
+
   kern<<<1,1>>>(ptr);
+
   cudaDeviceSynchronize();
+
   xxx++;                                    // OK
+
   decltype(xxx) qqq;                        // error: managed variable(xxx) used
+
                                             // as unparenthized argument to
+
                                             // decltype
 
   decltype((xxx)) zzz = yyy;                // OK
+
 }
 
 #### 18.5.3.3. Volatile Qualifier[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#volatile-qualifier "Permalink to this headline")
@@ -14774,13 +17428,11 @@ The `volatile` keyword is supported to maintain compatibility with ISO C++; ho
 Reads and writes to volatile qualified objects are not atomic, and are compiled to one or more [.volatile instructions](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#volatile-operation) which do NOT guarantee:
 
 - ordering of memory operations, or
-    
 - that the number of memory operations performed by the HW matches the number of PTX instructions.
-    
 
 That is, CUDA C++ volatile is not suitable for:
 
-- **Inter-Thread Synchronization**: use atomic operations via [cuda::atomic_ref](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/atomic_ref.html), [cuda::atomic](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/atomic.html), or [Atomic Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomic-functions) instead. Atomic memory operations provide inter-thread synchronization guarantees and deliver much better performance than volatile operations. CUDA C++ volatile operations do not provide any inter-thread synchronization guarantees and are therefore not correct for inter-thread synchronization. The following example shows how to pass a message across two threads using atomic operations.
+- __Inter-Thread Synchronization__: use atomic operations via [cuda::atomic_ref](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/atomic_ref.html), [cuda::atomic](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/atomic.html), or [Atomic Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomic-functions) instead. Atomic memory operations provide inter-thread synchronization guarantees and deliver much better performance than volatile operations. CUDA C++ volatile operations do not provide any inter-thread synchronization guarantees and are therefore not correct for inter-thread synchronization. The following example shows how to pass a message across two threads using atomic operations.
     
     > cuda::atomic_ref
     > 
@@ -14790,7 +17442,7 @@ That is, CUDA C++ volatile is not suitable for:
     > 
     > cuda::atomicAtomic Functions (`atomicAdd` and `atomicExch`)
     
-- **Memory Mapped IO** (MMIO): use [PTX MMIO operations](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#mmio-operation) via inline PTX instead. PTX MMIO operations strictly preserve the number of memory accesses performed. CUDA C++ `volatile` operations do not preserve the number of memory accesses performed, and may perform more or less accesses than requested in a non-deterministic way, making them incorrect for MMIO. The following example shows how to read and write from a register using PTX mmio operations.
+- __Memory Mapped IO__ (MMIO): use [PTX MMIO operations](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#mmio-operation) via inline PTX instead. PTX MMIO operations strictly preserve the number of memory accesses performed. CUDA C++ `volatile` operations do not preserve the number of memory accesses performed, and may perform more or less accesses than requested in a non-deterministic way, making them incorrect for MMIO. The following example shows how to read and write from a register using PTX mmio operations.
     
     > __global__ void kernel(int* mmio_reg0, int* mmio_reg1) {
     >   // Write to MMIO register:
@@ -14802,7 +17454,6 @@ That is, CUDA C++ volatile is not suitable for:
     >   
     >   if (value != 42) __trap(); // Errors if wrong data read
     > }
-    
 
 ### 18.5.4. Pointers[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#pointers "Permalink to this headline")
 
@@ -14829,11 +17480,8 @@ It is not allowed to take the address of any of the built-in variables defined i
 The following RTTI-related features are supported in host code, but not in device code.
 
 - `typeid` operator
-    
 - `std::type_info`
-    
 - `dynamic_cast` operator
-    
 
 ### 18.5.7. Exception Handling[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#exception-handling "Permalink to this headline")
 
@@ -14852,40 +17500,67 @@ Unless an exception is otherwise noted, it is undefined behavior to add any decl
 Examples:
 
 namespace cuda{
+
    // Bad: class declaration added to namespace cuda
+
    struct foo{};
 
    // Bad: function definition added to namespace cuda
+
    cudaStream_t make_stream(){
+
       cudaStream_t s;
+
       cudaStreamCreate(&s);
+
       return s;
+
    }
+
 } // namespace cuda
 
 namespace cuda{
+
    namespace utils{
+
       // Bad: function definition added to namespace nested within cuda
+
       cudaStream_t make_stream(){
+
           cudaStream_t s;
+
           cudaStreamCreate(&s);
+
           return s;
+
       }
+
    } // namespace utils
+
 } // namespace cuda
 
 namespace utils{
+
    namespace cuda{
+
      // Okay: namespace cuda may be used nested within a non-reserved namespace
+
      cudaStream_t make_stream(){
+
           cudaStream_t s;
+
           cudaStreamCreate(&s);
+
           return s;
+
       }
+
    } // namespace cuda
+
 } // namespace utils
 
 // Bad: Equivalent to adding symbols to namespace cuda at global scope
+
 using namespace utils;
 
 ### 18.5.10. Functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#functions "Permalink to this headline")
@@ -14899,28 +17574,43 @@ A call within some device code of a function declared with the extern qualifier 
 Let `F` denote a function that is either implicitly-declared or is a non-virtual function that is explicitly-defaulted on its first declaration. The execution space specifiers (`__host__`, `__device__`) for `F` are the union of the execution space specifiers of all the functions that invoke it (note that a `__global__` caller will be treated as a `__device__` caller for this analysis). For example:
 
 class Base {
+
   int x;
+
 public:
+
   __host__ __device__ Base(void) : x(10) {}
+
 };
 
 class Derived : public Base {
+
   int y;
+
 };
 
 class Other: public Base {
+
   int z;
+
 };
 
 __device__ void foo(void)
+
 {
+
   Derived D1;
+
   Other D2;
+
 }
 
 __host__ void bar(void)
+
 {
+
   Other D3;
+
 }
 
 Here, the implicitly-declared constructor function “Derived::Derived” will be treated as a `__device__` function, since it is invoked only from the `__device__` function “foo”. The implicitly-declared constructor function “Other::Other” will be treated as a `__host__ __device__` function, since it is invoked both from a `__device__` function “foo” and a `__host__` function “bar”.
@@ -14930,13 +17620,19 @@ In addition, if `F` is an implicitly declared virtual function (e.g.,a virtual
 For example:
 
 struct Base1 { virtual __host__ __device__ ~Base1() { } };
+
 struct Derived1 : Base1 { }; // implicitly-declared virtual destructor
+
                              // ~Derived1 has __host__ __device__
+
                              // execution space specifiers
 
 struct Base2 { virtual __device__ ~Base2() = default; };
+
 struct Derived2 : Base2 { }; // implicitly-declared virtual destructor
+
                              // ~Derived2 has __device__ execution
+
                              // space specifiers
 
 #### 18.5.10.3. Function Parameters[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#function-parameters "Permalink to this headline")
@@ -14952,19 +17648,27 @@ In separate compilation mode, if a `__device__` or `__global__` function is 
 Example:
 
 //first.cu:
+
 struct S;
+
 __device__ void foo(S); // error: type 'S' is incomplete
+
 __device__ auto *ptr = foo;
 
 int main() { }
 
 //second.cu:
+
 struct S { int x; };
+
 __device__ void foo(S) { }
 
 //compiler invocation
+
 $nvcc -std=c++14 -rdc=true first.cu second.cu -o first
+
 nvlink error   : Prototype doesn't match for '_Z3foo1S' in '/tmp/tmpxft_00005c8c_00000000-18_second.o', first defined in '/tmp/tmpxft_00005c8c_00000000-18_second.o'
+
 nvlink fatal   : merge_elf failed
 
 ##### 18.5.10.3.1. `__global__` Function Argument Processing[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#global-function-argument-processing "Permalink to this headline")
@@ -14973,98 +17677,138 @@ When a `__global__` function is launched from device code, each argument must 
 
 When a `__global__` function is launched from host code, each argument type is allowed to be non-trivially copyable or non-trivially-destructible, but the processing for such types does not follow the standard C++ model, as described below. User code must ensure that this workflow does not affect program correctness. The workflow diverges from standard C++ in two areas:
 
-1. **Memcpy instead of copy constructor invocation**
-    
+1. __Memcpy instead of copy constructor invocation__
+
     When lowering a `__global__` function launch from host code, the compiler generates stub functions that copy the parameters one or more times by value, before eventually using `memcpy` to copy the arguments to the `__global__` function’s parameter memory on the device. This occurs even if an argument was non-trivially-copyable, and therefore may break programs where the copy constructor has side effects.
-    
+
     Example:
-    
+
     #include <cassert>
+
     struct S {
+
      int x;
+
      int *ptr;
+
      __host__ __device__ S() { }
+
      __host__ __device__ S(const S &) { ptr = &x; }
+
     };
-    
+
     __global__ void foo(S in) {
+
      // this assert may fail, because the compiler
+
      // generated code will memcpy the contents of "in"
+
      // from host to kernel parameter memory, so the
+
      // "in.ptr" is not initialized to "&in.x" because
+
      // the copy constructor is skipped.
+
      assert(in.ptr == &in.x);
+
     }
-    
+
     int main() {
+
       S tmp;
+
       foo<<<1,1>>>(tmp);
+
       cudaDeviceSynchronize();
+
     }
-    
+
     Example:
-    
+
     #include <cassert>
-    
+
     __managed__ int counter;
+
     struct S1 {
+
     S1() { }
+
     S1(const S1 &) { ++counter; }
+
     };
-    
+
     __global__ void foo(S1) {
-    
+
     /* this assertion may fail, because
+
        the compiler generates stub
+
        functions on the host for a kernel
+
        launch, and they may copy the
+
        argument by value more than once.
+
     */
+
     assert(counter == 1);
+
     }
-    
+
     int main() {
+
     S1 V;
+
     foo<<<1,1>>>(V);
+
     cudaDeviceSynchronize();
+
     }
-    
-2. **Destructor may be invoked before the ``__global__`` function has finished**
-    
+
+2. __Destructor may be invoked before the ``__global__`` function has finished__
+
     Kernel launches are asynchronous with host execution. As a result, if a `__global__` function argument has a non-trivial destructor, the destructor may execute in host code even before the `__global__` function has finished execution. This may break programs where the destructor has side effects.
-    
+
     Example:
-    
+
     struct S {
+
      int *ptr;
+
      S() : ptr(nullptr) { }
+
      S(const S &) { cudaMallocManaged(&ptr, sizeof(int)); }
+
      ~S() { cudaFree(ptr); }
+
     };
-    
+
     __global__ void foo(S in) {
-    
+
       //error: This store may write to memory that has already been
+
       //       freed (see below).
+
       *(in.ptr) = 4;
-    
+
     }
-    
+
     int main() {
+
      S V;
-    
+
      /* The object 'V' is first copied by value to a compiler-generated
-      * stub function that does the kernel launch, and the stub function
-      * bitwise copies the contents of the argument to kernel parameter
-      * memory.
-      * However, GPU kernel execution is asynchronous with host
-      * execution.
-      * As a result, S::~S() will execute when the stub function   returns, releasing allocated memory, even though the kernel may not have finished execution.
+
+      - stub function that does the kernel launch, and the stub function
+      - bitwise copies the contents of the argument to kernel parameter
+      - memory.
+      - However, GPU kernel execution is asynchronous with host
+      - execution.
+      - As a result, S::~S() will execute when the stub function   returns, releasing allocated memory, even though the kernel may not have finished execution.
       */
      foo<<<1,1>>>(V);
      cudaDeviceSynchronize();
     }
-    
 
 ##### 18.5.10.3.2. Toolkit and Driver Compatibility[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#toolkit-and-driver-compatibility "Permalink to this headline")
 
@@ -15079,9 +17823,7 @@ When linking device objects, if at least one device object contains a kernel wit
 Variable memory space specifiers are allowed in the declaration of a static variable `V` within the immediate or nested block scope of a function `F` where:
 
 - `F` is a `__global__` or `__device__`-only function.
-    
 - `F` is a `__host__ __device__` function and `__CUDA_ARCH__` is defined [11](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn17).
-    
 
 If no explicit memory space specifier is present in the declaration of `V`, an implicit `__device__` specifier is assumed during device compilation.
 
@@ -15090,57 +17832,89 @@ If no explicit memory space specifier is present in the declaration of `V`, an 
 Examples of legal and illegal uses of function-scope static variables are shown below.
 
 struct S1_t {
+
   int x;
+
 };
 
 struct S2_t {
+
   int x;
+
   __device__ S2_t(void) { x = 10; }
+
 };
 
 struct S3_t {
+
   int x;
+
   __device__ S3_t(int p) : x(p) { }
+
 };
 
 __device__ void f1() {
+
   static int i1;              // OK, implicit __device__ memory space specifier
+
   static int i2 = 11;         // OK, implicit __device__ memory space specifier
+
   static __managed__ int m1;  // OK
+
   static __device__ int d1;   // OK
+
   static __constant__ int c1; // OK
 
   static S1_t i3;             // OK, implicit __device__ memory space specifier
+
   static S1_t i4 = {22};      // OK, implicit __device__ memory space specifier
 
   static __shared__ int i5;   // OK
 
   int x = 33;
+
   static int i6 = x;          // error: dynamic initialization is not allowed
+
   static S1_t i7 = {x};       // error: dynamic initialization is not allowed
 
   static S2_t i8;             // error: dynamic initialization is not allowed
+
   static S3_t i9(44);         // error: dynamic initialization is not allowed
+
 }
 
 __host__ __device__ void f2() {
+
   static int i1;              // OK, implicit __device__ memory space specifier
+
                               // during device compilation.
+
 #ifdef __CUDA_ARCH__
+
   static __device__ int d1;   // OK, declaration is only visible during device
+
                               // compilation  (__CUDA_ARCH__ is defined)
+
 #else
+
   static int d0;              // OK, declaration is only visible during host
+
                               // compilation (__CUDA_ARCH__ is not defined)
+
 #endif
 
   static __device__ int d2;   // error: __device__ variable inside
+
                               // a host function during host compilation
+
                               // i.e. when __CUDA_ARCH__ is not defined
 
   static __shared__ int i2;  // error: __shared__ variable inside
+
                              // a host function during host compilation
+
                              // i.e. when __CUDA_ARCH__ is not defined
+
 }
 
 #### 18.5.10.5. Function Pointers[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#function-pointers "Permalink to this headline")
@@ -15160,18 +17934,27 @@ A `__global__` function or function template cannot be defined in a friend dec
 Example:
 
 struct S1_t {
+
   friend __global__
+
   void foo1(void);  // OK: not a definition
+
   template<typename T>
+
   friend __global__
+
   void foo2(void); // OK: not a definition
 
   friend __global__
+
   void foo3(void) { } // error: definition in friend declaration
 
   template<typename T>
+
   friend __global__
+
   void foo4(void) { } // error: definition in friend declaration
+
 };
 
 #### 18.5.10.8. Operator Function[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#operator-function "Permalink to this headline")
@@ -15211,20 +17994,33 @@ struct S1 { virtual __host__ __device__ void foo() { } };
 __managed__ S1 *ptr1, *ptr2;
 
 __managed__ __align__(16) char buf1[128];
+
 __global__ void kern() {
+
   ptr1->foo();     // error: virtual function call on a object
+
                    //        created in host code.
+
   ptr2 = new(buf1) S1();
+
 }
 
 int main(void) {
+
   void *buf;
+
   cudaMallocManaged(&buf, sizeof(S1), cudaMemAttachGlobal);
+
   ptr1 = new (buf) S1();
+
   kern<<<1,1>>>();
+
   cudaDeviceSynchronize();
+
   ptr2->foo();  // error: virtual function call on an object
+
                 //        created in device code.
+
 }
 
 #### 18.5.11.4. Virtual Base Classes[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-base-classes "Permalink to this headline")
@@ -15242,13 +18038,9 @@ Member variables of a namespace scope anonymous union cannot be referenced in a�
 The CUDA compiler follows the IA64 ABI for class layout, while the Microsoft host compiler does not. Let `T` denote a pointer to member type, or a class type that satisfies any of the following conditions:
 
 - `T` has virtual functions.
-    
 - `T` has a virtual base class.
-    
 - `T` has multiple inheritance with more than one direct or indirect empty base class.
-    
 - All direct and indirect base classes `B` of `T` are empty and the type of the first field `F` of `T` uses `B` in its definition, such that `B` is laid out at offset 0 in the definition of `F`.
-    
 
 Let `C` denote `T` or a class type that has `T` as a field type or as a base class type. The CUDA compiler may compute the class layout and size differently than the Microsoft host compiler for the type `C`.
 
@@ -15265,45 +18057,60 @@ Accessing an object of type `C` or any subobject in host code, or invoking a m
 A type or template cannot be used in the type, non-type or template template argument of a `__global__` function template instantiation or a `__device__/__constant__` variable instantiation if either:
 
 - The type or template is defined within a `__host__` or `__host__ __device__`.
-    
 - The type or template is a class member with `private` or `protected` access and its parent class is not defined within a `__device__` or `__global__` function.
-    
 - The type is unnamed.
-    
 - The type is compounded from any of the types above.
-    
 
 Example:
 
 template <typename T>
+
 __global__ void myKernel(void) { }
 
 class myClass {
+
 private:
+
     struct inner_t { };
+
 public:
+
     static void launch(void)
+
     {
+
        // error: inner_t is used in template argument
+
        // but it is private
+
        myKernel<inner_t><<<1,1>>>();
+
     }
+
 };
 
 // C++14 only
+
 template <typename T> __device__ T d1;
 
 template <typename T1, typename T2> __device__ T1 d2;
 
 void fn() {
+
   struct S1_t { };
+
   // error (C++14 only): S1_t is local to the function fn
+
   d1<S1_t> = {};
 
   auto lam1 = [] { };
+
   // error (C++14 only): a closure type cannot be used for
+
   // instantiating a variable template
+
   d2<int, decltype(lam1)> = 10;
+
 }
 
 ### 18.5.13. Trigraphs and Digraphs[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#trigraphs-and-digraphs "Permalink to this headline")
@@ -15317,27 +18124,27 @@ Let ‘V’ denote a namespace scope variable or a class static member variable 
 The value of V may be directly used in device code, if
 
 - V has been initialized with a constant expression before the point of use,
-    
 - the type of V is not volatile-qualified, and
-    
 - it has one of the following types:
-    
     - built-in floating point type except when the Microsoft compiler is used as the host compiler,
-        
     - built-in integral type.
-        
 
 Device source code cannot contain a reference to V or take the address of V.
 
 Example:
 
 const int xxx = 10;
+
 struct S1_t {  static const int yyy = 20; };
 
 extern const int zzz;
+
 const float www = 5.0;
+
 __device__ void foo(void) {
+
   int local1[xxx];          // OK
+
   int local2[S1_t::yyy];    // OK
 
   int val1 = xxx;           // OK
@@ -15345,13 +18152,19 @@ __device__ void foo(void) {
   int val2 = S1_t::yyy;     // OK
 
   int val3 = zzz;           // error: zzz not initialized with constant
+
                             // expression at the point of use.
 
   const int &val3 = xxx;    // error: reference to host variable
+
   const int *val4 = &xxx;   // error: address of host variable
+
   const float val5 = www;   // OK except when the Microsoft compiler is used as
+
                             // the host compiler.
+
 }
+
 const int zzz = 20;
 
 ### 18.5.15. Long Double[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#long-double "Permalink to this headline")
@@ -15379,12 +18192,19 @@ Example:
 __device__ int foo(int x) {
 
  if (i < 10) [[likely]] { // the 'if' block will likely be entered
+
   return 4;
+
  }
+
  if (i < 20) [[unlikely]] { // the 'if' block will not likely be entered
+
   return 1;
+
  }
+
  return 0;
+
 }
 
 If these attributes are used in host code when `__CUDA_ARCH__` is undefined, then they will be present in the code parsed by the host compiler, which may generate a warning if the attributes are not supported. For example, `clang`11 host compiler will generate an ‘unknown attribute’ warning.
@@ -15402,15 +18222,21 @@ Example:
 __attribute__((const)) __device__ int get(int in);
 
 __device__ int doit(int in) {
+
 int sum = 0;
 
 //because 'get' is marked with 'const' attribute
+
 //device code optimizer can recognize that the
+
 //second call to get() can be commoned out.
+
 sum = get(in);
+
 sum += get(in);
 
 return sum;
+
 }
 
 ### 18.5.20. __nv_pure__ Attribute[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#nv-pure-attribute "Permalink to this headline")
@@ -15436,29 +18262,43 @@ Examples of lambda expressions and computed execution space specifiers are shown
 auto globalVar = [] { return 0; }; // __host__
 
 void f1(void) {
+
   auto l1 = [] { return 1; };      // __host__
+
 }
 
 __device__ void f2(void) {
+
   auto l2 = [] { return 2; };      // __device__
+
 }
 
 __host__ __device__ void f3(void) {
+
   auto l3 = [] { return 3; };      // __host__ __device__
+
 }
 
-__device__ void f4(int (*fp)() = [] { return 4; } /* __host__ */) {
+__device__ void f4(int (_fp)() = [] { return 4; } /_ __host__ */) {
+
 }
 
 __global__ void f5(void) {
+
   auto l5 = [] { return 5; };      // __device__
+
 }
 
 __device__ void f6(void) {
+
   struct S1_t {
-    static void helper(int (*fp)() = [] {return 6; } /* __device__ */) {
+
+    static void helper(int (_fp)() = [] {return 6; } /_ __device__ */) {
+
     }
+
   };
+
 }
 
 The closure type of a lambda expression cannot be used in the type or non-type argument of a `__global__` function template instantiation, unless the lambda is defined within a `__device__` or `__global__` function.
@@ -15466,18 +18306,25 @@ The closure type of a lambda expression cannot be used in the type or non-type a
 Example:
 
 template <typename T>
+
 __global__ void foo(T in) { };
 
 template <typename T>
+
 struct S1_t { };
 
 void bar(void) {
+
   auto temp1 = [] { };
 
   foo<<<1,1>>>(temp1);                    // error: lambda closure type used in
+
                                           // template type argument
+
   foo<<<1,1>>>( S1_t<decltype(temp1)>()); // error: lambda closure type used in
+
                                           // template type argument
+
 }
 
 #### 18.5.22.2. std::initializer_list[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#std-initializer-list "Permalink to this headline")
@@ -15491,14 +18338,18 @@ Example:
 __device__ int foo(std::initializer_list<int> in);
 
 __device__ void bar(void)
+
   {
+
     foo({4,5,6});   // (a) initializer list containing only
+
                     // constant expressions.
 
     int i = 4;
     foo({i,5,6});   // (b) initializer list with at least one
                     // non-constant element.
                     // This form may have better performance than (a).
+
   }
 
 #### 18.5.22.3. Rvalue references[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#rvalue-references "Permalink to this headline")
@@ -15518,30 +18369,49 @@ If V is of scalar type [18](https://docs.nvidia.com/cuda/cuda-c-programming-gui
 Example:
 
 constexpr int xxx = 10;
+
 constexpr int yyy = xxx + 4;
+
 struct S1_t { static constexpr int qqq = 100; };
 
 constexpr int host_arr[] = { 1, 2, 3};
+
 constexpr __device__ int get(int idx) { return host_arr[idx]; }
 
 __device__ int foo(int idx) {
+
   int v1 = xxx + yyy + S1_t::qqq;  // OK
+
   const int &v2 = xxx;             // error: reference to host constexpr
+
                                    // variable
+
   const int *v3 = &xxx;            // error: address of host constexpr
+
                                    // variable
+
   const int &v4 = S1_t::qqq;       // error: reference to host constexpr
+
                                    // variable
+
   const int *v5 = &S1_t::qqq;      // error: address of host constexpr
+
                                    // variable
 
   v1 += get(2);                    // OK: 'get(2)' is a constant
+
                                    // expression.
+
   v1 += get(idx);                  // error: 'get(idx)' is not a constant
+
                                    // expression
+
   v1 += host_arr[2];               // error: 'host_arr' does not have
+
                                    // scalar type.
+
   return v1;
+
 }
 
 #### 18.5.22.6. Inline namespaces[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inline-namespaces "Permalink to this headline")
@@ -15549,11 +18419,8 @@ __device__ int foo(int idx) {
 For an input CUDA translation unit, the CUDA compiler may invoke the host compiler for compiling the host code within the translation unit. In the code passed to the host compiler, the CUDA compiler will inject additional compiler generated code, if the input CUDA translation unit contained a definition of any of the following entities:
 
 - `__global__` function or function template instantiation
-    
 - `__device__`, `__constant__`
-    
 - variables with surface or texture type
-    
 
 The compiler generated code contains a reference to the defined entity. If the entity is defined within an inline namespace and another entity of the same name and type signature is defined in an enclosing namespace, this reference may be considered ambiguous by the host compiler and host compilation will fail.
 
@@ -15562,28 +18429,41 @@ This limitation can be avoided by using unique names for such entities defined w
 Example:
 
 __device__ int Gvar;
+
 inline namespace N1 {
+
   __device__ int Gvar;
+
 }
 
 // <-- CUDA compiler inserts a reference to "Gvar" at this point in the
+
 // translation unit. This reference will be considered ambiguous by the
+
 // host compiler and compilation will fail.
 
 Example:
 
 inline namespace N1 {
+
   namespace N2 {
+
     __device__ int Gvar;
+
   }
+
 }
 
 namespace N2 {
+
   __device__ int Gvar;
+
 }
 
 // <-- CUDA compiler inserts reference to "::N2::Gvar" at this point in
+
 // the translation unit. This reference will be considered ambiguous by
+
 // the host compiler and compilation will fail.
 
 ##### 18.5.22.6.1. Inline unnamed namespaces[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inline-unnamed-namespaces "Permalink to this headline")
@@ -15591,17 +18471,17 @@ namespace N2 {
 The following entities cannot be declared in namespace scope within an inline unnamed namespace:
 
 - `__managed__`, `__device__`, `__shared__` and `__constant__` variables
-    
 - `__global__` function and function templates
-    
 - variables with surface or texture type
-    
 
 Example:
 
 inline namespace {
+
   namespace N2 {
+
     template <typename T>
+
     __global__ void foo(void);            // error
 
     __global__ void bar(void) { }         // error
@@ -15615,7 +18495,9 @@ inline namespace {
 
     texture<int> q2;                      // error
     surface<int> s2;                      // error
+
   }
+
 };
 
 #### 18.5.22.7. thread_local[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#thread-local "Permalink to this headline")
@@ -15629,17 +18511,25 @@ If the closure type associated with a lambda expression is used in a template ar
 Example:
 
 template <typename T>
+
 __global__ void kernel(T in) { }
 
 __device__ void foo_device(void)
+
 {
+
   // All kernel instantiations in this function
+
   // are valid, since the lambdas are defined inside
+
   // a __device__ function.
 
   kernel<<<1,1>>>( [] __device__ { } );
+
   kernel<<<1,1>>>( [] __host__ __device__ { } );
+
   kernel<<<1,1>>>( []  { } );
+
 }
 
 auto lam1 = [] { };
@@ -15647,25 +18537,37 @@ auto lam1 = [] { };
 auto lam2 = [] __host__ __device__ { };
 
 void foo_host(void)
+
 {
+
    // OK: instantiated with closure type of an extended __device__ lambda
+
    kernel<<<1,1>>>( [] __device__ { } );
 
    // OK: instantiated with closure type of an extended __host__ __device__
+
    // lambda
+
    kernel<<<1,1>>>( [] __host__ __device__ { } );
 
    // error: unsupported: instantiated with closure type of a lambda
+
    // that is not an extended lambda
+
    kernel<<<1,1>>>( []  { } );
 
    // error: unsupported: instantiated with closure type of a lambda
+
    // that is not an extended lambda
+
    kernel<<<1,1>>>( lam1);
 
    // error: unsupported: instantiated with closure type of a lambda
+
    // that is not an extended lambda
+
    kernel<<<1,1>>>( lam2);
+
 }
 
 A `__global__` function or function template cannot be declared as `constexpr`.
@@ -15677,23 +18579,28 @@ A `__global__` function cannot have a parameter of rvalue reference type.
 A variadic `__global__` function template has the following restrictions:
 
 - Only a single pack parameter is allowed.
-    
 - The pack parameter must be listed last in the template parameter list.
-    
 
 Example:
 
 // ok
+
 template <template <typename...> class Wrapper, typename... Pack>
+
 __global__ void foo1(Wrapper<Pack...>);
 
 // error: pack parameter is not last in parameter list
+
 template <typename... Pack, template <typename...> class Wrapper>
+
 __global__ void foo2(Wrapper<Pack...>);
 
 // error: multiple parameter packs
+
 template <typename... Pack1, int...Pack2, template<typename...> class Wrapper1,
+
           template<int...> class Wrapper2>
+
 __global__ void foo3(Wrapper1<Pack1...>, Wrapper2<Pack2...>);
 
 #### 18.5.22.9. __managed__ and __shared__ variables[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#managed-and-shared-variables "Permalink to this headline")
@@ -15707,49 +18614,72 @@ Execution space specifiers on a non-virtual function that is explicitly-defaulte
 Execution space specifiers are not ignored if the function is either:
 
 - Explicitly-defaulted but not on its first declaration.
-    
 - Explicitly-defaulted and virtual.
-    
 
 Example:
 
  struct S1 {
+
    // warning: __host__ annotation is ignored on a non-virtual function that
+
    //          is explicitly-defaulted on its first declaration
+
    __host__ S1() = default;
+
  };
 
  __device__ void foo1() {
+
    //note: __device__ execution space is derived for S1::S1
+
    //       based on implicit call from within __device__ function
+
    //       foo1
+
    S1 s1;
+
  }
 
  struct S2 {
+
    __host__ S2();
+
  };
 
  //note: S2::S2 is not defaulted on its first declaration, and
+
  //      its execution space is fixed to __host__  based on its
+
  //      first declaration.
+
  S2::S2() = default;
 
  __device__ void foo2() {
+
     // error: call from __device__ function 'foo2' to
+
     //        __host__ function 'S2::S2'
+
     S2 s2;
+
  }
 
 struct S3 {
+
   //note: S3::~S3 has __host__ execution space
+
   virtual __host__ ~S3() = default;
+
 };
 
 __device__ void foo3() {
+
   S3 qqq;
+
 }  /*(implicit destructor call for 'qqq'):
+
       error: call from a __device__ fuction 'foo3' to a
+
      __host__ function 'S3::~S3' */
 
 ### 18.5.23. C++14 Features[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#c-14-features "Permalink to this headline")
@@ -15765,40 +18695,57 @@ If a `__device__` function has deduced return type, the CUDA frontend compiler
 Examples:
 
 __device__ auto fn1(int x) {
+
   return x;
+
 }
 
 __device__ decltype(auto) fn2(int x) {
+
   return x;
+
 }
 
 __device__ void device_fn1() {
+
   // OK
+
   int (*p1)(int) = fn1;
+
 }
 
 // error: referenced outside device function bodies
+
 decltype(fn1(10)) g1;
 
 void host_fn1() {
+
   // error: referenced outside device function bodies
+
   int (*p1)(int) = fn1;
 
   struct S_local_t {
+
     // error: referenced outside device function bodies
+
     decltype(fn2(10)) m1;
 
     S_local_t() : m1(10) { }
+
   };
+
 }
 
 // error: referenced outside device function bodies
+
 template <typename T = decltype(fn2)>
+
 void host_fn2() { }
 
 template<typename T> struct S1_t { };
 
 // error: referenced outside device function bodies
+
 struct S1_derived_t : S1_t<decltype(fn1)> { };
 
 #### 18.5.23.2. Variable templates[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#variable-templates "Permalink to this headline")
@@ -15808,26 +18755,37 @@ A `__device__/__constant__` variable template cannot have a const qualified ty
 Examples:
 
 // error: a __device__ variable template cannot
+
 // have a const qualified type on Windows
+
 template <typename T>
+
 __device__ const T d1(2);
 
 int *const x = nullptr;
+
 // error: a __device__ variable template cannot
+
 // have a const qualified type on Windows
+
 template <typename T>
+
 __device__ T *const d2(x);
 
 // OK
+
 template <typename T>
+
 __device__ const T *d3;
 
 __device__ void fn() {
+
   int t1 = d1<int>;
 
   int *const t2 = d2<int>;
 
   const int *t3 = d3<int>;
+
 }
 
 ### 18.5.24. C++17 Features[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#c-17-features "Permalink to this headline")
@@ -15837,23 +18795,28 @@ C++17 features enabled by default by the host compiler are also supported by nvc
 #### 18.5.24.1. Inline Variable[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#inline-variable "Permalink to this headline")
 
 - A namespace scope inline variable declared with `__device__` or `__constant__` or `__managed__` memory space specifier must have internal linkage, if the code is compiled with nvcc in whole program compilation mode.
-    
+
     Examples:
-    
+
     inline __device__ int xxx; //error when compiled with nvcc in
+
                                //whole program compilation mode.
+
                                //ok when compiled with nvcc in
+
                                //separate compilation mode.
-    
+
     inline __shared__ int yyy0; // ok.
-    
+
     static inline __device__ int yyy; // ok: internal linkage
+
     namespace {
+
     inline __device__ int zzz; // ok: internal linkage
+
     }
-    
+
 - When using g++ host compiler, an inline variable declared with `__managed__` memory space specifier may not be visible to the debugger.
-    
 
 #### 18.5.24.2. Structured Binding[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#structured-binding "Permalink to this headline")
 
@@ -15862,6 +18825,7 @@ A structured binding cannot be declared with a variable memory space specifier.
 Example:
 
 struct S { int x; int y; };
+
 __device__ auto [a1, b1] = S{4,5}; // error
 
 ### 18.5.25. C++20 Features[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#c-20-features "Permalink to this headline")
@@ -15883,16 +18847,27 @@ The three-way comparison operator is supported in both host and device code, but
 Example:
 
 #include<compare>
+
 struct S {
+
   int x, y, z;
+
   auto operator<=>(const S& rhs) const = default;
+
   __host__ __device__ bool operator<=>(int rhs) const { return false; }
+
 };
+
 __host__ __device__ bool f(S a, S b) {
+
   if (a <=> 1) // ok, calls a user-defined host-device overload
+
     return true;
+
   return a < b; // call to an implicitly-declared function and requires
+
                 // a device-compatible std::strong_ordering implementation
+
 }
 
 #### 18.5.25.4. Consteval functions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#consteval-functions "Permalink to this headline")
@@ -15902,23 +18877,35 @@ Ordinarily, cross execution space calls are not allowed, and cause a compiler di
 Example:
 
 namespace N1 {
+
 //consteval host function
+
 consteval int hcallee() { return 10; }
 
-__device__ int dfunc() { return hcallee(); /* OK */ }
-__global__ void gfunc() { (void)hcallee(); /* OK */ }
-__host__ __device__ int hdfunc() { return hcallee();  /* OK */ }
-int hfunc() { return hcallee(); /* OK */ }
+__device__ int dfunc() { return hcallee(); /* OK _/ }
+
+__global__ void gfunc() { (void)hcallee(); /_ OK _/ }
+
+__host__ __device__ int hdfunc() { return hcallee();  /_ OK _/ }
+
+int hfunc() { return hcallee(); /_ OK */ }
+
 } // namespace N1
 
 namespace N2 {
+
 //consteval device function
+
 consteval __device__ int dcallee() { return 10; }
 
-__device__ int dfunc() { return dcallee(); /* OK */ }
-__global__ void gfunc() { (void)dcallee(); /* OK */ }
-__host__ __device__ int hdfunc() { return dcallee();  /* OK */ }
-int hfunc() { return dcallee(); /* OK */ }
+__device__ int dfunc() { return dcallee(); /* OK _/ }
+
+__global__ void gfunc() { (void)dcallee(); /_ OK _/ }
+
+__host__ __device__ int hdfunc() { return dcallee();  /_ OK _/ }
+
+int hfunc() { return dcallee(); /_ OK */ }
+
 }
 
 ## 18.6. Polymorphic Function Wrappers[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#polymorphic-function-wrappers "Permalink to this headline")
@@ -15930,30 +18917,43 @@ Example:
 #include <nvfunctional>
 
 __device__ int foo_d() { return 1; }
+
 __host__ __device__ int foo_hd () { return 2; }
+
 __host__ int foo_h() { return 3; }
 
 __global__ void kernel(int *result) {
+
   nvstd::function<int()> fn1 = foo_d;
+
   nvstd::function<int()> fn2 = foo_hd;
+
   nvstd::function<int()> fn3 =  []() { return 10; };
 
   *result = fn1() + fn2() + fn3();
+
 }
 
 __host__ __device__ void hostdevice_func(int *result) {
+
   nvstd::function<int()> fn1 = foo_hd;
+
   nvstd::function<int()> fn2 =  []() { return 10; };
 
   *result = fn1() + fn2();
+
 }
 
 __host__ void host_func(int *result) {
+
   nvstd::function<int()> fn1 = foo_h;
+
   nvstd::function<int()> fn2 = foo_hd;
+
   nvstd::function<int()> fn3 =  []() { return 10; };
 
   *result = fn1() + fn2() + fn3();
+
 }
 
 Instances of `nvstd::function` in host code cannot be initialized with the address of a `__device__` function or with a functor whose `operator()` is a `__device__` function. Instances of `nvstd::function` in device code cannot be initialized with the address of a `__host__` function or with a functor whose `operator()` is a `__host__` function.
@@ -15965,45 +18965,67 @@ Example:
 #include <nvfunctional>
 
 __device__ int foo_d() { return 1; }
+
 __host__ int foo_h() { return 3; }
+
 auto lam_h = [] { return 0; };
 
 __global__ void k(void) {
+
   // error: initialized with address of __host__ function
+
   nvstd::function<int()> fn1 = foo_h;
 
   // error: initialized with address of functor with
+
   // __host__ operator() function
+
   nvstd::function<int()> fn2 = lam_h;
+
 }
 
 __global__ void kern(nvstd::function<int()> f1) { }
 
 void foo(void) {
+
   // error: initialized with address of __device__ function
+
   nvstd::function<int()> fn1 = foo_d;
 
   auto lam_d = [=] __device__ { return 1; };
 
   // error: initialized with address of functor with
+
   // __device__ operator() function
+
   nvstd::function<int()> fn2 = lam_d;
 
   // error: passing nvstd::function from host to device
+
   kern<<<1,1>>>(fn2);
+
 }
 
 `nvstd::function` is defined in the `nvfunctional` header as follows:
 
 namespace nvstd {
+
   template <class _RetType, class ..._ArgTypes>
+
   class function<_RetType(_ArgTypes...)>
+
   {
+
     public:
+
       // constructors
+
       __device__ __host__  function() noexcept;
+
       __device__ __host__  function(nullptr_t) noexcept;
+
       __device__ __host__  function(const function &);
+
       __device__ __host__  function(function &&);
 
       template<class _F>
@@ -16026,29 +19048,43 @@ namespace nvstd {
 
       // function invocation
       __device__ _RetType operator()(_ArgTypes...) const;
+
   };
 
   // null pointer comparisons
+
   template <class _R, class... _ArgTypes>
+
   __device__ __host__
+
   bool operator==(const function<_R(_ArgTypes...)>&, nullptr_t) noexcept;
 
   template <class _R, class... _ArgTypes>
+
   __device__ __host__
+
   bool operator==(nullptr_t, const function<_R(_ArgTypes...)>&) noexcept;
 
   template <class _R, class... _ArgTypes>
+
   __device__ __host__
+
   bool operator!=(const function<_R(_ArgTypes...)>&, nullptr_t) noexcept;
 
   template <class _R, class... _ArgTypes>
+
   __device__ __host__
+
   bool operator!=(nullptr_t, const function<_R(_ArgTypes...)>&) noexcept;
 
   // specialized algorithms
+
   template <class _R, class... _ArgTypes>
+
   __device__ __host__
+
   void swap(function<_R(_ArgTypes...)>&, function<_R(_ArgTypes...)>&);
+
 }
 
 ## 18.7. Extended Lambdas[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-lambdas "Permalink to this headline")
@@ -16066,46 +19102,69 @@ If the execution space annotations are not explicitly specified, they are comput
 Example:
 
 void foo_host(void) {
+
   // not an extended lambda: no explicit execution space annotations
+
   auto lam1 = [] { };
 
   // extended __device__ lambda
+
   auto lam2 = [] __device__ { };
 
   // extended __host__ __device__ lambda
+
   auto lam3 = [] __host__ __device__ { };
 
   // not an extended lambda: explicitly annotated with only '__host__'
+
   auto lam4 = [] __host__ { };
+
 }
 
 __host__ __device__ void foo_host_device(void) {
+
   // not an extended lambda: no explicit execution space annotations
+
   auto lam1 = [] { };
 
   // extended __device__ lambda
+
   auto lam2 = [] __device__ { };
 
   // extended __host__ __device__ lambda
+
   auto lam3 = [] __host__ __device__ { };
 
   // not an extended lambda: explicitly annotated with only '__host__'
+
   auto lam4 = [] __host__ { };
+
 }
 
 __device__ void foo_device(void) {
+
   // none of the lambdas within this function are extended lambdas,
+
   // because the enclosing function is not a __host__ or __host__ __device__
+
   // function.
+
   auto lam1 = [] { };
+
   auto lam2 = [] __device__ { };
+
   auto lam3 = [] __host__ __device__ { };
+
   auto lam4 = [] __host__ { };
+
 }
 
 // lam1 and lam2 are not extended lambdas because they are not defined
+
 // within a __host__ or __host__ __device__ function.
+
 auto lam1 = [] { };
+
 auto lam2 = [] __host__ __device__ { };
 
 ### 18.7.1. Extended Lambda Type Traits[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-lambda-type-traits "Permalink to this headline")
@@ -16123,48 +19182,75 @@ These traits can be used in all compilation modes, irrespective of whether lambd
 Example:
 
 #define IS_D_LAMBDA(X) __nv_is_extended_device_lambda_closure_type(X)
+
 #define IS_DPRT_LAMBDA(X) __nv_is_extended_device_lambda_with_preserved_return_type(X)
+
 #define IS_HD_LAMBDA(X) __nv_is_extended_host_device_lambda_closure_type(X)
 
 auto lam0 = [] __host__ __device__ { };
 
 void foo(void) {
+
   auto lam1 = [] { };
+
   auto lam2 = [] __device__ { };
+
   auto lam3 = [] __host__ __device__ { };
+
   auto lam4 = [] __device__ () --> double { return 3.14; }
+
   auto lam5 = [] __device__ (int x) --> decltype(&x) { return 0; }
 
   // lam0 is not an extended lambda (since defined outside function scope)
+
   static_assert(!IS_D_LAMBDA(decltype(lam0)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam0)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam0)), "");
 
   // lam1 is not an extended lambda (since no execution space annotations)
+
   static_assert(!IS_D_LAMBDA(decltype(lam1)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam1)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam1)), "");
 
   // lam2 is an extended __device__ lambda
+
   static_assert(IS_D_LAMBDA(decltype(lam2)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam2)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam2)), "");
 
   // lam3 is an extended __host__ __device__ lambda
+
   static_assert(!IS_D_LAMBDA(decltype(lam3)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam3)), "");
+
   static_assert(IS_HD_LAMBDA(decltype(lam3)), "");
 
   // lam4 is an extended __device__ lambda with preserved return type
+
   static_assert(IS_D_LAMBDA(decltype(lam4)), "");
+
   static_assert(IS_DPRT_LAMBDA(decltype(lam4)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam4)), "");
 
   // lam5 is not an extended __device__ lambda with preserved return type
+
   // because it references the operator()'s parameter types in the trailing return type.
+
   static_assert(IS_D_LAMBDA(decltype(lam5)), "");
+
   static_assert(!IS_DPRT_LAMBDA(decltype(lam5)), "");
+
   static_assert(!IS_HD_LAMBDA(decltype(lam5)), "");
+
 }
 
 ### 18.7.2. Extended Lambda Restrictions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-lambda-restrictions "Permalink to this headline")
@@ -16176,115 +19262,171 @@ By definition, the extended lambda is present within the immediate or nested blo
 Example:
 
 void foo(void) {
+
   // enclosing function for lam1 is "foo"
+
   auto lam1 = [] __device__ { };
 
   auto lam2 = [] {
+
      auto lam3 = [] {
+
         // enclosing function for lam4 is "foo"
+
         auto lam4 = [] __host__ __device__ { };
+
      };
+
   };
+
 }
 
 auto lam6 = [] {
+
   // enclosing function for lam7 does not exist
+
   auto lam7 = [] __host__ __device__ { };
+
 };
 
 Here are the restrictions on extended lambdas:
 
 1. An extended lambda cannot be defined inside another extended lambda expression.
-    
+
     Example:
-    
+
     void foo(void) {
+
       auto lam1 = [] __host__ __device__  {
+
         // error: extended lambda defined within another extended lambda
+
         auto lam2 = [] __host__ __device__ { };
+
       };
+
     }
-    
+
 2. An extended lambda cannot be defined inside a generic lambda expression.
-    
+
     Example:
-    
+
     void foo(void) {
+
       auto lam1 = [] (auto) {
+
         // error: extended lambda defined within a generic lambda
+
         auto lam2 = [] __host__ __device__ { };
+
       };
+
     }
-    
+
 3. If an extended lambda is defined within the immediate or nested block scope of one or more nested lambda expression, the outermost such lambda expression must be defined inside the immediate or nested block scope of a function.
-    
+
     Example:
-    
+
     auto lam1 = []  {
+
       // error: outer enclosing lambda is not defined within a
+
       // non-lambda-operator() function.
+
       auto lam2 = [] __host__ __device__ { };
+
     };
-    
+
 4. The enclosing function for the extended lambda must be named and its address can be taken. If the enclosing function is a class member, then the following conditions must be satisfied:
     
     - All classes enclosing the member function must have a name.
-        
     - The member function must not have private or protected access within its parent class.
-        
     - All enclosing classes must not have private or protected access within their respective parent classes.
-        
-    
+
     Example:
-    
+
     void foo(void) {
+
       // OK
+
       auto lam1 = [] __device__ { return 0; };
+
       {
+
         // OK
+
         auto lam2 = [] __device__ { return 0; };
+
         // OK
+
         auto lam3 = [] __device__ __host__ { return 0; };
+
       }
+
     }
-    
+
     struct S1_t {
+
       S1_t(void) {
+
         // Error: cannot take address of enclosing function
+
         auto lam4 = [] __device__ { return 0; };
+
       }
+
     };
-    
+
     class C0_t {
+
       void foo(void) {
+
         // Error: enclosing function has private access in parent class
+
         auto temp1 = [] __device__ { return 10; };
+
       }
+
       struct S2_t {
+
         void foo(void) {
+
           // Error: enclosing class S2_t has private access in its
+
           // parent class
+
           auto temp1 = [] __device__ { return 10; };
+
         }
+
       };
+
     };
-    
+
 5. It must be possible to take the address of the enclosing routine unambiguously, at the point where the extended lambda has been defined. This may not be feasible in some cases e.g. when a class typedef shadows a template type argument of the same name.
-    
+
     Example:
-    
+
     template <typename> struct A {
+
       typedef void Bar;
+
       void test();
+
     };
-    
+
     template<> struct A<void> { };
-    
+
     template <typename Bar>
+
     void A<Bar>::test() {
+
       /* In code sent to host compiler, nvcc will inject an
+
          address expression here, of the form:
+
          (void (A< Bar> ::*)(void))(&A::test))
+
     
          However, the class typedef 'Bar' (to void) shadows the
          template argument 'Bar', causing the address
@@ -16293,348 +19435,498 @@ Here are the restrictions on extended lambdas:
     
          ..which doesn't take the address of the enclosing
          routine 'A<int>::test' correctly.
+
       */
+
       auto lam1 = [] __host__ __device__ { return 4; };
+
     }
-    
+
     int main() {
+
       A<int> xxx;
+
       xxx.test();
+
     }
-    
+
 6. An extended lambda cannot be defined in a class that is local to a function.
-    
+
     Example:
-    
+
     void foo(void) {
+
       struct S1_t {
+
         void bar(void) {
+
           // Error: bar is member of a class that is local to a function.
+
           auto lam4 = [] __host__ __device__ { return 0; };
+
         }
+
       };
+
     }
-    
+
 7. The enclosing function for an extended lambda cannot have deduced return type.
-    
+
     Example:
-    
+
     auto foo(void) {
+
       // Error: the return type of foo is deduced.
+
       auto lam1 = [] __host__ __device__ { return 0; };
+
     }
-    
+
 8. __host__ __device__ extended lambdas cannot be generic lambdas.
-    
+
     Example:
-    
+
     void foo(void) {
+
       // Error: __host__ __device__ extended lambdas cannot be
+
       // generic lambdas.
+
       auto lam1 = [] __host__ __device__ (auto i) { return i; };
-    
+
       // Error: __host__ __device__ extended lambdas cannot be
+
       // generic lambdas.
+
       auto lam2 = [] __host__ __device__ (auto ...i) {
+
                    return sizeof...(i);
+
                   };
+
     }
-    
+
 9. If the enclosing function is an instantiation of a function template or a member function template, and/or the function is a member of a class template, the template(s) must satisfy the following constraints:
     
     - The template must have at most one variadic parameter, and it must be listed last in the template parameter list.
-        
     - The template parameters must be named.
-        
     - The template instantiation argument types cannot involve types that are either local to a function (except for closure types for extended lambdas), or are private or protected class members.
-        
-    
+
     Example:
-    
+
     template <typename T>
+
     __global__ void kern(T in) { in(); }
-    
+
     template <typename... T>
+
     struct foo {};
-    
+
     template < template <typename...> class T, typename... P1,
+
               typename... P2>
+
     void bar1(const T<P1...>, const T<P2...>) {
+
       // Error: enclosing function has multiple parameter packs
+
       auto lam1 =  [] __device__ { return 10; };
+
     }
-    
+
     template < template <typename...> class T, typename... P1,
+
               typename T2>
+
     void bar2(const T<P1...>, T2) {
+
       // Error: for enclosing function, the
+
       // parameter pack is not last in the template parameter list.
+
       auto lam1 =  [] __device__ { return 10; };
+
     }
-    
+
     template <typename T, T>
+
     void bar3(void) {
+
       // Error: for enclosing function, the second template
+
       // parameter is not named.
+
       auto lam1 =  [] __device__ { return 10; };
+
     }
-    
+
     int main() {
+
       foo<char, int, float> f1;
+
       foo<char, int> f2;
+
       bar1(f1, f2);
+
       bar2(f1, 10);
+
       bar3<int, 10>();
+
     }
-    
+
     Example:
-    
+
     template <typename T>
+
     __global__ void kern(T in) { in(); }
-    
+
     template <typename T>
+
     void bar4(void) {
+
       auto lam1 =  [] __device__ { return 10; };
+
       kern<<<1,1>>>(lam1);
+
     }
-    
+
     struct C1_t { struct S1_t { }; friend int main(void); };
+
     int main() {
+
       struct S1_t { };
+
       // Error: enclosing function for device lambda in bar4
+
       // is instantiated with a type local to main.
+
       bar4<S1_t>();
-    
+
       // Error: enclosing function for device lambda in bar4
+
       // is instantiated with a type that is a private member
+
       // of a class.
+
       bar4<C1_t::S1_t>();
+
     }
-    
+
 10. With Visual Studio host compilers, the enclosing function must have external linkage. The restriction is present because this host compiler does not support using the address of non-extern linkage functions as template arguments, which is needed by the CUDA compiler transformations to support extended lambdas.
-    
 11. With Visual Studio host compilers, an extended lambda shall not be defined within the body of an ‘if-constexpr’ block.
-    
 12. An extended lambda has the following restrictions on captured variables:
     
     - In the code sent to the host compiler, the variable may be passed by value to a sequence of helper functions before being used to direct-initialize the field of the class type used to represent the closure type for the extended lambda[25](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn32).
-        
     - A variable can only be captured by value.
-        
     - A variable of array type cannot be captured if the number of array dimensions is greater than 7.
-        
     - For a variable of array type, in the code sent to the host compiler, the closure type’s array field is first default-initialized, and then each element of the array field is copy-assigned from the corresponding element of the captured array variable. Therefore, the array element type must be default-constructible and copy-assignable in host code.
-        
     - A function parameter that is an element of a variadic argument pack cannot be captured.
-        
     - The type of the captured variable cannot involve types that are either local to a function (except for closure types of extended lambdas), or are private or protected class members.
-        
     - For a __host__ __device__ extended lambda, the types used in the return or parameter types of the lambda expression’s `operator()` cannot involve types that are either local to a function (except for closure types of extended lambdas), or are private or protected class members.
-        
     - Init-capture is not supported for __host__ __device__ extended lambdas. Init-capture is supported for __device__ extended lambdas, except when the init-capture is of array type or of type `std::initializer_list`.
-        
     - The function call operator for an extended lambda is not constexpr. The closure type for an extended lambda is not a literal type. The constexpr and consteval specifier cannot be used in the declaration of an extended lambda.
-        
     - A variable cannot be implicitly captured inside an if-constexpr block lexically nested inside an extended lambda, unless it has already been implicitly captured earlier outside the if-constexpr block or appears in the explicit capture list for the extended lambda (see example below).
-        
-    
+
     Example
-    
+
     void foo(void) {
+
       // OK: an init-capture is allowed for an
+
       // extended __device__ lambda.
+
       auto lam1 = [x = 1] __device__ () { return x; };
-    
+
       // Error: an init-capture is not allowed for
+
       // an extended __host__ __device__ lambda.
+
       auto lam2 = [x = 1] __host__ __device__ () { return x; };
-    
+
       int a = 1;
+
       // Error: an extended __device__ lambda cannot capture
+
       // variables by reference.
+
       auto lam3 = [&a] __device__ () { return a; };
-    
+
       // Error: by-reference capture is not allowed
+
       // for an extended __device__ lambda.
+
       auto lam4 = [&x = a] __device__ () { return x; };
-    
+
       struct S1_t { };
+
       S1_t s1;
+
       // Error: a type local to a function cannot be used in the type
+
       // of a captured variable.
+
       auto lam6 = [s1] __device__ () { };
-    
+
       // Error: an init-capture cannot be of type std::initializer_list.
+
       auto lam7 = [x = {11}] __device__ () { };
-    
+
       std::initializer_list<int> b = {11,22,33};
+
       // Error: an init-capture cannot be of type std::initializer_list.
+
       auto lam8 = [x = b] __device__ () { };
-    
+
       // Error scenario (lam9) and supported scenarios (lam10, lam11)
+
       // for capture within 'if-constexpr' block
+
       int yyy = 4;
+
       auto lam9 = [=] __device__ {
+
         int result = 0;
+
         if constexpr(false) {
+
           //Error: An extended __device__ lambda cannot first-capture
+
           //      'yyy' in constexpr-if context
+
           result += yyy;
+
         }
+
         return result;
+
       };
-    
+
       auto lam10 = [yyy] __device__ {
+
         int result = 0;
+
         if constexpr(false) {
+
           //OK: 'yyy' already listed in explicit capture list for the extended lambda
+
           result += yyy;
+
         }
+
         return result;
+
       };
-    
+
       auto lam11 = [=] __device__ {
+
         int result = yyy;
+
         if constexpr(false) {
+
           //OK: 'yyy' already implicit captured outside the 'if-constexpr' block
+
           result += yyy;
+
         }
+
         return result;
+
       };
+
     }
-    
+
 13. When parsing a function, the CUDA compiler assigns a counter value to each extended lambda within that function. This counter value is used in the substituted named type passed to the host compiler. Hence, whether or not an extended lambda is defined within a function should not depend on a particular value of `__CUDA_ARCH__`, or on `__CUDA_ARCH__` being undefined.
-    
+
     Example
-    
+
     template <typename T>
+
     __global__ void kernel(T in) { in(); }
-    
+
     __host__ __device__ void foo(void) {
+
       // Error: the number and relative declaration
+
       // order of extended lambdas depends on
+
       // __CUDA_ARCH__
+
     #if defined(__CUDA_ARCH__)
+
       auto lam1 = [] __device__ { return 0; };
+
       auto lam1b = [] __host___ __device__ { return 10; };
+
     #endif
+
       auto lam2 = [] __device__ { return 4; };
+
       kernel<<<1,1>>>(lam2);
+
     }
-    
+
 14. As described above, the CUDA compiler replaces a `__device__` extended lambda defined in a host function with a placeholder type defined in namespace scope. Unless the trait `__nv_is_extended_device_lambda_with_preserved_return_type()` returns true for the closure type of the extended lambda, the placeholder type does not define a `operator()` function equivalent to the original lambda declaration. An attempt to determine the return type or parameter types of the `operator()` function of such a lambda may therefore work incorrectly in host code, as the code processed by the host compiler will be semantically different than the input code processed by the CUDA compiler. However, it is OK to introspect the return type or parameter types of the `operator()` function within device code. Note that this restriction does not apply to `__host__ __device__` extended lambdas, or to `__device__` extended lambdas for which the trait `__nv_is_extended_device_lambda_with_preserved_return_type()` returns true.
-    
+
     Example
-    
+
     #include <type_traits>
+
     const char& getRef(const char* p) { return *p; }
-    
+
     void foo(void) {
+
       auto lam1 = [] __device__ { return "10"; };
-    
+
       // Error: attempt to extract the return type
+
       // of a __device__ lambda in host code
+
       std::result_of<decltype(lam1)()>::type xx1 = "abc";
-    
+
       auto lam2 = [] __host__ __device__  { return "10"; };
-    
+
       // OK : lam2 represents a __host__ __device__ extended lambda
+
       std::result_of<decltype(lam2)()>::type xx2 = "abc";
-    
+
       auto lam3 = []  __device__ () -> const char * { return "10"; };
-    
+
       // OK : lam3 represents a __device__ extended lambda with preserved return type
+
       std::result_of<decltype(lam3)()>::type xx2 = "abc";
+
       static_assert( std::is_same_v< std::result_of<decltype(lam3)()>::type, const char *>);
-    
+
       auto lam4 = [] __device__ (char x) -> decltype(getRef(&x)) { return 0; };
+
       // lam4's return type is not preserved because it references the operator()'s
+
       // parameter types in the trailing return type.
+
       static_assert( ! __nv_is_extended_device_lambda_with_preserved_return_type(decltype(lam4)), "" );
+
     }
-    
+
 15. For an extended device lambda: - Introspecting the parameter type of operator() is only supported in device code. - Introspecting the return type of operator() is supported only in device code, unless the trait function __nv_is_extended_device_lambda_with_preserved_return_type() returns true.
-    
 16. If the functor object represented by an extended lambda is passed from host to device code (e.g., as the argument of a `__global__` function), then any expression in the body of the lambda expression that captures variables must be remain unchanged irrespective of whether the `__CUDA_ARCH__` macro is defined, and whether the macro has a particular value. This restriction arises because the lambda’s closure class layout depends on the order in which captured variables are encountered when the compiler processes the lambda expression; the program may execute incorrectly if the closure class layout differs in device and host compilation.
-    
+
     Example
-    
+
     __device__ int result;
-    
+
     template <typename T>
+
     __global__ void kernel(T in) { result = in(); }
-    
+
     void foo(void) {
+
       int x1 = 1;
+
       auto lam1 = [=] __host__ __device__ {
+
         // Error: "x1" is only captured when __CUDA_ARCH__ is defined.
+
     #ifdef __CUDA_ARCH__
+
         return x1 + 1;
+
     #else
+
         return 10;
+
     #endif
+
       };
+
       kernel<<<1,1>>>(lam1);
+
     }
-    
+
 17. As described previously, the CUDA compiler replaces an extended `__device__` lambda expression with an instance of a placeholder type in the code sent to the host compiler. This placeholder type does not define a pointer-to-function conversion operator in host code, however the conversion operator is provided in device code. Note that this restriction does not apply to `__host__ __device__` extended lambdas.
-    
+
     Example
-    
+
     template <typename T>
+
     __global__ void kern(T in) {
+
       int (*fp)(double) = in;
-    
+
       // OK: conversion in device code is supported
+
       fp(0);
+
       auto lam1 = [](double) { return 1; };
-    
+
       // OK: conversion in device code is supported
+
       fp = lam1;
+
       fp(0);
+
     }
-    
+
     void foo(void) {
+
       auto lam_d = [] __device__ (double) { return 1; };
+
       auto lam_hd = [] __host__ __device__ (double) { return 1; };
+
       kern<<<1,1>>>(lam_d);
+
       kern<<<1,1>>>(lam_hd);
-    
+
       // OK : conversion for __host__ __device__ lambda is supported
+
       // in host code
+
       int (*fp)(double) = lam_hd;
-    
+
       // Error: conversion for __device__ lambda is not supported in
+
       // host code.
+
       int (*fp2)(double) = lam_d;
+
     }
-    
+
 18. As described previously, the CUDA compiler replaces an extended `__device__` or `__host__ __device__` lambda expression with an instance of a placeholder type in the code sent to the host compiler. This placeholder type may define C++ special member functions (e.g. constructor, destructor). As a result, some standard C++ type traits may return different results for the closure type of the extended lambda, in the CUDA frontend compiler versus the host compiler. The following type traits are affected: `std::is_trivially_copyable`, `std::is_trivially_constructible`, `std::is_trivially_copy_constructible`, `std::is_trivially_move_constructible`, `std::is_trivially_destructible`.
-    
+
     Care must be taken that the results of these type traits are not used in `__global__` function template instantiation or in `__device__ /__constant__ / __managed__` variable template instantiation.
-    
+
     Example
-    
+
     template <bool b>
+
     void __global__ foo() { printf("hi"); }
-    
+
     template <typename T>
+
     void dolaunch() {
-    
+
     // ERROR: this kernel launch may fail, because CUDA frontend compiler
+
     // and host compiler may disagree on the result of
+
     // std::is_trivially_copyable() trait on the closure type of the
+
     // extended lambda
+
     foo<std::is_trivially_copyable<T>::value><<<1,1>>>();
+
     cudaDeviceSynchronize();
+
     }
-    
+
     int main() {
+
     int x = 0;
+
     auto lam1 = [=] __host__ __device__ () { return x; };
+
     dolaunch<decltype(lam1)>();
+
     }
-    
 
 The CUDA compiler will generate compiler diagnostics for a subset of cases described in 1-12; no diagnostic will be generated for cases 13-17, but the host compiler may fail to compile the generated code.
 
@@ -16653,10 +19945,13 @@ Example:
 #include <cstdio>
 
 template <typename T>
+
 __global__ void foo(T in) { printf("\n value = %d", in()); }
 
 struct S1_t {
+
   int xxx;
+
   __host__ __device__ S1_t(void) : xxx(10) { };
 
   void doit(void) {
@@ -16672,12 +19967,17 @@ struct S1_t {
     // is not accessible from the GPU
     foo<<<1,1>>>(lam1);
     cudaDeviceSynchronize();
+
   }
+
 };
 
 int main(void) {
+
   S1_t s1;
+
   s1.doit();
+
 }
 
 C++17 solves this problem by adding a new “*this” capture mode. In this mode, the compiler makes a copy of the object denoted by “*this” instead of capturing the pointer `this` by value. The “*this” capture mode is described in more detail here: `http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0018r3.html` .
@@ -16689,10 +19989,13 @@ Here’s the above example modified to use “*this” capture mode:
 #include <cstdio>
 
 template <typename T>
+
 __global__ void foo(T in) { printf("\n value = %d", in()); }
 
 struct S1_t {
+
   int xxx;
+
   __host__ __device__ S1_t(void) : xxx(10) { };
 
   void doit(void) {
@@ -16710,18 +20013,25 @@ struct S1_t {
     // Kernel launch succeeds
     foo<<<1,1>>>(lam1);
     cudaDeviceSynchronize();
+
   }
+
 };
 
 int main(void) {
+
   S1_t s1;
+
   s1.doit();
+
 }
 
 “*this” capture mode is not allowed for unannotated lambdas defined in host code, or for extended `__host__``__device__` lambdas, unless “*this” capture is enabled by the selected language dialect. Examples of supported and unsupported usage:
 
 struct S1_t {
+
   int xxx;
+
   __host__ __device__ S1_t(void) : xxx(10) { };
 
   void host_func(void) {
@@ -16736,6 +20046,7 @@ struct S1_t {
     // Use in an unannotated lambda in host function
     // Error if *this capture not enabled by language dialect
     auto lam3 = [=, *this]  { return xxx; };
+
   }
 
   __device__ void device_func(void) {
@@ -16748,6 +20059,7 @@ struct S1_t {
 
     // OK: use in a lambda defined in a __device__ function
     auto lam3 = [=, *this]  { return xxx; };
+
   }
 
    __host__ __device__ void host_device_func(void) {
@@ -16762,40 +20074,54 @@ struct S1_t {
     // Use in an unannotated lambda in a __host__ __device__ function
     // Error if *this capture not enabled by language dialect
     auto lam3 = [=, *this]  { return xxx; };
+
   }
+
 };
 
 ### 18.7.5. Additional Notes[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#additional-notes "Permalink to this headline")
 
 1. `ADL Lookup`: As described earlier, the CUDA compiler will replace an extended lambda expression with an instance of a placeholder type, before invoking the host compiler. One template argument of the placeholder type uses the address of the function enclosing the original lambda expression. This may cause additional namespaces to participate in argument dependent lookup (ADL), for any host function call whose argument types involve the closure type of the extended lambda expression. This may cause an incorrect function to be selected by the host compiler.
-    
+
     Example:
-    
+
     namespace N1 {
+
       struct S1_t { };
+
       template <typename T>  void foo(T);
+
     };
-    
+
     namespace N2 {
+
       template <typename T> int foo(T);
-    
+
       template <typename T>  void doit(T in) {     foo(in);  }
+
     }
-    
+
     void bar(N1::S1_t in) {
+
       /* extended __device__ lambda. In the code sent to the host compiler, this
+
          is replaced with the placeholder type instantiation expression
+
          ' __nv_dl_wrapper_t< __nv_dl_tag<void (*)(N1::S1_t in),(&bar),1> > { }'
+
     
          As a result, the namespace 'N1' participates in ADL lookup of the
          call to "foo" in the body of N2::doit, causing ambiguity.
+
       */
+
       auto lam1 = [=] __device__ { };
+
       N2::doit(lam1);
+
     }
-    
+
     In the example above, the CUDA compiler replaced the extended lambda with a placeholder type that involves the `N1` namespace. As a result, the namespace `N1` participates in the ADL lookup for `foo(in)` in the body of `N2::doit`, and host compilation fails because multiple overload candidates `N1::foo` and `N2::foo` are found.
-    
 
 ## 18.8. Relaxed Constexpr (-expt-relaxed-constexpr)[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#relaxed-constexpr-expt-relaxed-constexpr "Permalink to this headline")
 
@@ -16815,7 +20141,6 @@ By default, the following cross-execution space calls are not supported:
     > {
     >     int x = H();  //ERROR: calling a __host__-only constexpr function from device code
     > }
-    
 
 The experimental flag `-expt-relaxed-constexpr` can be used to relax this constraint. When this flag is specified, the compiler will support cross execution space calls described above, as follows:
 
@@ -16846,7 +20171,7 @@ The experimental flag `-expt-relaxed-constexpr` can be used to relax this cons
     >     >   return in;
     >     > }
     >     
-    > 2. **All code restrictions applicable to a ``__device__`` function are also applicable to the ``constexpr host``-only function ``H`` that is called from device code. However, compiler may not emit any build time diagnostics for ``H`` for these restrictions** [8](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#frelaxedconstexpr1) .
+    > 2. __All code restrictions applicable to a ``__device__`` function are also applicable to the ``constexpr host``-only function ``H`` that is called from device code. However, compiler may not emit any build time diagnostics for ``H`` for these restrictions__ [8](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#frelaxedconstexpr1) .
     >     
     >     > For example, the following code patterns are unsupported in the body of `H` (as with any `__device__` function), but no compiler diagnostic may be generated:
     >     > 
@@ -16897,7 +20222,7 @@ The experimental flag `-expt-relaxed-constexpr` can be used to relax this cons
     >     >   return *ptr;
     >     > }
     >     
-    > 4. **Note: Given above restrictions and lack of compiler diagnostics for incorrect usage, be careful when calling a constexpr __host__ function in the standard C++ headers from device code**, since the implementation of the function will vary depending on the host platform, e.g., based on the `libstdc++` version for gcc host compiler. Such code may break silently when being ported to a different platform or host compiler version (if the target C++ library implementation odr-uses a host code variable or function, as described earlier).
+    > 4. __Note: Given above restrictions and lack of compiler diagnostics for incorrect usage, be careful when calling a constexpr __host__ function in the standard C++ headers from device code__, since the implementation of the function will vary depending on the host platform, e.g., based on the `libstdc++` version for gcc host compiler. Such code may break silently when being ported to a different platform or host compiler version (if the target C++ library implementation odr-uses a host code variable or function, as described earlier).
     >     
     >     > Example:
     >     > 
@@ -16907,7 +20232,6 @@ The experimental flag `-expt-relaxed-constexpr` can be used to relax this cons
     >     >                          // code will not work correctly
     >     > }
     >     
-    
 
 [8](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id380)
 
@@ -16918,7 +20242,9 @@ Diagnostics are usually generated during parsing, but the host-only function `H
 ### 18.9.1. Data Aggregation Class[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#data-aggregation-class "Permalink to this headline")
 
 class PixelRGBA {
+
 public:
+
     __device__ PixelRGBA(): r_(0), g_(0), b_(0), a_(0) { }
 
     __device__ PixelRGBA(unsigned char r, unsigned char g,
@@ -16926,136 +20252,227 @@ public:
                          r_(r), g_(g), b_(b), a_(a) { }
 
 private:
+
     unsigned char r_, g_, b_, a_;
 
     friend PixelRGBA operator+(const PixelRGBA&, const PixelRGBA&);
+
 };
 
 __device__
+
 PixelRGBA operator+(const PixelRGBA& p1, const PixelRGBA& p2)
+
 {
+
     return PixelRGBA(p1.r_ + p2.r_, p1.g_ + p2.g_,
+
                      p1.b_ + p2.b_, p1.a_ + p2.a_);
+
 }
 
 __device__ void func(void)
+
 {
+
     PixelRGBA p1, p2;
+
     // ...      // Initialization of p1 and p2 here
+
     PixelRGBA p3 = p1 + p2;
+
 }
 
 ### 18.9.2. Derived Class[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#derived-class "Permalink to this headline")
 
 __device__ void* operator new(size_t bytes, MemoryPool& p);
+
 __device__ void operator delete(void*, MemoryPool& p);
+
 class Shape {
+
 public:
+
     __device__ Shape(void) { }
+
     __device__ void putThis(PrintBuffer *p) const;
+
     __device__ virtual void Draw(PrintBuffer *p) const {
+
          p->put("Shapeless");
+
     }
+
     __device__ virtual ~Shape() {}
+
 };
+
 class Point : public Shape {
+
 public:
+
     __device__ Point() : x(0), y(0) {}
+
     __device__ Point(int ix, int iy) : x(ix), y(iy) { }
-    __device__ void PutCoord(PrintBuffer *p) const;
-    __device__ void Draw(PrintBuffer *p) const;
+
+    __device__ void PutCoord(PrintBuffer _p) const;
+
+    __device__ void Draw(PrintBuffer _p) const;
+
     __device__ ~Point() {}
+
 private:
+
     int x, y;
+
 };
-__device__ Shape* GetPointObj(MemoryPool& pool)
+
+__device__ Shape_ GetPointObj(MemoryPool& pool)
+
 {
-    Shape* shape = new(pool) Point(rand(-20,10), rand(-100,-20));
+
+    Shape_ shape = new(pool) Point(rand(-20,10), rand(-100,-20));
+
     return shape;
+
 }
 
 ### 18.9.3. Class Template[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#class-template "Permalink to this headline")
 
 template <class T>
+
 class myValues {
+
     T values[MAX_VALUES];
+
 public:
+
     __device__ myValues(T clear) { ... }
+
     __device__ void setValue(int Idx, T value) { ... }
+
     __device__ void putToMemory(T* valueLocation) { ... }
+
 };
 
 template <class T>
+
 void __global__ useValues(T* memoryBuffer) {
+
     myValues<T> myLocation(0);
+
     ...
+
 }
 
 __device__ void* buffer;
 
 int main()
+
 {
+
     ...
+
     useValues<int><<<blocks, threads>>>(buffer);
+
     ...
+
 }
 
 ### 18.9.4. Function Template[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#function-template "Permalink to this headline")
 
 template <typename T>
+
 __device__ bool func(T x)
+
 {
+
    ...
+
    return (...);
+
 }
 
 template <>
+
 __device__ bool func<int>(T x) // Specialization
+
 {
+
    return true;
+
 }
 
 // Explicit argument specification
+
 bool result = func<double>(0.5);
 
 // Implicit argument deduction
+
 int x = 1;
+
 bool result = func(x);
 
 ### 18.9.5. Functor Class[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#functor-class "Permalink to this headline")
 
 class Add {
+
 public:
+
     __device__  float operator() (float a, float b) const
+
     {
+
         return a + b;
+
     }
+
 };
 
 class Sub {
+
 public:
+
     __device__  float operator() (float a, float b) const
+
     {
+
         return a - b;
+
     }
+
 };
 
 // Device code
+
 template<class O> __global__
+
 void VectorOperation(const float * A, const float * B, float * C,
+
                      unsigned int N, O op)
+
 {
+
     unsigned int iElement = blockDim.x * blockIdx.x + threadIdx.x;
+
     if (iElement < N)
+
         C[iElement] = op(A[iElement], B[iElement]);
+
 }
 
 // Host code
+
 int main()
+
 {
+
     ...
+
     VectorOperation<<<blocks, threads>>>(v1, v2, v3, N, Add());
+
     ...
+
 }
 
 9
@@ -17133,11 +20550,8 @@ This section gives the formula used to compute the value returned by the texture
 The texture bound to the texture object is represented as an array _T_ of
 
 - _N_ texels for a one-dimensional texture,
-    
 - _N x M_ texels for a two-dimensional texture,
-    
 - _N x M x L_ texels for a three-dimensional texture.
-    
 
 It is fetched using non-normalized texture coordinates _x_, _y_, and _z_, or the normalized texture coordinates _x/N_, _y/M_, and _z/L_ as described in [Texture Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-memory). In this section, the coordinates are assumed to be in the valid range. [Texture Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-memory) explained how out-of-range coordinates are remapped to the valid range based on the addressing mode.
 
@@ -17146,11 +20560,8 @@ It is fetched using non-normalized texture coordinates _x_, _y_, and _z_, or 
 In this filtering mode, the value returned by the texture fetch is
 
 - _tex(x)=T[i]_ for a one-dimensional texture,
-    
 - _tex(x,y)=T[i,j]_ for a two-dimensional texture,
-    
 - _tex(x,y,z)=T[i,j,k]_ for a three-dimensional texture,
-    
 
 where _i=floor(x)_, _j=floor(y)_, and _k=floor(z)_.
 
@@ -17167,32 +20578,25 @@ For integer textures, the value returned by the texture fetch can be optionally 
 In this filtering mode, which is only available for floating-point textures, the value returned by the texture fetch is
 
 - tex(x)=(1−α)T[i]+αT[i+1] for a one-dimensional texture,
-    
 - tex(x)=(1−α)T[i]+αT[i+1] for a one-dimensional texture,
-    
 - tex(x,y)=(1−α)(1−β)T[i,j]+α(1−β)T[i+1,j]+(1−α)βT[i,j+1]+αβT[i+1,j+1] for a two-dimensional texture,
-    
 - tex(x,y,z) =
-    
+
     (1−α)(1−β)(1−γ)T[i,j,k]+α(1−β)(1−γ)T[i+1,j,k]+
-    
+
     (1−α)β(1−γ)T[i,j+1,k]+αβ(1−γ)T[i+1,j+1,k]+
-    
+
     (1−α)(1−β)γT[i,j,k+1]+α(1−β)γT[i+1,j,k+1]+
-    
+
     (1−α)βγT[i,j+1,k+1]+αβγT[i+1,j+1,k+1]
-    
+
     for a three-dimensional texture,
-    
 
 where:
 
 - i=floor(x B)∗,α=frac(x B)∗,∗x B =x−0.5,
-    
 - j=floor(y B)∗,β=frac(y B)∗,∗y B =y−0.5,
-    
 - k=floor(z B)∗,γ=frac(z B)∗,∗z B =z−0.5,
-    
 
 α, β, and γ are stored in 9-bit fixed point format with 8 bits of fractional value (so 1.0 is exactly represented).
 
@@ -17238,24 +20642,22 @@ Beginning with devices of Compute Capability 10.0, some architecture-specific fe
 
 There are three sets of compute features which the compiler can target:
 
-**Baseline Feature Set**: The predominant set of compute features that are introduced with the intent to be available for subsequent compute architectures. These features and their availability are summarized in [Table 26](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#features-and-technical-specifications-feature-support-per-compute-capability).
+__Baseline Feature Set__: The predominant set of compute features that are introduced with the intent to be available for subsequent compute architectures. These features and their availability are summarized in [Table 26](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#features-and-technical-specifications-feature-support-per-compute-capability).
 
-**Architecture-Specific Feature Set**: A small and highly specialized set of features called architecture-specific, that are introduced to accelerate specialized operations, which are not guaranteed to be available or might change significantly on subsequent compute architectures. These features are summarized in the respective “Compute Capability #.#” subsections. The architecture-specific feature set is a superset of the family-specific feature set. Architecture-specific compiler targets were introduced with Compute Capability 9.0 devices and are selected by using an **a**suffix in the compilation target, for example by specifying `compute_100a` or `compute_120a` as the compute target.
+__Architecture-Specific Feature Set__: A small and highly specialized set of features called architecture-specific, that are introduced to accelerate specialized operations, which are not guaranteed to be available or might change significantly on subsequent compute architectures. These features are summarized in the respective “Compute Capability #.#” subsections. The architecture-specific feature set is a superset of the family-specific feature set. Architecture-specific compiler targets were introduced with Compute Capability 9.0 devices and are selected by using an __a__suffix in the compilation target, for example by specifying `compute_100a` or `compute_120a` as the compute target.
 
-**Family-Specific Feature Set**: Some architecture-specific features are common to GPUs of more than one compute capability. These features are summarized in the respective “Compute Capability #.#” subsections. With a few exceptions, later generation devices with the same major compute capability are in the same family. [Table 25](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#family-specific-compatibility) indicates the compatibility of family-specific targets with device compute capability, including exceptions. The family-specific feature set is a superset of the baseline feature set. Family-specific compiler targets were introduced with Compute Capability 10.0 devices and are selected by using a **f** suffix in the compilation target, for example by specifying `compute_100f` or `compute_120f` as the compute target.
+__Family-Specific Feature Set__: Some architecture-specific features are common to GPUs of more than one compute capability. These features are summarized in the respective “Compute Capability #.#” subsections. With a few exceptions, later generation devices with the same major compute capability are in the same family. [Table 25](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#family-specific-compatibility) indicates the compatibility of family-specific targets with device compute capability, including exceptions. The family-specific feature set is a superset of the baseline feature set. Family-specific compiler targets were introduced with Compute Capability 10.0 devices and are selected by using a __f__ suffix in the compilation target, for example by specifying `compute_100f` or `compute_120f` as the compute target.
 
-All devices starting from compute capability 9.0 have a set of features that are architecture-specific. To utilize the complete set of these features on a specific GPU, the architecture-specific compiler target with the suffix **a** must be used. Additionally, starting from compute capability 10.0, there are sets of features that appear in multiple devices with different minor compute capability. These sets of instructions are called family-specific features, and the devices which share these features are said to be part of the same family. The family-specific features are a subset of the architecture-specific features that are shared by all members of that GPU family. The family-specific compiler target with the suffix **f** allows the compiler to generate code which uses this common subset of architecture-specific features.
+All devices starting from compute capability 9.0 have a set of features that are architecture-specific. To utilize the complete set of these features on a specific GPU, the architecture-specific compiler target with the suffix __a__ must be used. Additionally, starting from compute capability 10.0, there are sets of features that appear in multiple devices with different minor compute capability. These sets of instructions are called family-specific features, and the devices which share these features are said to be part of the same family. The family-specific features are a subset of the architecture-specific features that are shared by all members of that GPU family. The family-specific compiler target with the suffix __f__ allows the compiler to generate code which uses this common subset of architecture-specific features.
 
 For example:
 
 - The `compute_100` compilation target does not allow use of architecture-specific features. This target will be compatible with all devices of compute capability 10.0 and later.
-    
 - The `compute_100f` _family-specific_ compilation target allows the use of the subset of architecture-specific features that are common across the GPU family. This target will only be compatible with devices that are part of the GPU family. In this example it is compatible with devices of Compute Capability 10.0 and Compute Capability 10.3. The features available in the family-specific `compute_100f` target is a superset of the features available in the baseline `compute_100` target.
-    
 - The `compute_100a` _architecture-specific_ compilation target allows use of the complete set of architecture-specific features in Compute Capability 10.0 devices. This target will only be compatible with devices of Compute Capability 10.0 and no others. The features available in the `compute_100a` target form a superset of the features available in the `compute_100f` target.
-    
 
 Table 25 Family-Specific Compatibility[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#family-specific-compatibility "Permalink to this table")
+
 |Compilation Target|Compatible with Compute Capability|   |
 |---|---|---|
 |`compute_100f`|10.0|10.3|
@@ -17271,7 +20673,8 @@ Some families only contain a single member when they are created. They may be ex
 ## 20.2. Features and Technical Specifications[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#features-and-technical-specifications "Permalink to this headline")
 
 Table 26 Feature Support per Compute Capability[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#features-and-technical-specifications-feature-support-per-compute-capability "Permalink to this table")
-|**Feature Support**|**Compute Capability**|   |   |   |   |   |
+
+|__Feature Support__|__Compute Capability__|   |   |   |   |   |
 |---|---|---|---|---|---|---|
 |(Unlisted features are supported for all compute capabilities)|7.x|8.x|9.0|10.0|11.0|12.0|
 |Atomic functions operating on 128-bit integer values in global memory ([Atomic Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#atomic-functions))|No|   |Yes|   |   |   |
@@ -17289,7 +20692,8 @@ Table 26 Feature Support per Compute Capability[](https://docs.nvidia.com/cu
 Note that the KB and K units used in the following table correspond to 1024 bytes (i.e., a KiB) and 1024 respectively.
 
 Table 27 Technical Specifications per Compute Capability[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#features-and-technical-specifications-technical-specifications-per-compute-capability "Permalink to this table")
-||**Compute Capability**|   |   |   |   |   |   |   |   |
+
+||__Compute Capability__|   |   |   |   |   |   |   |   |
 |---|---|---|---|---|---|---|---|---|---|
 |Technical Specifications|7.5|8.0|8.6|8.7|8.9|9.0|10.0|11.0|12.0|
 |Maximum number of resident grids per device (Concurrent Kernel Execution)|128|   |   |   |   |   |   |   |   |
@@ -17339,22 +20743,16 @@ Table 27 Technical Specifications per Compute Capability[](https://docs.nvid
 All compute devices follow the IEEE 754-2008 standard for binary floating-point arithmetic with the following deviations:
 
 - There is no dynamically configurable rounding mode; however, most of the operations support multiple IEEE rounding modes, exposed via device intrinsics.
-    
 - There is no mechanism for detecting that a floating-point exception has occurred and all operations behave as if the IEEE-754 exceptions are always masked, and deliver the masked response as defined by IEEE-754 if there is an exceptional event. For the same reason, while SNaN encodings are supported, they are not signaling and are handled as quiet.
-    
 - The result of a single-precision floating-point operation involving one or more input NaNs is the quiet NaN of bit pattern 0x7fffffff.
-    
 - Double-precision floating-point absolute value and negation are not compliant with IEEE-754 with respect to NaNs; these are passed through unchanged.
-    
 
 Code must be compiled with `-ftz=false`, `-prec-div=true`, and `-prec-sqrt=true` to ensure IEEE compliance (this is the default setting; see the `nvcc` user manual for description of these compilation flags).
 
 Regardless of the setting of the compiler flag `-ftz`,
 
 - atomic single-precision floating-point adds on global memory always operate in flush-to-zero mode, i.e., behave equivalent to `FADD.F32.FTZ.RN`,
-    
 - atomic single-precision floating-point adds on shared memory always operate with denormal support, i.e., behave equivalent to `FADD.F32.RN`.
-    
 
 In accordance to the IEEE-754R standard, if one of the input parameters to `fminf()`, `fmin()`, `fmaxf()`, or `fmax()` is NaN, but not the other, the result is the non-NaN parameter.
 
@@ -17371,22 +20769,16 @@ The behavior of integer division by zero and integer overflow is left undefined 
 An SM consists of:
 
 - 128 CUDA cores for arithmetic operations (see [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#arithmetic-instructions) for throughputs of arithmetic operations),
-    
 - 32 special function units for single-precision floating-point transcendental functions,
-    
 - 4 warp schedulers.
-    
 
 When an SM is given warps to execute, it first distributes them among the four schedulers. Then, at every instruction issue time, each scheduler issues one instruction for one of its assigned warps that is ready to execute, if any.
 
 An SM has:
 
 - a read-only constant cache that is shared by all functional units and speeds up reads from the constant memory space, which resides in device memory,
-    
 - a unified L1/texture cache of 24 KB used to cache reads from global memory,
-    
 - 64 KB of shared memory for devices of compute capability 5.0 or 96 KB of shared memory for devices of compute capability 5.2.
-    
 
 The unified L1/texture cache is also used by the texture unit that implements the various addressing modes and data filtering mentioned in [Texture and Surface Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-and-surface-memory).
 
@@ -17403,11 +20795,8 @@ Data that is read-only for the entire lifetime of the kernel can also be cached 
 Data that is not read-only for the entire lifetime of the kernel cannot be cached in the unified L1/texture cache for devices of compute capability 5.0. For devices of compute capability 5.2, it is, by default, not cached in the unified L1/texture cache, but caching may be enabled using the following mechanisms:
 
 - Perform the read using inline assembly with the appropriate modifier as described in the PTX reference manual;
-    
 - Compile with the `-Xptxas -dlcm=ca` compilation flag, in which case all reads are cached, except reads that are performed using inline assembly with a modifier that disables caching;
-    
 - Compile with the `-Xptxas -fscm=ca` compilation flag, in which case all reads are cached, including reads that are performed using inline assembly regardless of the modifier used.
-    
 
 When caching is enabled using one of the three mechanisms listed above, devices of compute capability 5.2 will cache global memory reads in the unified L1/texture cache for all kernel launches except for the kernel launches for which thread blocks consume too much of the SM’s register file. These exceptions are reported by the profiler.
 
@@ -17460,22 +20849,16 @@ Conflict-free broadcast access (threads access the same word within a bank).
 An SM consists of:
 
 - 64 (compute capability 6.0) or 128 (6.1 and 6.2) CUDA cores for arithmetic operations,
-    
 - 16 (6.0) or 32 (6.1 and 6.2) special function units for single-precision floating-point transcendental functions,
-    
 - 2 (6.0) or 4 (6.1 and 6.2) warp schedulers.
-    
 
 When an SM is given warps to execute, it first distributes them among its schedulers. Then, at every instruction issue time, each scheduler issues one instruction for one of its assigned warps that is ready to execute, if any.
 
 An SM has:
 
 - a read-only constant cache that is shared by all functional units and speeds up reads from the constant memory space, which resides in device memory,
-    
 - a unified L1/texture cache for reads from global memory of size 24 KB (6.0 and 6.2) or 48 KB (6.1),
-    
 - a shared memory of size 64 KB (6.0 and 6.2) or 96 KB (6.1).
-    
 
 The unified L1/texture cache is also used by the texture unit that implements the various addressing modes and data filtering mentioned in [Texture and Surface Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-and-surface-memory).
 
@@ -17498,45 +20881,38 @@ Shared memory behaves the same way as in devices of compute capability 5.x (See�
 An SM consists of:
 
 - 64 FP32 cores for single-precision arithmetic operations,
-    
 - 32 FP64 cores for double-precision arithmetic operations,[28](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#fn35)
-    
 - 64 INT32 cores for integer math,
-    
 - 8 mixed-precision Tensor Cores for deep learning matrix arithmetic
-    
 - 16 special function units for single-precision floating-point transcendental functions,
-    
 - 4 warp schedulers.
-    
 
 An SM statically distributes its warps among its schedulers. Then, at every instruction issue time, each scheduler issues one instruction for one of its assigned warps that is ready to execute, if any.
 
 An SM has:
 
 - a read-only constant cache that is shared by all functional units and speeds up reads from the constant memory space, which resides in device memory,
-    
 - a unified data cache and shared memory with a total size of 128 KB (_Volta_) or 96 KB (_Turing_).
-    
 
 Shared memory is partitioned out of unified data cache, and can be configured to various sizes (See [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-7-x).) The remaining data cache serves as an L1 cache and is also used by the texture unit that implements the various addressing and data filtering modes mentioned in [Texture and Surface Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-and-surface-memory).
 
 ### 20.6.2. Independent Thread Scheduling[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#independent-thread-scheduling "Permalink to this headline")
 
-The **NVIDIA Volta GPU Architecture** introduces _Independent Thread Scheduling_ among threads in a warp, enabling intra-warp synchronization patterns previously unavailable and simplifying code changes when porting CPU code. However, this can lead to a rather different set of threads participating in the executed code than intended if the developer made assumptions about warp-synchronicity of previous hardware architectures.
+The __NVIDIA Volta GPU Architecture__ introduces _Independent Thread Scheduling_ among threads in a warp, enabling intra-warp synchronization patterns previously unavailable and simplifying code changes when porting CPU code. However, this can lead to a rather different set of threads participating in the executed code than intended if the developer made assumptions about warp-synchronicity of previous hardware architectures.
 
 Below are code patterns of concern and suggested corrective actions for Volta-safe code.
 
 1. For applications using warp intrinsics (`__shfl*`, `__any`, `__all`, `__ballot`), it is necessary that developers port their code to the new, safe, synchronizing counterpart, with the `*_sync` suffix. The new warp intrinsics take in a mask of threads that explicitly define which lanes (threads of a warp) must participate in the warp intrinsic. See [Warp Vote Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-vote-functions) and [Warp Shuffle Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-shuffle-functions) for details.
-    
 
 Since the intrinsics are available with CUDA 9.0+, (if necessary) code can be executed conditionally with the following preprocessor macro:
 
 #if defined(CUDART_VERSION) && CUDART_VERSION >= 9000
+
 // *_sync intrinsic
+
 #endif
 
-These intrinsics are available on all architectures, not just **NVIDIA Volta GPU Architecture** or **NVIDIA Turing GPU Architecture**, and in most cases a single code-base will suffice for all architectures. Note, however, that for _Pascal_ and earlier architectures, all threads in mask must execute the same warp intrinsic instruction in convergence, and the union of all values in mask must be equal to the warp’s active mask. The following code pattern is valid on **NVIDIA Volta GPU Architecture**, but not on _Pascal_ or earlier architectures.
+These intrinsics are available on all architectures, not just __NVIDIA Volta GPU Architecture__ or __NVIDIA Turing GPU Architecture__, and in most cases a single code-base will suffice for all architectures. Note, however, that for _Pascal_ and earlier architectures, all threads in mask must execute the same warp intrinsic instruction in convergence, and the union of all values in mask must be equal to the warp’s active mask. The following code pattern is valid on __NVIDIA Volta GPU Architecture__, but not on _Pascal_ or earlier architectures.
 
 > if (tid % warpSize < 16) {
 >     ...
@@ -17576,40 +20952,62 @@ This code is invalid because CUDA does not guarantee that the warp will diverge 
 [Discovery Pattern](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#discovery-pattern-cg) demonstrates a valid use case for `__activemask()`.
 
 1. If applications have warp-synchronous codes, they will need to insert the new `__syncwarp()` warp-wide barrier synchronization instruction between any steps where data is exchanged between threads via global or shared memory. Assumptions that code is executed in lockstep or that reads/writes from separate threads are visible across a warp without synchronization are invalid.
-    
+
     __shared__ float s_buff[BLOCK_SIZE];
+
     s_buff[tid] = val;
+
     __syncthreads();
-    
+
     // Inter-warp reduction
+
     for (int i = BLOCK_SIZE / 2; i >= 32; i /= 2) {
+
         if (tid < i) {
+
             s_buff[tid] += s_buff[tid+i];
+
         }
+
         __syncthreads();
+
     }
-    
+
     // Intra-warp reduction
+
     // Butterfly reduction simplifies syncwarp mask
+
     if (tid < 32) {
+
         float temp;
+
         temp = s_buff[tid ^ 16]; __syncwarp();
+
         s_buff[tid] += temp;     __syncwarp();
+
         temp = s_buff[tid ^ 8];  __syncwarp();
+
         s_buff[tid] += temp;     __syncwarp();
+
         temp = s_buff[tid ^ 4];  __syncwarp();
+
         s_buff[tid] += temp;     __syncwarp();
+
         temp = s_buff[tid ^ 2];  __syncwarp();
+
         s_buff[tid] += temp;     __syncwarp();
+
     }
-    
+
     if (tid == 0) {
+
         *output = s_buff[0] + s_buff[1];
+
     }
+
     __syncthreads();
-    
-2. Although `__syncthreads()` has been consistently documented as synchronizing all threads in the thread block, _Pascal_ and prior architectures could only enforce synchronization at the warp level. In certain cases, this allowed a barrier to succeed without being executed by every thread as long as at least some thread in every warp reached the barrier. Starting with **NVIDIA Volta GPU Architecture**, the CUDA built-in `__syncthreads()` and PTX instruction `bar.sync` (and their derivatives) are enforced per thread and thus will not succeed until reached by all non-exited threads in the block. Code exploiting the previous behavior will likely deadlock and must be modified to ensure that all non-exited threads reach the barrier.
-    
+
+2. Although `__syncthreads()` has been consistently documented as synchronizing all threads in the thread block, _Pascal_ and prior architectures could only enforce synchronization at the warp level. In certain cases, this allowed a barrier to succeed without being executed by every thread as long as at least some thread in every warp reached the barrier. Starting with __NVIDIA Volta GPU Architecture__, the CUDA built-in `__syncthreads()` and PTX instruction `bar.sync` (and their derivatives) are enforced per thread and thus will not succeed until reached by all non-exited threads in the block. Code exploiting the previous behavior will likely deadlock and must be modified to ensure that all non-exited threads reach the barrier.
 
 The `racecheck` and `synccheck` tools provided by `compute-saniter` can help with locating violations.
 
@@ -17628,19 +21026,31 @@ Because the driver is not always aware of the full workload, it is sometimes use
 `cudaFuncSetAttribute()` relaxes enforcement of the preferred shared capacity compared to the legacy `cudaFuncSetCacheConfig()` API introduced with Kepler. The legacy API treated shared memory capacities as hard requirements for kernel launch. As a result, interleaving kernels with different shared memory configurations would needlessly serialize launches behind shared memory reconfigurations. With the new API, the carveout is treated as a hint. The driver may choose a different configuration if required to execute the function or to avoid thrashing.
 
 // Device code
+
 __global__ void MyKernel(...)
+
 {
+
     __shared__ float buffer[BLOCK_DIM];
+
     ...
+
 }
 
 // Host code
+
 int carveout = 50; // prefer shared memory capacity 50% of maximum
+
 // Named Carveout Values:
+
 // carveout = cudaSharedmemCarveoutDefault;   //  (-1)
+
 // carveout = cudaSharedmemCarveoutMaxL1;     //   (0)
+
 // carveout = cudaSharedmemCarveoutMaxShared; // (100)
+
 cudaFuncSetAttribute(MyKernel, cudaFuncAttributePreferredSharedMemoryCarveout, carveout);
+
 MyKernel <<<gridDim, BLOCK_DIM>>>(...);
 
 In addition to an integer percentage, several convenience enums are provided as listed in the code comments above. Where a chosen integer percentage does not map exactly to a supported capacity (SM 7.0 devices support shared capacities of 0, 8, 16, 32, 64, or 96 KB), the next larger capacity is used. For instance, in the example above, 50% of the 96 KB maximum is 48 KB, which is not a supported shared memory capacity. Thus, the preference is rounded up to 64 KB.
@@ -17648,15 +21058,23 @@ In addition to an integer percentage, several convenience enums are provided as 
 Compute capability 7.x devices allow a single thread block to address the full capacity of shared memory: 96 KB on _Volta_, 64 KB on _Turing_. Kernels relying on shared memory allocations over 48 KB per block are architecture-specific, as such they must use dynamic shared memory (rather than statically sized arrays) and require an explicit opt-in using `cudaFuncSetAttribute()` as follows.
 
 // Device code
+
 __global__ void MyKernel(...)
+
 {
+
     extern __shared__ float buffer[];
+
     ...
+
 }
 
 // Host code
+
 int maxbytes = 98304; // 96 KB
+
 cudaFuncSetAttribute(MyKernel, cudaFuncAttributeMaxDynamicSharedMemorySize, maxbytes);
+
 MyKernel <<<gridDim, blockDim, maxbytes>>>(...);
 
 Otherwise, shared memory behaves the same way as for devices of compute capability 5.x (See [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-5-x)).
@@ -17668,28 +21086,19 @@ Otherwise, shared memory behaves the same way as for devices of compute capabili
 A Streaming Multiprocessor (SM) consists of:
 
 - 64 FP32 cores for single-precision arithmetic operations in devices of compute capability 8.0 and 128 FP32 cores in devices of compute capability 8.6, 8.7 and 8.9,
-    
 - 32 FP64 cores for double-precision arithmetic operations in devices of compute capability 8.0 and 2 FP64 cores in devices of compute capability 8.6, 8.7 and 8.9
-    
 - 64 INT32 cores for integer math,
-    
 - 4 mixed-precision Third-Generation Tensor Cores supporting half-precision (fp16), `__nv_bfloat16`, `tf32`, sub-byte and double precision (fp64) matrix arithmetic for compute capabilities 8.0, 8.6 and 8.7 (see [Warp Matrix Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma) for details),
-    
 - 4 mixed-precision Fourth-Generation Tensor Cores supporting `fp8`, `fp16`, `__nv_bfloat16`, `tf32`, sub-byte and `fp64` for compute capability 8.9 (see [Warp Matrix Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma) for details),
-    
 - 16 special function units for single-precision floating-point transcendental functions,
-    
 - 4 warp schedulers.
-    
 
 An SM statically distributes its warps among its schedulers. Then, at every instruction issue time, each scheduler issues one instruction for one of its assigned warps that is ready to execute, if any.
 
 An SM has:
 
 - a read-only constant cache that is shared by all functional units and speeds up reads from the constant memory space, which resides in device memory,
-    
 - a unified data cache and shared memory with a total size of 192 KB for devices of compute capability 8.0 and 8.7 (1.5x _Volta_’s 128 KB capacity) and 128 KB for devices of compute capabilities 8.6 and 8.9.
-    
 
 Shared memory is partitioned out of the unified data cache, and can be configured to various sizes (see [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-8-x)). The remaining data cache serves as an L1 cache and is also used by the texture unit that implements the various addressing and data filtering modes mentioned in [Texture and Surface Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-and-surface-memory).
 
@@ -17699,7 +21108,7 @@ Global memory behaves the same way as for devices of compute capability 5.x (See
 
 ### 20.7.3. Shared Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-8-x "Permalink to this headline")
 
-Similar to the [Volta architecture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#architecture-7-x), the amount of the unified data cache reserved for shared memory is configurable on a per kernel basis. For the **NVIDIA Ampere GPU Architecture**, the unified data cache has a size of 192 KB for devices of compute capability 8.0 and 8.7 and 128 KB for devices of compute capabilities 8.6 and 8.9. The shared memory capacity can be set to 0, 8, 16, 32, 64, 100, 132 or 164 KB for devices of compute capability 8.0 and 8.7, and to 0, 8, 16, 32, 64 or 100 KB for devices of compute capabilities 8.6 and 8.9.
+Similar to the [Volta architecture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#architecture-7-x), the amount of the unified data cache reserved for shared memory is configurable on a per kernel basis. For the __NVIDIA Ampere GPU Architecture__, the unified data cache has a size of 192 KB for devices of compute capability 8.0 and 8.7 and 128 KB for devices of compute capabilities 8.6 and 8.9. The shared memory capacity can be set to 0, 8, 16, 32, 64, 100, 132 or 164 KB for devices of compute capability 8.0 and 8.7, and to 0, 8, 16, 32, 64 or 100 KB for devices of compute capabilities 8.6 and 8.9.
 
 An application can set the `carveout`, i.e., the preferred shared memory capacity, with the `cudaFuncSetAttribute()`.
 
@@ -17707,7 +21116,7 @@ cudaFuncSetAttribute(kernel_name, cudaFuncAttributePreferredSharedMemoryCarveout
 
 The API can specify the carveout either as an integer percentage of the maximum supported shared memory capacity of 164 KB for devices of compute capability 8.0 and 8.7 and 100 KB for devices of compute capabilities 8.6 and 8.9 respectively, or as one of the following values: `{cudaSharedmemCarveoutDefault`, `cudaSharedmemCarveoutMaxL1`, or `cudaSharedmemCarveoutMaxShared`. When using a percentage, the carveout is rounded up to the nearest supported shared memory capacity. For example, for devices of compute capability 8.0, 50% will map to a 100 KB carveout instead of an 82 KB one. Setting the `cudaFuncAttributePreferredSharedMemoryCarveout` is considered a hint by the driver; the driver may choose a different configuration, if needed.
 
-Devices of compute capability 8.0 and 8.7 allow a single thread block to address up to 163 KB of shared memory, while devices of compute capabilities 8.6 and 8.9 allow up to 99 KB of shared memory. Kernels relying on shared memory allocations over 48 KB per block are architecture-specific, and must use dynamic shared memory rather than statically sized shared memory arrays. These kernels require an explicit opt-in by using `cudaFuncSetAttribute()` to set the `cudaFuncAttributeMaxDynamicSharedMemorySize`; see [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-7-x) for the **NVIDIA Volta GPU Architecture**.
+Devices of compute capability 8.0 and 8.7 allow a single thread block to address up to 163 KB of shared memory, while devices of compute capabilities 8.6 and 8.9 allow up to 99 KB of shared memory. Kernels relying on shared memory allocations over 48 KB per block are architecture-specific, and must use dynamic shared memory rather than statically sized shared memory arrays. These kernels require an explicit opt-in by using `cudaFuncSetAttribute()` to set the `cudaFuncAttributeMaxDynamicSharedMemorySize`; see [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-7-x) for the __NVIDIA Volta GPU Architecture__.
 
 Note that the maximum amount of shared memory per thread block is smaller than the maximum shared memory partition available per SM. The 1 KB of shared memory not made available to a thread block is reserved for system use.
 
@@ -17718,26 +21127,18 @@ Note that the maximum amount of shared memory per thread block is smaller than t
 A Streaming Multiprocessor (SM) consists of:
 
 - 128 FP32 cores for single-precision arithmetic operations,
-    
 - 64 FP64 cores for double-precision arithmetic operations,
-    
 - 64 INT32 cores for integer math,
-    
 - 4 mixed-precision fourth-generation Tensor Cores supporting the new `FP8` input type in either `E4M3` or `E5M2` for exponent (E) and mantissa (M), half-precision (fp16), `__nv_bfloat16`, `tf32`, INT8 and double precision (fp64) matrix arithmetic (see [Warp Matrix Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma) for details) with sparsity support,
-    
 - 16 special function units for single-precision floating-point transcendental functions,
-    
 - 4 warp schedulers.
-    
 
 An SM statically distributes its warps among its schedulers. Then, at every instruction issue time, each scheduler issues one instruction for one of its assigned warps that is ready to execute, if any.
 
 An SM has:
 
 - a read-only constant cache that is shared by all functional units and speeds up reads from the constant memory space, which resides in device memory,
-    
-- a unified data cache and shared memory with a total size of 256 KB for devices of compute capability 9.0 (1.33x **NVIDIA Ampere GPU Architecture’s** 192 KB capacity).
-    
+- a unified data cache and shared memory with a total size of 256 KB for devices of compute capability 9.0 (1.33x __NVIDIA Ampere GPU Architecture’s__ 192 KB capacity).
 
 Shared memory is partitioned out of the unified data cache, and can be configured to various sizes (see [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-9-0)). The remaining data cache serves as an L1 cache and is also used by the texture unit that implements the various addressing and data filtering modes mentioned in [Texture and Surface Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-and-surface-memory).
 
@@ -17749,7 +21150,7 @@ Global memory behaves the same way as for devices of compute capability 5.x (See
 
 Similar to the [NVIDIA Ampere GPU architecture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#architecture-8-x), the amount of the unified data cache reserved for shared memory is configurable on a per kernel basis. For the _NVIDIA H100 Tensor Core GPU architecture_, the unified data cache has a size of 256 KB for devices of compute capability 9.0. The shared memory capacity can be set to 0, 8, 16, 32, 64, 100, 132, 164, 196 or 228 KB.
 
-As with the [NVIDIA Ampere GPU architecture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-8-x), an application can configure its preferred shared memory capacity, i.e., the `carveout`. Devices of compute capability 9.0 allow a single thread block to address up to 227 KB of shared memory. Kernels relying on shared memory allocations over 48 KB per block are architecture-specific, and must use dynamic shared memory rather than statically sized shared memory arrays. These kernels require an explicit opt-in by using `cudaFuncSetAttribute()` to set the `cudaFuncAttributeMaxDynamicSharedMemorySize`; see [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-7-x) for the **NVIDIA Volta GPU Architecture**.
+As with the [NVIDIA Ampere GPU architecture](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-8-x), an application can configure its preferred shared memory capacity, i.e., the `carveout`. Devices of compute capability 9.0 allow a single thread block to address up to 227 KB of shared memory. Kernels relying on shared memory allocations over 48 KB per block are architecture-specific, and must use dynamic shared memory rather than statically sized shared memory arrays. These kernels require an explicit opt-in by using `cudaFuncSetAttribute()` to set the `cudaFuncAttributeMaxDynamicSharedMemorySize`; see [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-7-x) for the __NVIDIA Volta GPU Architecture__.
 
 Note that the maximum amount of shared memory per thread block is smaller than the maximum shared memory partition available per SM. The 1 KB of shared memory not made available to a thread block is reserved for system use.
 
@@ -17758,13 +21159,9 @@ Note that the maximum amount of shared memory per thread block is smaller than t
 The NVIDIA Hopper GPU architecture includes features to accelerate matrix multiply-accumulate (MMA) computations with:
 
 - asynchronous execution of MMA instructions
-    
 - MMA instructions acting on large matrices spanning a warp-group
-    
 - dynamic reassignment of register capacity among warp-groups to support even larger matrices, and
-    
 - operand matrices accessed directly from shared memory
-    
 
 See the [PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#instruction-set) for more details.
 
@@ -17781,26 +21178,18 @@ It is strongly recommended that device kernels utilize this complex feature set 
 A Streaming Multiprocessor (SM) consists of:
 
 - 128 FP32 cores for single-precision arithmetic operations,
-    
 - 64 FP64 cores for double-precision arithmetic operations,
-    
 - 64 INT32 cores for integer math,
-    
 - 4 mixed-precision fifth-generation Tensor Cores supporting `FP8` input type in either `E4M3` or `E5M2` for exponent (E) and mantissa (M), half-precision (fp16), `__nv_bfloat16`, `tf32`, INT8 and double precision (fp64) matrix arithmetic (see [Warp Matrix Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma) for details) with sparsity support,
-    
 - 16 special function units for single-precision floating-point transcendental functions,
-    
 - 4 warp schedulers.
-    
 
 An SM statically distributes its warps among its schedulers. Then, at every instruction issue time, each scheduler issues one instruction for one of its assigned warps that is ready to execute, if any.
 
 An SM has:
 
 - a read-only constant cache that is shared by all functional units and speeds up reads from the constant memory space, which resides in device memory,
-    
 - a unified data cache and shared memory with a total size of 256 KB for devices of compute capability 10.0
-    
 
 Shared memory is partitioned out of the unified data cache, and can be configured to various sizes (see [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-10-0)). The remaining data cache serves as an L1 cache and is also used by the texture unit that implements the various addressing and data filtering modes mentioned in [Texture and Surface Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-and-surface-memory).
 
@@ -17835,26 +21224,18 @@ It is strongly recommended that device kernels utilize this complex feature set 
 A Streaming Multiprocessor (SM) consists of:
 
 - 128 FP32 cores for single-precision arithmetic operations,
-    
 - 2 FP64 cores for double-precision arithmetic operations,
-    
 - 64 INT32 cores for integer math,
-    
 - Mixed-precision fifth-generation Tensor Core(s) supporting `FP8` input type in either `E4M3` or `E5M2` for exponent (E) and mantissa (M), half-precision (fp16), `__nv_bfloat16`, `tf32`, INT8 and double precision (fp64) matrix arithmetic (see [Warp Matrix Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#wmma) for details) with sparsity support,
-    
 - 16 special function units for single-precision floating-point transcendental functions,
-    
 - 4 warp schedulers.
-    
 
 An SM statically distributes its warps among its schedulers. Then, at every instruction issue time, each scheduler issues one instruction for one of its assigned warps that is ready to execute, if any.
 
 An SM has:
 
 - a read-only constant cache that is shared by all functional units and speeds up reads from the constant memory space, which resides in device memory,
-    
 - a unified data cache and shared memory with a total size of 100 KB for devices of compute capability 12.0
-    
 
 Shared memory is partitioned out of the unified data cache, and can be configured to various sizes (see [Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#shared-memory-12-0)). The remaining data cache serves as an L1 cache and is also used by the texture unit that implements the various addressing and data filtering modes mentioned in [Texture and Surface Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#texture-and-surface-memory).
 
@@ -17901,6 +21282,7 @@ It is a handle-based, imperative API: Most objects are referenced by opaque hand
 The objects available in the driver API are summarized in [Table 28](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-api-objects-available-in-cuda-driver-api).
 
 Table 28 Objects Available in the CUDA Driver API[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-api-objects-available-in-cuda-driver-api "Permalink to this table")
+
 |Object|Handle|Description|
 |---|---|---|
 |Device|CUdevice|CUDA-enabled device|
@@ -17923,8 +21305,11 @@ Any application that wants to run on future device architectures must load _PTX
 Here is the host code of the sample from [Kernels](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#kernels) written using the driver API:
 
 int main()
+
 {
+
     int N = ...;
+
     size_t size = N * sizeof(float);
 
     // Allocate input vectors h_A and h_B in host memory
@@ -17983,6 +21368,7 @@ int main()
                    0, 0, args, 0);
 
     ...
+
 }
 
 Full code can be found in the `vectorAddDrv` CUDA sample.
@@ -18012,67 +21398,121 @@ Modules are dynamically loadable packages of device code and data, akin to DLLs 
 This code sample loads a module and retrieves a handle to some kernel:
 
 CUmodule cuModule;
+
 cuModuleLoad(&cuModule, "myModule.ptx");
+
 CUfunction myKernel;
+
 cuModuleGetFunction(&myKernel, cuModule, "MyKernel");
 
 This code sample compiles and loads a new module from PTX code and parses compilation errors:
 
 #define BUFFER_SIZE 8192
+
 CUmodule cuModule;
+
 CUjit_option options[3];
+
 void* values[3];
+
 char* PTXCode = "some PTX code";
+
 char error_log[BUFFER_SIZE];
+
 int err;
+
 options[0] = CU_JIT_ERROR_LOG_BUFFER;
+
 values[0]  = (void*)error_log;
+
 options[1] = CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES;
+
 values[1]  = (void*)BUFFER_SIZE;
+
 options[2] = CU_JIT_TARGET_FROM_CUCONTEXT;
+
 values[2]  = 0;
+
 err = cuModuleLoadDataEx(&cuModule, PTXCode, 3, options, values);
+
 if (err != CUDA_SUCCESS)
+
     printf("Link error:\n%s\n", error_log);
 
 This code sample compiles, links, and loads a new module from multiple PTX codes and parses link and compilation errors:
 
 #define BUFFER_SIZE 8192
+
 CUmodule cuModule;
+
 CUjit_option options[6];
+
 void* values[6];
+
 float walltime;
+
 char error_log[BUFFER_SIZE], info_log[BUFFER_SIZE];
+
 char* PTXCode0 = "some PTX code";
+
 char* PTXCode1 = "some other PTX code";
+
 CUlinkState linkState;
+
 int err;
+
 void* cubin;
+
 size_t cubinSize;
+
 options[0] = CU_JIT_WALL_TIME;
+
 values[0] = (void*)&walltime;
+
 options[1] = CU_JIT_INFO_LOG_BUFFER;
+
 values[1] = (void*)info_log;
+
 options[2] = CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES;
+
 values[2] = (void*)BUFFER_SIZE;
+
 options[3] = CU_JIT_ERROR_LOG_BUFFER;
+
 values[3] = (void*)error_log;
+
 options[4] = CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES;
+
 values[4] = (void*)BUFFER_SIZE;
+
 options[5] = CU_JIT_LOG_VERBOSE;
+
 values[5] = (void*)1;
+
 cuLinkCreate(6, options, values, &linkState);
+
 err = cuLinkAddData(linkState, CU_JIT_INPUT_PTX,
+
                     (void*)PTXCode0, strlen(PTXCode0) + 1, 0, 0, 0, 0);
+
 if (err != CUDA_SUCCESS)
+
     printf("Link error:\n%s\n", error_log);
+
 err = cuLinkAddData(linkState, CU_JIT_INPUT_PTX,
+
                     (void*)PTXCode1, strlen(PTXCode1) + 1, 0, 0, 0, 0);
+
 if (err != CUDA_SUCCESS)
+
     printf("Link error:\n%s\n", error_log);
+
 cuLinkComplete(linkState, &cubin, &cubinSize);
+
 printf("Link completed in %fms. Linker Output:\n%s\n", walltime, info_log);
+
 cuModuleLoadData(cuModule, cubin);
+
 cuLinkDestroy(linkState);
 
 Full code can be found in the `ptxjit` CUDA sample.
@@ -18095,6 +21535,7 @@ The following code sample uses a macro (`ALIGN_UP()`) to adjust the offset of ea
       (offset) = ((offset) + (alignment) - 1) & ~((alignment) - 1)
 
 char paramBuffer[1024];
+
 size_t paramBufferSize = 0;
 
 #define ADD_TO_PARAM_BUFFER(value, alignment)                   \
@@ -18106,33 +21547,55 @@ size_t paramBufferSize = 0;
     } while (0)
 
 int i;
+
 ADD_TO_PARAM_BUFFER(i, __alignof(i));
+
 float4 f4;
+
 ADD_TO_PARAM_BUFFER(f4, 16); // float4's alignment is 16
+
 char c;
+
 ADD_TO_PARAM_BUFFER(c, __alignof(c));
+
 float f;
+
 ADD_TO_PARAM_BUFFER(f, __alignof(f));
+
 CUdeviceptr devPtr;
+
 ADD_TO_PARAM_BUFFER(devPtr, __alignof(devPtr));
+
 float2 f2;
+
 ADD_TO_PARAM_BUFFER(f2, 8); // float2's alignment is 8
 
 void* extra[] = {
+
     CU_LAUNCH_PARAM_BUFFER_POINTER, paramBuffer,
+
     CU_LAUNCH_PARAM_BUFFER_SIZE,    &paramBufferSize,
+
     CU_LAUNCH_PARAM_END
+
 };
+
 cuLaunchKernel(cuFunction,
+
                blockWidth, blockHeight, blockDepth,
+
                gridWidth, gridHeight, gridDepth,
+
                0, 0, 0, extra);
 
 The alignment requirement of a structure is equal to the maximum of the alignment requirements of its fields. The alignment requirement of a structure that contains built-in vector types, `CUdeviceptr`, or non-aligned `double` and `long long`, might therefore differ between device code and host code. Such a structure might also be padded differently. The following structure, for example, is not padded at all in host code, but it is padded in device code with 12 bytes after field `f` since the alignment requirement for field `f4` is 16.
 
 typedef struct {
+
     float  f;
+
     float4 f4;
+
 } myStruct;
 
 ## 21.4. Interoperability between Runtime and Driver APIs[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#interoperability-between-runtime-and-driver-apis "Permalink to this headline")
@@ -18148,14 +21611,19 @@ The implicitly created context from the runtime is called the _primary context_
 Device memory can be allocated and freed using either API. `CUdeviceptr` can be cast to regular pointers and vice-versa:
 
 CUdeviceptr devPtr;
+
 float* d_data;
 
 // Allocation using driver API
+
 cuMemAlloc(&devPtr, size);
+
 d_data = (float*)devPtr;
 
 // Allocation using runtime API
+
 cudaMalloc(&d_data, size);
+
 devPtr = (CUdeviceptr)d_data;
 
 In particular, this means that applications written using the driver API can invoke libraries written using the runtime API (such as cuFFT, cuBLAS, …).
@@ -18171,19 +21639,16 @@ The `Driver Entry Point Access APIs` provide a way to retrieve the address
 These APIs provide functionality similar to their counterparts, dlsym on POSIX platforms and GetProcAddress on Windows. The provided APIs will let users:
 
 - Retrieve the address of a driver function using the `CUDA Driver API.`
-    
 - Retrieve the address of a driver function using the `CUDA Runtime API.`
-    
 - Request _per-thread default stream_ version of a CUDA driver function. For more details, see [Retrieve Per-thread Default Stream Versions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#retrieve-per-thread-default-stream-versions).
-    
 - Access new CUDA features on older toolkits but with a newer driver.
-    
 
 ### 21.5.2. Driver Function Typedefs[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-function-typedefs "Permalink to this headline")
 
 To help retrieve the CUDA Driver API entry points, the CUDA Toolkit provides access to headers containing the function pointer definitions for all CUDA driver APIs. These headers are installed with the CUDA Toolkit and are made available in the toolkit’s `include/` directory. The table below summarizes the header files containing the `typedefs` for each CUDA API header file.
 
 Table 29 Typedefs header files for CUDA driver APIs[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id485 "Permalink to this table")
+
 |API header file|API Typedef header file|
 |---|---|
 |`cuda.h`|`cudaTypedefs.h`|
@@ -18198,6 +21663,7 @@ Table 29 Typedefs header files for CUDA driver APIs[](https://docs.nvidia.co
 The above headers do not define actual function pointers themselves; they define the typedefs for function pointers. For example, `cudaTypedefs.h`has the below typedefs for the driver API `cuMemAlloc`:
 
 typedef CUresult (CUDAAPI *PFN_cuMemAlloc_v3020)(CUdeviceptr_v2 *dptr, size_t bytesize);
+
 typedef CUresult (CUDAAPI *PFN_cuMemAlloc_v2000)(CUdeviceptr_v1 *dptr, unsigned int bytesize);
 
 CUDA driver symbols have a version based naming scheme with a `_v*` extension in its name except for the first version. When the signature or the semantics of a specific CUDA driver API changes, we increment the version number of the corresponding driver symbol. In the case of the `cuMemAlloc` driver API, the first driver symbol name is `cuMemAlloc` and the next symbol name is `cuMemAlloc_v2`. The typedef for the first version which was introduced in CUDA 2.0 (2000) is `PFN_cuMemAlloc_v2000`. The typedef for the next version which was introduced in CUDA 3.2 (3020) is `PFN_cuMemAlloc_v3020`.
@@ -18205,6 +21671,7 @@ CUDA driver symbols have a version based naming scheme with a `_v*` extension 
 The `typedefs` can be used to more easily define a function pointer of the appropriate type in code:
 
 PFN_cuMemAlloc_v3020 pfn_cuMemAlloc_v2;
+
 PFN_cuMemAlloc_v2000 pfn_cuMemAlloc_v1;
 
 ### 21.5.3. Driver Function Retrieval[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#driver-function-retrieval "Permalink to this headline")
@@ -18216,11 +21683,15 @@ Using the Driver Entry Point Access APIs and the appropriate typedef, we can get
 The driver API requires CUDA version as an argument to get the ABI compatible version for the requested driver symbol. CUDA Driver APIs have a per-function ABI denoted with a `_v*` extension. For example, consider the versions of `cuStreamBeginCapture` and their corresponding `typedefs`from `cudaTypedefs.h`:
 
 // cuda.h
+
 CUresult CUDAAPI cuStreamBeginCapture(CUstream hStream);
+
 CUresult CUDAAPI cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mode);
 
 // cudaTypedefs.h
+
 typedef CUresult (CUDAAPI *PFN_cuStreamBeginCapture_v10000)(CUstream hStream);
+
 typedef CUresult (CUDAAPI *PFN_cuStreamBeginCapture_v10010)(CUstream hStream, CUstreamCaptureMode mode);
 
 From the above `typedefs` in the code snippet, version suffixes `_v10000` and `_v10010` indicate that the above APIs were introduced in CUDA 10.0 and CUDA 10.1 respectively.
@@ -18228,12 +21699,17 @@ From the above `typedefs` in the code snippet, version suffixes `_v10000` an
 #include <cudaTypedefs.h>
 
 // Declare the entry points for cuStreamBeginCapture
+
 PFN_cuStreamBeginCapture_v10000 pfn_cuStreamBeginCapture_v1;
+
 PFN_cuStreamBeginCapture_v10010 pfn_cuStreamBeginCapture_v2;
 
 // Get the function pointer to the cuStreamBeginCapture driver symbol
+
 cuGetProcAddress("cuStreamBeginCapture", &pfn_cuStreamBeginCapture_v1, 10000, CU_GET_PROC_ADDRESS_DEFAULT, &driverStatus);
+
 // Get the function pointer to the cuStreamBeginCapture_v2 driver symbol
+
 cuGetProcAddress("cuStreamBeginCapture", &pfn_cuStreamBeginCapture_v2, 10010, CU_GET_PROC_ADDRESS_DEFAULT, &driverStatus);
 
 Referring to the code snippet above, to retrieve the address to the `_v1` version of the driver API `cuStreamBeginCapture`, the CUDA version argument should be exactly 10.0 (10000). Similarly, the CUDA version for retrieving the address to the `_v2` version of the API should be 10.1 (10010). Specifying a higher CUDA version for retrieving a specific version of a driver API might not always be portable. For example, using 11030 here would still return the `_v2` symbol, but if a hypothetical `_v3` version is released in CUDA 11.3, the `cuGetProcAddress` API would start returning the newer `_v3` symbol instead when paired with a CUDA 11.3 driver. Since the ABI and function signatures of the `_v2` and `_v3` symbols might differ, calling the `_v3` function using the `_v10010` typedef intended for the `_v2` symbol would exhibit undefined behavior.
@@ -18247,20 +21723,29 @@ The runtime API `cudaGetDriverEntryPointByVersion` uses the provided CUDA vers
 #include <cudaTypedefs.h>
 
 int cudaVersion;
+
 // Ensure a CUDA driver >= 11.2 is installed or we will get an error from cuGetProcAddress
+
 status = cuDriverGetVersion(&cudaVersion);
+
 if (cudaVersion >= 11020) {
 
    // Declare the entry point
+
    PFN_cuMemAllocAsync_v11020 pfn_cuMemAllocAsync;
 
    // Intialize the entry point
+
    cudaGetDriverEntryPointByVersion("cuMemAllocAsync", &pfn_cuMemAllocAsync, 11020, cudaEnableDefault, &driverStatus);
 
    // Call the entry point
+
    if(driverStatus == cudaDriverEntryPointSuccess && pfn_cuMemAllocAsync) {
+
        pfn_cuMemAllocAsync(...);
+
    }
+
 }
 
 #### 21.5.3.3. Retrieve Per-thread Default Stream Versions[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#retrieve-per-thread-default-stream-versions "Permalink to this headline")
@@ -18270,20 +21755,24 @@ Some CUDA driver APIs can be configured to have _default stream_ or _per-thre
 The _default stream_ or _per-thread default stream_ versions of a driver API can be obtained by one of the following ways:
 
 - Use the compilation flag `--default-stream per-thread` or define the macro `CUDA_API_PER_THREAD_DEFAULT_STREAM` to get _per-thread default stream_behavior.
-    
 - Force _default stream_ or _per-thread default stream_ behavior using the flags `CU_GET_PROC_ADDRESS_LEGACY_STREAM/cudaEnableLegacyStream` or `CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM/cudaEnablePerThreadDefaultStream` respectively.
-    
 
 #### 21.5.3.4. Access New CUDA features[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#access-new-cuda-features "Permalink to this headline")
 
 It is always recommended to install the latest CUDA toolkit to access new CUDA driver features, but if for some reason, a user does not want to update or does not have access to the latest toolkit, the API can be used to access new CUDA features with only an updated CUDA driver. For discussion, let us assume the user is on CUDA 12.3 and wants to use a new driver API `cuFoo` available in the CUDA 12.5 driver. The below code snippet illustrates this use-case:
 
 int main()
+
 {
+
     // Manually define the prototype as cudaTypedefs.h in CUDA 12.3 does not have the cuFoo typedef
+
     typedef CUresult (CUDAAPI *PFN_cuFoo_v12050)(...);
+
     PFN_cuFoo_v12050 pfn_cuFoo = NULL;
+
     CUdriverProcAddressQueryResult driverStatus;
+
     int cudaVersion;
 
     // Ensure a CUDA driver >= 12.5 is installed or we will get an error from cuGetProcAddress
@@ -18303,6 +21792,7 @@ int main()
     }
 
     // rest of code here
+
 }
 
 In the next example, we discuss how to get a new version of an API released in a minor version of the CUDA Toolkit. Note that in the cuda.h header the version macro that would bump `cuDeviceGetUuid` to _v2 is not done until a major boundary. So during the 11.4+ releases the following example illustrates how to get the _v2 version.
@@ -18318,25 +21808,39 @@ typedef CUresult (CUDAAPI *PFN_cuDeviceGetUuid_v11040)(CUuuid *uuid, CUdevice_v1
 #include <cudaTypedefs.h>
 
 CUuuid uuid;
+
 CUdevice dev;
+
 CUresult status;
+
 int cudaVersion;
+
 CUdriverProcAddressQueryResult driverStatus;
 
 status = cuDeviceGet(&dev, 0); // Get device 0
+
 // handle status
 
 status = cuDriverGetVersion(&cudaVersion);
+
 // handle status
 
 // Ensure a CUDA driver >= 11.4 is installed or we will get an error from cuGetProcAddress
+
 status = cuDriverGetVersion(&cudaVersion);
+
 if (cudaVersion >= 11040) {
+
    PFN_cuDeviceGetUuid_v11040 pfn_cuDeviceGetUuid;
+
    status = cuGetProcAddress("cuDeviceGetUuid", &pfn_cuDeviceGetUuid, 11040, CU_GET_PROC_ADDRESS_DEFAULT, &driverStatus);
+
    if(CUDA_SUCCESS == status && pfn_cuDeviceGetUuid) {
+
       pfn_cuDeviceGetUuid(&uuid, dev);
+
    }
+
 }
 
 ### 21.5.4. Guidelines for cuGetProcAddress[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#guidelines-for-cugetprocaddress "Permalink to this headline")
@@ -18344,9 +21848,7 @@ if (cudaVersion >= 11040) {
 Below are guidelines to keep in mind when using `cuGetProcAddress`.
 
 - Code the CUDA version passed to `cuGetProcAddress` to match the typedef version (do not use a compile time constant such as `CUDA_VERSION` or a dynamic version such as returned from `cuDriverGetVersion`)
-    
 - Check the current driver version (such as from `cuDriverGetVersion`) is sufficient before calling `cuGetProcAddress` or an error is expected or an unexpected symbol may be returned
-    
 
 #### 21.5.4.1. Guidelines for Runtime API Usage[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#guidelines-for-runtime-api-usage "Permalink to this headline")
 
@@ -18359,23 +21861,41 @@ There are two types of errors with cuGetProcAddress. Those are (1) API/usage err
 The second error type encodes in the `CUdriverProcAddressQueryResult *symbolStatus` and can be used to help distinguish potential issues with the driver not being able to find the symbol requested. Take the following example:
 
 // cuDeviceGetExecAffinitySupport was introduced in release CUDA 11.4
+
 #include <cuda.h>
+
 CUdriverProcAddressQueryResult driverStatus;
+
 cudaVersion = ...;
+
 status = cuGetProcAddress("cuDeviceGetExecAffinitySupport", &pfn, cudaVersion, 0, &driverStatus);
+
 if (CUDA_SUCCESS == status) {
+
     if (CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT == driverStatus) {
+
         printf("We can use the new feature when you upgrade cudaVersion to 11.4, but CUDA driver is good to go!\n");
+
         // Indicating cudaVersion was < 11.4 but run against a CUDA driver >= 11.4
+
     }
+
     else if (CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND == driverStatus) {
+
         printf("Please update both CUDA driver and cudaVersion to at least 11.4 to use the new feature!\n");
+
         // Indicating driver is < 11.4 since string not found, doesn't matter what cudaVersion was
+
     }
+
     else if (CU_GET_PROC_ADDRESS_SUCCESS == driverStatus && pfn) {
+
         printf("You're using cudaVersion and CUDA driver >= 11.4, using new feature!\n");
+
         pfn();
+
     }
+
 }
 
 The first case with the return code `CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT` indicates that the `symbol` was found when searching in the CUDA driver but it was added later than the `cudaVersion` supplied. In the example, specifying `cudaVersion` as anything 11030 or less and when running against a CUDA driver >= CUDA 11.4 would give this result of `CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT`. This is because `cuDeviceGetExecAffinitySupport` was added in CUDA 11.4 (11040).
@@ -18387,13 +21907,14 @@ The second case with the return code `CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND` in
 The following table lists the CUDA environment variables. Environment variables related to the Multi-Process Service are documented in the Multi-Process Service section of the GPU Deployment and Management guide.
 
 Table 30 CUDA Environment Variables[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#id486 "Permalink to this table")
+
 |Variable|Values|Description|
 |---|---|---|
-|**Device Enumeration and Properties**|||
+|__Device Enumeration and Properties__|||
 |CUDA_VISIBLE_DEVICES|A comma-separated sequence of GPU identifiers MIG support: `MIG-<GPU-UUID>/<GPUinstance ID>/<computeinstance ID>`|GPU identifiers are given as integer indices or as UUID strings. GPU UUID strings should follow the same format as given by _nvidia-smi_, such as GPU-8932f937-d72c-4106-c12f-20bd9faed9f6. However, for convenience, abbreviated forms are allowed; simply specify enough digits from the beginning of the GPU UUID to uniquely identify that GPU in the target system. For example, CUDA_VISIBLE_DEVICES=GPU-8932f937 may be a valid way to refer to the above GPU UUID, assuming no other GPU in the system shares this prefix. Only the devices whose index is present in the sequence are visible to CUDA applications and they are enumerated in the order of the sequence. If one of the indices is invalid, only the devices whose index precedes the invalid index are visible to CUDA applications. For example, setting CUDA_VISIBLE_DEVICES to 2,1 causes device 0 to be invisible and device 2 to be enumerated before device 1. Setting CUDA_VISIBLE_DEVICES to 0,2,-1,1 causes devices 0 and 2 to be visible and device 1 to be invisible. MIG format starts with MIG keyword and GPU UUID should follow the same format as given by _nvidia-smi_. For example, MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2. Only single MIG instance enumeration is supported.|
 |CUDA_MANAGED_FORCE_DEVICE_ALLOC|0 or 1 (default is 0)|Forces the driver to place all managed allocations in device memory.|
 |CUDA_DEVICE_ORDER|FASTEST_FIRST, PCI_BUS_ID, (default is FASTEST_FIRST)|FASTEST_FIRST causes CUDA to enumerate the available devices in fastest to slowest order using a simple heuristic. PCI_BUS_ID orders devices by PCI bus ID in ascending order.|
-|**Compilation**|||
+|__Compilation__|||
 |CUDA_CACHE_DISABLE|0 or 1 (default is 0)|Disables caching (when set to 1) or enables caching (when set to 0) for just-in-time-compilation. When disabled, no binary code is added to or retrieved from the cache.|
 |CUDA_CACHE_PATH|filepath|Specifies the folder where the just-in-time compiler caches binary codes; the default values are:<br><br>- on Windows, `%APPDATA%\NVIDIA\ComputeCache`<br>    <br>- on Linux, `~/.nv/ComputeCache`|
 |CUDA_CACHE_MAXSIZE|integer (default is 1073741824 (1 GiB) for desktop/server platforms and 268435456 (256 MiB) for embedded platforms and the maximum is 4294967296 (4 GiB))|Specifies the size in bytes of the cache used by the just-in-time compiler. Binary codes whose size exceeds the cache size are not cached. Older binary codes are evicted from the cache to make room for newer binary codes if needed.|
@@ -18401,24 +21922,24 @@ Table 30 CUDA Environment Variables[](https://docs.nvidia.com/cuda/cuda-c-pr
 |CUDA_DISABLE_PTX_JIT|0 or 1 (default is 0)|When set to 1, disables the just-in-time compilation of embedded PTX code and use the compatible binary code embedded in an application (see [Application Compatibility](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility)). If a kernel does not have embedded binary code or the embedded binary was compiled for an incompatible architecture, then it will fail to load. This environment variable can be used to validate that an application has the compatible _SASS_ code generated for each kernel.(see [Binary Compatibility](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#binary-compatibility)).|
 |CUDA_FORCE_JIT|0 or 1 (default is 0)|When set to 1, forces the device driver to ignore any binary code embedded in an application (see [Application Compatibility](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility)) and to just-in-time compile embedded PTX code instead. If a kernel does not have embedded PTX code, it will fail to load. This environment variable can be used to validate that PTX code is embedded in an application and that its just-in-time compilation works as expected to guarantee application forward compatibility with future architectures (see [Just-in-Time Compilation](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#just-in-time-compilation)). The behavior can be overridden for embedded PTX by setting `CUDA_FORCE_PTX_JIT=0`.|
 |CUDA_DISABLE_JIT|0 or 1 (default is 0)|When set to 1, disables the just-in-time compilation of embedded PTX code and use the compatible binary code embedded in an application (see [Application Compatibility](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#application-compatibility)). If a kernel does not have embedded binary code or the embedded binary was compiled for an incompatible architecture, then it will fail to load. This environment variable can be used to validate that an application has the compatible SASS code generated for each kernel.(see [Binary Compatibility](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#binary-compatibility)). The behavior can be overridden for embedded PTX by setting `CUDA_DISABLE_PTX_JIT=0`.|
-|**Execution**|||
+|__Execution__|||
 |CUDA_LAUNCH_BLOCKING|0 or 1 (default is 0)|Disables (when set to 1) or enables (when set to 0) asynchronous kernel launches.|
 |CUDA_DEVICE_MAX_CONNECTIONS|1 to 32 (default is 8)|Sets the number of compute and copy engine concurrent connections (work queues) from the host to each device of compute capability 3.5 and above.|
 |CUDA_DEVICE_MAX_COPY_CONNECTIONS|1 to 32 (default is 8)|Sets the number of copy engine concurrent connections (work queues) per async copy engine from the host to each device of compute capability 8.0 and above. When both CUDA_DEVICE_MAX_CONNECTIONS and CUDA_DEVICE_MAX_COPY_CONNECTIONS are set, only the number of copy connections set by CUDA_DEVICE_MAX_CONNECTIONS will be overwritten.|
 |CUDA_AUTO_BOOST|0 or 1|Overrides the autoboost behavior set by the –auto-boost-default option of nvidia-smi. If an application requests via this environment variable a behavior that is different from nvidia-smi’s, its request is honored if there is no other application currently running on the same GPU that successfully requested a different behavior, otherwise it is ignored.|
 |CUDA_SCALE_LAUNCH_QUEUES|“0.25x”, “0.5x”, “2x” or “4x”|Scales the size of the queues available for launching work by a fixed multiplier.|
-|**cuda-gdb (on Linux platform)**|||
+|__cuda-gdb (on Linux platform)__|||
 |CUDA_DEVICE_WAITS_ON_EXCEPTION|0 or 1 (default is 0)|When set to 1, a CUDA application will halt when a device exception occurs, allowing a debugger to be attached for further debugging.|
-|**MPS service (on Linux platform)**|||
+|__MPS service (on Linux platform)__|||
 |CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT|Percentage value (between 0 - 100, default is 0)|Devices of compute capability 8.x allow, a portion of L2 cache to be set-aside for persisting data accesses to global memory. When using CUDA MPS service, the set-aside size can only be controlled using this environment variable, before starting CUDA MPS control daemon. I.e., the environment variable should be set before running the command `nvidia-cuda-mps-control -d`.|
-|**Module loading**|||
+|__Module loading__|||
 |CUDA_MODULE_LOADING|DEFAULT, LAZY, EAGER (default is LAZY)|Specifies the module loading mode for the application. When set to EAGER, all kernels and data from a cubin, fatbin or a PTX file are fully loaded upon corresponding `cuModuleLoad*` and `cuLibraryLoad*` API call. When set to LAZY, loading of specific kernels is delayed to the point a CUfunc handle is extracted with `cuModuleGetFunction` or `cuKernelGetFunction` API calls and data from the cubin is loaded at load of first kernel in the cubin or at first access of variables in the cubin. Default behavior may change in future CUDA releases.|
 |CUDA_MODULE_DATA_LOADING|DEFAULT, LAZY, EAGER (default is LAZY)|Specifies the data loading mode for the application. When set to EAGER, all data from a cubin, fatbin or a PTX file are fully loaded to memory upon corresponding `cuLibraryLoad*`. This doesn’t affect the LAZY or EAGER loading of kernels. When set to LAZY, loading of data is delayed to the point at which a handle is required. Default behavior may change in future CUDA releases. Data loading behavior is inherited from `CUDA_MODULE_LOADING` if this environment variable is not set.|
-|**Pre-loading dependent libraries**|||
+|__Pre-loading dependent libraries__|||
 |CUDA_FORCE_PRELOAD_LIBRARIES|0 or 1 (default is 0)|When set to 1, forces the driver to preload the libraries required for NVVM and PTX just-in-time compilation during driver initialization. This will increase the memory footprint and the time taken for CUDA driver initialization. This environment variable needs to be set to avoid certain deadlock situations involving multiple CUDA threads.|
-|**CUDA Graphs**|||
+|__CUDA Graphs__|||
 |CUDA_GRAPHS_USE_NODE_PRIORITY|0 or 1|Overrides the cudaGraphInstantiateFlagUseNodePriority flag on graph instantiation. When set to 1, the flag will be set for all graphs and when set to 0, the flag will be cleared for all graphs.|
-|**CUDA Error Log Management**|||
+|__CUDA Error Log Management__|||
 |CUDA_LOG_FILE|stdout, stderr, or valid file path|Provides a location for printing error logs as they occur. See the `Error Log Management`section for more details.|
 
 # 23. Error Log Management[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#error-log-management "Permalink to this headline")
@@ -18470,6 +21991,7 @@ The iterator position can be kept by the calling software in situations where a 
 At any time, the error log buffer can be dumped to either a file or memory with these functions:
 
 CUresult cuLogsDumpToFile(CUlogIterator *iterator, const char *pathToFile, unsigned int flags)
+
 CUresult cuLogsDumpToMemory(CUlogIterator *iterator, char *buffer, size_t *size, unsigned int flags)
 
 If _iterator_ is NULL, the entire buffer will be dumped, up to the maximum of 100 entries. If _iterator_ is not NULL, logs will be dumped starting from that entry and the value of _iterator_ will be updated to the current end of the logs, as if _cuLogsCurrent_ had been called. If there have been more than 100 log entries into the buffer, a note will be added at the start of the dump noting this.
@@ -18479,26 +22001,17 @@ The flags parameter must be 0, with additional options reserved for future CUDA 
 The _cuLogsDumpToMemory_ function has additional considerations:
 
 1. The buffer itself will be null-terminated, but each individual log entry will only be separated by a newline (n) character.
-    
 2. The maximum size of the buffer is 25600 bytes.
-    
 3. If the value provided in _size_ is not sufficient to store all desired logs, a note will be added as the first entry and the oldest entries that do not fit will not be dumped.
-    
 4. After returning, _size_ will contain the actual number of bytes written to the provided buffer.
-    
 
 ## 23.5. Limitations and Known Issues[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#limitations-and-known-issues "Permalink to this headline")
 
 1. The log buffer is limited to 100 entries. After this limit is reached, the oldest entries will be replaced and log dumps will contain a line noting the rollover.
-    
 2. Not all CUDA APIs are covered yet. This is an ongoing project to provide better usage error reporting for all APIs.
-    
 3. The Error Log Management log location (if given) will not be tested for validity until/unless a log is generated.
-    
 4. The Error Log Management APIs are currently only available via the CUDA Driver. Equivalent APIs will be added to the CUDA Runtime in a future release.
-    
 5. The log messages are not localized to any language and all provided logs are in US English.
-    
 
 # 24. Unified Memory Programming[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#unified-memory-programming "Permalink to this headline")
 
@@ -18509,48 +22022,37 @@ This chapter applies to devices with compute capability 5.0 or higher unless sta
 This documentation on Unified Memory is divided into 3 parts:
 
 - [General description of unified memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-introduction)
-    
 - [Unified Memory on devices with full CUDA Unified Memory support](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-pageable-systems)
-    
 - [Unified Memory on devices without full CUDA Unified Memory support](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-no-pageable-systems)
-    
 
 ## 24.1. Unified Memory Introduction[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#unified-memory-introduction "Permalink to this headline")
 
 CUDA Unified Memory provides all processors with:
 
 - A single _unified_ memory pool, that is, a single pointer value enables all processors in the system (all CPUs, all GPUs, etc.) to access this memory with all of their native memory operations (pointer dereferences, atomics, etc.).
-    
 - Concurrent access to the unified memory pool from all processors in the system.
-    
 
 Unified Memory improves GPU programming in several ways:
 
-- **Productivity**: GPU programs may access Unified Memory from GPU and CPU threads concurrently without needing to create separate allocations (`cudaMalloc()`) and copy memory manually back and forth (`cudaMemcpy*()`).
-    
-- **Performance**:
-    
+- __Productivity__: GPU programs may access Unified Memory from GPU and CPU threads concurrently without needing to create separate allocations (`cudaMalloc()`) and copy memory manually back and forth (`cudaMemcpy*()`).
+- __Performance__:
     - Data access speed may be maximized by migrating data towards processors that access it most frequently. Applications can trigger manual migration of data and may use hints to control migration heuristics.
-        
     - Total system memory usage may be reduced by avoiding duplicating memory on both CPUs and GPUs.
-        
-- **Functionality**: It enables GPU programs to work on data that exceeds the GPU memory’s capacity.
-    
+- __Functionality__: It enables GPU programs to work on data that exceeds the GPU memory’s capacity.
 
 With CUDA Unified Memory, data movement still takes place, and hints may improve performance. These hints are not required for correctness or functionality, that is, programmers may focus on parallelizing their applications across GPUs and CPUs first, and worry about data-movement later in the development cycle as a performance optimization. Note that the physical location of data is invisible to a program and may be changed at any time, but accesses to the data’s virtual address will remain valid and coherent from any processor regardless of locality.
 
 There are two main ways to obtain CUDA Unified Memory:
 
 - [System-Allocated Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-implicit-allocation): memory allocated on the host with system APIs: stack variables, global-/file-scope variables, `malloc()` / `mmap()`(see [System-Allocated Memory: in-depth examples](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-system-allocator) for in-depth examples), thread locals, etc.
-    
 - [CUDA APIs that explicitly allocate Unified Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-explicit-allocation): memory allocated with, for example, `cudaMallocManaged()`, are available on more systems and may perform better than System-Allocated Memory.
-    
 
 ### 24.1.1. System Requirements for Unified Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#system-requirements-for-unified-memory "Permalink to this headline")
 
 The following table shows the different levels of support for CUDA Unified Memory, the device properties required to detect these levels of support and links to the documentation specific to each level of support:
 
 Table 31 Overview of levels of unified memory support[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-unified-memory-levels "Permalink to this table")
+
 |Unified Memory Support Level|System device properties|Further documentation|
 |---|---|---|
 |Full CUDA Unified Memory: all memory has full support. This includes System-Allocated and CUDA Managed Memory.|Set to 1: `pageableMemoryAccess`<br><br>[Systems with hardware acceleration](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-system-allocator) also have the following properties set to 1:<br><br>`hostNativeAtomicSupported`, `pageableMemoryAccessUsesHostPageTables`, `directManagedMemAccessFromHost`|[Unified Memory on devices with full CUDA Unified Memory support](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-pageable-systems)|
@@ -18561,11 +22063,8 @@ Table 31 Overview of levels of unified memory support[](https://docs.nvidia.
 The behavior of an application that attempts to use Unified Memory on a system that does not support it is undefined. The following properties enable CUDA applications to check the level of system support for Unified Memory, and to be portable between systems with different levels of support:
 
 - `pageableMemoryAccess`: This property is set to 1 on systems with CUDA Unified Memory support where all threads may access System-Allocated Memory and CUDA Managed Memory. These systems include NVIDIA Grace Hopper, IBM Power9 + Volta, and modern Linux systems with HMM enabled (see next bullet), among others.
-    
     - Linux HMM requires Linux kernel version 6.1.24+, 6.2.11+ or 6.3+, devices with compute capability 7.5 or higher and a CUDA driver version 535+ installed with [Open Kernel Modules](http://download.nvidia.com/XFree86/Linux-x86_64/515.43.04/README/kernel_open.html).
-        
 - `concurrentManagedAccess`: This property is set to 1 on systems with full CUDA Managed Memory support. When this property is set to 0, there is only partial support for Unified Memory in CUDA Managed Memory. For Tegra support of Unified Memory, see [CUDA for Tegra Memory Management](https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html#memory-management).
-    
 
 A program may query the level of GPU support for CUDA Unified Memory, by querying the attributes in [Table 31](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#table-unified-memory-levels) using  `cudaGetDeviceProperties()`.
 
@@ -18574,11 +22073,8 @@ A program may query the level of GPU support for CUDA Unified Memory, by queryin
 With CUDA Unified Memory, separate allocations between host and device, and explicit memory transfers between them, are no longer required. Programs may allocate Unified Memory in the following ways:
 
 - [System-Allocation APIs](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-implicit-allocation): on [systems with full CUDA Unified Memory support](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-requirements) via any system allocation of the host process (C’s `malloc()`, C++’s `new` operator, POSIX’s `mmap` and so on).
-    
 - [CUDA Managed Memory Allocation APIs](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-explicit-allocation): via the `cudaMallocManaged()` API which is syntactically similar to `cudaMalloc()`.
-    
 - [CUDA Managed Variables](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-language-integration): variables declared with `__managed__`, which are semantically similar to a `__device__` variable.
-    
 
 Most examples in this chapter provide at least two versions, one using CUDA Managed Memory and one using System-Allocated Memory. Tabs allow you to choose between them. The following samples illustrate how Unified Memory simplifies CUDA programs:
 
@@ -18586,20 +22082,16 @@ System (`malloc()`)
 
 |   |   |
 |---|---|
-|__global__ void write_value(int* ptr, int v) {<br>  *ptr = v;<br>}<br><br>int main() {<br>  int* d_ptr = nullptr;<br>  // Does not require any unified memory support<br>  cudaMalloc(&d_ptr, sizeof(int));<br>  write_value<<<1, 1>>>(d_ptr, 1);<br>  int h_value;<br>  // Copy memory back to the host and synchronize<br>  cudaMemcpy(&h_value, d_ptr, sizeof(int),<br>             cudaMemcpyDefault);<br>  printf("value = %d\n", h_value); <br>  cudaFree(d_ptr); <br>  return 0;<br>}|__global__ void write_value(int* ptr, int v) {<br>  *ptr = v;<br>}<br><br>int main() {<br>  // Requires System-Allocated Memory support<br>  int* ptr = (int*)malloc(sizeof(int));<br>  write_value<<<1, 1>>>(ptr, 1);<br>  // Synchronize required<br>  // (before, cudaMemcpy was synchronizing)<br>  cudaDeviceSynchronize();<br>  printf("value = %d\n", *ptr); <br>  free(ptr); <br>  return 0;<br>}|
+|__global__ void write_value(int* ptr, int v) {<br>  _ptr = v;<br>}<br><br>int main() {<br>  int_ d_ptr = nullptr;<br>  // Does not require any unified memory support<br>  cudaMalloc(&d_ptr, sizeof(int));<br>  write_value<<<1, 1>>>(d_ptr, 1);<br>  int h_value;<br>  // Copy memory back to the host and synchronize<br>  cudaMemcpy(&h_value, d_ptr, sizeof(int),<br>             cudaMemcpyDefault);<br>  printf("value = %d\n", h_value); <br>  cudaFree(d_ptr); <br>  return 0;<br>}|__global__ void write_value(int* ptr, int v) {<br>  _ptr = v;<br>}<br><br>int main() {<br>  // Requires System-Allocated Memory support<br>  int_ ptr = (int*)malloc(sizeof(int));<br>  write_value<<<1, 1>>>(ptr, 1);<br>  // Synchronize required<br>  // (before, cudaMemcpy was synchronizing)<br>  cudaDeviceSynchronize();<br>  printf("value = %d\n", *ptr); <br>  free(ptr); <br>  return 0;<br>}|
 
 System (Stack)Managed (`cudaMallocManaged()`)Managed (`__managed__`)
 
 In the example above, the device writes a value which is then read by the host:
 
-- **Without Unified Memory**: both host- and device-side storage for the written value is required (`h_value` and `d_ptr` in the example), as is an explicit copy between the two using `cudaMemcpy()`.
-    
-- **With Unified Memory**: device accesses data directly from the host. `ptr` / `value` may be used without a separate `h_value` / `d_ptr` allocation and no copy routine is required, greatly simplifying and reducing the size of the program. With:
-    
-    - **System Allocated**: no other changes required.
-        
-    - **Managed Memory**: data allocation changed to use `cudaMallocManaged()`, which returns a pointer valid from both host and device code.
-        
+- __Without Unified Memory__: both host- and device-side storage for the written value is required (`h_value` and `d_ptr` in the example), as is an explicit copy between the two using `cudaMemcpy()`.
+- __With Unified Memory__: device accesses data directly from the host. `ptr` / `value` may be used without a separate `h_value` / `d_ptr` allocation and no copy routine is required, greatly simplifying and reducing the size of the program. With:
+    - __System Allocated__: no other changes required.
+    - __Managed Memory__: data allocation changed to use `cudaMallocManaged()`, which returns a pointer valid from both host and device code.
 
 #### 24.1.2.1. Allocation APIs for System-Allocated Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocation-apis-for-system-allocated-memory "Permalink to this headline")
 
@@ -18608,34 +22100,43 @@ On [systems with full CUDA Unified Memory support](https://docs.nvidia.com/cuda
 System-Allocated Memory may be populated on first touch, depending on the API and system settings used. First touch means that:
 
 - The allocation APIs allocate virtual memory and return immediately, and
-    
 - physical memory is populated when a thread accesses the memory for the first time.
-    
 
 Usually, the physical memory will be chosen “close” to the processor that thread is running on. For example,
 
 - GPU thread accesses it first: physical GPU memory of GPU that thread runs on is chosen.
-    
 - CPU thread accesses it first: physical CPU memory in the memory NUMA node of the CPU core that thread runs on is chosen.
-    
 
 CUDA Unified Memory Hint and Prefetch APIs,  `cudaMemAdvise` and `cudaMemPreftchAsync`, may be used on System-Allocated Memory. These APIs are covered below in the [Data Usage Hints](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-tuning-usage) section.
 
 __global__ void printme(char *str) {
+
   printf(str);
+
 }
 
 int main() {
+
   // Allocate 100 bytes of memory, accessible to both Host and Device code
-  char *s = (char*)malloc(100);
+
+  char _s = (char_)malloc(100);
+
   // Physical allocation placed in CPU memory because host accesses "s" first
+
   strncpy(s, "Hello Unified Memory\n", 99);
+
   // Here we pass "s" to a kernel without explicitly copying
+
   printme<<< 1, 1 >>>(s);
+
   cudaDeviceSynchronize();
+
   // Free as for normal CUDA allocations
+
   cudaFree(s); 
+
   return  0;
+
 }
 
 #### 24.1.2.2. Allocation API for CUDA Managed Memory: `cudaMallocManaged()`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocation-api-for-cuda-managed-memory-cudamallocmanaged "Permalink to this headline")
@@ -18651,21 +22152,35 @@ On [systems with full CUDA Managed Memory support](https://docs.nvidia.com/cuda
 The following example shows the use of `cudaMallocManaged()`:
 
 __global__ void printme(char *str) {
+
   printf(str);
+
 }
 
 int main() {
+
   // Allocate 100 bytes of memory, accessible to both Host and Device code
+
   char *s;
+
   cudaMallocManaged(&s, 100);
+
   // Note direct Host-code use of "s"
+
   strncpy(s, "Hello Unified Memory\n", 99);
+
   // Here we pass "s" to a kernel without explicitly copying
+
   printme<<< 1, 1 >>>(s);
+
   cudaDeviceSynchronize();
+
   // Free as for normal CUDA allocations
+
   cudaFree(s); 
+
   return  0;
+
 }
 
 Note
@@ -18673,9 +22188,7 @@ Note
 For systems that support CUDA Managed Memory allocations, but do not provide full support, see [Coherency and Concurrency](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-coherency-hd). Implementation details (may change any time):
 
 - Devices of compute capability 5.x allocate CUDA Managed Memory on the GPU.
-    
 - Devices of compute capability 6.x and greater populate the memory on first touch, just like System-Allocated Memory APIs.
-    
 
 #### 24.1.2.3. Global-Scope Managed Variables Using `__managed__`[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#global-scope-managed-variables-using-managed "Permalink to this headline")
 
@@ -18686,18 +22199,29 @@ On [systems with full CUDA Unified Memory support](https://docs.nvidia.com/cuda
 System Allocator
 
 __global__ void write_value(int* ptr, int v) {
+
   *ptr = v;
+
 }
 
 int main() {
+
   // Requires System-Allocated Memory support
+
   int value;
+
   write_value<<<1, 1>>>(&value, 1);
+
   // Synchronize required
+
   // (before, cudaMemcpy was synchronizing)
+
   cudaDeviceSynchronize();
+
   printf("value = %d\n", value);
+
   return 0;
+
 }
 
 Managed
@@ -18729,47 +22253,79 @@ Pointer attributes do not state where the memory resides, they state how the mem
 The following example shows how to detect the type of pointer at runtime:
 
 char const* kind(cudaPointerAttributes a, bool pma, bool cma) {
+
     switch(a.type) {
+
     case cudaMemoryTypeHost: return pma?
+
       "Unified: CUDA Host or Registered Memory" :
+
       "Not Unified: CUDA Host or Registered Memory";
+
     case cudaMemoryTypeDevice: return "Not Unified: CUDA Device Memory";
+
     case cudaMemoryTypeManaged: return cma?
+
       "Unified: CUDA Managed Memory" : "Not Unified: CUDA Managed Memory";
+
     case cudaMemoryTypeUnregistered: return pma?
+
       "Unified: System-Allocated Memory" :
+
       "Not Unified: System-Allocated Memory";
+
     default: return "unknown";
+
     }
+
 }
 
 void check_pointer(int i, void* ptr) {
+
   cudaPointerAttributes attr;
+
   cudaPointerGetAttributes(&attr, ptr);
+
   int pma = 0, cma = 0, device = 0;
+
   cudaGetDevice(&device);
+
   cudaDeviceGetAttribute(&pma, cudaDevAttrPageableMemoryAccess, device);
+
   cudaDeviceGetAttribute(&cma, cudaDevAttrConcurrentManagedAccess, device);
+
   printf("Pointer %d: memory is %s\n", i, kind(attr, pma, cma));
+
 }
 
 __managed__ int managed_var = 5;
 
 int main() {
+
   int* ptr[5];
+
   ptr[0] = (int*)malloc(sizeof(int));
+
   cudaMallocManaged(&ptr[1], sizeof(int));
+
   cudaMallocHost(&ptr[2], sizeof(int));
+
   cudaMalloc(&ptr[3], sizeof(int));
+
   ptr[4] = &managed_var;
 
   for (int i = 0; i < 5; ++i) check_pointer(i, ptr[i]);
-  
+
   cudaFree(ptr[3]);
+
   cudaFreeHost(ptr[2]);
+
   cudaFree(ptr[1]);
+
   free(ptr[0]);
+
   return 0;
+
 }
 
 #### 24.1.2.6. Runtime detection of Unified Memory Support Level[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#runtime-detection-of-unified-memory-support-level "Permalink to this headline")
@@ -18777,18 +22333,25 @@ int main() {
 The following example shows how to detect the Unified Memory support level at runtime:
 
 int main() {
+
   int d;
+
   cudaGetDevice(&d);
 
   int pma = 0;
+
   cudaDeviceGetAttribute(&pma, cudaDevAttrPageableMemoryAccess, d);
+
   printf("Full Unified Memory Support: %s\n", pma == 1? "YES" : "NO");
-  
+
   int cma = 0;
+
   cudaDeviceGetAttribute(&cma, cudaDevAttrConcurrentManagedAccess, d);
+
   printf("CUDA Managed Memory with full support: %s\n", cma == 1? "YES" : "NO");
 
   return 0;
+
 }
 
 #### 24.1.2.7. GPU Memory Oversubscription[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#gpu-memory-oversubscription "Permalink to this headline")
@@ -18808,9 +22371,13 @@ Note that applications should only use these hints if they improve their perform
 The `cudaMemPrefetchAsync` API is an asynchronous stream-ordered API that may migrate data to reside closer to the specified processor. The data may be accessed while it is being prefetched. The migration does not begin until all prior operations in the stream have completed, and completes before any subsequent operation in the stream.
 
 cudaError_t cudaMemPrefetchAsync(const void *devPtr,
+
                                  size_t count,
+
                                  struct cudaMemLocation location,
+
                                  unsigned int flags,
+
                                  cudaStream_t stream);
 
 A memory region containing `[devPtr, devPtr + count)` may be migrated to the destination device `location.id` if `location.type` is `cudaMemLocationTypeDevice` - or CPU if `location.type` is `cudaMemLocationTypeHost` - when the prefetch task is executed in the given `stream`. For details on `flags`, see the current [CUDA Runtime API documentation](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html).
@@ -18820,16 +22387,27 @@ Consider a simple code example below:
 System Allocator
 
 void test_prefetch_sam(cudaStream_t s) {
-  char *data = (char*)malloc(N);
+
+  char _data = (char_)malloc(N);
+
   init_data(data, N);                                         // execute on CPU
+
   cudaMemLocation location = {.type = cudaMemLocationTypeDevice, .id = myGpuId};
-  cudaMemPrefetchAsync(data, N, location, s, 0 /* flags */);  // prefetch to GPU
+
+  cudaMemPrefetchAsync(data, N, location, s, 0 /* flags _/);  // prefetch to GPU
+
   mykernel<<<(N + TPB - 1) / TPB, TPB, 0, s>>>(data, N);      // execute on GPU
+
   location = {.type = cudaMemLocationTypeHost};
-  cudaMemPrefetchAsync(data, N, location, s, 0 /* flags */);  // prefetch to CPU
+
+  cudaMemPrefetchAsync(data, N, location, s, 0 /_ flags */);  // prefetch to CPU
+
   cudaStreamSynchronize(s);
+
   use_data(data, N);
+
   free(data);
+
 }
 
 Managed
@@ -18839,53 +22417,83 @@ Managed
 When multiple processors simultaneously access the same data, `cudaMemAdvise` may be used to hint how the data at `[devPtr, devPtr + count)` will be accessed:
 
 cudaError_t cudaMemAdvise(const void *devPtr,
+
                           size_t count,
+
                           enum cudaMemoryAdvise advice,
+
                           struct cudaMemLocation location);
 
 Where `advice` may take the following values:
 
 - `cudaMemAdviseSetReadMostly`: This implies that the data is mostly going to be read from and only occasionally written to. In general, it allows trading off read bandwidth for write bandwidth on this region. Example:
-    
 
 void test_advise_managed(cudaStream_t stream) {
-  char *dataPtr;
+
+  char _dataPtr;
+
   size_t dataSize = 64 * TPB;  // 16 KiB
+
   // Allocate memory using cudaMallocManaged
+
   // (malloc may be used on systems with full CUDA Unified memory support)
+
   cudaMallocManaged(&dataPtr, dataSize);
+
   // Set the advice on the memory region
+
   cudaMemLocation loc = {.type = cudaMemLocationTypeDevice, .id = myGpuId};
+
   cudaMemAdvise(dataPtr, dataSize, cudaMemAdviseSetReadMostly, loc);
+
   int outerLoopIter = 0;
+
   while (outerLoopIter < maxOuterLoopIter) {
+
     // The data is written to in the outer loop on the CPU
+
     init_data(dataPtr, dataSize);
+
     // The data is made available to all GPUs by prefetching.
+
     // Prefetching here causes read duplication of data instead
+
     // of data migration
+
     cudaMemLocation location;
+
     location.type = cudaMemLocationTypeDevice;
+
     for (int device = 0; device < maxDevices; device++) {
+
       location.id = device;
-      cudaMemPrefetchAsync(dataPtr, dataSize, location, 0 /* flags */, stream);
+
+      cudaMemPrefetchAsync(dataPtr, dataSize, location, 0 /_ flags */, stream);
+
     }
+
     // The kernel only reads this data in the inner loop
+
     int innerLoopIter = 0;
+
     while (innerLoopIter < maxInnerLoopIter) {
+
       mykernel<<<32, TPB, 0, stream>>>((const char *)dataPtr, dataSize);
+
       innerLoopIter++;
+
     }
+
     outerLoopIter++;
+
   }
+
   cudaFree(dataPtr);
+
 }
 
 - `cudaMemAdviseSetPreferredLocation`: In general, any memory may be migrated at any time to any location, for example, when a given processor is running out of physical memory. This hint tells the system that migrating this memory region away from its preferred location is undesired, by setting the preferred location for the data to be the physical memory belonging to device. Passing in a value of `cudaMemLocationTypeHost` for location.type sets the preferred location as CPU memory. Other hints, like `cudaMemPrefetchAsync`, may override this hint, leading the memory to be migrated away from its preferred location.
-    
-
 - `cudaMemAdviseSetAccessedBy`: In some systems, it may be beneficial for performance to establish a mapping into memory before accessing the data from a given processor. This hint tells the system that the data will be frequently accessed by `location.id` when `location.type` is `cudaMemLocationTypeDevice`, enabling the system to assume that creating these mappings pays off. This hint does not imply where the data should reside, but it can be combined with `cudaMemAdviseSetPreferredLocation` to specify that.
-    
 
 Each advice can be also unset by using one of the following values: `cudaMemAdviseUnsetReadMostly`, `cudaMemAdviseUnsetPreferredLocation` and`cudaMemAdviseUnsetAccessedBy`.
 
@@ -18894,37 +22502,36 @@ Each advice can be also unset by using one of the following values: `cudaMemAdv
 A program can query memory range attributes assigned through `cudaMemAdvise` or `cudaMemPrefetchAsync` on CUDA Managed Memory by using the following API:
 
 cudaMemRangeGetAttribute(void *data,
+
                          size_t dataSize,
+
                          enum cudaMemRangeAttribute attribute,
+
                          const void *devPtr,
+
                          size_t count);
 
 This function queries an attribute of the memory range starting at `devPtr` with a size of `count` bytes. The memory range must refer to managed memory allocated via `cudaMallocManaged` or declared via `__managed__` variables. It is possible to query the following attributes:
 
 - `cudaMemRangeAttributeReadMostly`: the result returned will be 1 if the entire memory range has the `cudaMemAdviseSetReadMostly` attribute set, or 0 otherwise.
-    
 - `cudaMemRangeAttributePreferredLocation`: the result returned will be a GPU device id or `cudaCpuDeviceId` if the entire memory range has the corresponding processor as preferred location, otherwise `cudaInvalidDeviceId` will be returned. An application can use this query API to make decision about staging data through CPU or GPU depending on the preferred location attribute of the managed pointer. Note that the actual location of the memory range at the time of the query may be different from the preferred location.
-    
 - `cudaMemRangeAttributeAccessedBy`: will return the list of devices that have that advise set for that memory range.
-    
 - `cudaMemRangeAttributeLastPrefetchLocation`: will return the last location to which the memory range was prefetched explicitly using `cudaMemPrefetchAsync`. Note that this simply returns the last location that the application requested to prefetch the memory range to. It gives no indication as to whether the prefetch operation to that location has completed or even begun.
-    
 - `cudaMemRangeAttributePreferredLocationType`:
-    
+
     will return the location type of the preferred location which will be `cudaMemLocationTypeDevice` if all pages in the memory range have the same GPU as their preferred location, or will be `cudaMemLocationTypeHost` if all pages in the memory range have the CPU as their preferred location, or it will be `cudaMemLocationTypeHostNuma` if all the pages in the memory range have the same host NUMA node ID as their preferred location or it will be `cudaMemLocationTypeInvalid` if either all the pages don’t have the same preferred location or some of the pages don’t have a preferred location at all.
-    
+
 - `cudaMemRangeAttributePreferredLocationId`:
-    
+
     If the `cudaMemRangeAttributePreferredLocationType` query for the same address range returns `cudaMemLocationTypeDevice`, it will be a valid device ordinal or if it returns `cudaMemLocationTypeHostNuma`, it will be a valid host NUMA node ID or if it returns any other location type, the id should be ignored.
-    
+
 - `cudaMemRangeAttributeLastPrefetchLocationType`:
-    
+
     will be the last location type to which all pages in the memory range were prefetched explicitly via `cudaMemPrefetchAsync` which will be `cudaMemLocationTypeDevice` if all pages in the memory range were prefetched to the same GPU, or will be `cudaMemLocationTypeHost` if all pages in the memory range were prefetched to the CPU or it will be `cudaMemLocationTypeHostNuma` if all the pages in the memory range were prefetched to the same host NUMA node ID or it will be `cudaMemLocationTypeInvalid` if either all the pages were not prefetched to the same location or some of the pages were never prefetched at all.
-    
+
 - `cudaMemRangeAttributeLastPrefetchLocationId`:
-    
+
     If the `cudaMemRangeAttributeLastPrefetchLocationType` query for the same address range returns `cudaMemLocationTypeDevice`, it will be a valid device ordinal or if it returns `cudaMemLocationTypeHostNuma`, it will be a valid host NUMA node ID or if it returns any other location type, the id should be ignored.
-    
 
 Additionally, multiple attributes can be queried by using corresponding `cudaMemRangeGetAttributes` function.
 
@@ -18935,10 +22542,15 @@ Additionally, multiple attributes can be queried by using corresponding `cudaMe
 [Systems with full CUDA Unified Memory support](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-requirements) allow the device to access any memory owned by the host process interacting with the device. This section shows a few advanced use-cases, using a kernel that simply prints the first 8 characters of an input character array to the standard output stream:
 
 __global__ void kernel(const char* type, const char* data) {
+
   static const int n_char = 8;
+
   printf("%s - first %d characters: '", type, n_char);
+
   for (int i = 0; i < n_char; ++i) printf("%c", data[i]);
+
   printf("'\n");
+
 }
 
 The following tabs show various ways of how this kernel may be called:
@@ -18946,13 +22558,21 @@ The following tabs show various ways of how this kernel may be called:
 Malloc
 
 void test_malloc() {
+
   const char test_string[] = "Hello World";
+
   char* heap_data = (char*)malloc(sizeof(test_string));
+
   strncpy(heap_data, test_string, sizeof(test_string));
+
   kernel<<<1, 1>>>("malloc", heap_data);
+
   ASSERT(cudaDeviceSynchronize() == cudaSuccess,
+
     "CUDA failed with '%s'", cudaGetErrorString(cudaGetLastError()));
+
   free(heap_data);
+
 }
 
 ManagedStack variableFile-scope static variableGlobal-scope variableGlobal-scope extern variable
@@ -18964,23 +22584,37 @@ Note that for the extern variable, it could be declared and its memory owned and
 Also note that stack variables as well as file-scope and global-scope variables can only be accessed through a pointer by the GPU. In this specific example, this is convenient because the character array is already declared as a pointer: `const char*`. However, consider the following example with a global-scope integer:
 
 // this variable is declared at global scope
+
 int global_variable;
 
 __global__ void kernel_uncompilable() {
+
   // this causes a compilation error: global (__host__) variables must not
+
   // be accessed from __device__ / __global__ code
+
   printf("%d\n", global_variable);
+
 }
 
 // On systems with pageableMemoryAccess set to 1, we can access the address
+
 // of a global variable. The below kernel takes that address as an argument
+
 __global__ void kernel(int* global_variable_addr) {
+
   printf("%d\n", *global_variable_addr);
+
 }
+
 int main() {
+
   kernel<<<1, 1>>>(&global_variable);
+
   ...
+
   return 0;
+
 }
 
 In the example above, we need to ensure to pass a _pointer_ to the global variable to the kernel instead of directly accessing the global variable in the kernel. This is because global variables without the `__managed__` specifier are declared as `__host__`-only by default, thus most compilers won’t allow using these variables directly in device code as of now.
@@ -18992,23 +22626,39 @@ Since [systems with full CUDA Unified Memory support](https://docs.nvidia.com/c
 Here, we show a modified version of the initial example shown in the previous section to use file-backed memory in order to print a string from the GPU, read directly from an input file. In the following example, the memory is backed by a physical file, but the example applies to memory-backed files, too, as detailed in the section on [Inter-Process Communication (IPC) with Unified Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-sam-ipc).
 
 __global__ void kernel(const char* type, const char* data) {
+
   static const int n_char = 8;
+
   printf("%s - first %d characters: '", type, n_char);
+
   for (int i = 0; i < n_char; ++i) printf("%c", data[i]);
+
   printf("'\n");
+
 }
 
 void test_file_backed() {
+
   int fd = open(INPUT_FILE_NAME, O_RDONLY);
+
   ASSERT(fd >= 0, "Invalid file handle");
+
   struct stat file_stat;
+
   int status = fstat(fd, &file_stat);
+
   ASSERT(status >= 0, "Invalid file stats");
+
   char* mapped = (char*)mmap(0, file_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);  ASSERT(mapped != MAP_FAILED, "Cannot map file into memory");
+
   kernel<<<1, 1>>>("file-backed", mapped);  ASSERT(cudaDeviceSynchronize() == cudaSuccess,
+
     "CUDA failed with '%s'", cudaGetErrorString(cudaGetLastError()));
+
   ASSERT(munmap(mapped, file_stat.st_size) == 0, "Cannot unmap file");
+
   ASSERT(close(fd) == 0, "Cannot close file");
+
 }
 
 Note that on systems without the `hostNativeAtomicSupported` property, including [systems with Linux HMM enabled](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-requirements), atomic accesses to file-backed memory are not supported.
@@ -19026,11 +22676,8 @@ CUDA IPC (see [Interprocess Communication](https://docs.nvidia.com/cuda/cuda-c-
 See the following references for more information on various ways of creating IPC-capable System-Allocated Memory under Linux:
 
 - [mmap with MAP_SHARED](https://man7.org/linux/man-pages/man2/mmap.2.html)
-    
 - [POSIX IPC APIs](https://pubs.opengroup.org/onlinepubs/007904875/functions/shm_open.html)
-    
 - [Linux memfd_create](https://man7.org/linux/man-pages/man2/memfd_create.2.html)
-    
 
 Note that it is not possible to share memory between different hosts and their devices using this technique.
 
@@ -19039,11 +22686,8 @@ Note that it is not possible to share memory between different hosts and their d
 In order to achieve good performance with Unified Memory, it is important to:
 
 - Understand how paging works on your system, and how to avoid unnecessary page faults.
-    
 - Understand the various mechanisms allowing you to keep data local to the accessing processor.
-    
 - Consider tuning your application for the granularity of memory transfers of your system.
-    
 
 As general advice, [Performance Hints](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-perf-hints) might provide improved performance, but using them incorrectly might degrade performance compared to the default behavior. Also note that any hint has a performance cost associated with it on the host, thus useful hints must at the very least improve performance enough to overcome this cost.
 
@@ -19056,9 +22700,7 @@ All currently supported systems for Unified Memory use a virtual address space: 
 All currently supported processors, including both CPUs and GPUs, additionally use memory _paging_. Because all systems use a virtual address space, there are two types of memory pages:
 
 - Virtual pages: this represents a fixed-size contiguous chunk of virtual memory per process tracked by the operating system, which can be _mapped_ into physical memory. Note that the virtual page is linked to the _mapping_: for example, a single virtual address might be mapped into physical memory using different page sizes.
-    
 - Physical pages: this represents a fixed-size contiguous chunk of memory the processor’s main Memory Management Unit (MMU) supports and into which a virtual page can be mapped.
-    
 
 Currently, all x86_64 CPUs use 4KiB physical pages. Arm CPUs support multiple physical page sizes - 4KiB, 16KiB, 32KiB and 64KiB - depending on the exact CPU. Finally, NVIDIA GPUs support multiple physical page sizes, but prefer 2MiB physical pages or larger. Note that these sizes are subject to change in future hardware.
 
@@ -19069,9 +22711,7 @@ The logical entity tracking the mapping of virtual pages into physical pages wil
 There are two important aspects for performance tuning of applications:
 
 - the choice of virtual page size,
-    
 - whether the system offers a combined page table used by both CPUs and GPUs, or separate page tables for each CPU and GPU individually.
-    
 
 ##### 24.2.2.1.1. Choosing the right page size[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#choosing-the-right-page-size "Permalink to this headline")
 
@@ -19094,25 +22734,18 @@ See the section on configuring huge pages for examples on how to ensure System
 On the other hand, on systems where the CPUs and GPUs each have their own logical page table, different performance tuning aspects should be considered: in order to [guarantee coherency](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-introduction), these systems usually use _page faults_ in case a processor accesses a memory address mapped into the physical memory of a different processor. Such a page fault means that:
 
 - it needs to be ensured that the currently owning processor (where the physical page currently resides) cannot access this page anymore, either by deleting the page table entry or updating it.
-    
 - it needs to be ensured that the processor requesting access can access this page, either by creating a new page table entry or updating and existing entry, such that it becomes valid/active.
-    
 - the physical page backing this virtual page must be moved/migrated to the processor requesting access: this can be an expensive operation, and the amount of work is proportional to the page size.
-    
 
 Overall, hardware coherent systems provide significant performance benefits compared to software coherent systems in cases where frequent concurrent accesses to the same memory page are made by both CPU and GPU threads:
 
 - less page-faults: these systems do not need to use page-faults for emulating coherency or migrating memory,
-    
 - less contention: these systems are coherent at cache-line granularity instead of page-size granularity, that is, when there is contention from multiple processors within a cache line, only the cache line is exchanged which is much smaller than the smallest page-size, and when the different processors access different cache-lines within a page, then there is no contention.
-    
 
 This impacts the performance of the following scenarios:
 
 - Atomic updates to the same address concurrently from both CPUs and GPUs.
-    
 - Signaling a GPU thread from a CPU thread or vice-versa.
-    
 
 #### 24.2.2.2. Direct Unified Memory Access from host[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#direct-unified-memory-access-from-host "Permalink to this headline")
 
@@ -19123,26 +22756,43 @@ Consider an example code below:
 System Allocator
 
 __global__ void write(int *ret, int a, int b) {
+
   ret[threadIdx.x] = a + b + threadIdx.x;
+
 }
 
 __global__ void append(int *ret, int a, int b) {
+
   ret[threadIdx.x] += a + b + threadIdx.x;
+
 }
+
 void test_malloc() {
-  int *ret = (int*)malloc(1000 * sizeof(int));
+
+  int _ret = (int_)malloc(1000 * sizeof(int));
+
   // for shared page table systems, the following hint is not necesary
+
   cudaMemLocation location = {.type = cudaMemLocationTypeHost};
+
   cudaMemAdvise(ret, 1000 * sizeof(int), cudaMemAdviseSetAccessedBy, location);
 
   write<<< 1, 1000 >>>(ret, 10, 100);            // pages populated in GPU memory
+
   cudaDeviceSynchronize();
+
   for(int i = 0; i < 1000; i++)
+
       printf("%d: A+B = %d\n", i, ret[i]);        // directManagedMemAccessFromHost=1: CPU accesses GPU memory directly without migrations
+
                                                   // directManagedMemAccessFromHost=0: CPU faults and triggers device-to-host migrations
+
   append<<< 1, 1000 >>>(ret, 10, 100);            // directManagedMemAccessFromHost=1: GPU accesses GPU memory without migrations
+
   cudaDeviceSynchronize();                        // directManagedMemAccessFromHost=0: GPU faults and triggers host-to-device migrations
+
   free(ret);
+
 }
 
 Managed
@@ -19150,9 +22800,7 @@ Managed
 After `write` kernel is completed, `ret` will be created and initialized in GPU memory. Next, the CPU will access `ret` followed by `append` kernel using the same `ret` memory again. This code will show different behavior depending on the system architecture and support of hardware coherency:
 
 - On systems with `directManagedMemAccessFromHost=1`: CPU accesses to the managed buffer will not trigger any migrations; the data will remain resident in GPU memory and any subsequent GPU kernels can continue to access it directly without inflicting faults or migrations.
-    
 - On systems with `directManagedMemAccessFromHost=0`: CPU accesses to the managed buffer will page fault and initiate data migration; any GPU kernel trying to access the same data first time will page fault and migrate pages back to GPU memory.
-    
 
 #### 24.2.2.3. Host Native Atomics[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#host-native-atomics "Permalink to this headline")
 
@@ -19167,35 +22815,53 @@ On systems without [CPU and GPU page tables: hardware coherency vs. software co
 #include <cuda/atomic>
 
 #include <cstdio>
+
 #include <fcntl.h>
+
 #include <sys/mman.h>
 
 #define ERR(msg, ...) { fprintf(stderr, msg, ##__VA_ARGS__); return EXIT_FAILURE; }
 
 __global__ void kernel(int* ptr) {
+
   cuda::atomic_ref{*ptr}.store(2);
+
 }
 
 int main() {
+
   // this will be closed/deleted by default on exit
+
   FILE* tmp_file = tmpfile64();
+
   // need to allcate space in the file, we do this with posix_fallocate here
+
   int status = posix_fallocate(fileno(tmp_file), 0, 4096);
+
   if (status != 0) ERR("Failed to allocate space in temp file\n");
+
   int* ptr = (int*)mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE, fileno(tmp_file), 0);
+
   if (ptr == MAP_FAILED) ERR("Failed to map temp file\n");
 
   // initialize the value in our file-backed memory
+
   *ptr = 1;
+
   printf("Atom value: %d\n", *ptr);
 
   // device and host thread access ptr concurrently, using cuda::atomic_ref
+
   kernel<<<1, 1>>>(ptr);
+
   while (cuda::atomic_ref{*ptr}.load() != 2);
+
   // this will always be 2
+
   printf("Atom value: %d\n", *ptr);
 
   return EXIT_SUCCESS;
+
 }
 
 On systems without [CPU and GPU page tables: hardware coherency vs. software coherency](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-hw-coherency), atomic accesses to unified memory may incur page faults which can lead to significant latencies. Note that this is not the case for all GPU atomics to CPU memory on these systems: operations listed by `nvidia-smi -q | grep "Atomic Caps Outbound"` may avoid page faults.
@@ -19211,13 +22877,9 @@ For `cudaMemcpy*()`, the direction specified as `cudaMemcpyKind` is a perform
 Thus, it is recommended to follow the following performance advice:
 
 - When the physical location of unified memory is known, use an accurate `cudaMemcpyKind` hint.
-    
 - Prefer `cudaMemcpyDefault` over an inaccurate `cudaMemcpyKind` hint.
-    
 - Always use populated (initialized) buffers: avoid using these APIs to initialize memory.
-    
 - Avoid using `cudaMemcpy*()` if both pointers point to System-Allocated Memory: launch a kernel or use a CPU memory copy algorithm such as `std::memcpy` instead.
-    
 
 ## 24.3. Unified memory on devices without full CUDA Unified Memory support[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#unified-memory-on-devices-without-full-cuda-unified-memory-support "Permalink to this headline")
 
@@ -19226,9 +22888,7 @@ Thus, it is recommended to follow the following performance advice:
 For devices with compute capability 6.x or higher but without [pageable memory access](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-requirements), CUDA Managed Memory is fully supported and coherent. The programming model and performance tuning of unified memory is largely similar to the model as described in [Unified memory on devices with full CUDA Unified Memory support](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-pageable-systems), with the notable exception that system allocators cannot be used to allocate memory. Thus, the following list of sub-sections do not apply:
 
 - [System-Allocated Memory: in-depth examples](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-system-allocator)
-    
 - [Hardware/Software Coherency](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#um-hw-coherency)
-    
 
 ### 24.3.2. Unified memory on Windows or devices with compute capability 5.x[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#unified-memory-on-windows-or-devices-with-compute-capability-5-x "Permalink to this headline")
 
@@ -19263,28 +22923,44 @@ To ensure coherency on pre-6.x GPU architectures, the Unified Memory programming
 It is not permitted for the CPU to access any managed allocations or variables while the GPU is active for devices with `concurrentManagedAccess`property set to 0. On these systems concurrent CPU/GPU accesses, even to different managed memory allocations, will cause a segmentation fault because the page is considered inaccessible to the CPU.
 
 __device__ __managed__ int x, y=2;
+
 __global__  void  kernel() {
+
     x = 10;
+
 }
+
 int main() {
+
     kernel<<< 1, 1 >>>();
+
     y = 20;            // Error on GPUs not supporting concurrent access
 
     cudaDeviceSynchronize();
     return  0;
+
 }
 
 In example above, the GPU program `kernel` is still active when the CPU touches `y`. (Note how it occurs before `cudaDeviceSynchronize()`.) The code runs successfully on devices of compute capability 6.x due to the GPU page faulting capability which lifts all restrictions on simultaneous access. However, such memory access is invalid on pre-6.x architectures even though the CPU is accessing different data than the GPU. The program must explicitly synchronize with the GPU before accessing `y`:
 
 __device__ __managed__ int x, y=2;
+
 __global__  void  kernel() {
+
     x = 10;
+
 }
+
 int main() {
+
     kernel<<< 1, 1 >>>();
+
     cudaDeviceSynchronize();
+
     y = 20;            //  Success on GPUs not supporing concurrent access
+
     return  0;
+
 }
 
 As this example shows, on systems with pre-6.x GPU architectures, a CPU thread may not access any managed data in between performing a kernel launch and a subsequent synchronization call, regardless of whether the GPU kernel actually touches that same data (or any managed data at all). The mere potential for concurrent CPU and GPU access is sufficient for a process-level exception to be raised.
@@ -19304,37 +22980,54 @@ It is legal for the CPU to access managed data from within a stream callback, pr
 There are several important points of note:
 
 - It is always permitted for the CPU to access non-managed zero-copy data while the GPU is active.
-    
 - The GPU is considered active when it is running any kernel, even if that kernel does not make use of managed data. If a kernel might use data, then access is forbidden, unless device property `concurrentManagedAccess` is 1.
-    
 - There are no constraints on concurrent inter-GPU access of managed memory, other than those that apply to multi-GPU access of non-managed memory.
-    
 - There are no constraints on concurrent GPU kernels accessing managed data.
-    
 
 Note how the last point allows for races between GPU kernels, as is currently the case for non-managed GPU memory. As mentioned previously, managed memory functions identically to non-managed memory from the perspective of the GPU. The following code example illustrates these points:
 
 int main() {
+
     cudaStream_t stream1, stream2;
+
     cudaStreamCreate(&stream1);
+
     cudaStreamCreate(&stream2);
+
     int *non_managed, *managed, *also_managed;
+
     cudaMallocHost(&non_managed, 4);    // Non-managed, CPU-accessible memory
+
     cudaMallocManaged(&managed, 4);
+
     cudaMallocManaged(&also_managed, 4);
+
     // Point 1: CPU can access non-managed data.
+
     kernel<<< 1, 1, 0, stream1 >>>(managed);
+
     *non_managed = 1;
+
     // Point 2: CPU cannot access any managed data while GPU is busy,
+
     //          unless concurrentManagedAccess = 1
+
     // Note we have not yet synchronized, so "kernel" is still active.
+
     *also_managed = 2;      // Will issue segmentation fault
+
     // Point 3: Concurrent GPU kernels can access the same data.
+
     kernel<<< 1, 1, 0, stream2 >>>(managed);
+
     // Point 4: Multi-GPU concurrent access is also permitted.
+
     cudaSetDevice(1);
+
     kernel<<< 1, 1 >>>(managed);
+
     return  0;
+
 }
 
 ##### 24.3.2.4.3. Managing Data Visibility and Concurrent CPU + GPU Access with Streams[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#managing-data-visibility-and-concurrent-cpu-gpu-access-with-streams "Permalink to this headline")
@@ -19346,8 +23039,11 @@ The CUDA programming model provides streams as a mechanism for programs to indic
 Unified Memory builds upon the stream-independence model by allowing a CUDA program to explicitly associate managed allocations with a CUDA stream. In this way, the programmer indicates the use of data by kernels based on whether they are launched into a specified stream or not. This enables opportunities for concurrency based on program-specific data access patterns. The function to control this behavior is:
 
 cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream,
+
                                      void *ptr,
+
                                      size_t length=0,
+
                                      unsigned int flags=0);
 
 The `cudaStreamAttachMemAsync()` function associates `length` bytes of memory starting from `ptr` with the specified `stream`. (Currently, `length`must always be 0 to indicate that the entire region should be attached.) Because of this association, the Unified Memory system allows CPU access to this memory region so long as all operations in `stream` have completed, regardless of whether other streams are active. In effect, this constrains exclusive ownership of the managed memory region by an active GPU to per-stream activity instead of whole-GPU activity.
@@ -19363,18 +23059,31 @@ In addition to allowing greater concurrency, the use of `cudaStreamAttachMemAsy
 Associating data with a stream allows fine-grained control over CPU + GPU concurrency, but what data is visible to which streams must be kept in mind when using devices of compute capability lower than 6.0. Looking at the earlier synchronization example:
 
 __device__ __managed__ int x, y=2;
+
 __global__  void  kernel() {
+
     x = 10;
+
 }
+
 int main() {
+
     cudaStream_t stream1;
+
     cudaStreamCreate(&stream1);
+
     cudaStreamAttachMemAsync(stream1, &y, 0, cudaMemAttachHost);
+
     cudaDeviceSynchronize();          // Wait for Host attachment to occur.
+
     kernel<<< 1, 1, 0, stream1 >>>(); // Note: Launches into stream1.
+
     y = 20;                           // Success – a kernel is running but “y”
+
                                       // has been associated with no stream.
+
     return  0;
+
 }
 
 Here we explicitly associate `y` with host accessibility, thus enabling access at all times from the CPU. (As before, note the absence of `cudaDeviceSynchronize()` before the access.) Accesses to `y` by the GPU running `kernel` will now produce undefined results.
@@ -19382,18 +23091,31 @@ Here we explicitly associate `y` with host accessibility, thus enabling access
 Note that associating a variable with a stream does not change the associating of any other variable. For example, associating `x` with `stream1`does not ensure that only `x` is accessed by kernels launched in `stream1`, thus an error is caused by this code:
 
 __device__ __managed__ int x, y=2;
+
 __global__  void  kernel() {
+
     x = 10;
+
 }
+
 int main() {
+
     cudaStream_t stream1;
+
     cudaStreamCreate(&stream1);
+
     cudaStreamAttachMemAsync(stream1, &x);// Associate “x” with stream1.
+
     cudaDeviceSynchronize();              // Wait for “x” attachment to occur.
+
     kernel<<< 1, 1, 0, stream1 >>>();     // Note: Launches into stream1.
+
     y = 20;                               // ERROR: “y” is still associated globally
+
                                           // with all streams by default
+
     return  0;
+
 }
 
 Note how the access to `y` will cause an error because, even though `x` has been associated with a stream, we have told the system nothing about who can see `y`. The system therefore conservatively assumes that `kernel` might access it and prevents the CPU from doing so.
@@ -19407,28 +23129,51 @@ The default global visibility of managed data to any GPU stream can make it diff
 Such a program would simply add a single call to `cudaStreamAttachMemAsync()` to use unified memory for its data accesses:
 
 // This function performs some task, in its own private stream.
+
 void run_task(int *in, int *out, int length) {
+
     // Create a stream for us to use.
+
     cudaStream_t stream;
+
     cudaStreamCreate(&stream);
+
     // Allocate some managed data and associate with our stream.
+
     // Note the use of the host-attach flag to cudaMallocManaged();
+
     // we then associate the allocation with our stream so that
+
     // our GPU kernel launches can access it.
+
     int *data;
+
     cudaMallocManaged((void **)&data, length, cudaMemAttachHost);
+
     cudaStreamAttachMemAsync(stream, data);
+
     cudaStreamSynchronize(stream);
+
     // Iterate on the data in some way, using both Host & Device.
+
     for(int i=0; i<N; i++) {
+
         transform<<< 100, 256, 0, stream >>>(in, data, length);
+
         cudaStreamSynchronize(stream);
+
         host_process(data, length);    // CPU uses managed data.
+
         convert<<< 100, 256, 0, stream >>>(out, data, length);
+
     }
+
     cudaStreamSynchronize(stream);
+
     cudaStreamDestroy(stream);
+
     cudaFree(data);
+
 }
 
 In this example, the allocation-stream association is established just once, and then `data` is used repeatedly by both the host and device. The result is much simpler code than occurs with explicitly copying data between host and device, although the result is the same.
@@ -19530,10 +23275,13 @@ In order to check whether user enabled Lazy Loading, `CUresult cuModuleGetLoad
 It’s important to note that CUDA must be initialized before running this function. Sample usage can be seen in the snippet below.
 
 #include "cuda.h"
+
 #include "assert.h"
+
 #include "iostream"
 
 int main() {
+
         CUmoduleLoadingMode mode;
 
         assert(CUDA_SUCCESS == cuInit(0));
@@ -19542,6 +23290,7 @@ int main() {
         std::cout << "CUDA Module Loading Mode is " << ((mode == CU_MODULE_LAZY_LOADING) ? "lazy" : "eager") << std::endl;
 
         return 0;
+
 }
 
 ## 25.5. Possible Issues when Adopting Lazy Loading[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#possible-issues-when-adopting-lazy-loading "Permalink to this headline")
@@ -19557,9 +23306,7 @@ If kernel A will be spinning in an infinite loop until kernel B is executing. In
 Such program is an anti-pattern, but if for any reason you want to keep it you can do the following:
 
 - preload all kernels that you hope to execute concurrently prior to launching them
-    
 - run application with `CUDA_MODULE_DATA_LOADING=EAGER` to force loading data eagerly without forcing each function to load eagerly
-    
 
 ### 25.5.2. Allocators[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocators "Permalink to this headline")
 
@@ -19570,11 +23317,8 @@ If your application tries to allocate the entire VRAM on startup, for example, t
 Possible solutions:
 
 - use `cudaMallocAsync()` instead of an allocator that allocates the entire VRAM on startup
-    
 - add some buffer to compensate for the delayed loading of kernels
-    
 - preload all kernels that will be used in the program before trying to initialize your allocator
-    
 
 ### 25.5.3. Autotuning[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#autotuning "Permalink to this headline")
 
@@ -19583,9 +23327,7 @@ Some applications launch several kernels implementing the same functionality to 
 Possible solutions:
 
 - do at least one warmup interaction prior to measurement
-    
 - preload the benchmarked kernel prior to launching it
-    
 
 # 26. Extended GPU Memory[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#extended-gpu-memory "Permalink to this headline")
 
@@ -19601,7 +23343,7 @@ Before diving into API changes for EGM functionalities, we are going to cover cu
 
 ### 26.1.1. EGM Platforms: System topology[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#egm-platforms-system-topology "Permalink to this headline")
 
-Currently, EGM can be enabled in three platforms: **(1) Single-Node, Single-GPU**: Consists of an Arm-based CPU, CPU attached memory, and a GPU. Between the CPU and the GPU there is a high bandwidth C2C (Chip-to-Chip) interconnect. **(2) Single-Node, Multi-GPU**: Consists of fully connected four single-node, single-GPU platforms. **(3) Multi-Node, Single-GPU**: Two or more single-node multi-socket systems.
+Currently, EGM can be enabled in three platforms: __(1) Single-Node, Single-GPU__: Consists of an Arm-based CPU, CPU attached memory, and a GPU. Between the CPU and the GPU there is a high bandwidth C2C (Chip-to-Chip) interconnect. __(2) Single-Node, Multi-GPU__: Consists of fully connected four single-node, single-GPU platforms. __(3) Multi-Node, Single-GPU__: Two or more single-node multi-socket systems.
 
 Note
 
@@ -19614,6 +23356,7 @@ NUMA (Non-Uniform Memory Access) is a memory architecture used in multi-processo
 EGM uses the NUMA node identifier which is assigned by the operating system. Note that, this identifier is different from the ordinal of a device and it is associated with the closest host node. In addition to the existing methods, the user can obtain the identifier of the host node (numaID) by calling [cuDeviceGetAttribute](https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__DEVICE.html#group__CUDA__DEVICE_1g9c3e1414f0ad901d3278a4d6645fc266) with `CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID` attribute type as follows:
 
 int numaId;
+
 cuDeviceGetAttribute(&numaId, CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID, deviceOrdinal);
 
 ### 26.1.3. Allocators and EGM support[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#allocators-and-egm-support "Permalink to this headline")
@@ -19636,7 +23379,7 @@ New CUDA property types have been added to APIs for allowing those approaches to
 
 |   |   |
 |---|---|
-|**CUDA Type**|**Used with**|
+|__CUDA Type__|__Used with__|
 |`CU_MEM_LOCATION_TYPE_HOST_NUMA`|`CUmemAllocationProp` for `cuMemCreate`|
 |`cudaMemLocationTypeHostNuma`|`cudaMemPoolProps` for `cudaMemPoolCreate`|
 
@@ -19663,30 +23406,47 @@ In a multi-GPU system, the user has to provide host information for the placemen
 The first step in memory allocation using Virtual Memory Management APIs is to create a physical memory chunk that will provide a backing for the allocation. See CUDA Programming Guide’s [Virtual Memory Management section](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-memory-management) for more details. In EGM allocations the user has to explicitly provide `CU_MEM_LOCATION_TYPE_HOST_NUMA`  as the location type and numaID as the location identifier. Also in EGM, allocations must be aligned to appropriate granularity of the platform. The following code snippet shows allocating physical memory with `cuMemCreate`:
 
 CUmemAllocationProp prop{};
+
 prop.type = CU_MEM_ALLOCATION_TYPE_PINNED;
+
 prop.location.type = CU_MEM_LOCATION_TYPE_HOST_NUMA;
+
 prop.location.id = numaId;
+
 size_t granularity = 0;
+
 cuMemGetAllocationGranularity(&granularity, &prop, MEM_ALLOC_GRANULARITY_MINIMUM);
+
 size_t padded_size = ROUND_UP(size, granularity);
+
 CUmemGenericAllocationHandle allocHandle;
+
 cuMemCreate(&allocHandle, padded_size, &prop, 0);
 
 After physical memory allocation, we have to reserve an address space and map it to a pointer. These procedures do not have EGM-specific changes:
 
 CUdeviceptr dptr;
+
 cuMemAddressReserve(&dptr, padded_size, 0, 0, 0);
+
 cuMemMap(dptr, padded_size, 0, allocHandle, 0);
 
 Finally, the user has to explicitly protect mapped virtual address ranges. Otherwise access to the mapped space would result in a crash. Similar to the memory allocation, the user has to provide `CU_MEM_LOCATION_TYPE_HOST_NUMA` as the location type and numaId as the location identifier. Following code snippet create an access descriptors for the host node and the GPU to give read and write access for the mapped memory to both of them:
 
 CUmemAccessDesc accessDesc[2]{{}};
+
 accessDesc[0].location.type = CU_MEM_LOCATION_TYPE_HOST_NUMA;
+
 accessDesc[0].location.id = numaId;
+
 accessDesc[0].flags = CU_MEM_ACCESS_FLAGS_PROT_READWRITE;
+
 accessDesc[1].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+
 accessDesc[1].location.id = currentDev;
+
 accessDesc[1].flags = CU_MEM_ACCESS_FLAGS_PROT_READWRITE;
+
 cuMemSetAccess(dptr, size, accessDesc, 2);
 
 #### 26.2.2.2. Using CUDA Memory Pool[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#using-cuda-memory-pool "Permalink to this headline")
@@ -19694,23 +23454,33 @@ cuMemSetAccess(dptr, size, accessDesc, 2);
 To define EGM, the user can create a memory pool on a node and give access to peers. In this case, the user has to explicitly define`cudaMemLocationTypeHostNuma` as the location type and numaId as the location identifier. The following code snippet shows creating a memory pool `cudaMemPoolCreate`:
 
 cudaSetDevice(homeDevice);
+
 cudaMemPoolProps props{};
+
 props.allocType = cudaMemAllocationTypePinned;
+
 props.location.type = cudaMemLocationTypeHostNuma;
+
 props.location.id = numaId;
+
 cudaMemPoolCreate(&memPool, &props);
 
 Additionally, for direct connect peer access, it is also possible to use the existing peer access API, `cudaMemPoolSetAccess`. An example for an accessingDevice is shown in the following code snippet:
 
 cudaMemAccessDesc desc{};
+
 desc.flags = cudaMemAccessFlagsProtReadWrite;
+
 desc.location.type = cudaMemLocationTypeDevice;
+
 desc.location.id = accessingDevice;
+
 cudaMemPoolSetAccess(memPool, &desc, 1);
 
 When the memory pool is created, and accesses are given, the user can set created memory pool to the residentDevice and start allocating memory using `cudaMallocAsync`:
 
 cudaDeviceSetMemPool(residentDevice, memPool);
+
 cudaMallocAsync(&ptr, size, memPool, stream);
 
 Note
@@ -19724,53 +23494,85 @@ Beyond memory allocation, remote peer access does not have EGM-specific modifica
 The user should allocate memory using `cuMemCreate` and again the user has to explicitly provide `CU_MEM_LOCATION_TYPE_HOST_NUMA` as the location type and numaID as the location identifier. In addition `CU_MEM_HANDLE_TYPE_FABRIC` should be defined as the requested handle type. The following code snippet shows allocating physical memory on Node A:
 
 CUmemAllocationProp prop{};
+
 prop.type = CU_MEM_ALLOCATION_TYPE_PINNED;
+
 prop.requestedHandleTypes = CU_MEM_HANDLE_TYPE_FABRIC;
+
 prop.location.type = CU_MEM_LOCATION_TYPE_HOST_NUMA;
+
 prop.location.id = numaId;
+
 size_t granularity = 0;
+
 cuMemGetAllocationGranularity(&granularity, &prop,
+
                               MEM_ALLOC_GRANULARITY_MINIMUM);
+
 size_t padded_size = ROUND_UP(size, granularity);
+
 size_t page_size = ...;
+
 assert(padded_size % page_size == 0);
+
 CUmemGenericAllocationHandle allocHandle;
+
 cuMemCreate(&allocHandle, padded_size, &prop, 0);
 
 After creating allocation handle using `cuMemCreate` the user can export that handle to the other node, Node B, calling`cuMemExportToShareableHandle`:
 
 cuMemExportToShareableHandle(&fabricHandle, allocHandle,
+
                              CU_MEM_HANDLE_TYPE_FABRIC, 0);
+
 // At this point, fabricHandle should be sent to Node B via TCP/IP.
 
 On Node B, the handle can be imported using `cuMemImportFromShareableHandle` and treated as any other fabric handle
 
 // At this point, fabricHandle should be received from Node A via TCP/IP.
+
 CUmemGenericAllocationHandle allocHandle;
+
 cuMemImportFromShareableHandle(&allocHandle, &fabricHandle,
+
                                CU_MEM_HANDLE_TYPE_FABRIC);
 
 When handle is imported at Node B, then the user can reserve an address space and map it locally in a regular fashion:
 
 size_t granularity = 0;
+
 cuMemGetAllocationGranularity(&granularity, &prop,
+
                               MEM_ALLOC_GRANULARITY_MINIMUM);
+
 size_t padded_size = ROUND_UP(size, granularity);
+
 size_t page_size = ...;
+
 assert(padded_size % page_size == 0);
+
 CUdeviceptr dptr;
+
 cuMemAddressReserve(&dptr, padded_size, 0, 0, 0);
+
 cuMemMap(dptr, padded_size, 0, allocHandle, 0);
 
 As the final step, the user should give appropriate accesses to each of the local GPUs at Node B. An example code snippet that gives read and write access to eight local GPUs:
 
 // Give all 8 local  GPUS access to exported EGM memory located on Node A.                                                               |
+
 CUmemAccessDesc accessDesc[8];
+
 for (int i = 0; i < 8; i++) {
+
    accessDesc[i].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+
    accessDesc[i].location.id = i;
+
    accessDesc[i].flags = CU_MEM_ACCESS_FLAGS_PROT_READWRITE;
+
 }
+
 cuMemSetAccess(dptr, size, accessDesc, 8);
 
 # 27. Notices[](https://docs.nvidia.com/cuda/cuda-c-programming-guide/#notices "Permalink to this headline")
