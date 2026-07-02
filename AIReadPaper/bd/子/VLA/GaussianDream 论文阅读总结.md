@@ -127,7 +127,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 **训练期两阶段：**
 
 1. **Stage I**：先训练 GaussianDream reconstruction / prediction heads，不做动作学习；
-2. **Stage II**：联合训练 policy 与 GaussianDream，目标为 $$\mathcal{L}=\mathcal{L}_{act}+\lambda_{GD}\mathcal{L}_{GD$$。
+2. **Stage II**：联合训练 policy 与 GaussianDream，目标为 $$\mathcal{L}=\mathcal{L}_{act}+\lambda_{GD}\mathcal{L}_{GD}$$。
 
 **推理期：**
 
@@ -147,7 +147,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 - **LIBERO**：Spatial / Object / Goal / Long 四个协议；50 demonstrations，50 evaluation trials
 - **RoboCasa Human-50**：24 个长程厨房任务，5 个场景，每任务 50 trials
-- **Real robot**：与 $$\pi_{0.5$$ 对比，考察属性理解、空间关系、堆叠/拆叠、长程执行
+- **Real robot**：与 $$\pi_{0.5}$$ 对比，考察属性理解、空间关系、堆叠/拆叠、长程执行
 
 补充训练细节：
 
@@ -162,11 +162,11 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 ### 4.2 主结果
 
-|评测|GaussianDream|对比基线|结论|
-|---|---|---|---|
-|LIBERO|**98.4%** 平均成功率|$$\pi_{0.5$$ 为 96.7%，3D-CAVLA 为 98.1%，GeoVLA 为 97.7%|拿到 **最佳 Spatial** 与 **最佳 Goal** 分数；整体平均略低于更重型的 LingBot-VA 98.5%，但 GaussianDream 推理更轻|
-|RoboCasa Human-50|**54.8%** 平均成功率|GeoPredict 为 52.4%，Being-H0.5 为 53.9%，$$\pi_{0.5$$ 为 40.1%|整体平均最好；在 **Pick&Place = 43.8%** 上优势最明显，说明几何与定位增强确实帮助精细操控|
-|Real robot|**50.0%**|$$\pi_{0.5$$ 为 34.4%|真实机器人平均提升 **15.6 个点**，说明 prefix 学到的几何信息不是只在仿真里有效|
+| 评测                | GaussianDream   | 对比基线                                                        | 结论                                                                                   |
+| ----------------- | --------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| LIBERO            | **98.4%** 平均成功率 | $$\pi_{0.5}$$ 为 96.7%，3D-CAVLA 为 98.1%，GeoVLA 为 97.7%       | 拿到 **最佳 Spatial** 与 **最佳 Goal** 分数；整体平均略低于更重型的 LingBot-VA 98.5%，但 GaussianDream 推理更轻 |
+| RoboCasa Human-50 | **54.8%** 平均成功率 | GeoPredict 为 52.4%，Being-H0.5 为 53.9%，$$\pi_{0.5}$$ 为 40.1% | 整体平均最好；在 **Pick&Place = 43.8%** 上优势最明显，说明几何与定位增强确实帮助精细操控                             |
+| Real robot        | **50.0%**       | $$\pi_{0.5}$$ 为 34.4%                                       | 真实机器人平均提升 **15.6 个点**，说明 prefix 学到的几何信息不是只在仿真里有效                                     |
 
 ### 4.3 消融实验
 
@@ -203,7 +203,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 论文 appendix 给出的 per-action-chunk latency：
 
-- $$\pi_{0.5$$：**268 ms**
+- $$\pi_{0.5}$$：**268 ms**
 - GaussianDream（部署版，仅 prefix）：**531 ms**
 - GaussianDream（保留诊断解码头）：**569 ms**
 - WAM / World Action Model：**700+ ms**
@@ -256,7 +256,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 1. **future branch 仍偏短时**：只监督到 $$t+$$，更像 short-horizon geometric anticipation，不是长时规划 world model。
 2. **几何监督依赖 pseudo targets**：Depth Anything V2 与 optical flow 误差会向 3D flow 传播，真实复杂遮挡场景下可能不稳定。
 3. **prefix 的可解释性仍有限**：虽然能被解码为 3DGS，但最终 action 受益到底来自当前几何、未来演化，还是其他统计偏差，仍需要更细粒度分析。
-4. **时延仍高于原始** $$\pi_{0.5$$：268ms → 531ms 不是小差距，只是相对重型 WAM 更友好。
+4. **时延仍高于原始** $$\pi_{0.5}$$：268ms → 531ms 不是小差距，只是相对重型 WAM 更友好。
 
 ### 5.4 对后续跟踪的建议
 
