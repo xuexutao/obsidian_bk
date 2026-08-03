@@ -488,23 +488,21 @@ logging.basicConfig(
 )
 ```
 
-## CLI 与脚本入口
+## CLI 与脚本入口
 
-本节仅适用于可执行脚本、CLI 和批处理程序。
+本节仅适用于可执行脚本、CLI 和批处理程序。
 
-- `parse_args()` 只负责解析和校验命令行参数。
-- `run()` 负责组织业务流程。
-- `main()` 只负责初始化、调用业务入口和转换退出码。
-- 顶层不得直接执行 IO、解析参数或启动业务任务。
-- 使用 `raise SystemExit(main())` 进入程序。
+- 简单脚本允许将参数解析、日志初始化和业务流程集中在 `main()`。
+- `main()` 应保持线性清晰，不得在模块顶层直接执行 IO 或业务任务。
+- parser.add_argument() 尽量用一行写出来
+- 当参数解析包含复杂校验时，拆出 `parse_args()`。
+- 不为形式统一而创建只调用一次、且没有独立职责的短函数。
+- 使用 `raise SystemExit(main())` 进入程序。
 - 已知业务异常应具体捕获并给出清晰信息。
-- 只有最外层入口可以捕获 `Exception`。
-- `KeyboardInterrupt` 返回退出码 `130`，不记录为程序故障。
-- 不在 `main()` 中堆积完整业务逻辑。
-- 参数解析函数应支持传入 `argv`，便于测试。
-- 日志配置应在入口层完成一次。
-
-示例：
+- 只有最外层入口可以捕获 `Exception`。
+- `KeyboardInterrupt` 返回退出码 `130`，且不输出异常堆栈。
+- 参数解析应支持传入 `argv`，便于测试。
+- 日志配置只在入口层执行一次。
 
 ```python
 """批量处理用户记录。"""
@@ -520,56 +518,41 @@ logger = logging.getLogger(__name__)
 # -------------------------------------------
 # 配置常量
 # -------------------------------------------
-DEFAULT_BATCH_SIZE = 1_000    # 单批最多处理的用户记录数量
-DEFAULT_LOG_LEVEL = "INFO"    # 命令行程序的默认日志级别
+DEFAULT_BATCH_SIZE = 1_000  # 单批最多处理的用户记录数量
+DEFAULT_LOG_LEVEL = "INFO"  # 命令行程序的默认日志级别
 
 # -------------------------------------------
-# 命令行参数
+# 命令行入口
 # -------------------------------------------
-def parse_args(
-    argv: Optional[Sequence[str]] = None,
-) -> argparse.Namespace:
-    """解析命令行参数."""
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    """运行命令行程序并返回退出码."""
     parser = argparse.ArgumentParser(description="批量处理用户记录")
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument("--log-level", default=DEFAULT_LOG_LEVEL)
-    return parser.parse_args(argv)
 
-# -------------------------------------------
-# 日志配置
-# -------------------------------------------
-def configure_logging(log_level: str) -> None:
-    """配置应用日志."""
+    args = parser.parse_args(argv)
+
+    if args.batch_size <= 0:
+        parser.error("--batch-size 必须大于 0")
+
     logging.basicConfig(
-        level=log_level.upper(),
-        format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+        level=args.log_level.upper(),
+        format="%(asctime)s  %(levelname)-8s  %(message)s",
+        datefmt="%H:%M:%S",
     )
 
-# -------------------------------------------
-# 核心业务
-# -------------------------------------------
-def run(args: argparse.Namespace) -> int:
-    """执行主要业务流程."""
-    logger.info("processing input: %s", args.input)
-    return 0
-
-# -------------------------------------------
-# 命令行入口
-# -------------------------------------------
-def main(
-    argv: Optional[Sequence[str]] = None,
-) -> int:
-    """运行命令行程序并返回退出码."""
-    args = parse_args(argv)
-    configure_logging(args.log_level)
-
     try:
-        return run(args)
+        logger.info("processing input: %s", args.input)
+
+        # 业务流程较短时，可以直接写在这里。
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+
+        logger.info("output saved to: %s", args.output)
+        return 0
     except KeyboardInterrupt:
-        logger.warning("interrupted by user")
+        logger.info("interrupted by user")
         return 130
     except (OSError, ValueError) as exc:
         logger.error("processing failed: %s", exc)
@@ -597,12 +580,7 @@ if __name__ == "__main__":
 示例：
 
 ```python
-for item in tqdm(
-    items,
-    desc="Processing",
-    unit="item",
-    disable=not show_progress,
-):
+for item in tqdm(items, desc="Processing", unit="item", disable=not show_progress,):
     process_item(item)
 ```
 
