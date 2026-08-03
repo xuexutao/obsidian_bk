@@ -483,7 +483,7 @@ logger.info("loaded %s records from %s", record_count, input_path)
 ```python
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+	format="%(asctime)s | %(levelname)-6s | %(name)-12s | %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 ```
@@ -538,10 +538,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         parser.error("--batch-size 必须大于 0")
 
     logging.basicConfig(
-        level=args.log_level.upper(),
-        format="%(asctime)s  %(levelname)-8s  %(message)s",
-        datefmt="%H:%M:%S",
-    )
+	    level=logging.INFO,
+		format="%(asctime)s | %(levelname)-6s | %(name)-12s | %(message)s",
+	    datefmt="%Y-%m-%d %H:%M:%S",
+	)
 
     try:
         logger.info("processing input: %s", args.input)
