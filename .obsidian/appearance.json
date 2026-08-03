@@ -2,5 +2,14 @@
   "cssTheme": "",
   "monospaceFontFamily": "",
   "baseFontSize": 14,
-  "translucency": true
+  "translucency": true,
+  "enabledCssSnippets": [
+    "custom-icons-differing-files-and-folders",
+    "hyphenation-and-justification",
+    "image-cards",
+    "nicer-checkboxes",
+    "smaller-scrollbar",
+    "stylish-blockquotes",
+    "tag-pills"
+  ]
 }
