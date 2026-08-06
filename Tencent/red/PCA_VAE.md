@@ -1,9 +1,6 @@
 # 从PCA到VAE：隐空间的变化
 
 > 来源：知乎专栏 [从PCA到VAE：隐空间的变化](https://zhuanlan.zhihu.com/p/2030298269679662210)　作者：myRan　采集日期：2026-08-06
-
-​
-
 目录
 
 ## 前言
@@ -21,8 +18,6 @@
 数据往往是高维的，一张28×28的灰度手写数字图片就有784个像素维度。但**流形假说**告诉我们：这些高维数据实际上分布在一个低维流形上，这个流形由少数潜在变量所参数化。换句话说，描述一张手写数字的本质信息，可能只需要几个维度，比如笔画粗细、倾斜角度、数字类别等。
 
 找到这个低维表示的空间，就叫做**隐空间（Latent Space）**。
-
-![](assets/PCA_VAE/img_00.jpg)
 
 隐空间方法演化过程
 
@@ -51,11 +46,11 @@ $ \min_{U_d: U_d^\top U_d = I_d} \sum_{i=1}^{N} \| x_i - U_d U_d^\top x_i \|^2 $
 
 利用 $\|a\|^2 = a^\top a$ 和投影矩阵的幂等性 $(U_d U_d^\top)^2 = U_d U_d^\top$ ，展开目标函数
 
-$ \sum_{i=1}^N \|x_i - U_d U_d^\top x_i\|^2 = \sum_{i=1}^N \|x_i\|^2 - \sum_{i=1}^N \|U_d^\top x_i\|^2 $
+$\sum_{i=1}^N \|x_i - U_d U_d^\top x_i\|^2 = \sum_{i=1}^N \|x_i\|^2 - \sum_{i=1}^N \|U_d^\top x_i\|^2$
 
 第一项 $\sum \|x_i\|^2$ 是常数，所以最小化重构误差等价于**最大化投影后的总方差**：
 
-$ \max_{U_d: U_d^\top U_d = I_d} \sum_{i=1}^{N} \| U_d^\top x_i \|^2 = \max_{U_d} \; \text{tr}(U_d^\top X X^\top U_d) $
+$\max_{U_d: U_d^\top U_d = I_d} \sum_{i=1}^{N} \| U_d^\top x_i \|^2 = \max_{U_d} \; \text{tr}(U_d^\top X X^\top U_d)$
 
 其中 $X = [x_1, \ldots, x_N] \in \mathbb{R}^{D \times N}$ 是数据矩阵。
 
@@ -125,8 +120,6 @@ $ \hat{x} = g_\phi(z), \quad \hat{x} \in \mathbb{R}^D $
 $ \mathcal{L}_{AE} = \frac{1}{N} \sum_{i=1}^{N} \| x_i - \hat{x}_i \|^2 = \frac{1}{N} \sum_{i=1}^{N} \| x_i - g_\phi(f_\theta(x_i)) \|^2 $
 
 这个目标很直观，输入一张图，压缩成低维编码，再从编码恢复出图，要求恢复得尽可能像原图。
-
-  
 
 ![](assets/PCA_VAE/img_03.jpg)
 
