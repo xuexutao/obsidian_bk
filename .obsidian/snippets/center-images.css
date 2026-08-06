@@ -20,10 +20,3 @@
   margin-left: auto;
   margin-right: auto;
 }
-
-/* 图片下面紧跟一行斜体当图注时，让图注也跟着居中。
-   不需要就删掉这一段。 */
-.markdown-rendered p:has(> img:only-child) + p > em:only-child {
-  display: block;
-  text-align: center;
-}
