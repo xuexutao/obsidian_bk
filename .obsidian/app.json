@@ -2,7 +2,7 @@
   "useMarkdownLinks": true,
   "newLinkFormat": "relative",
   "vimMode": false,
-  "readableLineLength": true,
+  "readableLineLength": false,
   "showLineNumber": true,
   "pdfExportSettings": {
     "includeName": true,
@@ -11,5 +11,10 @@
     "margin": "0",
     "downscalePercent": 100
   },
-  "promptDelete": false
+  "promptDelete": false,
+  "strictLineBreaks": true,
+  "foldIndent": true,
+  "rightToLeft": false,
+  "spellcheck": false,
+  "autoPairBrackets": false
 }

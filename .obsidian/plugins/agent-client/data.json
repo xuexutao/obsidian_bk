@@ -110,6 +110,14 @@
   },
   "savedSessions": [
     {
+      "sessionId": "6b31dc86-ab37-461f-aeed-9a9bb7fb984d",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "现在obsidian 的主题如何设置么",
+      "createdAt": "2026-08-06T11:38:59.045Z",
+      "updatedAt": "2026-08-06T11:39:19.532Z"
+    },
+    {
       "sessionId": "773a7341-088d-401b-9eea-bf35f9f3b426",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
