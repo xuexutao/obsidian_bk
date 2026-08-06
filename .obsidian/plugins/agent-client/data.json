@@ -1,0 +1,132 @@
+{
+  "presetAgents": {
+    "claude-code-acp": {
+      "id": "claude-code-acp",
+      "displayName": "Claude Code",
+      "apiKeySecretId": "",
+      "command": "/Users/eilonxtxue/.workbuddy/binaries/node/versions/22.22.2/bin/claude-agent-acp",
+      "args": [],
+      "env": [],
+      "enabled": true
+    },
+    "codex-acp": {
+      "id": "codex-acp",
+      "displayName": "Codex",
+      "apiKeySecretId": "",
+      "command": "codex-acp",
+      "args": [],
+      "env": [],
+      "enabled": true
+    },
+    "gemini-cli": {
+      "id": "gemini-cli",
+      "displayName": "Gemini CLI",
+      "apiKeySecretId": "",
+      "command": "gemini",
+      "args": [
+        "--experimental-acp"
+      ],
+      "env": [],
+      "enabled": true
+    },
+    "mistral-vibe": {
+      "id": "mistral-vibe",
+      "displayName": "Mistral Vibe",
+      "apiKeySecretId": "",
+      "command": "vibe-acp",
+      "args": [],
+      "env": [],
+      "enabled": true
+    },
+    "opencode": {
+      "id": "opencode",
+      "displayName": "OpenCode",
+      "apiKeySecretId": "",
+      "command": "opencode",
+      "args": [
+        "acp"
+      ],
+      "env": [],
+      "enabled": true
+    },
+    "kiro-cli": {
+      "id": "kiro-cli",
+      "displayName": "Kiro",
+      "apiKeySecretId": "",
+      "command": "kiro-cli",
+      "args": [
+        "acp"
+      ],
+      "env": [],
+      "enabled": true
+    },
+    "hermes-agent": {
+      "id": "hermes-agent",
+      "displayName": "Hermes Agent",
+      "apiKeySecretId": "",
+      "command": "hermes",
+      "args": [
+        "acp"
+      ],
+      "env": [],
+      "enabled": true
+    }
+  },
+  "customAgents": [],
+  "defaultAgentId": "claude-code-acp",
+  "autoAllowPermissions": false,
+  "autoMentionActiveNote": true,
+  "expandWikilinkContext": true,
+  "enableSystemNotifications": true,
+  "promptInjection": {
+    "enabled": true,
+    "latex": true,
+    "wikiLinks": true,
+    "tables": true
+  },
+  "debugMode": false,
+  "nodePath": "/Users/eilonxtxue/.workbuddy/binaries/node/versions/22.22.2/bin/node",
+  "exportSettings": {
+    "defaultFolder": "Agent Client",
+    "filenameTemplate": "agent_client_{date}_{time}",
+    "autoExportOnNewChat": false,
+    "autoExportOnCloseChat": false,
+    "openFileAfterExport": true,
+    "includeImages": true,
+    "imageLocation": "obsidian",
+    "imageCustomFolder": "Agent Client",
+    "frontmatterTag": "agent-client"
+  },
+  "windowsWslMode": false,
+  "sendMessageShortcut": "enter",
+  "chatViewLocation": "right-tab",
+  "displaySettings": {
+    "autoCollapseDiffs": false,
+    "diffCollapseThreshold": 10,
+    "maxNoteLength": 10000,
+    "maxSelectionLength": 10000,
+    "showEmojis": true,
+    "fontSize": null
+  },
+  "savedSessions": [
+    {
+      "sessionId": "773a7341-088d-401b-9eea-bf35f9f3b426",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "这篇文章是什么",
+      "createdAt": "2026-08-06T09:02:52.883Z",
+      "updatedAt": "2026-08-06T09:03:47.549Z"
+    }
+  ],
+  "lastUsedModels": {},
+  "lastUsedModes": {},
+  "lastUsedConfigOptions": {},
+  "enableFloatingChat": false,
+  "floatingButtonImage": "",
+  "floatingWindowSize": {
+    "width": 400,
+    "height": 500
+  },
+  "floatingWindowPosition": null,
+  "floatingButtonPosition": null
+}
