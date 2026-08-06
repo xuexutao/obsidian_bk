@@ -1,0 +1,29 @@
+/* ==========================================================================
+   图片默认居中
+   开了这个之后，插入图片什么都不用写，自动居中：![](path) / ![[图.png]]
+   想改成别的对齐，仍然用 Blue Topaz 那套 alt 前缀覆盖：
+     ![L|655](path)   左对齐
+     ![R|655](path)   右对齐
+     ![inl](path)     行内（跟文字同一行）
+   注意：本文件刻意不写 !important，靠的就是让主题里带 !important 的
+   L / R / inline 规则能压过它。改动时别加 !important。
+   ========================================================================== */
+
+/* 阅读视图 + 实时预览渲染出来的 <img> */
+.markdown-rendered img:not([class*="emoji"]),
+.cm-content img:not([class*="emoji"]),
+
+/* wikilink 嵌入的外层容器（![[图.png]] 走这条） */
+.markdown-rendered .internal-embed.image-embed,
+.cm-content .internal-embed.image-embed {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 图片下面紧跟一行斜体当图注时，让图注也跟着居中。
+   不需要就删掉这一段。 */
+.markdown-rendered p:has(> img:only-child) + p > em:only-child {
+  display: block;
+  text-align: center;
+}
