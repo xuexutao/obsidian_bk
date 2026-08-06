@@ -40,31 +40,31 @@
 
 优化目标为最小化总重构误差
 
-$ \min_{U_d: U_d^\top U_d = I_d} \sum_{i=1}^{N} \| x_i - U_d U_d^\top x_i \|^2 $
+$$\min_{U_d: U_d^\top U_d = I_d} \sum_{i=1}^{N} \| x_i - U_d U_d^\top x_i \|^2$$
 
 **2.1.2 求解**
 
 利用 $\|a\|^2 = a^\top a$ 和投影矩阵的幂等性 $(U_d U_d^\top)^2 = U_d U_d^\top$ ，展开目标函数
 
-$\sum_{i=1}^N \|x_i - U_d U_d^\top x_i\|^2 = \sum_{i=1}^N \|x_i\|^2 - \sum_{i=1}^N \|U_d^\top x_i\|^2$
+$$\sum_{i=1}^N \|x_i - U_d U_d^\top x_i\|^2 = \sum_{i=1}^N \|x_i\|^2 - \sum_{i=1}^N \|U_d^\top x_i\|^2$$
 
 第一项 $\sum \|x_i\|^2$ 是常数，所以最小化重构误差等价于**最大化投影后的总方差**：
 
-$\max_{U_d: U_d^\top U_d = I_d} \sum_{i=1}^{N} \| U_d^\top x_i \|^2 = \max_{U_d} \; \text{tr}(U_d^\top X X^\top U_d)$
+$$\max_{U_d: U_d^\top U_d = I_d} \sum_{i=1}^{N} \| U_d^\top x_i \|^2 = \max_{U_d} \; \text{tr}(U_d^\top X X^\top U_d)$$
 
 其中 $X = [x_1, \ldots, x_N] \in \mathbb{R}^{D \times N}$ 是数据矩阵。
 
 引入样本协方差矩阵 $C = \frac{1}{N} XX^\top \in \mathbb{R}^{D \times D}$ ，该矩阵显然对称半正定，上述问题等价于
 
-$ \max_{U_d: U_d^\top U_d = I_d} \; \text{tr}(U_d^\top C \, U_d) $
+$$\max_{U_d: U_d^\top U_d = I_d} \; \text{tr}(U_d^\top C \, U_d)$$
 
 用拉格朗日乘子法，设 $\Lambda$ 为对称乘子矩阵，令 $\frac{\partial}{\partial U_d}[\text{tr}(U_d^\top C U_d) - \text{tr}(\Lambda(U_d^\top U_d - I))] = 0$ ，得到：
 
-$ C \, U_d = U_d \Lambda $
+$$C \, U_d = U_d \Lambda$$
 
 这意味着 $U_d$ 的每一列都是 $C$ 的特征向量。代入目标函数
 
-$ \text{tr}(U_d^\top C \, U_d) = \text{tr}(U_d^\top U_d \Lambda) = \text{tr}(\Lambda) = \sum_{j=1}^{d} \lambda_j $
+$$\text{tr}(U_d^\top C \, U_d) = \text{tr}(U_d^\top U_d \Lambda) = \text{tr}(\Lambda) = \sum_{j=1}^{d} \lambda_j$$
 
 所以要最大化目标，就应该选取 **$C$ 的前 $d$ 个最大特征值对应的特征向量**。
 
@@ -88,7 +88,7 @@ PCA优雅而高效，但它有局限
 
 编码器是最基础的组件，它就是一个参数化的映射函数：
 
-$ z = f_\theta(x) $
+$$z = f_\theta(x)$$
 
 其中 $x \in \mathbb{R}^D$ 是输入数据，比如784维的图片向量， $z \in \mathbb{R}^d$ 是低维表示（ $d \ll D$ ）， $\theta$ 是可学习参数。
 
@@ -109,15 +109,15 @@ PCA用线性变换做编码和解码，效果受限于数据的线性结构。�
 
 **编码器**（Encoder）：
 
-$ z = f_\theta(x), \quad z \in \mathbb{R}^d $
+$$z = f_\theta(x), \quad z \in \mathbb{R}^d$$
 
 **解码器**（Decoder）：
 
-$ \hat{x} = g_\phi(z), \quad \hat{x} \in \mathbb{R}^D $
+$$\hat{x} = g_\phi(z), \quad \hat{x} \in \mathbb{R}^D$$
 
 **损失函数**为最小化重构误差
 
-$ \mathcal{L}_{AE} = \frac{1}{N} \sum_{i=1}^{N} \| x_i - \hat{x}_i \|^2 = \frac{1}{N} \sum_{i=1}^{N} \| x_i - g_\phi(f_\theta(x_i)) \|^2 $
+$$\mathcal{L}_{AE} = \frac{1}{N} \sum_{i=1}^{N} \| x_i - \hat{x}_i \|^2 = \frac{1}{N} \sum_{i=1}^{N} \| x_i - g_\phi(f_\theta(x_i)) \|^2$$
 
 这个目标很直观，输入一张图，压缩成低维编码，再从编码恢复出图，要求恢复得尽可能像原图。
 
@@ -146,7 +146,7 @@ $ \mathcal{L}_{AE} = \frac{1}{N} \sum_{i=1}^{N} \| x_i - \hat{x}_i \|^2 = \frac{
 
 优化目标为最小化所有样本上的总重构误差：
 
-$ \min_{W, V} \; \mathcal{L}(W, V) = \sum_{i=1}^{N} \| x_i - VWx_i \|^2 = \| X - VWX \|_F^2 $
+$$\min_{W, V} \; \mathcal{L}(W, V) = \sum_{i=1}^{N} \| x_i - VWx_i \|^2 = \| X - VWX \|_F^2$$
 
 其中 $\| \cdot \|_F$ 为 Frobenius 范数。
 
@@ -158,33 +158,33 @@ $ \min_{W, V} \; \mathcal{L}(W, V) = \sum_{i=1}^{N} \| x_i - VWx_i \|^2 = \| X -
 
 令 $M = VW \in \mathbb{R}^{D \times D}$ 。由于 $V \in \mathbb{R}^{D \times d}$ 、 $W \in \mathbb{R}^{d \times D}$ ，所以：
 
-$ \text{rank}(M) = \text{rank}(VW) \leq \min(\text{rank}(V), \text{rank}(W)) \leq d $
+$$\text{rank}(M) = \text{rank}(VW) \leq \min(\text{rank}(V), \text{rank}(W)) \leq d$$
 
 因此 $MX$ 的秩至多为 $d$ ：
 
-$ \text{rank}(MX) \leq \text{rank}(M) \leq d $
+$$\text{rank}(MX) \leq \text{rank}(M) \leq d$$
 
-记 $B = MX$ ，则我们要在**所有秩不超过 $d$ 的矩阵 $B$** 中寻找使 $\|X - B\|_F^2$ 最小的那个。受限更强的原问题 $ \mathcal{S_1}​=\{VWX\}$ ，放松后的问题 $ \mathcal{S_2}​=\{B:rank(B)≤d\}$ ，注意到所有 $VWX$ 都是 $rank ≤ d$ ，但不是所有 $ rank ≤ d $ 的矩阵都能写成 $VWX$ ，所以 $ \mathcal{S_2}$ 的可行域包含了 $\{VWX : V \in \mathbb{R}^{D \times d}, W \in \mathbb{R}^{d \times D}\}$ ，也就是 $ \mathcal{S_1}​⊆ \mathcal{S_2}$ 。在**更大的集合里找最优值，一定更小或相等。**
+记 $B = MX$ ，则我们要在**所有秩不超过 $d$ 的矩阵 $B$** 中寻找使 $\|X - B\|_F^2$ 最小的那个。受限更强的原问题 $\mathcal{S_1}​=\{VWX\}$ ，放松后的问题 $\mathcal{S_2}​=\{B:rank(B)≤d\}$ ，注意到所有 $VWX$ 都是 $rank ≤ d$ ，但不是所有 $rank ≤ d$ 的矩阵都能写成 $VWX$ ，所以 $\mathcal{S_2}$ 的可行域包含了 $\{VWX : V \in \mathbb{R}^{D \times d}, W \in \mathbb{R}^{d \times D}\}$ ，也就是 $\mathcal{S_1}​⊆ \mathcal{S_2}$ 。在**更大的集合里找最优值，一定更小或相等。**
 
-$\[ \min_{B \in \mathcal{S}_2} \|X - B\|_F^2 \;\le\; \min_{B \in \mathcal{S}_1} \|X - B\|_F^2 \]$
+$$\[ \min_{B \in \mathcal{S}_2} \|X - B\|_F^2 \;\le\; \min_{B \in \mathcal{S}_1} \|X - B\|_F^2 \]$$
 
 **第二步：利用Eckart-Young-Mirsky定理确定下界**
 
 对 $X$ 做奇异值分解
 
-$ X = U \Sigma Q^\top $
+$$X = U \Sigma Q^\top$$
 
 其中 $U \in \mathbb{R}^{D \times D}$ 为正交矩阵， $Q \in \mathbb{R}^{N \times N}$ 为正交矩阵， $\Sigma \in \mathbb{R}^{D \times N}$ 为对角矩阵，对角元素 $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_r > 0$ 。
 
 记 $X$ 的秩- $d$ 截断SVD为：
 
-$ X_d = U_d \, \Sigma_d \, Q_d^\top $
+$$X_d = U_d \, \Sigma_d \, Q_d^\top$$
 
 其中 $U_d \in \mathbb{R}^{D \times d}$ 取 $U$ 的前 $d$ 列， $\Sigma_d = \text{diag}(\sigma_1, \ldots, \sigma_d) \in \mathbb{R}^{d \times d}$ ， $Q_d \in \mathbb{R}^{N \times d}$ 取 $Q$ 的前 $d$ 列。
 
 **EYM定理**指出，在所有秩不超过 $d$ 的矩阵中， $X_d$ 是 $X$ 在Frobenius范数意义下的**最佳逼近**
 
-$ \| X - B \|_F^2 \geq \| X - X_d \|_F^2 = \sum_{j=d+1}^{r} \sigma_j^2, \quad \forall \; B \text{ s.t. } \text{rank}(B) \leq d $
+$$\| X - B \|_F^2 \geq \| X - X_d \|_F^2 = \sum_{j=d+1}^{r} \sigma_j^2, \quad \forall \; B \text{ s.t. } \text{rank}(B) \leq d$$
 
 **第三步：证明该下界可由线性AE达到**
 
@@ -192,29 +192,29 @@ $ \| X - B \|_F^2 \geq \| X - X_d \|_F^2 = \sum_{j=d+1}^{r} \sigma_j^2, \quad \f
 
 取
 
-$ V^* = U_d, \quad W^* = U_d^\top $
+$$V^* = U_d, \quad W^* = U_d^\top$$
 
 验证：由 $U$ 是正交矩阵且 $U_d$ 是其前 $d$ 列，有 $U_d^\top U_d = I_d$ 。于是
 
-$ V^* W^* X = U_d \, U_d^\top \, X $
+$$V^* W^* X = U_d \, U_d^\top \, X$$
 
 展开 $U_d^\top X$
 
-$ U_d^\top X = U_d^\top \, U \Sigma Q^\top = \begin{bmatrix} I_d & \mathbf{0}_{d \times (D-d)} \end{bmatrix} \Sigma Q^\top = \Sigma_d \, Q_d^\top \in \mathbb{R}^{d \times N} $
+$$U_d^\top X = U_d^\top \, U \Sigma Q^\top = \begin{bmatrix} I_d & \mathbf{0}_{d \times (D-d)} \end{bmatrix} \Sigma Q^\top = \Sigma_d \, Q_d^\top \in \mathbb{R}^{d \times N}$$
 
 这里用到了 $U_d^\top U = [I_d \mid \mathbf{0}]$ ，以及 $\Sigma$ 矩阵前 $d$ 行只在前 $d$ 个对角位置有非零元素 $\sigma_1, \ldots, \sigma_d$ ， $Q^\top$ 的前 $d$ 行恰好就是 $Q_d^\top$ 。因此
 
-$ U_d(U_d^\top X) = U_d \, \Sigma_d \, Q_d^\top = X_d \quad $
+$$U_d(U_d^\top X) = U_d \, \Sigma_d \, Q_d^\top = X_d \quad$$
 
 下界达到，故最小重构误差为
 
-$ \mathcal{L}^* = \| X - X_d \|_F^2 = \sum_{j=d+1}^{r} \sigma_j^2 $
+$$\mathcal{L}^* = \| X - X_d \|_F^2 = \sum_{j=d+1}^{r} \sigma_j^2$$
 
 **第四步：将结论联系到PCA**
 
 数据的样本协方差矩阵为
 
-$ C = \frac{1}{N} X X^\top = \frac{1}{N} U \Sigma \Sigma^\top U^\top = U \, \text{diag}\!\left(\frac{\sigma_1^2}{N}, \ldots, \frac{\sigma_D^2}{N}\right) U^\top $
+$$C = \frac{1}{N} X X^\top = \frac{1}{N} U \Sigma \Sigma^\top U^\top = U \, \text{diag}\!\left(\frac{\sigma_1^2}{N}, \ldots, \frac{\sigma_D^2}{N}\right) U^\top$$
 
 这正是 $C$ 的特征分解。 $C$ 的特征值为 $\lambda_j = \sigma_j^2 / N$ ，对应的特征向量恰为 $U$ 的各列 $u_1, u_2, \ldots, u_D$ 。
 
@@ -255,7 +255,7 @@ VAE 的生成过程是这样的
 
 我们的目标是最大化数据的边际似然
 
-$ p_\theta(x) = \int p_\theta(x|z) \, p(z) \, dz $
+$$p_\theta(x) = \int p_\theta(x|z) \, p(z) \, dz$$
 
 然而，该积分通常是不可解析计算的，因为条件分布 $p_\theta(x|z)$ 由神经网络参数化，使得该高维积分不存在闭式解。此外，它要对所有可能的 $z$ 求积分，这是一个极高维的问题，实际操作是十分困难的。为此，我们尝试引入潜变量的后验分布
 
@@ -267,15 +267,15 @@ $\[ p_\theta(z|x) = \frac{p_\theta(x|z)p(z)}{p_\theta(x)} \]$ 然而，该后验
 
 从对数边际似然出发
 
-$ \log p_\theta(x) = \log \int p_\theta(x|z) \, p(z) \, dz $
+$$\log p_\theta(x) = \log \int p_\theta(x|z) \, p(z) \, dz$$
 
 通过引入 $q_\phi(z|x)$ 并利用 Jensen 不等式，可以推导出**证据下界（ELBO）**：
 
-$ \log p_\theta(x) \geq \underbrace{\mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)]}_{\text{重构项}} - \underbrace{D_{KL}(q_\phi(z|x) \| p(z))}_{\text{正则项}} $
+$$\log p_\theta(x) \geq \underbrace{\mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)]}_{\text{重构项}} - \underbrace{D_{KL}(q_\phi(z|x) \| p(z))}_{\text{正则项}}$$
 
 这个推导的详细过程如下
 
-$ \begin{aligned} \log p_\theta(x) &= \log \int p_\theta(x|z) p(z) dz \\ &= \log \int \frac{q_\phi(z|x)}{q_\phi(z|x)} p_\theta(x|z) p(z) dz \\ &= \log \mathbb{E}_{q_\phi(z|x)} \left[ \frac{p_\theta(x|z) p(z)}{q_\phi(z|x)} \right] \\ &\geq \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p_\theta(x|z) p(z)}{q_\phi(z|x)} \right] \quad \text{(Jensen 不等式)} \\ &= \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x) \| p(z)) \end{aligned} $
+$$\begin{aligned} \log p_\theta(x) &= \log \int p_\theta(x|z) p(z) dz \\ &= \log \int \frac{q_\phi(z|x)}{q_\phi(z|x)} p_\theta(x|z) p(z) dz \\ &= \log \mathbb{E}_{q_\phi(z|x)} \left[ \frac{p_\theta(x|z) p(z)}{q_\phi(z|x)} \right] \\ &\geq \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p_\theta(x|z) p(z)}{q_\phi(z|x)} \right] \quad \text{(Jensen 不等式)} \\ &= \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x) \| p(z)) \end{aligned}$$
 
 实际上，等号差的那部分正好是 $D_{KL}(q_\phi(z|x) \| p_\theta(z|x)) \geq 0$ ，所以ELBO确实是下界 $\[ \log p_\theta(x) = \underbrace{ \mathbb{E}_{q_\phi(z|x)}\big[\log p_\theta(x|z)\big] - D_{\mathrm{KL}}\!\big(q_\phi(z|x)\,\|\,p(z)\big) }_{\text{ELBO}} + D_{\mathrm{KL}}\!\big(q_\phi(z|x)\,\|\,p_\theta(z|x)\big) \]$ 2.4.3 VAE的具体假设
 
@@ -295,7 +295,7 @@ VAE 的网络架构。编码器输出均值 μ 和方差 σ，采样得到隐向
 
 从 $q_\phi(z|x) = \mathcal{N}(\mu, \sigma^2)$ 中采样 $z$ 这个操作不可导，没法做反向传播。Kingma把采样操作重写为：
 
-$ z = \mu + \sigma \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0, I) $
+$$z = \mu + \sigma \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)$$
 
 这样，随机性被转移到了 $\epsilon$ 上，而 $z$ 关于 $\mu$ 和 $\sigma$ 是可导的，梯度可以正常回传。
 
@@ -307,7 +307,7 @@ $ z = \mu + \sigma \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0, I) $
 
 对于MNIST这种像素值归一化到 $[0, 1]$ 的图像，重构项常用BCE，也就是二元交叉熵，将每个像素视为伯努利分布的参数，KL 项有闭合解
 
-$ \mathcal{L}_{VAE} = \underbrace{-\sum_{j=1}^{D} \left[ x_j \log \hat{x}_j + (1-x_j) \log(1-\hat{x}_j) \right]}_{\text{BCE 重构损失}} + \underbrace{\frac{1}{2} \sum_{j=1}^{d} \left( \mu_j^2 + \sigma_j^2 - \log \sigma_j^2 - 1 \right)}_{\text{KL 散度}} $
+$$\mathcal{L}_{VAE} = \underbrace{-\sum_{j=1}^{D} \left[ x_j \log \hat{x}_j + (1-x_j) \log(1-\hat{x}_j) \right]}_{\text{BCE 重构损失}} + \underbrace{\frac{1}{2} \sum_{j=1}^{d} \left( \mu_j^2 + \sigma_j^2 - \log \sigma_j^2 - 1 \right)}_{\text{KL 散度}}$$
 
 ![](assets/PCA_VAE/img_10.jpg)
 
@@ -370,11 +370,11 @@ AutoEncoder 的 2D 隐空间可视化。不同颜色代表不同数字类别，�
 
 **离散形式**：
 
-$ D_{KL}(P \| Q) = \sum_{x} P(x) \log \frac{P(x)}{Q(x)} $
+$$D_{KL}(P \| Q) = \sum_{x} P(x) \log \frac{P(x)}{Q(x)}$$
 
 **连续形式**：
 
-$ D_{KL}(P \| Q) = \int_{-\infty}^{\infty} p(x) \log \frac{p(x)}{q(x)} dx $
+$$D_{KL}(P \| Q) = \int_{-\infty}^{\infty} p(x) \log \frac{p(x)}{q(x)} dx$$
 
 ### 3.2 含义
 
@@ -382,7 +382,7 @@ KL散度衡量的是**用分布 $Q$ 去近似分布 $P$ 时，损失了多少信
 
 从信息论的角度，它等于**交叉熵减去信息熵**
 
-$ D_{KL}(P \| Q) = H(P, Q) - H(P) $
+$$D_{KL}(P \| Q) = H(P, Q) - H(P)$$
 
 其中 $H(P, Q) = -\sum P(x) \log Q(x)$ 是交叉熵， $H(P) = -\sum P(x) \log P(x)$ 是信息熵。
 
@@ -400,11 +400,11 @@ $D_{KL}(P \| Q)$ 是”用 $Q$ 近似 $P$ “的代价，而 $D_{KL}(Q \| P)$ �
 
 当 $P = \mathcal{N}(\mu_1, \sigma_1^2)$ ， $Q = \mathcal{N}(\mu_2, \sigma_2^2)$ 时：
 
-$ D_{KL}(P \| Q) = \log \frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2 + (\mu_1 - \mu_2)^2}{2\sigma_2^2} - \frac{1}{2} $
+$$D_{KL}(P \| Q) = \log \frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2 + (\mu_1 - \mu_2)^2}{2\sigma_2^2} - \frac{1}{2}$$
 
 在VAE中， $Q = \mathcal{N}(0, 1)$ （标准正态先验）， $P = \mathcal{N}(\mu, \sigma^2)$ （编码器输出），代入得到
 
-$ D_{KL} = -\frac{1}{2} \sum_{j=1}^{d} \left(1 + \log \sigma_j^2 - \mu_j^2 - \sigma_j^2 \right) $
+$$D_{KL} = -\frac{1}{2} \sum_{j=1}^{d} \left(1 + \log \sigma_j^2 - \mu_j^2 - \sigma_j^2 \right)$$
 
 这就是代码中KL损失的来源。推导过程中所有项都有含义
 
