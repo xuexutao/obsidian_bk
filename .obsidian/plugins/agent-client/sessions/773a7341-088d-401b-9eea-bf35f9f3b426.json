@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "sessionId": "773a7341-088d-401b-9eea-bf35f9f3b426",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "这篇文章是什么",
+  "createdAt": "2026-08-06T09:02:52.883Z",
+  "updatedAt": "2026-08-06T09:03:41.252Z",
+  "messages": [
+    {
+      "id": "c2ea060f-253f-465e-b624-ca00b4e073e2",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "这篇文章是什么",
+          "autoMentionContext": {
+            "noteName": "生成模型的顺序",
+            "notePath": "Tencent/red/生成模型的顺序.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-06T09:02:21.190Z"
+    },
+    {
+      "id": "6ca66435-059d-4779-b1e4-c3a637352214",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_f0RyaX5cze5fvlzLAGSzGv",
+          "title": "Read Tencent/red/生成模型的顺序.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/生成模型的顺序.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/生成模型的顺序.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "[[生成模型的顺序]] 是一篇约 6500 字的中文技术综述（作者「挑灯看剑」），主题是**生成模型的\"生成顺序\"（generation order）**——即模型学到条件预测能力之后，该按什么执行顺序去调用它们。文末附了一个论文汇总仓库：`Awesome-Generation-Order-in-Generative-Models`。\n\n## 核心论点\n\n作者把\"生成顺序\"重新定义为一套作用在**部分生成状态**上的控制策略，包含五个维度：下一步更新哪里、并行更新多少、每个变量推进多少、已生成内容能否撤回、什么时候停止。可用高维进度向量 $\\tau$ 统一描述：标准 diffusion 是所有坐标共享时钟，AR 每次推进一个坐标，block diffusion 是块间因果块内迭代。\n\n## 文章结构\n\n- **1–2 节**：为什么值得研究 + 顺序的严谨定义（强调\"顺序 ≠ permutation\"，一次生成 1 个 vs 10 个 token 是不同问题）\n- **3 节**：四阶段发展史 —— 固定顺序被质疑（XLNet、Insertion Transformer、多尺度 AR）→ any-order 条件能力（MaskGIT、σ-GPT、RandAR）→ planner/denoiser 拆分（DDPD、P2）→ 顺序+并行+修订+训练对齐一起考虑（Patch Forcing、AsyncPatch 等异步时间）\n- **4 节**：现有论文真正证明了什么（8 个小结 + 六类方法地图）\n- **5 节**：作者自己在数独、时序、迷宫、图像上的**失败实验**经验\n- **6 节**：四个值得做的方向 + 一个可信实验矩阵\n- **7 节**：结语\n\n## 最有价值的几个判断\n\n| 主张 | 要点 |\n|---|---|\n| 顺序重要性来自模型不完美 | 理想模型下任何合法分解等价；现实中好顺序 = 近似误差管理策略 |\n| confidence 不是长期价值 | 高置信 ≠ 对未来最有帮助，也 ≠ 与同批变量独立 |\n| 顺序 ≠ 并行度 | \"先生成谁\"是 order problem，\"谁能一起生成\"是 dependency problem |\n| any-order 很贵 | mask 子集组合空间指数级；随机顺序训练换来编辑能力，但固定路径 specialist 通常更强 |\n| revision 可能比先后更重要 | remask/renoise 把问题从\"找完美排列\"变成\"边走边检查\" |\n| \"低频先高频后\"不是定律 | 是自然图像频谱 + 白噪声前向过程的共同产物，改 corruption 就能拉平 |\n| 学到的顺序 ≠ 因果顺序 | 仅凭顺序可视化说模型发现因果结构，证据不足 |\n\n## 作者的踩坑经验（第 5 节，最有个人色彩的部分）\n\n1. 不要一上来训\"全路径 foundation denoiser\"——随机高维 noise level 会产生大量部署时不会访问的怪异状态，建议从可靠基准路径出发做 local denoiser + 逐步扩大 trust region\n2. planner/denoiser 联合训练更强但易共适应（planner 学到的是\"钻这个 denoiser 空子的路径\"）\n3. 对完整 ODE rollout 反向传播不划算，倾向 simulation-free 目标\n4. 连续 schedule 的核心病是**不可辨识与坍缩**（空间上塌回共享 schedule，时间上变成脉冲跳变）；加 entropy loss 让路径\"更花\"但没有稳定质量收益\n5. 先证明跨 seed/denoiser 可复现，再谈\"布局—物体—纹理\"这类语义/因果解释\n\n结论是：不存在适用于所有数据的黄金顺序，顺序依赖表示、模型误差、任务约束和推理预算，所以它更像 planner/controller 而非固定 schedule。判断标准是三个问题——换模型还有效吗？相同算力真的更好吗？沿该路径重训练后优势还保留吗？"
+        }
+      ],
+      "timestamp": "2026-08-06T09:02:24.756Z"
+    },
+    {
+      "id": "bd3e2254-8c84-4090-ad32-813243e7485d",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "我该如何对话某一行呢？因为某一行有个不太明白",
+          "autoMentionContext": {
+            "noteName": "生成模型的顺序",
+            "notePath": "Tencent/red/生成模型的顺序.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-06T09:03:23.837Z"
+    },
+    {
+      "id": "b57a0c56-5070-4f48-b818-f165f29afe25",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "几种方式都可以，任选最省事的：\n\n**1. 直接粘那句话**（最推荐）\n把不懂的原文复制过来，前面加个 `>` 或直接贴，比如：\n\n```\n> 信息论分析进一步指出，因子化并行会产生独立于顺序选择的采样偏差\n\n这句什么意思？\n```\n\n**2. 给行号**\n我这边读到的文件是带行号的，所以你说「第 125 行」「4.3 节最后一句」我都能定位。Obsidian 里想看行号可以在设置里开 `编辑器 → 显示行号`。\n\n**3. 说小节 + 关键词**\n比如「4.6 那节里说的 Fourier-space 那段」「5.4 里的『不可辨识』是什么意思」——这样也够我找到。\n\n**4. Obsidian 里选中文本**\n如果你在 Obsidian 里选中一段再提问，选区内容一般会作为上下文带过来，你直接问「这句什么意思」就行（不确定的话还是配合方式 1 更稳）。\n\n顺带一提，这篇里最容易卡住的通常是这几处，如果正好是其中之一可以直接说编号：\n\n| 位置 | 常见困惑点 |\n|---|---|\n| 2 节 | 高维进度向量 $\\tau$ 到底怎么理解 |\n| 4.3 | 「因子化并行产生独立于顺序的采样偏差」 |\n| 4.6 | 为什么高频 SNR 更早下降 |\n| 5.3 | 为什么 rollout 反传不如 Neural ODE |\n| 5.4 | 「不可辨识」和「坍缩」具体指什么 |\n\n你把那句贴过来吧。"
+        }
+      ],
+      "timestamp": "2026-08-06T09:03:46.745Z"
+    }
+  ],
+  "savedAt": "2026-08-06T09:03:47.549Z"
+}
