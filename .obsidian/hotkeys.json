@@ -54,13 +54,5 @@
       ],
       "key": "E"
     }
-  ],
-  "editor:insert-mathblock": [
-    {
-      "modifiers": [
-        "Mod"
-      ],
-      "key": "E"
-    }
   ]
 }
