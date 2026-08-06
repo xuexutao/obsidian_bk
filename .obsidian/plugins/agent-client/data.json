@@ -110,6 +110,14 @@
   },
   "savedSessions": [
     {
+      "sessionId": "a21b67a1-36d3-4475-a896-e353d61e9bab",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "如何快速内容居中呢？比如这个图片居中",
+      "createdAt": "2026-08-06T12:00:04.343Z",
+      "updatedAt": "2026-08-06T12:00:04.344Z"
+    },
+    {
       "sessionId": "6b31dc86-ab37-461f-aeed-9a9bb7fb984d",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
