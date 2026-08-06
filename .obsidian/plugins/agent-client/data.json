@@ -120,7 +120,11 @@
   ],
   "lastUsedModels": {},
   "lastUsedModes": {},
-  "lastUsedConfigOptions": {},
+  "lastUsedConfigOptions": {
+    "claude-code-acp": {
+      "fast": "on"
+    }
+  },
   "enableFloatingChat": false,
   "floatingButtonImage": "",
   "floatingWindowSize": {
