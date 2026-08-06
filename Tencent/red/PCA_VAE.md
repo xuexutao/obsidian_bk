@@ -72,7 +72,7 @@ $$\text{tr}(U_d^\top C \, U_d) = \text{tr}(U_d^\top U_d \Lambda) = \text{tr}(\La
 
 **2.1.3 PCA的数据流**
 
-![](assets/PCA_VAE/img_01.jpg)
+![](assets/PCA_VAE/img_01.png)
 
 利用Encoder-Decoder架构描述数据流动
 
@@ -97,7 +97,7 @@ $$z = f_\theta(x)$$
 - **搭配分类器**：编码器 + 分类头，用交叉熵损失训练，这就是普通的分类网络的前半部分
 - **搭配解码器**：编码器 + 解码器，用重构损失训练，这就是自编码器
 
-![](assets/PCA_VAE/img_02.jpg)
+![](assets/PCA_VAE/img_02.png)
 
 编码器的上下游
 
@@ -496,7 +496,7 @@ print(f"[PCA] 累计方差解释率: {pca.explained_variance_ratio_.sum()*100:.2
 print(f"[PCA] 测试集 MSE 重构误差: {pca_recon_error:.6f}")
 ```
 
-![](assets/PCA_VAE/img_14.jpg)
+![](assets/PCA_VAE/img_14.png)
 
 同时我们也手写一个PyTorch版PCA，展示和AE的对应关系：
 
@@ -702,7 +702,7 @@ ae_model = AutoEncoder()
 ae_model = train_ae(ae_model, train_loader)
 ```
 
-![](assets/PCA_VAE/img_17.jpg)
+![](assets/PCA_VAE/img_17.png)
 
 ### 4.5 VAE
 
@@ -809,7 +809,7 @@ vae_model = VAE()
 vae_model = train_vae(vae_model, train_loader)
 ```
 
-![](assets/PCA_VAE/img_18.jpg)
+![](assets/PCA_VAE/img_18.png)
 
 ### 4.6 可视化与对比
 
@@ -1032,7 +1032,7 @@ def interpolate_vae(model, test_loader, n_steps=10):
 interpolate_vae(vae_model, test_loader)
 ```
 
-![](assets/PCA_VAE/img_27.jpg)
+![](assets/PCA_VAE/img_27.png)
 
 通过在两个隐向量之间进行线性插值，并将中间点解码回图像，可以观察到数字从“3”到“8”的平滑过渡过程。这说明VAE学到的隐空间并非离散的编码集合，而是一个具有良好几何结构的低维流形，不同数据点之间可以通过连续路径相连。
 
