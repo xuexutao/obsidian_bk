@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
   "title": "这篇文章是什么",
   "createdAt": "2026-08-06T09:02:52.883Z",
-  "updatedAt": "2026-08-06T11:27:52.470Z",
+  "updatedAt": "2026-08-06T11:31:40.556Z",
   "messages": [
     {
       "id": "c2ea060f-253f-465e-b624-ca00b4e073e2",
@@ -495,7 +495,101 @@
         }
       ],
       "timestamp": "2026-08-06T11:31:19.847Z"
+    },
+    {
+      "id": "51ad3e28-12f2-4d61-969f-49d53e29563c",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "为什么 span 中的公式失效了呢？",
+          "autoMentionContext": {
+            "noteName": "VAE",
+            "notePath": "Tencent/red/VAE.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-06T11:32:51.613Z"
+    },
+    {
+      "id": "4b698dfd-b44a-4657-b356-170e3fc6d754",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_pzei94avm7YUAYiMLqM1pG",
+          "title": "grep -n '<span' Tencent/red/VAE.md",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n '<span' Tencent/red/VAE.md",
+            "description": "Find span usage in VAE note"
+          }
+        }
+      ],
+      "timestamp": "2026-08-06T11:34:25.627Z"
+    },
+    {
+      "id": "71ede64b-2ae0-44fc-865c-aa59fa0c883e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_npz42zLx3Rt6tdDSafvg2G",
+          "title": "Edit Tencent/red/VAE.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/VAE.md",
+              "newText": "\n**光这样还不够**：如果只有重构损失，模型会发现最省事的办法是把 $σ$ 学到接近 0，小球缩成一个点，又退化回 AE。所以还要加一项 KL，把每个小球往标准正态 N(0,I) 上推，既不许它缩成点，也不许各自跑到很远的地方去。\n\n**完整目标（ELBO 到底是什么）**：真正想最大化的是训练数据的<span class=\"red\">对数似然</span> $\\text{log}  p_θ(x)$，但它要对所有可能的 $z$ 积分，实际算不出来。ELBO（evidence lower bound，证据下界）是这个对数似然的一个下界，把下界顶上去就等于间接把似然往上推，\"变分自编码器\"里的\"变分\"指的就是这件事。写成损失就是两项加权相加：\n\n$$\\mathcal{L} = \\underbrace{\\mathbb{E}_{q_\\phi(z|x)}[\\log p_\\theta(x|z)]}_{\\text{重构项}} - \\beta \\cdot \\underbrace{D_{\\mathrm{KL}}(q_\\phi(z|x) \\| p(z))}_{\\text{正则项}}$$\n",
+              "oldText": "\n**光这样还不够**：如果只有重构损失，模型会发现最省事的办法是把 $σ$ 学到接近 0，小球缩成一个点，又退化回 AE。所以还要加一项 KL，把每个小球往标准正态 N(0,I) 上推，既不许它缩成点，也不许各自跑到很远的地方去。\n\n**完整目标（ELBO 到底是什么）**：真正想最大化的是训练数据的<span class=\"red\">对数似然 $\\text{log}  p_θ(x)$</span>，但它要对所有可能的 $z$ 积分，实际算不出来。ELBO（evidence lower bound，证据下界）是这个对数似然的一个下界，把下界顶上去就等于间接把似然往上推，\"变分自编码器\"里的\"变分\"指的就是这件事。写成损失就是两项加权相加：\n\n$$\\mathcal{L} = \\underbrace{\\mathbb{E}_{q_\\phi(z|x)}[\\log p_\\theta(x|z)]}_{\\text{重构项}} - \\beta \\cdot \\underbrace{D_{\\mathrm{KL}}(q_\\phi(z|x) \\| p(z))}_{\\text{正则项}}$$\n"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/VAE.md",
+              "line": 39
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/VAE.md",
+            "old_string": "**完整目标（ELBO 到底是什么）**：真正想最大化的是训练数据的<span class=\"red\">对数似然 $\\text{log}  p_θ(x)$</span>，但它要对所有可能的 $z$ 积分，实际算不出来。",
+            "new_string": "**完整目标（ELBO 到底是什么）**：真正想最大化的是训练数据的<span class=\"red\">对数似然</span> $\\text{log}  p_θ(x)$，但它要对所有可能的 $z$ 积分，实际算不出来。",
+            "replace_all": false
+          },
+          "permissionRequest": {
+            "requestId": "ac718492-74ac-4070-b3e6-3aeafc868225",
+            "options": [
+              {
+                "optionId": "reject",
+                "name": "Deny",
+                "kind": "reject_once"
+              },
+              {
+                "optionId": "allow",
+                "name": "Allow Once",
+                "kind": "allow_once"
+              },
+              {
+                "optionId": "allow_always",
+                "name": "Always Allow",
+                "kind": "allow_always"
+              }
+            ],
+            "selectedOptionId": "allow_always",
+            "isActive": false
+          }
+        },
+        {
+          "type": "text",
+          "text": "已经把公式挪到 span 外面了。\n\n## 为什么会失效\n\nObsidian 的渲染管线里，**行内 HTML 是一个\"逃生舱\"**：解析器一看到 `<span>`，就把里面的内容当作原始 HTML 直接交给 DOM，不再跑 Markdown 解析，也就不会把 `$...$` 交给 MathJax。所以 `$\\text{log} p_θ(x)$` 原样以字面文本输出了。\n\n同样的原因，span 里面的 `**加粗**`、`[[wikilink]]`、`==高亮==` 也全都失效。这是设计使然，不是 bug——行内 HTML 的定位就是\"这段我自己接管\"。\n\n## 三种做法\n\n**1. 把公式放到 span 外面**（我刚才用的，最省事）\n\n```markdown\n真正想最大化的是训练数据的<span class=\"red\">对数似然</span> $\\log p_\\theta(x)$\n```\n\n**2. 只给公式上色，改用 LaTeX 自己的颜色命令** —— MathJax 支持 `\\color`：\n\n```markdown\n$\\color{#c92a2a}{\\log p_\\theta(x)}$\n```\n\n代价是色值写死了，深色模式下 `#c92a2a` 会偏暗。想适配主题的话，用第三种。\n\n**3. 让 span 包住公式，靠 CSS 给公式染色** —— 公式渲染出来是 SVG/HTML 节点，要单独指定 `fill`。可以往片段里加一条：\n\n```css\n/* 让 .red 等 class 也能作用于内部的 MathJax 公式 */\n.red mjx-container svg,\n.red mjx-container svg * { fill: currentColor; stroke: currentColor; }\n```\n\n但这仍然救不了「span 里的 `$...$` 不被解析」这个根本问题——CSS 只能给\"已经渲染出来的公式\"染色。而 span 内部的公式压根没渲染。\n\n## 结论\n\n**方案 1 是正解**：把 `$...$` 留在 span 外面，标注文字部分。如果确实需要公式本身变红，用方案 2 的 `\\color`。要我把 `\\color` 那种写法也在片段里配个变量吗？不过 MathJax 的 `\\color` 读不到 CSS 变量，所以深/浅色自适应做不到，只能挑一个在两种主题下都还能看的中间色（比如 `#e03131`）。"
+        }
+      ],
+      "timestamp": "2026-08-06T11:34:25.627Z"
     }
   ],
-  "savedAt": "2026-08-06T11:31:40.556Z"
+  "savedAt": "2026-08-06T11:34:43.884Z"
 }
