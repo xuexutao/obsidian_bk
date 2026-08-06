@@ -1,7 +1,7 @@
 {
-  "cssTheme": "",
+  "cssTheme": "Blue Topaz",
   "monospaceFontFamily": "",
-  "baseFontSize": 14,
+  "baseFontSize": 16,
   "translucency": true,
   "enabledCssSnippets": [
     "custom-icons-differing-files-and-folders",
@@ -12,5 +12,9 @@
     "stylish-blockquotes",
     "tag-pills",
     "colored-text"
-  ]
+  ],
+  "accentColor": "",
+  "textFontFamily": "Times New Roman,Arial",
+  "baseFontSizeAction": true,
+  "interfaceFontFamily": "Arial,Times New Roman"
 }
