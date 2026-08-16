@@ -72,7 +72,7 @@ $$p_\theta(x) = \int p_\theta(x|z)\, p(z)\, dz \implies \log p_\theta(x) = \log 
 
 **最关键的是等号什么时候成立：X 退化成常数的时候**，X 越分散差距越大。记住这句，一会儿马上要用。
 
-有了它，往 log p(x) 里塞一个 q_φ(z|x) 就能一路推下来：
+有了它，往 log p(x) 里塞一个 $q_φ(z|x)$ 就能一路推下来：
 
 $$\log p_\theta(x) = \log \int q_\phi(z|x) \frac{p_\theta(x|z)p(z)}{q_\phi(z|x)}\, dz = \log \mathbb{E}_{q_\phi}\!\left[\frac{p_\theta(x|z)p(z)}{q_\phi(z|x)}\right] \geq \mathbb{E}_{q_\phi}\!\left[\log \frac{p_\theta(x|z)p(z)}{q_\phi(z|x)}\right]$$
 
