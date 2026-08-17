@@ -4,22 +4,22 @@
 
 ## 目录
 
-- [题1：为什么训练常用预测噪声 ε，而不是直接预测 x0？等价吗？](#题1为什么训练常用预测噪声-ε而不是直接预测-x0等价吗)
-- [题2：写出 q(xt|x0)，解释为何训练变成“去噪回归”](#题2写出-qxtx0解释为何训练变成去噪回归)
-- [题3：扩散与 score matching 的深层联系？如何用 SDE/ODE 统一？](#题3扩散与-score-matching-的深层联系如何用-sdeode-统一)
-- [题4：噪声日程（schedule）为什么关键？怎么选型与诊断？](#题4噪声日程schedule为什么关键怎么选型与诊断)
-- [题5：DDPM / DDIM / DPM-Solver / Heun / ODE 采样差别？DDIM 为何少步？](#题5ddpm--ddim--dpm-solver--heun--ode-采样差别ddim-为何少步)
-- [题6：Classifier Guidance vs CFG？为什么 CFG 会过饱和/过锐/崩？怎么缓解？](#题6classifier-guidance-vs-cfg为什么-cfg-会过饱和过锐崩怎么缓解)
-- [题7：文生图文本条件怎么注入？Cross-Attention 的 Q/K/V 来自哪里？](#题7文生图文本条件怎么注入cross-attention-的-qkv-来自哪里)
-- [题8：为什么能在 VAE latent 上做扩散？代价是什么？](#题8为什么能在-vae-latent-上做扩散代价是什么)
-- [题9：除了噪声回归，还能怎么提升对齐/美学/可控性？](#题9除了噪声回归还能怎么提升对齐美学可控性)
-- [题10：图生图为何等价于“从某个噪声等级开始反推”？strength/t_start 是什么？](#题10图生图为何等价于从某个噪声等级开始反推strengtht_start-是什么)
-- [题11：Inpainting/Outpainting：mask 怎么进入模型/采样过程？](#题11inpaintingoutpaintingmask-怎么进入模型采样过程)
-- [题12：ControlNet / T2I-Adapter 为什么有效？不破坏原模型能力的关键是什么？](#题12controlnet--t2i-adapter-为什么有效不破坏原模型能力的关键是什么)
-- [题13：把 T2I 直接扩到视频会出什么问题？如何解释“时间一致性”？](#题13把-t2i-直接扩到视频会出什么问题如何解释时间一致性)
-- [题14：视频扩散架构：3D U-Net、时序注意力、2D+Temporal Module 的权衡？](#题14视频扩散架构3d-u-net时序注意力2dtemporal-module-的权衡)
-- [题15：视频采样如何做条件约束与稳定控制（首帧/关键帧/光流/轨迹/相机运动）？](#题15视频采样如何做条件约束与稳定控制首帧关键帧光流轨迹相机运动)
-- [题16：训练/采样问题（塌缩、黑图、糊、字差、脸崩）排查路径？](#题16训练采样问题塌缩黑图糊字差脸崩排查路径)
+- [题1：为什么训练常用预测噪声 ε，而不是直接预测 x0？等价吗？](kuosan.md#题1为什么训练常用预测噪声-ε而不是直接预测-x0等价吗)
+- [题2：写出 q(xt|x0)，解释为何训练变成“去噪回归”](kuosan.md#题2写出-qxtx0解释为何训练变成去噪回归)
+- [题3：扩散与 score matching 的深层联系？如何用 SDE/ODE 统一？](kuosan.md#题3扩散与-score-matching-的深层联系如何用-sdeode-统一)
+- [题4：噪声日程（schedule）为什么关键？怎么选型与诊断？](kuosan.md#题4噪声日程schedule为什么关键怎么选型与诊断)
+- [题5：DDPM / DDIM / DPM-Solver / Heun / ODE 采样差别？DDIM 为何少步？](kuosan.md#题5ddpm--ddim--dpm-solver--heun--ode-采样差别ddim-为何少步)
+- [题6：Classifier Guidance vs CFG？为什么 CFG 会过饱和/过锐/崩？怎么缓解？](kuosan.md#题6classifier-guidance-vs-cfg为什么-cfg-会过饱和过锐崩怎么缓解)
+- [题7：文生图文本条件怎么注入？Cross-Attention 的 Q/K/V 来自哪里？](kuosan.md#题7文生图文本条件怎么注入cross-attention-的-qkv-来自哪里)
+- [题8：为什么能在 VAE latent 上做扩散？代价是什么？](kuosan.md#题8为什么能在-vae-latent-上做扩散代价是什么)
+- [题9：除了噪声回归，还能怎么提升对齐/美学/可控性？](kuosan.md#题9除了噪声回归还能怎么提升对齐美学可控性)
+- [题10：图生图为何等价于“从某个噪声等级开始反推”？strength/t_start 是什么？](kuosan.md#题10图生图为何等价于从某个噪声等级开始反推strengtht_start-是什么)
+- [题11：Inpainting/Outpainting：mask 怎么进入模型/采样过程？](kuosan.md#题11inpaintingoutpaintingmask-怎么进入模型采样过程)
+- [题12：ControlNet / T2I-Adapter 为什么有效？不破坏原模型能力的关键是什么？](kuosan.md#题12controlnet--t2i-adapter-为什么有效不破坏原模型能力的关键是什么)
+- [题13：把 T2I 直接扩到视频会出什么问题？如何解释“时间一致性”？](kuosan.md#题13把-t2i-直接扩到视频会出什么问题如何解释时间一致性)
+- [题14：视频扩散架构：3D U-Net、时序注意力、2D+Temporal Module 的权衡？](kuosan.md#题14视频扩散架构3d-u-net时序注意力2dtemporal-module-的权衡)
+- [题15：视频采样如何做条件约束与稳定控制（首帧/关键帧/光流/轨迹/相机运动）？](kuosan.md#题15视频采样如何做条件约束与稳定控制首帧关键帧光流轨迹相机运动)
+- [题16：训练/采样问题（塌缩、黑图、糊、字差、脸崩）排查路径？](kuosan.md#题16训练采样问题塌缩黑图糊字差脸崩排查路径)
 
 ---
 
