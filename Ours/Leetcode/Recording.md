@@ -1,53 +1,29 @@
 
 
-
 ```c++
 class Solution {
-
 public:
-
-ListNode *detectCycle(ListNode *head) {
-
-ListNode* slow = head;
-
-ListNode* fast = head;
-
-// 第一步：判断是否有环，找到相遇点
-
-while (fast != nullptr && fast->next != nullptr) {
-
-slow = slow->next;
-
-fast = fast->next->next;
-
-if (slow == fast) {
-
-// 第二步：找环入口
-
-ListNode* p1 = head;
-
-ListNode* p2 = slow; // 相遇点
-
-while (p1 != p2) {
-
-p1 = p1->next;
-
-p2 = p2->next;
-
-}
-
-return p1; // 相遇点就是环入口
-
-}
-
-}
-
-return nullptr; // 无环
-
-}
-
+    ListNode *detectCycle(ListNode *head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+        // 第一步：判断是否有环，找到相遇点
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+            if (slow == fast) {
+                // 第二步：找环入口
+                ListNode* p1 = head;
+                ListNode* p2 = slow;  // 相遇点
+                while (p1 != p2) {
+                    p1 = p1->next;
+                    p2 = p2->next;
+                }
+                return p1;  // 相遇点就是环入口
+            }
+        }
+        return nullptr;  // 无环
+    }
 };
-
 ```
 
 ![430](assets/Recording/file-20260817120410259.png)
