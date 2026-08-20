@@ -8,7 +8,7 @@
 
 DreamDojo 的关键判断是：**人和机器人虽然 embodiment 不同，但交互中的底层物理规律具有可迁移性。** 因此，可以先从大规模人类视频里学“物理与交互常识”，再用少量目标机器人数据做适配。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MDllZTcwZTBkZWY0MmJkOGM3M2YxNDdiMDRhOWNiY2VfdXlIZWdYSHdYbTNVNHNpdk1pR3hhS3U4M0ZoSWROczVfVG9rZW46Wjc5UGJNbG1XbzFsbmF4WTV1TmNFZ0dibmllXzE3ODI5ODA2MzI6MTc4Mjk4NDIzMl9WNA&add_watermark=true&scene_type=CCM)
+![](assets/DreamDojo 阅读总结/overview_compressed.png)
 
 上图对应论文中的总览图：先从大规模人类视频里获得物理知识，再在目标机器人上后训练，最后通过蒸馏得到可实时交互的世界模型。
 
@@ -69,9 +69,9 @@ DreamDojo 的整体训练和使用流程可以分成三段：
 - **中间表示：** 场景、技能、对象与交互分布。
 - **输出：** 供世界模型预训练的超大规模交互视频语料。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MGNjMDg0MjU3MWE3OTEzNTVkMmY2MjgyM2JjNTA4ZDdfRE1rWElocE9CQmswQ1hEczhXS2NrYk1NUkNzVnFwYXFfVG9rZW46SFJFV2J5cExjbzQzWFN4S0dpd2NYYUl1bmVnXzE3ODI5ODA2MzI6MTc4Mjk4NDIzMl9WNA&add_watermark=true&scene_type=CCM)
+![](assets/DreamDojo 阅读总结/benchmark_compressed.png)
 
-这张图主要展示论文构建的评测基准与 OOD 场景设计，也能帮助理解作者为何强调“泛化到未见场景”而非只做实验室内插值。
+这张图主要展示论文构建的评测基准与 OOD 场景设计，也能帮助理解作者为何强调"泛化到未见场景"而非只做实验室内插值。
 
 #### 模块 B：连续 latent action 作为统一代理动作
 
@@ -86,7 +86,7 @@ DreamDojo 的整体训练和使用流程可以分成三段：
 
 这样得到的 latent action 会尽量压缩并保留“造成两帧变化的核心动作信息”，从而成为跨 embodiment 的统一动作代理。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MTY3Yjg5ODlhYjNmZTA1YzhiMTUxNjA1MzIxMjZjNDFfbXdsSlRiNTFoUHNwZFIyN3NLanVUY3dCU2Z0cU5GZ0dfVG9rZW46TGtNeWJJYWVkb3laZjZ4Rk1zTmMyMEltbnlnXzE3ODI5ODA2MzM6MTc4Mjk4NDIzM19WNA&add_watermark=true&scene_type=CCM)
+![](assets/DreamDojo 阅读总结/lam_compressed.png)
 
 从 I/O 角度，可以把这一模块理解为：
 
@@ -156,17 +156,17 @@ DreamDojo 不是只做“看起来能生成”的 demo，而是已经被拿来�
 
 其中策略评估实验中，DreamDojo 与真实世界成功率的 Pearson 相关达到 **0.995**；模型规划实验中，不同策略组都能拿到显著收益，其中一组相对最佳 checkpoint 提升 **17%**，相对均匀采样接近 **2×** 提升。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZTdhYWFhNGY4NGE0OGZhZDA0YzcwMmUxNDNkYmYxYzFfcVBGdWVuMEJkMTVwOHVBR2pva2lOY1pvcFNpRHY0SGFfVG9rZW46UThERmJ3OEt3b3Jtdjd4VkxNSGNtejNvbllyXzE3ODI5ODA2MzM6MTc4Mjk4NDIzM19WNA&add_watermark=true&scene_type=CCM)
+![](assets/DreamDojo 阅读总结/mpc_compressed.png)
 
-上图对应论文中的 policy evaluation 结果，核心含义是：**DreamDojo 的仿真打分与真实世界 rollout 成绩高度一致。** 这意味着它具备替代部分真实部署评估的潜力。
+上图对应论文 Figure 5 的左侧 (a) policy evaluation 结果，核心含义是：**DreamDojo 的仿真打分与真实世界 rollout 成绩高度一致。** 这意味着它具备替代部分真实部署评估的潜力。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=OTlkZDBjMjFjYTZhMmQ4NGRjMjk0MTkxY2ZhZjMwNDVfZll3VEx1MTdCa1F2dVNOQjRocEdubEU3QmdiN3VLTWZfVG9rZW46QVBrY2JLVE9Nb25jQ1Z4Nk9MY2NuSVNZblBmXzE3ODI5ODA2MzM6MTc4Mjk4NDIzM19WNA&add_watermark=true&scene_type=CCM)
+![](assets/DreamDojo 阅读总结/mpc_compressed.png)
 
-这张图展示 DreamDojo 参与 test-time planning 的方式：先生成多个候选动作轨迹，再让世界模型预测后果，最后由 value model 选最佳方案执行。
+这张图是 Figure 5 的右侧 (b)，展示 DreamDojo 参与 test-time planning 的方式：先生成多个候选动作轨迹，再让世界模型预测后果，最后由 value model 选最佳方案执行。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZGYwZTVlNjFmZjk4YzFhYTgyNTFmNTg4ZTA2Mjk1YWFfMzI0cnVBbURnZFRqc0NFRFgyQWM1Wm1ab0V4dk5aVWlfVG9rZW46VVo0SGJyQmMwb0J2Y014YUNtOWNFTE9zbk5iXzE3ODI5ODA2MzM6MTc4Mjk4NDIzM19WNA&add_watermark=true&scene_type=CCM)
+![](assets/DreamDojo 阅读总结/teleop_compressed.png)
 
-这张图说明作者已经把蒸馏后的 DreamDojo 接到 VR 控制器上做实时虚拟机器人遥操作，这比单纯离线生成更接近“可交互系统”。
+这张图是论文 Figure 6，说明作者已经把蒸馏后的 DreamDojo 接到 PICO VR 控制器上做实时虚拟机器人遥操作，这比单纯离线生成更接近"可交互系统"。
 
 ### 3.5 我对其创新点的归纳
 
