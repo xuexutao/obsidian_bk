@@ -44,7 +44,7 @@ LeWM 想同时拿到三者的优点：
 - **任务无关**
 - **训练目标极简且有 anti-collapse 保证**
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NDgwYjhhMjc1MjQ2MDRiNGI1Njg0YjBkNTU0ZjJlZTJfRld0RDJ0OUNKOEdpbVJiblM1NUE1bmpHakZreDBRR2hfVG9rZW46VmlMb2I0cGVyb09sWGh4akVibWNseGFKbkJmXzE3ODI5ODA2NTc6MTc4Mjk4NDI1N19WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeWorldModel 论文阅读总结/wms.png)
 
 从研究脉络上看，这篇论文连接了几条值得持续追踪的线：
 
@@ -109,7 +109,7 @@ LeWM 的训练目标非常干净：
 
 ### 3.4 推理 / 规划阶段的 I/O 流
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZTgyODk2ZjVjOWRhYWNlM2QwMmVjZjY5YjA4YzIyYTBfRkVYQzU2c1RJNWM5ZmJ0VmdOdG1EaWVDQ3c5UDE2cDNfVG9rZW46S004aWI5T3lYb2gxeUJ4SFgxWmNSdGp1bk5jXzE3ODI5ODA2NTc6MTc4Mjk4NDI1N19WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeWorldModel 论文阅读总结/lewm-plan.png)
 
 LeWM 的规划不在像素空间，而在 latent 空间里做：
 
@@ -153,7 +153,7 @@ LeWM 的规划不在像素空间，而在 latent 空间里做：
 - **PushT**：2D 推块操作
 - **OGBench-Cube**：3D 机械臂抓放方块
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NDg5YzI5OWI3YTBjODVlNGVmMDc1MmUyZGUyMWIzMjJfemd5MzAzMTZhM01uMWE0YTBLbGdjZ1RtTUdXZGNObTJfVG9rZW46QXZpVmIwa25Pb0dqckh4dFRhTGNNM0tIblNlXzE3ODI5ODA2NTc6MTc4Mjk4NDI1N19WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeWorldModel 论文阅读总结/envs.png)
 
 |环境|LeWM|PLDM|DINO-WM|解读|
 |---|---|---|---|---|
@@ -202,7 +202,7 @@ LeWM 的规划不在像素空间，而在 latent 空间里做：
 2. 视觉扰动轨迹（颜色突变）；
 3. 物理扰动轨迹（对象瞬移）。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=Mjc1NDg1NmVhMDBiMjhlNWNjN2I3OTVhN2EwNTMyZGVfSzV6dUdJUG9wRUFQWHV4TlJZbjZrNDVqa0doS3RlWXJfVG9rZW46TldzSWJNeGtEb2x5T1h4OTgwUmM1Z2NXbnVaXzE3ODI5ODA2NTc6MTc4Mjk4NDI1N19WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeWorldModel 论文阅读总结/strip_pusht_teleport_4.png)
 
 结论是：
 
