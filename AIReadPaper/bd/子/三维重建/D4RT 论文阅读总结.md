@@ -55,9 +55,13 @@ D4RT 的核心判断是：与其“逐帧密集解码所有内容”，不如先
 
 ### 3.2 核心架构
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZDQ3NzFkODc3ZjhmMTI3OTI5MjBkZjU2Y2FiOGU4ZjNfSmRsT3pWa0RwTVE0R0tBT3NUSkZFd0NUV0ZHZXhsWUpfVG9rZW46SFZieGJCWkhIb25uTWZ4UTA0QWNFYmpLbnBiXzE3ODI5ODA1MDk6MTc4Mjk4NDEwOV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/D4RT 论文阅读总结/fig2_method.png)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NTIwNGM4MjMzNTMxOTVlNDAzMWJhYzJiNzM5MjFiZTZfMEtpRTl1cnF5QVZIS1g4Y3dyN0VpTzZyTE92VzExUjZfVG9rZW46UExGd2JWaHpDb3FNZ0V4MVhlQ2NoM2hhbkpiXzE3ODI5ODA1MDk6MTc4Mjk4NDEwOV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+*图：Figure 2 — D4RT 模型架构总览。左侧 ViT-g 全局时空编码器生成场景表示 F，右侧轻量级 8 层 cross-attention 解码器对查询五元组 (u, v, t_src, t_tgt, t_cam) 独立解码 3D 点位置。*
+
+![](assets/D4RT 论文阅读总结/fig1_teaser.png)
+
+*图：Figure 1 — D4RT 统一接口总览。一个查询接口同时输出点云、点轨迹、相机参数等多种 4D 重建结果。*
 
 论文的整体链路可以拆成 4 步：
 
@@ -115,7 +119,9 @@ D4RT 的核心判断是：与其“逐帧密集解码所有内容”，不如先
 
 ### 4.2 主结果：速度和精度同时领先
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YTBkNGQ4ZjQwM2E2YWMzOTczZTRhMDY4Y2ZlODUwM2NfVGlvSTZBaWFKUmlJUm5ZdVFPZWE3OXlFY3dPYXU4R3BfVG9rZW46SWhuWGI3MENpbzlGNFZ4Q0RLY2NOSkJ2bkhjXzE3ODI5ODA1MDk6MTc4Mjk4NDEwOV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/D4RT 论文阅读总结/fig3_speed.png)
+
+*图：Figure 3 — Pose accuracy vs. speed。D4RT 在 A100 上达到 200+ FPS 的 pose estimation，速度比 VGGT 快 9×，比 MegaSaM 快 100×+。*
 
 #### A. 3D 跟踪吞吐量（Table 3）
 
@@ -158,7 +164,9 @@ D4RT 的核心判断是：与其“逐帧密集解码所有内容”，不如先
 
 ### 4.3 完整重建能力：为什么它比“第一帧起点跟踪”更完整
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NTQ3Zjg2YTg3YjM5YjAxMmYxZjZjOWQ4Y2E1N2IxYjBfeVAyTlpOblV2dXNOSENSbFo4ZVR5YkxDMDUxc1hkVkFfVG9rZW46SERqRWJlWm96bzhpQ3h4bDNkdWNvMWNTbkRiXzE3ODI5ODA1MDk6MTc4Mjk4NDEwOV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/D4RT 论文阅读总结/fig4_reconstruction.png)
+
+*图：Figure 4 — 各方法重建结果对比。纯重建方法 MegaSaM/π³ 在动态区域出现重影与缺失，SpatialTrackerV2 跟踪不完整，D4RT 是唯一能输出无空洞完整 4D 场景表示的方法。*
 
 这部分是我认为最重要的 qualitative 结论之一。
 
