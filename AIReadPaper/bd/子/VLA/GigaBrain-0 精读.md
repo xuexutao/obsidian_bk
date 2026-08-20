@@ -60,7 +60,7 @@
 
 ## 3. Pipeline / Architecture + I/O 数据流
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MTQyYzgwZjUzZGI1ODUzYjViY2M4ZmQyZWQyZjkxMGZfalVWVjlFSWhQVXhkczVIbzVXY0V0T1NrR2l1ZFZ5N1BfVG9rZW46UEw5N2JoNkI4b3NsUFJ4ZDdSMmNxcG9KbjViXzE3ODI5ODA5NTk6MTc4Mjk4NDU1OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GigaBrain-0 精读/framework.png)
 
 ### 3.1 总体数据流
 
@@ -117,21 +117,25 @@
 - **Video Generation + IDM**：从单帧和文本提示合成操作视频，再用 Inverse Dynamics Model 反推机器人动作。
 - **Multiview Video Generation**：生成多视角一致视频，提升跨视角训练效果。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=OTFiYzM5YmI1NTgyYTNkYmVlNDcxY2ZiNjE2Nzc4YjlfUjNLd0lJV0x2RWFobUZLNk4zVnRjdmN0ekJvU2NVZFFfVG9rZW46V2JPWmJGaWRZb1RxSkF4RDRkc2NabG9ibkJnXzE3ODI5ODA5NTk6MTc4Mjk4NDU1OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GigaBrain-0 精读/real2real.png)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZmJkYTJhMGExNjhhYTRiZTE1YjBjZTQxYmRkNDRjOWNfa21MSU1ETlVjcURGdElyYmRoMloxTVJpZFd5Sm9XSUpfVG9rZW46RVNCdWIxbmtSb3NpTHd4MndZS2NKYk5jbmhlXzE3ODI5ODA5NTk6MTc4Mjk4NDU1OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GigaBrain-0 精读/viewtransfer.png)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZTI5MGQ1ODc5MDM0NzhlODEwNmZjZDRiZDExMjE1ZWFfb3VXd3BFV3JOdmVMR1M4dEVTekdMeEFJVFJOWGhXRDVfVG9rZW46VXFqbmI4bmx3b0hVcFZ4V1RPQWNhb2NMbk5lXzE3ODI5ODA5NTk6MTc4Mjk4NDU1OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GigaBrain-0 精读/sim2real.png)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ODczODZjOGVhYzc0MDk2Yzk1MGYzODUzZDQ2ZWI1NGVfRXdGU05HZnlFUEcxZGN5all3aXZOeDZ1WnRLYnBSTDBfVG9rZW46UjRoZWJmaWpWb1I1amZ4SlZFQ2NrMkczbjFmXzE3ODI5ODA5NTk6MTc4Mjk4NDU1OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GigaBrain-0 精读/human_transfer.png)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NThlYWMzY2UxZTNjNTM2OTMxODY5YTU2ODhhODAyYzFfN3pua1dwSnl1RVNPZll1ZHlSRHZLWktuNGRiZUJ1RG1fVG9rZW46Q0NhVGJ0MHlub2FsVmN4eVd0MWNGSUhhblBkXzE3ODI5ODA5NTk6MTc4Mjk4NDU1OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GigaBrain-0 精读/videogen.png)
+
+![](assets/GigaBrain-0 精读/multiview.png)
+
+> 补注：上图为 Multiview Video Generation（论文图 9），生成多视角一致视频，用于提升 3D-aware 训练效果。
 
 ---
 
 ## 4. 实验与关键信息
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZjUwNjQ4ZGRhNTI0Y2Q2Mjc2YzBlZDFmZjVhM2Y4MjZfRjhFWkw1RG5tNmFXeGVEcEc4eXJUUWpIbTRhN0hxTFNfVG9rZW46UTJ1Y2Jyd2xvb0tTYnN4b0tIcWNQdzM1bnJlXzE3ODI5ODA5NTk6MTc4Mjk4NDU1OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GigaBrain-0 精读/main_exp.png)
 
 ### 4.1 主实验设置
 
@@ -174,7 +178,7 @@
 
 ### 4.3 泛化实验：生成数据混合比例 α 的影响
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=OWJmM2RkZDQ1YWVmMzA5MDQzMTM4ZGU3MWZmMjg0MThfVkpBakxoRnQ1aUxUQ3IyQzdIdXc2R0FRM0VodFBEOUdfVG9rZW46VlM4VGJtc0o1b3lxYjF4MnVHZmN0T255bjdjXzE3ODI5ODA5NTk6MTc4Mjk4NDU1OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GigaBrain-0 精读/generalization_exp.png)
 
 论文单独考察了 **world model 生成数据在训练 batch 中的采样概率 α**。这部分很关键，因为它直接回答了“生成数据到底有没有帮助，以及混多少最合适”。
 

@@ -80,9 +80,9 @@
 
 下面两张图分别对应文章中的**整体架构**与**训练流程**：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NTI4OWUyZmQ5NGZjMDI2NTUwYTdmYzM2MjNiODMxOTRfd05EN3B6SExiVU5VN3YySnRXRlQzMmxnZjdEOEYyQjZfVG9rZW46WDZ2eWJLekl4b0IwVHl4dDlweGN6UFo0bktlXzE3ODI5ODA5NDI6MTc4Mjk4NDU0Ml9WNA&add_watermark=true&scene_type=CCM)
+![](assets/Qwen-VLA 阅读总结/qwenvla_overview.png)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=M2VlNWY1ZDA4OTFjNjMwYzZiZGRhYTc3YzkxMTZiZjRfU3VWTnljNUs3Q1FhbGJyY0lXVzRZYmtiVDZnT0tTU2VfVG9rZW46V1hERmJUdFhjb0V6Y3F4UzlKYWNlZnM5bm1nXzE3ODI5ODA5NDI6MTc4Mjk4NDU0Ml9WNA&add_watermark=true&scene_type=CCM)
+![](assets/Qwen-VLA 阅读总结/qwenvla_training_recipe.png)
 
 ### 4. 实验与关键发现
 

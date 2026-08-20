@@ -38,7 +38,7 @@
 
 ### 2.3 与同类路线的关系
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZWJjZmRmYmJjYTc5OTIyMDc2ODM3MDEwZThmNDBjNDZfTzhud2gwbmdhNVB5SnJYZDR3djlBalZVcnpXUThrNXRfVG9rZW46SlRXT2J3V2ZFbzkyQUJ4YWM3S2NCYlc3bkFjXzE3ODI5ODA5OTQ6MTc4Mjk4NDU5NF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GaussianDream 论文阅读总结/figure1_paradigm_comparison.png)
 
 上图是论文非常重要的一张总览图。它把 4 条路线并排比较：
 
@@ -188,7 +188,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 #### A. 深度重建 / 未来预测可视化
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MzUzNjk0MTI0YTZmZGM4YWVhM2I3Mzg2MTI4MTJlYWRfb2dYQkpvUDdpVjR3VXJTbjUwQmJIQThhamVka3l2VG1fVG9rZW46WUxaa2I2ZGJUb3MzbWR4dlpZamN5c2VabnJoXzE3ODI5ODA5OTQ6MTc4Mjk4NDU5NF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GaussianDream 论文阅读总结/figure4_depth_rendering_visualization.png)
 
 这张图按时间从 $$$$ 到 $$t+$$ 展示 Ground Truth 与 Recon/Pred 的对齐结果。直观看到两个点：
 
@@ -199,7 +199,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 #### B. 推理时延
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=OGIzZDI2ZWI2MjZjZTllNzY3ODgxNTJkOGMwZWMxYTNfMW5QeTlrUHQzdm5PeU5FSkJNY2lHSjBRNWJaVFdybjNfVG9rZW46TWoyaWJoZVpBb1JlZG14SFNEcmNXakdzbmNmXzE3ODI5ODA5OTQ6MTc4Mjk4NDU5NF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GaussianDream 论文阅读总结/figure8_inference_latency.png)
 
 论文 appendix 给出的 per-action-chunk latency：
 
@@ -212,7 +212,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 #### C. 真实机器人平台
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MzcyMmNlOWEzYjViOGNmMzE3OTA2M2NiZjEzZDYzZjJfTkhRRk54bXE2YVpsRHk2QjVVbEgybnZuWEpPekg3U1dfVG9rZW46VXRmRWJPQm91b0s4TUh4Mk5xc2NyQkxlbjZjXzE3ODI5ODA5OTQ6MTc4Mjk4NDU5NF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/GaussianDream 论文阅读总结/figure6_real_robot_hardware.png)
 
 真实机器人采用 **leader-follower** 双臂结构：
 

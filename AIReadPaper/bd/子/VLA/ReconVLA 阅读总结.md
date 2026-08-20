@@ -62,7 +62,7 @@ ReconVLA 由两个相互耦合的分支组成：
     2. 重建损失负责“看准目标”。
     3. 两者共同约束主干表征，使模型在内部形成更稳定的任务相关注意力。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MGZhOGVlZmRhY2U1MzhkMmU4ZjU5MmY2YjhiODA4OTNfYVFHWG42WHFheklPR2ExV2NzcFhTM0J5Z0xBSFhDV0NfVG9rZW46TWVHVGI2N04wb0pQSGZ4UFBISWNCdEJLbm1iXzE3ODI5ODA3MjI6MTc4Mjk4NDMyMl9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/ReconVLA 阅读总结/fig3_architecture.png)
 
 上图最值得关注的是：**重建分支不是独立辅助头，而是与动作分支共享主干语义表示**。这意味着模型若想在重建上做得好，就必须在视觉编码层面保留关于目标物体的细粒度语义与结构信息。
 
@@ -84,9 +84,9 @@ ReconVLA 由两个相互耦合的分支组成：
 
 ### 3.4 隐式视觉定位直觉
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MzA4ZTRkZWQ5ODQ2ODVmMDkwYmYyMzM5MGM2MGFjZjhfckY5QkRQWjhMbXFPMWFobzZxcDdtZTdBdVM2bUdvNjJfVG9rZW46Q2JpUGJQeFFQb2o3aDB4TWpLaGNKMlVHbm5lXzE3ODI5ODA3MjI6MTc4Mjk4NDMyMl9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/ReconVLA 阅读总结/fig1_observation_gaze_attention.png)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NmVhYTY1MmNlYjNhYjZmMWMyZDQxMTI2NTM1ZTNmMzVfTkdkVVhyZUNWNHRuWVlIdmc3ZGtBWFdFZVZTdnhvM05fVG9rZW46RjJOM2I3ZHZob1Y4MXd4Y0FGTWN2MmE3bmMzXzE3ODI5ODA3MjI6MTc4Mjk4NDMyMl9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/ReconVLA 阅读总结/fig4_attention_compare.png)
 
 这两张图把文章的核心直觉讲得很清楚：
 
@@ -107,7 +107,7 @@ ReconVLA 不通过显式边界框直接监督注意力，而是通过“能否�
 
 ### 4.2 关键实验结果
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=M2EyYmZhMjg3MTY4Mjc4ZDMyMDhhMTMzZDRlY2NmZGVfSGhXZms5eGV3bXNKU1pEMDVROUVvcUo3OU44eThwNE5fVG9rZW46WTV6NmJTaHNYb3ZNRTh4a05VNmNiUUdZbkFlXzE3ODI5ODA3MjI6MTc4Mjk4NDMyMl9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/ReconVLA 阅读总结/fig6_real_world_results.png)
 
 根据原文与配图，可以归纳出几组关键数字：
 
