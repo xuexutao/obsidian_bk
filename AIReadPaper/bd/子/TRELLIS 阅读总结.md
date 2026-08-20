@@ -20,6 +20,10 @@ TRELLIS 试图解决的核心问题，是 3D 生成长期缺乏一个**既能统
 
 TRELLIS 的动机因此非常明确：**先学习一种结构化统一 3D latent，再按需要解码成不同表示。** 这使它不仅是一个 text/image-to-3D 模型，更是一个朝“3D foundation representation”方向推进的工作。
 
+下图是论文 Figure 4：TRELLIS 生成的高质量 3D 资产示例（Gaussian 与 Mesh 两种表示，来自文生/图生提示）。
+
+![](assets/TRELLIS 阅读总结/results_v2.png)
+
 ### 1.1 正式论文信息
 
 - **论文标题：** [Structured 3D Latents for Scalable and Versatile 3D Generation](https://arxiv.org/abs/2412.01506)
@@ -74,6 +78,10 @@ SLAT 不是一个纯稠密体素特征网格，也不是一个纯隐式全局 la
 ## 3. Pipeline / Architecture + I/O 数据流
 
 ### 3.1 总体流程总览
+
+下图是论文 Figure 2：方法总览，展示了 SLAT 编码（稀疏 3D 网格上的局部 latent）与两阶段生成（稀疏结构 + 局部 latent）以及多 decoder 解码的完整流程。
+
+![](assets/TRELLIS 阅读总结/pipeline_v3.png)
 
 TRELLIS 采用明确的**两阶段生成流程**：
 
@@ -212,6 +220,10 @@ TRELLIS 的统一性真正体现在 decoder 端。
 这说明 TRELLIS 的成功不只是因为模型大，更因为它提出了一个更合理的 3D 中间表示。
 
 ### 4.3 生成结果与基线比较
+
+下图是论文 Figure 5：TRELLIS 与先前方法的生成结果视觉对比（基于 AI 生成提示）。
+
+![](assets/TRELLIS 阅读总结/comparisons_v3.png)
 
 在 text-to-3D 与 image-to-3D 任务上，TRELLIS 对比多个强基线时总体体现出以下优势：
 

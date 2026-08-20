@@ -15,7 +15,7 @@
 
 这篇内容围绕 VLM³ 展开，核心观点是：很多 3D 任务里被默认“必须”的复杂设计——额外编码器、任务专用 head、多损失回归、重数据增强——未必是必要条件。作者试图证明，只要解决 **相机歧义**、**像素/区域引用方式** 和 **数据混合与扩展** 这三个关键点，标准视觉语言模型就能覆盖深度估计、像素对应、相机位姿估计、物体级 3D 理解等多类任务。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=Nzk2Mjk0M2YxNjY3ZDg0YzQzYTM5MzU1ODJlZmUzYzFfbGZvNWV5NGVoeHlpMnZuMndrdkFtWHYyUjFWQXhWb2dfVG9rZW46SVZRcGJXRzY4b2laRzV4OWxKYmNiVWNibkRjXzE3ODI5ODAxMjE6MTc4Mjk4MzcyMV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/VLM3 论文阅读总结/teaser.png)
 
 ---
 
@@ -40,7 +40,7 @@
 
 **核心方法论：** VLM³ 基本保持标准 VLM 架构不变，以 Qwen3-VL-4B 为基础模型，重点改的是 **输入对齐方式**、**坐标表达方式** 与 **训练样本组织方式**，而不是网络结构本身。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ODE0MmE0MzhkMDhiOGRkM2Q4YjYwMzU5NmY3MmRhYmVfWDVxbkxvdlJqMDJSVEcyWmtlcng5WFFzdHhqV3NVZ1RfVG9rZW46T3JDamJ3cWxub3JsWGd4ZGpJU2NSM3pqbldoXzE3ODI5ODAxMjE6MTc4Mjk4MzcyMV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/VLM3 论文阅读总结/pipeline.png)
 
 ### 3.1 核心 Pipeline
 
@@ -243,7 +243,7 @@ Pose / rotation: Describe the camera reorientation from the first viewpoint to t
 - 在当前数据量级下，小模型并非弱点，反而更不容易过拟合；
 - 扩大模型到 8B / 32B 或扩大到 64M samples，并没有继续提升深度结果。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=N2M1MzUwYWM1NjYxZWFiZjQ3MTEzYTI0YWU1Yjk0OTNfaFNvM2NKRzZHbXNlekVvbU9RcHJNMUQ0RndjTndYRXdfVG9rZW46QkZycGJsdTJ1b2dscjZ4Z3E2dmNmaDhobnhoXzE3ODI5ODAxMjE6MTc4Mjk4MzcyMV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/VLM3 论文阅读总结/visualizations.png)
 
 ### 4.6 值得警惕的限制 / 假设
 
