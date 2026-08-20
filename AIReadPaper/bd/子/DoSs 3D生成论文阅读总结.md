@@ -10,7 +10,7 @@
 
 从问题设定看，这篇论文主要面向 **unconditional 3D shape generation**。作者并没有直接去做 text-to-3D / image-to-3D，而是先在 ShapeNet 的 Chair / Airplane / Car 三类上验证：如果把表示换掉，能否在保持一定生成质量的前提下，大幅改善效率和可控性。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZDRjNjU5OTY4MGE3MjkxOTA1MTE0YWVjZWJhYjBhYzRfbFl4UG53Q1ZGeWFWUW5JdkRwNzBoVDNwM2dON0hKSHhfVG9rZW46WmZ6a2JSNUxJbzJzQVl4cXJEamNFVXIzbjdmXzE3ODI5ODA0NjU6MTc4Mjk4NDA2NV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/DoSs 3D生成论文阅读总结/teaser.png)
 
 这篇工作值得关注，原因主要有三点：
 
@@ -168,7 +168,7 @@
 
 同一组 superquadric token，可以解码成不同点数的点云，不需要重新跑 diffusion。这意味着生成和展示分辨率解耦。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZDUwZGUyMGE2ZDFiYjY4NWIzOTliMTAzMTI1NDkwZTdfUnNwQlZLSjQ0dEk3bjJKdUw1WnNVOTVKRFBYTnFUSnpfVG9rZW46TTI1ZGJVMEJZb0M1dkp4WTdUbWMwOUZjbnNnXzE3ODI5ODA0NjU6MTc4Mjk4NDA2NV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/DoSs 3D生成论文阅读总结/figure4_DoSs.png)
 
 从论文给出的例子看，DoSs 在椅子这种强结构对象上，往往能生成**更完整、更规整的部件布局**；但作者也很诚实地指出，这并不必然在 CD 指标上全面占优，因为点采样分布、平滑程度、局部细节都会影响 Chamfer Distance。
 

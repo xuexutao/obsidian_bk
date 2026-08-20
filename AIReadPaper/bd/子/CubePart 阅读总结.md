@@ -14,7 +14,7 @@
 
 **重要性评估：** ★★★★☆（4/5）
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YjRkNDdmNDZkNmY0OWM0NmU2OTZjNzdjMWMxZDg4MWVfM3BiU1NjNHJ0THJtQlBYVXhZMVQxZ3o4MWk5Y0d0TkxfVG9rZW46U3A2ZmJUb0d5b0xrSGx4VU5IQmNFUjVabjNkXzE3ODI5ODAyODI6MTc4Mjk4Mzg4Ml9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/CubePart 阅读总结/teaser.png)
 
 ## 2. 目标
 
@@ -79,7 +79,7 @@
 
 **一个关键理解：** CubePart 并不是先生成一个完整网格再做后处理切割，而是把“零件结构”前置进生成过程本身，因此输出天然更适合下游游戏逻辑消费。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=N2Y0ZTJmYTUwYTU0MmU3ZTk2OWQwY2NjMDgyNjJiMDJfR0pNbHlVUEJtZGhZR2dnNUVUdWY5cGx4bFhYRUxRdUFfVG9rZW46QjNHNmI0cldobzI4aFN4cVFMWWN0RFFhbm9nXzE3ODI5ODAyODI6MTc4Mjk4Mzg4Ml9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/CubePart 阅读总结/method.png)
 
 ### 3.3 关键模块细节
 
@@ -112,7 +112,7 @@ A jellyfish-themed race car. This object contains the following parts: car body,
 - 去掉 Cross-Part Attention 后，part-level F-score 从 **0.743** 下降到 **0.398**；
 - 若改用更直接修改预训练层的设计，效果也明显不如默认方案。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MmMyN2MxYjk2ZDRmMTgyMTViYjM3MDJjODExMzcxN2VfNGU1bmkxVGRRVEUxVDNJMDZYeFlWMDdYSDE5SGs5dzRfVG9rZW46RmR2V2JMVkdxb2FvUmZ4TkNpT2NDaER2bkVZXzE3ODI5ODAyODI6MTc4Mjk4Mzg4Ml9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+> 说明：Cross-Part Attention 模块结构图在 arXiv HTML 版为 SVG 矢量图（未提供 PNG），此处不再插入图片。
 
 ### 3.4 数据流水线
 
@@ -140,7 +140,7 @@ A jellyfish-themed race car. This object contains the following parts: car body,
 - 它试图把“几何碎片”提升到“语义零件”；
 - 它决定了模型最终是否真的理解开放词汇 schema，而不是只背固定分类词表。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MzdmM2YxN2QxNDcyNDA2NjhiNTFmYmI2NTJiZGZkYTBfYTlmdkVrM0ZBcEY5ZVBSQU9QNDFjWkFiQVl2d082Sk9fVG9rZW46S3hCR2JiTVZZb0tNQTN4THBRUGN0QjM5bm9nXzE3ODI5ODAyODI6MTc4Mjk4Mzg4Ml9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/CubePart 阅读总结/qualitative_comparison_data_processing.png)
 
 ### 3.5 实验与发现
 
@@ -156,7 +156,7 @@ A jellyfish-themed race car. This object contains the following parts: car body,
 - 机器人手臂、无人机螺旋桨、法杖与宝珠等部件都能按 part 级别绑定行为；
 - 说明输出结果不是“只适合展示的静态网格”，而是真能进入引擎交互闭环。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MTM2NjY0MjBjNWQ0ZGFmNGExM2Q3YjkwZDlkZGJhMDdfUm54TE5DMlZKZEZhTUFDTzh1N0lGelk0VnV4OU1WeDhfVG9rZW46Q2ZHRGJJSWZJbzROVE94alBEZWNDSjk3bjBjXzE3ODI5ODAyODI6MTc4Mjk4Mzg4Ml9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/CubePart 阅读总结/fig_behavior_v6.png)
 
 ## 4. 问题
 

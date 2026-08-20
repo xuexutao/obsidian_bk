@@ -11,7 +11,7 @@ Long video generation 一直有两个系统级瓶颈：
 
 论文原文指出：LongLive-2.0 是**首个面向长视频生成、贯穿训练与推理的 NVFP4 系统**，并在训练与推理上分别带来最高 **2.15x** 与 **1.84x** 的加速。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZmMzNWVjMzJiYjZiODIyMzFiNDVmMzM2ODE4N2RjZjJfZmRpNUd6TUhFcmxPbUk2RHFYbFF4MExaZ3BqT01lZEZfVG9rZW46SElyamIyRjdvb25BR0V4dDVZcGMwVzVSbmdyXzE3ODI5ODAyMTQ6MTc4Mjk4MzgxNF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LongLive-2.0 阅读总结/fig1-overall.png)
 
 上图对应论文总览：左侧是训练侧的 Balanced SP + NVFP4，右侧是推理侧的 W4A4 NVFP4、KV cache 量化与异步 VAE 解码。
 
@@ -52,7 +52,7 @@ Long video generation 一直有两个系统级瓶颈：
 - **输入侧**：不是简单地把整段长视频扔给单卡或粗暴切序列，而是把 clean history / noisy target 与 SP 布局共同设计。
 - **输出侧**：得到的是一个能支持**长视频、交互式、多镜头、可实时切换**的 AR diffusion generator，而不是只做离线高质量生成。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZTRlYjcxNTA5YzFhYjg3NmM1YTJlNjFlNGUxMGUxNDVfZjhacU1CZUxPOXQ2c2FNdWdZMzhGa011UGJGTFphV21fVG9rZW46R2dUVWJOS1pFb3JRdGN4TUY0a2NOZGFybmpjXzE3ODI5ODAyMTQ6MTc4Mjk4MzgxNF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LongLive-2.0 阅读总结/fig3-training-pipeline-v7.png)
 
 上图更清楚地展示了三部分：
 
@@ -76,7 +76,7 @@ LongLive-2.0 的主张是：**如果基础设施足够稳、数据质量足够�
 
 这种 pipeline 的价值不只是“少几步”，而是减少系统复杂度、降低调参链路长度，也更适合后续工程化迭代。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NjFhYTUxMTg3NmRiMTk1NzJjZTM3ZDIyOTMzMWU3OThfZVVtRnFOSHEzUnNpUk95UmRxZnBmNTF3T1ROVGcwWVdfVG9rZW46SlpjNmJ5dkd5b1B5c0p4WUoyU2NTRnlYbldkXzE3ODI5ODAyMTQ6MTc4Mjk4MzgxNF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LongLive-2.0 阅读总结/Fig-clean-pipeline.png)
 
 #### 2.3 推理侧：面向端到端吞吐而不是单点 FPS
 
@@ -92,7 +92,7 @@ LongLive-2.0 的主张是：**如果基础设施足够稳、数据质量足够�
 - **中间表示**：量化后的权重、激活、KV cache；
 - **输出**：按 chunk 连续生成并异步解码的视频帧流。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YWI4OTllZDYwNDI5ZTcwMjVhMzUxZDhjNzJhZTJhNzJfa2diMmlDV0V2WkpMeHNWUDJ6VzIyWHdCQ0RWcXRtUG1fVG9rZW46S1hDeGJ5SXVzb2ticmp4WVJ2UWMxMTZDblhlXzE3ODI5ODAyMTQ6MTc4Mjk4MzgxNF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+> 注：此处原图对应论文 Figure 5（NVFP4 推理基础设施），为 TikZ 矢量图，arXiv/ar5iv HTML 未导出为可下载图片，内容已由上表覆盖。
 
 推理侧还有一个细节值得记：论文没有只在 Blackwell GPU 上“秀硬件红利”。对于非 Blackwell GPU，它也提供了 **SP inference** 路线，去尽量逼近 Blackwell 上的速度表现。这一点说明作者考虑的是可迁移部署，而不只是单一硬件最优。
 
@@ -100,7 +100,7 @@ LongLive-2.0 的主张是：**如果基础设施足够稳、数据质量足够�
 
 文章里提到训练后可通过**独立 LoRA 权重**把 4-step 去噪切到 2-step 实时模式。论文中的 DMD 训练基础设施进一步说明了这一点：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=Nzg4NTU1ZTJjZDc2YjVmNzJkN2UxNTYxYzdhN2NhNGZfcmQ1cXhFOFR5QklBZUYxMTc0cmVnNjc4TGRmZVZPYUJfVG9rZW46QUFtdmJ4cVhxb3FoNHh4dXVlRGN1ZzBSbm5oXzE3ODI5ODAyMTQ6MTc4Mjk4MzgxNF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LongLive-2.0 阅读总结/nvfp4_dmd.png)
 
 这意味着：
 
