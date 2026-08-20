@@ -31,7 +31,7 @@
 
 VITRA 的核心是把原始长视频变成原子级 VLA 训练片段。整体流程如下：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZjI2NmIxOWFkNmM5NzdkMjY4ZTkwYjk3NWQ3MjZlMmFfTWdpTFRmWGtxSE5ENXUyWkw1eVJvYkZxVTE1YWVrc1RfVG9rZW46TjhtZ2JRWE9Nb0NIWWN4dHNPQmMwNXlobnhjXzE3ODI5ODA3NTA6MTc4Mjk4NDM1MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/VITRA 阅读总结/pipeline.png)
 
 **阶段 1：3D Motion Labeling**
 
@@ -60,7 +60,7 @@ VITRA 的核心是把原始长视频变成原子级 VLA 训练片段。整体流
 
 论文在数据之上设计了一个适配灵巧手操控的 VLA 模型：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=OGI1MWM2NTAxNGI5NzM5ZmU0YTc0Y2FkNDgxNzk5Y2JfSTZnVTl4dXdqSmxGSmw2dWZWaEZQb0lHSUdaN2NGTFRfVG9rZW46VTVlemJYdFU5b0hPSG94ZFNpZmNvTjRDbkVlXzE3ODI5ODA3NTA6MTc4Mjk4NDM1MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/VITRA 阅读总结/model.png)
 
 **模型输入：**
 
@@ -126,7 +126,13 @@ VITRA 的核心是把原始长视频变成原子级 VLA 训练片段。整体流
 - **Unseen tasks 平均成功率：** 提升到 **64.6%**；
 - 明显高于 VPP、π0、无 VLA 预训练、OXE 预训练等对比项。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YTkwNzFiMGE5N2FmYjMwNDMyMGJlNjI1MDhmOWVhY2RfMU12Tng3RG1XWlk0aVhjVFNueWhiMk9aUXVwa2I5ZVVfVG9rZW46VFV5WGJ3aklVb3N2ZEZ4ZlZnUmMyWDc0bmVkXzE3ODI5ODA3NTA6MTc4Mjk4NDM1MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/VITRA 阅读总结/robot_env_seen.png)
+
+*微调任务（seen）环境示例*
+
+![](assets/VITRA 阅读总结/robot_env_unseen.png)
+
+*未见物体/背景（unseen）环境示例*
 
 ### 4.4 Scaling 行为
 

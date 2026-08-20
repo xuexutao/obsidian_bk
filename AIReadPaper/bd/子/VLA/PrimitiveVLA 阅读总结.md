@@ -6,7 +6,7 @@ PrimitiveVLA 聚焦当前 **Vision-Language-Action（VLA）** 模型在落地到
 
 论文标题：**PrimitiveVLA: Learning Reusable Motion Primitives for Efficient and Generalizable Robotic Manipulation** 原始链接：[arXiv](https://arxiv.org/abs/2605.28634v1)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YzU5ZmRhZmViMDExYjM2NGUzYWYxOTJmZjhmZjQ0ODFfSmhiRUJIYmNiRUJENDgzMXZPRlFuRXlNNlVnajhnRkdfVG9rZW46SzEwMmJnWFR2bzFSSTd4U21rQWNqQlgwbkNiXzE3ODI5ODA5MTM6MTc4Mjk4NDUxM19WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/PrimitiveVLA 阅读总结/fig1-teaser.png)
 
 上图直观对比了两种范式：传统做法把多阶段任务视为一个整体，而 PrimitiveVLA 先把演示轨迹拆成可复用 primitive，再在推理时进行组合，从而支持未见任务和长程任务上的组合泛化。
 
@@ -61,6 +61,10 @@ PrimitiveVLA 聚焦当前 **Vision-Language-Action（VLA）** 模型在落地到
 
 #### 2.1 训练阶段：Primitive Disassembly
 
+下图为 primitive 自动拆解的可视化对比：PrimitiveVLA 结合 VLM 语义推理与确定性规则代码，相比纯视觉分解与直接 VLM 方法，能更精确稳定地切分出可复用 primitive。
+
+![](assets/PrimitiveVLA 阅读总结/fig4-segcompare.png)
+
 #### 2.2 推理阶段：Primitive Assembly
 
 |阶段|输入|关键处理|输出|
@@ -105,13 +109,17 @@ PrimitiveVLA 聚焦当前 **Vision-Language-Action（VLA）** 模型在落地到
 - 在 **Libero-Long** 长时序任务上：
     - `π0.5` 从 **30.50%** 提升到 **80.25%**，是非常亮眼的结果。
 
+下图为 OOD 任务“把右边的碗拿起来放进托盘”上的泛化执行示例。
+
+![](assets/PrimitiveVLA 阅读总结/fig7-gen.png)
+
 #### 3.3 消融结论
 
 - **MCR 更主导 OOD 泛化**：OFT 在 Novel 上由 13.50% 提升到 60.00%。
 - **Primitive Disassembly 更主导长程稳定性**：OFT 在 Long 上由 3.75% 提升到 52.30%。
 - 两者结合后，最终达到 71.00%（Novel）和 66.50%（Long）的更强效果。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NDQzNDI0ZjJmYjk4MzJhZTQzZDMxNDkyOWU3YjkyYzVfOUtPVWpIdElmN25PSUEyWTJtNUY1Qld0ZjJ0MU0zSEhfVG9rZW46Qjk1NGJtSnB2b1N2dEh4MktzdGNKR1pEbkVlXzE3ODI5ODA5MTM6MTc4Mjk4NDUxM19WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/PrimitiveVLA 阅读总结/fig5-real.png)
 
 作者在 **UR5e + Robotiq 2F-85 + 双 RealSense L515 相机** 的真实系统上验证：
 

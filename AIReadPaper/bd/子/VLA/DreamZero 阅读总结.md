@@ -6,7 +6,7 @@
 
 从原文可确认的信息看，这篇工作由 NVIDIA 团队提出，arXiv 编号为 `2602.15922`，同时提供了[项目页](https://dreamzero0.github.io/)、[代码仓库](https://github.com/dreamzero0/dreamzero)与模型/数据入口。它值得纳入技术视野，原因是它把 **视频扩散模型、世界模型、VLA、跨 embodiment 迁移、实时机器人控制** 这些原本相对分散的线索，收敛到一个统一框架里。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=Y2MyMDkzNTViZjcwZDgyMzI1YjI5ZDkwMGVlODcyYjZfUlFxT3pTTkQyTUlkdUp3Ymo3ZnpmNHh3TDlNTjFkYXlfVG9rZW46Q0J0YmJVQjR4b1hPMk54V3dySmNzbDlQbkRmXzE3ODI5ODA3NzA6MTc4Mjk4NDM3MF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/DreamZero 阅读总结/fig1-overview.png)
 
 ## 目标
 
@@ -59,6 +59,10 @@ DreamZero 可以概括成一个 **World Action Model (WAM)**：
 - **多视角输入：** 多相机画面被拼成 composite video frame，而不是重写视频 backbone。
 - **闭环推理：** 每执行一个 action chunk，就把真实观察重新写回 cache，避免长期依赖自己生成的视频。
 
+论文 Figure 4（模型架构）直观展示了视觉上下文（VAE 编码）、语言指令、本体状态三路输入经自回归 DiT backbone 联合预测未来视频与动作的完整数据流：
+
+![](assets/DreamZero 阅读总结/fig4-model.png)
+
 ### 3. DreamZero-Flash 与实时部署
 
 文章还介绍了 **DreamZero-Flash**，其关键点是将 **video noise schedule** 与 **action noise schedule** 解耦，让动作头学会在较 noisy 的视觉上下文中依旧输出可执行动作。
@@ -76,7 +80,7 @@ DreamZero 可以概括成一个 **World Action Model (WAM)**：
 
 **我认为最值得记住的实验结论：** DreamZero 的收益不只是“视频预测辅助动作”，而是证明了**未来视觉状态可以成为零样本机器人策略的核心中间变量**。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=N2QwMzI0N2VlM2QxZWU4NmRkMjQyYzc1NzNlZDBhZDdfdXg0cVhMMndZWXlMbWlLb3lTektBTFpLYk0wT3lVNTJfVG9rZW46Uk9QSGJxR0h0b1B4Qzl4T1BDaWM4UzdqbkhjXzE3ODI5ODA3NzA6MTc4Mjk4NDM3MF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/DreamZero 阅读总结/fig11-embodiment-transfer.png)
 
 ### 5. 重要性评估
 
