@@ -15,7 +15,7 @@
 3. 它把 Sparse 3D VQ-VAE 引入到这条链路中，把 3D token 冗余压掉约 **70%**，实打实地解决了复杂机械结构下的上下文长度和显存瓶颈。
 4. 对我们现有技术视野而言，它位于 **3D 资产生成** 与 **具身仿真数据构建** 的交叉点，属于非常值得长期跟踪的一类基础设施型工作。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZWFmOTA5ODliZWVhZThjYjk2YzMxYTk3YmY1YTdhMWJfdk1qNWFlaDNPdnlwMjJRelBqSFRlMzRYNWFidGZUc0FfVG9rZW46SU1VTGJjRjV2b1lmVGh4VjNvRmM4bEFhbjVmXzE3ODI5ODA0Nzk6MTc4Mjk4NDA3OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/SIMART 阅读总结/figure1_overview.png)
 
 ## 2. 文章主线 / 论文线索
 
@@ -84,7 +84,7 @@ SIMART 的差异点在于：
     1. 论文主文报告 token 冗余降低约 **70%**。
     2. 这使得复杂多部件对象可以进入 MLLM 统一推理，而不是在 token 长度阶段就被卡死。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NGVlNDJhZTIxMWRlMGZhZTA4YTRiZWM1ODA1NDI1NzNfTWNWNmlvaEdJQUFFTEV1eXZhd0FKSmNTMkozOWlsZVRfVG9rZW46V2tKNWJsRkRrb3FBaTV4aW40MWNnR3VVbnRlXzE3ODI5ODA0Nzk6MTc4Mjk4NDA3OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/SIMART 阅读总结/figure3_sparse_vae.png)
 
 #### 模块 B：统一 MLLM Backbone
 
@@ -121,7 +121,7 @@ MLLM 输出后，系统会做两类后处理：
 
 这意味着它的最终结果不是“看起来像抽屉柜的一个整体 mesh”，而是“一个能被 simulator 正确打开抽屉、旋转柜门、承载惯性参数的功能资产”。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=Y2RkZDg1Yzk0ZGM2ZWQ1ZDZmOTc2Y2JmOWM2YzYyNTNfSFNxR0c0SFMyUjY3RDRGZWV2Q09nUnNwczBueWhFZWVfVG9rZW46SkttZmJ4SndQb1R1YXN4WFRSQ2NIZnIwbjFjXzE3ODI5ODA0Nzk6MTc4Mjk4NDA3OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/SIMART 阅读总结/figure2_pipeline.png)
 
 ### 3.4 需要特别注意的 I/O 细节
 
@@ -176,7 +176,7 @@ MLLM 输出后，系统会做两类后处理：
 
 这说明它不是只会在熟悉分布上 work，而是真的在新拓扑、AIGC 生成对象上保持了结构理解能力。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=OGFmMGFmNDk2NjFmOGUwNDAzOWIwMWZjNTgwMDk3MGRfTzVHbGxDdG5EQTdEbjVVUWN5RWRNRkJ6YjVaSGRmV2hfVG9rZW46Tndpd2JZaDY3b3pmRFF4N29BSmNVNGFCblNnXzE3ODI5ODA0Nzk6MTc4Mjk4NDA3OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/SIMART 阅读总结/figure4_qualitative.png)
 
 ### 4.3 Part Grounding 结果
 
@@ -190,7 +190,7 @@ MLLM 输出后，系统会做两类后处理：
 
 这个结果说明，SIMART 的 coordinate-aware sparse token 设计，确实让语言描述和 3D 空间位置之间建立了更稳的对齐关系。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZGI3ZTZjZTQ3ZTI4NzM1ZGZjNmVkYjVmZTI2OGQ5MTNfTE1xUTM2ckJNcmcyQ2lEZlJSZnNiQTA4UEVIR3ZaZXZfVG9rZW46R0x4QWI1V3dLbzRGU1l4QnY1YmNFUkhKblZlXzE3ODI5ODA0Nzk6MTc4Mjk4NDA3OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/SIMART 阅读总结/figure5_part_grounding.png)
 
 ### 4.4 Ablation：为什么 sparse token 真的重要
 
@@ -223,7 +223,7 @@ MLLM 输出后，系统会做两类后处理：
 - **斜轴/复杂关节仍可能更难**：附录讨论里提到，对非正交运动轴的精确回归仍然具有挑战性。
 - **主文与附录的 token 化描述存在细节落差**：说明当前论文在工程实现透明度上还有补充空间。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZWU5NjUwODMzMWJmZmQyNjE5Mjg5YzM4MjhhNGExMzZfMXg0UDU2YTB0ZWh6b3lWNVNtTzJzMDg4bWR1UEQzZkZfVG9rZW46SWJUMGJnbWFqb3JhRWx4SW9mTGNIYTZXbmtiXzE3ODI5ODA0Nzk6MTc4Mjk4NDA3OV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/SIMART 阅读总结/figure6_applications.png)
 
 ## 5. 个人评注 / 下一步
 
