@@ -1,14 +1,23 @@
+# Paper Index
+
 ## 文档定位
 
-这是一个面向**技术情报持续沉淀**的工作文档，服务于“旭涛的技术视野”长期积累。每条新任务原则上对应一行记录：先读源链接，再生成阅读总结飞书文档，最后归档到所属领域表格。
+这是 `AIReadPaper/` 的唯一论文登记总表，服务于“旭涛的技术视野”长期积累。任何准备写入 `AIReadPaper/` 的论文，都必须先在本文件注册，再创建或更新阅读笔记；不得先写笔记、后补索引。
+
+## 强制写入顺序
+
+1. **先查重**：按论文正式名称、论文短名、arXiv 链接和现有 Obsidian 内链检查是否已登记。
+2. **先注册**：在对应领域表格新增一行。初始阶段允许将“文章简要总结”写为“待完成”，但必须预先确定阅读笔记名称，并在“阅读总结链接”中填写 `[[笔记名]]`。
+3. **再写笔记**：按照 `AIReadPaper/README.md` 的目录、命名、正文结构、公式和附件规范创建内容。
+4. **最后回填**：完成笔记后，将“待完成”替换为包含 ★ 评级的最终摘要，并确认 Obsidian 内链可以解析。
 
 ## 使用约定
 
-1. **一条任务 = 一行记录**。
+1. **一篇论文 = 一行记录**；同一来源涉及多篇论文时，每篇论文分别注册。
 2. **优先按技术主题归档**，而不是按文章来源归档。
-3. 每行固定保留以下字段：时间、文章题目、论文名称、文章简要总结、原始链接、阅读总结飞书文档。
-4. 若一篇内容涉及多篇论文，优先选择**主论文**入主表；其余论文在阅读总结文档中展开。
-5. 若暂时无法判断领域，先放入“待分类”表，后续再迁移。
+3. 每行固定保留以下字段：时间、文章题目、论文名称、文章简要总结、原始链接、阅读总结链接。
+4. 若暂时无法判断领域，先放入“待分类”表，后续再迁移。
+5. 已登记的论文不得通过新建近似文件名重复写入；需要补充时优先更新原笔记。
 
 ---
 
@@ -36,19 +45,19 @@
 
 ## VLM
 
-| 时间         | 文章题目              | 论文名称                                                | 文章简要总结                                                                                                                              | 原始链接                                     | 阅读总结飞书文档                                                                  |
+| 时间         | 文章题目              | 论文名称                                                | 文章简要总结                                                                                                                              | 原始链接                                     | 阅读总结链接                                                                  |
 | ---------- | ----------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------- |
 | 2026-06-05 | VLM3：VLM是天生的3D学习者 | VLM3: Vision Language Models Are Native 3D Learners | 文章围绕 VLM³ 展开，核心创新是用焦距统一、归一化文本坐标与数据重配比，把标准 VLM 扩展到深度估计、像素对应、相机位姿和物体级 3D 理解等多类任务。它代表 3D 学习正从任务专用结构走向统一 VLM 接口，是值得重点跟踪的多模态几何主线工作。★★★★☆ | [原文链接](http://xhslink.com/o/2GFNszlIdR2) | [阅读总结](https://bytedance.larkoffice.com/docx/PwOCdto79oed9RxsSlqcPUoSnYd) |
 
 ## 视频生成
 
-|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结飞书文档|
+|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结链接|
 |---|---|---|---|---|---|
 |2026-05-28|英伟达 LongLive-2.0 论文精读：NVFP4 并行架构如何让长视频生成训练快 2.15 倍|LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation|文章围绕 LongLive-2.0 展开，重点解释其如何用 Balanced SP 与 NVFP4 打通长视频生成的训练和推理基础设施，并以 2.15x 训练加速、1.84x 推理加速与 45.7 FPS 证明实时交互长视频生成开始具备工程可行性。该工作代表低精度从推理走向训练、视频生成从模型竞争走向系统协同优化，值得持续跟踪。 ★★★★☆|[原文链接](https://mp.weixin.qq.com/s/4XDyEEOKsXY3ox32FPlBpQ)|[LongLive-2.0 阅读总结](https://bytedance.larkoffice.com/docx/WgRsdAXeUoF8CmxmM1FcVOoAnTc)|
 
 ## 3D生成
 
-|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结飞书文档|
+|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结链接|
 |---|---|---|---|---|---|
 |2026-05-28|开源 \| 单图生成带物理约束的3D模型，支持刚/柔/关节体、可拆分、无需人工绑定骨骼与蒙皮|PhysX-Omni|文章围绕 PhysX-Omni 展开，核心创新是把单图 3D 生成提升为仿真就绪资产生成：统一支持刚体、柔体和关节体，提出 Template-based RLE 几何表示，并配套构建 PhysXVerse 数据集与 PhysX-Bench 评测。重要性评估：★★★★☆（4/5），因为它直接命中机器人仿真资产自动化这一高价值问题，但真实工业鲁棒性仍需继续观察。|[原文链接](https://mp.weixin.qq.com/s/ihGHuVWO-XkXupE-dKCtIQ)|[阅读总结](https://bytedance.larkoffice.com/docx/GcKpdtYx5o8rJSxsSsEcsPbknng)|
 |2026-05-29|Roblox 悄悄做了件大事：开源3D 资产生成，终于可以“按零件清单”定制了！|CubePart: An Open-Vocabulary Part-Controllable 3D Generator|文章围绕 CubePart 展开，核心价值是把开放词汇 schema 直接变成 3D 多部件生成的控制接口，使输出资产能按零件名与引擎脚本对齐并直接驱动行为。它同时补齐了大规模开放词汇部件数据流水线，代表 3D 生成从“生成形状”走向“生成可用资产”的重要一步。重要性评估：★★★★☆（4/5）。|[原文链接](https://mp.weixin.qq.com/s/YvscqEVimQEWDp1_p1N2Sg)|[阅读总结](https://bytedance.larkoffice.com/docx/XZWXdQ899ouKaXxWFZVcfywtn4g)|
@@ -65,13 +74,13 @@
 
 ## 三维重建
 
-|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结飞书文档|
+|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结链接|
 |---|---|---|---|---|---|
 |2026-06-06|D4RT：统一、高效的动态4D场景重建新范式|Efficiently Reconstructing Dynamic Scenes One D4RT at a Time|文章围绕 D4RT 展开，核心创新是把动态 4D 重建统一成对全局场景表示的查询接口，用一个轻量解码器同时完成深度、点云、3D 轨迹与相机参数估计，并在多个基准上实现 SOTA 精度与数量级效率提升。它代表动态三维重建正从多头、多模块管线走向统一几何表示与按需解码，是非常值得重点跟踪的主线工作。★★★★★|[知乎专栏原文](https://zhuanlan.zhihu.com/p/1982152380603712066?share_code=1k9Vwc6h4yl45&utm_psn=2046581540344292113)|[D4RT 论文阅读总结](https://bytedance.larkoffice.com/docx/YyE0dQfAJoIGSQxRvlFcxwcOnNm)|
 
 ## 世界模型
 
-|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结飞书文档|
+|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结链接|
 |---|---|---|---|---|---|
 |2026-06-05|图文速览\|VWM综述解读：视觉世界模型|From Seeing to Knowing the World: A Survey of Vision World Models|文章围绕视觉世界模型综述展开，系统梳理 VWM 的统一定义、四大架构家族与评测体系，并明确区分“好看的视频生成”和“真正可用于理解与决策的世界建模”。它非常适合作为后续持续跟踪 world model、VLA 与 4D 世界仿真论文的坐标系。★★★★☆|[原文链接](https://mp.weixin.qq.com/s/y5FQApHEMvhTpjAWa8gXtw)|[阅读总结](https://bytedance.larkoffice.com/docx/GVBsdKBgvoEBcYxZ5XMcWSu3n2b)|
 |2026-05-28|DreamDojo：基于大规模人类视频的通用机器人世界模型|DreamDojo: A Generalist Robot World Model from Large-Scale Human Videos|文章围绕 DreamDojo 展开，重点说明如何用 4.47 万小时第一人称人类视频与连续隐式动作预训练通用机器人世界模型，并通过后训练与蒸馏实现强 OOD 泛化和实时交互。该工作同时打通策略评估、模型规划与遥操作闭环，是世界模型方向的高价值主线论文。 ★★★★★|[原文链接](https://mp.weixin.qq.com/s/ok-WWqM80ckW8HDDqEFmjw)|[DreamDojo 阅读总结](https://bytedance.larkoffice.com/docx/GUVpdRIJlo6pCIxAZH2cKwOKnze)|
@@ -81,7 +90,7 @@
 
 ## VLA
 
-|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结飞书文档|
+|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结链接|
 |---|---|---|---|---|---|
 |2026-05-28|AAAI 2026杰出论文奖 \| ReconVLA：具身智能研究首次获得AI顶级会议最佳论文奖|ReconVLA: Reconstructive Vision-Language-Action Model as Effective Robot Perceiver|文章围绕 ReconVLA 这一 VLA 新范式展开，用目标区域重建替代显式 grounding，解释其如何提升机器人对任务目标的隐式对齐与长时序操作成功率。该工作兼具方法启发性与方向标志性，值得纳入具身智能主线持续跟踪。 ★★★★★|[原文链接](https://mp.weixin.qq.com/s/ybCbRhy3GqoLHGtV7rokng)|[阅读总结](https://bytedance.larkoffice.com/docx/IeUNdjEdYoj8RQxbIMccDZDDnjd)|
 |2026-05-28|利用大量真实人类活动视频来进行可扩展的 VLA 预训练|Scalable Vision-Language-Action Model Pretraining for Robotic Manipulation with Real-Life Human Activity Videos|文章围绕 VITRA 展开，重点说明如何把无标注真实人类活动视频自动转成与机器人操控对齐的 VLA 预训练数据，并验证其能显著提升真实机器人在 seen / unseen 场景中的泛化能力。该工作兼具数据范式与模型方法价值，值得作为 VLA 预训练主线重点跟踪。 ★★★★★|[原文链接](https://mp.weixin.qq.com/s/mA2FDEyl-aj7UWzgpyFjlg)|[阅读总结](https://bytedance.larkoffice.com/docx/ZPtBdaOk2o7Vptxy6eYc8OmRneg)|
@@ -93,7 +102,7 @@
 
 ## 基础模块
 
-|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结飞书文档|
+|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结链接|
 |---|---|---|---|---|---|
 |2026-05-28|CVPR2026 最佳论文候选！清华阿里提出ViT³ 本文第一...|ViT³: Unlocking Test-Time Training in Vision|系统梳理视觉 TTT 的设计空间，并提出线性复杂度的 ViT³ 基线，在分类、检测、分割、生成等任务上验证有效，适合用来建立视觉 TTT 方法版图。⭐⭐⭐⭐☆|[原始链接](http://xhslink.com/o/5YCCXMdtTwB)|[阅读总结](https://bytedance.larkoffice.com/docx/NUp0dfsBHobNrXx18LTc4RTfnu7)|
 |2026-06-06|CoSMo3D：用规范空间建模开放世界 3D 部件分割|CoSMo3D: Open-World Promptable 3D Semantic Part Segmentation through LLM-Guided Canonical Spatial Modeling|论文提出 CoSMo3D，用 LLM 引导的跨类别 canonical dataset 与训练期 canonical branch，把“部件语义 = 几何 + 规范空间位置”显式注入 3D 表征，在多套开放世界 3D 部件分割基准上稳定优于 Find3D 等方法。对构建更稳健的 3D 语义理解底座很有启发。重要性评估：★★★★☆（4/5）。|[arXiv](https://arxiv.org/pdf/2603.01205)|[阅读总结](https://bytedance.larkoffice.com/docx/UH5odhZ32oi96wxwxW4cdvzvnvd)|
@@ -108,7 +117,7 @@
 
 ## 待分类
 
-|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结飞书文档|
+|时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结链接|
 |---|---|---|---|---|---|
 |待补充|待补充|待补充|待补充|待补充|待补充|
 
@@ -116,13 +125,13 @@
 
 ## 后续自动追加流程
 
-后续 Skill 的目标流程：收到一个微信公众号 / 小红书 / X 链接后，先抽取正文与候选论文，再产出一篇阅读总结飞书文档，最后把该任务作为一行插入到所属领域表格。
+后续任何 Skill 或 Agent 收到论文、论文 PDF、arXiv、项目页、微信公众号、小红书或其他论文线索后，都必须遵守“先注册、后写入”的顺序。
 
-**建议执行顺序：**
+**强制执行顺序：**
 
-1. 输入一个外部链接。
-2. 识别文章来源与正文可提取方式。
-3. 提取文章中的论文名称、项目名称、代码仓库或方法线索。
-4. 生成一篇新的阅读总结飞书文档，沉淀核心方法、Pipeline、I/O、实验发现与评注。
-5. 识别所属领域。
-6. 将结果追加到对应表格。
+1. 提取论文正式名称、论文短名、原始链接和所属领域。
+2. 在本索引中按正式名称、短名、链接和现有内链查重。
+3. 未登记时，先在对应领域表格新增占位行；已登记时，复用原记录和原笔记。
+4. 按 `AIReadPaper/README.md` 规定的路径和命名创建或更新阅读笔记。
+5. 完成正文、公式与配图后，回填文章简要总结、★ 评级和阅读总结内链。
+6. 检查索引内链、正文图片和相对附件路径均可正常解析。
