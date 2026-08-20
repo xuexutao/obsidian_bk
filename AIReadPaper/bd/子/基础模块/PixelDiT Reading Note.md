@@ -44,6 +44,10 @@ For text-to-image generation, the condition changes slightly:
 - the patch-level pathway is upgraded to **MM-DiT blocks** to fuse image and text semantics;
 - the pixel-level pathway itself does **not** directly consume text tokens, and is instead conditioned through semantic tokens coming from the patch pathway.
 
+论文 Figure 6（T2I 架构：patch-level pathway 采用 MM-DiT blocks 融合图像与文本语义）：
+
+![](assets/PixelDiT Reading Note/t2i-arch.png)
+
 ### 4.2 Patch-level pathway: learn global semantics cheaply
 
 The noised image is first split into non-overlapping $$p \times p$$ patches. In the default large ImageNet setup, the paper uses **patch size** $$p=16$$. These patches are projected into a hidden dimension $$$$ to form a short sequence of **semantic tokens**.
@@ -73,7 +77,7 @@ That means the data flow is:
 
 This is the mechanism that lets global semantics guide local texture formation without flattening all fine structure.
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=OWM0NmM2YjRjY2UwYzM5Njg0YTY0YjI2ZmIyODc5MzNfczdvMXFtQ2k5Qjg4aVhiQzVuRVFDU3h2RmJ6azcydjBfVG9rZW46R3U4bGJ6Zk5ub3FLUFd4UGUwcmNzaWx2bmhnXzE3ODI5ODE0NzU6MTc4Mjk4NTA3NV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/PixelDiT Reading Note/pixeladaln.png)
 
 ### 4.5 Pixel token compaction: keep attention affordable
 
@@ -87,7 +91,7 @@ This reduces attention sequence length from $$H \times $$ to $$L=(H/p)(W/p$$. Wi
 
 ### 4.6 Full pipeline summary
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=M2RlMzFmZDkyZTYzMjg1OGVmZTFlMTg3ZGIzNjczZjRfTzVydVRrTWlKR2hBdEtveGlEWVlrRGgyRDhHbldvYUpfVG9rZW46R3diUGJ6VGRRb0lLZEh4YVVRT2NwUDJKbndjXzE3ODI5ODE0NzU6MTc4Mjk4NTA3NV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/PixelDiT Reading Note/fig1-overview.png)
 
 From an I/O perspective, the full pipeline can be summarized as:
 
@@ -237,7 +241,7 @@ This is not a free lunch. The hidden tax is still **compute and memory pressure*
 
 The paper’s editing comparison is genuinely persuasive because it shows an error mode that many latent models struggle with: preserving tiny scene text during local edits.
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YmJkOGY2YmZlOGEwZjY1MGIwMzM4ODExMzYzZmVkNTBfTzc2dnRiNnNsVFp1N002S1Fnb2JadHY0cDhpZURJVWJfVG9rZW46TFRxaGIwa0tob3h3aFl4NlJRQWN6YlljbmZmXzE3ODI5ODE0NzU6MTc4Mjk4NTA3NV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/PixelDiT Reading Note/editing-comparison.png)
 
 This figure is useful because it ties the paper’s architectural claim to a visible mechanism-level consequence: **if the VAE already destroys fine details, later diffusion cannot recover them reliably**.
 
