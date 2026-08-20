@@ -24,7 +24,7 @@
 
 为了更直观看这篇工作的任务定义与覆盖范围，可以先看原始文章中的总览图：它把 **数据集 / 基准 / 模型主体 / 刚体-柔体-关节体三类资产 / 下游机器人策略学习与场景生成** 串在了一起，适合作为“这篇工作到底在解决什么”的入口图。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=Yjg3OGI1MjlhYjQ5OGNjYzBjOTBhMjA1ZWQ2MDJjZWNfUGlSOExaUFlrTmo1VlFkM01EdVlsZ0Y1TTI5Z2ZNSjBfVG9rZW46V3JlbmJyQ3Vtb3FTdTZ4Mkd1WGNTQ3E5bk5jXzE3ODI5ODAyNTA6MTc4Mjk4Mzg1MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/PhysX-Omni 阅读总结/teaser2.png)
 
 图示来源：原始文章配图，对应项目页总览示意 [PhysX-Omni Project](https://physx-omni.github.io/)
 
@@ -92,7 +92,7 @@
 
 下面这张图最适合放在 Pipeline / Architecture 段落，它把 **Round 1 整体理解** 与 **Round 2~n 部件级几何生成** 的双阶段流程，以及最终导出 **URDF / XML** 的 I/O 关系画得非常清楚。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NDMxOThkYjZlNWRmZTE2Zjk5MTdjMDRjZDZiM2NjMzJfb1FPbnI2bkhWZDdFUDRGdUc1NFI1QWhvenpqbk9ZbVdfVG9rZW46TUF0QWI3T0hEb3NWTDZ4MXBLWGNEN1N5bkYwXzE3ODI5ODAyNTA6MTc4Mjk4Mzg1MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/PhysX-Omni 阅读总结/framework.png)
 
 图示来源：原始文章配图，对应项目页框架图 [PhysX-Omni Project](https://physx-omni.github.io/)
 
@@ -113,11 +113,11 @@
 
 为了让实验结论更直观，这里补两张原始文章里的关键图：第一张是多方法定性对比，能直接看到 PhysX-Omni 在复杂结构和物理属性预测上的优势；第二张是 PhysX-Bench 评测维度示意，补足“它到底是怎么评”的感知。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YWRhODhmN2VhZWU2OGQ2OTQ1OTQ5Njg0MjM4MWY5ZGZfa1NpSG1pS0ZVYmxCNHY2SzVpZzVBdGFjVlFiQkFLdVRfVG9rZW46QWlvQWJiMmxZb1ZGMk14d3BORGNBTFdZbkRlXzE3ODI5ODAyNTA6MTc4Mjk4Mzg1MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/PhysX-Omni 阅读总结/qualitative_other1.png)
 
 图示来源：原始文章配图，对应项目页定性对比图 [PhysX-Omni Project](https://physx-omni.github.io/)
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YWMzYWQyNGY5ZDRkMTE2MTFhODY3ODEyY2NlZTM5ZGRfdlJNUGx0a0dxdjBqOEN5WVFRUGVjdmM5MmNDbDV2MGpfVG9rZW46TktoVGJUU1h2b2lkeUl4SjhUUWNVVnVEbnhnXzE3ODI5ODAyNTA6MTc4Mjk4Mzg1MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/PhysX-Omni 阅读总结/physx-bench.png)
 
 图示来源：原始文章配图，对应项目页评测基准图 [PhysX-Omni Project](https://physx-omni.github.io/)
 

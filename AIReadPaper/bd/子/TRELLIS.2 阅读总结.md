@@ -38,7 +38,7 @@
 
 ### Pipeline / Architecture + I/O 数据流
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ODA0ZjZkMmQ1ZjUzNGI4NTJhMDQ1Y2MxNWU2ODY2YjJfTURlTnJFN2VoYzZBYnB3bGZFUHNuZ0t4TDlrT0VCODRfVG9rZW46WXhrS2JNZFNTb1lSd0h4Skg1d2NRSFNRbkhiXzE3ODI5ODAyOTY6MTc4Mjk4Mzg5Nl9WNA&add_watermark=true&scene_type=CCM)
+![](assets/TRELLIS.2 阅读总结/overview_v5.png)
 
 结合论文摘要、项目页与公众号解读，可以将其主流程梳理为：
 
@@ -49,6 +49,9 @@
     1. 论文提出 **O-Voxel（Omni-Voxel）**；
     2. 它不是只存 occupancy 的普通稀疏体素，而是统一编码**几何信息**与**外观/PBR 属性**；
     3. 项目页进一步说明其可覆盖 **Base Color、Metallic、Roughness、Alpha** 等表面属性，并强调可处理 **open surface / non-manifold / internal structure**。
+
+    > 论文图 3：O-Voxel 表示示意，统一编码几何与 PBR 材质属性。
+    > ![](assets/TRELLIS.2 阅读总结/representation.png)
 3. **压缩编码层：O-Voxel → Structured Latent**
     1. 使用 **SC-VAE** 对稀疏体素数据进行压缩；
     2. 项目页给出的明确信号是 **16× spatial compression**，并在 1024³ 分辨率下压到约 **9.6K latent tokens**；
