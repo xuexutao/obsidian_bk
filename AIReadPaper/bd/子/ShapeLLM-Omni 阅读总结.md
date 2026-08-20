@@ -10,7 +10,7 @@
 
 这篇工作试图解决一个很关键的问题：**现有 MLLM 大多能处理文本、图像、视频，但 3D 仍然常常被当成外挂模态或单任务模块，而不是原生生成/理解对象。** 作者希望像 ChatGPT-4o 处理图像那样，把 3D 也变成可以被统一 token 化、统一建模、统一对话的对象。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MWUyMTI3OGU2M2UxNzc5NDU1MzdmZDdiYzg3YjVmZGRfZnhjTDBkVlVVdzFVamVjNmpBOUJtSll4TUJjZnFjM0NfVG9rZW46Wkt1OWI2U0hCb2NMaEJ4N0xRa2N6UWdVbjZiXzE3ODI5ODAzOTE6MTc4Mjk4Mzk5MV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/ShapeLLM-Omni 阅读总结/head.png)
 
 为什么值得关注：
 
@@ -93,7 +93,7 @@
 
 这一步是整篇论文最关键的技术枢纽，因为它决定了 3D 是否真的能被当作“语言模型可消费的序列”。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MjQzZTIxYmY1MDg1ZmQwY2M1Yjk3YzJmYTM5ZDZiNzNfbWJvRzF2YU9aanNrWHRBSXY5bWZRUVVPSXdUWU8xSUtfVG9rZW46UEo1ZWJQUjJsb3Jxc3d4RmJhaWNTRmFyblljXzE3ODI5ODAzOTE6MTc4Mjk4Mzk5MV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/ShapeLLM-Omni 阅读总结/vqvae2.png)
 
 ### 3.4 主模型结构
 
@@ -164,7 +164,7 @@
 - 通过模板扩增后，3D 语料达到 **2.56M 样本 / 3.46B token**；
 - 为保留通用对话能力，还加入 **UltraChat** 文本对话数据。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MTM4MjZmOWRiZWRlYzJiMTRkZWQ5NmU3ODMwY2U0MTFfdEk0MTQ3bmFHeXpySng2WFNOdVhQM2VROFM1RExiVWJfVG9rZW46TGp4M2J3WmFBb3JCamN4QXN1T2NvV0pPbjdkXzE3ODI5ODAzOTE6MTc4Mjk4Mzk5MV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/ShapeLLM-Omni 阅读总结/data_v10.png)
 
 我认为这里最有价值的不是数据量本身，而是它把**理解、生成、编辑**这三件原本割裂的事情，放进了一个统一对话语料体系中。
 
@@ -221,7 +221,7 @@ ShapeLLM-Omni 主模型训练方面：
 - **仅次于 TRELLIS**；
 - 作者也很坦诚地解释了原因：TRELLIS 是 task-specific 的专门生成模型，而 ShapeLLM-Omni 是统一模型，要同时兼顾理解、生成、编辑、对话，所以存在 all-in-one trade-off。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NmExZDEwZjMxYzUwNDkzMjAzMTMwZTQ4YmYyOGY2MWVfQ2ZSclRrQ2ZZRzU0OENySnFlaGFyUWZoYWhwZ2dhUzZfVG9rZW46UjFveWJNSFN5b3NWUzZ4RnRjdmNFeHZmbmVOXzE3ODI5ODAzOTE6MTc4Mjk4Mzk5MV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/ShapeLLM-Omni 阅读总结/results.png)
 
 这个结果我认为很关键：它说明“统一模型”虽然尚未成为单项最强，但已经不是概念验证，而是真能在生成质量上打到接近专用强基线的水平。
 
@@ -254,7 +254,7 @@ ShapeLLM-Omni 主模型训练方面：
 - 给装饰体加翅膀
 - 给角色长出尾巴
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ODIzM2Q5NjYxY2JlZTU3NmM4NzY0YjQ4NzRlNzM2ODZfbzJ5OGt5eFRlME13aHRRUnY4Qmthc3d5cldyMFN5T2hfVG9rZW46UFJSdGJJUXFHb295VFJ4UUhyUmNzcE5rbmdjXzE3ODI5ODAzOTE6MTc4Mjk4Mzk5MV9WNA&add_watermark=true&scene_type=CCM)
+![](assets/ShapeLLM-Omni 阅读总结/edit.png)
 
 这件事的重要性在于：它比纯生成更接近真实内容生产工作流。实际 3D 创作里，大量需求不是“从零开始生一个”，而是“基于现有资产改一版”。
 
