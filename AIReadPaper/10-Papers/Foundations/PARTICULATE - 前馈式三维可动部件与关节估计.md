@@ -80,7 +80,7 @@ Particulate 提出首个端到端前馈模型，能在约 10 秒内、单次前�
 | $\mathcal{P}=\{\mathbf{p}_i\}_{i=1}^{N}$ | 从网格采样的点云，训练时 $N=2048$，推理时 $N=102400$ |
 | $\mathbf{n}_i, \mathbf{f}_i$ | 点 $i$ 的法向量与 PartField 语义特征 |
 | $P \in \mathbb{N}$ | 可动部件数量（未知，需模型推断） |
-| $S: [|F|] \to [P]$ | 面到部件的分割映射 |
+| $S: [\lvert F\rvert] \to [P]$ | 面到部件的分割映射 |
 | $K \subseteq [P]\times[P]$ | 运动学树：有向边 $(p,c)$ 表示部件 $c$ 的父部件是 $p$ |
 | $M$ | 运动约束五元组 $(M_{tp}, M_{pd}, M_{ra}, M_{pr}, M_{rr})$ |
 | $P_{\max}$ | 部件查询向量个数，取 16（远大于典型部件数） |
@@ -140,7 +140,7 @@ PAT 骨干是一组标准的 Transformer 注意力块，但论文在注意力拓
 - **棱柱方向头** $h_{pd}$ 与**旋转轴方向头** $h_{rd}$：输出向量后做 $L_2$ 归一化，落到单位球 $\mathbb{S}^2$ 上，以保证方向是合法单位向量。
 - **旋转轴位置头** $h_{cp}$：这是全文最精巧的设计。论文不直接回归轴上一点，而是让**属于该部件的每个点**投票预测自己到旋转轴的正交投影：
 
-$$\tilde{\mathbf{x}}_j^i = h_{cp}(\tilde{\mathbf{p}}_j, \tilde{\mathbf{q}}_i) = \arg\min_{\mathbf{x} \in \text{axis}} \lVert \mathbf{x} - \mathbf{p}_j \rVert_2$$
+$$\tilde{\mathbf{x}}_j^i = h_{cp}(\tilde{\mathbf{p}}_j, \tilde{\mathbf{q}}_i) = \operatorname*{arg\,min}_{\mathbf{x} \in \text{axis}} \lVert \mathbf{x} - \mathbf{p}_j \rVert_2$$
 
 即点 $j$ 预测"我如果绕着部件 $i$ 的轴转，圆心在哪里"；推理时对所有投票点按坐标取**中位数**作为轴位置。这种过参数化的直觉是：轴位置是一个"点云集体属性"而非"单点属性"，直接回归 3 个坐标容易对个别 outlier 过拟合；让上千个点各自投票再做中位数聚合，天然起到了去噪与防过拟合的作用。消融实验（3.5 对应 Table 4 配置 C）证实了这一设计的确有效。
 
@@ -171,7 +171,7 @@ $$\mathcal{L}_M = \mathcal{L}_{M_{tp}} + \mathcal{L}_{M_{pr}} + 0.1\,\mathcal{L}
 
 由于部件查询是无序的（第 $j$ 个查询不天然对应第 $j$ 个真值部件），训练时需先用**匈牙利匹配**把 $P$ 个真值部件一一对应到 $P_{\max}$ 个查询上，再按匹配结果对齐计算损失：
 
-$$\hat{\pi} = \arg\max_{\pi} \sum_{i=1}^{P} \sum_{j=1}^{N} \mathbf{S}_{j,i}\, \log \frac{\exp(\tilde{\mathbf{S}}_{j,\pi(i)})}{\sum_{k=1}^{P_{\max}} \exp(\tilde{\mathbf{S}}_{j,k})}$$
+$$\hat{\pi} = \operatorname*{arg\,max}_{\pi} \sum_{i=1}^{P} \sum_{j=1}^{N} \mathbf{S}_{j,i}\, \log \frac{\exp(\tilde{\mathbf{S}}_{j,\pi(i)})}{\sum_{k=1}^{P_{\max}} \exp(\tilde{\mathbf{S}}_{j,k})}$$
 
 这里 $\hat{\pi}: [P] \to [P_{\max}]$ 是单射，直观上是在"最大化真值部件被正确查询认领的对数似然"。匹配完成后，预测的列按 $\hat{\pi}$ 置换，再与真值对齐计算各损失。
 

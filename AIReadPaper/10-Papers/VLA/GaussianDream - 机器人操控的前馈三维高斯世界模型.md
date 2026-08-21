@@ -59,11 +59,11 @@
 
 | 阶段               | 输入                                                                                             | 中间表示 / 模块                                                                                            | 输出                                                                      |
 | ---------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| 基础策略输入           | 当前观测 $$\mathbf{o}_t$$、语言指令 $$\mathbf{l}$$、机器人状态 $$\mathbf{s}_t$$                               | 原始 VLA multimodal context                                                                            | 动作生成所需上下文                                                               |
-| GaussianDream 编码 | 短时历史帧 $$\mathbf{o}_{t-K:t}$$，文中实际使用 3 帧：$$\{t-10,t-5,t\}$$                                     | VGGT 多尺度 3D-aware features + 1024 个 GaussianDream queries + TGE 模块                                   | GaussianDream prefix $$\mathbf{Z}_t^{\mathrm{GD}}$$                     |
-| 当前场景重建分支（训练期）    | $$\mathbf{Z}_t^{\mathrm{GD}}$$ + 当前 RGB 观测 $$\mathbf{o}_t$$                                    | 32×32 latent grid → decoder backbone → 256×256×128 feature map → depth / geometry / appearance heads | 当前 3D Gaussian scene state $$\mathcal{G}_t$$                            |
-| 未来演化预测分支（训练期）    | $$\mathcal{G}_t$$ + $$\mathbf{Z}_t^{\mathrm{GD}}$$ + horizon embedding $$\mathbf{e}_{\Delta}$$ | velocity head 预测 center displacement，仅更新 Gaussian center                                             | 未来 Gaussian state $$\hat{\mathcal{G}}_{t+\Delta}$$，监督范围 $$t+$$ 到 $$t+$$ |
-| 动作生成（推理期）        | $$\mathbf{o}_t, \mathbf{l}, \mathbf{s}_t; \mathbf{Z}_t^{\mathrm{GD}}$$                         | 原始 policy + GaussianDream prefix                                                                     | 动作 chunk $$\mathbf{a}_t$$                                               |
+| 基础策略输入           | 当前观测 $\mathbf{o}_t$、语言指令 $\mathbf{l}$、机器人状态 $\mathbf{s}_t$                               | 原始 VLA multimodal context                                                                            | 动作生成所需上下文                                                               |
+| GaussianDream 编码 | 短时历史帧 $\mathbf{o}_{t-K:t}$，文中实际使用 3 帧：$\{t-10,t-5,t\}$                                     | VGGT 多尺度 3D-aware features + 1024 个 GaussianDream queries + TGE 模块                                   | GaussianDream prefix $\mathbf{Z}_t^{\mathrm{GD}}$                     |
+| 当前场景重建分支（训练期）    | $\mathbf{Z}_t^{\mathrm{GD}}$ + 当前 RGB 观测 $\mathbf{o}_t$                                    | 32×32 latent grid → decoder backbone → 256×256×128 feature map → depth / geometry / appearance heads | 当前 3D Gaussian scene state $\mathcal{G}_t$                            |
+| 未来演化预测分支（训练期）    | $\mathcal{G}_t$ + $\mathbf{Z}_t^{\mathrm{GD}}$ + horizon embedding $\mathbf{e}_{\Delta}$ | velocity head 预测 center displacement，仅更新 Gaussian center                                             | 未来 Gaussian state $\hat{\mathcal{G}}_{t+\Delta}$，监督范围 $t+1$ 到 $t+5$ |
+| 动作生成（推理期）        | $\mathbf{o}_t, \mathbf{l}, \mathbf{s}_t; \mathbf{Z}_t^{\mathrm{GD}}$                         | 原始 policy + GaussianDream prefix                                                                     | 动作 chunk $\mathbf{a}_t$                                               |
 
 ### 3.3 关键模块细节
 
@@ -94,7 +94,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
     4. **Opacity（1 维）**
     5. **Appearance（9 维 degree-1 spherical harmonics）**
 4. 利用 depth 与相机内参做 unprojection，得到 Gaussian centers；
-5. 最终形成当前场景的 Gaussian 集合 $$\mathcal{G}_t = \{(\mu_i^t, \theta_i^t)\}_{i=1}^{N_t}$$，其中 $$N_t = 256 \times 256 = 6553$$。
+5. 最终形成当前场景的 Gaussian 集合 $\mathcal{G}_t = \{(\mu_i^t, \theta_i^t)\}_{i=1}^{N_t}$，其中 $N_t = 256 \times 256 = 65536$。
 
 这里有个很关键的设计：**appearance head 还会条件化当前 RGB 图像**，因此当前场景的 Gaussian 不只是几何壳子，而是可渲染的表示。
 
@@ -104,10 +104,10 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 它不是重新生成完整 future 3DGS，而是一个更轻、更稳的设计：
 
-- 保留当前 Gaussian 的非位置属性 $$\theta_i^t$$；
+- 保留当前 Gaussian 的非位置属性 $\theta_i^t$；
 - 仅预测 future horizon 下的 **center displacement**；
-- 用 horizon embedding 区分 $$t+$$ 到 $$t+$$ 不同时间跨度；
-- 未来状态由$$ \hat{\mu}_i^{t+\Delta} = \mu_i^t + \Delta x_i^{(\Delta)} $$
+- 用 horizon embedding 区分 $t+1$ 到 $t+5$ 不同时间跨度；
+- 未来状态由 $\hat{\mu}_i^{t+\Delta} = \mu_i^t + \Delta x_i^{(\Delta)}$
 
 换句话说，它的未来预测重点不是“重新 hallucinate 一个新世界”，而是 **在当前 3D 模板上预测交互驱动的几何变化**。这和机器人操控的短时闭环很匹配。
 
@@ -127,7 +127,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 **训练期两阶段：**
 
 1. **Stage I**：先训练 GaussianDream reconstruction / prediction heads，不做动作学习；
-2. **Stage II**：联合训练 policy 与 GaussianDream，目标为 $$\mathcal{L}=\mathcal{L}_{act}+\lambda_{GD}\mathcal{L}_{GD}$$。
+2. **Stage II**：联合训练 policy 与 GaussianDream，目标为 $\mathcal{L}=\mathcal{L}_{act}+\lambda_{GD}\mathcal{L}_{GD}$。
 
 **推理期：**
 
@@ -147,7 +147,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 - **LIBERO**：Spatial / Object / Goal / Long 四个协议；50 demonstrations，50 evaluation trials
 - **RoboCasa Human-50**：24 个长程厨房任务，5 个场景，每任务 50 trials
-- **Real robot**：与 $$\pi_{0.5}$$ 对比，考察属性理解、空间关系、堆叠/拆叠、长程执行
+- **Real robot**：与 $\pi_{0.5}$ 对比，考察属性理解、空间关系、堆叠/拆叠、长程执行
 
 补充训练细节：
 
@@ -164,9 +164,9 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 | 评测                | GaussianDream   | 对比基线                                                        | 结论                                                                                   |
 | ----------------- | --------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| LIBERO            | **98.4%** 平均成功率 | $$\pi_{0.5}$$ 为 96.7%，3D-CAVLA 为 98.1%，GeoVLA 为 97.7%       | 拿到 **最佳 Spatial** 与 **最佳 Goal** 分数；整体平均略低于更重型的 LingBot-VA 98.5%，但 GaussianDream 推理更轻 |
-| RoboCasa Human-50 | **54.8%** 平均成功率 | GeoPredict 为 52.4%，Being-H0.5 为 53.9%，$$\pi_{0.5}$$ 为 40.1% | 整体平均最好；在 **Pick&Place = 43.8%** 上优势最明显，说明几何与定位增强确实帮助精细操控                             |
-| Real robot        | **50.0%**       | $$\pi_{0.5}$$ 为 34.4%                                       | 真实机器人平均提升 **15.6 个点**，说明 prefix 学到的几何信息不是只在仿真里有效                                     |
+| LIBERO            | **98.4%** 平均成功率 | $\pi_{0.5}$ 为 96.7%，3D-CAVLA 为 98.1%，GeoVLA 为 97.7%       | 拿到 **最佳 Spatial** 与 **最佳 Goal** 分数；整体平均略低于更重型的 LingBot-VA 98.5%，但 GaussianDream 推理更轻 |
+| RoboCasa Human-50 | **54.8%** 平均成功率 | GeoPredict 为 52.4%，Being-H0.5 为 53.9%，$\pi_{0.5}$ 为 40.1% | 整体平均最好；在 **Pick&Place = 43.8%** 上优势最明显，说明几何与定位增强确实帮助精细操控                             |
+| Real robot        | **50.0%**       | $\pi_{0.5}$ 为 34.4%                                       | 真实机器人平均提升 **15.6 个点**，说明 prefix 学到的几何信息不是只在仿真里有效                                     |
 
 ### 4.3 消融实验
 
@@ -190,7 +190,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 ![](assets/GaussianDream%20-%20机器人操控的前馈三维高斯世界模型/figure4_depth_rendering_visualization.png)
 
-这张图按时间从 $$$$ 到 $$t+$$ 展示 Ground Truth 与 Recon/Pred 的对齐结果。直观看到两个点：
+这张图按时间从 $t$ 到 $t+\Delta$ 展示 Ground Truth 与 Recon/Pred 的对齐结果。直观看到两个点：
 
 - 当前重建能恢复比较稳定的目标物体布局；
 - 未来预测在连续 horizon 上保持了相对一致的几何趋势，而不是每步都漂移得很严重。
@@ -203,7 +203,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 论文 appendix 给出的 per-action-chunk latency：
 
-- $$\pi_{0.5}$$：**268 ms**
+- $\pi_{0.5}$：**268 ms**
 - GaussianDream（部署版，仅 prefix）：**531 ms**
 - GaussianDream（保留诊断解码头）：**569 ms**
 - WAM / World Action Model：**700+ ms**
@@ -253,10 +253,10 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 ### 5.3 我看到的限制 / 风险点
 
-1. **future branch 仍偏短时**：只监督到 $$t+$$，更像 short-horizon geometric anticipation，不是长时规划 world model。
+1. **future branch 仍偏短时**：只监督到 $t+5$，更像 short-horizon geometric anticipation，不是长时规划 world model。
 2. **几何监督依赖 pseudo targets**：Depth Anything V2 与 optical flow 误差会向 3D flow 传播，真实复杂遮挡场景下可能不稳定。
 3. **prefix 的可解释性仍有限**：虽然能被解码为 3DGS，但最终 action 受益到底来自当前几何、未来演化，还是其他统计偏差，仍需要更细粒度分析。
-4. **时延仍高于原始** $$\pi_{0.5}$$：268ms → 531ms 不是小差距，只是相对重型 WAM 更友好。
+4. **时延仍高于原始** $\pi_{0.5}$：268ms → 531ms 不是小差距，只是相对重型 WAM 更友好。
 
 ### 5.4 对后续跟踪的建议
 

@@ -632,7 +632,7 @@ python demo/detect_yoloe26.py \
 1. How2100M 数据
     1. 数据粗筛
 
-      数据粗筛阶段主要是利用 How2100M 自带的标注信息对原始 youtube 视频分段，并利用 mediapipe 去检测这一片段视频中手部出现的占比$$R_{hand}(\%)=\frac{N_{hand}}{N_{total}}×100 \%$$ ，只保留手部出现比例超过 90% 的视频段，并命名为 {video_name}/clip_{id}.mp4。例如：
+      数据粗筛阶段主要是利用 How2100M 自带的标注信息对原始 youtube 视频分段，并利用 mediapipe 去检测这一片段视频中手部出现的占比 $R_{hand}(\%)=\frac{N_{hand}}{N_{total}}\times 100\%$ ，只保留手部出现比例超过 90% 的视频段，并命名为 {video_name}/clip_{id}.mp4。例如：
     
     ![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NDhkOTUyNTBiNGZiZDkyNWI0OTc4ZjZmY2M3OWM1MGRfeU1pV3N6cGpLVzcwUWJyY0RoNDRSZzFCcGpXRVVyY1JfVG9rZW46T2FQMmJGQjYyb0xaZWJ4UHNkR2NMblhrbmhlXzE3ODI5ODIyNTg6MTc4Mjk4NTg1OF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
 
