@@ -10,7 +10,7 @@
 
 作者给出的判据不是“生成得像不像”，也不是“线性探针能不能刷高分”，而是更强的 **线性可识别性（linear identifiability）**：学到的表示是否能与真实潜变量建立线性对应。只有这样，线性 probe、组合泛化、以及后续规划才有扎实的结构基础。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NTM1OTIxMDQ3MTRhMTcwZTYzNjk5MTQzMWUzMDUyZDNfQXRsQWhrRkQ2NmhHcVZkSWFnTDNBekd5T3FwMjdwTlRfVG9rZW46RWtnTmJlMU5wb2tHZFZ4c1pWZ2NyWWFZbnJlXzE3ODI5ODA2ODA6MTc4Mjk4NDI4MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeJEPA - 世界模型线性可识别性理论/fig1_lejepa_demo.jpg)
 
 上图是论文最核心的总览图：左侧是真实世界的高斯潜变量，中间是未知的非线性观测过程，右侧是 LeJEPA 学到的编码器。论文的主张是：在特定条件下，编码器会把观测重新拉回到真实潜变量的坐标系中，只差一个整体旋转/反射。
 
@@ -140,13 +140,17 @@ h(z) = Qz
 - 当 whitening / Gaussianization 没有完全达到，会产生协方差偏差 `ε`；
 - 最终恢复误差可以被一个关于 `δ` 与 `ε` 的上界控制。
 
+![](assets/LeJEPA - 世界模型线性可识别性理论/fig9_bound_decomposition.png)
+
+> 图 9：恢复误差的界分解。alignment gap `δ` 与协方差偏差 `ε` 共同决定恢复误差上界，且 gap 主导误差。来源：论文 Figure 9。
+
 作者的经验结论是：**真正主导误差的是 alignment gap，而 whitening 往往相对“容易”。** 这意味着工程上若要提升可识别性，应优先确保正样本对中确实存在可用的时序/语义相关性，而不是只盯着分布正则项调参。
 
 ## 5. 关键配图与直观理解
 
 ### 5.1 主图：世界 → 非线性观测 → 被 LeJEPA 拉回 latent
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZmJmNDViZWM4NjAzMzEyNjAzMTBjZTdjOWJhMjc1OGZfTFA2N1p0Sml1UDNNa3djZzRUNGlQSTllWU1MclNPb3BfVG9rZW46WmN6YmJOZjhHb0l0dU54VjhtZWM4dkRFbnpmXzE3ODI5ODA2ODA6MTc4Mjk4NDI4MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeJEPA - 世界模型线性可识别性理论/fig1_lejepa_demo.jpg)
 
 这张图对应的直观含义是：
 
@@ -158,7 +162,7 @@ h(z) = Qz
 
 ### 5.2 Reacher 环境与 latent 定义
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZmM4NDY5ZWZmMjI1MzFmYmU5OTJlMmI4YmFmODQyMWFfTTFuRUdJaHN4em1ZQ1hzdmhXNzN4VTVmYkdhVzlzNjZfVG9rZW46RjZiV2J3RkJTb3Y4aGJ4Mk5tNmN4SkFQbmNnXzE3ODI5ODA2ODA6MTc4Mjk4NDI4MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeJEPA - 世界模型线性可识别性理论/fig11_reacher_annotated.png)
 
 Reacher 实验里，latent state `z=(θ0, θ1)` 就是两个机械臂关节角。也就是说：
 
@@ -170,7 +174,7 @@ Reacher 实验里，latent state `z=(θ0, θ1)` 就是两个机械臂关节角�
 
 ### 5.3 非高斯轨迹为什么会坏掉
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YmQ4OGU2NTNiZWMxMjE0M2QxYWQ2ZjYxMWMxZmUyNDFfdmRPN0ppY3U3blR2UEEwaHJxYnE2Yjl6WjJ0OE5BT3BfVG9rZW46VmdMTGJjbnc2b3RCa094R3drWGNFc3BRblVjXzE3ODI5ODA2ODA6MTc4Mjk4NDI4MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeJEPA - 世界模型线性可识别性理论/fig6_heatmap_r2_hz.png)
 
 这张图是论文里非常有信息量的一张图。作者观察到：
 
@@ -235,7 +239,7 @@ Reacher 实验里，latent state `z=(θ0, θ1)` 就是两个机械臂关节角�
 
 结论非常明确：**线性恢复在** **`α=2`** **处出现尖峰**，偏离高斯后显著下降。也就是说，高斯并不是“差不多可用的一种分布”，而是在该理论框架里唯一给出线性可识别保证的分布。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MWQ1YmY1YTViZWRlZWEyNDJlNmM4MDhhNGU1NWQ3OGVfNDZSWDlkRmVQZUx6NGp5WjNiNGkwU2UydFRBOUM1Vk1fVG9rZW46SGxySGJQTnlOb1N1cWl4aURBSGNvQURmblRkXzE3ODI5ODA2ODA6MTc4Mjk4NDI4MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeJEPA - 世界模型线性可识别性理论/fig6_heatmap_orth_err.png)
 
 上图中的 `b)` 面板就是这个结果的汇总图：Gaussian 位置的恢复效果最高。作者还观察到 SIGReg 与 InfoNCE 在重尾分布附近比 VICReg 维持了更宽的平台，但峰值仍然出现在高斯点。
 
@@ -291,7 +295,7 @@ Reacher 实验里，latent state `z=(θ0, θ1)` 就是两个机械臂关节角�
 1. **近似定理成立**：实际 recovery error 会被 alignment gap 与 whitening deviation 的组合上界控制；
 2. **线性可识别性越好，planning 成本越低**。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MDBmMjhkMjA2NjUyMTc1NjBmNWFkMWI2ODJlZDZkMDRfd2hUVjY0TUdMb2lia0J5SHEwMWo0aW56aHdxbGJMczZfVG9rZW46UWFTQWJYdmplb3hUTHp4eEYzZWNFVkpPbm9lXzE3ODI5ODA2ODA6MTc4Mjk4NDI4MF9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/LeJEPA - 世界模型线性可识别性理论/fig17_planning_scatter.png)
 
 在 planning 实验中，作者对 start / goal 图像先编码，再在 latent 空间做直线插值，然后用 1-NN retrieval 把中间 latent 点解回 joint-space 轨迹。评价指标是：
 
