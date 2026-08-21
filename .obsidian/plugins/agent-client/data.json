@@ -135,7 +135,9 @@
     }
   ],
   "lastUsedModels": {},
-  "lastUsedModes": {},
+  "lastUsedModes": {
+    "claude-code-acp": "auto"
+  },
   "lastUsedConfigOptions": {
     "claude-code-acp": {
       "fast": "on"
