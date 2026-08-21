@@ -69,7 +69,7 @@ DreamDojo 的整体训练和使用流程可以分成三段：
 - **中间表示：** 场景、技能、对象与交互分布。
 - **输出：** 供世界模型预训练的超大规模交互视频语料。
 
-![](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/benchmark_compressed.png)
+![817](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/benchmark_compressed.png)
 
 这张图主要展示论文构建的评测基准与 OOD 场景设计，也能帮助理解作者为何强调"泛化到未见场景"而非只做实验室内插值。
 
@@ -86,7 +86,7 @@ DreamDojo 的整体训练和使用流程可以分成三段：
 
 这样得到的 latent action 会尽量压缩并保留“造成两帧变化的核心动作信息”，从而成为跨 embodiment 的统一动作代理。
 
-![](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/lam_compressed.png)
+![755](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/lam_compressed.png)
 
 从 I/O 角度，可以把这一模块理解为：
 
@@ -156,15 +156,15 @@ DreamDojo 不是只做“看起来能生成”的 demo，而是已经被拿来�
 
 其中策略评估实验中，DreamDojo 与真实世界成功率的 Pearson 相关达到 **0.995**；模型规划实验中，不同策略组都能拿到显著收益，其中一组相对最佳 checkpoint 提升 **17%**，相对均匀采样接近 **2×** 提升。
 
-![](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/mpc_compressed.png)
+![772](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/mpc_compressed.png)
 
 上图对应论文 Figure 5 的左侧 (a) policy evaluation 结果，核心含义是：**DreamDojo 的仿真打分与真实世界 rollout 成绩高度一致。** 这意味着它具备替代部分真实部署评估的潜力。
 
-![](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/mpc_compressed.png)
+![789](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/mpc_compressed.png)
 
 这张图是 Figure 5 的右侧 (b)，展示 DreamDojo 参与 test-time planning 的方式：先生成多个候选动作轨迹，再让世界模型预测后果，最后由 value model 选最佳方案执行。
 
-![](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/teleop_compressed.png)
+![826](assets/DreamDojo%20-%20基于大规模人类视频的通用机器人世界模型/teleop_compressed.png)
 
 这张图是论文 Figure 6，说明作者已经把蒸馏后的 DreamDojo 接到 PICO VR 控制器上做实时虚拟机器人遥操作，这比单纯离线生成更接近"可交互系统"。
 
