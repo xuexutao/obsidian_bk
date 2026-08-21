@@ -216,7 +216,9 @@ Vision Banana 的训练逻辑很简单，但非常关键：
 
 作者还展示了从生成深度图解码后再反投影成 3D scene 的可视化结果：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NDhiMWNhNGI4OGNiMGNlY2FkMTY1NGIxYjY4YzQ0MmVfdWdRNmQ1N2lveVl5UWtSRlhRMWU3aTZ2QTlvbEJxRG5fVG9rZW46U252emJiRkdqb1FteUJ4NU5jamNjTzQ0bk1nXzE3ODI5ODE1NTY6MTc4Mjk4NTE1Nl9WNA&add_watermark=true&scene_type=CCM)
+![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/04-depth-3d.png)
+
+**图 6（depth → 3D 反投影）解读**：四联图依次为 Input → Generated depth visualization → Vis view 1 → Vis view 2。把模型生成的 RGB 深度图解码回 metric depth 后，结合 camera intrinsics 即可重建出几何一致、全局准确的 3D 场景（NYU v2 / ETH3D 样本）。**来源**：arXiv:2604.20329，Figure 6 (assets/depth_demo/)。
 
 **Surface normal estimation**
 
@@ -226,7 +228,9 @@ Vision Banana 的训练逻辑很简单，但非常关键：
 
 下面这页同时给出了 normal 定量表和 qualitative comparison：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YTYzOTg1YWZjN2ZlNjBlZTdmNTk0ZmJkZTg1YmM3ZDVfSldITVVjWENjdjZRVXZqem1BN3FiSkpPWmE3QVpMZk9fVG9rZW46UGZDVGJIQ1hGbzB0ZG94VDZCQ2NZSlE4bm9mXzE3ODI5ODE1NTY6MTc4Mjk4NTE1Nl9WNA&add_watermark=true&scene_type=CCM)
+![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/05-normal-table.png)
+
+**表 7 解读**：在 NYUv2 / DIODE-indoor / ScanNet / Virtual KITTI 2 上比较 normal 角度误差。Vision Banana 在 Indoor 三个数据集的平均 mean/median 角误差最低（15.549° / 9.300°），显著低于 Marigold、DSINE、StableNormal、Lotus-2-Normal；在未见过的 Virtual KITTI 2 上与 Lotus-2 可比（29.063° vs 28.894°），而后者还在该 benchmark 上训练过。定性对比见论文 Figure 8。**来源**：arXiv:2604.20329，Table 7。
 
 ### 4.4 为什么这些实验结果有意义
 
