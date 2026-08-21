@@ -18,7 +18,9 @@
 
 作为总览，先看论文中的主图：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=MWUxYmViYjFhYzczMzlmNTE5ODg4NmQzMjA2N2UxODVfYnl4SDNWY0dQYXZ2dlVtR2pQNVBOZ0NRQXl3R1VIUTRfVG9rZW46VEdzUGJTbm1tb1dhMTJ4RmQydmMxcFpCbmRiXzE3ODI5ODE1NTY6MTc4Mjk4NTE1Nl9WNA&add_watermark=true&scene_type=CCM)
+![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/01-teaser.png)
+
+**图 1（Teaser）解读**：论文主图，展示 Vision Banana 同时支持 2D 分割、metric depth、surface normal 等多种视觉理解任务，并保留图像生成能力。**来源**：arXiv:2604.20329，Figure 1 (teaser.png)。
 
 从这张图可以直接看出作者的主张：**同一个图像生成模型，在保留生成能力的同时，也可以输出可量化评测的视觉理解结果。**
 
@@ -124,7 +126,9 @@ Vision Banana 的训练逻辑很简单，但非常关键：
 
 下面这张图是论文里最关键的方法图之一，展示了作者设计的 depth↔RGB 双射：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YWI1MjMwNTcxMmYxMmFkYzY4M2U4YjU1MDdiMGRlN2ZfS3NKaGFZck9yUlowVUZOb2pubTl0OWpDT3dZZ0poajRfVG9rZW46VGwxMGJ5UGtnb3paVmp4aElDT2NoQUk5bkRnXzE3ODI5ODE1NTY6MTc4Mjk4NTE1Nl9WNA&add_watermark=true&scene_type=CCM)
+![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/02-method.png)
+
+**图 5（depth↔RGB 双射）解读**：把 metric depth `d` 经 power transform（λ=-3, c=10/3）映射到 RGB cube 边上的分段线性路径（类似 3D Hilbert 曲线的第一段），使生成图像可无歧义反解码为真实 metric 距离，从而实现"生成即解码"的统一接口。**来源**：arXiv:2604.20329，Figure 5 (assets/color_tubes.jpg)。
 
 **E. Surface Normal Estimation**
 
@@ -206,7 +210,9 @@ Vision Banana 的训练逻辑很简单，但非常关键：
 
 下面这页展示了深度定量结果：
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NTgwOTY2NmM1MGY4ZmYxMThhM2ZjOTkzNGI0NDkwOTBfNTdldUZWT0kwaWxZVTlJQ0xTM0o3aTlTdlc3Wndkd09fVG9rZW46QWM1cmJ0YXhzb3BzNEV4aFBhMGN6UUh5bmtmXzE3ODI5ODE1NTY6MTc4Mjk4NTE1Nl9WNA&add_watermark=true&scene_type=CCM)
+![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/03-depth-table.png)
+
+**表 6 解读**：在 NYU / iBims1 / ETH3D / DIODE-Indoor / KITTI / nuScenes 六个 zero-shot benchmark 上，Vision Banana 平均 δ1 = 0.882，超过 UniK3D (0.823) 与 MoGe-2 (0.802)；在与 Depth-Anything V3 共同覆盖的 4 数据集上达 0.929 vs 0.918，且训练/推理均不使用真实深度数据与 camera intrinsics。**来源**：arXiv:2604.20329，Table 6。
 
 作者还展示了从生成深度图解码后再反投影成 3D scene 的可视化结果：
 
