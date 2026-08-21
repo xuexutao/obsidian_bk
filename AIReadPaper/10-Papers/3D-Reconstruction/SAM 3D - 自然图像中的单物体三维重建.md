@@ -80,7 +80,7 @@ SAM 3D 的整体流程可分成两大模型：
 
 下图是 SAM 3D 的整体架构：Geometry Model 先预测粗形状与 layout（右上为 Mixture-of-Transformers 双流结构，在多模态自注意力层共享信息），再把体素传给 Texture & Refinement Model 补充高分辨率细节与纹理。
 
-![](assets/SAM 3D - 自然图像中的单物体三维重建/sam3d_model.png)
+![](assets/SAM%203D%20-%20自然图像中的单物体三维重建/sam3d_model.png)
 
 |阶段|输入|输出|
 |---|---|---|
@@ -198,7 +198,7 @@ SAM 3D 很重要的一点是，它并没有假装“直接拿公开 3D 数据就
 
 下图展示了数据飞轮中一个样本经历的完整流程：先选择目标对象（Stage 1），再排序挑选 3D 候选（Stage 2），最后在 2.5D 场景中摆放对齐（Stage 3），其中 Stage 2/3 均为 model-in-the-loop。
 
-![](assets/SAM 3D - 自然图像中的单物体三维重建/sam3d_data_engine.png)
+![](assets/SAM%203D%20-%20自然图像中的单物体三维重建/sam3d_data_engine.png)
 
 ### 4.2 训练流程
 
@@ -232,7 +232,7 @@ SAM 3D 很重要的一点是，它并没有假装“直接拿公开 3D 数据就
 
 下图是论文给出的场景级与物体级重建的 human preference 对比，数值为人类偏好率，SAM 3D 在各维度均显著占优。
 
-![](assets/SAM 3D - 自然图像中的单物体三维重建/fig_preference.jpg)
+![](assets/SAM%203D%20-%20自然图像中的单物体三维重建/fig_preference.jpg)
 
 ### 4.5 为什么这些结果重要
 

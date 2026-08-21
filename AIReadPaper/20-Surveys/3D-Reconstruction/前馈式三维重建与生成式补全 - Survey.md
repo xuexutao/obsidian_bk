@@ -51,7 +51,7 @@
 
 GenRec 论文的开篇图把这个分野画得最清楚：以往方法（左）无论像素是否被观测到，都用同一个生成损失监督；GenRec（右）额外引出一条基于观测的重建支路，两条通路既不共享参数也不共享梯度。
 
-![](assets/前馈式三维重建与生成式补全 - Survey/genrec_fig1_paradigm.png)
+![](assets/前馈式三维重建与生成式补全%20-%20Survey/genrec_fig1_paradigm.png)
 
 ---
 
@@ -148,7 +148,7 @@ GenRec 论文的开篇图把这个分野画得最清楚：以往方法（左）�
 
 下图是 LSRM 的效果总览：左侧为 6–18 张输入图像，右侧为单次前向生成的显式网格与纹理，并可进一步预测 BRDF 用于重光照。
 
-![](assets/前馈式三维重建与生成式补全 - Survey/lsrm_fig1_teaser.png)
+![](assets/前馈式三维重建与生成式补全%20-%20Survey/lsrm_fig1_teaser.png)
 
 | | LIRM（前 SOTA） | LSRM | 倍数 |
 |---|---|---|---|
@@ -197,7 +197,7 @@ Stage 1 训 dense 低分辨率模型（体素 16³，解码 64³）；Stage 2 �
 
 下图展示了从单张输入图像出发生成可探索三维世界的完整能力：上半部分注意「Look back」标注——相机绕行后回望，场景保持一致；点云跨度达约 90 米。
 
-![](assets/前馈式三维重建与生成式补全 - Survey/lyra2_fig1_teaser.png)
+![](assets/前馈式三维重建与生成式补全%20-%20Survey/lyra2_fig1_teaser.png)
 
 #### 4.2.1 关键洞察：几何只做路由
 
@@ -207,7 +207,7 @@ Stage 1 训 dense 低分辨率模型（体素 16³，解码 64³）；Stage 2 �
 
 下图右半部分即为该机制：Spatial memory 存储 per-frame 深度与点云，用于检索目标视角可见的历史帧，并建立 Dense 3D correspondence 后注入 DiT 的注意力层。
 
-![](assets/前馈式三维重建与生成式补全 - Survey/lyra2_fig2_pipeline.png)
+![](assets/前馈式三维重建与生成式补全%20-%20Survey/lyra2_fig2_pipeline.png)
 
 三个具体设计都很讲究。
 
@@ -261,13 +261,13 @@ $$\tilde{z}^{hist}_0=z^{hist}_t-t\cdot v_\theta(z^{hist}_t,t,c)$$
 
 整体是两阶段管线：Phase I 用不透明度混合训练双向教师，Phase II 通过 Self-Forcing DMD 蒸馏成因果自回归模型。
 
-![](assets/前馈式三维重建与生成式补全 - Survey/artifixer_fig2_pipeline.png)
+![](assets/前馈式三维重建与生成式补全%20-%20Survey/artifixer_fig2_pipeline.png)
 
 #### 4.3.1 核心贡献一：opacity mixing
 
 问题的本质是生成的起点选错了，而两种既有选择各有其死法。下图是最直观的证据——注意第二行左侧输入几乎全黑（完全未观测），Channel Concatenation 与 Direct Input 两种做法都明显崩坏，只有不透明度混合给出了合理结果。
 
-![](assets/前馈式三维重建与生成式补全 - Survey/artifixer_fig4_opacity_mixing.png)
+![](assets/前馈式三维重建与生成式补全%20-%20Survey/artifixer_fig4_opacity_mixing.png)
 
 | 起点策略 | 后果 | MipNeRF360 消融 |
 |---|---|---|

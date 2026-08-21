@@ -38,7 +38,7 @@
 
 ### 2.3 与同类路线的关系
 
-![](assets/GaussianDream - 机器人操控的前馈三维高斯世界模型/figure1_paradigm_comparison.png)
+![](assets/GaussianDream%20-%20机器人操控的前馈三维高斯世界模型/figure1_paradigm_comparison.png)
 
 上图是论文非常重要的一张总览图。它把 4 条路线并排比较：
 
@@ -188,7 +188,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 #### A. 深度重建 / 未来预测可视化
 
-![](assets/GaussianDream - 机器人操控的前馈三维高斯世界模型/figure4_depth_rendering_visualization.png)
+![](assets/GaussianDream%20-%20机器人操控的前馈三维高斯世界模型/figure4_depth_rendering_visualization.png)
 
 这张图按时间从 $$$$ 到 $$t+$$ 展示 Ground Truth 与 Recon/Pred 的对齐结果。直观看到两个点：
 
@@ -199,7 +199,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 #### B. 推理时延
 
-![](assets/GaussianDream - 机器人操控的前馈三维高斯世界模型/figure8_inference_latency.png)
+![](assets/GaussianDream%20-%20机器人操控的前馈三维高斯世界模型/figure8_inference_latency.png)
 
 论文 appendix 给出的 per-action-chunk latency：
 
@@ -212,7 +212,7 @@ GaussianDream 的本质不是显式 3D 模型本体，而是一个 **被训练�
 
 #### C. 真实机器人平台
 
-![](assets/GaussianDream - 机器人操控的前馈三维高斯世界模型/figure6_real_robot_hardware.png)
+![](assets/GaussianDream%20-%20机器人操控的前馈三维高斯世界模型/figure6_real_robot_hardware.png)
 
 真实机器人采用 **leader-follower** 双臂结构：
 

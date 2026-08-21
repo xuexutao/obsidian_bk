@@ -67,7 +67,7 @@ $$\mathcal{L}_{task} = -\sum_{t=1}^{T} \log \pi_\theta(a_t \mid o_t, s_t, l)$$
 3. **MCR（Multimodal Canonical Representation）统一学习接口**：语言侧把所有抓取指令统一成"抓绿色 mask 标出的物体"这种 canonical form，视觉侧用 SAM + Cutie 跟踪得到 object-centric mask，从语义和外观两端去噪；
 4. **Planner + Switch 双线程推理**：高层 VLM planner 生成 primitive 序列，低层 fine-tuned VLA 输出连续动作，同时 LLM 生成的 switch 代码在滑动窗口上判断是否切换到下一个 primitive，闭环执行。
 
-![](assets/PrimitiveVLA - 可复用动作原语的机器人操控/fig1-teaser.png)
+![](assets/PrimitiveVLA%20-%20可复用动作原语的机器人操控/fig1-teaser.png)
 
 > 图 1：PrimitiveVLA 的动机对比。a) 传统 Direct Mapping 范式把"Pick sponge and place in the plate"等任务直接喂给 VLA，ID 任务能学会、但 OOD 任务（"Pick sponge and place in the caddy"）会失败。b) PrimitiveVLA 范式先在训练时把任务拆成 grasp / move / place 等 primitive 片段并应用 MCR canonical 化，推理时按 primitive 重组；ID 和 OOD 任务均成功，因为底层组合的是已学到的物理运动模式。  
 > 来源：论文 Figure 1，第 1 页，https://arxiv.org/html/2605.28634v2
@@ -118,7 +118,7 @@ PrimitiveVLA 把"如何让 VLA 学到可复用动作"这件事拆成两个互补
 
 两个阶段通过中间的 MCR 共享同一套表征规范，从而保证训练时学到的 primitive 在推理时能直接复用。
 
-![](assets/PrimitiveVLA - 可复用动作原语的机器人操控/fig2-method.png)
+![](assets/PrimitiveVLA%20-%20可复用动作原语的机器人操控/fig2-method.png)
 
 > 图 2：PrimitiveVLA 总体框架。左侧绿色框为离线 Fine-Tuning 流水线：原始任务数据 → VLM (Qwen3-VL) 推理 + LLM (DeepSeek-V3) 生成边界代码 → 自动化 primitive 切分 → 规范化指令与 masked 图像 → 任意预训练 VLA 训练。右侧红色框为在线 Inference 流水线：测试指令 → VLM Planner（带检索的 plan examples）→ Primitive Switch（LLM 代码 + 滑动窗口）→ 双线程执行 VLA policy + 环境监控。中间蓝色 MCR 模块把训练和推理两端的视觉与语言表征都做 canonical 化，使两阶段共享同一套动作语义。  
 > 来源：论文 Figure 2，第 5 页，https://arxiv.org/html/2605.28634v2
@@ -166,7 +166,7 @@ $$t_{\text{end}} = \min\{t \mid t > t_{\text{start}} + \delta, \ \phi_i(s_{t-k:t
 
 11 个 primitive 是基于标准夹爪 manipulation 任务归纳出来的，强调覆盖空间运输、接触交互、姿态调整三大物理动作族，但**论文未披露**是否做过任务-primitive 覆盖度分析，也没有给出"哪些操作必然被排除在外"的边界说明。
 
-![](assets/PrimitiveVLA - 可复用动作原语的机器人操控/fig4-segcompare.png)
+![](assets/PrimitiveVLA%20-%20可复用动作原语的机器人操控/fig4-segcompare.png)
 
 > 图 4：不同 primitive 拆解方法的定性对比。第一行 Universal Visual Decomposer（UVD，纯视觉）对任务 a）会把"开抽屉"和"抓碗"两类动作合并、对任务 b）会出现冗余分割 seg3/seg4。第二行 Qwen3.5-Omni-Plus（直接 VLM）会出现边界不精确、任务中途终止、冗余"move"片段。第三行 PrimitiveVLA（VLM 语义推理 + LLM 确定性代码）给出最稳定、最符合语义、且时间边界最干净的切分结果。  
 > 来源：论文 Figure 4，第 7 页，https://arxiv.org/html/2605.28634v2
@@ -303,7 +303,7 @@ $$\text{SwitchTrigger} \iff \forall s \in s_{\text{stat}}, \ f_{\text{switch}}(s
 - **DeepSeek-V3** 生成 primitive 分割和 switch 条件的 Python 代码；
 - 真实世界硬件：UR5e 机械臂 + Robotiq 2F-85 夹爪 + 两台 Intel RealSense L515 相机（一台第三人称、一台腕部安装）。
 
-![](assets/PrimitiveVLA - 可复用动作原语的机器人操控/fig5-real.png)
+![](assets/PrimitiveVLA%20-%20可复用动作原语的机器人操控/fig5-real.png)
 
 > 图 5：真实世界硬件与任务示例。左侧为实验台：UR5e 6-DoF 机械臂 + Robotiq 2F-85 夹爪 + 一台第三人称 Intel RealSense L515 相机 + 一台腕部 RealSense L515 相机。右侧三行为三组真实任务示例，分别为 ID 任务（"Pick the sponge and place on the plate"）、任务泛化（"Pick the sponge and place in the caddy"，物体-容器配对是训练时未见的）、组合泛化（"Pick the cup and place on the cabinet and push in the top drawer"）。  
 > 来源：论文 Figure 5，第 8 页，https://arxiv.org/html/2605.28634v2
@@ -345,7 +345,7 @@ $$\text{SwitchTrigger} \iff \forall s \in s_{\text{stat}}, \ f_{\text{switch}}(s
 
 **OOD 任务可视化**——以 Libero-90-Novel 中的"Pick up the bowl on the right and put it in the tray"为例：
 
-![](assets/PrimitiveVLA - 可复用动作原语的机器人操控/fig7-gen.png)
+![](assets/PrimitiveVLA%20-%20可复用动作原语的机器人操控/fig7-gen.png)
 
 > 图 7：OOD 任务上的执行对比。给定指令"pick up the bowl on the right and put it in the tray"：上排 baseline 反复重复训练集中的相似任务（Pick sponge and place near plate）但完全不动碗，任务失败；下排 PrimitiveVLA 先 grasp 碗（红框 mask 高亮），再将其平移至托盘，任务成功。Baseline 表现说明它学到的是"轨迹 ↔ 表面文本"映射、遇到没见过的物体-容器组合就退化为最像的训练轨迹；PrimitiveVLA 表现说明它在底层用 primitive 重组的方式真正完成了"抓右边的碗 → 放进托盘"的物理动作。  
 > 来源：论文 Figure 7，第 10 页，https://arxiv.org/html/2605.28634v2

@@ -105,7 +105,7 @@ $$\mathcal{L}(\theta) = \mathbb{E}_{\mathbf{z},\mathbf{a},\{t_k\}}\Bigg[\frac{1}
 
 DreamZero 是一种 World Action Model。它沿用 Wan2.1-I2V-14B-480P 这个已在大规模图文/视频对上预训练好的 14B 视频扩散 Transformer，并在它上面**只增加三组小参数**：state encoder、action encoder、action decoder；文本编码器、图像编码器、VAE 全部冻结。这种"轻触式"扩展的动机是尽量保留视频 backbone 已经学到的世界动力学先验，不让少量机器人数据把通用先验冲掉。
 
-![](assets/DreamZero - 视频世界动作模型的零样本机器人策略/fig4-model.png)
+![](assets/DreamZero%20-%20视频世界动作模型的零样本机器人策略/fig4-model.png)
 
 > 图 1：DreamZero 的训练（左）与推理（右）流程。训练时三路输入（视频帧/语言指令/本体状态）经 VAE、文本/状态编码器送入 Causal DiT 块，对噪声 video latent 与 noise action 做联合 flow matching；推理时用 KV cache 实现自回归生成，每执行一个 action chunk 立即用真实观测回写 cache，避免长期依赖自己生成的视频。  
 > 来源：论文 Figure 4，https://arxiv.org/html/2602.15922
@@ -232,7 +232,7 @@ DreamZero 用 4 个研究问题组织实验（Q1–Q6，详见 §5.3 与 §5.4�
 
 ### 5.2 定性结果
 
-![](assets/DreamZero - 视频世界动作模型的零样本机器人策略/fig1-overview.png)
+![](assets/DreamZero%20-%20视频世界动作模型的零样本机器人策略/fig1-overview.png)
 
 > 图 2：DreamZero 的总体能力拼图。上方为多样化预训练数据（双机械臂+单臂+任务多样性>重复）；中部为 World Action Model 同时输出未来视频与连续动作；下方为"未见图任务/未见环境"的零样本泛化样例（解盒子、扇汉堡、按电梯、压下烤面包机杠杆）与"新 embodiment 少样本适配"（30 分钟 play data 后抓泰迪熊、橙子放进南瓜、泡面放进纸袋、香蕉上架）。  
 > 来源：论文 Figure 1，https://arxiv.org/html/2602.15922
@@ -278,7 +278,7 @@ DreamZero 用 4 个研究问题组织实验（Q1–Q6，详见 §5.3 与 §5.4�
 
 数据量：YAM 20 分钟（双机械臂），人类 12 分钟（每任务 8 个演示，72 条多视角轨迹，覆盖 9 个未见任务）。两种迁移的相对提升均 **>42%**。YAM 形态与 AgiBot 接近（都是双机械臂平行夹爪）所以 Robot2Robot 略胜；Human 形态差异更大但仍能跑通，说明视觉未来这一中间变量对 embodiment 不那么敏感。
 
-![](assets/DreamZero - 视频世界动作模型的零样本机器人策略/fig11-embodiment-transfer.png)
+![](assets/DreamZero%20-%20视频世界动作模型的零样本机器人策略/fig11-embodiment-transfer.png)
 
 > 图 3：跨 embodiment 迁移的数据源。左为 YAM 双机械臂真实操作视频（Robot2Robot），右为人类第一人称演示（Human2Robot），中间为 AgiBot G1 真实部署画面。形态差异巨大但都能成为有效训练信号。  
 > 来源：论文 Figure 11，https://arxiv.org/html/2602.15922
@@ -301,7 +301,7 @@ DreamZero 用 4 个研究问题组织实验（Q1–Q6，详见 §5.3 与 §5.4�
 
 **实验协议与数据图谱**：
 
-![](assets/DreamZero - 视频世界动作模型的零样本机器人策略/fig5-main-results.png)
+![](assets/DreamZero%20-%20视频世界动作模型的零样本机器人策略/fig5-main-results.png)
 
 > 图 4：AgiBot G1 上的训练与评估任务图谱。预训练（左上）覆盖打包、备货、洗碗、叠衣、收拾五类多样化任务；Seen Tasks Evals（中间）包含整理短袖、碗堆叠、笔入杯、短裤折叠、水果拾放等已知任务但新环境；Unseen Task Evals（左下）含解鞋带、堆方块、按电梯、摘帽、熨衣服等训练中完全缺席的任务；Post-training 任务（右上）含折衬衫、水果打包、清理桌面。  
 > 来源：论文 Figure 5，https://arxiv.org/html/2602.15922

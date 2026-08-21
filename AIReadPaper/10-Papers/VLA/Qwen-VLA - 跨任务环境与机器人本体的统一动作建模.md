@@ -122,13 +122,13 @@ $$\mathcal{L}_{\text{vl}} = -\sum_i \log p_{\theta}(w_i \mid w_{<i}, o_{1:t})$$
 
 Qwen-VLA 的总体框架如图 1 所示：左侧是 VLA（操作）、VLN（导航）、VL（视觉语言理解）三类异构数据源，模型用 Qwen3.5 多模态骨干统一编码观察图像与文本（含 embodiment prompt），再把 VLM 隐藏状态与"噪声动作块"拼成一条序列，送给 DiT 动作专家做去噪，输出清洁动作序列；最终在右侧同时支持 manipulation 与 navigation 任务。整体结构可以理解为"通用 VLM 认知 + 专用 DiT 动作小脑"的双流协同。
 
-![](assets/Qwen-VLA - 跨任务环境与机器人本体的统一动作建模/qwenvla_overview.png)
+![](assets/Qwen-VLA%20-%20跨任务环境与机器人本体的统一动作建模/qwenvla_overview.png)
 
 > 图 1：Qwen-VLA 总体架构。该图说明 Qwen3.5 VLM 把视觉 token、文本（含 embodiment prompt）和噪声动作 token 拼成单一流，DiT 动作专家通过 AdaLN 时间步条件做去噪；同一模型同时覆盖 VLA、VLN、VL 三类任务。来源：论文 Figure 1，第 1 页，https://arxiv.org/abs/2605.30280
 
 四阶段训练流程如图 2 所示：(I) T2A 冻结 VLM 只训 DiT，刻意不给图像，让 decoder 学"语言到动作的解压缩"；(II) CPT 同时解冻两个模块，把动作先验接到视觉观测上；(III) SFT 分出多任务和真机两条并行支路；(IV) RL 用 PPO + 稀疏二元成功奖励在仿真里把任务成功率接进来，得到 Qwen-VLA-Instruct。
 
-![](assets/Qwen-VLA - 跨任务环境与机器人本体的统一动作建模/qwenvla_training_recipe.png)
+![](assets/Qwen-VLA%20-%20跨任务环境与机器人本体的统一动作建模/qwenvla_training_recipe.png)
 
 > 图 2：Qwen-VLA 的四阶段训练配方。T2A 阶段不带图像只解压缩动作；CPT 阶段引入视觉 grounding；SFT 阶段分出多任务与真机两条路；RL 阶段在仿真里用环境奖励优化闭环任务成功率。来源：论文 Figure 2，第 5 页，https://arxiv.org/abs/2605.30280
 
@@ -185,7 +185,7 @@ DiT 风格解码器相比离散 token 自回归头有两个本质优势：
 - **视觉-语言-动作数据**：20 个桌面场景 × 10 种物体初始位姿 = 200 个基础配置，450 个操作任务（短视界+长视界），每任务 300 条成功轨迹，含环境和执行增强；视觉随机化覆盖约 3K 背景 + 1K 桌面纹理。最终得到约 359,848 条完整成功轨迹（含子任务片段）。
 - **语言-动作数据**：6 种任务模板（pick-and-place、线性推动、线性拉动、旋转重定位、朝向视点旋转、两物体位置交换）× 6 种单臂机器人配置（Franka Panda、UR10e、UR5e、Kinova Gen3、TM12、xArm7），每机器人-任务对约 200k 条轨迹，总计约 7.2M 条轨迹、超过 14,000 小时，50 Hz 记录关节位置、速度、末端位姿、夹爪状态。这部分**主要用作 Stage I T2A 预训练语料**。
 
-![](assets/Qwen-VLA - 跨任务环境与机器人本体的统一动作建模/qwenvla_sim_demo.png)
+![](assets/Qwen-VLA%20-%20跨任务环境与机器人本体的统一动作建模/qwenvla_sim_demo.png)
 
 > 图 3：RoboInF 合成的仿真数据示例。上两行为短视界任务（"Place the two green staplers side by side" 与 "Turn the cake server so it points toward the left side of the table"），下行为长视界任务"Group the drinks together and leave the cleaning sponge by itself"及其子任务分解（Pick 7Up / Place 7Up / Pick Red Bull / Place Red Bull / Pick Sponge / Place Sponge）。长视界任务在合成时被自动切成多个子片段，为模型提供分阶段监督。来源：论文 Figure 3，第 9 页，https://arxiv.org/abs/2605.30280
 
@@ -328,13 +328,13 @@ OOD 平均成功率（论文表 6）：Qwen-VLA-aloha w/ pretrain 76.9%，$\pi_{
 
 图 4 展示了真实 ALOHA 评估任务的整体图谱，中间是 6 类 in-domain 任务的 rollouts，四周是 5 类 OOD 任务（Color、Instance、Position、Background、Instruction）的示例。可以看到 OOD 任务在颜色、物体实例、位置、背景、光照（夜间 RGB 灯光）、指令措辞等多个维度上系统地变化，让 OOD 评估具备较强诊断力。
 
-![](assets/Qwen-VLA - 跨任务环境与机器人本体的统一动作建模/qwenvla_task_overview.png)
+![](assets/Qwen-VLA%20-%20跨任务环境与机器人本体的统一动作建模/qwenvla_task_overview.png)
 
 > 图 4：ALOHA 双臂平台真实评估任务总览。中间 6 条 in-domain 任务（Pick and Place、Table Cleaning、Bowl Stacking、Bowl Pick & Place、Towel Folding、Fine-grained Manipulation）展示了 3 个 RGB 相机视角下的连续操作；两侧为 5 类 OOD 评估（Color、Instance、Position、Background、Instruction），分别测试模型对未见颜色、未知物体实例、未见空间位置、未见背景/光照、未见指令措辞的泛化能力。来源：论文 Figure 4，第 16 页，https://arxiv.org/abs/2605.30280
 
 图 5 是 ALOHA 上 4 类 OOD 定性 rollouts 的 4×4 网格。可以看到：左上四宫格是颜色 grounding（红/绿/蓝/黄球按指令抓取）；右上两行为"干净桌面"组合任务（依次抓取蓝伞、鸭子、酸奶放入 bin）；左下为完全未见物体（太阳镜、毛绒玩具、鸭子）的"approach"指令；右下是拔笔帽并放回桌面的精细两阶段操作，且背景换成黄色未见场景。整体上模型在物体识别、指令理解、组合任务分解、精细两阶段动作上都展现了较强鲁棒性。
 
-![](assets/Qwen-VLA - 跨任务环境与机器人本体的统一动作建模/qwenvla_realgrid.jpg)
+![](assets/Qwen-VLA%20-%20跨任务环境与机器人本体的统一动作建模/qwenvla_realgrid.jpg)
 
 > 图 5：Qwen-VLA-Base 在 ALOHA 双臂平台上的定性 OOD 泛化。左上：颜色 grounding（红/绿/蓝/黄球按指令抓取）；右上：组合任务"clean up the table"（蓝伞、玩具鸭、瓶装酸奶依次入筐）；左下：完全未见物体（太阳镜、毛绒玩具、玩具鸭）的"approach"指令；右下：拔笔帽并放回桌面的精细两阶段操作，背景换成未见过的黄色。模型在多种 OOD 条件下都能完成抓取、组合和精细两阶段动作。来源：论文 Figure 5，第 20 页，https://arxiv.org/abs/2605.30280
 

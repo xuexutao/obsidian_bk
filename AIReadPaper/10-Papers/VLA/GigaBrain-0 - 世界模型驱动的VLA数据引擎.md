@@ -60,7 +60,7 @@
 
 ## 3. Pipeline / Architecture + I/O 数据流
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/framework.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/framework.png)
 
 ### 3.1 总体数据流
 
@@ -117,17 +117,17 @@
 - **Video Generation + IDM**：从单帧和文本提示合成操作视频，再用 Inverse Dynamics Model 反推机器人动作。
 - **Multiview Video Generation**：生成多视角一致视频，提升跨视角训练效果。
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/real2real.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/real2real.png)
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/viewtransfer.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/viewtransfer.png)
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/sim2real.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/sim2real.png)
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/human_transfer.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/human_transfer.png)
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/videogen.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/videogen.png)
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/multiview.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/multiview.png)
 
 > 补注：上图为 Multiview Video Generation（论文图 9），生成多视角一致视频，用于提升 3D-aware 训练效果。
 
@@ -135,7 +135,7 @@
 
 ## 4. 实验与关键信息
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/main_exp.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/main_exp.png)
 
 ### 4.1 主实验设置
 
@@ -178,7 +178,7 @@
 
 ### 4.3 泛化实验：生成数据混合比例 α 的影响
 
-![](assets/GigaBrain-0 - 世界模型驱动的VLA数据引擎/generalization_exp.png)
+![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/generalization_exp.png)
 
 论文单独考察了 **world model 生成数据在训练 batch 中的采样概率 α**。这部分很关键，因为它直接回答了“生成数据到底有没有帮助，以及混多少最合适”。
 

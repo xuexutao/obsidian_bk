@@ -52,7 +52,7 @@ PixelDiT 讨论的核心问题不是“再做一个更大的 latent diffusion”
 
 下图是论文 source 中的主架构图，最值得重点看：
 
-![](assets/PixelDiT - 像素空间扩散Transformer图像生成/figures/01-overview.png)
+![](assets/PixelDiT%20-%20像素空间扩散Transformer图像生成/figures/01-overview.png)
 > **解读：** 左半是 PixelDiT 的 dual-level 整体框架：noised image 一路 16×16 patchify 进 DiT Blocks（×N，输出 semantic token），另一路 1×1 patchify 进 PiT Blocks（×M，输出 pixel token）。右半是 PiT block 内部细节，依次为 Pixel-wise Scale & Shift（γ₁,β₁）→ Linear Compress → M-HSA (RoPE) → Linear Expand → Pixel-wise Gate（α₁），以及后半段 γ₂,β₂、FFN、α₂ 和前后 RMSNorm。
 > **来源：** arXiv:2511.20645v2，Figure 1（Overview of PixelDiT: a dual-level, fully transformer-based diffusion architecture that operates directly in pixel space）。
 
@@ -91,7 +91,7 @@ PixelDiT 讨论的核心问题不是“再做一个更大的 latent diffusion”
 
 #### 3.3.1 Pixel-wise AdaLN
 
-![](assets/PixelDiT - 像素空间扩散Transformer图像生成/figures/02-pixel-adaln.png)
+![](assets/PixelDiT%20-%20像素空间扩散Transformer图像生成/figures/02-pixel-adaln.png)
 > **解读：** 三种 AdaLN 调制粒度对比。(𝔸) 把单个 1×D 全局向量 repeat ×L×P² 广播给所有像素，所有位置共享同一套调制参数；(𝔹) 用 L×D semantic token 在每个 patch 内 repeat ×P²，同一 patch 内像素共享一套参数；(ℂ) 对每个 semantic token 经 MLP 直接生成逐像素的 scale/shift/gate 参数，每个像素独立调制。PixelDiT 采用 (ℂ)，把全局语义投影为逐像素的局部控制信号。
 > **来源：** arXiv:2511.20645v2，Figure 2（AdaLN modulation strategies）。
 
@@ -132,7 +132,7 @@ $$ \Theta = \Phi(s_{cond}) \in \mathbb{R}^{(B\cdot L)\times p^2 \times 6D_{pix}}
 
 ### 3.4 T2I 版本如何改造
 
-![](assets/PixelDiT - 像素空间扩散Transformer图像生成/figures/03-t2i.png)
+![](assets/PixelDiT%20-%20像素空间扩散Transformer图像生成/figures/03-t2i.png)
 > **解读：** T2I 版本只把 patch-level 路径换成 MM-DiT Blocks：System Prompt + User Prompt 经 frozen Gemma-2 编码为 text token，与 timestep embedding 一起在 MM-DiT 中和 image token 做 joint attention（右图 q/k/v 各两组，分别对应文本与图像），输出 semantic token。pixel-level PiT Blocks 仍只接收 semantic token + timestep，不直接接文本，专做细节恢复，体现"多模态对齐留在高层、细节建模留在像素层"的职责分离。
 > **来源：** arXiv:2511.20645v2，Figure 6（T2I architecture of PixelDiT with MM-DiT blocks on the patch-level pathway）。
 
@@ -231,7 +231,7 @@ Text-to-Image 版本只改 patch-level pathway：
 
 ### 4.4 图像编辑里的额外优势：背景和细节保真
 
-![](assets/PixelDiT - 像素空间扩散Transformer图像生成/figures/04-edit.png)
+![](assets/PixelDiT%20-%20像素空间扩散Transformer图像生成/figures/04-edit.png)
 > **解读：** 用 FlowEdit 把 "a bicycle parked on the sidewalk…" 改成 "a motorcycle parked on the sidewalk…"，横向对比 Real Image / Stable Diffusion 3 / FLUX / PixelDiT 四组结果。SD3、FLUX 因 VAE reconstruction 阶段已损坏墙上小字（"IN A CITY WHERE… / WITH THE QUIET RED…"），后续编辑继续放大失真；PixelDiT 无 VAE，墙面文字和背景细节保留明显更好。论文在 281 个 FlowEdit 样本上量化：PixelDiT MSE 0.001522 vs SD3 0.004349 / FLUX 0.009105，SSIM 0.8628 vs 0.8400 / 0.8254。
 > **来源：** arXiv:2511.20645v2，Figure 0(b)（Visual results of PixelDiT on training-free image editing with FlowEdit）。
 

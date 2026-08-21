@@ -33,7 +33,7 @@ VGGT-Ω 的核心在于**“规模化（Scaling）”**。它不仅是一个更�
 2. **动态支持与数据管线**：开发了一套融合 VLM 预过滤、几何后过滤及跨视图一致性校验的自动化标注管线，成功从 4000 万段互联网视频中提取出 80 万段高质量轨迹与深度图（含 1/3 动态场景），将监督数据规模提升至 400 万序列。
 3. **泛化表征**：证明了 3D 重建任务学习到的寄存器（Scene Tokens）具备极强的语义和几何属性，可以直接作为 VLA 模型的插件，或与语言空间进行对比对齐。
 
-![](assets/VGGT-Ω - 可扩展前馈式静动态三维重建/scaling.png)
+![](assets/VGGT-Ω%20-%20可扩展前馈式静动态三维重建/scaling.png)
 
 **图 1：性能随数据和模型参数规模的 Scaling 趋势。随着参数从 0.2B 增至 10B，数据从 2K 增至 2M 序列，3D 点误差呈现稳定的幂律下降趋势。** [[1]](https://arxiv.org/abs/2511.10647)
 
@@ -67,7 +67,7 @@ VGGT-Ω 的核心设计思想是引入**寄存器（Registers / Scene Tokens）*
 - **Register Attention**：在 ViT 的多层注意力中，VGGT-Ω 并不是在每一层都进行全帧（Global）交互。它将 25% 的全局注意力层替换为“寄存器注意力”。在这些层中，只有寄存器之间进行交互。随后，通过后续的“帧内注意力（Frame Attention）”，寄存器再将聚合的全局场景信息分发回各自帧的 Patch Tokens。
     - **效果**：这种设计不仅鼓励寄存器学习全局一致的表示，还显著降低了计算量。替换 25% 的全连接层后，训练显存节省约 16%，FLOPs 降低 23%，且几乎不损失性能。[[2]](http://openaccess.thecvf.com/content/CVPR2025/html/Li_MegaSaM_Accurate_Fast_and_Robust_Structure_and_Motion_from_Casual_CVPR_2025_paper.html)
 
-    ![](assets/VGGT-Ω - 可扩展前馈式静动态三维重建/architecture.png)
+    ![](assets/VGGT-Ω%20-%20可扩展前馈式静动态三维重建/architecture.png)
 
 **图 2：架构概览。模型在全局/寄存器注意力和帧内注意力之间交替，最终解码出相机位姿和深度图。** [[3]](http://openaccess.thecvf.com/content/CVPR2025/html/Wang_VGGT_Visual_Geometry_Grounded_Transformer_CVPR_2025_paper.html)
 
@@ -127,7 +127,7 @@ VGGT-Ω 的核心设计思想是引入**寄存器（Registers / Scene Tokens）*
 
 VGGT-Ω 不仅能处理常规室内外场景，在极具挑战性的环境下（如水下珊瑚礁、高速网球运动）也表现出色。
 
-![](assets/VGGT-Ω - 可扩展前馈式静动态三维重建/vis_traj.png)
+![](assets/VGGT-Ω%20-%20可扩展前馈式静动态三维重建/vis_traj.png)
 
 **图 3：VGGT-Ω 重建结果。模型能生成全局一致的轨迹，并对动态行人（Tennis）和复杂背景（Coral）具有极强的泛化力。** [[5]](https://arxiv.org/abs/2509.13414)
 

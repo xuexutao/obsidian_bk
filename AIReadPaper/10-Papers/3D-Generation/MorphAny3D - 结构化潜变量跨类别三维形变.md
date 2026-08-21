@@ -22,7 +22,7 @@
 3. **直接插值 Trellis 的噪声或条件特征**：看起来最省事，但在 SLAT 空间里并不能自动得到结构合理的过渡。
     
 
-![](assets/MorphAny3D - 结构化潜变量跨类别三维形变/comp.png)
+![](assets/MorphAny3D%20-%20结构化潜变量跨类别三维形变/comp.png)
 
 ## 2. 文章主线 / 论文线索
 
@@ -295,7 +295,7 @@ TFSA(Q^n, K^n, V^n, K^(n-1), V^(n-1))
 
 这一步只在“姿态突然跳了”的时候发挥作用；如果没有 jump，原始 `P^n` 仍会因为 CD 最小而被保留。
 
-![](assets/MorphAny3D - 结构化潜变量跨类别三维形变/oc.png)
+![](assets/MorphAny3D%20-%20结构化潜变量跨类别三维形变/oc.png)
 
 ### 3.11 完整 I/O 数据流总结
 
@@ -431,7 +431,7 @@ TFSA(Q^n, K^n, V^n, K^(n-1), V^(n-1))
 - **OC** 继续把 PPL / PDV 往下拉，说明姿态跳变的确是一个独立且真实存在的问题，而不是个别 case。
     
 
-![](assets/MorphAny3D - 结构化潜变量跨类别三维形变/ablation.png)
+![](assets/MorphAny3D%20-%20结构化潜变量跨类别三维形变/ablation.png)
 
 ### 4.6 定性结果与典型案例
 
@@ -446,7 +446,7 @@ TFSA(Q^n, K^n, V^n, K^(n-1), V^(n-1))
 
 这其实说明模型不是在做低层几何插值，而是在利用 3D 生成先验完成更高层的 **语义部件映射**。
 
-![](assets/MorphAny3D - 结构化潜变量跨类别三维形变/qual.png)
+![](assets/MorphAny3D%20-%20结构化潜变量跨类别三维形变/qual.png)
 
 ### 4.7 额外能力
 

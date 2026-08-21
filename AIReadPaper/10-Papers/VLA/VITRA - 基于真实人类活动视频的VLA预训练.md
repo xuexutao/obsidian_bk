@@ -58,7 +58,7 @@ VITRA 的核心贡献不是再造一个更大的机器人数据集，而是提�
 3. 设计了**灵巧手 VLA 模型架构**及针对性训练策略，在该数据集上预训练。
 4. 实验验证：零样本人类动作预测、真实机器人微调后的显著收益、以及**清晰的预训练数据 scaling 行为**。
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/teaser.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/teaser.png)
 
 > 图 1：VITRA 的总体构想。论文把非结构化真实人类活动视频转成与机器人数据对齐的 V-L-A 格式，预训练出的模型在未见环境里具备零样本人手动作预测能力，微调后能在真实灵巧手机器人上完成抓取、倒水、清扫等任务。这张 teaser 回答的是"为什么做"——把"互联网视频规模"接到"具身操控预训练"上。
 > 来源：论文 Figure 1，https://arxiv.org/abs/2510.21571
@@ -108,7 +108,7 @@ $$
 
 VITRA 方法可以分成两大块：**数据侧**是一条把人类视频加工成 V-L-A episode 的三阶段 pipeline；**模型侧**是一个"VLM 骨干 + 扩散动作专家"的灵巧手 VLA。下面先讲数据 pipeline，再讲模型与训练。
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/pipeline.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/pipeline.png)
 
 > 图 2：整体人类活动分析框架。三个阶段分别是 (a) 3D Motion Labeling——重建度量尺度的 3D 手部与相机轨迹；(b) Atomic Action Segmentation——把视频切分为原子级片段；(c) Instruction Labeling——用 GPT 为每个片段标注动作指令。这张图是理解"数据从哪来、怎么变成机器人可学的形式"的关键。
 > 来源：论文 Figure 2，https://arxiv.org/abs/2510.21571
@@ -152,7 +152,7 @@ VITRA 方法可以分成两大块：**数据侧**是一条把人类视频加工�
 
 ### 3.5 模型架构：VLM 骨干 + 扩散动作专家
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/model.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/model.png)
 
 > 图 3：VLA 模型架构。VLM 骨干接收视觉、语言指令和相机 FoV，输出一个 cognition 特征去引导动作专家预测未来动作块；动作专家额外接收当前手部状态与噪声动作块，通过 AdaLN 注入 cognition 特征做去噪。这是"怎么做"的模型侧答案。
 > 来源：论文 Figure 3，https://arxiv.org/abs/2510.21571
@@ -222,22 +222,22 @@ $$
 - **预训练**：先热身动作专家、cognition token 映射层与 FoV 投影 MLP 共 5000 步，再联合微调 VLM 骨干与动作专家 80K 步；学习率动作专家 1e-4、VLM 1e-5；batch size 512；**8 块 NVIDIA H100，训练 2 天**。
 - **微调**：20K 步，batch size 256，学习率 1e-5；8 块 H100，8 小时。
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/robot.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/robot.png)
 
 > 图 8(a)：真实机器人硬件设置。由 Realman 机械臂、XHand 灵巧手与 RealSense 头部相机组成，用于微调与真实世界评测。
 > 来源：论文 Figure 8(a)，https://arxiv.org/abs/2510.21571
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/robot_hand.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/robot_hand.png)
 
 > 图 8(b)：XHand 与 MANO 的关节映射。相同索引表示对应关节，白色表示无对应关节。这张图直接说明了"人手动作空间是机器人手动作空间超集"这一假设如何落到具体关节维度的对齐上，是跨本体迁移与复现的关键。
 > 来源：论文 Figure 8(b)，https://arxiv.org/abs/2510.21571
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/robot_env_seen.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/robot_env_seen.png)
 
 > 图 9(a)：真实机器人评测中 fine-tuning 使用的物体与环境（seen）示例，评测时随机化位置与干扰物。
 > 来源：论文 Figure 9(a)，https://arxiv.org/abs/2510.21571
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/robot_env_unseen.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/robot_env_unseen.png)
 
 > 图 9(b)：未见物体与未见背景（unseen）示例，用于检验泛化能力。
 > 来源：论文 Figure 9(b)，https://arxiv.org/abs/2510.21571
@@ -285,7 +285,7 @@ Table 2 进一步做了 episode 构建策略的消融（350K 子集）：
 
 论文在 50%、20%、10%、1% 子采样数据上分别训练，观察抓取任务性能：
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/data_scale.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/data_scale.png)
 
 > 图 7：抓取任务上的数据 scaling 行为，圆圈大小表示数据视觉多样性。预测的手-物距离随数据规模增加稳步下降，在 log 尺度近似线性。
 > 来源：论文 Figure 7，https://arxiv.org/abs/2510.21571
@@ -320,17 +320,17 @@ Table 2 进一步做了 episode 构建策略的消融（350K 子集）：
 
 ### 5.5 真实机器人 scaling 与相关性（图 10）
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/data_scale_robot_seen.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/data_scale_robot_seen.png)
 
 > 图 10(a)：真实机器人 pick-and-place 任务在 seen 物体/背景上的成功率随预训练数据规模的变化。
 > 来源：论文 Figure 10(a)，https://arxiv.org/abs/2510.21571
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/data_scale_robot_unseen.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/data_scale_robot_unseen.png)
 
 > 图 10(b)：unseen 物体/背景上的成功率随预训练数据规模的变化。
 > 来源：论文 Figure 10(b)，https://arxiv.org/abs/2510.21571
 
-![](assets/VITRA - 基于真实人类活动视频的VLA预训练/data_scale_robot_correlation.png)
+![](assets/VITRA%20-%20基于真实人类活动视频的VLA预训练/data_scale_robot_correlation.png)
 
 > 图 10(c)：机器人任务成功率与预训练手-物距离（人手预测精度）的相关性。
 > 来源：论文 Figure 10(c)，https://arxiv.org/abs/2510.21571

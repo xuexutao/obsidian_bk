@@ -18,7 +18,7 @@
 
 作为总览，先看论文中的主图：
 
-![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/01-teaser.png)
+![](assets/Vision%20Banana%20-%20生成式预训练统一视觉理解/figures/01-teaser.png)
 
 **图 1（Teaser）解读**：论文主图，展示 Vision Banana 同时支持 2D 分割、metric depth、surface normal 等多种视觉理解任务，并保留图像生成能力。**来源**：arXiv:2604.20329，Figure 1 (teaser.png)。
 
@@ -126,7 +126,7 @@ Vision Banana 的训练逻辑很简单，但非常关键：
 
 下面这张图是论文里最关键的方法图之一，展示了作者设计的 depth↔RGB 双射：
 
-![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/02-method.png)
+![](assets/Vision%20Banana%20-%20生成式预训练统一视觉理解/figures/02-method.png)
 
 **图 5（depth↔RGB 双射）解读**：把 metric depth `d` 经 power transform（λ=-3, c=10/3）映射到 RGB cube 边上的分段线性路径（类似 3D Hilbert 曲线的第一段），使生成图像可无歧义反解码为真实 metric 距离，从而实现"生成即解码"的统一接口。**来源**：arXiv:2604.20329，Figure 5 (assets/color_tubes.jpg)。
 
@@ -210,13 +210,13 @@ Vision Banana 的训练逻辑很简单，但非常关键：
 
 下面这页展示了深度定量结果：
 
-![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/03-depth-table.png)
+![](assets/Vision%20Banana%20-%20生成式预训练统一视觉理解/figures/03-depth-table.png)
 
 **表 6 解读**：在 NYU / iBims1 / ETH3D / DIODE-Indoor / KITTI / nuScenes 六个 zero-shot benchmark 上，Vision Banana 平均 δ1 = 0.882，超过 UniK3D (0.823) 与 MoGe-2 (0.802)；在与 Depth-Anything V3 共同覆盖的 4 数据集上达 0.929 vs 0.918，且训练/推理均不使用真实深度数据与 camera intrinsics。**来源**：arXiv:2604.20329，Table 6。
 
 作者还展示了从生成深度图解码后再反投影成 3D scene 的可视化结果：
 
-![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/04-depth-3d.png)
+![](assets/Vision%20Banana%20-%20生成式预训练统一视觉理解/figures/04-depth-3d.png)
 
 **图 6（depth → 3D 反投影）解读**：四联图依次为 Input → Generated depth visualization → Vis view 1 → Vis view 2。把模型生成的 RGB 深度图解码回 metric depth 后，结合 camera intrinsics 即可重建出几何一致、全局准确的 3D 场景（NYU v2 / ETH3D 样本）。**来源**：arXiv:2604.20329，Figure 6 (assets/depth_demo/)。
 
@@ -228,7 +228,7 @@ Vision Banana 的训练逻辑很简单，但非常关键：
 
 下面这页同时给出了 normal 定量表和 qualitative comparison：
 
-![](assets/Vision Banana - 生成式预训练统一视觉理解/figures/05-normal-table.png)
+![](assets/Vision%20Banana%20-%20生成式预训练统一视觉理解/figures/05-normal-table.png)
 
 **表 7 解读**：在 NYUv2 / DIODE-indoor / ScanNet / Virtual KITTI 2 上比较 normal 角度误差。Vision Banana 在 Indoor 三个数据集的平均 mean/median 角误差最低（15.549° / 9.300°），显著低于 Marigold、DSINE、StableNormal、Lotus-2-Normal；在未见过的 Virtual KITTI 2 上与 Lotus-2 可比（29.063° vs 28.894°），而后者还在该 benchmark 上训练过。定性对比见论文 Figure 8。**来源**：arXiv:2604.20329，Table 7。
 

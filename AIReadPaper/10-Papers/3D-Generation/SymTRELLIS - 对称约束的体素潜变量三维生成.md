@@ -22,7 +22,7 @@
 
 下面这张 teaser 图非常直观。左侧是输入图像与生成结果，右侧是实际 3D 打印后的旋转测试：
 
-![](assets/SymTRELLIS - 对称约束的体素潜变量三维生成/teaser.png)
+![](assets/SymTRELLIS%20-%20对称约束的体素潜变量三维生成/teaser.png)
 
 论文报告中，这个陀螺案例里，TRELLIS.2 的晃动指标为 6.55，而 SymTRELLIS 降到 0.45，约 **14.5×** 改善，说明这不是“视觉上更整齐一点”，而是真正影响物理可用性。
 
@@ -57,7 +57,7 @@ TRELLIS.2 本身是三阶段生成框架：
 
 SymTRELLIS 的核心是：**只改前两阶段的 flow sampling 过程，不重训底层 VAE 和 flow model。**
 
-![](assets/SymTRELLIS - 对称约束的体素潜变量三维生成/method.png)
+![](assets/SymTRELLIS%20-%20对称约束的体素潜变量三维生成/method.png)
 
 ### 3.1 总体输入输出
 

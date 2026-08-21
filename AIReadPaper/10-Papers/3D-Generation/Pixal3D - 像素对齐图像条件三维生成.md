@@ -41,7 +41,7 @@ Pixal3D 通过把"在输入相机坐标系下定义物体"和"沿相机射线反
 
 ### 1.2 现有方法的瓶颈
 
-![](assets/Pixal3D - 像素对齐图像条件三维生成/figures/01-teaser.png)
+![](assets/Pixal3D%20-%20像素对齐图像条件三维生成/figures/01-teaser.png)
 
 > 图 1：Pixal3D 生成的像素对齐网格。前景为生成结果，背景为对应输入图像；左下角小图示意把 2D 特征沿相机射线反向投影到 3D 体的条件机制。teaser 直观传达"3D 资产在可见区域与输入图像保持像素级一致"这一目标。
 > 来源：论文 Figure 1，https://arxiv.org/html/2605.10922v1/figures/images/teaser.png
@@ -99,7 +99,7 @@ $$
 
 ### 3.1 总体框架
 
-![](assets/Pixal3D - 像素对齐图像条件三维生成/figures/02-method.png)
+![](assets/Pixal3D%20-%20像素对齐图像条件三维生成/figures/02-method.png)
 
 > 图 2：Pixal3D 总体框架。包含三个关键组件：像素对齐结构化潜表示学习（pixel-aligned structured latent learning）、图像反投影条件器（back-projection image conditioning）、两阶段生成过程（structure generation + structured latent generation）。结合图 3 的反投影机制可看清从图像到噪声体的完整条件通路。
 > 来源：论文 Figure 2，https://arxiv.org/html/2605.10922v1/pixal3d_pipeline.png
@@ -108,7 +108,7 @@ Pixal3D 沿用 Direct3D-S2 的两阶段稀疏体素潜扩散框架（VAE + 密�
 
 ### 3.2 关键模块一：反向投影条件机制
 
-![](assets/Pixal3D - 像素对齐图像条件三维生成/figures/03-projection.png)
+![](assets/Pixal3D%20-%20像素对齐图像条件三维生成/figures/03-projection.png)
 
 > 图 3：反向投影条件机制示意。图像特征沿相机射线显式提升到 3D 特征体，取代交叉注意力，建立无歧义的 2D-3D 对应关系。
 > 来源：论文 Figure 3，https://arxiv.org/html/2605.10922v1/proj.png
@@ -157,7 +157,7 @@ DINOv2 输出是 37×37 的 patch token 特征，粒度较粗，低层结构细�
 
 多视图扩展是这套机制的自然延伸：每个视图的多尺度特征独立反向投影到 3D 空间，在每个体素内通过简单取平均聚合，融合后的特征体作为生成模型的条件信号。这一方案可容纳任意数量的输入视图；视图数越多，3D 表面可见范围越大，3D 形状重建越确定。
 
-![](assets/Pixal3D - 像素对齐图像条件三维生成/figures/06-scene.png)
+![](assets/Pixal3D%20-%20像素对齐图像条件三维生成/figures/06-scene.png)
 
 > 图 4：室内场景生成结果示例。输入包含多个物体的室内场景图像，经 SAM3 分割与 Qwen-image-edit 补全后，逐个物体送入 Pixal3D 生成，最后通过 MoGe 全局深度图做尺度与深度对齐，得到物体分离的 3D 场景（图中彩色为分离开的 3D 资产：红色机器人、蓝色卡车、绿色积木、黄色床、紫色帽子）。
 > 来源：论文 Figure 7 子图（indoor_pa3d_rgba.png），https://arxiv.org/html/2605.10922v1/figures/images/scene_figure_image/indoor_pa3d_rgba.png
@@ -248,7 +248,7 @@ DINOv2 输出是 37×37 的 patch token 特征，粒度较粗，低层结构细�
 
 ### 5.2 定性结果
 
-![](assets/Pixal3D - 像素对齐图像条件三维生成/figures/04-results.png)
+![](assets/Pixal3D%20-%20像素对齐图像条件三维生成/figures/04-results.png)
 
 > 图 5：单视图 3D 生成定性对比（81 号样本），从左到右为输入、TRELLIS、TripoSG、Hunyuan3D、Direct3D-S2 与 Pixal3D。可以明显看出 Pixal3D 的输入视图轮廓贴合度、局部形状对位和表面细节均优于其他方法。
 > 来源：论文 Figure 4，https://arxiv.org/abs/2605.10922
@@ -257,7 +257,7 @@ DINOv2 输出是 37×37 的 patch token 特征，粒度较粗，低层结构细�
 
 ### 5.3 消融实验
 
-![](assets/Pixal3D - 像素对齐图像条件三维生成/figures/05-ablation.png)
+![](assets/Pixal3D%20-%20像素对齐图像条件三维生成/figures/05-ablation.png)
 
 > 图 6：消融实验。从左到右为输入、Direct3D-S2、去掉反向投影条件（w/o Back-proj Condition）、去掉特征上采样（w/o Feature Upsample）、Pixal3D 完整模型（Ours Full）。可以看出，去掉反向投影条件后保真度大幅下降、接近 Direct3D-S2；去掉特征上采样则细节恢复能力下降，图像中的低层结构信息丢失。
 > 来源：论文 Figure 8，https://arxiv.org/html/2605.10922v1/ablation.png

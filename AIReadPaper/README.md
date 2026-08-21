@@ -276,7 +276,7 @@ research-field-survey/scripts/extract_figure.py
 ### 6.1 图片引用示例
 
 ```markdown
-![](assets/TRELLIS - 结构化潜变量3D生成/figures/02-method-pipeline.png)
+![](assets/TRELLIS%20-%20结构化潜变量3D生成/figures/02-method-pipeline.png)
 
 > 图 2：TRELLIS 的总体生成流程。该图说明……  
 > 来源：论文 Figure 2，第 4 页，https://arxiv.org/abs/xxxx.xxxxx

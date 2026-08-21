@@ -38,7 +38,7 @@ Particulate 提出首个端到端前馈模型，能在约 10 秒内、单次前�
 
 因此，一个与 3D 生成"正交"但同样关键的任务浮出水面：**可动性估计（articulation estimation）**——给定一个静态网格，恢复它的可动部件划分与关节运动约束。Particulate 要解决的就是这个问题。它并不合成几何，而是给"已经存在但不会动"的 3D 资产补上"会动"的结构。
 
-![](assets/PARTICULATE - 前馈式三维可动部件与关节估计/figures/01-teaser.png)
+![](assets/PARTICULATE%20-%20前馈式三维可动部件与关节估计/figures/01-teaser.png)
 
 > **图 1（论文 Figure 1，teaser）**：Particulate 的效果总览。模型从静态 3D 网格出发，单次前馈推理出可动结构，覆盖真实扫描与 3D 生成模型合成等多样化资产，并在各部件上标注关节运动（旋转轴 / 移动方向）。这张图的核心信息是"任务的输入端只有静态网格，输出端是完整的可动语义"。来源：论文 Figure 1，https://arxiv.org/html/2512.11798
 
@@ -96,7 +96,7 @@ Particulate 提出首个端到端前馈模型，能在约 10 秒内、单次前�
 
 Particulate 的整体结构是"点云编码 → PAT 骨干 → 多路解码头"，全流程端到端、全监督训练。输入点云的三路特征（xyz、法线、PartField 特征）分别经过各自的 MLP / 线性层升维到同一维度 $D$，逐点相加得到点 token $\{\tilde{\mathbf{p}}_i\}_{i=1}^{N}$。由于真实部件数量未知，模型仿照 DETR 初始化一组可学习查询向量 $\{\mathbf{q}_j\}_{j=1}^{P_{\max}}$，让网络自己去"认领"部件。点 token 与部件查询一起送入 $B=8$ 个注意力块（PAT 骨干），经过查询自注意力与查询↔点双向交叉注意力后，得到增强后的点 token 和部件 token；最后这些 latent 向量流入若干个各司其职的解码器头，分别解出四元组 $(P, S, K, M)$ 的各分量。
 
-![](assets/PARTICULATE - 前馈式三维可动部件与关节估计/figures/02-method.png)
+![](assets/PARTICULATE%20-%20前馈式三维可动部件与关节估计/figures/02-method.png)
 
 > **图 2（论文 Figure 2，方法总览）**：左侧为输入点云的三路特征编码（xyz / 法线 / PartField 特征各自映射到 D 维后相加）；中部是 PAT 骨干，由 B 个注意力块对点向量与可学习部件查询交替做自注意力与交叉注意力；右侧是并列的解码器头，分别输出部件分割 S、运动学树 K 与运动约束 M。整图展示了"一个骨干、多路输出"的端到端设计。来源：论文 Figure 2，https://arxiv.org/html/2512.11798
 
@@ -229,11 +229,11 @@ $$\hat{\pi} = \arg\max_{\pi} \sum_{i=1}^{P} \sum_{j=1}^{N} \mathbf{S}_{j,i}\, \l
 
 ### 5.2 定性结果
 
-![](assets/PARTICULATE - 前馈式三维可动部件与关节估计/figures/03-results.png)
+![](assets/PARTICULATE%20-%20前馈式三维可动部件与关节估计/figures/03-results.png)
 
 > **图 3（论文 Figure 3，定性结果）**：展示输入网格与预测的可动部件及其运动约束，每个对象分别在两个不同铰接状态（展开/收拢）下呈现；所有输入网格均由现成 3D 生成器合成。这张图的意义在于证明：即便输入是"生成模型凭空造的、没有人工标注的"静态网格，Particulate 仍能给出几何合理、运动自洽的可动结构。来源：论文 Figure 3，https://arxiv.org/html/2512.11798
 
-![](assets/PARTICULATE - 前馈式三维可动部件与关节估计/figures/04-qualitative-comp.png)
+![](assets/PARTICULATE%20-%20前馈式三维可动部件与关节估计/figures/04-qualitative-comp.png)
 
 > **图 4（论文 Figure 4，Lightwheel 定性对比）**：与语义分割方法（PartField、P3SAM）相比，Particulate 的分割更贴合"可动部件"而非"语义部件"；与 Articulate AnyMesh、SINGAPO 相比，后者无法恢复外部视图不可见的内部结构（图中 a、b、d 例），而 Particulate 恢复了大部分内部部件并准确推断其运动约束。这张图集中体现了"可动 vs 语义"与"外表面 vs 内部结构"两条关键能力边界。来源：论文 Figure 4，https://arxiv.org/html/2512.11798
 
@@ -251,7 +251,7 @@ $$\hat{\pi} = \arg\max_{\pi} \sum_{i=1}^{P} \sum_{j=1}^{N} \mathbf{S}_{j,i}\, \l
 
 泛化方面，Lightwheel 上的 OOD 类别（stand mixer、stovetop）分数显著低于训练内类别，说明模型对"从未见过的运动学结构"仍会失手。效率方面，10 秒级推理 + 100K 迭代训练（8×H100）意味着无论训练还是部署，成本都远低于优化式方法。
 
-![](assets/PARTICULATE - 前馈式三维可动部件与关节估计/figures/05-failure-cases.png)
+![](assets/PARTICULATE%20-%20前馈式三维可动部件与关节估计/figures/05-failure-cases.png)
 
 > **图 5（论文 Figure 5，失败案例）**：左图显示模型在具有非典型铰接配置的对象上挣扎；右图显示在缺乏内部结构的 AI 生成形状上失效。这两类失败分别对应"结构分布外"与"生成伪影"两种不同病因，是理解方法边界最直接的证据。来源：论文 Figure 5，https://arxiv.org/html/2512.11798
 

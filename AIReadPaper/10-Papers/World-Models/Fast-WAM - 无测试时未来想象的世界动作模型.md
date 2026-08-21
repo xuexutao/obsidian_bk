@@ -57,7 +57,7 @@ Fast-WAM 通过四个受控变体证明：WAM 的价值**主要来自训练期�
 3. **给出清晰结论**：视频预测的主要价值在于改善**训练期的世界表征**，而非测试期生成未来观测；去掉视频联合训练造成的掉点，远大于"做不做未来想象"之间的差距。
 4. **实践价值**：在无具身预训练下达到 SOTA 水平，推理延迟 190 ms，具备真实机器人实时部署的可行性。
 
-![](assets/Fast-WAM - 无测试时未来想象的世界动作模型/fig1_wam_paradigms.png)
+![](assets/Fast-WAM%20-%20无测试时未来想象的世界动作模型/fig1_wam_paradigms.png)
 
 > 图 1：三种 WAM 范式的对比。(A) 联合建模 WAM 同时去噪未来视频 token 与动作 token；(B) 因果式 WAM 先生成未来观测、再条件化动作预测；(C) Fast-WAM 保留训练期视频联合训练，但推理时移除显式未来生成，从潜在世界表征单次前向直接预测动作。这张图是全文立意的核心——(A)(B) 都把"未来生成"当作推理的必要环节，而 (C) 说明它只是可选的训练信号。  
 > 来源：论文 Figure 1，https://arxiv.org/abs/2603.16666
@@ -126,7 +126,7 @@ Fast-WAM 的骨架是 **Wan2.2-5B** 视频扩散 Transformer（video DiT），�
 
 这张掩码在数学上保证了：即便训练时未来帧与动作共享同一个前向，未来信息也**不可能**通过注意力直接流入动作分支；动作分支能"看到"的未来，只可能通过视频 DiT 编码出的、经由共享参数塑造的表征间接传递。这正是后续消融实验"干净"的前提。
 
-![](assets/Fast-WAM - 无测试时未来想象的世界动作模型/fig2_architecture.png)
+![](assets/Fast-WAM%20-%20无测试时未来想象的世界动作模型/fig2_architecture.png)
 
 > 图 2：Fast-WAM 的模型架构与注意力掩码。(a) 视频 DiT（Wan2.2-5B）与 action expert DiT（1B）组成 MoT 共享注意力双分支，三组 token 通过 cross-attention 接入文本条件；(b) 训练/推理掩码：动作 token 看不到未来视频 token，第一帧 token 不关注任何其他 token，推理时未来视频分支被整体移除。该图说明了"训练期视频目标"与"推理期未来生成"如何在同一个网络里被物理隔离。  
 > 来源：论文 Figure 2，https://arxiv.org/abs/2603.16666
@@ -265,12 +265,12 @@ $\lambda$ 平衡动作学习与视频联合训练的权重（**论文未披露�
 
 真实世界任务是 Galaxea R1 Lite 平台上的**长程叠毛巾**（可变形的软体物体，需要长视界规划与精确闭环）。Figure 3 展示的是任务场景，Figure 4 汇总了成功率、完成时间与延迟三个维度的结果。
 
-![](assets/Fast-WAM - 无测试时未来想象的世界动作模型/fig3_towel_folding.png)
+![](assets/Fast-WAM%20-%20无测试时未来想象的世界动作模型/fig3_towel_folding.png)
 
 > 图 3：真实世界长程叠毛巾任务在 Galaxea R1 Lite 平台上的执行场景。该任务选用可变形物体，比刚体抓取更依赖长程时序推理与持续闭环，是检验"世界表征是否真的有用"的合适探针。  
 > 来源：论文 Figure 3，https://arxiv.org/abs/2603.16666
 
-![](assets/Fast-WAM - 无测试时未来想象的世界动作模型/fig4_real_world_results.png)
+![](assets/Fast-WAM%20-%20无测试时未来想象的世界动作模型/fig4_real_world_results.png)
 
 > 图 4：真实世界叠毛巾任务的结果。左图：成功率 vs. 平均完成时间（左上角更优）；右图：各变体的推理延迟对比。图中可见 Fast-WAM 的成功率与 $\pi_{0.5}$ 相当但延迟远低于 Joint/IDM；去掉视频联合训练的变体成功率骤降、完成时间最长。  
 > 来源：论文 Figure 4，https://arxiv.org/abs/2603.16666

@@ -69,7 +69,7 @@ PhysX-Omni 把"单图 3D 生成"的目标从"几何好看"提升为"仿真可用
 
 下面这张是论文的总览图，清晰地把数据集、基准、模型主体、刚/柔/关节三类资产、机器人策略学习与场景生成串成一条完整链路。
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/teaser2.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/teaser2.png)
 
 > **图 1（论文 Figure 1，Teaser）**：PhysX-Omni 的总览图。顶部展示 PhysXNet/PhysX-Mobility 与新构建的 PhysXVerse 数据集合并后形成训练基础；中部左侧是 PhysX-Bench 六大维度，右侧是基于多轮问答的 VLM 生成范式与刚/柔/关节三类输出；下半部展示了两个直接的下游应用——把生成资产直接送入仿真做机器人策略学习，以及与 Depth Anything v2 + SAM 2 组合做仿真就绪场景生成。
 > 来源：arXiv 2605.21572v1 Figure 1，<https://arxiv.org/html/2605.21572v1>
@@ -133,7 +133,7 @@ $$
 
 PhysX-Omni 沿用了 PhysX-Anything 提出的"由粗到细、由全局到局部"思路，但**最重要的改动是把几何表示从"文本体素索引"换成了 Template-based RLE**，并把"先显式建模 3D 结构，再做物理装配"作为统一范式。具体流程如 Figure 2。
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/framework.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/framework.png)
 
 > **图 2（论文 Figure 2，Framework）**：PhysX-Omni 的双阶段生成流水线。**Round 1**（左半）：图像经 Image Tokenizer 编码，与文本 prompt（"请分析图像并输出结构化描述"）一起送入 VLM，输出 Overall Information——A1 名称、C2 类别、Dimension、各部件 P_0..P_n 的基础属性，以及部件分组信息。**Round 2 ~ Round n**（右半）：VLM 在 Content memory（保留前一轮输出）和多轮 question 的引导下，逐部件输出 A2 Geometry Information 文本化 token 序列；该序列经 Decoder Library（支持 Part-level Meshes、Part-level 3DGS、Part-level Radiance Fields）解码成高质量 3D 资产，最终装配为 URDF/XML 描述并送入 Free-Fall 或 Wind-Driven 等物理仿真。底部紫/绿/橙三色 token 条分别对应 Image tokens、Q1/A1 文本 tokens、Q2/A2 几何 tokens，凸显多模态 token 混合。
 > 来源：arXiv 2605.21572v1 Figure 2，<https://arxiv.org/html/2605.21572v1>
@@ -148,7 +148,7 @@ PhysX-Omni 沿用了 PhysX-Anything 提出的"由粗到细、由全局到局部"
 
 这是论文的技术亮点，单独画了一张图来解释。思路可以拆成三步。
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/represent1.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/represent1.png)
 
 > **图 3b（论文 Figure 3b，Detailed Geometry Representation）**：Template-based RLE 几何表示的完整构造流程。以一个机甲机器人为例：(1) 仿真就绪资产被分解为带物理属性的部件（Chest Plate、Shoulder Armor、Forearm Armor、Leg Assembly），每部件带材质、密度、杨氏模量、泊松比、Priority rank 与功能描述；(2) 体素化得到 Full Voxel（$64\times 64\times 64$ 占据场），按部件分解为 Part-Level Voxel；(3) 沿 $z$ 轴切片得到 2D Mask（每层 $64\times 64$ 二值图）；(4) 经典 2D RLE 将每层表示为 `[start_index, length]` 序列（蓝色数字=起始体素索引，棕色数字=长度）；(5) 引入 Template 模板层（template_a 到 template_e），把不变化的层折叠到 `layer a`，只存储差异部分（`layer e + ...` 或 `layer e - ...`），大幅压缩 token 数量。
 > 来源：arXiv 2605.21572v1 Figure 3b，<https://arxiv.org/html/2605.21572v1>
@@ -189,7 +189,7 @@ $$
 
 下图给出视觉对比。可以看到在眼镜的细长镜腿和轮椅的复杂辐条上，PhysX-Anything 的输出出现结构断裂、镜腿断开、辐条错位等问题，而 PhysX-Omni 显式建模 3D 几何后能保持更连贯的部件结构。
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/geo_vis.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/geo_vis.png)
 
 > **图 3a（论文 Figure 3a，Geometry Representation Comparison）**：同一组输入下 PhysX-Anything 与 PhysX-Omni 的渲染对比。上方案例是太阳镜：PhysX-Anything 的镜腿明显断裂且局部几何不连续（红框放大处可见黑色断口），PhysX-Omni 能保持镜腿完整、表面光滑。下方案例是轮椅：PhysX-Anything 出现辐条缺失、座椅与车轮分离、铰接结构混乱（红框内几乎只剩一团黑色结构），PhysX-Omni 重建出完整的辐条、座椅与靠背，部件结构清晰可数。
 > 来源：arXiv 2605.21572v1 Figure 3a，<https://arxiv.org/html/2605.21572v1>
@@ -249,7 +249,7 @@ $$
 
 下图对比 PhysXNet、PhysX-Mobility、PhysXVerse 的类别覆盖与 PhysXVerse 内部的部件数分布与标签词云。
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/data_distribution.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/data_distribution.png)
 
 > **图 4（论文 Figure 4，PhysXVerse Statistics）**：顶部三栏对比 PhysXNet（21 类）、PhysX-Mobility（46 类）与 PhysXVerse（2.9K+ 类）的样本多样性——PhysXNet 集中在简单家具、灯具；PhysX-Mobility 集中在家电和运动器材；PhysXVerse 涵盖机器人、汽车、摩天大楼、玩具、人物、生物等复杂长尾类别。左下是 PhysXVerse 内部部件数直方图，呈明显长尾分布，少数部件对象占比最高，60+ 部件对象出现在机器人、复杂交通工具中。右下是部件标签词云，可以读到 Wheel、Body、Head、Handle、Foot、Base 等常用部件名。
 > 来源：arXiv 2605.21572v1 Figure 4，<https://arxiv.org/html/2605.21572v1>
@@ -279,7 +279,7 @@ $$
 
 下图把 PhysX-Bench 六大维度的具体评估方式画得非常清楚，每个维度都对应一个独立的子面板。
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/physx-bench.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/physx-bench.png)
 
 > **图 5（论文 Figure 5，PhysX-Bench Overview）**：PhysX-Bench 的六个评估维度概览。① **Geometry** 包含 CLIP Alignment、3D Consistency、Visual Quality 三个子指标；② **Description** 评估部件级掩码与文字描述的 Alignment score 与 Precision score；③ **Affordance** 关注相对排序合理性、显著误排序、整体常识合理性；④ **Material** 通过 Free-fall 与 Drop-in-water 两种仿真视频反推 Density、Young's Modulus、Poisson's Ratio；⑤ **Kinematic** 由 Prior-part motion consistency、Revealed-entity plausibility、Global articulation coherence 三个子指标加权得到；⑥ **Absolute Scale** 用 VLM 估计的 W/D/H 与生成资产直接对比。中心六边形把所有维度画成雷达图。
 > 来源：arXiv 2605.21572v1 Figure 5，<https://arxiv.org/html/2605.21572v1>
@@ -372,7 +372,7 @@ $$
 
 论文给出的对比图覆盖了 4 个代表性输入（机甲、挖掘机、蜜蜂、机甲的另一种形态），每行展示 5 种方法的几何、铰接与物理属性。
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/qualitative_other1.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/qualitative_other1.png)
 
 > **图 6（论文 Figure 6，Qualitative Results）**：四种方法在机甲、挖掘机、蜜蜂、机甲 4 个输入上的定性对比。Articulate-Anything 与 MonoArt 都用红叉标出"未预测其他物理属性"；PhysXGen、PhysX-Anything、PhysX-Omni 同时给出几何、铰接与绝对尺度（蓝色）/Affordance/Description/Material 的可视化热力图。PhysXGen 与 PhysX-Anything 的绝对尺度数值明显偏离（动辄 90、106、55 等），而 PhysX-Omni 预测的尺度（如 2504.1×1587.06×742.32，虽然单位看似异常但相对量级符合真值）与真实场景更接近。PhysX-Omni 在蜜蜂这种小尺寸、薄翅、复杂腹部结构上仍能保持部件可数，而 PhysX-Anything 在蜜蜂案例中出现了几乎解体的几何（红框内只剩散落部件）。
 > 来源：arXiv 2605.21572v1 Figure 6，<https://arxiv.org/html/2605.21572v1>
@@ -387,7 +387,7 @@ $$
 
 定性结论用 Figure 10 展示：
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/ablation.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/ablation.png)
 
 > **图 10（论文 Figure 10，Ablation Visualization）**：三个物体（婴儿车、拖拉机、带盖玻璃罐）的输入下，PhysX-Anything 与 PhysX-Omni 的多视角渲染对比。婴儿车案例中，PhysX-Anything 的车架结构断裂、轮子丢失、铰接混乱（红框内结构基本不可辨），PhysX-Omni 重建出完整的车架、四轮、顶棚。拖拉机案例中，PhysX-Anything 出现结构破碎、表面纹理错位，PhysX-Omni 重建出完整的拖拉机轮廓、黄色轮毂、车窗。带盖玻璃罐案例中，PhysX-Anything 的盖子、罐体、勺子互相错位（红框内可看到几何断片），PhysX-Omni 保持三部件清晰分离，罐内勺子位置合理。
 > 来源：arXiv 2605.21572v1 Figure 10，<https://arxiv.org/html/2605.21572v1>
@@ -404,7 +404,7 @@ $$
 
 PhysX-Omni 强调统一支持刚体 / 柔体 / 关节体三类，论文用 Figure 9 专门展示形变体能力。
 
-![](assets/PhysX-Omni - 单图生成仿真就绪三维资产/deformation.png)
+![](assets/PhysX-Omni%20-%20单图生成仿真就绪三维资产/deformation.png)
 
 > **图 9（论文 Figure 9，Deformable Objects）**：PhysX-Omni 生成的形变体在物理仿真中的表现。左侧是输入图像（植物、汉堡包），右侧四列是不同视角下仿真中的形变体。植物叶片在自由落体仿真中呈现自然的弯曲变形；汉堡包的牛肉饼在落地时出现软体压缩的视觉特征，叶片/面包层保持完整结构，没有出现刚体"穿透"或网格撕裂的失真。
 > 来源：arXiv 2605.21572v1 Figure 9，<https://arxiv.org/html/2605.21572v1>

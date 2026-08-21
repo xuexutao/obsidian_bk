@@ -62,7 +62,7 @@ LATO.2 显式做了三件事：
 2. 引入两条专用 VAE：**V-VAE** 通过稀疏细分解码器+亚体素偏移头把顶点精度从体素中心提到亚体素；**T-VAE** 通过邻接掩码自注意力把离散连接压成连续的逐顶点 16 维潜变量。
 3. 在分解结构上挂载两个**生产导向能力**：分部高分辨率生成（part-wise generation，可输出数万面级网格）和拓扑自适应编辑（topology-adaptive editing，用户修改顶点后重跑 T-Flow 即可重生成连接），都不需要对顶点重新优化。
 
-![](assets/LATO.2 - 顶点与拓扑因子化网格生成/fig1-overview.png)
+![](assets/LATO.2%20-%20顶点与拓扑因子化网格生成/fig1-overview.png)
 
 > 图 1：论文 Figure 1。上方一行展示 V-Flow 在指定顶点数（V=500、V=2000）下生成顶点云后，T-Flow 把它们连接成 F=1274、F=4504 面的不同分辨率网格；下方一行给出 LATO.2 的三大应用形态——单体生成、多部件生成与拓扑自适应编辑（部件拼接 + 部件旋转）。  
 > 来源：论文 Figure 1，第 1 页，https://arxiv.org/abs/2607.10623
@@ -117,7 +117,7 @@ LATO.2 由**两个表示模块 + 两个生成模块 + 一个共享 scaffold** �
 
 推理时执行三步：(1) 由条件生成粗 scaffold $\hat{\mathcal{S}}$；(2) V-Flow 在 $\hat{\mathcal{S}}$ 的活跃体素上采样顶点潜变量 $\mathbf{z}_{\mathbf{v}}$，解码为高精度顶点 $\hat{\mathbf{V}}$；(3) T-Flow 以 $\hat{\mathbf{V}}$ 和 $\hat{\mathcal{S}}$ 为条件采样拓扑潜变量 $\mathbf{z}_{\mathbf{t}}$，解码为成对边，再经环检测得到面。
 
-![](assets/LATO.2 - 顶点与拓扑因子化网格生成/fig2-pipeline.png)
+![](assets/LATO.2%20-%20顶点与拓扑因子化网格生成/fig2-pipeline.png)
 
 > 图 2：论文 Figure 2。上半部分：V-VAE 接收 voxelize 后的顶点位移场并解码出带 offset 的顶点；T-VAE 接收顶点 + 邻接掩码自注意力，把每顶点特征压成 latent 再通过 Connection Head 预测边。下半部分：V-Flow 在稀疏体素 + DINOv2 图像 token 上做整流流；T-Flow 在顶点 token + 3D RoPE + 3D CNN scaffold 特征上做整流流；最终由 T-VAE 解码器恢复连接。  
 > 来源：论文 Figure 2，第 3 页，https://arxiv.org/abs/2607.10623
@@ -195,7 +195,7 @@ $$
 
 **分部生成（part-wise generation）** 直接源自 scaffold 的可分性：当目标网格顶点数超出单体隐变量容量时，把粗 scaffold 切成多个 part，每个 part 单独归一化到完整 latent 空间跑一次 V-Flow，再把所有 part 顶点拼回原坐标。T-Flow 既可以一次性在所有顶点上跑（global topology），也可以分部生成连接后通过 topology-adaptive stitching 拼接。
 
-![](assets/LATO.2 - 顶点与拓扑因子化网格生成/fig3-multipart-pipeline.png)
+![](assets/LATO.2%20-%20顶点与拓扑因子化网格生成/fig3-multipart-pipeline.png)
 
 > 图 3：论文 Figure 3。结构规划器先在图像/点云生成的稀疏结构上加上 part 级 3D 包围框，得到 box-aware 结构；编码后与图像 token 做 cross-attention 融合；再由结构解码器预测 part-aware 稀疏结构；最后 LATO.2 对每个 part 单独跑 V-Flow，T-Flow 既可联合也可分部生成连接。  
 > 来源：论文 Figure 3，第 4 页，https://arxiv.org/html/2607.10623v2
@@ -210,7 +210,7 @@ $$
 - **Mesh stitching**：把多个网格/部件对齐后取顶点并集，T-Flow 在合并后的顶点集合上生成连接，自动跨越新界面产生连贯拓扑；
 - **Part transformation**：局部旋转/平移时，未变换区域内部拓扑仍然有效，仅过渡区域（连接移动和未移动顶点的面）需要重生成。
 
-![](assets/LATO.2 - 顶点与拓扑因子化网格生成/fig4-topology-editing.png)
+![](assets/LATO.2%20-%20顶点与拓扑因子化网格生成/fig4-topology-editing.png)
 
 > 图 4：论文 Figure 4。(a) Mesh stitching：把不同网格顶点并集后，T-Flow 在接合区域生成无缝连接（红色为新合成面）。(b) Part transformation：直接把部件旋转会拉出面拉伸与自相交（左侧红框），重跑 T-Flow 后得到无相交、拓扑连贯的网格（右侧）。  
 > 来源：论文 Figure 4，第 5 页，https://arxiv.org/html/2607.10623v2
@@ -357,21 +357,21 @@ $$
 
 #### 5.2.1 几何条件生成的定性对比
 
-![](assets/LATO.2 - 顶点与拓扑因子化网格生成/fig5-partwise.png)
+![](assets/LATO.2%20-%20顶点与拓扑因子化网格生成/fig5-partwise.png)
 
 > 图 5：论文 Figure 6（图中文件名沿用历史命名 fig5-partwise.png，内容为 Figure 6 定性对比）。在蝎子、人偶、双足角色、公仔等形状上，自回归方法（BPT、DeepMesh、FastMesh、MeshRipple）常出现断裂表面、缺失薄结构或不规则局部连接；隐变量流基线（MeshFlow、LATO）形状更连贯但仍有局部错误；LATO.2（最右列）在保持精细结构的同时面连接更干净。  
 > 来源：论文 Figure 6，第 7 页，https://arxiv.org/html/2607.10623v2
 
 #### 5.2.2 V-VAE / T-VAE 重建可视化
 
-![](assets/LATO.2 - 顶点与拓扑因子化网格生成/fig7-vae-recon.png)
+![](assets/LATO.2%20-%20顶点与拓扑因子化网格生成/fig7-vae-recon.png)
 
 > 图 6：论文 Figure 7。(a) V-VAE 顶点重建可视化：灰色为正确重建、黄色为缺失 GT 顶点、红色为假阳性预测。(b) Offset head 效果：有 offset 时误差显著降低。(c) T-VAE 从学习到的拓扑 latent 完美重建原网格连接。  
 > 来源：论文 Figure 7，第 7 页，https://arxiv.org/html/2607.10623v2
 
 #### 5.2.3 顶点数可控生成
 
-![](assets/LATO.2 - 顶点与拓扑因子化网格生成/fig9-vertex-control.png)
+![](assets/LATO.2%20-%20顶点与拓扑因子化网格生成/fig9-vertex-control.png)
 
 > 图 7：论文 Figure 9。给定相同结构体素，把目标顶点预算从 0.2K 逐步提到 4K，输出网格越来越稠密、细节更细，但物体级几何保持一致。T-Flow 自动适配连接关系到新生成的顶点集合。  
 > 来源：论文 Figure 9，第 8 页，https://arxiv.org/html/2607.10623v2

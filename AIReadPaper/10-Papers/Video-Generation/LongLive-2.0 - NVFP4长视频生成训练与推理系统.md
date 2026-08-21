@@ -55,7 +55,7 @@ LongLive-2.0 是首个**贯穿长视频生成训练与推理全链路的 NVFP4 �
 2. **推理基础设施**：在 Blackwell GPU 上启用 W4A4 NVFP4 推理 + KV cache NVFP4 量化 + 异步流式 VAE 解码；在非 Blackwell 架构上用 SP 推理配合量化 KV cache 来逼近实时吞吐。最终在 5B / 720p / 2 步设置下达到 45.7 FPS。
 3. **简洁的训练流水线**：凭借稳定的基础设施与高质量长视频数据，把"基础双向扩散模型 → 长视频 AR 微调 → 独立 LoRA few-step 蒸馏"压成两阶段流水线，不再依赖 ODE 初始化与多阶段 DMD，从而支持长视频、交互、多镜头、实时四类能力同时落地。
 
-![](assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/fig1-overall.png)
+![](assets/LongLive-2.0%20-%20NVFP4长视频生成训练与推理系统/fig1-overall.png)
 
 > 图 1：LongLive-2.0 整体框架。左侧训练侧用 Balanced SP 与 NVFP4 加速 AR 微调，并行用 DMD 蒸馏得到独立 LoRA 权重；右侧推理侧用 W4A4 NVFP4、KV cache 量化与异步 VAE 解码三件套最大化端到端吞吐。
 > 来源：论文 Figure 1，第 1 页，https://arxiv.org/abs/2605.18739
@@ -151,7 +151,7 @@ Balanced SP 的解决思路是**让"chunk ownership"贯穿 VAE → clean/noisy �
 
 随后每张卡在本地用同一份 chunk latent 同时构造 clean 与 noisy 流，加噪用本地噪声调度实现，避免在某一 rank 上实例化完整 $[\mathbf{z}_{\text{clean}};\mathbf{z}_{\text{noisy}}]$ 再切片。这样在 Ulysses All-to-All 之后，张量天然落在"每个 rank 既有 context 也有 target"的均衡布局，flex_attention 可以直接基于通信后的 token 顺序编译 block-sparse AR mask，省掉了把 token 重新排列回 [all clean; all noisy] 的开销。
 
-![Balanced SP 与 NVFP4 训练基础设施](assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/fig3-training-pipeline-v7.png)
+![Balanced SP 与 NVFP4 训练基础设施](assets/LongLive-2.0%20-%20NVFP4长视频生成训练与推理系统/fig3-training-pipeline-v7.png)
 
 > 图 2：训练基础设施对比。左栏 Traditional SP 把 clean+noisy 视为普通拼接序列再均匀切，导致 loss-bearing 负载不均且 VAE 在每张卡上重复；中栏 Balanced SP 用同一时间 chunk 的 clean/noisy 配对布局贯穿 VAE 编码、attention 与 loss；右栏 NVFP4 进一步压缩显存并加速 GEMM。
 > 来源：论文 Figure 2，第 3 页，https://arxiv.org/abs/2605.18739
@@ -199,12 +199,12 @@ DMD 蒸馏做了两个关键简化：
 1. 不再需要原始 LongLive 的多阶段流水线（ODE 初始化 + 短视频 DMD + 流式长视频 DMD），而是**单阶段**直接在 AR 训练好的模型上做 DMD。
 2. 不 fine-tune 整个 DiT backbone，**只优化 LoRA 模块**。student / critic / teacher 都从 Wan2.2-TI2V-5B 初始化；训好的 LoRA 可以即插即用地接到 AR 模型上把推理步数从 4 降到 2，类似 LCM-LoRA。论文附录 H 进一步比较了这种"AR 模型上做 DMD"与"diffusion model 上做 DMD"两类策略的差异。
 
-![Clean Pipeline for AR Video Generation](assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/Fig-clean-pipeline.png)
+![Clean Pipeline for AR Video Generation](assets/LongLive-2.0%20-%20NVFP4长视频生成训练与推理系统/Fig-clean-pipeline.png)
 
 > 图 3：Clean Pipeline 对比。上一行（既有方法）需要基础双向扩散 → AR causal 化 → ODE 初始化 → 短视频 DMD → 长视频 tuning → LoRA 蒸馏等多阶段；下一行（LongLive-2.0）只需基础双向扩散 → 长视频 AR 微调 → 独立 LoRA DMD 蒸馏即可一次性支持长视频、交互、多镜头与实时生成。
 > 来源：论文 Figure 3，第 5 页，https://arxiv.org/abs/2605.18739
 
-![NVFP4 DMD 训练基础设施](assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/nvfp4_dmd.png)
+![NVFP4 DMD 训练基础设施](assets/LongLive-2.0%20-%20NVFP4长视频生成训练与推理系统/nvfp4_dmd.png)
 
 > 图 4：NVFP4 DMD 训练基础设施。Generator、Real-Score、Fake-Score 三类模型在同一低精度 NVFP4 设定下协同训练，是 LongLive-2.0 端到端 NVFP4 训练的关键证据。
 > 来源：论文 Figure 4，第 6 页，https://arxiv.org/abs/2605.18739
@@ -222,7 +222,7 @@ DMD 蒸馏做了两个关键简化：
 
 这条设计与 chunk 级 interactive prompting 自然耦合：prompt 切换 $p_k \to p'_k$ 天然意味着 scene cut，触发 $A_s$ 的本地重绑定并刷新后续 cross-attention cache，但 $A_g$ 与已生成历史保持不变，从而在分钟级交互生成中不出现冗余重算。
 
-![Multi-Shot Attention Sink 示意](assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/shot-level-sink.png)
+![Multi-Shot Attention Sink 示意](assets/LongLive-2.0%20-%20NVFP4长视频生成训练与推理系统/shot-level-sink.png)
 
 > 图 6：Multi-Shot Attention Sink 示意。Global-level Sink 始终绑定在视频初始帧，Shot-level Sink 在每个 shot 起始处重绑定，使 attention 在保持全局身份的同时不丢失 shot 内时序一致性。
 > 来源：论文 Figure 6，第 7 页，https://arxiv.org/abs/2605.18739
@@ -343,17 +343,17 @@ Table 3 报告推理侧"逐步打开优化"的累加效果。BF16 baseline 24.8 
 
 论文展示了若干定性结果，最具代表性的是多镜头 Attention Sink 的消融与 PTQ vs NVFP4 训练感知量化的对比。
 
-![Multi-Shot Attention Sink 消融](assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/shot-level-sink-ablation.png)
+![Multi-Shot Attention Sink 消融](assets/LongLive-2.0%20-%20NVFP4长视频生成训练与推理系统/shot-level-sink-ablation.png)
 
 > 图 7：Multi-Shot Attention Sink 消融。上一行未启用 multi-shot attention sink 时，从 Shot 1 的椅子场景切到 Shot 2 的人物时人物身份开始漂移、Shot 2 End 出现重复纹理；下一行启用 multi-shot attention sink 后，Shot 1 椅子场景保持稳定，Shot 2 的人物身份与外观在镜头末仍清晰可辨，验证了双 sink 设计在身份保持与 shot 内一致性上同时有效。
 > 来源：论文 Figure 7，第 7 页，https://arxiv.org/abs/2605.18739
 
-![PTQ vs Ours 多镜头定性对比](assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/ptq_nvfp4.png)
+![PTQ vs Ours 多镜头定性对比](assets/LongLive-2.0%20-%20NVFP4长视频生成训练与推理系统/ptq_nvfp4.png)
 
 > 图 8：PTQ vs Ours（NVFP4-aware 训练）的多镜头生成对比。上一行 PTQ 路线从 Shot 2 开始人物脸部开始 Blur、Shot 3 进一步退化；下一行 Ours 路线脸部保持 Distinct，身份与细节在镜头切换后仍清晰。说明仅靠 PTQ 难以稳定长视频多镜头生成，而 NVFP4-aware 训练是 LongLive-2.0 端到端低精度路线在质量上不掉档的关键。
 > 来源：论文附录 F，https://arxiv.org/abs/2605.18739
 
-![Direct DMD vs Standalone LoRA 对比](assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/DMD_comparison.png)
+![Direct DMD vs Standalone LoRA 对比](assets/LongLive-2.0%20-%20NVFP4长视频生成训练与推理系统/DMD_comparison.png)
 
 > 图 9：附录 H 的 DMD 蒸馏策略对比。上一行"Direct DMD on AR model"在多场景下出现明显瑕疵（绣花模糊、猫的姿态僵硬、人物手部消失、拖拉机烟雾异常）；中间行"Standalone LoRA injection"（论文采用路线）保持稳定的画面与动作；下一行"DMD on Diffusion Model (with AR mask)"作为对照组。说明在 AR 模型上做 DMD 时只更新 LoRA 子空间，比直接在 AR 模型上做 full DMD 蒸馏更稳。
 > 来源：论文附录 H，https://arxiv.org/abs/2605.18739

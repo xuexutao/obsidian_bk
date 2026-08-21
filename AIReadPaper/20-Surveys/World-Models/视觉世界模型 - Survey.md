@@ -144,11 +144,11 @@
 
 先看统一框架图，它说明了从视觉输入到知识学习再到交互仿真的整体闭环：
 
-![](assets/视觉世界模型 - Survey/framework.png)
+![](assets/视觉世界模型%20-%20Survey/framework.png)
 
 再看 taxonomy 图，它把不同 architectural family 放到同一张版图里，便于后续把新论文定位进去：
 
-![](assets/视觉世界模型 - Survey/taxonomy.png)
+![](assets/视觉世界模型%20-%20Survey/taxonomy.png)
 
 ## 4. Methodology：作者如何组织整个 VWM 版图
 
@@ -233,7 +233,7 @@
 
 下面这张图是论文里对 evaluation ecosystem 的总结，很适合后续当评测索引来用：
 
-![](assets/视觉世界模型 - Survey/evaluation.png)
+![](assets/视觉世界模型%20-%20Survey/evaluation.png)
 
 ### 5.3 数据集与 benchmark 的系统整理
 

@@ -109,7 +109,7 @@ $\mathcal{L}_{\mathrm{VLA}}^{\mathrm{action}}$ 是动作 token 的交叉熵损�
 
 ReconVLA 由两条**共享 LLM 主干**的分支构成（Figure 3）。第一条是标准的动作分支，输出离散动作 token；第二条是新增的视觉重建分支，输出 reconstructive token $\bm{h}_R$，驱动一个轻量 Diffusion Transformer（DiT）从噪声中恢复 gaze region 的潜在 scene token。两条分支通过共享主干耦合，重建损失的反向传播会迫使主干编码出更聚焦、更细粒度的视觉表征。
 
-![](assets/ReconVLA - 目标区域重建驱动的机器人视觉对齐/fig3_architecture.png)
+![](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig3_architecture.png)
 
 > 图 1：ReconVLA 的总体架构。输入是多视角图像与文本指令；动作分支输出离散动作 token，重建分支输出 reconstructive token 作为去噪器条件，从 $\bm{z}_t$ 恢复 gaze region 的 scene token $\bm{z}_0$。两条分支共享同一 LLM 主干，因此重建监督会反向作用到动作分支的视觉表征。
 > 来源：论文 Figure 3，第 4 页，https://arxiv.org/abs/2508.10333
@@ -235,7 +235,7 @@ $\mathcal{D}$ 由多层 Transformer encoder block 堆叠而成，用 self-attent
 | Put Fruit into Bowl (Unseen) | 5% | 15% | **65%** |
 | Bus Table (Unseen) | ~0% | ~0% | **50%** |
 
-![](assets/ReconVLA - 目标区域重建驱动的机器人视觉对齐/fig6_real_world_results.png)
+![](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig6_real_world_results.png)
 
 > 图 2：真实世界 4 个 seen 任务 + 2 个 unseen 变体的成功率柱状图。ReconVLA 在所有六项上均最高；最关键的泛化证据是：在 OpenVLA / PD-VLA 几乎完全失败的 unseen 任务上，ReconVLA 仍保持 50%–65% 的成功率，这主要归功于大规模混合数据预训练带来的视觉生成泛化能力。
 > 来源：论文 Figure 6，第 8 页，https://arxiv.org/abs/2508.10333
@@ -248,19 +248,19 @@ Figure 4 给出了最直观的视觉证据：在指令 "put the watermelon into 
 
 Figure 1 在长程 "stack blocks" 任务中展示了 gaze region 如何随子目标**动态切换**——先盯蓝块、抓起后再切换到粉块上方的目标位置，验证了论文反复强调的"gaze 机制天然支持子任务规划"。
 
-![](assets/ReconVLA - 目标区域重建驱动的机器人视觉对齐/fig1_observation_gaze_attention.png)
+![](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig1_observation_gaze_attention.png)
 
 > 图 3：Observation、Gaze Region、Attention Map 三列对照。在堆叠积木这种多目标长程任务中，ReconVLA 的 gaze region 能随子目标切换，从而引导注意力精准落到当前应操控的对象上。
 > 来源：论文 Figure 1，第 1 页，https://arxiv.org/abs/2508.10333
 
-![](assets/ReconVLA - 目标区域重建驱动的机器人视觉对齐/fig4_attention_compare.png)
+![](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig4_attention_compare.png)
 
 > 图 4：CALVIN 与真实世界上的注意力对比。上排（Baseline）的注意力弥散在无关区域；下排（ReconVLA）注意力高度集中在目标对象上，且能在不同子目标之间平滑过渡。
 > 来源：论文 Figure 4，第 6 页，https://arxiv.org/abs/2508.10333
 
 Figure 5 给出真实世界四个任务的几何设置与机械臂动作轨迹。
 
-![](assets/ReconVLA - 目标区域重建驱动的机器人视觉对齐/fig5_real_world_setup.png)
+![](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig5_real_world_setup.png)
 
 > 图 5：真实世界实验的四类代表性任务。均使用 6-DoF AgileX PiPer 机械臂 + 1-DoF 平行夹爪，并通过双视角深度相机获取观察。每个任务的箭头标注了子目标执行顺序，体现"长程 + 多目标"特征。
 > 来源：论文 Figure 5，第 7 页，https://arxiv.org/abs/2508.10333
@@ -294,7 +294,7 @@ Figure 5 给出真实世界四个任务的几何设置与机械臂动作轨迹�
 
 论文把相关工作划分为三支（Figure 2 给出了视觉对比），ReconVLA 与它们的差异可以归纳如下：
 
-![](assets/ReconVLA - 目标区域重建驱动的机器人视觉对齐/fig2_paradigm_comparison.png)
+![](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig2_paradigm_comparison.png)
 
 > 图 6：三种 grounding 范式的概念对比。(a) Explicit Grounding 依赖外部 grounding expert（RoboGround/VIP），把裁剪图作为额外输入；(b) CoT Grounding（ECoT/GraspVLA）让模型先输出 bounding box 再输出动作；(c) Implicit Grounding（Ours）直接从视觉输出 reconstructive token，经 denoiser 重建 gaze region，不引入额外输入输出。
 > 来源：论文 Figure 2，第 3 页，https://arxiv.org/abs/2508.10333

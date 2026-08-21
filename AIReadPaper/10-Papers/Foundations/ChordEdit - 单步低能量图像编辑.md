@@ -17,7 +17,7 @@ The paper argues that naive one-step editing fails because the direct drift diff
 
 The authors therefore recast editing as a **dynamic optimal transport** problem and derive a low-energy estimator called the **Chord Control Field**, whose goal is to make one-step editing both stable and real-time.
 
-![](assets/ChordEdit - 单步低能量图像编辑/figures/01-teaser.png)
+![](assets/ChordEdit%20-%20单步低能量图像编辑/figures/01-teaser.png)
 
 > 图1（teaser）：ChordEdit 在 SD-Turbo（上两行）与 SwiftBrush-v2（下行）等快速生成模型上的编辑示例——基于最优传输推导出低能量 Chord Control Field，单步即可稳定编辑并保留非编辑区域。
 
@@ -106,7 +106,7 @@ $$ \hat u_t(x_\tau)=\frac{t\,\mathbf{R}(x_\tau,t-\delta)+\delta\,\mathbf{R}(x_\t
 
 This is the central idea of the paper. Instead of using the instantaneous and unstable residual directly, the method performs a **causal temporal smoothing** over a short window. The authors show this smoothing behaves like an **energy contraction**: it reduces the total kinetic energy of the field and improves numerical stability for the single large step.
 
-![](assets/ChordEdit - 单步低能量图像编辑/figures/02-method.png)
+![](assets/ChordEdit%20-%20单步低能量图像编辑/figures/02-method.png)
 
 > 图4（方法：编辑场稳定性对比）：(a) 多步 simple drift 迭代下轨迹稳定；(b) 蒸馏单步模型的 naive 场能量高、易发散，单次大步长积分误差显著；(c) ChordEdit 通过时间加权平均 R(x_τ,t) 与 R(x_τ,t−δ) 得到低能量 Chord Control Field，实现精确单步传输。
 
@@ -193,7 +193,7 @@ That separation makes the NFE=1 and NFE=2 variants both meaningful.
 
 The paper’s strongest message is not “highest score everywhere,” but **best efficiency-quality balance in the training-free, inversion-free one-step regime**.
 
-![](assets/ChordEdit - 单步低能量图像编辑/figures/03-results.png)
+![](assets/ChordEdit%20-%20单步低能量图像编辑/figures/03-results.png)
 
 > 图7（结果对比）：与其他编辑方法在 PIE-bench 上的编辑结果对比（首列为原图，行下标注编辑指令）。ChordEdit 在保持背景一致性的同时实现语义对齐，配合正文定量表体现出效率-质量的最优平衡。
 
@@ -270,7 +270,7 @@ So the gain is not isolated to a single backbone; the same smoothing idea keeps 
 
 ### Ablation conclusions
 
-![](assets/ChordEdit - 单步低能量图像编辑/figures/04-ablation.png)
+![](assets/ChordEdit%20-%20单步低能量图像编辑/figures/04-ablation.png)
 
 > 图19（消融：时间窗 δ）：固定其他参数仅改变 δ，naive 基线（δ=0）在复杂语义变换上出现明显伪影与结构坍塌，ChordEdit（δ>0）立即稳定编辑；δ≈0.15 在稳定性与语义强度间取得平衡，验证了默认取值。
 
