@@ -33,9 +33,9 @@ The most important part of this paper is the algorithmic input-output design.
 
 For class-conditional generation, the model takes:
 
-- a **noised image** $$x_t \in \mathbb{R}^{B \times C \times H \times W}$$ in pixel space;
-- a **timestep** embedding $$$$;
-- a **class condition** $$$$.
+- a **noised image** $x_t \in \mathbb{R}^{B \times C \times H \times W}$ in pixel space;
+- a **timestep** embedding $t$;
+- a **class condition** $y$.
 
 For text-to-image generation, the condition changes slightly:
 
@@ -50,24 +50,24 @@ For text-to-image generation, the condition changes slightly:
 
 ### 4.2 Patch-level pathway: learn global semantics cheaply
 
-The noised image is first split into non-overlapping $$p \times p$$ patches. In the default large ImageNet setup, the paper uses **patch size** $$p=16$$. These patches are projected into a hidden dimension $$$$ to form a short sequence of **semantic tokens**.
+The noised image is first split into non-overlapping $p \times p$ patches. In the default large ImageNet setup, the paper uses **patch size** $p=16$. These patches are projected into a hidden dimension $D$ to form a short sequence of **semantic tokens**.
 
 This pathway runs standard DiT-style transformer blocks, with two engineering upgrades:
 
 - **RMSNorm** replacing LayerNorm;
 - **2D RoPE** in attention layers.
 
-The timestep and class condition are fused into a **global conditioning vector** $$$$, which modulates all patch tokens through AdaLN. After $$$$ blocks, the model outputs semantic tokens $$s_t$$, which carry global information such as scene layout, object configuration, and coarse content.
+The timestep and class condition are fused into a **global conditioning vector** $c$, which modulates all patch tokens through AdaLN. After $N$ blocks, the model outputs semantic tokens $s_N$, which carry global information such as scene layout, object configuration, and coarse content.
 
 ### 4.3 Pixel-level pathway: refine local texture at per-pixel granularity
 
-In parallel, the image is also embedded into **one token per pixel** using a linear layer, producing a dense pixel-token tensor with hidden size $$D_{pix}=1$$ in the ImageNet models.
+In parallel, the image is also embedded into **one token per pixel** using a linear layer, producing a dense pixel-token tensor with hidden size $D_{pix}=1$ in the ImageNet models.
 
-This is where the paper’s main innovation lives. Pixel tokens are grouped by patch, so each patch contains $$p^2$$ pixel tokens. The semantic token from the patch-level pathway becomes the conditioner for the corresponding local pixel group.
+This is where the paper’s main innovation lives. Pixel tokens are grouped by patch, so each patch contains $p^2$ pixel tokens. The semantic token from the patch-level pathway becomes the conditioner for the corresponding local pixel group.
 
 ### 4.4 Pixel-wise AdaLN: one semantic token, many pixel-specific controls
 
-A naive design would broadcast one modulation vector to all pixels. PixelDiT argues this is too coarse. Instead, each semantic token is projected into $$p^$$ sets of AdaLN parameters, so every pixel inside a patch receives its **own** scale, shift, and gating controls.
+A naive design would broadcast one modulation vector to all pixels. PixelDiT argues this is too coarse. Instead, each semantic token is projected into $p^2$ sets of AdaLN parameters, so every pixel inside a patch receives its **own** scale, shift, and gating controls.
 
 That means the data flow is:
 
@@ -81,13 +81,13 @@ This is the mechanism that lets global semantics guide local texture formation w
 
 ### 4.5 Pixel token compaction: keep attention affordable
 
-Direct self-attention over all $$H \times $$ pixels is too expensive. PixelDiT therefore adds a compact-attend-expand cycle inside each PiT block:
+Direct self-attention over all $H \times W$ pixels is too expensive. PixelDiT therefore adds a compact-attend-expand cycle inside each PiT block:
 
-1. the $$p^$$ pixel tokens inside each patch are compressed into one compact token through a learned linear map;
+1. the $p^2$ pixel tokens inside each patch are compressed into one compact token through a learned linear map;
 2. global self-attention is performed over the compact patch-token sequence;
 3. the attended representation is expanded back to pixel resolution.
 
-This reduces attention sequence length from $$H \times $$ to $$L=(H/p)(W/p$$. With $$p=1$$, the paper highlights a **256× sequence-length reduction** for attention. The important nuance is that this compression is **temporary and attention-oriented**, not a permanent reconstruction bottleneck like a VAE. Residual paths and learned expansion help preserve high-frequency detail.
+This reduces attention sequence length from $H \times W$ to $L=(H/p)(W/p)$. With $p=1$, the paper highlights a **256× sequence-length reduction** for attention. The important nuance is that this compression is **temporary and attention-oriented**, not a permanent reconstruction bottleneck like a VAE. Residual paths and learned expansion help preserve high-frequency detail.
 
 ### 4.6 Full pipeline summary
 
@@ -118,9 +118,9 @@ This is an important detail: the paper is not only an architecture proposal. It 
 
 The ImageNet models use three scales:
 
-- **PixelDiT-B:** 184M parameters, $$N=1$$, $$M=$$, $$D=76$$, $$D_{pix}=1$$
-- **PixelDiT-L:** 569M parameters, $$N=2$$, $$M=$$, $$D=102$$, $$D_{pix}=1$$
-- **PixelDiT-XL:** 797M parameters, $$N=2$$, $$M=$$, $$D=115$$, $$D_{pix}=1$$
+- **PixelDiT-B:** 184M parameters, $N=12$, $M=2$, $D=768$, $D_{pix}=16$
+- **PixelDiT-L:** 569M parameters, $N=22$, $M=4$, $D=1024$, $D_{pix}=16$
+- **PixelDiT-XL:** 797M parameters, $N=26$, $M=4$, $D=1152$, $D_{pix}=16$
 
 The main ImageNet experiments follow the XL setting. Training uses:
 

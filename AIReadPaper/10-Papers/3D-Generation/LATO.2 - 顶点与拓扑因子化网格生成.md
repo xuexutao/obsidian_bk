@@ -237,6 +237,7 @@ $$
 $$
 \mathcal{L}_{V\text{-Flow}} = \mathbb{E}_{\mathbf{z}_{\mathbf{v}},\,\tau,\,\epsilon,\,\mathbf{c}_{\mathrm{img}},\,\mathbf{c}_{\mathrm{vn}}}\!\left[\left\|v_\theta(\mathbf{z}_{\mathbf{v}}^\tau,\tau,\mathbf{c}_{\mathrm{img}},\mathbf{c}_{\mathrm{vn}})-(\epsilon-\mathbf{z}_{\mathbf{v}})\right\|_2^2\right]
 $$
+
 $$
 \mathcal{L}_{T\text{-Flow}} = \mathbb{E}_{\mathbf{z}_{\mathbf{t}},\,\tau,\,\epsilon,\,\mathbf{c}_{\mathbf{g}}}\!\left[\left\|v_\phi(\mathbf{z}_{\mathbf{t}}^\tau,\tau,\mathbf{c}_{\mathbf{g}})-(\epsilon-\mathbf{z}_{\mathbf{t}})\right\|_2^2\right]
 $$

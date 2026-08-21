@@ -69,8 +69,8 @@ VLA 模型借助大规模视觉-语言预训练和机器人数据，已经具备
 - 机器人本体状态（关节角、夹爪开合等，论文未披露具体维度）。
 
 **输出**：
-- 离散动作 token $\bm{a} \in \{a_1, \dots, a_N\}$，通过 detokenizer $\mathcal{Q}$ 映射为可执行动作 $\mathcal{A}$；
-- 隐式的 **reconstructive token** $\bm{h}_R$（仅在训练阶段使用），用作 gaze region 扩散重建的条件。
+- 离散动作 token $\boldsymbol{a} \in \{a_1, \dots, a_N\}$，通过 detokenizer $\mathcal{Q}$ 映射为可执行动作 $\mathcal{A}$；
+- 隐式的 **reconstructive token** $\boldsymbol{h}_R$（仅在训练阶段使用），用作 gaze region 扩散重建的条件。
 
 **关键假设**：
 - gaze region 可以被一个开放词汇检测器（Grounding DINO）自动框出，且其覆盖范围与"任务相关的可操控对象"基本一致；
@@ -82,16 +82,16 @@ VLA 模型借助大规模视觉-语言预训练和机器人数据，已经具备
 标准 VLA 整体流程可写为：
 
 $$
-\mathcal{A} = \mathcal{Q}(\bm{a}) = \mathcal{Q}\!\left(\mathrm{LLM}\!\left(\mathcal{E}(I),\ \mathcal{T}(S)\right)\right) \tag{1}
+\mathcal{A} = \mathcal{Q}(\boldsymbol{a}) = \mathcal{Q}\!\left(\mathrm{LLM}\!\left(\mathcal{E}(I),\ \mathcal{T}(S)\right)\right) \tag{1}
 $$
 
 其中 $\mathcal{E}$ 是视觉编码器，$\mathcal{T}$ 是文本 tokenizer，$\mathcal{Q}$ 是动作 detokenizer。动作 token 以自回归方式生成：
 
 $$
-p(\bm{a}) = \prod_{i=1}^{N} p_{\mathrm{LLM}}\!\left(\bm{a}_i \mid \bm{a}_{1\sim i-1};\ \bm{h}_I;\ \bm{h}_S\right) \tag{2}
+p(\boldsymbol{a}) = \prod_{i=1}^{N} p_{\mathrm{LLM}}\!\left(\boldsymbol{a}_i \mid \boldsymbol{a}_{1\sim i-1};\ \boldsymbol{h}_I;\ \boldsymbol{h}_S\right) \tag{2}
 $$
 
-其中 $\bm{h}_I = \mathcal{E}(I)$、$\bm{h}_S = \mathcal{T}(S)$。
+其中 $\boldsymbol{h}_I = \mathcal{E}(I)$、$\boldsymbol{h}_S = \mathcal{T}(S)$。
 
 ReconVLA 的总体训练目标为：
 
@@ -107,30 +107,30 @@ $\mathcal{L}_{\mathrm{VLA}}^{\mathrm{action}}$ 是动作 token 的交叉熵损�
 
 ### 3.1 总体框架
 
-ReconVLA 由两条**共享 LLM 主干**的分支构成（Figure 3）。第一条是标准的动作分支，输出离散动作 token；第二条是新增的视觉重建分支，输出 reconstructive token $\bm{h}_R$，驱动一个轻量 Diffusion Transformer（DiT）从噪声中恢复 gaze region 的潜在 scene token。两条分支通过共享主干耦合，重建损失的反向传播会迫使主干编码出更聚焦、更细粒度的视觉表征。
+ReconVLA 由两条**共享 LLM 主干**的分支构成（Figure 3）。第一条是标准的动作分支，输出离散动作 token；第二条是新增的视觉重建分支，输出 reconstructive token $\boldsymbol{h}_R$，驱动一个轻量 Diffusion Transformer（DiT）从噪声中恢复 gaze region 的潜在 scene token。两条分支通过共享主干耦合，重建损失的反向传播会迫使主干编码出更聚焦、更细粒度的视觉表征。
 
 ![](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig3_architecture.png)
 
-> 图 1：ReconVLA 的总体架构。输入是多视角图像与文本指令；动作分支输出离散动作 token，重建分支输出 reconstructive token 作为去噪器条件，从 $\bm{z}_t$ 恢复 gaze region 的 scene token $\bm{z}_0$。两条分支共享同一 LLM 主干，因此重建监督会反向作用到动作分支的视觉表征。
+> 图 1：ReconVLA 的总体架构。输入是多视角图像与文本指令；动作分支输出离散动作 token，重建分支输出 reconstructive token 作为去噪器条件，从 $\boldsymbol{z}_t$ 恢复 gaze region 的 scene token $\boldsymbol{z}_0$。两条分支共享同一 LLM 主干，因此重建监督会反向作用到动作分支的视觉表征。
 > 来源：论文 Figure 3，第 4 页，https://arxiv.org/abs/2508.10333
 
-需要特别强调的是，重建分支**不是独立辅助头**。如果它只是 LLM 之外的一个并行网络，重建误差就只会优化 DiT 自身，不会反向影响 LLM 的视觉表征。ReconVLA 真正起作用的机制是：$\bm{h}_R$ 由主干的视觉输出直接派生，因此 DiT 重建质量取决于主干是否把 gaze region 的语义压进了 $\bm{h}_R$——这是隐式 grounding 能成立的因果链条。
+需要特别强调的是，重建分支**不是独立辅助头**。如果它只是 LLM 之外的一个并行网络，重建误差就只会优化 DiT 自身，不会反向影响 LLM 的视觉表征。ReconVLA 真正起作用的机制是：$\boldsymbol{h}_R$ 由主干的视觉输出直接派生，因此 DiT 重建质量取决于主干是否把 gaze region 的语义压进了 $\boldsymbol{h}_R$——这是隐式 grounding 能成立的因果链条。
 
 ### 3.2 关键模块一：潜在视觉重建（Latent Visual Reconstruction）
 
 给定 gaze region 图像 $I'$（由 Grounding DINO 自动裁出），先用**冻结的连续 VAE** $\mathcal{F}$ 编码为 scene token：
 
 $$
-\bm{z}_0 = \mathcal{F}(I') \tag{4}
+\boldsymbol{z}_0 = \mathcal{F}(I') \tag{4}
 $$
 
-DiT 去噪器 $\mathcal{D}$ 在 reconstructive token $\bm{h}_R = \mathrm{LLM}(\bm{h}_I)$ 的条件下，预测加在 $\bm{z}_t$ 上的噪声 $\bm{\epsilon}$，训练目标为：
+DiT 去噪器 $\mathcal{D}$ 在 reconstructive token $\boldsymbol{h}_R = \mathrm{LLM}(\boldsymbol{h}_I)$ 的条件下，预测加在 $\boldsymbol{z}_t$ 上的噪声 $\boldsymbol{\epsilon}$，训练目标为：
 
 $$
-\mathcal{L}_{\mathrm{VLA}}^{\mathrm{visual}}(\bm{h}_R, I') = \mathbb{E}_{t,\bm{\epsilon}}\!\left[\left\| \mathcal{D}(\bm{z}_t;\ \bm{h}_R,\ t) - \bm{\epsilon} \right\|^{2}\right] \tag{5}
+\mathcal{L}_{\mathrm{VLA}}^{\mathrm{visual}}(\boldsymbol{h}_R, I') = \mathbb{E}_{t,\boldsymbol{\epsilon}}\!\left[\left\| \mathcal{D}(\boldsymbol{z}_t;\ \boldsymbol{h}_R,\ t) - \boldsymbol{\epsilon} \right\|^{2}\right] \tag{5}
 $$
 
-$\mathcal{D}$ 由多层 Transformer encoder block 堆叠而成，用 self-attention 建模 noisy token 与 reconstructive token 之间的关联。直觉上：**如果 $\bm{h}_R$ 不包含 gaze region 的细粒度语义，重建任务就无法完成**；最小化 (5) 式就等价于"逼 LLM 把视觉注意力放在对的区域"。
+$\mathcal{D}$ 由多层 Transformer encoder block 堆叠而成，用 self-attention 建模 noisy token 与 reconstructive token 之间的关联。直觉上：**如果 $\boldsymbol{h}_R$ 不包含 gaze region 的细粒度语义，重建任务就无法完成**；最小化 (5) 式就等价于"逼 LLM 把视觉注意力放在对的区域"。
 
 论文用连续 VAE 而非离散 tokenizer，是因为 VAE 在 latent space 上更平滑，对 diffusion 训练更友好；这一选择也使得 scene token 能保留 gaze region 的空间结构信息。
 

@@ -235,7 +235,7 @@ ShapeLLM-Omni 主模型训练方面：
 - **Sentence-BERT：48.34**
 - **SimCSE：49.72**
 
-其中它在 BLEU-1、ROUGE-L、METEOR 上拿到表中最优，在语义相似度指标上略低于特化的 PointLLM-13B*。这很符合它的系统定位：**不是为单一 caption 任务极限优化，而是做统一多任务折中。**
+其中它在 BLEU-1、ROUGE-L、METEOR 上拿到表中最优，在语义相似度指标上略低于特化的 PointLLM-13B\*。这很符合它的系统定位：**不是为单一 caption 任务极限优化，而是做统一多任务折中。**
 
 ### 4.5 3D 编辑能力
 

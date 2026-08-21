@@ -205,9 +205,9 @@
 
 几个代表性数字：
 
-- 3Dcompat-Coarse, Canonical, `{Part} of {Obj.}`：**47.51** vs Find3D* **36.89**
-- 3Dcompat-Coarse, Rotated, `{Part}`：**54.55** vs Find3D* **46.02**
-- 3Dcompat-Fine, Rotated, `{Part}`：**30.97** vs Find3D* **26.35**
+- 3Dcompat-Coarse, Canonical, `{Part} of {Obj.}`：**47.51** vs Find3D\* **36.89**
+- 3Dcompat-Coarse, Rotated, `{Part}`：**54.55** vs Find3D\* **46.02**
+- 3Dcompat-Fine, Rotated, `{Part}`：**30.97** vs Find3D\* **26.35**
 
 这说明 canonical-space regularization 对**姿态扰动**尤其有效。
 
