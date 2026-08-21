@@ -18,7 +18,9 @@
 
 作者的基本判断是：**人理解 3D 部件时，会先在脑中把物体“摆正”到一个 canonical frame，再在这个规范空间里理解部件的功能角色。** CoSMo3D 的目标，就是把这种 canonical-space reasoning 变成模型内部可学习的能力。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZmZiM2Y4YjM2ZWNhNDVhMGYzMTU2YTAzYjY3ZDE3MmVfZGhlVjdwdmpnVmlxSWNGSFlPeWhiSlhoaUdVMHB2RzRfVG9rZW46VDBiY2JSZGdVb2JlWVp4ZTA5RGM4RWxobmxnXzE3ODI5ODE0MTc6MTc4Mjk4NTAxN19WNA&add_watermark=true&scene_type=CCM)
+![](assets/CoSMo3D - 开放世界可提示三维语义部件分割/figures/01-teaser.png)
+
+*图源：论文 Figure 1（teaser）。解读：对比旧范式（仅几何-文本映射）与 CoSMo3D——后者引入 canonical space 感知，打破任意姿态/形状的限制，在多种设定下显著优于仅依赖几何匹配的方法。*
 
 上图最有价值的地方在于，它非常清楚地说明了作者与前作的差异：
 
@@ -54,7 +56,9 @@
 
 ## 3. Pipeline / Architecture + I/O 数据流
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=M2ZlOWE0YWVhMDM4YzU2NDFiYmQwYzk0YmEwNzU5NTJfNlpCc1ZHZGN4NUdmUjdkMXdhdnl1dE5vYjFIeDNnRkJfVG9rZW46VEhFa2IwWUdLb1NlTlV4N0J1SWNrVllTbjVmXzE3ODI5ODE0MTc6MTc4Mjk4NTAxN19WNA&add_watermark=true&scene_type=CCM)
+![](assets/CoSMo3D - 开放世界可提示三维语义部件分割/figures/02-method.png)
+
+*图源：论文 Figure 2（双分支框架）。解读：特征提取分支（Point Transformer + SigLIP）负责跨模态部件分割；仅在训练时启用的 canonical 分支通过语义对比对齐、canonical map anchoring、canonical box calibration 三种损失，把规范空间感知压入主干点特征。*
 
 ### 3.1 整体 I/O
 
@@ -77,7 +81,9 @@
 
 这一步的作用，是把“把手通常长在侧边”“腿通常在下方支撑”“翅膀横向展开”这类**跨类别稳定的空间语义规律**显式暴露给模型。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YzEzZmU1ODM5M2I3YTg1ZjMyMDBmYmY4N2ExY2ZhNGFfbFh1TDBKRTMwYnZ0RGxZUWw3WWRicHZvRG0yNDVOVm5fVG9rZW46S2VrVWJrbW1lb2pueml4T1RZaGMwcjdXbmhkXzE3ODI5ODE0MTc6MTc4Mjk4NTAxN19WNA&add_watermark=true&scene_type=CCM)
+![](assets/CoSMo3D - 开放世界可提示三维语义部件分割/figures/03-canonical.png)
+
+*图源：论文 Figure 3（跨类别 canonicalization）。解读：(a) 前人只做类内 canonicalization，忽略跨类别一致性；(b) CoSMo3D 用 LLM 将类别聚成语义簇并对齐，依赖关键语义部件与功能一致性建立统一的规范空间。*
 
 ### 3.3 模型结构：Feature Branch + Canonical Branch
 
@@ -188,6 +194,10 @@
 ### 4.2 结果概览
 
 论文中的核心结果是：**CoSMo3D 在大多数设置下都显著优于 Find3D 及 2D rendering-based 方法。**
+
+![](assets/CoSMo3D - 开放世界可提示三维语义部件分割/figures/04-results.png)
+
+*图源：论文 Figure 5（定性结果对比）。解读：与 Find3D 及 2D 渲染基线在多种物体、多种姿态下的部件分割对比，CoSMo3D 的部件边界更清晰、更贴合语义，且在旋转姿态下仍保持稳定。*
 
 #### 3Dcompat-Coarse / 3Dcompat-Fine
 

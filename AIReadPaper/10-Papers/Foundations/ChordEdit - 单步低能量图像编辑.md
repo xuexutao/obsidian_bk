@@ -17,7 +17,9 @@ The paper argues that naive one-step editing fails because the direct drift diff
 
 The authors therefore recast editing as a **dynamic optimal transport** problem and derive a low-energy estimator called the **Chord Control Field**, whose goal is to make one-step editing both stable and real-time.
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZWYxZGVkMGM4NWIyN2JmODRlNDQ2MjM5MDMwMWI2ZjNfOVdEOXIzUEx3Tnp1eGxZTldsdjk5VFlacWpVWTNCNkZfVG9rZW46TEV4WWJkT0dQb00wZVV4bDBEamNzbkZUblBlXzE3ODI5ODE0NTQ6MTc4Mjk4NTA1NF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/ChordEdit - 单步低能量图像编辑/figures/01-teaser.png)
+
+> 图1（teaser）：ChordEdit 在 SD-Turbo（上两行）与 SwiftBrush-v2（下行）等快速生成模型上的编辑示例——基于最优传输推导出低能量 Chord Control Field，单步即可稳定编辑并保留非编辑区域。
 
 The official sources used for this note are the [original article](https://mp.weixin.qq.com/s/4XePzgnExCzhhgXJz89YOA), the [CVPR OpenAccess PDF](https://openaccess.thecvf.com/content/CVPR2026/papers/Lu_ChordEdit_One-Step_Low-Energy_Transport_for_Image_Editing_CVPR_2026_paper.pdf), the [arXiv paper](https://arxiv.org/abs/2602.19083), the [project page](https://chordedit.github.io), and the [official code](https://github.com/ChordEdit/ChordEdit).
 
@@ -104,6 +106,10 @@ $$ \hat u_t(x_\tau)=\frac{t\,\mathbf{R}(x_\tau,t-\delta)+\delta\,\mathbf{R}(x_\t
 
 This is the central idea of the paper. Instead of using the instantaneous and unstable residual directly, the method performs a **causal temporal smoothing** over a short window. The authors show this smoothing behaves like an **energy contraction**: it reduces the total kinetic energy of the field and improves numerical stability for the single large step.
 
+![](assets/ChordEdit - 单步低能量图像编辑/figures/02-method.png)
+
+> 图4（方法：编辑场稳定性对比）：(a) 多步 simple drift 迭代下轨迹稳定；(b) 蒸馏单步模型的 naive 场能量高、易发散，单次大步长积分误差显著；(c) ChordEdit 通过时间加权平均 R(x_τ,t) 与 R(x_τ,t−δ) 得到低能量 Chord Control Field，实现精确单步传输。
+
 ### Algorithm view
 
 暂时无法在飞书文档外展示此内容
@@ -187,7 +193,9 @@ That separation makes the NFE=1 and NFE=2 variants both meaningful.
 
 The paper’s strongest message is not “highest score everywhere,” but **best efficiency-quality balance in the training-free, inversion-free one-step regime**.
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YWFjOGY2ODJmOGZmYWFhNDM4YjExZDVlMjkwYmMzNTdfQ0s5TFBNMWxucnpPeDFsdnM3VTluNDhncW5FMVpjeGNfVG9rZW46Uzl3ZGJUTjVYb1k3ZWZ4eFJLY2NZUnBQbmloXzE3ODI5ODE0NTQ6MTc4Mjk4NTA1NF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/ChordEdit - 单步低能量图像编辑/figures/03-results.png)
+
+> 图7（结果对比）：与其他编辑方法在 PIE-bench 上的编辑结果对比（首列为原图，行下标注编辑指令）。ChordEdit 在保持背景一致性的同时实现语义对齐，配合正文定量表体现出效率-质量的最优平衡。
 
 For the full **ChordEdit (SD-Turbo)** setting, the paper reports:
 
@@ -262,7 +270,9 @@ So the gain is not isolated to a single backbone; the same smoothing idea keeps 
 
 ### Ablation conclusions
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YTE4NzcxZTk0OTBiOGMzNjc3YmFkOWIyM2Q5MDgzNTdfVVUydUs5VXg0RkVxSXdBanF5VE95Mkd3VjhCM3ZzMFdfVG9rZW46RkdsdmJTempDb0pKMDd4RE85RWNoVHJWbjdlXzE3ODI5ODE0NTQ6MTc4Mjk4NTA1NF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/ChordEdit - 单步低能量图像编辑/figures/04-ablation.png)
+
+> 图19（消融：时间窗 δ）：固定其他参数仅改变 δ，naive 基线（δ=0）在复杂语义变换上出现明显伪影与结构坍塌，ChordEdit（δ>0）立即稳定编辑；δ≈0.15 在稳定性与语义强度间取得平衡，验证了默认取值。
 
 1. **Temporal smoothing** **`δ`** **is the core lever.**
     

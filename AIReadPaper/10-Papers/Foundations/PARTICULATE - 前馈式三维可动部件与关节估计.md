@@ -6,6 +6,10 @@ https://arxiv.org/pdf/2512.11798 & https://ruiningli.com/particulate
 
 Particulate 在一次前向传播中即可预测完整的可动属性，包括可动3D部件分割、运动学结构以及可动运动的参数，耗时仅几秒。 他的主要工作并非直接合成，而是与合成任务正交的**可动性估计任务**。通过输入一个3d资产，能够将资产中的铰链部分的参数估计出来。
 
+![](assets/PARTICULATE - 前馈式三维可动部件与关节估计/figures/01-teaser.png)
+
+> **图 0（论文 Fig. 1）Teaser 效果总览**：Particulate 直接从静态 3D 网格中，单次前馈推理出可动结构，覆盖多样化物体（含 3D 生成模型合成的资产），并标注各部件之间的关节运动（旋转轴 / 移动方向等）。来源：arXiv 2512.11798 Figure 1。
+
 ### 任务描述
 
 - 给定一个三维网格 $$M=(V,F)$$，其顶点为 V ，面为 F，目标是预测其部分部件的的关节结构 $$A$$
@@ -41,7 +45,9 @@ Particulate 在一次前向传播中即可预测完整的可动属性，包括�
 
 ### 网络结构
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=ZGI2MDAzOTRjNWE3MzJjYmY4ZDVhNzcxNzUyMDcxOWJfRXVEQnZqeUdPdEJFMU5LbnVtUmlNR2UxaGVjckp1WGpfVG9rZW46VWJiWWJYa05Ub2ZuUWl4YkNCeWNsN2lIbkJmXzE3ODI5ODI1NDU6MTc4Mjk4NjE0NV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/PARTICULATE - 前馈式三维可动部件与关节估计/figures/02-method.png)
+
+> **图 1（论文 Fig. 2）Particulate 网络结构总览**：输入为从网格采样的点云（xyz、法向量、PartField 特征），分别经 MLP/Linear 提升到 D 维相加得到点向量；部件数量未知，故初始化一组可学习查询向量 $$\{q_j\}$$。经 B 个注意力块（PAT）做查询自注意力、查询↔点云双向交叉注意力，再由专用 decoder head 分别解码出关节结构四元组（部件分割 S、运动链 K、运动约束 M），端到端监督训练。来源：arXiv 2512.11798 Figure 2。
 
 - 两部分输入：
     
@@ -84,7 +90,9 @@ $$L_M = L_{M_{tp}} + L_{M_{pr}} + 0.1L_{M_{rr}} + L_{M_{pd}} + L_{d_{ra}} + L_{x
 
 在PM的测试集上进行测试，通过评估泛化交并比（gIoU）、部件感知的Chamfer距离（PC）以及平均交并比（mIoU）。Particulate 在未见过的实例上表现出良好的泛化能力。
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=Zjk1NjQ0YjMxMzNiMjZjMjAyNGEzMzY1NzhjYzNlNjdfMlZoMVhJaFJRU1QyS0l5YzlxWEZVc1pldUVjTUwzUXZfVG9rZW46VWhGWWJGcnBBb2RkTGV4NTNmMmNDVFJIbmJiXzE3ODI5ODI1NDU6MTc4Mjk4NjE0NV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/PARTICULATE - 前馈式三维可动部件与关节估计/figures/03-results.png)
+
+> **图 2（论文 Fig. 3）定性结果**：展示输入网格与预测的可动部件及其运动约束，每个 3D 对象分别呈现在两种不同的关节状态（展开/收拢）下；所有输入网格均由现成 3D 生成器合成。来源：arXiv 2512.11798 Figure 3。
 
   
 

@@ -35,7 +35,15 @@
 
 ## 3. Pipeline / Architecture + I/O 数据流
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=NzE4NjdkN2QzODg0ODZlZTFmZTMxZTFjZmI0OWY0ZjRfVHV2MnJ2YXJSbmNTb2lrbXYybTZjOHJQV0VjMVRTYk9fVG9rZW46WXh0OWJ6UUJEb1JvU1V4ZnJsRWM5TFFBblNiXzE3ODI5ODEzODU6MTc4Mjk4NDk4NV9WNA&add_watermark=true&scene_type=CCM&add_watermark=true&scene_type=CCM)
+![](assets/ViT³ - 视觉测试时训练序列建模/figures/01-overview.png)
+
+**图解（三类序列建模对比，对应论文 Figure 1）：**
+
+- (a) **Softmax Attention**：直接基于 `Q/K/V` 做二次复杂度的 `N` 维 MLP 交互，hidden 宽度等于序列长度 `N`。
+- (b) **Linear Attention**：用 `K⊤V` 把 `K/V` 压缩成 `d×d` 线性层权重，复杂度降到 `O(N)`，但固定大小的线性状态容量受限。
+- (c) **TTT / ViT³**：把 `K/V` 当成在线训练数据，用自监督损失把 inner model 的权重 `W` 更新为 `W*`，再用更新后的权重处理 `Q`；只要 inner module 本身是线性复杂度模块，就能保持 `O(N)` 的同时拿到更强的序列建模能力。
+
+*来源：论文 arXiv:2512.01643 Figure 1（fig1_ttt）。*
 
 **核心直觉：**
 
@@ -64,6 +72,16 @@
     1. 用更新后的 inner weights 作用于 `Q`，得到输出 token 表示。
     2. 这些输出随后进入标准视觉 backbone 的后续层，可作为 **分类、检测、分割** backbone，也可替换到 **DiT** 中用于图像生成。
 
+![](assets/ViT³ - 视觉测试时训练序列建模/figures/02-method.png)
+
+**图解（TTT Block 宏观结构，对应论文 Figure 2）：**
+
+- TTT Block 与 Transformer Block 采用相同的宏观结构：输入 `x_{l-1}` 经 Norm 后进入 TTT Block，再经残差连接得 `x'_l`，最后过 FFN + Norm 得到 `x_l`。
+- 块内部用三个 Linear 把输入分别映射成 `K`、`V`、`Q`；中间的 **TTT Calculation** 即"用 `K/V` 在线更新 inner model 权重、再作用于 `Q`"那一步。
+- 这张图把"内层在线学习"封装成一个可替换的子模块，因此可以**像注意力一样被插进标准视觉 backbone**，这也是 ViT³ 能直接用于分类/检测/分割/生成的工程基础。
+
+*来源：论文 arXiv:2512.01643 Figure 2（fig2_ttt_block）。*
+
 **一句话概括 I/O：**
 
 - **输入：** 视觉 token / 特征序列
@@ -89,6 +107,16 @@
 - 在**检测与分割**这类长序列视觉任务中，ViT³ 的优势更容易体现：作者认为当 `N ≫ d` 时，纯线性状态容量容易受限，而 TTT 的在线学习机制能提供更强的全局建模能力。
 - 在**图像生成**上，把 Softmax attention 替换为 ViT³ block 后，多个 DiT 配置都得到更好的 FID，说明其并不只适用于判别任务。
 - 在**效率**上，论文报告：随着分辨率升高，ViT³ 在吞吐和显存方面都比标准 Softmax Attention 更可扩展；文中给出的一个代表性结果是，在 `1248^2` 分辨率下，ViT³-T 相比 DeiT-T 可达到 **4.6× 速度提升**，并把 GPU 显存占用降低 **90.3%**。
+
+![](assets/ViT³ - 视觉测试时训练序列建模/figures/03-results.png)
+
+**图解（DeiT-T vs ViT³-T 的效率对比，对应论文 Figure 4）：**
+
+- (a) **FPS（log scale）** 随输入分辨率升高的变化：分辨率越高，DeiT-T 的 FPS 衰减越快，而 ViT³-T 始终保持在更高水平；在 `1248^2` 分辨率下达到 **4.6×** 速度提升。
+- (b) **单图 GPU 显存占用** 随分辨率升高的变化：DeiT-T 显存随分辨率近线性增长，而 ViT³-T 增长极为平缓；在 `1248^2` 分辨率下显存降低 **90.3%**。
+- 这两个图直观地说明 ViT³ 的"线性复杂度 + 在线学习"在 **高分辨率视觉任务** 下收益最大，这正是它在 COCO 检测、ADE20K 分割等长序列任务里更有优势的根本原因。
+
+*来源：论文 arXiv:2512.01643 Figure 4（fig4_fps_memory）。*
 
 ### 4.3 值得注意的限制
 

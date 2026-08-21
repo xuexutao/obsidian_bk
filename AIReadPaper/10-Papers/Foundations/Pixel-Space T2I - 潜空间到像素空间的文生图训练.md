@@ -27,6 +27,11 @@
 
 Pixel-space diffusion 直接生成 RGB，理论上能绕开这些问题，还能用更大 patch 减少 token 数。但它有个致命缺点：**像素太难学**——原始 RGB 要求模型同时学全局构图、细节统计和去噪。论文要回答的不是「pixel 和 latent 谁先进」，而是：**能不能让二者各自在最擅长的训练阶段工作？**
 
+![](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/01-overview.png)
+
+> 图 1：预训练过程中，latent 模型更快形成图像结构、最终质量更高，而从零学 RGB 的 pixel 模型明显更慢——「像素太难学」的直接证据。
+> 来源：论文 Figure 2，https://arxiv.org/abs/2608.16887
+
 ---
 
 ## 核心方法：latent-to-pixel 的五个关键选择
@@ -61,6 +66,11 @@ Pixel-space diffusion 直接生成 RGB，理论上能绕开这些问题，还能
 
 卷积的局部性和权重共享，让相邻 patch 在合成像素前互相沟通，抹掉边界断裂。
 
+![](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/02-method.png)
+
+> 图 2：JiT 线性头在 patch 边界出现明显网格伪影，DiP 轻量卷积 U-Net 让相邻 patch 平滑过渡、抹掉断裂。
+> 来源：论文 Figure 8，https://arxiv.org/abs/2608.16887
+
 ### 5. 噪声尺度：理论给方向，最后靠消融
 
 VAE latent 和 RGB 的分辨率、数值分布都不同，不能照搬 latent 噪声日程。按空间分辨率推导应取尺度 8，实测最优却是 **2**（GenEval 0.7545、DPG 87.54，色偏最少）。解析推导能缩小搜索空间，但 latent 与 RGB 的差别不只是分辨率，最终参数仍需实验校准。
@@ -72,6 +82,11 @@ VAE latent 和 RGB 的分辨率、数值分布都不同，不能照搬 latent �
 只把输出从 latent 切成 pixel，速度提升很有限：20.12s → 18.26s，仅 **1.10×**。真正加速来自两步：
 
 1. **渐进式大 patch 适配**：直接切 ps32 会同时改变输出空间和空间粒度，收敛慢、局部细节易坏。先从 latent 适配到 pixel ps16，再从 ps16 适配到 ps32，token 数降到四分之一，基本保持性能。继续推 ps64 则眼睛等细节退化。**ps32（由 ps16 渐进而来）是当前甜点位，ps64 已过度压缩。**
+
+![](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/04-patch.png)
+
+> 图 3：直接切 ps32 产生局部伪影；从 ps16 渐进适配到 ps32 能保住细节，继续推到 ps64 细节又退化。
+> 来源：论文 Figure 11，https://arxiv.org/abs/2608.16887
 2. **step distillation**：先用 Decoupled-DMD，再用 DMDR + Z-Reward，采样压到 4 NFE。latent 模型即使只去噪 4 步也要跑 VAE decoder；pixel 模型直接输出 RGB，这段固定成本被彻底删除。
 
 ---
@@ -86,6 +101,11 @@ VAE latent 和 RGB 的分辨率、数值分布都不同，不能照搬 latent �
 | 本文 pixel Turbo | 4 | **0.20 s（4.75×）** | **0.7698** | **86.85** |
 | FLUX2-klein latent | 4 | 0.92 s | 0.8142 | 84.36 |
 | 本文 pixel Turbo | 4 | **0.28 s（3.29×）** | **0.8185** | **86.00** |
+
+![](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/03-results.png)
+
+> 图 4：端到端推理延迟对比，pixel 模型（大 patch + 少步蒸馏 + 去掉 VAE decoder）显著低于 latent 基线。
+> 来源：论文 Figure 12，https://arxiv.org/abs/2608.16887
 
 几点要分开看：
 
