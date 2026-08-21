@@ -368,9 +368,9 @@ $$
 |---|---|---|---|---|---|
 | `overview_v5.png` | 方法总览图 | https://arxiv.org/html/2512.14692 | Figure 2 | 已有（保留） | §3.1 总体框架 |
 | `representation.png` | O-Voxel 表示图 | https://arxiv.org/html/2512.14692 | Figure 3 | 已有（保留） | §3.2 O-Voxel |
-| `03-scvae-architecture.png` | SC-VAE 架构图 | https://arxiv.org/html/2512.14692 | Figure 4 | 2025-08-21 | §3.3 SC-VAE |
-| `04-qualitative-comparison.png` | 定性对比图 | https://arxiv.org/html/2512.14692 | Figure 6 | 2025-08-21 | §5.3 定性结果 |
-| `05-test-time-scaling.png` | 测试时缩放图 | https://arxiv.org/html/2512.14692 | Figure 8 | 2025-08-21 | §5.5 效率/缩放 |
+| `03-scvae-architecture.png` | SC-VAE 架构图 | https://arxiv.org/html/2512.14692 | Figure 4 | 2026-08-21 | §3.3 SC-VAE |
+| `04-qualitative-comparison.png` | 定性对比图 | https://arxiv.org/html/2512.14692 | Figure 6 | 2026-08-21 | §5.2 定性结果 |
+| `05-test-time-scaling.png` | 测试时缩放图 | https://arxiv.org/html/2512.14692 | Figure 8 | 2026-08-21 | §5.4 效率/缩放 |
 
 - 论文原文（HTML 全文）：https://arxiv.org/html/2512.14692 （本次精读主来源，含附录 A–F）
 - arXiv 摘要页：https://arxiv.org/abs/2512.14692
