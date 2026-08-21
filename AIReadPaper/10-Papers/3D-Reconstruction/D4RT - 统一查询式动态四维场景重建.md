@@ -55,11 +55,11 @@ D4RT 的核心判断是：与其“逐帧密集解码所有内容”，不如先
 
 ### 3.2 核心架构
 
-![](assets/D4RT - 统一查询式动态四维场景重建/fig2_method.png)
+![](assets/D4RT%20-%20统一查询式动态四维场景重建/fig2_method.png)
 
 *图：Figure 2 — D4RT 模型架构总览。左侧 ViT-g 全局时空编码器生成场景表示 F，右侧轻量级 8 层 cross-attention 解码器对查询五元组 (u, v, t_src, t_tgt, t_cam) 独立解码 3D 点位置。*
 
-![](assets/D4RT - 统一查询式动态四维场景重建/fig1_teaser.png)
+![](assets/D4RT%20-%20统一查询式动态四维场景重建/fig1_teaser.png)
 
 *图：Figure 1 — D4RT 统一接口总览。一个查询接口同时输出点云、点轨迹、相机参数等多种 4D 重建结果。*
 
@@ -119,7 +119,7 @@ D4RT 的核心判断是：与其“逐帧密集解码所有内容”，不如先
 
 ### 4.2 主结果：速度和精度同时领先
 
-![](assets/D4RT - 统一查询式动态四维场景重建/fig3_speed.png)
+![](assets/D4RT%20-%20统一查询式动态四维场景重建/fig3_speed.png)
 
 *图：Figure 3 — Pose accuracy vs. speed。D4RT 在 A100 上达到 200+ FPS 的 pose estimation，速度比 VGGT 快 9×，比 MegaSaM 快 100×+。*
 
@@ -164,7 +164,7 @@ D4RT 的核心判断是：与其“逐帧密集解码所有内容”，不如先
 
 ### 4.3 完整重建能力：为什么它比“第一帧起点跟踪”更完整
 
-![](assets/D4RT - 统一查询式动态四维场景重建/fig4_reconstruction.png)
+![](assets/D4RT%20-%20统一查询式动态四维场景重建/fig4_reconstruction.png)
 
 *图：Figure 4 — 各方法重建结果对比。纯重建方法 MegaSaM/π³ 在动态区域出现重影与缺失，SpatialTrackerV2 跟踪不完整，D4RT 是唯一能输出无空洞完整 4D 场景表示的方法。*
 

@@ -22,7 +22,7 @@ TRELLIS 的动机因此非常明确：**先学习一种结构化统一 3D latent
 
 下图是论文 Figure 4：TRELLIS 生成的高质量 3D 资产示例（Gaussian 与 Mesh 两种表示，来自文生/图生提示）。
 
-![](assets/TRELLIS - 结构化潜变量三维生成/results_v2.png)
+![](assets/TRELLIS%20-%20结构化潜变量三维生成/results_v2.png)
 
 ### 1.1 正式论文信息
 
@@ -81,7 +81,7 @@ SLAT 不是一个纯稠密体素特征网格，也不是一个纯隐式全局 la
 
 下图是论文 Figure 2：方法总览，展示了 SLAT 编码（稀疏 3D 网格上的局部 latent）与两阶段生成（稀疏结构 + 局部 latent）以及多 decoder 解码的完整流程。
 
-![](assets/TRELLIS - 结构化潜变量三维生成/pipeline_v3.png)
+![](assets/TRELLIS%20-%20结构化潜变量三维生成/pipeline_v3.png)
 
 TRELLIS 采用明确的**两阶段生成流程**：
 
@@ -223,7 +223,7 @@ TRELLIS 的统一性真正体现在 decoder 端。
 
 下图是论文 Figure 5：TRELLIS 与先前方法的生成结果视觉对比（基于 AI 生成提示）。
 
-![](assets/TRELLIS - 结构化潜变量三维生成/comparisons_v3.png)
+![](assets/TRELLIS%20-%20结构化潜变量三维生成/comparisons_v3.png)
 
 在 text-to-3D 与 image-to-3D 任务上，TRELLIS 对比多个强基线时总体体现出以下优势：
 

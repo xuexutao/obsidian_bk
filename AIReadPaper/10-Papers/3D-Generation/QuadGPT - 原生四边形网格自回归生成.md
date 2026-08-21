@@ -1,6 +1,6 @@
 以下为论文 Figure 1 的 teaser 图，展示 QuadGPT 基于点云条件生成多样、高质量四边形网格的效果。
 
-![](assets/QuadGPT - 原生四边形网格自回归生成/teaser.png)
+![](assets/QuadGPT%20-%20原生四边形网格自回归生成/teaser.png)
 
 本次版本不再沿用早先基于二手文章的简略解读，而是按**可核实的官方原版论文**进行覆盖式重写。当前与 **Hunyuan3D-PolyGen** 最直接对应、且能完整解释其原生四边形/美术级拓扑能力的官方论文，是腾讯混元团队的 **QuadGPT: Native Quadrilateral Mesh Generation with Autoregressive Models**。如果后续官方再单独发布以 “Hunyuan3D-PolyGen” 命名的独立技术报告，可在此版本基础上继续联动更新。
 
@@ -65,7 +65,7 @@ QuadGPT 的论文主线因此可以概括为：
 
 以下为论文的整体 pipeline 架构图，展示从几何条件输入到四边形网格输出的完整流程。
 
-![](assets/QuadGPT - 原生四边形网格自回归生成/pipeline.png)
+![](assets/QuadGPT%20-%20原生四边形网格自回归生成/pipeline.png)
 
 ### 3.1 总体输入与输出
 
@@ -167,7 +167,7 @@ QuadGPT 不是无条件地从空白开始 hallucinate 一个 mesh。论文中它
 
 以下为论文 Figure 7，对比原生 quad generation 与「先生成三角面再转换」的 pipeline，展示 QuadGPT 在边流质量上的优势。
 
-![](assets/QuadGPT - 原生四边形网格自回归生成/trigpt_quadgpt.png)
+![](assets/QuadGPT%20-%20原生四边形网格自回归生成/trigpt_quadgpt.png)
 
 ### 4.3 与基线方法的对比结论
 

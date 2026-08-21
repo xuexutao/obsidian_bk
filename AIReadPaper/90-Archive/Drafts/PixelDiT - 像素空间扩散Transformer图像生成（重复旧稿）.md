@@ -46,7 +46,7 @@ For text-to-image generation, the condition changes slightly:
 
 论文 Figure 6（T2I 架构：patch-level pathway 采用 MM-DiT blocks 融合图像与文本语义）：
 
-![](assets/PixelDiT - 像素空间扩散Transformer图像生成（重复旧稿）/t2i-arch.png)
+![](assets/PixelDiT%20-%20像素空间扩散Transformer图像生成（重复旧稿）/t2i-arch.png)
 
 ### 4.2 Patch-level pathway: learn global semantics cheaply
 
@@ -77,7 +77,7 @@ That means the data flow is:
 
 This is the mechanism that lets global semantics guide local texture formation without flattening all fine structure.
 
-![](assets/PixelDiT - 像素空间扩散Transformer图像生成（重复旧稿）/pixeladaln.png)
+![](assets/PixelDiT%20-%20像素空间扩散Transformer图像生成（重复旧稿）/pixeladaln.png)
 
 ### 4.5 Pixel token compaction: keep attention affordable
 
@@ -91,7 +91,7 @@ This reduces attention sequence length from $$H \times $$ to $$L=(H/p)(W/p$$. Wi
 
 ### 4.6 Full pipeline summary
 
-![](assets/PixelDiT - 像素空间扩散Transformer图像生成（重复旧稿）/fig1-overview.png)
+![](assets/PixelDiT%20-%20像素空间扩散Transformer图像生成（重复旧稿）/fig1-overview.png)
 
 From an I/O perspective, the full pipeline can be summarized as:
 
@@ -241,7 +241,7 @@ This is not a free lunch. The hidden tax is still **compute and memory pressure*
 
 The paper’s editing comparison is genuinely persuasive because it shows an error mode that many latent models struggle with: preserving tiny scene text during local edits.
 
-![](assets/PixelDiT - 像素空间扩散Transformer图像生成（重复旧稿）/editing-comparison.png)
+![](assets/PixelDiT%20-%20像素空间扩散Transformer图像生成（重复旧稿）/editing-comparison.png)
 
 This figure is useful because it ties the paper’s architectural claim to a visible mechanism-level consequence: **if the VAE already destroys fine details, later diffusion cannot recover them reliably**.
 

@@ -44,7 +44,7 @@ LeWM 想同时拿到三者的优点：
 - **任务无关**
 - **训练目标极简且有 anti-collapse 保证**
 
-![](assets/LeWorldModel - 像素端到端稳定JEPA世界模型/wms.png)
+![](assets/LeWorldModel%20-%20像素端到端稳定JEPA世界模型/wms.png)
 
 从研究脉络上看，这篇论文连接了几条值得持续追踪的线：
 
@@ -109,7 +109,7 @@ LeWM 的训练目标非常干净：
 
 ### 3.4 推理 / 规划阶段的 I/O 流
 
-![](assets/LeWorldModel - 像素端到端稳定JEPA世界模型/lewm-plan.png)
+![](assets/LeWorldModel%20-%20像素端到端稳定JEPA世界模型/lewm-plan.png)
 
 LeWM 的规划不在像素空间，而在 latent 空间里做：
 
@@ -153,7 +153,7 @@ LeWM 的规划不在像素空间，而在 latent 空间里做：
 - **PushT**：2D 推块操作
 - **OGBench-Cube**：3D 机械臂抓放方块
 
-![](assets/LeWorldModel - 像素端到端稳定JEPA世界模型/envs.png)
+![](assets/LeWorldModel%20-%20像素端到端稳定JEPA世界模型/envs.png)
 
 |环境|LeWM|PLDM|DINO-WM|解读|
 |---|---|---|---|---|
@@ -202,7 +202,7 @@ LeWM 的规划不在像素空间，而在 latent 空间里做：
 2. 视觉扰动轨迹（颜色突变）；
 3. 物理扰动轨迹（对象瞬移）。
 
-![](assets/LeWorldModel - 像素端到端稳定JEPA世界模型/strip_pusht_teleport_4.png)
+![](assets/LeWorldModel%20-%20像素端到端稳定JEPA世界模型/strip_pusht_teleport_4.png)
 
 结论是：
 

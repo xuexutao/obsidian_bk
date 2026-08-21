@@ -90,7 +90,7 @@ $$
 2. **SC-VAE 压缩**：把 O-Voxel 编码成紧凑的 structured latent；
 3. **三阶段 flow-matching 生成**：在潜空间内依次生成"稀疏结构 → 几何 → 材质"，最后解码回可渲染资产。
 
-![](assets/TRELLIS.2 - 原生几何与材质的紧凑三维潜变量生成/overview_v5.png)
+![](assets/TRELLIS.2%20-%20原生几何与材质的紧凑三维潜变量生成/overview_v5.png)
 
 > 图 1（论文 Figure 2）：方法总览。自左向右依次是 O-Voxel 表示（§3.1）、SC-VAE 潜空间学习（§3.2）与大规模 flow 生成模型（§3.3），完整串联了"原生 3D 资产 → 统一表示 → 紧凑潜变量 → 生成资产"的闭环。这张图回答了"怎么做"，是全篇的结构骨架。  
 > 来源：论文 Figure 2，https://arxiv.org/abs/2512.14692
@@ -132,7 +132,7 @@ $$
 
 其中 $\boldsymbol{c}_i\in\mathbb{R}_{[0,1]}^{3}$ 是 **base color**，$m_i$ 是 **metallic（金属度）**，$r_i$ 是 **roughness（粗糙度）**，$\alpha_i$ 是 **opacity（不透明度）**。注意 $\alpha$ 通道让 O-Voxel 能表达**半透明表面**——这是此前方法不具备的能力。材质与几何对齐：O-Voxel↔纹理的转换简单快速（投影采样 / 三线性插值重建），重建出的网格**无需后处理即可渲染**。
 
-![](assets/TRELLIS.2 - 原生几何与材质的紧凑三维潜变量生成/representation.png)
+![](assets/TRELLIS.2%20-%20原生几何与材质的紧凑三维潜变量生成/representation.png)
 
 > 图 2（论文 Figure 3）：O-Voxel 表示示意，以及 3D 资产与 O-Voxel 之间的瞬时双向转换。上半部分展示 Flexible Dual Grid 如何用对偶顶点/对偶面/分裂权重表达复杂拓扑；下半部分展示六通道 PBR 材质如何与几何体素对齐。这张图解释了 O-Voxel"为什么能表达任意拓扑与完整材质"。  
 > 来源：论文 Figure 3，https://arxiv.org/abs/2512.14692
@@ -141,7 +141,7 @@ $$
 
 SC-VAE 的目标是在 O-Voxel 上学习**紧凑且高保真**的潜空间。与 TRELLIS 等先前工作采用 transformer 结构不同，SC-VAE 是一个**全稀疏卷积网络**，在高分辨率下计算高效，且跨尺度泛化好。它沿用 U 形 VAE 设计：编码器通过多个残差块分层下采样稀疏体素特征，解码器镜像重建。
 
-![](assets/TRELLIS.2 - 原生几何与材质的紧凑三维潜变量生成/03-scvae-architecture.png)
+![](assets/TRELLIS.2%20-%20原生几何与材质的紧凑三维潜变量生成/03-scvae-architecture.png)
 
 > 图 3（论文 Figure 4）：SC-VAE 的网络结构。这是一张完整的方法架构图：稀疏残差自编码层（residual autoencoding）、early-pruning 上采样器、优化的残差块共同构成了 16× 空间压缩的关键。  
 > 来源：论文 Figure 4，https://arxiv.org/abs/2512.14692
@@ -265,7 +265,7 @@ $$
 
 定性上，Ours 生成的资产展现了此前方法难做到的能力：**薄结构、开放曲面、半透明区域**——如精细齿轮、封闭驾驶舱、开放叶片与花朵、玻璃与金属等反射/半透明材质，在新型光照下阴影物理一致。对比图（Figure 6）显示，TRELLIS / Direct3D-S2 / Hi3DGen 等 baseline 要么不含 PBR 材质、要么几何细节被过度平滑；Hunyuan3D 2.1 虽有 PBR，但纹理对齐与真实感弱于 Ours。
 
-![](assets/TRELLIS.2 - 原生几何与材质的紧凑三维潜变量生成/04-qualitative-comparison.png)
+![](assets/TRELLIS.2%20-%20原生几何与材质的紧凑三维潜变量生成/04-qualitative-comparison.png)
 
 > 图 4（论文 Figure 6）：视觉对比（主图为 normal 图，小图为最终渲染、base color、metallic、roughness）。这张图直观展示了 Ours 在几何细节（法线图更锐利）与材质（PBR 分解图更合理）上的双重优势。  
 > 来源：论文 Figure 6，https://arxiv.org/abs/2512.14692
@@ -290,7 +290,7 @@ $$
 
 **测试时计算与分辨率缩放**（§4.5）是本文一个实用的工程贡献。得益于 token 数量少，可以级联复用第二阶段生成器：例如把生成的 1024³ O-Voxel max-pool 成 96³ sparse structure，再重跑 geometry generation 得到 1536³ 形状——**在训练分辨率之上**合成更高分辨率。同分辨率内也能"先粗后精"：把 512³ O-Voxel 降采样为 64³ sparse structure，再生成 1024³，修正局部错误、得到更干净布局。
 
-![](assets/TRELLIS.2 - 原生几何与材质的紧凑三维潜变量生成/05-test-time-scaling.png)
+![](assets/TRELLIS.2%20-%20原生几何与材质的紧凑三维潜变量生成/05-test-time-scaling.png)
 
 > 图 5（论文 Figure 8）：测试时分辨率与计算量缩放（左）与级联推理（右）。级联推理能产出更细细节与更稳结构，形成"计算量 ↔ 质量"的可控权衡。  
 > 来源：论文 Figure 8，https://arxiv.org/abs/2512.14692

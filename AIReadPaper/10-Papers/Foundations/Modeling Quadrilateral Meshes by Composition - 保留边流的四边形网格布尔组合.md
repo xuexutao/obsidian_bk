@@ -33,7 +33,7 @@
 
 方法输入两个纯四边形网格，目标是模拟并集、交集和差集等布尔操作。作者并不重新网格化整个模型，而是先提取原始 quad patch layout，随后只重建被交界线影响的小片区域。未参与融合的四边形面保持不变，因此原始 edge flow 能被最大程度继承。
 
-![](assets/Modeling Quadrilateral Meshes by Composition - 保留边流的四边形网格布尔组合/fig4-1-pipeline.png)
+![](assets/Modeling%20Quadrilateral%20Meshes%20by%20Composition%20-%20保留边流的四边形网格布尔组合/fig4-1-pipeline.png)
 
 *图 1：论文 Figure 4.1。流程从原始 quad patch layout 出发，经三角化布尔运算、受影响 patch 回缩、交界区域重新分块、边界细分数优化，最终恢复为纯四边形网格。*
 

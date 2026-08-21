@@ -65,7 +65,7 @@ CubePart 把"开放词汇文本 schema"作为推理时显式控制信号，通�
 2. **schema 驱动的两阶段生成架构**：将整体形状合成与部件级解码解耦，配套一个**Cross-Part Attention 残差块**，让部件之间能够通信而保持预训练单 mesh 先验不被破坏；
 3. **端到端可用性演示**：生成的多部件 mesh 能在 Roblox 引擎里直接绑定行为脚本（驾驶、开火、机械臂伸展、激光、无人机起飞等），无需人工后处理。
 
-![](assets/CubePart - 开放词汇部件可控三维生成/teaser.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/teaser.png)
 
 > 图 1：CubePart 的能力示意（论文 Figure 1）。左侧海龟搭载石质城堡，给定 `turtle head / turtle shell / flippers / castle towers / main keep structure / cannons` 的 schema，模型输出一组按颜色区分的、彼此独立的多部件网格。右侧三组样例（水母赛车、宝箱、机器人）说明 CubePart 既能从文本 + schema 生成，也能以**已有 mesh 作为输入**按 schema 重新切分；最底行则演示这些部件被脚本驱动后可以产生交互行为。  
 > 来源：论文 Figure 1，第 1 页，https://arxiv.org/html/2605.28763
@@ -139,7 +139,7 @@ CubePart 是一个**两阶段 vecset 扩散框架**，关键思想是**把"零�
 
 下图给出整体 pipeline：
 
-![](assets/CubePart - 开放词汇部件可控三维生成/method.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/method.png)
 
 > 图 2：CubePart 总体框架（论文 Figure 2）。(a) Stage 1 使用单 mesh DiT（MM-DiT 块堆叠）从 Qwen-VL 文本条件直接生成整体形状潜变量。(b) Stage 2 在相同 MM-DiT 主干上**插入** 4 个 Cross-Part Attention Residual Block（蓝色高亮），所有部件共享同一个 Qwen-VL 文本条件，最后由共享的 Shape VAE 解码器并行输出多个独立 mesh。  
 > 来源：论文 Figure 2，第 3 页，https://arxiv.org/html/2605.28763
@@ -214,7 +214,7 @@ $$
 - **为什么用 Transformer block 而不是更轻的 MLP/Conv**：跨部件通信需要建模"任意部件对"的关系（即 O(N²)），Transformer 自注意力的结构最直接；MLP 只能看到拼接后的全局，不能区分部件对。
 - **（个人判断）零初始化的妙处**：把"先验 = 单 mesh 生成"和"新能力 = 跨部件通信"显式分离——训练初期模型表现和 Stage 1 完全一样；随着训练推进，残差项开始"接管"那些需要跨部件语义的子空间，主干部分不必重新学。这种"主干不动、旁路学新东西"的范式与 LoRA、ControlNet、Adapter 同源。
 
-![](assets/CubePart - 开放词汇部件可控三维生成/cross_part_attention.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/cross_part_attention.png)
 
 > 图 3：Cross-Part Attention Block 内部结构（论文 Figure 3，原始为 SVG 矢量图，已转 PNG 便于 Obsidian 渲染）。所有 part latent 与 Stage 1 的整体 shape latent 一同送入一个**零初始化的 Transformer 块**做全局注意力，再以残差方式加回主网络。该块被"插入"而非"替换"原层，因此对预训练单 mesh 能力是零侵入的。  
 > 来源：论文 Figure 3，第 4 页，https://arxiv.org/html/2605.28763（S3.F3 容器对应 `2605.28763v1/part_attn.svg`）
@@ -309,7 +309,7 @@ CubePart 的资产规模比 PartVerse-XL 大 11 倍以上、部件数 6 倍以�
 
 下图为一张示例 SoM 渲染：
 
-![](assets/CubePart - 开放词汇部件可控三维生成/som_rendering.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/som_rendering.png)
 
 > 图 5：Set-of-Mark 配对渲染示例（论文 Figure 5 的纹理视图，编号视图原图为配对的 notexture 版本）。雪人身上的 10 个部件被赋予不同编号和对应纯色，VLM 可同时读"语义（纹理）+ 身份（编号 + 纯色）"两个证据源。  
 > 来源：论文 Figure 5，第 5 页，https://arxiv.org/html/2605.28763v1/figures/data/render_front_tilt_texture.png
@@ -329,7 +329,7 @@ PartVerse 这类基于 caption 的标注会出现 `"A close-up of …"`、无法
 
 下图对比三种来源在同一辆坦克上的差异：
 
-![](assets/CubePart - 开放词汇部件可控三维生成/qualitative_comparison_data_processing.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/qualitative_comparison_data_processing.png)
 
 > 图 4：同一 Objaverse 坦克的部件标注对比（论文 Figure 4）。最左：原始艺术家分解 7 个部件；中：PartVerse 给出 17 个部件，caption 出现 `"A close-up of …"` 等 VLM 伪影，且无法区分左右件；最右：CubePart 流水线给出 **4 个**简洁、空间可辨的部件名（`hull`、`tracks`、`turret and cannon`、`side arms`）。这说明 VLM 聚类既在做"语义合并"也在做"语义命名"，而不是简单继承原始切分。  
 > 来源：论文 Figure 4，第 4 页，https://arxiv.org/html/2605.28763
@@ -401,7 +401,7 @@ PartVerse 这类基于 caption 的标注会出现 `"A close-up of …"`、无法
 
 下图是与多个基线在 PartObjaverse-Tiny 五个案例上的定性比较：
 
-![](assets/CubePart - 开放词汇部件可控三维生成/qualitative_comparison.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/qualitative_comparison.png)
 
 > 图 6：多部件网格生成定性对比（论文 Figure 6）。列从左到右：输入 schema、Ground-Truth、Ours、PatchAlign3D + HoloPart（同样接受 mesh+schema 的对照）、SAM3 + OmniPart（不可控，仅图+2D 分割）、PartCrafter、PartPacker。CubePart 在 schema 遵从性和几何细节上都明显占优；最右边三列的图条件方法既不能"指名道姓"切出 schema 中的部件，也更容易出现部件错位。  
 > 来源：论文 Figure 6，第 6 页，https://arxiv.org/html/2605.28763v1/result_multiMesh_v4.png
@@ -421,7 +421,7 @@ PartVerse 这类基于 caption 的标注会出现 `"A close-up of …"`、无法
 
 下图是 Stage 1 + Stage 2 联合生成的多样化示例（drilling machine、charging tank、fantasy chicken hut）：
 
-![](assets/CubePart - 开放词汇部件可控三维生成/qualitative_twostage.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/qualitative_twostage.png)
 
 > 图 8：两阶段生成的定性结果（论文 Figure 8）。每个示例都给出了完整文本 prompt 与显式 schema 列表（彩色），输出 mesh 整体可识别、部件分割干净。可以看到 schema 文本直接对应到生成 mesh 的颜色块，证明"用户写什么，模型就切什么"。  
 > 来源：论文 Figure 8，第 7 页，https://arxiv.org/html/2605.28763v1/result_full_mesh.png
@@ -441,7 +441,7 @@ Table 3 的下半段就是 CubePart 的内部消融：
 
 **Schema 灵活性（part 数量可变）**：
 
-![](assets/CubePart - 开放词汇部件可控三维生成/varying_schema.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/varying_schema.png)
 
 > 图 9：同一输入 mesh 在不同 schema 长度下的切分（论文 Figure 9）。摩托车上：2 parts 时只能分出 body + wheels；4 parts 时多出 mirrors + stands；8 parts 时进一步切出 controls、seat、engine、frame、headlights。赛车行：2 parts → 4 parts → 8 parts 体现"fenders 是否独立"的可控性。这说明 CubePart **真正把 schema 数量当连续可调控制信号**，而不是训练死的 N-way 分类。  
 > 来源：论文 Figure 9，第 7 页，https://arxiv.org/html/2605.28763v1/different_parts_new.png
@@ -458,14 +458,14 @@ Table 3 的下半段就是 CubePart 的内部消融：
 
 **失败案例**（论文 Figure 11，§7 也专门讨论）：
 
-![](assets/CubePart - 开放词汇部件可控三维生成/failure_cases.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/failure_cases.png)
 
 > 图 11：典型失败模式（论文 Figure 11）。挖掘机与龙的示例标出三类失败：**(1) 部件互相穿插**（Parts Overlapping），尤其是接缝处；**(2) 细节丢失**（Missing Details / Missing Lower Torso Part），复杂输入几何在切分时可能丢失局部结构；**(3) 左右镜像错误**（"Left" and "Right" Flip），空间标识被反转。  
 > 来源：论文 Figure 11，第 8 页，https://arxiv.org/html/2605.28763v1/failure_example.png
 
 **应用展示**：将生成的多部件 mesh 导入 Roblox 引擎并用 Lua 脚本驱动行为。
 
-![](assets/CubePart - 开放词汇部件可控三维生成/fig_behavior_v6.png)
+![](assets/CubePart%20-%20开放词汇部件可控三维生成/fig_behavior_v6.png)
 
 > 图 10：游戏内行为脚本驱动示例（论文 Figure 10）。从左到右、从上到下依次为：水母赛车（Gun Shooting / Driving & Steering Wheels）、机器人（Arm Extension / Powered Takeoff）、青蛙角色（Laser Emission / Single-Leg Spin 360°）、无人机（Drone Takeoff / Drone Hover Right & Back）、巫师（Swing Staff / Illuminate Staff）。这一组图直接验证了 CubePart 的"下游可用性"主张——部件不是装饰性切分，而是 Lua 脚本里能 `MeshPart:Rotate()` 的真对象。  
 > 来源：论文 Figure 10，第 8 页，https://arxiv.org/html/2605.28763v1/fig_behavior_v6.png

@@ -15,7 +15,7 @@
 
 这篇内容围绕 VLM³ 展开，核心观点是：很多 3D 任务里被默认“必须”的复杂设计——额外编码器、任务专用 head、多损失回归、重数据增强——未必是必要条件。作者试图证明，只要解决 **相机歧义**、**像素/区域引用方式** 和 **数据混合与扩展** 这三个关键点，标准视觉语言模型就能覆盖深度估计、像素对应、相机位姿估计、物体级 3D 理解等多类任务。
 
-![](assets/VLM³ - 原生三维学习的视觉语言模型/teaser.png)
+![](assets/VLM³%20-%20原生三维学习的视觉语言模型/teaser.png)
 
 ---
 
@@ -40,7 +40,7 @@
 
 **核心方法论：** VLM³ 基本保持标准 VLM 架构不变，以 Qwen3-VL-4B 为基础模型，重点改的是 **输入对齐方式**、**坐标表达方式** 与 **训练样本组织方式**，而不是网络结构本身。
 
-![](assets/VLM³ - 原生三维学习的视觉语言模型/pipeline.png)
+![](assets/VLM³%20-%20原生三维学习的视觉语言模型/pipeline.png)
 
 ### 3.1 核心 Pipeline
 
@@ -243,7 +243,7 @@ Pose / rotation: Describe the camera reorientation from the first viewpoint to t
 - 在当前数据量级下，小模型并非弱点，反而更不容易过拟合；
 - 扩大模型到 8B / 32B 或扩大到 64M samples，并没有继续提升深度结果。
 
-![](assets/VLM³ - 原生三维学习的视觉语言模型/visualizations.png)
+![](assets/VLM³%20-%20原生三维学习的视觉语言模型/visualizations.png)
 
 ### 4.6 值得警惕的限制 / 假设
 

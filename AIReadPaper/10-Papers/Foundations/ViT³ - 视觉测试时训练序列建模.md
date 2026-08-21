@@ -84,7 +84,7 @@ ViT³ 把视觉序列建模重新表述为"对键值对做测试时在线学习�
 
 ### 3.1 总体框架：从 Softmax Attention 到 TTT
 
-![](assets/ViT³ - 视觉测试时训练序列建模/figures/01-overview.png)
+![](assets/ViT³%20-%20视觉测试时训练序列建模/figures/01-overview.png)
 
 > 图 1：Softmax 注意力、线性注意力与 TTT 三类序列建模方式的统一对比。(a) Softmax 注意力可视为一个宽度为 $N$ 的两层 MLP，复杂度 $\mathcal{O}(N^2)$；(b) 线性注意力把 $K, V$ 压缩为 $d \times d$ 线性权重，复杂度 $\mathcal{O}(N)$，但状态容量受限；(c) TTT 把 $K, V$ 视为训练数据，通过自监督在线学习更新 inner model 的权重 $W^*$，再作用于 $Q$。  
 > 来源：论文 Figure 1，第 2 页，<https://arxiv.org/abs/2512.01643>
@@ -163,7 +163,7 @@ MAE 的导数是符号函数，混合二阶导几乎为零，因此表现最差�
 
 ### 3.4 ViT³ 架构与内层模型
 
-![](assets/ViT³ - 视觉测试时训练序列建模/figures/02-method.png)
+![](assets/ViT³%20-%20视觉测试时训练序列建模/figures/02-method.png)
 
 > 图 2：TTT 块与 Transformer 块的宏观对比。宏观上，TTT 块沿用 Norm + TTT Block + 残差 + FFN + Norm 的结构；块内部用三个线性层生成 $K, V, Q$，中间的 "TTT Calculation" 即"用 $K, V$ 在线更新 inner model 权重、再作用于 $Q$"那一步。  
 > 来源：论文 Figure 2，第 2 页，<https://arxiv.org/abs/2512.01643>
@@ -355,7 +355,7 @@ $$
 
 **(b) 深层 inner model 优化困难（Figure 3）**
 
-![](assets/ViT³ - 视觉测试时训练序列建模/figures/04-ablation.png)
+![](assets/ViT³%20-%20视觉测试时训练序列建模/figures/04-ablation.png)
 
 > 图 3：inner model 层数对训练损失（左）与测试准确率（右）的影响。1 层（FC）训练损失最低、测试准确率最高；2 层（两层 MLP）次之；3 层（三层 MLP）训练损失反而最高、测试准确率最低。**说明在当前 TTT 训练框架下，更深的 inner model 既难优化（外循环），又难收敛到好的解（内循环）。**  
 > 来源：论文 Figure 3，第 5 页，<https://arxiv.org/abs/2512.01643>
@@ -377,7 +377,7 @@ $$
 
 **(a) 高分辨率下的效率**
 
-![](assets/ViT³ - 视觉测试时训练序列建模/figures/03-results.png)
+![](assets/ViT³%20-%20视觉测试时训练序列建模/figures/03-results.png)
 
 > 图 4：DeiT-T 与 ViT³-T 在不同输入分辨率下的 (a) FPS（log scale）与 (b) 单图 GPU 显存占用。分辨率越高，DeiT-T 的 FPS 衰减越快、显存近线性增长；ViT³-T 始终保持在更高 FPS、显存增长极缓。在 $1248^2$ 分辨率（每图 6,084 tokens）下，ViT³-T 达到 **4.6× 速度提升**、**显存下降 90.3%**。  
 > 来源：论文 Figure 4，第 8 页，<https://arxiv.org/abs/2512.01643>

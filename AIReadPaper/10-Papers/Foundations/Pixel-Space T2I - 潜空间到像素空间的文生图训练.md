@@ -122,12 +122,12 @@ $$
 
 整篇论文的方法可以用一句话概括: **先在 VAE latent 上做大规模预训练得到一个有完整文生图能力的 DiT, 再把它当作像素空间模型的初始化, 用一份混合数据做后训练, 把输入/输出空间从 latent 平滑迁移到 RGB, 最后再做大 patch 适配和少步蒸馏**。图 1 (论文 Figure 1) 和图 2 (论文 Figure 2) 共同奠定了这个方向的动机: 在同 compute、同数据、同架构下, latent 收敛快、质量天花板高, pixel 从零追不上; 但 pixel 的训练曲线并不是"完全卡死", 它只是慢。这说明 latent 学到的视觉先验确实有希望迁移到 pixel。
 
-![Figure 1: 像素 vs 潜空间预训练在 GenEval 和 DPG 上的训练曲线对比, 潜变量模型(蓝)在 2K 步时已经接近最终质量, 像素模型(红)在 8K 步前几乎贴地, 在 150K 步仍存在 0.2 / 8 分左右的稳定差距。](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/00-motivation-curves.png)
+![Figure 1: 像素 vs 潜空间预训练在 GenEval 和 DPG 上的训练曲线对比, 潜变量模型(蓝)在 2K 步时已经接近最终质量, 像素模型(红)在 8K 步前几乎贴地, 在 150K 步仍存在 0.2 / 8 分左右的稳定差距。](assets/Pixel-Space%20T2I%20-%20潜空间到像素空间的文生图训练/figures/00-motivation-curves.png)
 
 > 图 1: 像素空间与潜空间在同一 Z-Image 架构、同一数据、同一算力下做大规模预训练, 在 GenEval (左) 和 DPG (右) 两个基准上的训练曲线。蓝线 (latent) 在 2K 步就已有基本结构和图文对齐, 红线 (pixel) 在 4K–8K 步前几乎贴底, 在 150K 步仍与潜变量保留 0.2 / 8 分的稳定差距——这是"像素难学"最直接的定量证据, 也是后文"潜到像素"路线必须存在的根本理由。
 > 来源: 论文 Figure 1, 第 3 页, https://arxiv.org/html/2608.16887v1/pic/latent-vs-pixel-bench.png
 
-![Figure 2: 同一提示词在 2K/10K/50K/150K 训练步下的定性样本, 上排为 pixel-space 训练, 下排为 latent-space 训练; pixel 在早期几乎看不出主体, latent 在 2K 步已有可识别物体。](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/01-overview.png)
+![Figure 2: 同一提示词在 2K/10K/50K/150K 训练步下的定性样本, 上排为 pixel-space 训练, 下排为 latent-space 训练; pixel 在早期几乎看不出主体, latent 在 2K 步已有可识别物体。](assets/Pixel-Space%20T2I%20-%20潜空间到像素空间的文生图训练/figures/01-overview.png)
 
 > 图 2: 同一提示词 "a photo of a fire hydrant and a tennis racket" (左) 和 "a photo of a bench" (右) 在不同训练步下的定性样本。上排 (pixel space) 在 2K 步仍是色块, 50K 步才开始出现物体轮廓; 下排 (latent space) 在 2K 步已经能识别消防栓、长椅等主体, 50K 步之后结构与色彩基本稳定。两行的差距是图 1 曲线差距在视觉上的对应——也是后文"用 latent 权重当像素模型初始化"的最直观动机。
 > 来源: 论文 Figure 2, 第 3 页, https://arxiv.org/abs/2608.16887
@@ -185,7 +185,7 @@ $$
 
 DiP 的核心机制是**卷积的局部性和权重共享**——相邻 patch 在被合成回像素前能互相"看到"对方, 抹掉了线性头那种"每块各管各的"造成的边界断裂, 但又不必上到 22 亿参数的 Transformer 头。
 
-![Figure 8: JiT 线性头在 patch 边界出现明显网格状伪影 (上排红框), DiP 轻量卷积头在同样位置形成平滑过渡 (下排绿框), 红色尖顶等细节也明显更锐利。](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/02-method.png)
+![Figure 8: JiT 线性头在 patch 边界出现明显网格状伪影 (上排红框), DiP 轻量卷积头在同样位置形成平滑过渡 (下排绿框), 红色尖顶等细节也明显更锐利。](assets/Pixel-Space%20T2I%20-%20潜空间到像素空间的文生图训练/figures/02-method.png)
 
 > 图 3: JiT 线性头 vs DiP 轻量卷积 U-Net 在同一生成结果上的局部放大对比。JiT 头 (上排) 在 patch 边界出现明显的网格状分块, DiP 头 (下排) 通过卷积把相邻 patch 在像素合成前混合, 抹掉了断裂, 红色栏杆等高频细节也恢复得更锐利。这条现象直接支撑了 Table 1 里的 DPG 分数差距——结构化/高频细节评分 DPG 看重的就是这种"patch 间是否一致"。
 > 来源: 论文 Figure 8, 第 7 页, https://arxiv.org/abs/2608.16887
@@ -235,7 +235,7 @@ DiP 的核心机制是**卷积的局部性和权重共享**——相邻 patch �
 
 **结果**: 这种 **ps32-adapt16** 路线比"直接训 ps32"收敛快很多, 局部伪影基本消失, GenEval/DPG 与 ps16 相当; 再推到 **ps64-adapt32** (token 数再降到 256) 则眼睛、睫毛等细节开始退化, 基准分数也下降。**ps32-adapt16 是当前的质量-效率甜点, ps64 已过度压缩**。
 
-![Figure 11: 同一 prompt 在 ps16 / ps32 / ps32-adapt16 / ps64-adapt32 四种设定下的样本, 右半为眼部放大; ps32-direct 出现伪影, ps32-adapt16 恢复细节, ps64-adapt32 重新出现伪影。](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/04-patch.png)
+![Figure 11: 同一 prompt 在 ps16 / ps32 / ps32-adapt16 / ps64-adapt32 四种设定下的样本, 右半为眼部放大; ps32-direct 出现伪影, ps32-adapt16 恢复细节, ps64-adapt32 重新出现伪影。](assets/Pixel-Space%20T2I%20-%20潜空间到像素空间的文生图训练/figures/04-patch.png)
 
 > 图 4: 渐进式 patch 尺寸适配的定性对比。ps16 (左上) 和 ps32 (右上) 是"直接切"路线, ps32 上有明显局部伪影; ps32-adapt16 (左下) 用 ps16 像素模型做初始化再升到 ps32, 伪影消失、眼神细节更锐利; ps64-adapt32 (右下) 把 token 数再砍到 1/4, 局部细节和伪影同时回来。这条曲线说明**像素空间扩散并没有"消灭"压缩, 它只是把压缩从 VAE 搬到了 patch**——ps32 已经把 32×32 像素塞进一个 token, 进一步压细节就崩。
 > 来源: 论文 Figure 11, 第 9 页, https://arxiv.org/abs/2608.16887
@@ -324,7 +324,7 @@ DiP 的核心机制是**卷积的局部性和权重共享**——相邻 patch �
 
 延迟分解 (Figure 12) 把 4.41× 和 100.6× 拆开:
 
-![Figure 12: 端到端延迟从 20.12s 分解到 0.20s 的来源: 像素化 +1.10×, 大 patch +4.41×, 4 步蒸馏再压到 100.6×。](assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/figures/03-results.png)
+![Figure 12: 端到端延迟从 20.12s 分解到 0.20s 的来源: 像素化 +1.10×, 大 patch +4.41×, 4 步蒸馏再压到 100.6×。](assets/Pixel-Space%20T2I%20-%20潜空间到像素空间的文生图训练/figures/03-results.png)
 
 > 图 5: Z-Image 路线从基线 20.12s 到 0.20s 的端到端延迟分解, 论文 Figure 12。**第一刀** (像素空间化 + 去掉 VAE decoder) 只拿到 1.10× 加速 (18.26s); **第二刀** (大 patch 适配) 把 token 数砍到 1/4, 拿到 4.41× (4.56s); **第三刀** (4 步 step 蒸馏) 拿到 4.75× (0.20s); 与 100 NFE 潜空间基线相比, 累计组合加速 **100.6×**。这张图最关键的启示是: **去掉 VAE 只是入场券, 大 patch 才是真正决定吞吐的杠杆**——只讲"无 VAE"会漏掉 token 数这一决定性变量。
 > 来源: 论文 Figure 12, 第 9 页, https://arxiv.org/abs/2608.16887
