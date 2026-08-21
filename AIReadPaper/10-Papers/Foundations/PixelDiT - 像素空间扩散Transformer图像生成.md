@@ -231,7 +231,9 @@ Text-to-Image 版本只改 patch-level pathway：
 
 ### 4.4 图像编辑里的额外优势：背景和细节保真
 
-![](https://bytedance.larkoffice.com/space/api/box/stream/download/asynccode/?code=YzViMTg0MTU4ZDE5YTc0MzZhNGU4NTI1MzRmZDg0YjNfSFJnOG9XQUhJVFNBY3lwaExiMEExczdCMkNackVDUDZfVG9rZW46VWVuV2J3aWE1b0VmYnl4OWpVa2NDOUtTbnVkXzE3ODI5ODE0Mzg6MTc4Mjk4NTAzOF9WNA&add_watermark=true&scene_type=CCM)
+![](assets/PixelDiT - 像素空间扩散Transformer图像生成/figures/04-edit.png)
+> **解读：** 用 FlowEdit 把 "a bicycle parked on the sidewalk…" 改成 "a motorcycle parked on the sidewalk…"，横向对比 Real Image / Stable Diffusion 3 / FLUX / PixelDiT 四组结果。SD3、FLUX 因 VAE reconstruction 阶段已损坏墙上小字（"IN A CITY WHERE… / WITH THE QUIET RED…"），后续编辑继续放大失真；PixelDiT 无 VAE，墙面文字和背景细节保留明显更好。论文在 281 个 FlowEdit 样本上量化：PixelDiT MSE 0.001522 vs SD3 0.004349 / FLUX 0.009105，SSIM 0.8628 vs 0.8400 / 0.8254。
+> **来源：** arXiv:2511.20645v2，Figure 0(b)（Visual results of PixelDiT on training-free image editing with FlowEdit）。
 
 论文专门用 FlowEdit 做了一个很有说服力的 case：
 
