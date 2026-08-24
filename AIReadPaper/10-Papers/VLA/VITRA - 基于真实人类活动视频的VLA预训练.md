@@ -251,10 +251,10 @@ HaMeR (CVPR'24)  →  WiLoR (CVPR'25)  →  HaWoR (CVPR'25)
 
 模型由两部分组成：
 
-1. **VLM 骨干**：采用 **PaliGemma-2（3B 参数，输入分辨率 $224^2$）**，视觉编码器为 SigLIP，语言侧为 Gemma-2。它接收图像观测、语言指令，并额外接收**相机 FoV 信息**作为附加 token，帮助模型理解原始图像的宽高比与相机内参。VLM 输出由一个可学习的 "cognition" token 产生的特征 $f^c$，作为动作专家的条件。
-2. **扩散动作专家**：采用 **Diffusion Transformer（DiT，默认 DiT-Base）**。输入是 cognition 特征 $f^c$、当前手部状态 $s_t$ 与噪声动作块 $(a_t^i, a_{t+1}^i, \dots, a_{t+N}^i)$ 的拼接；cognition 特征通过 **AdaLN** 注入 DiT 以增强条件作用。
+1. **VLM 骨干**：采用 PaliGemma-2（3B 参数，输入分辨率 $224^2$），视觉编码器为 SigLIP，语言侧为 Gemma-2。它接收图像观测、语言指令，并额外接收相机 FoV 信息作为附加 token，帮助模型理解原始图像的宽高比与相机内参。VLM 输出由一个可学习的 "cognition" token 产生的特征 $f^c$，作为动作专家的条件。
+2. **扩散动作专家**：采用 Diffusion Transformer（DiT，默认 DiT-Base）。输入是 cognition 特征 $f^c$、当前手部状态 $s_t$ 与噪声动作块 $(a_t^i, a_{t+1}^i, \dots, a_{t+N}^i)$ 的拼接；cognition 特征通过 AdaLN 注入 DiT 以增强条件作用。
 
-这里的"cognition token"是一个值得留意的设计：它把 VLM 的**语义理解**与动作专家的**动作生成**桥接起来，让感知和动作在同一个可学习接口上对齐，而不是简单地把 VLM 输出的文本 token 直接当作条件。
+这里的"cognition token"是一个值得留意的设计：它把 VLM 的语义理解与动作专家的动作生成桥接起来，让感知和动作在同一个可学习接口上对齐，而不是简单地把 VLM 输出的文本 token 直接当作条件。
 
 ### 3.6 训练目标、因果去噪与动作掩码
 
