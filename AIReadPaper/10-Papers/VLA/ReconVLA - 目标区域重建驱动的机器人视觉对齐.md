@@ -109,7 +109,7 @@ $\mathcal{L}_{\mathrm{VLA}}^{\mathrm{action}}$ 是动作 token 的交叉熵损�
 
 ReconVLA 由两条**共享 LLM 主干**的分支构成（Figure 3）。第一条是标准的动作分支，输出离散动作 token；第二条是新增的视觉重建分支，输出 reconstructive token $\boldsymbol{h}_R$，驱动一个轻量 Diffusion Transformer（DiT）从噪声中恢复 gaze region 的潜在 scene token。两条分支通过共享主干耦合，重建损失的反向传播会迫使主干编码出更聚焦、更细粒度的视觉表征。
 
-![](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig3_architecture.png)
+![647](assets/ReconVLA%20-%20目标区域重建驱动的机器人视觉对齐/fig3_architecture.png)
 
 > 图 1：ReconVLA 的总体架构。输入是多视角图像与文本指令；动作分支输出离散动作 token，重建分支输出 reconstructive token 作为去噪器条件，从 $\boldsymbol{z}_t$ 恢复 gaze region 的 scene token $\boldsymbol{z}_0$。两条分支共享同一 LLM 主干，因此重建监督会反向作用到动作分支的视觉表征。
 > 来源：论文 Figure 3，第 4 页，https://arxiv.org/abs/2508.10333
