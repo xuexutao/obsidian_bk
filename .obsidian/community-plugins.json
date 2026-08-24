@@ -3,5 +3,6 @@
   "obsidian-custom-attachment-location",
   "obsidian-linter",
   "agent-client",
-  "code-styler"
+  "code-styler",
+  "obsidian-style-settings"
 ]

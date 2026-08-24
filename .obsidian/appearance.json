@@ -14,8 +14,9 @@
     "colored-text",
     "center-images"
   ],
-  "accentColor": "",
+  "accentColor": "#3440e5",
   "textFontFamily": "Times New Roman,Arial",
   "baseFontSizeAction": true,
-  "interfaceFontFamily": "Arial,Times New Roman"
+  "interfaceFontFamily": "Times New Roman,Arial",
+  "theme": "moonstone"
 }

@@ -110,6 +110,14 @@
   },
   "savedSessions": [
     {
+      "sessionId": "90afa290-1f9b-4907-8d26-14838c9b6e23",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "为什么呢？现有 JEPA world model 很容易 representation col...",
+      "createdAt": "2026-08-21T06:48:35.867Z",
+      "updatedAt": "2026-08-21T07:46:14.744Z"
+    },
+    {
       "sessionId": "590975e3-13ce-4f25-9f04-0a96f2663de2",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
@@ -142,13 +150,16 @@
       "updatedAt": "2026-08-06T11:34:43.882Z"
     }
   ],
-  "lastUsedModels": {},
+  "lastUsedModels": {
+    "claude-code-acp": "default"
+  },
   "lastUsedModes": {
     "claude-code-acp": "auto"
   },
   "lastUsedConfigOptions": {
     "claude-code-acp": {
-      "fast": "on"
+      "fast": "on",
+      "effort": "medium"
     }
   },
   "enableFloatingChat": false,
