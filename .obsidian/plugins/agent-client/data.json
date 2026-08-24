@@ -110,6 +110,14 @@
   },
   "savedSessions": [
     {
+      "sessionId": "f42305f9-3a4c-4036-b9b0-9ce79e8373f1",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "这个hawor是如何工作的呢",
+      "createdAt": "2026-08-24T07:57:08.262Z",
+      "updatedAt": "2026-08-24T07:57:08.263Z"
+    },
+    {
       "sessionId": "90afa290-1f9b-4907-8d26-14838c9b6e23",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",

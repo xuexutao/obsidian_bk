@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "sessionId": "f42305f9-3a4c-4036-b9b0-9ce79e8373f1",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "这个hawor是如何工作的呢",
+  "createdAt": "2026-08-24T07:57:08.262Z",
+  "updatedAt": "2026-08-24T07:57:08.262Z",
+  "messages": [
+    {
+      "id": "7a7233d8-abb5-45a3-9dd1-bf646b64810c",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "这个hawor是如何工作的呢",
+          "autoMentionContext": {
+            "noteName": "VITRA - 基于真实人类活动视频的VLA预训练",
+            "notePath": "AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+            "selection": {
+              "fromLine": 122,
+              "toLine": 122
+            }
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T07:55:39.817Z"
+    },
+    {
+      "id": "e74a1e7f-7338-4492-b89c-33f8d2764509",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01F7fA8pnXBabztb7c3AWtJ3",
+          "title": "Read AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md (100 - 149)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "line": 100
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+            "offset": 100,
+            "limit": 50
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T07:55:47.267Z"
+    },
+    {
+      "id": "0fbeb3ca-3631-435b-903d-0aa0ab460263",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_013rrwm98EBzC6qnE46aX67f",
+          "title": "\"HaWoR world-space hand motion reconstruction egocentric videos paper\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "HaWoR world-space hand motion reconstruction egocentric videos paper"
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T07:55:48.716Z"
+    },
+    {
+      "id": "ad7c2a20-b7c3-4cc8-ac85-ddc780bb71a6",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01QhAYxvQCRJw9ZitGCQEv4q",
+          "title": "Fetch https://arxiv.org/html/2501.02973v1",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "url": "https://arxiv.org/html/2501.02973v1",
+            "prompt": "Explain HaWoR's method in detail: overall architecture, how it decouples camera-space hand motion and world-space camera trajectory, the hand reconstruction network (temporal attention, ViT backbone?), the adaptive egocentric SLAM / camera trajectory estimation, the motion infiller network for missing/out-of-view frames, losses, training data, and evaluation results. Include module names and technical details."
+          }
+        },
+        {
+          "type": "text",
+          "text": "## HaWoR 是什么\n\n**HaWoR: World-Space Hand Motion Reconstruction from Egocentric Videos**（CVPR 2025）要解决的问题是：给一段**第一人称、单目、相机自身在动**的视频，恢复**世界坐标系下**的 3D 手部运动。\n\n难点在于两件事纠缠在一起——手在动，相机也在动。图像上看到的手部运动 = 手的真实运动 × 相机运动。HaWoR 的核心思路就是**解耦**：分别估计「相机空间中的手」和「世界空间中的相机」，最后再乘回去合成。\n\n论文把系统拆成三个模块：\n\n### 1. 相机空间手部重建（Hand Motion Estimation）\n\n在单帧方法 **WiLoR** 的基础上加时序建模，backbone 是 WiLoR 预训练的 ViT，然后加两个时序注意力模块：\n\n- **IAM（Image Attention Module）**：在视频帧之间做外观特征的时序自注意力。这一步对第一人称视频特别关键——手经常被画面边缘截断，靠邻帧信息补全。\n- **PAM（Pose Attention Module）**：直接在 MANO 位姿参数序列上做自注意力，学到运动先验，约束抖动、提升时序连贯性。\n\n输出每帧的 MANO 位姿 $\\Theta$、形状 $\\beta$、手部朝向 $\\Phi$ 和相机空间平移 $\\Gamma$。监督用 3D 关节 + 2D 关节 + MANO 参数三项 L1/L2 组合。\n\n> 这正是你笔记 122 行说的「腕部 6D 位姿 + MANO 关节角」的来源：$\\Phi,\\Gamma$ 构成腕部 6D，$\\Theta$ 是关节角。\n\n### 2. 自适应第一人称 SLAM（相机轨迹）\n\n直接把 DROID-SLAM 套到第一人称视频上会坏掉，因为**手占了画面很大比例且在剧烈运动**，SLAM 会把手当成静态背景去解相机位姿。HaWoR 的做法是**双重掩膜**：\n\n把模块 1 重建出的 3D 手投影回图像得到手部 mask $M_t$，然后同时掩掉输入图像和 DROID-SLAM 的置信图：\n\n$$\\hat{I}_t = (1-M_t)\\cdot I_t,\\qquad \\hat{w}_t = (1-M_t)\\cdot w_t$$\n\n这样特征提取和 dense bundle adjustment 都只看背景像素。\n\n单目 SLAM 只有相对尺度，所以再用 **Metric3D**（度量深度基础模型）恢复真实尺度。这里又加了个 **AdaSM（Adaptive Sampling Module）**，只在「可靠的中距离」点上估尺度，排除手部和极端深度：\n\n$$S_t = \\{p \\mid p \\notin M_t,\\ D_{\\min} < D_t(p) < D_{\\max}\\}$$\n\n尺度因子 $\\alpha$ 用 German-McClure robust loss 优化，抗离群点。\n\n### 3. Motion Infiller（补全出画帧）\n\n第一人称视野窄，手频繁移出画面。HaWoR 训了一个 Transformer encoder 做**运动补全**：先把手部运动变换到以首帧对齐的 canonical 空间（把相机动态解耦掉），再用自注意力 + FC decoder 回归缺失段的 MANO 序列。初始化用线性插值（平移）+ SLERP（旋转），训练时在 HOT3D 上随机掩掉中间帧段。\n\n### 合成\n\n$$\\text{世界空间手部} = T_{\\text{cam}\\to\\text{world}}(t) \\circ \\text{相机空间手部}(t)$$\n\n## 效果\n\n在 HOT3D 上 W-MPJPE 33.20mm，对比 HMP-SLAM 的 119.41mm；单帧前向 40ms，比优化式方法快 75%。相机空间精度（DexYCB PA-MPJPE 4.76mm）也略优于 WiLoR，尤其在 75–100% 重遮挡下（5.07 vs 5.68mm）——说明时序注意力确实在起作用。\n\n## 回到 VITRA 的语境\n\n有个细节值得在笔记里点明：**VITRA 只用了 HaWoR 的模块 1**（相机空间逐帧手部重建），并没有用它自带的 SLAM。相机轨迹换成了**改造版 MegaSAM**（深度先验从原本的模型换成 MoGe-2），内参用 DroidCalib / MoGe-2 + DeepCalib 单独估。\n\n原因大概是：HaWoR 的 SLAM 是为**第一人称头戴视角**设计的（手占画面大、背景运动模式特定），而 VITRA 的数据来源是各种野外人类活动视频，有静止相机也有运动相机、有畸变，需要更通用、更鲁棒的相机轨迹方案。所以 VITRA 实际上是把 HaWoR 的「解耦」框架保留了，但**把两个分支各自换成了更适合自己数据分布的组件**。\n\n要不要我把这段整理成一个小节（或一条脚注）补进 [[VITRA - 基于真实人类活动视频的VLA预训练]] 的 3.2 节？\n\n**Sources:**\n- [HaWoR: World-Space Hand Motion Reconstruction from Egocentric Videos (arXiv:2501.02973)](https://arxiv.org/html/2501.02973v1)\n- [HaWoR 项目主页](https://hawor-project.github.io/)\n- [ThunderVVV/HaWoR (GitHub)](https://github.com/ThunderVVV/HaWoR)"
+        }
+      ],
+      "timestamp": "2026-08-24T07:55:57.408Z"
+    }
+  ],
+  "savedAt": "2026-08-24T07:57:08.264Z"
+}
