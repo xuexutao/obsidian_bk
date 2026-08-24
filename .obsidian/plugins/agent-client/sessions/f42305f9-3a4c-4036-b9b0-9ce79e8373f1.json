@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
   "title": "这个hawor是如何工作的呢",
   "createdAt": "2026-08-24T07:57:08.262Z",
-  "updatedAt": "2026-08-24T07:57:08.262Z",
+  "updatedAt": "2026-08-24T08:03:42.108Z",
   "messages": [
     {
       "id": "7a7233d8-abb5-45a3-9dd1-bf646b64810c",
@@ -92,7 +92,273 @@
         }
       ],
       "timestamp": "2026-08-24T07:55:57.408Z"
+    },
+    {
+      "id": "1d8ee01c-43a2-4cfd-9e67-2ff9aeb316ac",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "这个写的挺高的，我记得还有一个hamer，这两个方法有什么区别，为什么VITRA选择Hawor呢",
+          "autoMentionContext": {
+            "noteName": "VITRA - 基于真实人类活动视频的VLA预训练",
+            "notePath": "AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T08:01:25.593Z"
+    },
+    {
+      "id": "dd4c1739-b1f7-47b3-a6d1-ae0bbd09e0e6",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_015mxsY3jKRFh16oXTjSQqK9",
+          "title": "Fetch https://arxiv.org/abs/2312.05251",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Summarize HaMeR (Reconstructing Hands in 3D with Transformers): architecture, ViT-H backbone, training data scale, what it outputs (MANO + camera), single-image only? key results and limitations.",
+            "url": "https://arxiv.org/abs/2312.05251"
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T08:01:30.949Z"
+    },
+    {
+      "id": "dba1856f-72c4-4644-be56-ac8d894f4ffc",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01LrYBjs3jsyB3afHr5S2qwt",
+          "title": "\"WiLoR vs HaMeR hand reconstruction comparison refinement module accuracy\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "WiLoR vs HaMeR hand reconstruction comparison refinement module accuracy"
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T08:01:32.358Z"
+    },
+    {
+      "id": "ebab2e2e-58d9-410d-b665-4495b8054f91",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_015UhdYpyH4YvyLvJQXxnugA",
+          "title": "Fetch https://arxiv.org/html/2409.12259v2",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Summarize WiLoR: architecture (detector + reconstruction), the WHIM dataset scale, the coarse-to-fine refinement module details, quantitative comparison against HaMeR (PA-MPJPE on FreiHAND/HO3D/DexYCB, speed/FPS), and what limitations remain (temporal? world space?).",
+            "url": "https://arxiv.org/html/2409.12259v2"
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T08:01:46.949Z"
+    },
+    {
+      "id": "12f103e6-ef92-43c4-9a69-2ef23e6bf0cc",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_0151iLvx7SWDX2ZRnjd4Rgb7",
+          "title": "Fetch https://arxiv.org/html/2501.02973v1",
+          "status": "failed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Find all mentions and comparisons of HaMeR in this paper: why the authors chose WiLoR over HaMeR as backbone, and any quantitative table comparing HaWoR/WiLoR/HaMeR (camera-space PA-MPJPE, world-space metrics, ablations). Also list which prior world-space hand methods (HMP, SLAM-based) they compare with and why those fail.",
+            "url": "https://arxiv.org/html/2501.02973v1"
+          }
+        },
+        {
+          "type": "text",
+          "text": "## 先纠正一个层级问题\n\nHaMeR 和 HaWoR 其实**不在同一个层级上**，不是两个可替换的方案：\n\n| | HaMeR (CVPR'24) | WiLoR (CVPR'25) | HaWoR (CVPR'25) |\n|---|---|---|---|\n| 输入 | 单张图（已裁好的手 crop） | 单张图（含检测，端到端） | **视频序列** |\n| 输出坐标系 | 相机空间 | 相机空间 | **世界空间（度量尺度）** |\n| 时序建模 | 无 | 无 | 有（IAM + PAM） |\n| 相机轨迹 | 无 | 无 | 有（Adaptive Egocentric SLAM） |\n| 出画补全 | 无 | 无 | 有（Motion Infiller） |\n| 骨干 | ViT-H | ViT-L + coarse-to-fine refine | **WiLoR 的 ViT + 时序注意力** |\n\n关键事实：**HaWoR 的手部重建分支就是在 WiLoR 上加时序注意力做的**，而 WiLoR 是 HaMeR 的后继/改进（同一条 ViT + MANO 回归的技术路线）。所以正确的关系是：\n\n```\nHaMeR  →  WiLoR  →  HaWoR\n（单帧）  （单帧+检测+refine）  （视频+世界空间）\n```\n\n它们是**演进关系而非竞争关系**。问「VITRA 为什么选 HaWoR 而不选 HaMeR」，本质等于问「为什么选一个视频级世界空间系统，而不选一个单帧相机空间模型」。\n\n## 三者的实质差别\n\n### HaMeR → WiLoR：精度与对齐\n\nHaMeR 的核心贡献是 scaling：ViT-H + 多数据集聚合，证明「大模型 + 大数据」能把 3D 手部重建做到很鲁棒。但它是**单阶段直接回归** MANO 参数，图像对齐（image alignment）不够精确。\n\nWiLoR 加了两件事：\n- **WHIM 数据集**：1400+ YouTube 视频、200 万+ 野外手部图像\n- **coarse-to-fine refinement**：先粗回归 MANO，把粗网格投影回图像，按顶点双线性采样 ViT 特征，再用 MLP 预测残差 $\\Delta\\theta, \\Delta\\beta$\n\n结果：FreiHAND PA-MPJPE 5.5 vs HaMeR 6.0mm；HO3D 7.5 vs 7.7mm。提升不大但稳定，且**自带检测器**（138 FPS，比 ContactHands 快 45×），是端到端的。\n\n### WiLoR → HaWoR：从单帧到世界空间\n\nWiLoR 论文自己在 limitations 里列出的三条，正好就是 HaWoR 补上的：\n\n> - **Temporal stability**: 缺乏显式时序建模\n> - **World-space reconstruction**: 估计仍在相机空间，需要结合度量深度基础模型\n> - 画面边缘截断的手处理不好\n\nHaWoR 对应地做了 IAM/PAM（时序）、Metric3D + AdaSM（度量尺度）、掩膜 SLAM（相机轨迹）、Motion Infiller（出画补全）。\n\n## 为什么 VITRA 必须用 HaWoR 这一档\n\n回到 VITRA 的需求。它要的不是「好看的手部网格」，而是**能当机器人动作标签用的轨迹**。这带来三个硬约束，单帧方法（无论 HaMeR 还是 WiLoR）在原理上就满足不了：\n\n**1. 必须是世界坐标系。** 你笔记 3.3 节的原子动作分割，靠的是「**世界空间**腕部速度的局部极小值」。如果轨迹在相机空间，相机一动速度曲线就全乱了——摇头会被当成手在动。这个算法只有在世界空间才成立。\n\n**2. 必须是度量尺度（米）。** 你笔记 101 行强调的核心选择：「让人类手动作和机器人手动作**共享同一套度量空间坐标**，从而可以直接对齐、直接监督」。HaMeR 输出的是弱透视相机下的相对平移，尺度是不确定的——手离相机 30cm 还是 60cm，图像上可以完全一样。没有度量尺度，这套 102 维动作表示就无法和机器人的真实位移对齐。\n\n**3. 必须时序连贯。** 动作专家学的是轨迹，逐帧独立推理的抖动会直接变成噪声标签。而且 VITRA 处理的是野外视频，手频繁进出画面、被物体遮挡，单帧方法在这些帧上会给出完全离谱的结果。\n\n**换个说法**：如果 VITRA 用 HaMeR，它得自己从零搭时序平滑、相机轨迹、度量尺度对齐、出画处理——那基本就是把 HaWoR 重新实现一遍。\n\n## 但 VITRA 也没有全盘照搬 HaWoR\n\n这是上一轮我提到的、值得写进笔记的细节：**VITRA 实际只用了 HaWoR 的模块 1**（相机空间逐帧手部重建），把 HaWoR 自带的 SLAM 换成了改造版 **MegaSAM**（深度先验从 Metric3D 换成 MoGe-2）。\n\n原因应该是数据分布不同：\n\n- HaWoR 的 SLAM 专为**头戴式第一人称**设计——手占画面比例大、背景运动模式特定，所以它的掩膜策略和采样范围都是按这个调的\n- VITRA 的数据是**各种野外人类活动视频**——有静止相机、有手持运动相机、有鱼眼畸变、有第三人称视角。所以它需要先做相机动静判定分流、单独估内参、去畸变，相机轨迹也换成更通用的 MegaSAM\n\n所以准确的表述是：VITRA **继承了 HaWoR 的解耦框架**（相机空间手部 × 世界空间相机 = 世界空间手部），但把两个分支各自替换成更适合自己数据分布的组件。\n\n---\n\n要不要我把这个对比整理成一个「相关方法辨析」的小节补进 [[VITRA - 基于真实人类活动视频的VLA预训练]]？我可以做成 3.2 节后面的一个折叠块或者独立小节，含上面那张三方对比表。\n\n**Sources:**\n- [HaMeR: Reconstructing Hands in 3D with Transformers (arXiv:2312.05251)](https://arxiv.org/abs/2312.05251)\n- [WiLoR: End-to-end 3D Hand Localization and Reconstruction in-the-Wild (arXiv:2409.12259)](https://arxiv.org/html/2409.12259v2)\n- [HaWoR: World-Space Hand Motion Reconstruction from Egocentric Videos (arXiv:2501.02973)](https://arxiv.org/html/2501.02973v1)"
+        }
+      ],
+      "timestamp": "2026-08-24T08:01:49.325Z"
+    },
+    {
+      "id": "c8bb12f3-179b-4fdd-9954-ec823c3869b6",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "把上面两个对话都整理到文档中",
+          "autoMentionContext": {
+            "noteName": "VITRA - 基于真实人类活动视频的VLA预训练",
+            "notePath": "AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T08:07:43.539Z"
+    },
+    {
+      "id": "9c1565b2-0012-4e2c-98d3-4fa0260effb7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01D9AnGKhoe2jDai9p1D4evZ",
+          "title": "Read AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "I'll insert a dedicated subsection after §3.2 covering both conversations."
+        }
+      ],
+      "timestamp": "2026-08-24T08:07:49.941Z"
+    },
+    {
+      "id": "201fd371-defe-4f31-aed4-f41dc3b9f0ef",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_014dsJKURQVgHEmDAijKsr3y",
+          "title": "Edit AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "newText": "\n一个工程细节值得注意：长视频被切成有重叠的 20 秒片段分别处理，处理完再重组，以控制单次推理的资源开销。世界空间 3D 手部序列还有一个好处——它可以被轻易变换回任意视频帧的相机空间，等效模拟大多数机器人数据里的静态相机视角，这为后续分割与标注提供了便利。\n\n#### 3.2.1 延伸：HaWoR 是如何工作的\n\n由于 HaWoR 是整条 pipeline 的技术地基（也是精度上限的来源，见 §7），这里单独展开它的机制。\n\n**HaWoR: World-Space Hand Motion Reconstruction from Egocentric Videos**（CVPR 2025，[arXiv:2501.02973](https://arxiv.org/abs/2501.02973)）解决的问题是：给一段第一人称、单目、相机自身在动的视频，恢复**世界坐标系下**的 3D 手部运动。\n\n难点在于两件事纠缠在一起——手在动，相机也在动，图像上观测到的手部运动是两者的复合。HaWoR 的核心思路是**解耦**：分别估计\"相机空间中的手\"和\"世界空间中的相机\"，最后再合成回去。系统由三个模块组成：\n\n**（1）相机空间手部重建（Hand Motion Estimation）**\n\n在单帧方法 **WiLoR** 基础上加时序建模，backbone 为 WiLoR 预训练的 ViT，外加两个时序注意力模块：\n\n- **IAM（Image Attention Module）**：在视频帧之间对外观特征做时序自注意力。这对第一人称视频尤为关键——手经常被画面边缘截断，需要靠邻帧信息补全。\n- **PAM（Pose Attention Module）**：直接在 MANO 位姿参数序列上做自注意力，学习运动先验，抑制抖动、提升时序连贯性。\n\n输出每帧的 MANO 位姿 $\\Theta$、形状 $\\beta$、手部朝向 $\\Phi$ 与相机空间平移 $\\Gamma$。监督为 3D 关节 + 2D 关节 + MANO 参数三项组合：\n\n$$\n\\mathcal{L}_M = \\sum_t \\left( \\lambda_1 \\mathcal{L}_{3D}^t + \\lambda_2 \\mathcal{L}_{2D}^t + \\lambda_3 \\mathcal{L}_{MANO}^t \\right)\n$$\n\n> 这正是 §3.2 第 3 步所说\"腕部 6D 位姿 + MANO 关节角\"的来源：$\\Phi, \\Gamma$ 构成腕部 6D 位姿，$\\Theta$ 即关节角。\n\n**（2）自适应第一人称 SLAM（相机轨迹）**\n\n直接把 DROID-SLAM 套到第一人称视频上会失效，因为**手占画面比例大且剧烈运动**，SLAM 会把手误当静态背景来解算相机位姿。HaWoR 的做法是**双重掩膜**：把模块 (1) 重建的 3D 手投影回图像得到手部 mask $M_t$，同时掩掉输入图像与 DROID-SLAM 的置信图：\n\n$$\n\\hat{I}_t = (1-M_t)\\cdot I_t, \\qquad \\hat{w}_t = (1-M_t)\\cdot w_t\n$$\n\n这样特征提取与 dense bundle adjustment 都只使用背景像素。单目 SLAM 只有相对尺度，因此再用 **Metric3D**（度量深度基础模型）恢复真实尺度，并加 **AdaSM（Adaptive Sampling Module）** 只在可靠的中距离点上估尺度，排除手部区域与极端深度：\n\n$$\nS_t = \\{\\, p \\mid p \\notin M_t,\\ D_{\\min} < D_t(p) < D_{\\max} \\,\\}\n$$\n\n尺度因子 $\\alpha$ 用 German-McClure robust loss 优化以抗离群点。\n\n**（3）Motion Infiller（出画帧补全）**\n\n第一人称视野窄，手频繁移出画面。HaWoR 训练了一个 Transformer encoder 做运动补全：先把手部运动变换到以首帧对齐的 canonical 空间（解耦相机动态），再用自注意力 + FC decoder 回归缺失段的 MANO 序列；初始化用线性插值（平移）+ SLERP（旋转），训练时在 HOT3D 上随机掩掉中间帧段。\n\n**（4）合成与效果**\n\n最终世界空间手部由相机空间手部与相机轨迹合成：\n\n$$\n\\text{世界空间手部}(t) = T_{\\text{cam}\\to\\text{world}}(t) \\circ \\text{相机空间手部}(t)\n$$\n\n主要结果：HOT3D 上 W-MPJPE **33.20 mm**（对比 HMP-SLAM 的 119.41 mm）；单帧前向 **40 ms**，比优化式方法快约 75%。相机空间精度（DexYCB PA-MPJPE 4.76 mm）也略优于 WiLoR，在 75–100% 重遮挡下优势更明显（5.07 vs 5.68 mm），说明时序注意力确实起作用。\n\n#### 3.2.2 辨析：HaMeR / WiLoR / HaWoR 的关系，以及 VITRA 为何选 HaWoR\n\n一个常见误解是把 **HaMeR** 与 HaWoR 当作两个可互换的候选方案。实际上它们**不在同一层级**，而是一条演进链：\n\n```\nHaMeR (CVPR'24)  →  WiLoR (CVPR'25)  →  HaWoR (CVPR'25)\n   单帧              单帧 + 检测 + refine     视频 + 世界空间\n```\n\n关键事实：**HaWoR 的手部重建分支就是在 WiLoR 上加时序注意力做的**，而 WiLoR 是 HaMeR 的后继改进（同属 ViT + MANO 回归路线）。三者对比：\n\n| | HaMeR (CVPR'24) | WiLoR (CVPR'25) | HaWoR (CVPR'25) |\n|---|---|---|---|\n| 输入 | 单张图（已裁好的手 crop） | 单张图（含检测，端到端） | **视频序列** |\n| 输出坐标系 | 相机空间 | 相机空间 | **世界空间（度量尺度）** |\n| 时序建模 | 无 | 无 | 有（IAM + PAM） |\n| 相机轨迹 | 无 | 无 | 有（Adaptive Egocentric SLAM） |\n| 出画补全 | 无 | 无 | 有（Motion Infiller） |\n| 骨干 | ViT-H | ViT-L + coarse-to-fine refine | **WiLoR 的 ViT + 时序注意力** |\n\n**HaMeR → WiLoR：精度与图像对齐。** HaMeR 的核心贡献是 scaling（ViT-H + 多数据集聚合），但它是单阶段直接回归 MANO 参数，图像对齐不够精确。WiLoR 补了两点：一是 **WHIM 数据集**（1400+ YouTube 视频、200 万+ 野外手部图像）；二是 **coarse-to-fine refinement**——先粗回归 MANO，把粗网格投影回图像、按顶点双线性采样 ViT 特征，再用 MLP 预测残差 $\\Delta\\theta, \\Delta\\beta$。结果：FreiHAND PA-MPJPE 5.5 vs HaMeR 6.0 mm；HO3D 7.5 vs 7.7 mm，提升不大但稳定，且自带高速检测器（138 FPS）。\n\n**WiLoR → HaWoR：从单帧到世界空间。** WiLoR 论文自陈的三条 limitation，恰好就是 HaWoR 补上的：缺乏显式时序建模、估计仍在相机空间（需结合度量深度基础模型）、画面边缘截断的手处理不好。\n\n**VITRA 为何必须用 HaWoR 这一档。** VITRA 需要的不是\"好看的手部网格\"，而是\"能当机器人动作标签用的轨迹\"。这带来三个硬约束，单帧方法在**原理上**就无法满足：\n\n1. **必须是世界坐标系。** §3.3 的原子动作分割依赖\"**世界空间**腕部速度的局部极小值\"。若轨迹在相机空间，相机一动速度曲线就失真——摇头会被误判为手在运动。该算法只在世界空间成立。\n2. **必须是度量尺度（米）。** §2.2 强调的核心选择是让人手动作与机器人动作**共享同一套度量空间坐标**。HaMeR 输出的是弱透视相机下的相对平移，尺度不确定——手离相机 30 cm 还是 60 cm 在图像上可以完全一样。没有度量尺度，102 维动作表示无法与机器人真实位移对齐。\n3. **必须时序连贯。** 动作专家学的是轨迹，逐帧独立推理的抖动会直接变成噪声标签；且野外视频中手频繁进出画面、被物体遮挡，单帧方法在这些帧上会给出离谱结果。\n\n换个说法：若 VITRA 选用 HaMeR，它得自己从零搭时序平滑、相机轨迹、度量尺度对齐、出画补全——那基本等于把 HaWoR 重新实现一遍。\n\n**但 VITRA 也没有全盘照搬 HaWoR。** 值得注意的是，VITRA 实际**只用了 HaWoR 的模块 (1)**（相机空间逐帧手部重建），把 HaWoR 自带的 SLAM 换成了改造版 **MegaSAM**（深度先验从 Metric3D 换为 MoGe-2），内参另由 DroidCalib / MoGe-2 + DeepCalib 单独估计。原因应是数据分布不同（**个人判断**）：\n\n- HaWoR 的 SLAM 专为**头戴式第一人称**设计——手占画面比例大、背景运动模式特定，掩膜策略与采样范围都按此调校；\n- VITRA 的数据是**各类野外人类活动视频**——有静止相机、有手持运动相机、有大幅畸变、也有非头戴视角，因此需要先做相机动静判定分流、单独估内参、去畸变，相机轨迹也换成更通用的 MegaSAM。\n\n准确的表述是：VITRA **继承了 HaWoR 的解耦框架**（相机空间手部 × 世界空间相机 = 世界空间手部），但把两个分支各自替换为更适合自身数据分布的组件。\n\n### 3.3 阶段二：Atomic Action Segmentation（原子动作分割）\n\n这一阶段要解决\"任务对齐\"问题：把长视频切成与机器人数据粒度接近的原子动作片段。",
+              "oldText": "\n一个工程细节值得注意：长视频被切成有重叠的 20 秒片段分别处理，处理完再重组，以控制单次推理的资源开销。世界空间 3D 手部序列还有一个好处——它可以被轻易变换回任意视频帧的相机空间，等效模拟大多数机器人数据里的静态相机视角，这为后续分割与标注提供了便利。\n\n### 3.3 阶段二：Atomic Action Segmentation（原子动作分割）\n\n这一阶段要解决\"任务对齐\"问题：把长视频切成与机器人数据粒度接近的原子动作片段。"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "line": 126
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+            "old_string": "一个工程细节值得注意：长视频被切成有重叠的 20 秒片段分别处理，处理完再重组，以控制单次推理的资源开销。世界空间 3D 手部序列还有一个好处——它可以被轻易变换回任意视频帧的相机空间，等效模拟大多数机器人数据里的静态相机视角，这为后续分割与标注提供了便利。\n\n### 3.3 阶段二：Atomic Action Segmentation（原子动作分割）",
+            "new_string": "一个工程细节值得注意：长视频被切成有重叠的 20 秒片段分别处理，处理完再重组，以控制单次推理的资源开销。世界空间 3D 手部序列还有一个好处——它可以被轻易变换回任意视频帧的相机空间，等效模拟大多数机器人数据里的静态相机视角，这为后续分割与标注提供了便利。\n\n#### 3.2.1 延伸：HaWoR 是如何工作的\n\n由于 HaWoR 是整条 pipeline 的技术地基（也是精度上限的来源，见 §7），这里单独展开它的机制。\n\n**HaWoR: World-Space Hand Motion Reconstruction from Egocentric Videos**（CVPR 2025，[arXiv:2501.02973](https://arxiv.org/abs/2501.02973)）解决的问题是：给一段第一人称、单目、相机自身在动的视频，恢复**世界坐标系下**的 3D 手部运动。\n\n难点在于两件事纠缠在一起——手在动，相机也在动，图像上观测到的手部运动是两者的复合。HaWoR 的核心思路是**解耦**：分别估计\"相机空间中的手\"和\"世界空间中的相机\"，最后再合成回去。系统由三个模块组成：\n\n**（1）相机空间手部重建（Hand Motion Estimation）**\n\n在单帧方法 **WiLoR** 基础上加时序建模，backbone 为 WiLoR 预训练的 ViT，外加两个时序注意力模块：\n\n- **IAM（Image Attention Module）**：在视频帧之间对外观特征做时序自注意力。这对第一人称视频尤为关键——手经常被画面边缘截断，需要靠邻帧信息补全。\n- **PAM（Pose Attention Module）**：直接在 MANO 位姿参数序列上做自注意力，学习运动先验，抑制抖动、提升时序连贯性。\n\n输出每帧的 MANO 位姿 $\\Theta$、形状 $\\beta$、手部朝向 $\\Phi$ 与相机空间平移 $\\Gamma$。监督为 3D 关节 + 2D 关节 + MANO 参数三项组合：\n\n$$\n\\mathcal{L}_M = \\sum_t \\left( \\lambda_1 \\mathcal{L}_{3D}^t + \\lambda_2 \\mathcal{L}_{2D}^t + \\lambda_3 \\mathcal{L}_{MANO}^t \\right)\n$$\n\n> 这正是 §3.2 第 3 步所说\"腕部 6D 位姿 + MANO 关节角\"的来源：$\\Phi, \\Gamma$ 构成腕部 6D 位姿，$\\Theta$ 即关节角。\n\n**（2）自适应第一人称 SLAM（相机轨迹）**\n\n直接把 DROID-SLAM 套到第一人称视频上会失效，因为**手占画面比例大且剧烈运动**，SLAM 会把手误当静态背景来解算相机位姿。HaWoR 的做法是**双重掩膜**：把模块 (1) 重建的 3D 手投影回图像得到手部 mask $M_t$，同时掩掉输入图像与 DROID-SLAM 的置信图：\n\n$$\n\\hat{I}_t = (1-M_t)\\cdot I_t, \\qquad \\hat{w}_t = (1-M_t)\\cdot w_t\n$$\n\n这样特征提取与 dense bundle adjustment 都只使用背景像素。单目 SLAM 只有相对尺度，因此再用 **Metric3D**（度量深度基础模型）恢复真实尺度，并加 **AdaSM（Adaptive Sampling Module）** 只在可靠的中距离点上估尺度，排除手部区域与极端深度：\n\n$$\nS_t = \\{\\, p \\mid p \\notin M_t,\\ D_{\\min} < D_t(p) < D_{\\max} \\,\\}\n$$\n\n尺度因子 $\\alpha$ 用 German-McClure robust loss 优化以抗离群点。\n\n**（3）Motion Infiller（出画帧补全）**\n\n第一人称视野窄，手频繁移出画面。HaWoR 训练了一个 Transformer encoder 做运动补全：先把手部运动变换到以首帧对齐的 canonical 空间（解耦相机动态），再用自注意力 + FC decoder 回归缺失段的 MANO 序列；初始化用线性插值（平移）+ SLERP（旋转），训练时在 HOT3D 上随机掩掉中间帧段。\n\n**（4）合成与效果**\n\n最终世界空间手部由相机空间手部与相机轨迹合成：\n\n$$\n\\text{世界空间手部}(t) = T_{\\text{cam}\\to\\text{world}}(t) \\circ \\text{相机空间手部}(t)\n$$\n\n主要结果：HOT3D 上 W-MPJPE **33.20 mm**（对比 HMP-SLAM 的 119.41 mm）；单帧前向 **40 ms**，比优化式方法快约 75%。相机空间精度（DexYCB PA-MPJPE 4.76 mm）也略优于 WiLoR，在 75–100% 重遮挡下优势更明显（5.07 vs 5.68 mm），说明时序注意力确实起作用。\n\n#### 3.2.2 辨析：HaMeR / WiLoR / HaWoR 的关系，以及 VITRA 为何选 HaWoR\n\n一个常见误解是把 **HaMeR** 与 HaWoR 当作两个可互换的候选方案。实际上它们**不在同一层级**，而是一条演进链：\n\n```\nHaMeR (CVPR'24)  →  WiLoR (CVPR'25)  →  HaWoR (CVPR'25)\n   单帧              单帧 + 检测 + refine     视频 + 世界空间\n```\n\n关键事实：**HaWoR 的手部重建分支就是在 WiLoR 上加时序注意力做的**，而 WiLoR 是 HaMeR 的后继改进（同属 ViT + MANO 回归路线）。三者对比：\n\n| | HaMeR (CVPR'24) | WiLoR (CVPR'25) | HaWoR (CVPR'25) |\n|---|---|---|---|\n| 输入 | 单张图（已裁好的手 crop） | 单张图（含检测，端到端） | **视频序列** |\n| 输出坐标系 | 相机空间 | 相机空间 | **世界空间（度量尺度）** |\n| 时序建模 | 无 | 无 | 有（IAM + PAM） |\n| 相机轨迹 | 无 | 无 | 有（Adaptive Egocentric SLAM） |\n| 出画补全 | 无 | 无 | 有（Motion Infiller） |\n| 骨干 | ViT-H | ViT-L + coarse-to-fine refine | **WiLoR 的 ViT + 时序注意力** |\n\n**HaMeR → WiLoR：精度与图像对齐。** HaMeR 的核心贡献是 scaling（ViT-H + 多数据集聚合），但它是单阶段直接回归 MANO 参数，图像对齐不够精确。WiLoR 补了两点：一是 **WHIM 数据集**（1400+ YouTube 视频、200 万+ 野外手部图像）；二是 **coarse-to-fine refinement**——先粗回归 MANO，把粗网格投影回图像、按顶点双线性采样 ViT 特征，再用 MLP 预测残差 $\\Delta\\theta, \\Delta\\beta$。结果：FreiHAND PA-MPJPE 5.5 vs HaMeR 6.0 mm；HO3D 7.5 vs 7.7 mm，提升不大但稳定，且自带高速检测器（138 FPS）。\n\n**WiLoR → HaWoR：从单帧到世界空间。** WiLoR 论文自陈的三条 limitation，恰好就是 HaWoR 补上的：缺乏显式时序建模、估计仍在相机空间（需结合度量深度基础模型）、画面边缘截断的手处理不好。\n\n**VITRA 为何必须用 HaWoR 这一档。** VITRA 需要的不是\"好看的手部网格\"，而是\"能当机器人动作标签用的轨迹\"。这带来三个硬约束，单帧方法在**原理上**就无法满足：\n\n1. **必须是世界坐标系。** §3.3 的原子动作分割依赖\"**世界空间**腕部速度的局部极小值\"。若轨迹在相机空间，相机一动速度曲线就失真——摇头会被误判为手在运动。该算法只在世界空间成立。\n2. **必须是度量尺度（米）。** §2.2 强调的核心选择是让人手动作与机器人动作**共享同一套度量空间坐标**。HaMeR 输出的是弱透视相机下的相对平移，尺度不确定——手离相机 30 cm 还是 60 cm 在图像上可以完全一样。没有度量尺度，102 维动作表示无法与机器人真实位移对齐。\n3. **必须时序连贯。** 动作专家学的是轨迹，逐帧独立推理的抖动会直接变成噪声标签；且野外视频中手频繁进出画面、被物体遮挡，单帧方法在这些帧上会给出离谱结果。\n\n换个说法：若 VITRA 选用 HaMeR，它得自己从零搭时序平滑、相机轨迹、度量尺度对齐、出画补全——那基本等于把 HaWoR 重新实现一遍。\n\n**但 VITRA 也没有全盘照搬 HaWoR。** 值得注意的是，VITRA 实际**只用了 HaWoR 的模块 (1)**（相机空间逐帧手部重建），把 HaWoR 自带的 SLAM 换成了改造版 **MegaSAM**（深度先验从 Metric3D 换为 MoGe-2），内参另由 DroidCalib / MoGe-2 + DeepCalib 单独估计。原因应是数据分布不同（**个人判断**）：\n\n- HaWoR 的 SLAM 专为**头戴式第一人称**设计——手占画面比例大、背景运动模式特定，掩膜策略与采样范围都按此调校；\n- VITRA 的数据是**各类野外人类活动视频**——有静止相机、有手持运动相机、有大幅畸变、也有非头戴视角，因此需要先做相机动静判定分流、单独估内参、去畸变，相机轨迹也换成更通用的 MegaSAM。\n\n准确的表述是：VITRA **继承了 HaWoR 的解耦框架**（相机空间手部 × 世界空间相机 = 世界空间手部），但把两个分支各自替换为更适合自身数据分布的组件。\n\n### 3.3 阶段二：Atomic Action Segmentation（原子动作分割）"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Now let me add the source references to §10 and a note in §7's critical section:"
+        }
+      ],
+      "timestamp": "2026-08-24T08:07:58.094Z"
+    },
+    {
+      "id": "1193b87e-0b46-4224-9de6-d13ef43b7a08",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01R1va7BHwaXit2mcgHXBk8J",
+          "title": "Edit AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "newText": "- **论文原文（HTML）**：https://arxiv.org/html/2510.21571 （精读主来源，本笔记所有数字、公式与图注均据此核对）\n- **论文 PDF / 摘要页**：https://arxiv.org/abs/2510.21571\n- **项目页**：https://microsoft.github.io/VITRA/\n- **延伸阅读（§3.2.1、§3.2.2 的依据）**：\n  - HaWoR: World-Space Hand Motion Reconstruction from Egocentric Videos，CVPR 2025 — [arXiv:2501.02973](https://arxiv.org/abs/2501.02973)｜[项目页](https://hawor-project.github.io/)｜[代码](https://github.com/ThunderVVV/HaWoR)\n  - WiLoR: End-to-end 3D Hand Localization and Reconstruction in-the-Wild，CVPR 2025 — [arXiv:2409.12259](https://arxiv.org/abs/2409.12259)\n  - HaMeR: Reconstructing Hands in 3D with Transformers，CVPR 2024 — [arXiv:2312.05251](https://arxiv.org/abs/2312.05251)\n- **图片来源**：本笔记所用图片均下载自 arXiv HTML 官方原图（https://arxiv.org/html/2510.21571v1/ 下的 PNG），具体对应关系见各图下方图注；现有图片 pipeline.png、model.png、robot_env_seen.png、robot_env_unseen.png 为原笔记已有附件，引用路径保持不变。\n\n> 说明：论文为 arXiv:2510.21571 v1（2025-10-24），未标注会议收录信息（论文未披露）。作者单位信息来自论文首页署名标注。",
+              "oldText": "- **论文原文（HTML）**：https://arxiv.org/html/2510.21571 （精读主来源，本笔记所有数字、公式与图注均据此核对）\n- **论文 PDF / 摘要页**：https://arxiv.org/abs/2510.21571\n- **项目页**：https://microsoft.github.io/VITRA/\n- **图片来源**：本笔记所用图片均下载自 arXiv HTML 官方原图（https://arxiv.org/html/2510.21571v1/ 下的 PNG），具体对应关系见各图下方图注；现有图片 pipeline.png、model.png、robot_env_seen.png、robot_env_unseen.png 为原笔记已有附件，引用路径保持不变。\n\n> 说明：论文为 arXiv:2510.21571 v1（2025-10-24），未标注会议收录信息（论文未披露）。作者单位信息来自论文首页署名标注。"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "line": 526
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+            "old_string": "- **项目页**：https://microsoft.github.io/VITRA/",
+            "new_string": "- **项目页**：https://microsoft.github.io/VITRA/\n- **延伸阅读（§3.2.1、§3.2.2 的依据）**：\n  - HaWoR: World-Space Hand Motion Reconstruction from Egocentric Videos，CVPR 2025 — [arXiv:2501.02973](https://arxiv.org/abs/2501.02973)｜[项目页](https://hawor-project.github.io/)｜[代码](https://github.com/ThunderVVV/HaWoR)\n  - WiLoR: End-to-end 3D Hand Localization and Reconstruction in-the-Wild，CVPR 2025 — [arXiv:2409.12259](https://arxiv.org/abs/2409.12259)\n  - HaMeR: Reconstructing Hands in 3D with Transformers，CVPR 2024 — [arXiv:2312.05251](https://arxiv.org/abs/2312.05251)"
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T08:08:51.487Z"
+    },
+    {
+      "id": "4dc7cdda-0a11-4f7f-9f3e-13dff35192b6",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01EsNjgHjd1aXKQUnVWmLir3",
+          "title": "Edit AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "newText": "\n我的批判性补充（**（个人判断）**）：\n\n- **3D 重建是\"阿喀琉斯之踵\"**：整条 pipeline 的上限被 HaWoR 手部重建与 MegaSAM 相机追踪的精度锁死（HaWoR 自身在 HOT3D 上的 W-MPJPE 为 33.20 mm，见 §3.2.1，而野外视频的分布远比 HOT3D 复杂，实际误差应更大）。论文承认数据不完美，但未系统报告重建误差如何传导到下游成功率，也未披露有多少比例的视频因重建失败被丢弃——这是评估该方法可扩展性的关键未知数。\n- **人手-机器人手映射仍是启发式**：§3.7 的\"拓扑最近关节映射\"对 XHand 有效，但换到不同自由度的灵巧手时映射是否稳健、是否需要重训，论文未给出结论。\n- **评测任务偏少、样本量偏小**：真实机器人上 pour/sweep 各仅 8 次试验，成功率统计噪声较大（8 次里差 1 次就对应 12.5 个百分点）；unseen 平均 64.6% 的置信度有待更大规模复现。\n- **推理延迟未披露**：作为 VLA，实际部署的实时性（是否能闭环高频控制）是能否落地的硬指标，论文完全未提，属于明显的信息缺失。",
+              "oldText": "\n我的批判性补充（**（个人判断）**）：\n\n- **3D 重建是\"阿喀琉斯之踵\"**：整条 pipeline 的上限被 HaWoR 手部重建与 MegaSAM 相机追踪的精度锁死。论文承认数据不完美，但未系统报告重建误差如何传导到下游成功率，也未披露有多少比例的视频因重建失败被丢弃——这是评估该方法可扩展性的关键未知数。\n- **人手-机器人手映射仍是启发式**：§3.7 的\"拓扑最近关节映射\"对 XHand 有效，但换到不同自由度的灵巧手时映射是否稳健、是否需要重训，论文未给出结论。\n- **评测任务偏少、样本量偏小**：真实机器人上 pour/sweep 各仅 8 次试验，成功率统计噪声较大（8 次里差 1 次就对应 12.5 个百分点）；unseen 平均 64.6% 的置信度有待更大规模复现。\n- **推理延迟未披露**：作为 VLA，实际部署的实时性（是否能闭环高频控制）是能否落地的硬指标，论文完全未提，属于明显的信息缺失。"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "line": 478
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+            "old_string": "- **3D 重建是\"阿喀琉斯之踵\"**：整条 pipeline 的上限被 HaWoR 手部重建与 MegaSAM 相机追踪的精度锁死。论文承认数据不完美，但未系统报告重建误差如何传导到下游成功率，也未披露有多少比例的视频因重建失败被丢弃——这是评估该方法可扩展性的关键未知数。",
+            "new_string": "- **3D 重建是\"阿喀琉斯之踵\"**：整条 pipeline 的上限被 HaWoR 手部重建与 MegaSAM 相机追踪的精度锁死（HaWoR 自身在 HOT3D 上的 W-MPJPE 为 33.20 mm，见 §3.2.1，而野外视频的分布远比 HOT3D 复杂，实际误差应更大）。论文承认数据不完美，但未系统报告重建误差如何传导到下游成功率，也未披露有多少比例的视频因重建失败被丢弃——这是评估该方法可扩展性的关键未知数。"
+          }
+        }
+      ],
+      "timestamp": "2026-08-24T08:09:00.119Z"
+    },
+    {
+      "id": "175043a3-27f5-468b-bce8-0014a475e0b9",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01FRPzftJvK8aZ5mFuZoQkhJ",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA\" && grep -n \"^#\\{2,4\\} \" \"VITRA - 基于真实人类活动视频的VLA预训练.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA\" && grep -n \"^#\\{2,4\\} \" \"VITRA - 基于真实人类活动视频的VLA预训练.md\" | head -40",
+            "description": "List headings to verify structure"
+          }
+        },
+        {
+          "type": "text",
+          "text": "已整理完毕，共三处改动：\n\n**1. 新增 §3.2.1「延伸：HaWoR 是如何工作的」**（129 行起）\n\n按四块展开：解耦思路 → 相机空间手部重建（IAM/PAM + 损失公式）→ 自适应第一人称 SLAM（双重掩膜公式 + Metric3D/AdaSM 采样公式）→ Motion Infiller → 合成公式与量化效果。中间加了一条批注，把 $\\Phi,\\Gamma,\\Theta$ 与 §3.2 第 3 步说的「腕部 6D 位姿 + MANO 关节角」对应起来。\n\n**2. 新增 §3.2.2「辨析：HaMeR / WiLoR / HaWoR 的关系，以及 VITRA 为何选 HaWoR」**（182 行起）\n\n先纠正「两个可替换方案」的误解、给出演进链和三方对比表，再分两段讲 HaMeR→WiLoR、WiLoR→HaWoR 的实质差别，然后用三条硬约束（世界坐标系 / 度量尺度 / 时序连贯）说明单帧方法在原理上不可行——每条都回指了笔记里对应的小节（§3.3 的速度极小值分割、§2.2 的共享度量空间）。最后一段是「VITRA 只用了 HaWoR 的模块 1、SLAM 换成 MegaSAM」这个细节，标了**（个人判断）**，与笔记既有的标注惯例一致。\n\n**3. 两处小修**\n\n- §7 的「3D 重建是阿喀琉斯之踵」一条补上了 HaWoR 自身的 W-MPJPE 33.20 mm，并指出野外视频分布远比 HOT3D 复杂、实际误差应更大——让原本偏定性的批评有了数字锚点。\n- §10 加了「延伸阅读」子项，列出 HaWoR / WiLoR / HaMeR 三篇的 arXiv、项目页与代码链接。\n\n有一点需要说明：写作过程中文件被外部改动过（Obsidian 侧的编辑），编辑本身干净应用了，但我未逐行核对你在其他位置的改动，如果 §3.2 附近有你刚写的内容，值得扫一眼有没有和新小节重复。"
+        }
+      ],
+      "timestamp": "2026-08-24T08:09:11.951Z"
     }
   ],
-  "savedAt": "2026-08-24T07:57:08.264Z"
+  "savedAt": "2026-08-24T08:09:35.091Z"
 }
