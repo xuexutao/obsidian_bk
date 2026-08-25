@@ -348,13 +348,42 @@ $$\text{Flow matching / rectified flow：}\quad \mathcal{L}=\mathbb{E}\big\lVert
 
 > ⚠️ **两个陷阱。**（1）**没有任何一版 Cosmos 用 Salimans–Ho 意义上的 v-预测**——Predict1 是 EDM 预处理下的 $x_0$-预测，Predict2.5 是 flow matching 速度场，两者不是一回事。（2）**符号约定互相冲突**：SD3 与 Cosmos-Predict2.5 取 $t{=}0$ 为数据，故 $v=\epsilon-x$；GAIA-2、Lipman、Liu 取 $t{=}0$ 为噪声，故 $v=x-\epsilon$。写速度场时必须同时说明方向，否则符号是错的。
 >
-> 至于"扩散与 flow matching 等价"——Cosmos 原文自己就说了两者"理论上等价，主要区别在预处理设计与超参数选择"。精确关系是 $\hat u=\hat\epsilon-\hat x$，且 DDIM ≡ flow matching 的 Euler 步。但注意这说的是**框架可互换，不是任意两个训好的模型等价**。
+> 至于"扩散与 flow matching 等价"——Cosmos-Predict2.5 原文的说法比 Predict1 更精确：两者"在前向与反向扩散过程上数学等价，区别在于去噪网络如何被参数化"——EDM 标准化网络的输入输出，FM 让网络预测轨迹速度。但注意这说的是**框架可互换，不是任意两个训好的模型等价**。另外 NVIDIA 给出的切换理由是软性的（"更直接的训练目标""优化更平滑"），**不是消融实验结论**，不要写成实证结果。
 
-#### 4.3.2 Diffusion Forcing：一个改动，把 teacher forcing 与全序列扩散统一了
+#### 4.3.2 同一个冗余问题，两代 Cosmos 补在不同的轴上
+
+这是我认为这一族最值得记的一个对照，因为它说明"噪声调度该怎么调"取决于你认为冗余在哪个方向上：
+
+| | `Cosmos-Predict1`（2501.03575） | `Cosmos-Predict2.5`（2511.00062） |
+|---|---|---|
+| 补偿的轴 | **帧数** | **分辨率** |
+| 做法 | 视频批次的噪声等级按 $\sqrt{\text{帧数}}$ 缩放（相对图像批次） | SD3 式 shift：$t_s = \dfrac{\beta t}{1 + (\beta-1)t}$ |
+| 理由 | 视频帧间时序冗余 → 梯度幅值偏小、收敛慢 | "若注入噪声太小，模型可能无法'打破'这种相关性" |
+
+两代引的是同一条文献脉络（Esser 2024、Hoogeboom 2023、Chen 2023、Atzmon 2024），但补的方向不同。**所以不要把 SD3 的 shift 公式套到 Predict1 上**——Predict1 只有那个 $\sqrt{\text{帧数}}$ 的缩放，没有分辨率相关的 shift。（$\beta$ 的具体数值原文未给。）
+
+Predict2.5 还有三处架构变动值得记，尤其第三条：
+
+| | Predict1 | Predict2.5 |
+|---|---|---|
+| tokenizer | **Cosmos-CV8x8x8**（自研，AE，dim 16） | **WAN2.1 VAE**，causal，$4\times8\times8$ |
+| 文本编码器 | **T5-XXL**（512 token） | **Cosmos-Reason1**，多层激活拼接 → 1024 维 |
+| 位置编码 | 3D RoPE **+ 可学习 APE** | **只有 RoPE，APE 被去掉** |
+
+**去掉 APE 是刻意的，而且对世界模型的 rollout 很关键**：绝对位置编码"限制模型泛化到训练时未见过的分辨率或序列长度"，去掉之后 post-training 才能扩分辨率与长度——原文明确类比了长上下文 LLM 那套位置编码工作（YaRN/NTK）。
+
+> 一个值得注意的信号：**NVIDIA 在 Predict2.5 里换掉了自研的 Cosmos Tokenizer，改用 WAN2.1 VAE。** 如果要把 Cosmos Tokenizer 当作这条线的持久贡献来讲，这一步是反证。
+
+动作条件方面，`Cosmos-Predict2.5-2B/robot/action-cond` 吃"单张条件图 + 一段机器人动作序列"，生成一个 chunk 后**自回归 rollout，每个 chunk 以上一个 chunk 的最后一帧为条件**。在 Bridge 上四项指标（PSNR/SSIM/Latent L2/FVD）全面超过 `Cosmos-Predict1-7B-Video2World-Sample-ActionCond`——**2B 打赢了 7B 的前代**，定性上的优势具体体现在 **object permanence**。
+
+> ⚠️ 但**动作序列的注入机制原文（§6.6）没有说明**，无法确认它是否继承了 Predict1 那套"加到 timestep embedding 上"的做法。不要替它补。
+
+#### 4.3.3 Diffusion Forcing：一个改动，把 teacher forcing 与全序列扩散统一了
 
 `Diffusion Forcing`（2407.01392）是理解 autoregressive diffusion 这一支的钥匙。核心改动只有一句话：**给每一帧独立采一个噪声等级**。
 
 $$\mathbb{E}\sum_{t=1}^{T}\Big[\big\lVert\epsilon_t-\epsilon_\theta(z_{t-1},x_t^{k_t},k_t)\big\rVert^2\Big],\qquad k_{1:T}\sim\text{Uniform}([K]^T)$$
+
 
 关键在 $k_{1:T}$ 是**逐帧独立**采的。原文的 Theorem 3.1 说这优化的是一个重加权 ELBO，并且在适当条件下是对**所有噪声等级序列同时**成立的似然下界。
 
@@ -376,7 +405,7 @@ $$\nabla\log p_k(x_\mathcal{G}^k)+\sum_i \omega_i\big[\nabla\log p_k(x_\mathcal{
 
 它由此做到**单图 rollout 862 帧**。另一个有用的负面结论：**二值 history dropout 的表现不如逐帧噪声**，因为 token 利用率低。
 
-#### 4.3.3 DIAMOND：扩散在 RL 世界模型里赢在哪
+#### 4.3.4 DIAMOND：扩散在 RL 世界模型里赢在哪
 
 `DIAMOND`（2405.12399）常被简化成"扩散比离散 token 好"，但原文给的理由具体得多：**离散 tokenizer 会让奖励相关的小物体在时间上不一致**。在 Asterix 里"一个敌人（橙色）在第二帧变成了奖励（红色），随后又变回来"；Breakout 的砖块与分数会闪烁；Road Runner 的奖励点渲染不稳。DIAMOND 没有这些问题——Breakout 里打到红砖时分数还能正确 **+7**。
 
@@ -386,7 +415,7 @@ $$\mathcal{L}(\theta)=\mathbb{E}\Big[\big\lVert\mathbf{F}_\theta(c_{\text{in}}^\
 
 Atari-100k：mean HNS **1.46**、IQM 0.64、11 个游戏超越人类。$n{=}3$ vs $n{=}1$ 的消融在 top-10 游戏上是 **3.052 → 1.962**，Boxing 最惨（86.9 → 41.9）。
 
-#### 4.3.4 动作条件到底怎么注入：三篇论文给出了互相矛盾的结论
+#### 4.3.5 动作条件到底怎么注入：三篇论文给出了互相矛盾的结论
 
 这是我认为本节最有价值的一张表，因为它**不是设计偏好，而是三组各自做过消融的实证结论**：
 
@@ -406,7 +435,7 @@ Atari-100k：mean HNS **1.46**、IQM 0.64、11 个游戏超越人类。$n{=}3$ v
 
 所以正确的结论不是"哪种注入方式更好"，而是**注入方式应当匹配条件信号的结构**。顺带一提：**这些论文里没有一篇用 ControlNet 式方案做动作条件**（`Cosmos-Transfer` 是 ControlNet 式，但用于模态迁移而非动作）。
 
-#### 4.3.5 Cosmos 的 tokenizer 与条件注入
+#### 4.3.6 Cosmos 的 tokenizer 与条件注入
 
 `Cosmos`（2501.03575）作为这一族的基础设施代表，有几个数字值得记：
 
@@ -422,7 +451,7 @@ Video2World 的条件注入是三件事一起：条件帧沿**时间维拼接**�
 
 AdaLN-LoRA 是个实用技巧：把 AdaLN 的密集投影做低秩分解，**参数量从 11B 降到 7B（-36%）而性能持平**——因为 AdaLN 占大量参数却几乎不贡献 FLOPs。
 
-#### 4.3.6 GAIA-1 → GAIA-2：扩散从"解码器"迁移进"动力学模型"
+#### 4.3.7 GAIA-1 → GAIA-2：扩散从"解码器"迁移进"动力学模型"
 
 这一对是整篇 survey 里最能说明"家族边界正在失效"的案例。同一个团队（Wayve）两年内做了一次**架构反转**，而不是简单放大：
 
@@ -481,7 +510,7 @@ AdaLN-LoRA 是个实用技巧：把 AdaLN 的密集投影做低秩分解，**参
 
 这个分类不是随手为之，它记录了一次真实的路线迁移：state-space 血脉里最有代表性的一支，在最新一代把 transition model 换成了 diffusion-based 的生成式 rollout。同类信号还有 `StateSpaceDiffuser`（2505.22246，被归到 Latent Diffusion）与 `S5WM`、`DMWM` 这类在 SSM 里塞进扩散/世界建模目标的工作。
 
-**GAIA-1（Sequential）→ GAIA-2（Diffusion）是同一现象的另一个版本**，而且更彻底：同一团队、同一应用领域，两年内跨了家族（见 4.3.6）。所以论文库里 `GAIA-1` 与 `GAIA-2` 被分到两个不同的一级家族，这**不是分类错误，而是这套 taxonomy 有保鲜期的直接证据**。
+**GAIA-1（Sequential）→ GAIA-2（Diffusion）是同一现象的另一个版本**，而且更彻底：同一团队、同一应用领域，两年内跨了家族（见 4.3.7）。所以论文库里 `GAIA-1` 与 `GAIA-2` 被分到两个不同的一级家族，这**不是分类错误，而是这套 taxonomy 有保鲜期的直接证据**。
 
 判断：四大家族的边界正在从“互斥路线”变成“可组合模块”。 后续读新论文时，与其问“它属于哪一家族”，不如问“它在表示层用了什么、在 transition 层用了什么、在解码层用了什么”这三个独立问题。
 

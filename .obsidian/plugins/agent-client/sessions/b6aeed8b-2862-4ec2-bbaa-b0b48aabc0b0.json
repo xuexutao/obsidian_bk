@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
   "title": "内容有点简单，是不是还可以扩充一些呢？这个更像是 视频生成的视频世界模型？",
   "createdAt": "2026-08-25T07:07:02.853Z",
-  "updatedAt": "2026-08-25T07:13:52.176Z",
+  "updatedAt": "2026-08-25T07:57:09.383Z",
   "messages": [
     {
       "id": "ec69b62e-2330-406d-834d-b85899728118",
@@ -15420,7 +15420,290 @@
         }
       ],
       "timestamp": "2026-08-25T07:41:47.012Z"
+    },
+    {
+      "id": "d49a80e2-d188-4458-8111-4a1a03f81719",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_1wP6Ckc4yNQ6UUGvHL92rS",
+          "title": "cd /private/tmp/claude-501/-Users-eilonxtxue-Documents-obsidian-obsidian-bk/b6aeed8b-2862-4ec2-bbaa-b0b48aabc0b0/tasks && ls -la aa26eee51cbf27d4e.output aef9a1c2e93e4ba1c.output 2>/dev/null | awk '{print $5, $6, $7, $8, $9}'; date",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /private/tmp/claude-501/-Users-eilonxtxue-Documents-obsidian-obsidian-bk/b6aeed8b-2862-4ec2-bbaa-b0b48aabc0b0/tasks && ls -la aa26eee51cbf27d4e.output aef9a1c2e93e4ba1c.output 2>/dev/null | awk '{print $5, $6, $7, $8, $9}'; date",
+            "description": "Check liveness of remaining two agents"
+          }
+        }
+      ],
+      "timestamp": "2026-08-25T07:54:08.965Z"
+    },
+    {
+      "id": "ffdb7576-90a5-4690-99e5-b1a564fbc5eb",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_Cw4vZfVLN9VXQuz6O0ahDX",
+          "title": "cd /tmp && for v in v1 v2; do curl -sL --max-time 90 \"https://arxiv.org/html/2511.00062$v\" -o cp25_$v.html; echo \"$v: $(wc -c < cp25_$v.html)\"; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp && for v in v1 v2; do curl -sL --max-time 90 \"https://arxiv.org/html/2511.00062$v\" -o cp25_$v.html; echo \"$v: $(wc -c < cp25_$v.html)\"; done",
+            "description": "Fetch Cosmos-Predict2.5 full HTML"
+          }
+        }
+      ],
+      "timestamp": "2026-08-25T07:54:29.783Z"
+    },
+    {
+      "id": "16f15e36-9d45-4b4d-a329-66fab5c2d5ad",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_uBdulbKsZC2TDMvsKMBQad",
+          "title": "cd /tmp && python3 strip.py cp25_v2.html cp25.txt && grep -nE \"flow matching|rectified|logit-normal|velocity|v = |shift|sigma_data|Tokenizer|Wan|2B|14B\" cp25.txt | head -25",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp && python3 strip.py cp25_v2.html cp25.txt && grep -nE \"flow matching|rectified|logit-normal|velocity|v = |shift|sigma_data|Tokenizer|Wan|2B|14B\" cp25.txt | head -25",
+            "description": "Verify Cosmos-Predict2.5 flow matching objective"
+          }
+        }
+      ],
+      "timestamp": "2026-08-25T07:54:44.249Z"
+    },
+    {
+      "id": "d2db6c8b-f8e0-4e8c-8d6f-55acfdb82190",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_bbqFMw7gWCB4h2Xo1WdzD8",
+          "title": "cd /tmp && sed -n '489,520p' cp25.txt; echo \"=== action cond ===\"; grep -nE \"action-cond|action condition|action vector|robot/action\" cp25.txt | head -10",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp && sed -n '489,520p' cp25.txt; echo \"=== action cond ===\"; grep -nE \"action-cond|action condition|action vector|robot/action\" cp25.txt | head -10",
+            "description": "Read Cosmos-Predict2.5 exact FM equations and action conditioning"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Useful contrast. Let me add it and also stop the two agents that have been idle for 40 minutes with no output."
+        }
+      ],
+      "timestamp": "2026-08-25T07:54:59.716Z"
+    },
+    {
+      "id": "bf54d00d-21fc-4e37-a218-9c6b0aeec718",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_67wwdTKrJ5RkH1lKxwI649",
+          "title": "TaskStop",
+          "status": "failed",
+          "kind": "other",
+          "content": [],
+          "rawInput": {
+            "task_id": "aa26eee51cbf27d4e"
+          }
+        }
+      ],
+      "timestamp": "2026-08-25T07:55:35.983Z"
+    },
+    {
+      "id": "33cb498c-7769-43b9-924a-5329c84a677b",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_fKbqdioq5stGvVaGtu4Ifb",
+          "title": "TaskStop",
+          "status": "failed",
+          "kind": "other",
+          "content": [],
+          "rawInput": {
+            "task_id": "abed9e485a83cc41d"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Those agents had already completed — their results arrived earlier. Let me add the Predict1 vs Predict2.5 contrast, which sharpens a claim I'd left unresolved."
+        }
+      ],
+      "timestamp": "2026-08-25T07:55:36.883Z"
+    },
+    {
+      "id": "d1696ecf-6999-44c3-92d2-05f466a37bdc",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_ZIcjlAsIUEfTsFzJrXgARe",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md (329 - 358)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+              "line": 329
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+            "limit": 30,
+            "offset": 329
+          }
+        }
+      ],
+      "timestamp": "2026-08-25T07:55:43.833Z"
+    },
+    {
+      "id": "a6781e36-0b43-4efd-86a2-e6a42c08b4a5",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_cZP9rZ3atODyXgBSezWqFe",
+          "title": "Edit AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+              "newText": "\n> ⚠️ **两个陷阱。**（1）**没有任何一版 Cosmos 用 Salimans–Ho 意义上的 v-预测**——Predict1 是 EDM 预处理下的 $x_0$-预测，Predict2.5 是 flow matching 速度场，两者不是一回事。（2）**符号约定互相冲突**：SD3 与 Cosmos-Predict2.5 取 $t{=}0$ 为数据，故 $v=\\epsilon-x$；GAIA-2、Lipman、Liu 取 $t{=}0$ 为噪声，故 $v=x-\\epsilon$。写速度场时必须同时说明方向，否则符号是错的。\n>\n> 至于\"扩散与 flow matching 等价\"——Cosmos-Predict2.5 原文的说法比 Predict1 更精确：两者\"在前向与反向扩散过程上数学等价，区别在于去噪网络如何被参数化\"——EDM 标准化网络的输入输出，FM 让网络预测轨迹速度。但注意这说的是**框架可互换，不是任意两个训好的模型等价**。另外 NVIDIA 给出的切换理由是软性的（\"更直接的训练目标\"\"优化更平滑\"），**不是消融实验结论**，不要写成实证结果。\n\n#### 4.3.2 同一个冗余问题，两代 Cosmos 补在不同的轴上\n\n这是我认为这一族最值得记的一个对照，因为它说明\"噪声调度该怎么调\"取决于你认为冗余在哪个方向上：\n\n| | `Cosmos-Predict1`（2501.03575） | `Cosmos-Predict2.5`（2511.00062） |\n|---|---|---|\n| 补偿的轴 | **帧数** | **分辨率** |\n| 做法 | 视频批次的噪声等级按 $\\sqrt{\\text{帧数}}$ 缩放（相对图像批次） | SD3 式 shift：$t_s = \\dfrac{\\beta t}{1 + (\\beta-1)t}$ |\n| 理由 | 视频帧间时序冗余 → 梯度幅值偏小、收敛慢 | \"若注入噪声太小，模型可能无法'打破'这种相关性\" |\n\n两代引的是同一条文献脉络（Esser 2024、Hoogeboom 2023、Chen 2023、Atzmon 2024），但补的方向不同。**所以不要把 SD3 的 shift 公式套到 Predict1 上**——Predict1 只有那个 $\\sqrt{\\text{帧数}}$ 的缩放，没有分辨率相关的 shift。（$\\beta$ 的具体数值原文未给。）\n\nPredict2.5 还有三处架构变动值得记，尤其第三条：\n\n| | Predict1 | Predict2.5 |\n|---|---|---|\n| tokenizer | **Cosmos-CV8x8x8**（自研，AE，dim 16） | **WAN2.1 VAE**，causal，$4\\times8\\times8$ |\n| 文本编码器 | **T5-XXL**（512 token） | **Cosmos-Reason1**，多层激活拼接 → 1024 维 |\n| 位置编码 | 3D RoPE **+ 可学习 APE** | **只有 RoPE，APE 被去掉** |\n\n**去掉 APE 是刻意的，而且对世界模型的 rollout 很关键**：绝对位置编码\"限制模型泛化到训练时未见过的分辨率或序列长度\"，去掉之后 post-training 才能扩分辨率与长度——原文明确类比了长上下文 LLM 那套位置编码工作（YaRN/NTK）。\n\n> 一个值得注意的信号：**NVIDIA 在 Predict2.5 里换掉了自研的 Cosmos Tokenizer，改用 WAN2.1 VAE。** 如果要把 Cosmos Tokenizer 当作这条线的持久贡献来讲，这一步是反证。\n\n动作条件方面，`Cosmos-Predict2.5-2B/robot/action-cond` 吃\"单张条件图 + 一段机器人动作序列\"，生成一个 chunk 后**自回归 rollout，每个 chunk 以上一个 chunk 的最后一帧为条件**。在 Bridge 上四项指标（PSNR/SSIM/Latent L2/FVD）全面超过 `Cosmos-Predict1-7B-Video2World-Sample-ActionCond`——**2B 打赢了 7B 的前代**，定性上的优势具体体现在 **object permanence**。\n\n> ⚠️ 但**动作序列的注入机制原文（§6.6）没有说明**，无法确认它是否继承了 Predict1 那套\"加到 timestep embedding 上\"的做法。不要替它补。\n\n#### 4.3.3 Diffusion Forcing：一个改动，把 teacher forcing 与全序列扩散统一了\n\n`Diffusion Forcing`（2407.01392）是理解 autoregressive diffusion 这一支的钥匙。核心改动只有一句话：**给每一帧独立采一个噪声等级**。\n\n$$\\mathbb{E}\\sum_{t=1}^{T}\\Big[\\big\\lVert\\epsilon_t-\\epsilon_\\theta(z_{t-1},x_t^{k_t},k_t)\\big\\rVert^2\\Big],\\qquad k_{1:T}\\sim\\text{Uniform}([K]^T)$$\n\n\n关键在 $k_{1:T}$ 是**逐帧独立**采的。原文的 Theorem 3.1 说这优化的是一个重加权 ELBO，并且在适当条件下是对**所有噪声等级序列同时**成立的似然下界。\n\n**\"加噪即遮蔽\"这个视角最值得记：** $k_t=0$ 表示未遮蔽，$k_t=K$ 表示完全遮蔽。于是——",
+              "oldText": "\n> ⚠️ **两个陷阱。**（1）**没有任何一版 Cosmos 用 Salimans–Ho 意义上的 v-预测**——Predict1 是 EDM 预处理下的 $x_0$-预测，Predict2.5 是 flow matching 速度场，两者不是一回事。（2）**符号约定互相冲突**：SD3 与 Cosmos-Predict2.5 取 $t{=}0$ 为数据，故 $v=\\epsilon-x$；GAIA-2、Lipman、Liu 取 $t{=}0$ 为噪声，故 $v=x-\\epsilon$。写速度场时必须同时说明方向，否则符号是错的。\n>\n> 至于\"扩散与 flow matching 等价\"——Cosmos 原文自己就说了两者\"理论上等价，主要区别在预处理设计与超参数选择\"。精确关系是 $\\hat u=\\hat\\epsilon-\\hat x$，且 DDIM ≡ flow matching 的 Euler 步。但注意这说的是**框架可互换，不是任意两个训好的模型等价**。\n\n#### 4.3.2 Diffusion Forcing：一个改动，把 teacher forcing 与全序列扩散统一了\n\n`Diffusion Forcing`（2407.01392）是理解 autoregressive diffusion 这一支的钥匙。核心改动只有一句话：**给每一帧独立采一个噪声等级**。\n\n$$\\mathbb{E}\\sum_{t=1}^{T}\\Big[\\big\\lVert\\epsilon_t-\\epsilon_\\theta(z_{t-1},x_t^{k_t},k_t)\\big\\rVert^2\\Big],\\qquad k_{1:T}\\sim\\text{Uniform}([K]^T)$$\n\n关键在 $k_{1:T}$ 是**逐帧独立**采的。原文的 Theorem 3.1 说这优化的是一个重加权 ELBO，并且在适当条件下是对**所有噪声等级序列同时**成立的似然下界。\n\n**\"加噪即遮蔽\"这个视角最值得记：** $k_t=0$ 表示未遮蔽，$k_t=K$ 表示完全遮蔽。于是——"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+              "line": 348
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+            "old_string": "> ⚠️ **两个陷阱。**（1）**没有任何一版 Cosmos 用 Salimans–Ho 意义上的 v-预测**——Predict1 是 EDM 预处理下的 $x_0$-预测，Predict2.5 是 flow matching 速度场，两者不是一回事。（2）**符号约定互相冲突**：SD3 与 Cosmos-Predict2.5 取 $t{=}0$ 为数据，故 $v=\\epsilon-x$；GAIA-2、Lipman、Liu 取 $t{=}0$ 为噪声，故 $v=x-\\epsilon$。写速度场时必须同时说明方向，否则符号是错的。\n>\n> 至于\"扩散与 flow matching 等价\"——Cosmos 原文自己就说了两者\"理论上等价，主要区别在预处理设计与超参数选择\"。精确关系是 $\\hat u=\\hat\\epsilon-\\hat x$，且 DDIM ≡ flow matching 的 Euler 步。但注意这说的是**框架可互换，不是任意两个训好的模型等价**。\n\n#### 4.3.2 Diffusion Forcing：一个改动，把 teacher forcing 与全序列扩散统一了\n\n`Diffusion Forcing`（2407.01392）是理解 autoregressive diffusion 这一支的钥匙。核心改动只有一句话：**给每一帧独立采一个噪声等级**。\n\n$$\\mathbb{E}\\sum_{t=1}^{T}\\Big[\\big\\lVert\\epsilon_t-\\epsilon_\\theta(z_{t-1},x_t^{k_t},k_t)\\big\\rVert^2\\Big],\\qquad k_{1:T}\\sim\\text{Uniform}([K]^T)$$",
+            "new_string": "> ⚠️ **两个陷阱。**（1）**没有任何一版 Cosmos 用 Salimans–Ho 意义上的 v-预测**——Predict1 是 EDM 预处理下的 $x_0$-预测，Predict2.5 是 flow matching 速度场，两者不是一回事。（2）**符号约定互相冲突**：SD3 与 Cosmos-Predict2.5 取 $t{=}0$ 为数据，故 $v=\\epsilon-x$；GAIA-2、Lipman、Liu 取 $t{=}0$ 为噪声，故 $v=x-\\epsilon$。写速度场时必须同时说明方向，否则符号是错的。\n>\n> 至于\"扩散与 flow matching 等价\"——Cosmos-Predict2.5 原文的说法比 Predict1 更精确：两者\"在前向与反向扩散过程上数学等价，区别在于去噪网络如何被参数化\"——EDM 标准化网络的输入输出，FM 让网络预测轨迹速度。但注意这说的是**框架可互换，不是任意两个训好的模型等价**。另外 NVIDIA 给出的切换理由是软性的（\"更直接的训练目标\"\"优化更平滑\"），**不是消融实验结论**，不要写成实证结果。\n\n#### 4.3.2 同一个冗余问题，两代 Cosmos 补在不同的轴上\n\n这是我认为这一族最值得记的一个对照，因为它说明\"噪声调度该怎么调\"取决于你认为冗余在哪个方向上：\n\n| | `Cosmos-Predict1`（2501.03575） | `Cosmos-Predict2.5`（2511.00062） |\n|---|---|---|\n| 补偿的轴 | **帧数** | **分辨率** |\n| 做法 | 视频批次的噪声等级按 $\\sqrt{\\text{帧数}}$ 缩放（相对图像批次） | SD3 式 shift：$t_s = \\dfrac{\\beta t}{1 + (\\beta-1)t}$ |\n| 理由 | 视频帧间时序冗余 → 梯度幅值偏小、收敛慢 | \"若注入噪声太小，模型可能无法'打破'这种相关性\" |\n\n两代引的是同一条文献脉络（Esser 2024、Hoogeboom 2023、Chen 2023、Atzmon 2024），但补的方向不同。**所以不要把 SD3 的 shift 公式套到 Predict1 上**——Predict1 只有那个 $\\sqrt{\\text{帧数}}$ 的缩放，没有分辨率相关的 shift。（$\\beta$ 的具体数值原文未给。）\n\nPredict2.5 还有三处架构变动值得记，尤其第三条：\n\n| | Predict1 | Predict2.5 |\n|---|---|---|\n| tokenizer | **Cosmos-CV8x8x8**（自研，AE，dim 16） | **WAN2.1 VAE**，causal，$4\\times8\\times8$ |\n| 文本编码器 | **T5-XXL**（512 token） | **Cosmos-Reason1**，多层激活拼接 → 1024 维 |\n| 位置编码 | 3D RoPE **+ 可学习 APE** | **只有 RoPE，APE 被去掉** |\n\n**去掉 APE 是刻意的，而且对世界模型的 rollout 很关键**：绝对位置编码\"限制模型泛化到训练时未见过的分辨率或序列长度\"，去掉之后 post-training 才能扩分辨率与长度——原文明确类比了长上下文 LLM 那套位置编码工作（YaRN/NTK）。\n\n> 一个值得注意的信号：**NVIDIA 在 Predict2.5 里换掉了自研的 Cosmos Tokenizer，改用 WAN2.1 VAE。** 如果要把 Cosmos Tokenizer 当作这条线的持久贡献来讲，这一步是反证。\n\n动作条件方面，`Cosmos-Predict2.5-2B/robot/action-cond` 吃\"单张条件图 + 一段机器人动作序列\"，生成一个 chunk 后**自回归 rollout，每个 chunk 以上一个 chunk 的最后一帧为条件**。在 Bridge 上四项指标（PSNR/SSIM/Latent L2/FVD）全面超过 `Cosmos-Predict1-7B-Video2World-Sample-ActionCond`——**2B 打赢了 7B 的前代**，定性上的优势具体体现在 **object permanence**。\n\n> ⚠️ 但**动作序列的注入机制原文（§6.6）没有说明**，无法确认它是否继承了 Predict1 那套\"加到 timestep embedding 上\"的做法。不要替它补。\n\n#### 4.3.3 Diffusion Forcing：一个改动，把 teacher forcing 与全序列扩散统一了\n\n`Diffusion Forcing`（2407.01392）是理解 autoregressive diffusion 这一支的钥匙。核心改动只有一句话：**给每一帧独立采一个噪声等级**。\n\n$$\\mathbb{E}\\sum_{t=1}^{T}\\Big[\\big\\lVert\\epsilon_t-\\epsilon_\\theta(z_{t-1},x_t^{k_t},k_t)\\big\\rVert^2\\Big],\\qquad k_{1:T}\\sim\\text{Uniform}([K]^T)$$\n"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Now I need to renumber the subsections that followed, since 4.3.2 is now taken."
+        }
+      ],
+      "timestamp": "2026-08-25T07:55:50.432Z"
+    },
+    {
+      "id": "c88e52fb-e4d4-43a5-8363-a2c2ed7bae5c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_QSCsaQsHeeAXVehkMdCKdL",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models\" && python3 - <<'PY'\np=\"视觉世界模型 - Survey.md\"\ns=open(p).read()\nfor a,b in [(\"#### 4.3.6 GAIA-1 → GAIA-2\",\"#### 4.3.7 GAIA-1 → GAIA-2\"),\n            (\"#### 4.3.5 Cosmos 的 tokenizer 与条件注入\",\"#### 4.3.6 Cosmos 的 tokenizer 与条件注入\"),\n            (\"#### 4.3.4 动作条件到底怎么注入\",\"#### 4.3.5 动作条件到底怎么注入\"),\n            (\"#### 4.3.3 DIAMOND：扩散在 RL 世界模型里赢在哪\",\"#### 4.3.4 DIAMOND：扩散在 RL 世界模型里赢在哪\")]:\n    assert a in s, a\n    s=s.replace(a,b)\nopen(p,'w').write(s)\nPY\ngrep -n \"^#### 4\\.3\\.\\|^### 4\\.\" \"视觉世界模型 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models\" && python3 - <<'PY'\np=\"视觉世界模型 - Survey.md\"\ns=open(p).read()\nfor a,b in [(\"#### 4.3.6 GAIA-1 → GAIA-2\",\"#### 4.3.7 GAIA-1 → GAIA-2\"),\n            (\"#### 4.3.5 Cosmos 的 tokenizer 与条件注入\",\"#### 4.3.6 Cosmos 的 tokenizer 与条件注入\"),\n            (\"#### 4.3.4 动作条件到底怎么注入\",\"#### 4.3.5 动作条件到底怎么注入\"),\n            (\"#### 4.3.3 DIAMOND：扩散在 RL 世界模型里赢在哪\",\"#### 4.3.4 DIAMOND：扩散在 RL 世界模型里赢在哪\")]:\n    assert a in s, a\n    s=s.replace(a,b)\nopen(p,'w').write(s)\nPY\ngrep -n \"^#### 4\\.3\\.\\|^### 4\\.\" \"视觉世界模型 - Survey.md\"",
+            "description": "Renumber 4.3 subsections"
+          }
+        }
+      ],
+      "timestamp": "2026-08-25T07:56:24.216Z"
+    },
+    {
+      "id": "25f08cf9-dc4f-40f0-8258-e4ada0d2b272",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_pa2OiMKFsY5LweV4sAuKVA",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models\" && grep -n \"见 4\\.3\\.\\|4\\.3\\.6）\\|4\\.3\\.7）\" \"视觉世界模型 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models\" && grep -n \"见 4\\.3\\.\\|4\\.3\\.6）\\|4\\.3\\.7）\" \"视觉世界模型 - Survey.md\"",
+            "description": "Check 4.3.x cross-references"
+          }
+        },
+        {
+          "type": "text",
+          "text": "That cross-reference is now stale. Let me fix it."
+        }
+      ],
+      "timestamp": "2026-08-25T07:56:45.483Z"
+    },
+    {
+      "id": "891caaa3-60a7-47b8-babd-8d2567718f22",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_6vYa0nj1IRyYz5ty3tfdXT",
+          "title": "Edit AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+              "newText": "\n这个分类不是随手为之，它记录了一次真实的路线迁移：state-space 血脉里最有代表性的一支，在最新一代把 transition model 换成了 diffusion-based 的生成式 rollout。同类信号还有 `StateSpaceDiffuser`（2505.22246，被归到 Latent Diffusion）与 `S5WM`、`DMWM` 这类在 SSM 里塞进扩散/世界建模目标的工作。\n\n**GAIA-1（Sequential）→ GAIA-2（Diffusion）是同一现象的另一个版本**，而且更彻底：同一团队、同一应用领域，两年内跨了家族（见 4.3.7）。所以论文库里 `GAIA-1` 与 `GAIA-2` 被分到两个不同的一级家族，这**不是分类错误，而是这套 taxonomy 有保鲜期的直接证据**。\n\n判断：四大家族的边界正在从“互斥路线”变成“可组合模块”。 后续读新论文时，与其问“它属于哪一家族”，不如问“它在表示层用了什么、在 transition 层用了什么、在解码层用了什么”这三个独立问题。\n",
+              "oldText": "\n这个分类不是随手为之，它记录了一次真实的路线迁移：state-space 血脉里最有代表性的一支，在最新一代把 transition model 换成了 diffusion-based 的生成式 rollout。同类信号还有 `StateSpaceDiffuser`（2505.22246，被归到 Latent Diffusion）与 `S5WM`、`DMWM` 这类在 SSM 里塞进扩散/世界建模目标的工作。\n\n**GAIA-1（Sequential）→ GAIA-2（Diffusion）是同一现象的另一个版本**，而且更彻底：同一团队、同一应用领域，两年内跨了家族（见 4.3.6）。所以论文库里 `GAIA-1` 与 `GAIA-2` 被分到两个不同的一级家族，这**不是分类错误，而是这套 taxonomy 有保鲜期的直接证据**。\n\n判断：四大家族的边界正在从“互斥路线”变成“可组合模块”。 后续读新论文时，与其问“它属于哪一家族”，不如问“它在表示层用了什么、在 transition 层用了什么、在解码层用了什么”这三个独立问题。\n"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+              "line": 510
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+            "old_string": "**GAIA-1（Sequential）→ GAIA-2（Diffusion）是同一现象的另一个版本**，而且更彻底：同一团队、同一应用领域，两年内跨了家族（见 4.3.6）。所以论文库里 `GAIA-1` 与 `GAIA-2` 被分到两个不同的一级家族，这**不是分类错误，而是这套 taxonomy 有保鲜期的直接证据**。",
+            "new_string": "**GAIA-1（Sequential）→ GAIA-2（Diffusion）是同一现象的另一个版本**，而且更彻底：同一团队、同一应用领域，两年内跨了家族（见 4.3.7）。所以论文库里 `GAIA-1` 与 `GAIA-2` 被分到两个不同的一级家族，这**不是分类错误，而是这套 taxonomy 有保鲜期的直接证据**。"
+          }
+        }
+      ],
+      "timestamp": "2026-08-25T07:56:50.248Z"
+    },
+    {
+      "id": "cd3ff1ae-f085-407b-be31-ae562adf8708",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_tFYeLhMno7jLaz7lKGIMow",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models\" && python3 - <<'PY'\nimport re\ns=open(\"视觉世界模型 - Survey.md\").read()\nprint('block $$:',s.count('$$'),'even?',s.count('$$')%2==0)\ntmp=re.sub(r'\\$\\$.*?\\$\\$','',s,flags=re.S)\nprint('inline $:',tmp.count('$'),'even?',tmp.count('$')%2==0)\nL=s.split('\\n')\nprint('table spacing:',[(i+1) for i,l in enumerate(L) if l.startswith('|') and i>0 and not L[i-1].startswith('|') and L[i-1].strip()])\nprev=None\nfor i,l in enumerate(L):\n    m=re.match(r'^(#{2,4}) ',l)\n    if m:\n        lvl=len(m.group(1))\n        if prev and lvl>prev+1: print('LEVEL SKIP',i+1,l[:60])\n        prev=lvl\nfor bad in [r'\\\\\\(',r'\\\\\\)',r'\\\\\\[',r'\\\\\\]']:\n    if re.search(bad,s): print('FORBIDDEN',bad)\nprint('cyrillic:',re.findall(r'[Ѐ-ӿ]+',s))\nprint('lines:',len(L))\nPY",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models\" && python3 - <<'PY'\nimport re\ns=open(\"视觉世界模型 - Survey.md\").read()\nprint('block $$:',s.count('$$'),'even?',s.count('$$')%2==0)\ntmp=re.sub(r'\\$\\$.*?\\$\\$','',s,flags=re.S)\nprint('inline $:',tmp.count('$'),'even?',tmp.count('$')%2==0)\nL=s.split('\\n')\nprint('table spacing:',[(i+1) for i,l in enumerate(L) if l.startswith('|') and i>0 and not L[i-1].startswith('|') and L[i-1].strip()])\nprev=None\nfor i,l in enumerate(L):\n    m=re.match(r'^(#{2,4}) ',l)\n    if m:\n        lvl=len(m.group(1))\n        if prev and lvl>prev+1: print('LEVEL SKIP',i+1,l[:60])\n        prev=lvl\nfor bad in [r'\\\\\\(',r'\\\\\\)',r'\\\\\\[',r'\\\\\\]']:\n    if re.search(bad,s): print('FORBIDDEN',bad)\nprint('cyrillic:',re.findall(r'[Ѐ-ӿ]+',s))\nprint('lines:',len(L))\nPY",
+            "description": "Final validation"
+          }
+        },
+        {
+          "type": "text",
+          "text": "The last research batch resolved a question I'd explicitly left open, so I added it as a new §4.3.2.\n\n## 新增：同一个冗余问题，两代 Cosmos 补在不同的轴上\n\n| | Predict1 | Predict2.5 |\n|---|---|---|\n| 补偿的轴 | **帧数** | **分辨率** |\n| 做法 | 噪声等级按 $\\sqrt{\\text{帧数}}$ 缩放 | SD3 式 shift $t_s = \\beta t/(1+(\\beta-1)t)$ |\n\n两代引同一条文献脉络，但补的方向不同。这澄清了我先前那句\"不要把 SD3 的 shift 套到 Predict1 上\"——现在两端都有原文确认：**Predict1 只有帧数缩放，shift 是 Predict2.5 才引入的。** 符号约定的警告也两端确认了（Predict2.5 取 $t{=}0$ 为数据故 $v=\\epsilon-x$，与 GAIA-2 相反）。\n\n**三处架构变动**，第三条最有意思：Predict2.5 **去掉了可学习 APE，只留 RoPE**，理由是绝对位置编码\"限制模型泛化到训练时未见过的分辨率或序列长度\"——去掉才能在 post-training 阶段扩分辨率与长度，原文明确类比了 YaRN/NTK 那套长上下文工作。对世界模型的长 rollout 来说这是关键设计。\n\n还有一个反讽信号我单独标了出来：**NVIDIA 在 Predict2.5 里换掉了自研的 Cosmos Tokenizer，改用 WAN2.1 VAE。** 如果有人把 Cosmos Tokenizer 当作这条线的持久贡献来讲，这一步是反证。\n\n动作条件上，2B 的 `action-cond` 在 Bridge 四项指标上**全面超过 7B 前代**，定性优势具体在 object permanence——但**注入机制原文没写**，我按规矩标注了\"无法确认，不要替它补\"。\n\n另外我修正了一处措辞：把\"扩散与 flow matching 等价\"改用 Predict2.5 更精确的原话（\"前向与反向过程数学等价，区别在去噪网络如何参数化\"），并注明 NVIDIA 给出的切换理由是软性表述（\"更直接的训练目标\"）而**不是消融结论**——不能写成实证结果。\n\n现在 1009 行，分隔符、表格间距、标题层级全部校验通过。所有研究 agent 都已完成，没有待处理的后台任务。\n\n两个仍然待你决定的事项（我不会擅自动手）：\n\n1. **是否拆分。** §4.2/§4.3 的逐篇 pipeline 已经相当于半篇精读了，按 vault 的 README 结构，Genie / GAIA-1 / Cosmos / DINO-WM 这几篇更适合放进 `10-Papers/World-Models/` 做独立笔记，survey 这边只留对比性的数学与判断。\n2. **是否补图。** README 要求 pipeline 讲解配图注 + 来源，目前只有综述自带的三张图。要补就得下十来篇 PDF 裁 Fig.2，工作量不小，看你觉得值不值。"
+        }
+      ],
+      "timestamp": "2026-08-25T07:56:58.216Z"
     }
   ],
-  "savedAt": "2026-08-25T07:42:15.477Z"
+  "savedAt": "2026-08-25T07:57:33.290Z"
 }
