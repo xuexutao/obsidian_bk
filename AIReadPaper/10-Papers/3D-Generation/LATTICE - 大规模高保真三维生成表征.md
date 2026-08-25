@@ -31,6 +31,10 @@ updated: 2026-08-25
 
 LATTICE 的核心判断是：**3D 生成的「表征-位置编码-scaling」三件套里，被低估的是「位置」**。VecSet 缺位置、Sparse Voxel 的位置又「太重」——VoxSet 通过「用粗体素中心替换表面点作为 query」+「RoPE 注入位置」，让潜空间既保留 VecSet 的全局压缩力，又获得稀疏体素的结构性，从而**首次让 3D 扩散模型在 0.6B→4.5B 范围内表现出单调可预测的 scaling 曲线**，并解锁了 token 级别的 test-time scaling。
 
+![LATTICE 单图 3D 生成 teaser](assets/LATTICE%20-%20大规模高保真三维生成表征/figures/01-teaser.png)
+
+*图 1（LATTICE 的 teaser：给定单张输入图，输出高保真三角网格；右下角放大展示细节区域的几何锐利度）。来源：LATTICE 论文 Fig.1 (p1)。*
+
 ---
 
 ## 1. 研究背景与问题定义
@@ -201,6 +205,10 @@ LATTICE 的核心判断是：**3D 生成的「表征-位置编码-scaling」三�
 
 **LATTICE-1.9B 在 4 个指标上全部第一**（与 Hunyuan3D 2.0 在 ULIP-T、Uni-T、Uni-I 上持平，ULIP-I 上略胜）。
 
+![LATTICE 与 5 个 SOTA 开源方法视觉对比](assets/LATTICE%20-%20大规模高保真三维生成表征/figures/08-comparison.png)
+
+*图 8（LATTICE 与 Michelangelo / Craftsman 1.5 / TRELLIS / Hunyuan3D-2 / Direct3D-s2 的视觉对比：LATTICE 在细节锐利度、几何一致性与复杂结构上领先）。来源：LATTICE 论文 Fig.8 (p7)。*
+
 **User Study（Fig.11）**：
 
 | 对比 | Overall | Subject | Scene |
@@ -211,6 +219,10 @@ LATTICE 的核心判断是：**3D 生成的「表征-位置编码-scaling」三�
 | LATTICE vs Model 4 | +51.3% | +23.2% | +67.3% |
 
 LATTICE 在所有 12 个对比组中均显著胜出，**Scene 类胜率最高（+57-67%）**，说明对复杂结构生成帮助最大。
+
+![LATTICE 用户研究胜率（vs 4 个商业模型）](assets/LATTICE%20-%20大规模高保真三维生成表征/figures/11-user-study.png)
+
+*图 11（用户研究：LATTICE 对比 4 个匿名商业模型，在 Overall / Subject / Scene 三类上的胜率，Scene 类优势最明显）。来源：LATTICE 论文 Fig.11 (p8)。*
 
 ### 4.4 消融
 
