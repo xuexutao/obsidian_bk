@@ -1,7 +1,7 @@
 # LeetCode 热题 100（Hot 100）
 
 > 来源：[力扣 LeetCode.cn 热题 100](https://leetcode.cn/problem-list/2cktkvj/)
-> 抓取时间：2026-08-25 17:13:29
+> 抓取时间：2026-08-25 17:19:39
 > 内容：题目描述（含示例）＋ C++ 代码模板 ＋ 力扣官方题解。
 
 ## 目录
@@ -228,83 +228,7 @@ public:
 
 **代码**
 
-```Java
-public class Solution {
-    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
-        Set<ListNode> visited = new HashSet<ListNode>();
-        ListNode temp = headA;
-        while (temp != null) {
-            visited.add(temp);
-            temp = temp.next;
-        }
-        temp = headB;
-        while (temp != null) {
-            if (visited.contains(temp)) {
-                return temp;
-            }
-            temp = temp.next;
-        }
-        return null;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public ListNode GetIntersectionNode(ListNode headA, ListNode headB) {
-        ISet<ListNode> visited = new HashSet<ListNode>();
-        ListNode temp = headA;
-        while (temp != null) {
-            visited.Add(temp);
-            temp = temp.next;
-        }
-        temp = headB;
-        while (temp != null) {
-            if (visited.Contains(temp)) {
-                return temp;
-            }
-            temp = temp.next;
-        }
-        return null;
-    }
-}
-```
-
-```JavaScript
-var getIntersectionNode = function(headA, headB) {
-    const visited = new Set();
-    let temp = headA;
-    while (temp !== null) {
-        visited.add(temp);
-        temp = temp.next;
-    }
-    temp = headB;
-    while (temp !== null) {
-        if (visited.has(temp)) {
-            return temp;
-        }
-        temp = temp.next;
-    }
-    return null;
-};
-```
-
-```go
-func getIntersectionNode(headA, headB *ListNode) *ListNode {
-    vis := map[*ListNode]bool{}
-    for tmp := headA; tmp != nil; tmp = tmp.Next {
-        vis[tmp] = true
-    }
-    for tmp := headB; tmp != nil; tmp = tmp.Next {
-        if vis[tmp] {
-            return tmp
-        }
-    }
-    return nil
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
@@ -324,38 +248,6 @@ public:
         return nullptr;
     }
 };
-```
-
-```C
-struct HashTable {
-    struct ListNode *key;
-    UT_hash_handle hh;
-};
-
-struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
-    struct HashTable *hashTable = NULL;
-    struct ListNode *temp = headA;
-    while (temp != NULL) {
-        struct HashTable *tmp;
-        HASH_FIND(hh, hashTable, &temp, sizeof(struct HashTable *), tmp);
-        if (tmp == NULL) {
-            tmp = malloc(sizeof(struct HashTable));
-            tmp->key = temp;
-            HASH_ADD(hh, hashTable, key, sizeof(struct HashTable *), tmp);
-        }
-        temp = temp->next;
-    }
-    temp = headB;
-    while (temp != NULL) {
-        struct HashTable *tmp;
-        HASH_FIND(hh, hashTable, &temp, sizeof(struct HashTable *), tmp);
-        if (tmp != NULL) {
-            return temp;
-        }
-        temp = temp->next;
-    }
-    return NULL;
-}
 ```
 
 **复杂度分析**
@@ -404,75 +296,7 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
 
 **代码**
 
-```Java
-public class Solution {
-    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
-        if (headA == null || headB == null) {
-            return null;
-        }
-        ListNode pA = headA, pB = headB;
-        while (pA != pB) {
-            pA = pA == null ? headB : pA.next;
-            pB = pB == null ? headA : pB.next;
-        }
-        return pA;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public ListNode GetIntersectionNode(ListNode headA, ListNode headB) {
-        if (headA == null || headB == null) {
-            return null;
-        }
-        ListNode pA = headA, pB = headB;
-        while (pA != pB) {
-            pA = pA == null ? headB : pA.next;
-            pB = pB == null ? headA : pB.next;
-        }
-        return pA;
-    }
-}
-```
-
-```JavaScript
-var getIntersectionNode = function(headA, headB) {
-    if (headA === null || headB === null) {
-        return null;
-    }
-    let pA = headA, pB = headB;
-    while (pA !== pB) {
-        pA = pA === null ? headB : pA.next;
-        pB = pB === null ? headA : pB.next;
-    }
-    return pA;
-};
-```
-
-```go
-func getIntersectionNode(headA, headB *ListNode) *ListNode {
-    if headA == nil || headB == nil {
-        return nil
-    }
-    pa, pb := headA, headB
-    for pa != pb {
-        if pa == nil {
-            pa = headB
-        } else {
-            pa = pa.Next
-        }
-        if pb == nil {
-            pb = headA
-        } else {
-            pb = pb.Next
-        }
-    }
-    return pa
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
@@ -487,20 +311,6 @@ public:
         return pA;
     }
 };
-```
-
-```C
-struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
-    if (headA == NULL || headB == NULL) {
-        return NULL;
-    }
-    struct ListNode *pA = headA, *pB = headB;
-    while (pA != pB) {
-        pA = pA == NULL ? headB : pA->next;
-        pB = pB == NULL ? headA : pB->next;
-    }
-    return pA;
-}
 ```
 
 **复杂度分析**
@@ -601,7 +411,7 @@ $$
 
 <![fig1](https://assets.leetcode.cn/solution-static/236/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/236/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/236/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/236/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/236/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/236/6.PNG),![fig7](https://assets.leetcode.cn/solution-static/236/7.PNG),![fig8](https://assets.leetcode.cn/solution-static/236/8.PNG),![fig9](https://assets.leetcode.cn/solution-static/236/9.PNG),![fig10](https://assets.leetcode.cn/solution-static/236/10.PNG),![fig11](https://assets.leetcode.cn/solution-static/236/11.PNG)>
 
-```C++
+```cpp
 class Solution {
 public:
     TreeNode* ans;
@@ -619,69 +429,6 @@ public:
         return ans;
     }
 };
-```
-
-```JavaScript
-var lowestCommonAncestor = function(root, p, q) {
-    let ans;
-    const dfs = (root, p, q) => {
-        if (root === null) return false;
-        const lson = dfs(root.left, p, q);
-        const rson = dfs(root.right, p, q);
-        if ((lson && rson) || ((root.val === p.val || root.val === q.val) && (lson || rson))) {
-            ans = root;
-        } 
-        return lson || rson || (root.val === p.val || root.val === q.val);
-    }
-    dfs(root, p, q);
-    return ans;
-};
-```
-
-```Java
-class Solution {
-
-    private TreeNode ans;
-
-    public Solution() {
-        this.ans = null;
-    }
-
-    private boolean dfs(TreeNode root, TreeNode p, TreeNode q) {
-        if (root == null) return false;
-        boolean lson = dfs(root.left, p, q);
-        boolean rson = dfs(root.right, p, q);
-        if ((lson && rson) || ((root.val == p.val || root.val == q.val) && (lson || rson))) {
-            ans = root;
-        } 
-        return lson || rson || (root.val == p.val || root.val == q.val);
-    }
-
-    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-        this.dfs(root, p, q);
-        return this.ans;
-    }
-}
-```
-
-```golang
-func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
-    if root == nil {
-        return nil
-    }
-    if root.Val == p.Val || root.Val == q.Val {
-        return root
-    }
-    left := lowestCommonAncestor(root.Left, p, q)
-    right := lowestCommonAncestor(root.Right, p, q)
-    if left != nil && right != nil {
-        return root
-    }
-    if left == nil {
-        return right
-    }
-    return left
-}
 ```
 
 **复杂度分析**
@@ -702,7 +449,7 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 2. 从 `p` 节点开始不断往它的祖先移动，并用数据结构记录已经访问过的祖先节点。
 3. 同样，我们再从 `q` 节点开始不断往它的祖先移动，如果有祖先已经被访问过，即意味着这是 `p` 和 `q` 的深度最深的公共祖先，即 LCA 节点。
 
-```C++
+```cpp
 class Solution {
 public:
     unordered_map<int, TreeNode*> fa;
@@ -731,75 +478,6 @@ public:
         return nullptr;
     }
 };
-```
-
-```Java
-class Solution {
-    Map<Integer, TreeNode> parent = new HashMap<Integer, TreeNode>();
-    Set<Integer> visited = new HashSet<Integer>();
-
-    public void dfs(TreeNode root) {
-        if (root.left != null) {
-            parent.put(root.left.val, root);
-            dfs(root.left);
-        }
-        if (root.right != null) {
-            parent.put(root.right.val, root);
-            dfs(root.right);
-        }
-    }
-
-    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-        dfs(root);
-        while (p != null) {
-            visited.add(p.val);
-            p = parent.get(p.val);
-        }
-        while (q != null) {
-            if (visited.contains(q.val)) {
-                return q;
-            }
-            q = parent.get(q.val);
-        }
-        return null;
-    }
-}
-```
-
-```golang
-func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
-    parent := map[int]*TreeNode{}
-    visited := map[int]bool{}
-
-    var dfs func(*TreeNode)
-    dfs = func(r *TreeNode) {
-        if r == nil {
-            return
-        }
-        if r.Left != nil {
-            parent[r.Left.Val] = r
-            dfs(r.Left)
-        }
-        if r.Right != nil {
-            parent[r.Right.Val] = r
-            dfs(r.Right)
-        }
-    }
-    dfs(root)
-
-    for p != nil {
-        visited[p.Val] = true
-        p = parent[p.Val]
-    }
-    for q != nil {
-        if visited[q.Val] {
-            return q
-        }
-        q = parent[q.Val]
-    }
-
-    return nil
-}
 ```
 
 **复杂度分析**
@@ -900,45 +578,7 @@ public:
 
 **代码**
 
-```python
-class Solution:
-    def isPalindrome(self, head: ListNode) -> bool:
-        vals = []
-        current_node = head
-        while current_node is not None:
-            vals.append(current_node.val)
-            current_node = current_node.next
-        return vals == vals[::-1]
-```
-
-```Java
-class Solution {
-    public boolean isPalindrome(ListNode head) {
-        List<Integer> vals = new ArrayList<Integer>();
-
-        // 将链表的值复制到数组中
-        ListNode currentNode = head;
-        while (currentNode != null) {
-            vals.add(currentNode.val);
-            currentNode = currentNode.next;
-        }
-
-        // 使用双指针判断是否回文
-        int front = 0;
-        int back = vals.size() - 1;
-        while (front < back) {
-            if (!vals.get(front).equals(vals.get(back))) {
-                return false;
-            }
-            front++;
-            back--;
-        }
-        return true;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool isPalindrome(ListNode* head) {
@@ -955,54 +595,6 @@ public:
         return true;
     }
 };
-```
-
-```JavaScript
-var isPalindrome = function(head) {
-    const vals = [];
-    while (head !== null) {
-        vals.push(head.val);
-        head = head.next;
-    }
-    for (let i = 0, j = vals.length - 1; i < j; ++i, --j) {
-        if (vals[i] !== vals[j]) {
-            return false;
-        }
-    }
-    return true;
-};
-```
-
-```Golang
-func isPalindrome(head *ListNode) bool {
-    vals := []int{}
-    for ; head != nil; head = head.Next {
-        vals = append(vals, head.Val)
-    }
-    n := len(vals)
-    for i, v := range vals[:n/2] {
-        if v != vals[n-1-i] {
-            return false
-        }
-    }
-    return true
-}
-```
-
-```C
-bool isPalindrome(struct ListNode* head) {
-    int vals[100001], vals_num = 0;
-    while (head != NULL) {
-        vals[vals_num++] = head->val;
-        head = head->next;
-    }
-    for (int i = 0, j = vals_num - 1; i < j; ++i, --j) {
-        if (vals[i] != vals[j]) {
-            return false;
-        }
-    }
-    return true;
-}
 ```
 
 **复杂度分析**
@@ -1041,49 +633,7 @@ function print_values_in_reverse(ListNode head)
 
 **代码**
 
-```python
-class Solution:
-    def isPalindrome(self, head: ListNode) -> bool:
-
-        self.front_pointer = head
-
-        def recursively_check(current_node=head):
-            if current_node is not None:
-                if not recursively_check(current_node.next):
-                    return False
-                if self.front_pointer.val != current_node.val:
-                    return False
-                self.front_pointer = self.front_pointer.next
-            return True
-
-        return recursively_check()
-```
-
-```Java
-class Solution {
-    private ListNode frontPointer;
-
-    private boolean recursivelyCheck(ListNode currentNode) {
-        if (currentNode != null) {
-            if (!recursivelyCheck(currentNode.next)) {
-                return false;
-            }
-            if (currentNode.val != frontPointer.val) {
-                return false;
-            }
-            frontPointer = frontPointer.next;
-        }
-        return true;
-    }
-
-    public boolean isPalindrome(ListNode head) {
-        frontPointer = head;
-        return recursivelyCheck(head);
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
     ListNode* frontPointer;
 public:
@@ -1105,70 +655,6 @@ public:
         return recursivelyCheck(head);
     }
 };
-```
-
-```JavaScript
-let frontPointer;
-
-const recursivelyCheck = (currentNode) => {
-    if (currentNode !== null) {
-        if (!recursivelyCheck(currentNode.next)) {
-            return false;
-        }
-        if (currentNode.val !== frontPointer.val) {
-            return false;
-        }
-        frontPointer = frontPointer.next;
-    }
-    return true;
-}
-
-var isPalindrome = function(head) {
-    frontPointer = head;
-    return recursivelyCheck(head);
-};
-```
-
-```Golang
-func isPalindrome(head *ListNode) bool {
-    frontPointer := head
-    var recursivelyCheck func(*ListNode) bool
-    recursivelyCheck = func(curNode *ListNode) bool {
-        if curNode != nil {
-            if !recursivelyCheck(curNode.Next) {
-                return false
-            }
-            if curNode.Val != frontPointer.Val {
-                return false
-            }
-            frontPointer = frontPointer.Next
-        }
-        return true
-    }
-    return recursivelyCheck(head)
-}
-```
-
-```C
-struct ListNode* frontPointer;
-
-bool recursivelyCheck(struct ListNode* currentNode) {
-    if (currentNode != NULL) {
-        if (!recursivelyCheck(currentNode->next)) {
-            return false;
-        }
-        if (currentNode->val != frontPointer->val) {
-            return false;
-        }
-        frontPointer = frontPointer->next;
-    }
-    return true;
-}
-
-bool isPalindrome(struct ListNode* head) {
-    frontPointer = head;
-    return recursivelyCheck(head);
-}
 ```
 
 **复杂度分析**
@@ -1212,103 +698,7 @@ bool isPalindrome(struct ListNode* head) {
 
 **代码**
 
-```python
-class Solution:
-
-    def isPalindrome(self, head: ListNode) -> bool:
-        if head is None:
-            return True
-
-        # 找到前半部分链表的尾节点并反转后半部分链表
-        first_half_end = self.end_of_first_half(head)
-        second_half_start = self.reverse_list(first_half_end.next)
-
-        # 判断是否回文
-        result = True
-        first_position = head
-        second_position = second_half_start
-        while result and second_position is not None:
-            if first_position.val != second_position.val:
-                result = False
-            first_position = first_position.next
-            second_position = second_position.next
-
-        # 还原链表并返回结果
-        first_half_end.next = self.reverse_list(second_half_start)
-        return result
-
-    def end_of_first_half(self, head):
-        fast = head
-        slow = head
-        while fast.next is not None and fast.next.next is not None:
-            fast = fast.next.next
-            slow = slow.next
-        return slow
-
-    def reverse_list(self, head):
-        previous = None
-        current = head
-        while current is not None:
-            next_node = current.next
-            current.next = previous
-            previous = current
-            current = next_node
-        return previous
-```
-
-```Java
-class Solution {
-    public boolean isPalindrome(ListNode head) {
-        if (head == null) {
-            return true;
-        }
-
-        // 找到前半部分链表的尾节点并反转后半部分链表
-        ListNode firstHalfEnd = endOfFirstHalf(head);
-        ListNode secondHalfStart = reverseList(firstHalfEnd.next);
-
-        // 判断是否回文
-        ListNode p1 = head;
-        ListNode p2 = secondHalfStart;
-        boolean result = true;
-        while (result && p2 != null) {
-            if (p1.val != p2.val) {
-                result = false;
-            }
-            p1 = p1.next;
-            p2 = p2.next;
-        }
-
-        // 还原链表并返回结果
-        firstHalfEnd.next = reverseList(secondHalfStart);
-        return result;
-    }
-
-    private ListNode reverseList(ListNode head) {
-        ListNode prev = null;
-        ListNode curr = head;
-        while (curr != null) {
-            ListNode nextTemp = curr.next;
-            curr.next = prev;
-            prev = curr;
-            curr = nextTemp;
-        }
-        return prev;
-    }
-
-    private ListNode endOfFirstHalf(ListNode head) {
-        ListNode fast = head;
-        ListNode slow = head;
-        while (fast.next != null && fast.next.next != null) {
-            fast = fast.next.next;
-            slow = slow.next;
-        }
-        return slow;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool isPalindrome(ListNode* head) {
@@ -1359,151 +749,6 @@ public:
         return slow;
     }
 };
-```
-
-```JavaScript
-const reverseList = (head) => {
-    let prev = null;
-    let curr = head;
-    while (curr !== null) {
-        let nextTemp = curr.next;
-        curr.next = prev;
-        prev = curr;
-        curr = nextTemp;
-    }
-    return prev;
-}
-
-const endOfFirstHalf = (head) => {
-    let fast = head;
-    let slow = head;
-    while (fast.next !== null && fast.next.next !== null) {
-        fast = fast.next.next;
-        slow = slow.next;
-    }
-    return slow;
-}
-
-var isPalindrome = function(head) {
-    if (head == null) return true;
-
-    // 找到前半部分链表的尾节点并反转后半部分链表
-    const firstHalfEnd = endOfFirstHalf(head);
-    const secondHalfStart = reverseList(firstHalfEnd.next);
-
-    // 判断是否回文
-    let p1 = head;
-    let p2 = secondHalfStart;
-    let result = true;
-    while (result && p2 != null) {
-        if (p1.val != p2.val) result = false;
-        p1 = p1.next;
-        p2 = p2.next;
-    }
-
-    // 还原链表并返回结果
-    firstHalfEnd.next = reverseList(secondHalfStart);
-    return result;
-};
-```
-
-```Golang
-func reverseList(head *ListNode) *ListNode {
-    var prev, cur *ListNode = nil, head
-    for cur != nil {
-        nextTmp := cur.Next
-        cur.Next = prev
-        prev = cur
-        cur = nextTmp
-    }
-    return prev
-}
-
-func endOfFirstHalf(head *ListNode) *ListNode {
-    fast := head
-    slow := head
-    for fast.Next != nil && fast.Next.Next != nil {
-        fast = fast.Next.Next
-        slow = slow.Next
-    }
-    return slow
-}
-
-func isPalindrome(head *ListNode) bool {
-    if head == nil {
-        return true
-    }
-
-    // 找到前半部分链表的尾节点并反转后半部分链表
-    firstHalfEnd := endOfFirstHalf(head)
-    secondHalfStart := reverseList(firstHalfEnd.Next)
-
-    // 判断是否回文
-    p1 := head
-    p2 := secondHalfStart
-    result := true
-    for result && p2 != nil {
-        if p1.Val != p2.Val {
-            result = false
-        }
-        p1 = p1.Next
-        p2 = p2.Next
-    }
-
-    // 还原链表并返回结果
-    firstHalfEnd.Next = reverseList(secondHalfStart)
-    return result
-}
-```
-
-```C
-struct ListNode* reverseList(struct ListNode* head) {
-    struct ListNode* prev = NULL;
-    struct ListNode* curr = head;
-    while (curr != NULL) {
-        struct ListNode* nextTemp = curr->next;
-        curr->next = prev;
-        prev = curr;
-        curr = nextTemp;
-    }
-    return prev;
-}
-
-struct ListNode* endOfFirstHalf(struct ListNode* head) {
-    struct ListNode* fast = head;
-    struct ListNode* slow = head;
-    while (fast->next != NULL && fast->next->next != NULL) {
-        fast = fast->next->next;
-        slow = slow->next;
-    }
-    return slow;
-}
-
-bool isPalindrome(struct ListNode* head) {
-    if (head == NULL) {
-        return true;
-    }
-
-    // 找到前半部分链表的尾节点并反转后半部分链表
-    struct ListNode* firstHalfEnd = endOfFirstHalf(head);
-    struct ListNode* secondHalfStart = reverseList(firstHalfEnd->next);
-
-    // 判断是否回文
-    struct ListNode* p1 = head;
-    struct ListNode* p2 = secondHalfStart;
-    bool result = true;
-    while (result && p2 != NULL) {
-        if (p1->val != p2->val) {
-            result = false;
-        }
-        p1 = p1->next;
-        p2 = p2->next;
-    }
-
-    // 还原链表并返回结果
-    firstHalfEnd->next = reverseList(secondHalfStart);
-    return result;
-}
 ```
 
 **复杂度分析**
@@ -1577,44 +822,7 @@ public:
 
 为什么上述做法可以保证正确呢？因为遍历温度列表的方向是反向，当遍历到元素 `temperatures[i]` 时，只有 `temperatures[i]` 后面的元素被访问过，即对于任意 `t`，当 `next[t]` 不为无穷大时，一定存在 `j` 使得 `temperatures[j] == t` 且 `i < j`。又由于遍历到温度列表中的每个元素时都会更新数组 `next` 中的对应温度的元素值，因此对于任意 `t`，当 `next[t]` 不为无穷大时，令 `j = next[t]`，则 `j` 是满足 `temperatures[j] == t` 且 `i < j` 的最小下标。
 
-```Java
-class Solution {
-    public int[] dailyTemperatures(int[] temperatures) {
-        int length = temperatures.length;
-        int[] ans = new int[length];
-        int[] next = new int[101];
-        Arrays.fill(next, Integer.MAX_VALUE);
-        for (int i = length - 1; i >= 0; --i) {
-            int warmerIndex = Integer.MAX_VALUE;
-            for (int t = temperatures[i] + 1; t <= 100; ++t) {
-                if (next[t] < warmerIndex) {
-                    warmerIndex = next[t];
-                }
-            }
-            if (warmerIndex < Integer.MAX_VALUE) {
-                ans[i] = warmerIndex - i;
-            }
-            next[temperatures[i]] = i;
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def dailyTemperatures(self, temperatures: List[int]) -> List[int]:
-        n = len(temperatures)
-        ans, nxt, big = [0] * n, dict(), 10**9
-        for i in range(n - 1, -1, -1):
-            warmer_index = min(nxt.get(t, big) for t in range(temperatures[i] + 1, 102))
-            if warmer_index != big:
-                ans[i] = warmer_index - i
-            nxt[temperatures[i]] = i
-        return ans
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> dailyTemperatures(vector<int>& temperatures) {
@@ -1633,30 +841,6 @@ public:
         return ans;
     }
 };
-```
-
-```golang
-func dailyTemperatures(temperatures []int) []int {
-    length := len(temperatures)
-    ans := make([]int, length)
-    next := make([]int, 101)
-    for i := 0; i < 101; i++ {
-        next[i] = math.MaxInt32
-    }
-    for i := length - 1; i >= 0; i-- {
-        warmerIndex := math.MaxInt32
-        for t := temperatures[i] + 1; t <= 100; t++ {
-            if next[t] < warmerIndex {
-                warmerIndex = next[t]
-            }
-        }
-        if warmerIndex < math.MaxInt32 {
-            ans[i] = warmerIndex - i
-        }
-        next[temperatures[i]] = i
-    }
-    return ans
-}
 ```
 
 **复杂度分析**
@@ -1717,41 +901,7 @@ func dailyTemperatures(temperatures []int) []int {
 
   - $\textit{ans}=[1,1,4,2,1,1,0,0]$
 
-```Java
-class Solution {
-    public int[] dailyTemperatures(int[] temperatures) {
-        int length = temperatures.length;
-        int[] ans = new int[length];
-        Deque<Integer> stack = new LinkedList<Integer>();
-        for (int i = 0; i < length; i++) {
-            int temperature = temperatures[i];
-            while (!stack.isEmpty() && temperature > temperatures[stack.peek()]) {
-                int prevIndex = stack.pop();
-                ans[prevIndex] = i - prevIndex;
-            }
-            stack.push(i);
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def dailyTemperatures(self, temperatures: List[int]) -> List[int]:
-        length = len(temperatures)
-        ans = [0] * length
-        stack = []
-        for i in range(length):
-            temperature = temperatures[i]
-            while stack and temperature > temperatures[stack[-1]]:
-                prev_index = stack.pop()
-                ans[prev_index] = i - prev_index
-            stack.append(i)
-        return ans
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> dailyTemperatures(vector<int>& temperatures) {
@@ -1769,24 +919,6 @@ public:
         return ans;
     }
 };
-```
-
-```golang
-func dailyTemperatures(temperatures []int) []int {
-    length := len(temperatures)
-    ans := make([]int, length)
-    stack := []int{}
-    for i := 0; i < length; i++ {
-        temperature := temperatures[i]
-        for len(stack) > 0 && temperature > temperatures[stack[len(stack)-1]] {
-            prevIndex := stack[len(stack)-1]
-            stack = stack[:len(stack)-1]
-            ans[prevIndex] = i - prevIndex
-        }
-        stack = append(stack, i)
-    }
-    return ans
-}
 ```
 
 **复杂度分析**
@@ -1871,7 +1003,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     TreeNode* invertTree(TreeNode* root) {
@@ -1885,72 +1017,6 @@ public:
         return root;
     }
 };
-```
-
-```Java
-class Solution {
-    public TreeNode invertTree(TreeNode root) {
-        if (root == null) {
-            return null;
-        }
-        TreeNode left = invertTree(root.left);
-        TreeNode right = invertTree(root.right);
-        root.left = right;
-        root.right = left;
-        return root;
-    }
-}
-```
-
-```Python
-class Solution:
-    def invertTree(self, root: TreeNode) -> TreeNode:
-        if not root:
-            return root
-        
-        left = self.invertTree(root.left)
-        right = self.invertTree(root.right)
-        root.left, root.right = right, left
-        return root
-```
-
-```Golang
-func invertTree(root *TreeNode) *TreeNode {
-    if root == nil {
-        return nil
-    }
-    left := invertTree(root.Left)
-    right := invertTree(root.Right)
-    root.Left = right
-    root.Right = left
-    return root
-}
-```
-
-```JavaScript
-var invertTree = function(root) {
-    if (root === null) {
-        return null;
-    }
-    const left = invertTree(root.left);
-    const right = invertTree(root.right);
-    root.left = right;
-    root.right = left;
-    return root;
-};
-```
-
-```C
-struct TreeNode* invertTree(struct TreeNode* root) {
-    if (root == NULL) {
-        return NULL;
-    }
-    struct TreeNode* left = invertTree(root->left);
-    struct TreeNode* right = invertTree(root->right);
-    root->left = right;
-    root->right = left;
-    return root;
-}
 ```
 
 **复杂度分析**
@@ -2031,49 +1097,7 @@ public:
 
 - 每次在下方新增一行以及在右方新增一列，判断新增的行和列是否满足所有元素都是 $1$。
 
-```Java
-class Solution {
-    public int maximalSquare(char[][] matrix) {
-        int maxSide = 0;
-        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
-            return maxSide;
-        }
-        int rows = matrix.length, columns = matrix[0].length;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                if (matrix[i][j] == '1') {
-                    // 遇到一个 1 作为正方形的左上角
-                    maxSide = Math.max(maxSide, 1);
-                    // 计算可能的最大正方形边长
-                    int currentMaxSide = Math.min(rows - i, columns - j);
-                    for (int k = 1; k < currentMaxSide; k++) {
-                        // 判断新增的一行一列是否均为 1
-                        boolean flag = true;
-                        if (matrix[i + k][j + k] == '0') {
-                            break;
-                        }
-                        for (int m = 0; m < k; m++) {
-                            if (matrix[i + k][j + m] == '0' || matrix[i + m][j + k] == '0') {
-                                flag = false;
-                                break;
-                            }
-                        }
-                        if (flag) {
-                            maxSide = Math.max(maxSide, k + 1);
-                        } else {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        int maxSquare = maxSide * maxSide;
-        return maxSquare;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int maximalSquare(vector<vector<char>>& matrix) {
@@ -2114,90 +1138,6 @@ public:
         return maxSquare;
     }
 };
-```
-
-```Python
-class Solution:
-    def maximalSquare(self, matrix: List[List[str]]) -> int:
-        if len(matrix) == 0 or len(matrix[0]) == 0:
-            return 0
-        
-        maxSide = 0
-        rows, columns = len(matrix), len(matrix[0])
-        for i in range(rows):
-            for j in range(columns):
-                if matrix[i][j] == '1':
-                    # 遇到一个 1 作为正方形的左上角
-                    maxSide = max(maxSide, 1)
-                    # 计算可能的最大正方形边长
-                    currentMaxSide = min(rows - i, columns - j)
-                    for k in range(1, currentMaxSide):
-                        # 判断新增的一行一列是否均为 1
-                        flag = True
-                        if matrix[i + k][j + k] == '0':
-                            break
-                        for m in range(k):
-                            if matrix[i + k][j + m] == '0' or matrix[i + m][j + k] == '0':
-                                flag = False
-                                break
-                        if flag:
-                            maxSide = max(maxSide, k + 1)
-                        else:
-                            break
-        
-        maxSquare = maxSide * maxSide
-        return maxSquare
-```
-
-```golang
-func maximalSquare(matrix [][]byte) int {
-    maxSide := 0
-    if len(matrix) == 0 || len(matrix[0]) == 0 {
-        return maxSide
-    }
-    rows, columns := len(matrix), len(matrix[0])
-    for i := 0; i < rows; i++ {
-        for j := 0; j < columns; j++ {
-            if matrix[i][j] == '1' {
-                maxSide = max(maxSide, 1)
-                curMaxSide := min(rows - i, columns - j)
-                for k := 1; k < curMaxSide; k++ {
-                    flag := true
-                    if matrix[i+k][j+k] == '0' {
-                        break
-                    }
-                    for m := 0; m < k; m++ {
-                        if matrix[i+k][j+m] == '0' || matrix[i+m][j+k] == '0' {
-                            flag = false
-                            break
-                        }
-                    }
-                    if flag {
-                        maxSide = max(maxSide, k + 1)
-                    } else {
-                        break
-                    }
-                }
-            }
-        }
-    }
-    return maxSide * maxSide
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
-
 ```
 
 **复杂度分析**
@@ -2253,34 +1193,7 @@ func min(x, y int) int {
 
 ![fig1](https://assets.leetcode.cn/solution-static/221/221_fig1.png)
 
-```Java
-class Solution {
-    public int maximalSquare(char[][] matrix) {
-        int maxSide = 0;
-        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
-            return maxSide;
-        }
-        int rows = matrix.length, columns = matrix[0].length;
-        int[][] dp = new int[rows][columns];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                if (matrix[i][j] == '1') {
-                    if (i == 0 || j == 0) {
-                        dp[i][j] = 1;
-                    } else {
-                        dp[i][j] = Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;
-                    }
-                    maxSide = Math.max(maxSide, dp[i][j]);
-                }
-            }
-        }
-        int maxSquare = maxSide * maxSide;
-        return maxSquare;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int maximalSquare(vector<vector<char>>& matrix) {
@@ -2306,63 +1219,6 @@ public:
         return maxSquare;
     }
 };
-```
-
-```Python
-class Solution:
-    def maximalSquare(self, matrix: List[List[str]]) -> int:
-        if len(matrix) == 0 or len(matrix[0]) == 0:
-            return 0
-        
-        maxSide = 0
-        rows, columns = len(matrix), len(matrix[0])
-        dp = [[0] * columns for _ in range(rows)]
-        for i in range(rows):
-            for j in range(columns):
-                if matrix[i][j] == '1':
-                    if i == 0 or j == 0:
-                        dp[i][j] = 1
-                    else:
-                        dp[i][j] = min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]) + 1
-                    maxSide = max(maxSide, dp[i][j])
-        
-        maxSquare = maxSide * maxSide
-        return maxSquare
-```
-
-```golang
-func maximalSquare(matrix [][]byte) int {
-    dp := make([][]int, len(matrix))
-    maxSide := 0
-    for i := 0; i < len(matrix); i++ {
-        dp[i] = make([]int, len(matrix[i]))
-        for j := 0; j < len(matrix[i]); j++ {
-            dp[i][j] = int(matrix[i][j] - '0')
-            if dp[i][j] == 1 {
-                maxSide = 1
-            }
-        }
-    }
-
-    for i := 1; i < len(matrix); i++ {
-        for j := 1; j < len(matrix[i]); j++ {
-            if dp[i][j] == 1 {
-                dp[i][j] = min(min(dp[i-1][j], dp[i][j-1]), dp[i-1][j-1]) + 1
-                if dp[i][j] > maxSide {
-                    maxSide = dp[i][j]
-                }
-            }
-        }
-    }
-    return maxSide * maxSide
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -2474,81 +1330,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    int quickselect(int[] nums, int l, int r, int k) {
-        if (l == r) return nums[k];
-        int x = nums[l], i = l - 1, j = r + 1;
-        while (i < j) {
-            do i++; while (nums[i] < x);
-            do j--; while (nums[j] > x);
-            if (i < j){
-                int tmp = nums[i];
-                nums[i] = nums[j];
-                nums[j] = tmp;
-            }
-        }
-        if (k <= j) return quickselect(nums, l, j, k);
-        else return quickselect(nums, j + 1, r, k);
-    }
-    public int findKthLargest(int[] _nums, int k) {
-        int n = _nums.length;
-        return quickselect(_nums, 0, n - 1, n - k);
-    }
-}
-```
-
-```C
-int quickselect(int *nums, int l, int r, int k) {
-    if (l == r)
-        return nums[k];
-    int partition = nums[l], i = l - 1, j = r + 1;
-    while (i < j) {
-        do i++; while (nums[i] < partition);
-        do j--; while (nums[j] > partition);
-        if (i < j) {
-            int tmp = nums[i];
-            nums[i] = nums[j];
-            nums[j] = tmp;
-        }
-    }
-    if (k <= j)return quickselect(nums, l, j, k);
-    else return quickselect(nums, j + 1, r, k);
-}
-
-int findKthLargest(int *nums, int numsSize, int k) {
-    return quickselect(nums, 0, numsSize - 1, numsSize - k);
-}
-```
-
-```golang
-func findKthLargest(nums []int, k int) int {
-    n := len(nums)
-    return quickselect(nums, 0, n - 1, n - k)
-}
-
-func quickselect(nums []int, l, r, k int) int{
-    if (l == r){
-        return nums[k]
-    }
-    partition := nums[l]
-    i := l - 1
-    j := r + 1
-    for (i < j) {
-        for i++;nums[i]<partition;i++{}
-        for j--;nums[j]>partition;j--{}
-        if (i < j) {
-            nums[i],nums[j]=nums[j],nums[i]
-        }
-    }
-    if (k <= j){
-        return quickselect(nums, l, j, k)
-    }else{
-        return quickselect(nums, j + 1, r, k)
-    }
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n)$，如上文所述，证明过程可以参考「《算法导论》9.2：期望为线性的选择算法」。
@@ -2600,114 +1381,6 @@ public:
         return nums[0];
     }
 };
-```
-```Java
-class Solution {
-    public int findKthLargest(int[] nums, int k) {
-        int heapSize = nums.length;
-        buildMaxHeap(nums, heapSize);
-        for (int i = nums.length - 1; i >= nums.length - k + 1; --i) {
-            swap(nums, 0, i);
-            --heapSize;
-            maxHeapify(nums, 0, heapSize);
-        }
-        return nums[0];
-    }
-
-    public void buildMaxHeap(int[] a, int heapSize) {
-        for (int i = heapSize / 2 - 1; i >= 0; --i) {
-            maxHeapify(a, i, heapSize);
-        } 
-    }
-
-    public void maxHeapify(int[] a, int i, int heapSize) {
-        int l = i * 2 + 1, r = i * 2 + 2, largest = i;
-        if (l < heapSize && a[l] > a[largest]) {
-            largest = l;
-        } 
-        if (r < heapSize && a[r] > a[largest]) {
-            largest = r;
-        }
-        if (largest != i) {
-            swap(a, i, largest);
-            maxHeapify(a, largest, heapSize);
-        }
-    }
-
-    public void swap(int[] a, int i, int j) {
-        int temp = a[i];
-        a[i] = a[j];
-        a[j] = temp;
-    }
-}
-```
-
-```C
-void maxHeapify(int* a, int i, int heapSize) {
-    int l = i * 2 + 1, r = i * 2 + 2, largest = i;
-    if (l < heapSize && a[l] > a[largest]) {
-        largest = l;
-    }
-    if (r < heapSize && a[r] > a[largest]) {
-        largest = r;
-    }
-    if (largest != i) {
-        int t = a[i];
-        a[i] = a[largest], a[largest] = t;
-        maxHeapify(a, largest, heapSize);
-    }
-}
-
-void buildMaxHeap(int* a, int heapSize) {
-    for (int i = heapSize / 2 - 1; i >= 0; --i) {
-        maxHeapify(a, i, heapSize);
-    }
-}
-
-int findKthLargest(int* nums, int numsSize, int k) {
-    int heapSize = numsSize;
-    buildMaxHeap(nums, heapSize);
-    for (int i = numsSize - 1; i >= numsSize - k + 1; --i) {
-        int t = nums[0];
-        nums[0] = nums[i], nums[i] = t;
-        --heapSize;
-        maxHeapify(nums, 0, heapSize);
-    }
-    return nums[0];
-}
-```
-
-```golang
-func findKthLargest(nums []int, k int) int {
-    heapSize := len(nums)
-    buildMaxHeap(nums, heapSize)
-    for i := len(nums) - 1; i >= len(nums) - k + 1; i-- {
-        nums[0], nums[i] = nums[i], nums[0]
-        heapSize--
-        maxHeapify(nums, 0, heapSize)
-    }
-    return nums[0]
-}
-
-func buildMaxHeap(a []int, heapSize int) {
-    for i := heapSize / 2 - 1; i >= 0; i-- {
-        maxHeapify(a, i, heapSize)
-    }
-}
-
-func maxHeapify(a []int, i, heapSize int) {
-    l, r, largest := i * 2 + 1, i * 2 + 2, i
-    if l < heapSize && a[l] > a[largest] {
-        largest = l
-    }
-    if r < heapSize && a[r] > a[largest] {
-        largest = r
-    }
-    if largest != i {
-        a[i], a[largest] = a[largest], a[i]
-        maxHeapify(a, largest, heapSize)
-    }
-}
 ```
 
 **复杂度分析**
@@ -2823,7 +1496,7 @@ $\text{Trie}$，又称前缀树或字典树，是一棵有根树，其每个节�
 
 **代码**
 
-```C++
+```cpp
 class Trie {
 private:
     vector<Trie*> children;
@@ -2865,225 +1538,6 @@ public:
         return this->searchPrefix(prefix) != nullptr;
     }
 };
-```
-
-```Java
-class Trie {
-    private Trie[] children;
-    private boolean isEnd;
-
-    public Trie() {
-        children = new Trie[26];
-        isEnd = false;
-    }
-    
-    public void insert(String word) {
-        Trie node = this;
-        for (int i = 0; i < word.length(); i++) {
-            char ch = word.charAt(i);
-            int index = ch - 'a';
-            if (node.children[index] == null) {
-                node.children[index] = new Trie();
-            }
-            node = node.children[index];
-        }
-        node.isEnd = true;
-    }
-    
-    public boolean search(String word) {
-        Trie node = searchPrefix(word);
-        return node != null && node.isEnd;
-    }
-    
-    public boolean startsWith(String prefix) {
-        return searchPrefix(prefix) != null;
-    }
-
-    private Trie searchPrefix(String prefix) {
-        Trie node = this;
-        for (int i = 0; i < prefix.length(); i++) {
-            char ch = prefix.charAt(i);
-            int index = ch - 'a';
-            if (node.children[index] == null) {
-                return null;
-            }
-            node = node.children[index];
-        }
-        return node;
-    }
-}
-```
-
-```go
-type Trie struct {
-    children [26]*Trie
-    isEnd    bool
-}
-
-func Constructor() Trie {
-    return Trie{}
-}
-
-func (t *Trie) Insert(word string) {
-    node := t
-    for _, ch := range word {
-        ch -= 'a'
-        if node.children[ch] == nil {
-            node.children[ch] = &Trie{}
-        }
-        node = node.children[ch]
-    }
-    node.isEnd = true
-}
-
-func (t *Trie) SearchPrefix(prefix string) *Trie {
-    node := t
-    for _, ch := range prefix {
-        ch -= 'a'
-        if node.children[ch] == nil {
-            return nil
-        }
-        node = node.children[ch]
-    }
-    return node
-}
-
-func (t *Trie) Search(word string) bool {
-    node := t.SearchPrefix(word)
-    return node != nil && node.isEnd
-}
-
-func (t *Trie) StartsWith(prefix string) bool {
-    return t.SearchPrefix(prefix) != nil
-}
-```
-
-```JavaScript
-var Trie = function() {
-    this.children = {};
-};
-
-Trie.prototype.insert = function(word) {
-    let node = this.children;
-    for (const ch of word) {
-        if (!node[ch]) {
-            node[ch] = {};
-        }
-        node = node[ch];
-    }
-    node.isEnd = true;
-};
-
-Trie.prototype.searchPrefix = function(prefix) {
-    let node = this.children;
-    for (const ch of prefix) {
-        if (!node[ch]) {
-            return false;
-        }
-        node = node[ch];
-    }
-    return node;
-}
-
-Trie.prototype.search = function(word) {
-    const node = this.searchPrefix(word);
-    return node !== undefined && node.isEnd !== undefined;
-};
-
-Trie.prototype.startsWith = function(prefix) {
-    return this.searchPrefix(prefix);
-};
-```
-
-```Python
-class Trie:
-    def __init__(self):
-        self.children = [None] * 26
-        self.isEnd = False
-    
-    def searchPrefix(self, prefix: str) -> "Trie":
-        node = self
-        for ch in prefix:
-            ch = ord(ch) - ord("a")
-            if not node.children[ch]:
-                return None
-            node = node.children[ch]
-        return node
-
-    def insert(self, word: str) -> None:
-        node = self
-        for ch in word:
-            ch = ord(ch) - ord("a")
-            if not node.children[ch]:
-                node.children[ch] = Trie()
-            node = node.children[ch]
-        node.isEnd = True
-
-    def search(self, word: str) -> bool:
-        node = self.searchPrefix(word)
-        return node is not None and node.isEnd
-
-    def startsWith(self, prefix: str) -> bool:
-        return self.searchPrefix(prefix) is not None
-```
-
-```C
-typedef struct Trie {
-    struct Trie* children[26];
-    bool isEnd;
-} Trie;
-
-Trie* trieCreate() {
-    Trie* ret = malloc(sizeof(Trie));
-    memset(ret->children, 0, sizeof(ret->children));
-    ret->isEnd = false;
-    return ret;
-}
-
-void trieInsert(Trie* obj, char* word) {
-    int n = strlen(word);
-    for (int i = 0; i < n; i++) {
-        int ch = word[i] - 'a';
-        if (obj->children[ch] == NULL) {
-            obj->children[ch] = trieCreate();
-        }
-        obj = obj->children[ch];
-    }
-    obj->isEnd = true;
-}
-
-bool trieSearch(Trie* obj, char* word) {
-    int n = strlen(word);
-    for (int i = 0; i < n; i++) {
-        int ch = word[i] - 'a';
-        if (obj->children[ch] == NULL) {
-            return false;
-        }
-        obj = obj->children[ch];
-    }
-    return obj->isEnd;
-}
-
-bool trieStartsWith(Trie* obj, char* prefix) {
-    int n = strlen(prefix);
-    for (int i = 0; i < n; i++) {
-        int ch = prefix[i] - 'a';
-        if (obj->children[ch] == NULL) {
-            return false;
-        }
-        obj = obj->children[ch];
-    }
-    return true;
-}
-
-void trieFree(Trie* obj) {
-    for (int i = 0; i < 26; i++) {
-        if (obj->children[i]) {
-            trieFree(obj->children[i]);
-        }
-    }
-    free(obj);
-}
 ```
 
 **复杂度分析**
@@ -3221,7 +1675,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 private:
     vector<vector<int>> edges;
@@ -3262,172 +1716,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    List<List<Integer>> edges;
-    int[] visited;
-    boolean valid = true;
-
-    public boolean canFinish(int numCourses, int[][] prerequisites) {
-        edges = new ArrayList<List<Integer>>();
-        for (int i = 0; i < numCourses; ++i) {
-            edges.add(new ArrayList<Integer>());
-        }
-        visited = new int[numCourses];
-        for (int[] info : prerequisites) {
-            edges.get(info[1]).add(info[0]);
-        }
-        for (int i = 0; i < numCourses && valid; ++i) {
-            if (visited[i] == 0) {
-                dfs(i);
-            }
-        }
-        return valid;
-    }
-
-    public void dfs(int u) {
-        visited[u] = 1;
-        for (int v: edges.get(u)) {
-            if (visited[v] == 0) {
-                dfs(v);
-                if (!valid) {
-                    return;
-                }
-            } else if (visited[v] == 1) {
-                valid = false;
-                return;
-            }
-        }
-        visited[u] = 2;
-    }
-}
-```
-
-```Python
-class Solution:
-    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
-        edges = collections.defaultdict(list)
-        visited = [0] * numCourses
-        result = list()
-        valid = True
-
-        for info in prerequisites:
-            edges[info[1]].append(info[0])
-        
-        def dfs(u: int):
-            nonlocal valid
-            visited[u] = 1
-            for v in edges[u]:
-                if visited[v] == 0:
-                    dfs(v)
-                    if not valid:
-                        return
-                elif visited[v] == 1:
-                    valid = False
-                    return
-            visited[u] = 2
-            result.append(u)
-        
-        for i in range(numCourses):
-            if valid and not visited[i]:
-                dfs(i)
-        
-        return valid
-```
-
-```C
-int** edges;
-int* edgeColSize;
-int* visited;
-bool valid;
-
-void dfs(int u) {
-    visited[u] = 1;
-    for (int i = 0; i < edgeColSize[u]; ++i) {
-        if (visited[edges[u][i]] == 0) {
-            dfs(edges[u][i]);
-            if (!valid) {
-                return;
-            }
-        } else if (visited[edges[u][i]] == 1) {
-            valid = false;
-            return;
-        }
-    }
-    visited[u] = 2;
-}
-
-bool canFinish(int numCourses, int** prerequisites, int prerequisitesSize, int* prerequisitesColSize) {
-    valid = true;
-    edges = (int**)malloc(sizeof(int*) * numCourses);
-    for (int i = 0; i < numCourses; i++) {
-        edges[i] = (int*)malloc(0);
-    }
-    edgeColSize = (int*)malloc(sizeof(int) * numCourses);
-    memset(edgeColSize, 0, sizeof(int) * numCourses);
-    visited = (int*)malloc(sizeof(int) * numCourses);
-    memset(visited, 0, sizeof(int) * numCourses);
-    for (int i = 0; i < prerequisitesSize; ++i) {
-        int a = prerequisites[i][1], b = prerequisites[i][0];
-        edgeColSize[a]++;
-        edges[a] = (int*)realloc(edges[a], sizeof(int) * edgeColSize[a]);
-        edges[a][edgeColSize[a] - 1] = b;
-    }
-    for (int i = 0; i < numCourses && valid; ++i) {
-        if (!visited[i]) {
-            dfs(i);
-        }
-    }
-    for (int i = 0; i < numCourses; i++) {
-        free(edges[i]);
-    }
-    free(edges);
-    free(edgeColSize);
-    free(visited);
-    return valid;
-}
-```
-
-```golang
-func canFinish(numCourses int, prerequisites [][]int) bool {
-    var (
-        edges = make([][]int, numCourses)
-        visited = make([]int, numCourses)
-        result []int
-        valid = true
-        dfs func(u int)
-    )
-
-    dfs = func(u int) {
-        visited[u] = 1
-        for _, v := range edges[u] {
-            if visited[v] == 0 {
-                dfs(v)
-                if !valid {
-                    return
-                }
-            } else if visited[v] == 1 {
-                valid = false
-                return
-            }
-        }
-        visited[u] = 2
-        result = append(result, u)
-    }
-
-    for _, info := range prerequisites {
-        edges[info[1]] = append(edges[info[1]], info[0])
-    }
-
-    for i := 0; i < numCourses && valid; i++ {
-        if visited[i] == 0 {
-            dfs(i)
-        }
-    }
-    return valid
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度: $O(n+m)$，其中 $n$ 为课程数，$m$ 为先修课程的要求数。这其实就是对图进行深度优先搜索的时间复杂度。
@@ -3466,7 +1754,7 @@ func canFinish(numCourses int, prerequisites [][]int) bool {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 private:
     vector<vector<int>> edges;
@@ -3504,151 +1792,6 @@ public:
         return visited == numCourses;
     }
 };
-```
-
-```Java
-class Solution {
-    List<List<Integer>> edges;
-    int[] indeg;
-
-    public boolean canFinish(int numCourses, int[][] prerequisites) {
-        edges = new ArrayList<List<Integer>>();
-        for (int i = 0; i < numCourses; ++i) {
-            edges.add(new ArrayList<Integer>());
-        }
-        indeg = new int[numCourses];
-        for (int[] info : prerequisites) {
-            edges.get(info[1]).add(info[0]);
-            ++indeg[info[0]];
-        }
-
-        Queue<Integer> queue = new LinkedList<Integer>();
-        for (int i = 0; i < numCourses; ++i) {
-            if (indeg[i] == 0) {
-                queue.offer(i);
-            }
-        }
-
-        int visited = 0;
-        while (!queue.isEmpty()) {
-            ++visited;
-            int u = queue.poll();
-            for (int v: edges.get(u)) {
-                --indeg[v];
-                if (indeg[v] == 0) {
-                    queue.offer(v);
-                }
-            }
-        }
-
-        return visited == numCourses;
-    }
-}
-```
-
-```Python
-class Solution:
-    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
-        edges = collections.defaultdict(list)
-        indeg = [0] * numCourses
-
-        for info in prerequisites:
-            edges[info[1]].append(info[0])
-            indeg[info[0]] += 1
-        
-        q = collections.deque([u for u in range(numCourses) if indeg[u] == 0])
-        visited = 0
-
-        while q:
-            visited += 1
-            u = q.popleft()
-            for v in edges[u]:
-                indeg[v] -= 1
-                if indeg[v] == 0:
-                    q.append(v)
-
-        return visited == numCourses
-```
-
-```C
-bool canFinish(int numCourses, int** prerequisites, int prerequisitesSize, int* prerequisitesColSize) {
-    int** edges = (int**)malloc(sizeof(int*) * numCourses);
-    for (int i = 0; i < numCourses; i++) {
-        edges[i] = (int*)malloc(0);
-    }
-    int edgeColSize[numCourses];
-    memset(edgeColSize, 0, sizeof(edgeColSize));
-    int indeg[numCourses];
-    memset(indeg, 0, sizeof(indeg));
-    for (int i = 0; i < prerequisitesSize; ++i) {
-        int a = prerequisites[i][1], b = prerequisites[i][0];
-        edgeColSize[a]++;
-        edges[a] = (int*)realloc(edges[a], sizeof(int) * edgeColSize[a]);
-        edges[a][edgeColSize[a] - 1] = b;
-        ++indeg[b];
-    }
-
-    int q[numCourses];
-    int l = 0, r = -1;
-    for (int i = 0; i < numCourses; ++i) {
-        if (indeg[i] == 0) {
-            q[++r] = i;
-        }
-    }
-
-    int visited = 0;
-    while (l <= r) {
-        ++visited;
-        int u = q[l++];
-        for (int i = 0; i < edgeColSize[u]; ++i) {
-            --indeg[edges[u][i]];
-            if (indeg[edges[u][i]] == 0) {
-                q[++r] = edges[u][i];
-            }
-        }
-    }
-    for (int i = 0; i < numCourses; i++) {
-        free(edges[i]);
-    }
-    free(edges);
-    return visited == numCourses;
-}
-
-```
-
-```golang
-func canFinish(numCourses int, prerequisites [][]int) bool {
-    var (
-        edges = make([][]int, numCourses)
-        indeg = make([]int, numCourses)
-        result []int
-    )
-
-    for _, info := range prerequisites {
-        edges[info[1]] = append(edges[info[1]], info[0])
-        indeg[info[0]]++
-    }
-
-    q := []int{}
-    for i := 0; i < numCourses; i++ {
-        if indeg[i] == 0 {
-            q = append(q, i)
-        }
-    }
-
-    for len(q) > 0 {
-        u := q[0]
-        q = q[1:]
-        result = append(result, u)
-        for _, v := range edges[u] {
-            indeg[v]--
-            if indeg[v] == 0 {
-                q = append(q, v)
-            }
-        }
-    }
-    return len(result) == numCourses
-}
 ```
 
 **复杂度分析**
@@ -3732,51 +1875,7 @@ public:
 
 在遍历链表时，将当前节点的 $\textit{next}$ 指针改为指向前一个节点。由于节点没有引用其前一个节点，因此必须事先存储其前一个节点。在更改引用之前，还需要存储后一个节点。最后返回新的头引用。
 
-```Java
-class Solution {
-    public ListNode reverseList(ListNode head) {
-        ListNode prev = null;
-        ListNode curr = head;
-        while (curr != null) {
-            ListNode next = curr.next;
-            curr.next = prev;
-            prev = curr;
-            curr = next;
-        }
-        return prev;
-    }
-}
-```
-
-```JavaScript
-var reverseList = function(head) {
-    let prev = null;
-    let curr = head;
-    while (curr) {
-        const next = curr.next;
-        curr.next = prev;
-        prev = curr;
-        curr = next;
-    }
-    return prev;
-};
-```
-
-```go
-func reverseList(head *ListNode) *ListNode {
-    var prev *ListNode
-    curr := head
-    for curr != nil {
-        next := curr.Next
-        curr.Next = prev
-        prev = curr
-        curr = next
-    }
-    return prev
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     ListNode* reverseList(ListNode* head) {
@@ -3791,20 +1890,6 @@ public:
         return prev;
     }
 };
-```
-
-```C
-struct ListNode* reverseList(struct ListNode* head) {
-    struct ListNode* prev = NULL;
-    struct ListNode* curr = head;
-    while (curr) {
-        struct ListNode* next = curr->next;
-        curr->next = prev;
-        prev = curr;
-        curr = next;
-    }
-    return prev;
-}
 ```
 
 **复杂度分析**
@@ -3830,45 +1915,7 @@ $$n_1\rightarrow \ldots \rightarrow n_{k-1} \rightarrow n_k \rightarrow n_{k+1} 
 
 需要注意的是 $n_1$ 的下一个节点必须指向 $\varnothing$。如果忽略了这一点，链表中可能会产生环。
 
-```Java
-class Solution {
-    public ListNode reverseList(ListNode head) {
-        if (head == null || head.next == null) {
-            return head;
-        }
-        ListNode newHead = reverseList(head.next);
-        head.next.next = head;
-        head.next = null;
-        return newHead;
-    }
-}
-```
-
-```JavaScript
-var reverseList = function(head) {
-    if (head == null || head.next == null) {
-        return head;
-    }
-    const newHead = reverseList(head.next);
-    head.next.next = head;
-    head.next = null;
-    return newHead;
-};
-```
-
-```go
-func reverseList(head *ListNode) *ListNode {
-    if head == nil || head.Next == nil {
-        return head
-    }
-    newHead := reverseList(head.Next)
-    head.Next.Next = head
-    head.Next = nil
-    return newHead
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     ListNode* reverseList(ListNode* head) {
@@ -3881,18 +1928,6 @@ public:
         return newHead;
     }
 };
-```
-
-```C
-struct ListNode* reverseList(struct ListNode* head) {
-    if (head == NULL || head->next == NULL) {
-        return head;
-    }
-    struct ListNode* newHead = reverseList(head->next);
-    head->next->next = head;
-    head->next = NULL;
-    return newHead;
-}
 ```
 
 **复杂度分析**
@@ -3978,7 +2013,7 @@ public:
 
 <![image.png](https://pic.leetcode.cn/5dae0de2a06f4eae5113f9cadfa5c51bbcf0b9347c5861aa73c93d7bc1d50b34-image.png),![image.png](https://pic.leetcode.cn/61a98091fe75de107bf886a608e87d5bb29d810b9e7eb1e00c541f49194ea543-image.png),![image.png](https://pic.leetcode.cn/6d060f275561dc390841f78d85124fd193efb0801ea2dc865b2767f1093e4f3a-image.png),![image.png](https://pic.leetcode.cn/233368eab82832268c3c7266fd7fe65c78626de9fd89cb90b3f36a7b4e52860d-image.png),![image.png](https://pic.leetcode.cn/bf055c3d5f6b310f6a110ada65d503de6d7793276f5638731c81c53b4276b835-image.png),![image.png](https://pic.leetcode.cn/195ba530a5350e0a8f8e372319d061c85316c1064017d5c00d7cfc2b0c055de6-image.png),![image.png](https://pic.leetcode.cn/c21a88bde9450ad83d6164c2df4677b16154fa5990408459a2a45982b9cd70fd-image.png),![image.png](https://pic.leetcode.cn/0cfddec2d15ed9a56c434f470ff07eb3dfc83dccbda0160583d1bce469077274-image.png)>
 
-```C++
+```cpp
 class Solution {
 private:
     void dfs(vector<vector<char>>& grid, int r, int c) {
@@ -4013,70 +2048,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    void dfs(char[][] grid, int r, int c) {
-        int nr = grid.length;
-        int nc = grid[0].length;
-
-        if (r < 0 || c < 0 || r >= nr || c >= nc || grid[r][c] == '0') {
-            return;
-        }
-
-        grid[r][c] = '0';
-        dfs(grid, r - 1, c);
-        dfs(grid, r + 1, c);
-        dfs(grid, r, c - 1);
-        dfs(grid, r, c + 1);
-    }
-
-    public int numIslands(char[][] grid) {
-        if (grid == null || grid.length == 0) {
-            return 0;
-        }
-
-        int nr = grid.length;
-        int nc = grid[0].length;
-        int num_islands = 0;
-        for (int r = 0; r < nr; ++r) {
-            for (int c = 0; c < nc; ++c) {
-                if (grid[r][c] == '1') {
-                    ++num_islands;
-                    dfs(grid, r, c);
-                }
-            }
-        }
-
-        return num_islands;
-    }
-}
-```
-
-```Python
-class Solution:
-    def dfs(self, grid, r, c):
-        grid[r][c] = 0
-        nr, nc = len(grid), len(grid[0])
-        for x, y in [(r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)]:
-            if 0 <= x < nr and 0 <= y < nc and grid[x][y] == "1":
-                self.dfs(grid, x, y)
-
-    def numIslands(self, grid: List[List[str]]) -> int:
-        nr = len(grid)
-        if nr == 0:
-            return 0
-        nc = len(grid[0])
-
-        num_islands = 0
-        for r in range(nr):
-            for c in range(nc):
-                if grid[r][c] == "1":
-                    num_islands += 1
-                    self.dfs(grid, r, c)
-        
-        return num_islands
-```
-
 **复杂度分析**
 
 * 时间复杂度：$O(MN)$，其中 $M$ 和 $N$ 分别为行数和列数。
@@ -4091,7 +2062,7 @@ class Solution:
 
 最终岛屿的数量就是我们进行广度优先搜索的次数。
 
-```C++
+```cpp
 class Solution {
 public:
     int numIslands(vector<vector<char>>& grid) {
@@ -4137,79 +2108,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int numIslands(char[][] grid) {
-        if (grid == null || grid.length == 0) {
-            return 0;
-        }
-
-        int nr = grid.length;
-        int nc = grid[0].length;
-        int num_islands = 0;
-
-        for (int r = 0; r < nr; ++r) {
-            for (int c = 0; c < nc; ++c) {
-                if (grid[r][c] == '1') {
-                    ++num_islands;
-                    grid[r][c] = '0';
-                    Queue<Integer> neighbors = new LinkedList<>();
-                    neighbors.add(r * nc + c);
-                    while (!neighbors.isEmpty()) {
-                        int id = neighbors.remove();
-                        int row = id / nc;
-                        int col = id % nc;
-                        if (row - 1 >= 0 && grid[row-1][col] == '1') {
-                            neighbors.add((row-1) * nc + col);
-                            grid[row-1][col] = '0';
-                        }
-                        if (row + 1 < nr && grid[row+1][col] == '1') {
-                            neighbors.add((row+1) * nc + col);
-                            grid[row+1][col] = '0';
-                        }
-                        if (col - 1 >= 0 && grid[row][col-1] == '1') {
-                            neighbors.add(row * nc + col-1);
-                            grid[row][col-1] = '0';
-                        }
-                        if (col + 1 < nc && grid[row][col+1] == '1') {
-                            neighbors.add(row * nc + col+1);
-                            grid[row][col+1] = '0';
-                        }
-                    }
-                }
-            }
-        }
-
-        return num_islands;
-    }
-}
-```
-
-```Python
-class Solution:
-    def numIslands(self, grid: List[List[str]]) -> int:
-        nr = len(grid)
-        if nr == 0:
-            return 0
-        nc = len(grid[0])
-
-        num_islands = 0
-        for r in range(nr):
-            for c in range(nc):
-                if grid[r][c] == "1":
-                    num_islands += 1
-                    grid[r][c] = "0"
-                    neighbors = collections.deque([(r, c)])
-                    while neighbors:
-                        row, col = neighbors.popleft()
-                        for x, y in [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]:
-                            if 0 <= x < nr and 0 <= y < nc and grid[x][y] == "1":
-                                neighbors.append((x, y))
-                                grid[x][y] = "0"
-        
-        return num_islands
-```
-
 **复杂度分析**
 
 * 时间复杂度：$O(MN)$，其中 $M$ 和 $N$ 分别为行数和列数。
@@ -4228,7 +2126,7 @@ class Solution:
 
 <![image.png](https://pic.leetcode.cn/41b6ce1794ba80a7a82b31dc4c0642b26ccd280457d254d2fdad37a1f5a73ca6-image.png),![image.png](https://pic.leetcode.cn/82fa6f7b52294fdd8a2f4a0a28d4ca2dd3d71e86e7ddf5fa5ef4b18a13d3c438-image.png),![image.png](https://pic.leetcode.cn/773a3ac931ca2b397b0ba6cac17a15a0dd21fe2d0f2887d6b90405d9025c3f85-image.png),![image.png](https://pic.leetcode.cn/6c1a18d84a24f74c18654e0f20b17c263646a9fad911e6bb227e665688abb037-image.png),![image.png](https://pic.leetcode.cn/1a35068b177ce3ed70de37d3e7a1fb3e91ba0e5588ab3e3633ddb963f3d64f68-image.png),![image.png](https://pic.leetcode.cn/6f35cbfc7410e54ec80f96af3123c5eed5e5b8f73e6a1cc2fa4aea0f911e919c-image.png)>
 
-```C++
+```cpp
 class UnionFind {
 public:
     UnionFind(vector<vector<char>>& grid) {
@@ -4303,142 +2201,6 @@ public:
         return uf.getCount();
     }
 };
-```
-
-```Java
-class Solution {
-    class UnionFind {
-        int count;
-        int[] parent;
-        int[] rank;
-
-        public UnionFind(char[][] grid) {
-            count = 0;
-            int m = grid.length;
-            int n = grid[0].length;
-            parent = new int[m * n];
-            rank = new int[m * n];
-            for (int i = 0; i < m; ++i) {
-                for (int j = 0; j < n; ++j) {
-                    if (grid[i][j] == '1') {
-                        parent[i * n + j] = i * n + j;
-                        ++count;
-                    }
-                    rank[i * n + j] = 0;
-                }
-            }
-        }
-
-        public int find(int i) {
-            if (parent[i] != i) parent[i] = find(parent[i]);
-            return parent[i];
-        }
-
-        public void union(int x, int y) {
-            int rootx = find(x);
-            int rooty = find(y);
-            if (rootx != rooty) {
-                if (rank[rootx] > rank[rooty]) {
-                    parent[rooty] = rootx;
-                } else if (rank[rootx] < rank[rooty]) {
-                    parent[rootx] = rooty;
-                } else {
-                    parent[rooty] = rootx;
-                    rank[rootx] += 1;
-                }
-                --count;
-            }
-        }
-
-        public int getCount() {
-            return count;
-        }
-    }
-
-    public int numIslands(char[][] grid) {
-        if (grid == null || grid.length == 0) {
-            return 0;
-        }
-
-        int nr = grid.length;
-        int nc = grid[0].length;
-        int num_islands = 0;
-        UnionFind uf = new UnionFind(grid);
-        for (int r = 0; r < nr; ++r) {
-            for (int c = 0; c < nc; ++c) {
-                if (grid[r][c] == '1') {
-                    grid[r][c] = '0';
-                    if (r - 1 >= 0 && grid[r-1][c] == '1') {
-                        uf.union(r * nc + c, (r-1) * nc + c);
-                    }
-                    if (r + 1 < nr && grid[r+1][c] == '1') {
-                        uf.union(r * nc + c, (r+1) * nc + c);
-                    }
-                    if (c - 1 >= 0 && grid[r][c-1] == '1') {
-                        uf.union(r * nc + c, r * nc + c - 1);
-                    }
-                    if (c + 1 < nc && grid[r][c+1] == '1') {
-                        uf.union(r * nc + c, r * nc + c + 1);
-                    }
-                }
-            }
-        }
-
-        return uf.getCount();
-    }
-}
-```
-
-```Python
-class UnionFind:
-    def __init__(self, grid):
-        m, n = len(grid), len(grid[0])
-        self.count = 0
-        self.parent = [-1] * (m * n)
-        self.rank = [0] * (m * n)
-        for i in range(m):
-            for j in range(n):
-                if grid[i][j] == "1":
-                    self.parent[i * n + j] = i * n + j
-                    self.count += 1
-    
-    def find(self, i):
-        if self.parent[i] != i:
-            self.parent[i] = self.find(self.parent[i])
-        return self.parent[i]
-    
-    def union(self, x, y):
-        rootx = self.find(x)
-        rooty = self.find(y)
-        if rootx != rooty:
-            if self.rank[rootx] < self.rank[rooty]:
-                rootx, rooty = rooty, rootx
-            self.parent[rooty] = rootx
-            if self.rank[rootx] == self.rank[rooty]:
-                self.rank[rootx] += 1
-            self.count -= 1
-    
-    def getCount(self):
-        return self.count
-
-class Solution:
-    def numIslands(self, grid: List[List[str]]) -> int:
-        nr = len(grid)
-        if nr == 0:
-            return 0
-        nc = len(grid[0])
-
-        uf = UnionFind(grid)
-        num_islands = 0
-        for r in range(nr):
-            for c in range(nc):
-                if grid[r][c] == "1":
-                    grid[r][c] = "0"
-                    for x, y in [(r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)]:
-                        if 0 <= x < nr and 0 <= y < nc and grid[x][y] == "1":
-                            uf.union(r * nc + c, x * nc + y)
-        
-        return uf.getCount()
 ```
 
 **复杂度分析**
@@ -4532,28 +2294,7 @@ $$
 
 <![fig1](https://assets.leetcode.cn/solution-static/198/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/198/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/198/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/198/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/198/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/198/6.PNG)>
 
-```Java
-class Solution {
-    public int rob(int[] nums) {
-        if (nums == null || nums.length == 0) {
-            return 0;
-        }
-        int length = nums.length;
-        if (length == 1) {
-            return nums[0];
-        }
-        int[] dp = new int[length];
-        dp[0] = nums[0];
-        dp[1] = Math.max(nums[0], nums[1]);
-        for (int i = 2; i < length; i++) {
-            dp[i] = Math.max(dp[i - 2] + nums[i], dp[i - 1]);
-        }
-        return dp[length - 1];
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int rob(vector<int>& nums) {
@@ -4575,74 +2316,9 @@ public:
 };
 ```
 
-```Python
-class Solution:
-    def rob(self, nums: List[int]) -> int:
-        if not nums:
-            return 0
-
-        size = len(nums)
-        if size == 1:
-            return nums[0]
-        
-        dp = [0] * size
-        dp[0] = nums[0]
-        dp[1] = max(nums[0], nums[1])
-        for i in range(2, size):
-            dp[i] = max(dp[i - 2] + nums[i], dp[i - 1])
-        
-        return dp[size - 1]
-```
-
-```golang
-func rob(nums []int) int {
-    if len(nums) == 0 {
-        return 0
-    }
-    if len(nums) == 1 {
-        return nums[0]
-    }
-    dp := make([]int, len(nums))
-    dp[0] = nums[0]
-    dp[1] = max(nums[0], nums[1])
-    for i := 2; i < len(nums); i++ {
-        dp[i] = max(dp[i-2] + nums[i], dp[i-1])
-    }
-    return dp[len(nums)-1]
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-```
-
 上述方法使用了数组存储结果。考虑到每间房屋的最高总金额只和该房屋的前两间房屋的最高总金额相关，因此可以使用滚动数组，在每个时刻只需要存储前两间房屋的最高总金额。
 
-```Java
-class Solution {
-    public int rob(int[] nums) {
-        if (nums == null || nums.length == 0) {
-            return 0;
-        }
-        int length = nums.length;
-        if (length == 1) {
-            return nums[0];
-        }
-        int first = nums[0], second = Math.max(nums[0], nums[1]);
-        for (int i = 2; i < length; i++) {
-            int temp = second;
-            second = Math.max(first + nums[i], second);
-            first = temp;
-        }
-        return second;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int rob(vector<int>& nums) {
@@ -4662,47 +2338,6 @@ public:
         return second;
     }
 };
-```
-
-```Python
-class Solution:
-    def rob(self, nums: List[int]) -> int:
-        if not nums:
-            return 0
-
-        size = len(nums)
-        if size == 1:
-            return nums[0]
-        
-        first, second = nums[0], max(nums[0], nums[1])
-        for i in range(2, size):
-            first, second = second, max(first + nums[i], second)
-        
-        return second
-```
-
-```golang
-func rob(nums []int) int {
-    if len(nums) == 0 {
-        return 0
-    }
-    if len(nums) == 1 {
-        return nums[0]
-    }
-    first := nums[0]
-    second := max(nums[0], nums[1])
-    for i := 2; i < len(nums); i++ {
-        first, second = second, max(first + nums[i], second)
-    }
-    return second
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -4779,43 +2414,7 @@ public:
 
 我们用一个循环遍历数组 `nums` 并将数组中的每个元素加入哈希映射中。在这之后，我们遍历哈希映射中的所有键值对，返回值最大的键。我们同样也可以在遍历数组 `nums` 时候使用打擂台的方法，维护最大的值，这样省去了最后对哈希映射的遍历。
 
-```Java
-class Solution {
-    private Map<Integer, Integer> countNums(int[] nums) {
-        Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
-        for (int num : nums) {
-            if (!counts.containsKey(num)) {
-                counts.put(num, 1);
-            } else {
-                counts.put(num, counts.get(num) + 1);
-            }
-        }
-        return counts;
-    }
-
-    public int majorityElement(int[] nums) {
-        Map<Integer, Integer> counts = countNums(nums);
-
-        Map.Entry<Integer, Integer> majorityEntry = null;
-        for (Map.Entry<Integer, Integer> entry : counts.entrySet()) {
-            if (majorityEntry == null || entry.getValue() > majorityEntry.getValue()) {
-                majorityEntry = entry;
-            }
-        }
-
-        return majorityEntry.getKey();
-    }
-}
-```
-
-```Python
-class Solution:
-    def majorityElement(self, nums: List[int]) -> int:
-        counts = collections.Counter(nums)
-        return max(counts.keys(), key=counts.get)
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int majorityElement(vector<int>& nums) {
@@ -4853,23 +2452,7 @@ public:
 
 对于每种情况，数组上面的线表示如果众数是数组中的最小值时覆盖的下标，数组下面的线表示如果众数是数组中的最大值时覆盖的下标。对于其他的情况，这条线会在这两种极端情况的中间。对于这两种极端情况，它们会在下标为 $\lfloor \dfrac{n}{2} \rfloor$ 的地方有重叠。因此，无论众数是多少，返回 $\lfloor \dfrac{n}{2} \rfloor$ 下标对应的值都是正确的。
 
-```Java
-class Solution {
-    public int majorityElement(int[] nums) {
-        Arrays.sort(nums);
-        return nums[nums.length / 2];
-    }
-}
-```
-
-```Python
-class Solution:
-    def majorityElement(self, nums: List[int]) -> int:
-        nums.sort()
-        return nums[len(nums) // 2]
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int majorityElement(vector<int>& nums) {
@@ -4895,48 +2478,7 @@ public:
 
 由于一个给定的下标对应的数字很有可能是众数，我们随机挑选一个下标，检查它是否是众数，如果是就返回，否则继续随机挑选。
 
-```Java
-class Solution {
-    private int randRange(Random rand, int min, int max) {
-        return rand.nextInt(max - min) + min;
-    }
-
-    private int countOccurences(int[] nums, int num) {
-        int count = 0;
-        for (int i = 0; i < nums.length; i++) {
-            if (nums[i] == num) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public int majorityElement(int[] nums) {
-        Random rand = new Random();
-
-        int majorityCount = nums.length / 2;
-
-        while (true) {
-            int candidate = nums[randRange(rand, 0, nums.length)];
-            if (countOccurences(nums, candidate) > majorityCount) {
-                return candidate;
-            }
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def majorityElement(self, nums: List[int]) -> int:
-        majority_count = len(nums) // 2
-        while True:
-            candidate = random.choice(nums)
-            if sum(1 for elem in nums if elem == candidate) > majority_count:
-                return candidate
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int majorityElement(vector<int>& nums) {
@@ -4984,76 +2526,7 @@ public:
 
 我们使用经典的分治算法递归求解，直到所有的子问题都是长度为 `1` 的数组。长度为 `1` 的子数组中唯一的数显然是众数，直接返回即可。如果回溯后某区间的长度大于 `1`，我们必须将左右子区间的值合并。如果它们的众数相同，那么显然这一段区间的众数是它们相同的值。否则，我们需要比较两个众数在整个区间内出现的次数来决定该区间的众数。
 
-```Java
-class Solution {
-    private int countInRange(int[] nums, int num, int lo, int hi) {
-        int count = 0;
-        for (int i = lo; i <= hi; i++) {
-            if (nums[i] == num) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private int majorityElementRec(int[] nums, int lo, int hi) {
-        // base case; the only element in an array of size 1 is the majority
-        // element.
-        if (lo == hi) {
-            return nums[lo];
-        }
-
-        // recurse on left and right halves of this slice.
-        int mid = (hi - lo) / 2 + lo;
-        int left = majorityElementRec(nums, lo, mid);
-        int right = majorityElementRec(nums, mid + 1, hi);
-
-        // if the two halves agree on the majority element, return it.
-        if (left == right) {
-            return left;
-        }
-
-        // otherwise, count each element and return the "winner".
-        int leftCount = countInRange(nums, left, lo, hi);
-        int rightCount = countInRange(nums, right, lo, hi);
-
-        return leftCount > rightCount ? left : right;
-    }
-
-    public int majorityElement(int[] nums) {
-        return majorityElementRec(nums, 0, nums.length - 1);
-    }
-}
-```
-
-```Python
-class Solution:
-    def majorityElement(self, nums: List[int]) -> int:
-        def majority_element_rec(lo, hi) -> int:
-            # base case; the only element in an array of size 1 is the majority
-            # element.
-            if lo == hi:
-                return nums[lo]
-
-            # recurse on left and right halves of this slice.
-            mid = (hi - lo) // 2 + lo
-            left = majority_element_rec(lo, mid)
-            right = majority_element_rec(mid + 1, hi)
-
-            # if the two halves agree on the majority element, return it.
-            if left == right:
-                return left
-
-            # otherwise, count each element and return the "winner".
-            left_count = sum(1 for i in range(lo, hi + 1) if nums[i] == left)
-            right_count = sum(1 for i in range(lo, hi + 1) if nums[i] == right)
-
-            return left if left_count > right_count else right
-
-        return majority_element_rec(0, len(nums) - 1)
-```
-
-```C++
+```cpp
 class Solution {
     int count_in_range(vector<int>& nums, int target, int lo, int hi) {
         int count = 0;
@@ -5174,39 +2647,7 @@ value:      1  2  1  2  1  0  -1  0  -1 -2 -1  0   1  2  3  4
 
 在最后一步遍历结束后，`count` 非负，`value` 为正数，所以它们不可能互为相反数，只可能相等，即 `count == value`。因此在最后「一段」中，`count` 的 `value` 的变化是同步的，也就是说，`candidate` 中存储的候选众数就是真正的众数 `maj`。
 
-```Java
-class Solution {
-    public int majorityElement(int[] nums) {
-        int count = 0;
-        Integer candidate = null;
-
-        for (int num : nums) {
-            if (count == 0) {
-                candidate = num;
-            }
-            count += (num == candidate) ? 1 : -1;
-        }
-
-        return candidate;
-    }
-}
-```
-
-```Python
-class Solution:
-    def majorityElement(self, nums: List[int]) -> int:
-        count = 0
-        candidate = None
-
-        for num in nums:
-            if count == 0:
-                candidate = num
-            count += (1 if num == candidate else -1)
-
-        return candidate
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int majorityElement(vector<int>& nums) {
@@ -5311,7 +2752,7 @@ public:
 
 <![fig1](https://assets.leetcode.cn/solution-static/238/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/238/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/238/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/238/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/238/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/238/6.PNG),![fig7](https://assets.leetcode.cn/solution-static/238/7.PNG),![fig8](https://assets.leetcode.cn/solution-static/238/8.PNG),![fig9](https://assets.leetcode.cn/solution-static/238/9.PNG),![fig10](https://assets.leetcode.cn/solution-static/238/10.PNG)>
 
-```C++
+```cpp
 class Solution {
 public:
     vector<int> productExceptSelf(vector<int>& nums) {
@@ -5343,130 +2784,6 @@ public:
 
         return answer;
     }
-};
-```
-
-```python
-class Solution:
-    def productExceptSelf(self, nums: List[int]) -> List[int]:
-        length = len(nums)
-        
-        # L 和 R 分别表示左右两侧的乘积列表
-        L, R, answer = [0]*length, [0]*length, [0]*length
-        
-        # L[i] 为索引 i 左侧所有元素的乘积
-        # 对于索引为 '0' 的元素，因为左侧没有元素，所以 L[0] = 1
-        L[0] = 1
-        for i in range(1, length):
-            L[i] = nums[i - 1] * L[i - 1]
-        
-        # R[i] 为索引 i 右侧所有元素的乘积
-        # 对于索引为 'length-1' 的元素，因为右侧没有元素，所以 R[length-1] = 1
-        R[length - 1] = 1
-        for i in reversed(range(length - 1)):
-            R[i] = nums[i + 1] * R[i + 1]
-
-        # 对于索引 i，除 nums[i] 之外其余各元素的乘积就是左侧所有元素的乘积乘以右侧所有元素的乘积
-        for i in range(length):
-            answer[i] = L[i] * R[i]
-        
-        return answer
-```
-
-```java
-class Solution {
-    public int[] productExceptSelf(int[] nums) {
-        int length = nums.length;
-
-        // L 和 R 分别表示左右两侧的乘积列表
-        int[] L = new int[length];
-        int[] R = new int[length];
-
-        int[] answer = new int[length];
-
-        // L[i] 为索引 i 左侧所有元素的乘积
-        // 对于索引为 '0' 的元素，因为左侧没有元素，所以 L[0] = 1
-        L[0] = 1;
-        for (int i = 1; i < length; i++) {
-            L[i] = nums[i - 1] * L[i - 1];
-        }
-
-        // R[i] 为索引 i 右侧所有元素的乘积
-        // 对于索引为 'length-1' 的元素，因为右侧没有元素，所以 R[length-1] = 1
-        R[length - 1] = 1;
-        for (int i = length - 2; i >= 0; i--) {
-            R[i] = nums[i + 1] * R[i + 1];
-        }
-
-        // 对于索引 i，除 nums[i] 之外其余各元素的乘积就是左侧所有元素的乘积乘以右侧所有元素的乘积
-        for (int i = 0; i < length; i++) {
-            answer[i] = L[i] * R[i];
-        }
-
-        return answer;
-    }
-}
-```
-
-```golang
-func productExceptSelf(nums []int) []int {
-    length := len(nums)
-
-    // L 和 R 分别表示左右两侧的乘积列表
-    L, R, answer := make([]int, length), make([]int, length), make([]int, length)
-
-    // L[i] 为索引 i 左侧所有元素的乘积
-    // 对于索引为 '0' 的元素，因为左侧没有元素，所以 L[0] = 1
-    L[0] = 1
-    for i := 1; i < length; i++ {
-        L[i] = nums[i-1] * L[i-1]
-    }
-
-    // R[i] 为索引 i 右侧所有元素的乘积
-    // 对于索引为 'length-1' 的元素，因为右侧没有元素，所以 R[length-1] = 1
-    R[length-1] = 1
-    for i := length - 2; i >= 0; i-- {
-        R[i] = nums[i+1] * R[i+1]
-    }
-    
-    // 对于索引 i，除 nums[i] 之外其余各元素的乘积就是左侧所有元素的乘积乘以右侧所有元素的乘积
-    for i := 0; i < length; i++ {
-        answer[i] = L[i] * R[i]
-    }
-    return answer
-}
-```
-
-```TypeScript
-var productExceptSelf = function(nums: number[]): number[] {
-    const length = nums.length;
-
-    // L 和 R 分别表示左右两侧的乘积列表
-    const L = new Array<number>(length);
-    const R = new Array<number>(length);
-
-    const answer = new Array<number>(length);
-
-    // L[i] 为索引 i 左侧所有元素的乘积
-    // 对于索引为 '0' 的元素，因为左侧没有元素，所以 L[0] = 1
-    L[0] = 1;
-    for (let i = 1; i < length; i++) {
-        L[i] = nums[i - 1] * L[i - 1];
-    }
-
-    // R[i] 为索引 i 右侧所有元素的乘积
-    // 对于索引为 'length-1' 的元素，因为右侧没有元素，所以 R[length-1] = 1
-    R[length - 1] = 1;
-    for (let i = length - 2; i >= 0; i--) {
-        R[i] = nums[i + 1] * R[i + 1];
-    }
-
-    // 对于索引 i，除 nums[i] 之外其余各元素的乘积就是左侧所有元素的乘积乘以右侧所有元素的乘积
-    for (let i = 0; i < length; i++) {
-        answer[i] = L[i] * R[i];
-    }
-
-    return answer;
 };
 ```
 
@@ -5514,107 +2831,6 @@ public:
         }
         return answer;
     }
-};
-```
-
-```python
-class Solution:
-    def productExceptSelf(self, nums: List[int]) -> List[int]:
-        length = len(nums)
-        answer = [0]*length
-        
-        # answer[i] 表示索引 i 左侧所有元素的乘积
-        # 因为索引为 '0' 的元素左侧没有元素， 所以 answer[0] = 1
-        answer[0] = 1
-        for i in range(1, length):
-            answer[i] = nums[i - 1] * answer[i - 1]
-        
-        # R 为右侧所有元素的乘积
-        # 刚开始右边没有元素，所以 R = 1
-        R = 1;
-        for i in reversed(range(length)):
-            # 对于索引 i，左边的乘积为 answer[i]，右边的乘积为 R
-            answer[i] = answer[i] * R
-            # R 需要包含右边所有的乘积，所以计算下一个结果时需要将当前值乘到 R 上
-            R *= nums[i]
-        
-        return answer
-```
-
-```java
-class Solution {
-    public int[] productExceptSelf(int[] nums) {
-        int length = nums.length;
-        int[] answer = new int[length];
-
-        // answer[i] 表示索引 i 左侧所有元素的乘积
-        // 因为索引为 '0' 的元素左侧没有元素， 所以 answer[0] = 1
-        answer[0] = 1;
-        for (int i = 1; i < length; i++) {
-            answer[i] = nums[i - 1] * answer[i - 1];
-        }
-
-        // R 为右侧所有元素的乘积
-        // 刚开始右边没有元素，所以 R = 1
-        int R = 1;
-        for (int i = length - 1; i >= 0; i--) {
-            // 对于索引 i，左边的乘积为 answer[i]，右边的乘积为 R
-            answer[i] = answer[i] * R;
-            // R 需要包含右边所有的乘积，所以计算下一个结果时需要将当前值乘到 R 上
-            R *= nums[i];
-        }
-        return answer;
-    }
-}
-```
-
-```golang
-func productExceptSelf(nums []int) []int {
-    length := len(nums)
-    answer := make([]int, length)
-
-    // answer[i] 表示索引 i 左侧所有元素的乘积
-    // 因为索引为 '0' 的元素左侧没有元素， 所以 answer[0] = 1
-    answer[0] = 1
-    for i := 1; i < length; i++ {
-        answer[i] = nums[i-1] * answer[i-1]
-    }
-
-    // R 为右侧所有元素的乘积
-    // 刚开始右边没有元素，所以 R = 1
-    R := 1
-    for i := length - 1; i >= 0; i-- {
-        // 对于索引 i，左边的乘积为 answer[i]，右边的乘积为 R
-        answer[i] = answer[i] * R
-        // R 需要包含右边所有的乘积，所以计算下一个结果时需要将当前值乘到 R 上
-        R *= nums[i]
-    }
-    return answer
-}
-```
-
-```TypeScript
-var productExceptSelf = function(nums: number[]): number[] {
-    const length = nums.length;
-    const answer = new Array<number>(length);
-
-    // answer[i] 表示索引 i 左侧所有元素的乘积
-    // 因为索引为 '0' 的元素左侧没有元素， 所以 answer[0] = 1
-    answer[0] = 1;
-    for (let i = 1; i < length; i++) {
-        answer[i] = nums[i - 1] * answer[i - 1];
-    }
-
-    // R 为右侧所有元素的乘积
-    // 刚开始右边没有元素，所以 R = 1
-    let R = 1;
-    for (let i = length - 1; i >= 0; i--) {
-        // 对于索引 i，左边的乘积为 answer[i]，右边的乘积为 R
-        answer[i] = answer[i] * R;
-        // R 需要包含右边所有的乘积，所以计算下一个结果时需要将当前值乘到 R 上
-        R *= nums[i];
-    }
-    return answer;
 };
 ```
 
@@ -5736,28 +2952,7 @@ public:
 
 - 在任意一个时刻，栈内元素的最小值就存储在辅助栈的栈顶元素中。
 
-```Python
-class MinStack:
-    def __init__(self):
-        self.stack = []
-        self.min_stack = [math.inf]
-
-    def push(self, x: int) -> None:
-        self.stack.append(x)
-        self.min_stack.append(min(x, self.min_stack[-1]))
-
-    def pop(self) -> None:
-        self.stack.pop()
-        self.min_stack.pop()
-
-    def top(self) -> int:
-        return self.stack[-1]
-
-    def getMin(self) -> int:
-        return self.min_stack[-1]
-```
-
-```C++
+```cpp
 class MinStack {
     stack<int> x_stack;
     stack<int> min_stack;
@@ -5784,102 +2979,6 @@ public:
         return min_stack.top();
     }
 };
-```
-
-```Java
-class MinStack {
-    Deque<Integer> xStack;
-    Deque<Integer> minStack;
-
-    public MinStack() {
-        xStack = new LinkedList<Integer>();
-        minStack = new LinkedList<Integer>();
-        minStack.push(Integer.MAX_VALUE);
-    }
-    
-    public void push(int x) {
-        xStack.push(x);
-        minStack.push(Math.min(minStack.peek(), x));
-    }
-    
-    public void pop() {
-        xStack.pop();
-        minStack.pop();
-    }
-    
-    public int top() {
-        return xStack.peek();
-    }
-    
-    public int getMin() {
-        return minStack.peek();
-    }
-}
-```
-
-```JavaScript
-var MinStack = function() {
-    this.x_stack = [];
-    this.min_stack = [Infinity];
-};
-
-MinStack.prototype.push = function(x) {
-    this.x_stack.push(x);
-    this.min_stack.push(Math.min(this.min_stack[this.min_stack.length - 1], x));
-};
-
-MinStack.prototype.pop = function() {
-    this.x_stack.pop();
-    this.min_stack.pop();
-};
-
-MinStack.prototype.top = function() {
-    return this.x_stack[this.x_stack.length - 1];
-};
-
-MinStack.prototype.getMin = function() {
-    return this.min_stack[this.min_stack.length - 1];
-};
-```
-
-```golang
-type MinStack struct {
-    stack []int
-    minStack []int
-}
-
-func Constructor() MinStack {
-    return MinStack{
-        stack: []int{},
-        minStack: []int{math.MaxInt64},
-    }
-}
-
-func (this *MinStack) Push(x int)  {
-    this.stack = append(this.stack, x)
-    top := this.minStack[len(this.minStack)-1]
-    this.minStack = append(this.minStack, min(x, top))
-}
-
-func (this *MinStack) Pop()  {
-    this.stack = this.stack[:len(this.stack)-1]
-    this.minStack = this.minStack[:len(this.minStack)-1]
-}
-
-func (this *MinStack) Top() int {
-    return this.stack[len(this.stack)-1]
-}
-
-func (this *MinStack) GetMin() int {
-    return this.minStack[len(this.minStack)-1]
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -5987,32 +3086,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int maxProduct(int[] nums) {
-        int length = nums.length;
-        long[] maxF = new long[length];
-        long[] minF = new long[length];
-        for (int i = 0; i < length; i++) {
-            maxF[i] = nums[i];
-            minF[i] = nums[i];
-        }
-        for (int i = 1; i < length; ++i) {
-            maxF[i] = Math.max(maxF[i - 1] * nums[i], Math.max(nums[i], minF[i - 1] * nums[i]));
-            minF[i] = Math.min(minF[i - 1] * nums[i], Math.min(nums[i], maxF[i - 1] * nums[i]));
-            if (minF[i] < (-1 << 31)) {
-                minF[i] = nums[i];
-            }
-        }
-        int ans = (int) maxF[0];
-        for (int i = 1; i < length; ++i) {
-            ans = Math.max(ans, (int) maxF[i]);
-        }
-        return ans;
-    }
-}
-```
-
 易得这里的渐进时间复杂度和渐进空间复杂度都是 $O(n)$。
 
 **考虑优化空间。** 
@@ -6038,56 +3111,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public int maxProduct(int[] nums) {
-        long maxF = nums[0], minF = nums[0];
-        int ans = nums[0];
-        int length = nums.length;
-        for (int i = 1; i < length; ++i) {
-            long mx = maxF, mn = minF;
-            maxF = Math.max(mx * nums[i], Math.max(nums[i], mn * nums[i]));
-            minF = Math.min(mn * nums[i], Math.min(nums[i], mx * nums[i]));
-            if(minF<-1<<31){
-                minF=nums[i];
-            }
-            ans = Math.max((int)maxF, ans);
-        }
-        return ans;
-    }
-}
-```
-
-```golang
-func maxProduct(nums []int) int {
-    maxF, minF, ans := nums[0], nums[0], nums[0]
-    for i := 1; i < len(nums); i++ {
-        mx, mn := maxF, minF
-        maxF = max(mx * nums[i], max(nums[i], mn * nums[i]))
-        minF = min(mn * nums[i], min(nums[i], mx * nums[i]))
-        if minF<(-1<<31){
-            minF=nums[i]
-        }
-        ans = max(maxF, ans)
-    }
-    return ans
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -6185,59 +3208,7 @@ public:
 
 上述过程可以通过递归实现。递归的终止条件是链表的节点个数小于或等于 $1$，即当链表为空或者链表只包含 $1$ 个节点时，不需要对链表进行拆分和排序。
 
-```Java
-class Solution {
-    public ListNode sortList(ListNode head) {
-        return sortList(head, null);
-    }
-
-    public ListNode sortList(ListNode head, ListNode tail) {
-        if (head == null) {
-            return head;
-        }
-        if (head.next == tail) {
-            head.next = null;
-            return head;
-        }
-        ListNode slow = head, fast = head;
-        while (fast != tail) {
-            slow = slow.next;
-            fast = fast.next;
-            if (fast != tail) {
-                fast = fast.next;
-            }
-        }
-        ListNode mid = slow;
-        ListNode list1 = sortList(head, mid);
-        ListNode list2 = sortList(mid, tail);
-        ListNode sorted = merge(list1, list2);
-        return sorted;
-    }
-
-    public ListNode merge(ListNode head1, ListNode head2) {
-        ListNode dummyHead = new ListNode(0);
-        ListNode temp = dummyHead, temp1 = head1, temp2 = head2;
-        while (temp1 != null && temp2 != null) {
-            if (temp1.val <= temp2.val) {
-                temp.next = temp1;
-                temp1 = temp1.next;
-            } else {
-                temp.next = temp2;
-                temp2 = temp2.next;
-            }
-            temp = temp.next;
-        }
-        if (temp1 != null) {
-            temp.next = temp1;
-        } else if (temp2 != null) {
-            temp.next = temp2;
-        }
-        return dummyHead.next;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     ListNode* sortList(ListNode* head) {
@@ -6287,189 +3258,6 @@ public:
 };
 ```
 
-```JavaScript
-const merge = (head1, head2) => {
-    const dummyHead = new ListNode(0);
-    let temp = dummyHead, temp1 = head1, temp2 = head2;
-    while (temp1 !== null && temp2 !== null) {
-        if (temp1.val <= temp2.val) {
-            temp.next = temp1;
-            temp1 = temp1.next;
-        } else {
-            temp.next = temp2;
-            temp2 = temp2.next;
-        }
-        temp = temp.next;
-    }
-    if (temp1 !== null) {
-        temp.next = temp1;
-    } else if (temp2 !== null) {
-        temp.next = temp2;
-    }
-    return dummyHead.next;
-}
-
-const toSortList = (head, tail) => {
-    if (head === null) {
-        return head;
-    }
-    if (head.next === tail) {
-        head.next = null;
-        return head;
-    }
-    let slow = head, fast = head;
-    while (fast !== tail) {
-        slow = slow.next;
-        fast = fast.next;
-        if (fast !== tail) {
-            fast = fast.next;
-        }
-    }
-    const mid = slow;
-    return merge(toSortList(head, mid), toSortList(mid, tail));
-}
-
-var sortList = function(head) {
-    return toSortList(head, null);
-};
-```
-
-```Python
-class Solution:
-    def sortList(self, head: ListNode) -> ListNode:
-        def sortFunc(head: ListNode, tail: ListNode) -> ListNode:
-            if not head:
-                return head
-            if head.next == tail:
-                head.next = None
-                return head
-            slow = fast = head
-            while fast != tail:
-                slow = slow.next
-                fast = fast.next
-                if fast != tail:
-                    fast = fast.next
-            mid = slow
-            return merge(sortFunc(head, mid), sortFunc(mid, tail))
-            
-        def merge(head1: ListNode, head2: ListNode) -> ListNode:
-            dummyHead = ListNode(0)
-            temp, temp1, temp2 = dummyHead, head1, head2
-            while temp1 and temp2:
-                if temp1.val <= temp2.val:
-                    temp.next = temp1
-                    temp1 = temp1.next
-                else:
-                    temp.next = temp2
-                    temp2 = temp2.next
-                temp = temp.next
-            if temp1:
-                temp.next = temp1
-            elif temp2:
-                temp.next = temp2
-            return dummyHead.next
-        
-        return sortFunc(head, None)
-```
-
-```Golang
-func merge(head1, head2 *ListNode) *ListNode {
-    dummyHead := &ListNode{}
-    temp, temp1, temp2 := dummyHead, head1, head2
-    for temp1 != nil && temp2 != nil {
-        if temp1.Val <= temp2.Val {
-            temp.Next = temp1
-            temp1 = temp1.Next
-        } else {
-            temp.Next = temp2
-            temp2 = temp2.Next
-        }
-        temp = temp.Next
-    }
-    if temp1 != nil {
-        temp.Next = temp1
-    } else if temp2 != nil {
-        temp.Next = temp2
-    }
-    return dummyHead.Next
-}
-
-func sort(head, tail *ListNode) *ListNode {
-    if head == nil {
-        return head
-    }
-
-    if head.Next == tail {
-        head.Next = nil
-        return head
-    }
-
-    slow, fast := head, head
-    for fast != tail {
-        slow = slow.Next
-        fast = fast.Next
-        if fast != tail {
-            fast = fast.Next
-        }
-    }
-
-    mid := slow
-    return merge(sort(head, mid), sort(mid, tail))
-}
-
-func sortList(head *ListNode) *ListNode {
-    return sort(head, nil)
-}
-```
-
-```C
-struct ListNode* merge(struct ListNode* head1, struct ListNode* head2) {
-    struct ListNode* dummyHead = malloc(sizeof(struct ListNode));
-    dummyHead->val = 0;
-    struct ListNode *temp = dummyHead, *temp1 = head1, *temp2 = head2;
-    while (temp1 != NULL && temp2 != NULL) {
-        if (temp1->val <= temp2->val) {
-            temp->next = temp1;
-            temp1 = temp1->next;
-        } else {
-            temp->next = temp2;
-            temp2 = temp2->next;
-        }
-        temp = temp->next;
-    }
-    if (temp1 != NULL) {
-        temp->next = temp1;
-    } else if (temp2 != NULL) {
-        temp->next = temp2;
-    }
-    return dummyHead->next;
-}
-
-struct ListNode* toSortList(struct ListNode* head, struct ListNode* tail) {
-    if (head == NULL) {
-        return head;
-    }
-    if (head->next == tail) {
-        head->next = NULL;
-        return head;
-    }
-    struct ListNode *slow = head, *fast = head;
-    while (fast != tail) {
-        slow = slow->next;
-        fast = fast->next;
-        if (fast != tail) {
-            fast = fast->next;
-        }
-    }
-    struct ListNode* mid = slow;
-    return merge(toSortList(head, mid), toSortList(mid, tail));
-}
-
-struct ListNode* sortList(struct ListNode* head) {
-    return toSortList(head, NULL);
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n \log n)$，其中 $n$ 是链表的长度。
@@ -6500,72 +3288,7 @@ struct ListNode* sortList(struct ListNode* head) {
 
 因此可以保证最后得到的链表是有序的。
 
-```Java
-class Solution {
-    public ListNode sortList(ListNode head) {
-        if (head == null) {
-            return head;
-        }
-        int length = 0;
-        ListNode node = head;
-        while (node != null) {
-            length++;
-            node = node.next;
-        }
-        ListNode dummyHead = new ListNode(0, head);
-        for (int subLength = 1; subLength < length; subLength <<= 1) {
-            ListNode prev = dummyHead, curr = dummyHead.next;
-            while (curr != null) {
-                ListNode head1 = curr;
-                for (int i = 1; i < subLength && curr.next != null; i++) {
-                    curr = curr.next;
-                }
-                ListNode head2 = curr.next;
-                curr.next = null;
-                curr = head2;
-                for (int i = 1; i < subLength && curr != null && curr.next != null; i++) {
-                    curr = curr.next;
-                }
-                ListNode next = null;
-                if (curr != null) {
-                    next = curr.next;
-                    curr.next = null;
-                }
-                ListNode merged = merge(head1, head2);
-                prev.next = merged;
-                while (prev.next != null) {
-                    prev = prev.next;
-                }
-                curr = next;
-            }
-        }
-        return dummyHead.next;
-    }
-
-    public ListNode merge(ListNode head1, ListNode head2) {
-        ListNode dummyHead = new ListNode(0);
-        ListNode temp = dummyHead, temp1 = head1, temp2 = head2;
-        while (temp1 != null && temp2 != null) {
-            if (temp1.val <= temp2.val) {
-                temp.next = temp1;
-                temp1 = temp1.next;
-            } else {
-                temp.next = temp2;
-                temp2 = temp2.next;
-            }
-            temp = temp.next;
-        }
-        if (temp1 != null) {
-            temp.next = temp1;
-        } else if (temp2 != null) {
-            temp.next = temp2;
-        }
-        return dummyHead.next;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     ListNode* sortList(ListNode* head) {
@@ -6629,265 +3352,6 @@ public:
         return dummyHead->next;
     }
 };
-```
-
-```JavaScript
-const merge = (head1, head2) => {
-    const dummyHead = new ListNode(0);
-    let temp = dummyHead, temp1 = head1, temp2 = head2;
-    while (temp1 !== null && temp2 !== null) {
-        if (temp1.val <= temp2.val) {
-            temp.next = temp1;
-            temp1 = temp1.next;
-        } else {
-            temp.next = temp2;
-            temp2 = temp2.next;
-        }
-        temp = temp.next;
-    }
-    if (temp1 !== null) {
-        temp.next = temp1;
-    } else if (temp2 !== null) {
-        temp.next = temp2;
-    }
-    return dummyHead.next;
-}
-
-var sortList = function(head) {
-    if (head === null) {
-        return head;
-    }
-    let length = 0;
-    let node = head;
-    while (node !== null) {
-        length++;
-        node = node.next;
-    }
-    const dummyHead = new ListNode(0, head);
-    for (let subLength = 1; subLength < length; subLength <<= 1) {
-        let prev = dummyHead, curr = dummyHead.next;
-        while (curr !== null) {
-            let head1 = curr;
-            for (let i = 1; i < subLength && curr.next !== null; i++) {
-                curr = curr.next;
-            }
-            let head2 = curr.next;
-            curr.next = null;
-            curr = head2;
-            for (let i = 1; i < subLength && curr != null && curr.next !== null; i++) {
-                curr = curr.next;
-            }
-            let next = null;
-            if (curr !== null) {
-                next = curr.next;
-                curr.next = null;
-            }
-            const merged = merge(head1, head2);
-            prev.next = merged;
-            while (prev.next !== null) {
-                prev = prev.next;
-            }
-            curr = next;
-        }
-    }
-    return dummyHead.next;
-};
-```
-
-```Python
-class Solution:
-    def sortList(self, head: ListNode) -> ListNode:
-        def merge(head1: ListNode, head2: ListNode) -> ListNode:
-            dummyHead = ListNode(0)
-            temp, temp1, temp2 = dummyHead, head1, head2
-            while temp1 and temp2:
-                if temp1.val <= temp2.val:
-                    temp.next = temp1
-                    temp1 = temp1.next
-                else:
-                    temp.next = temp2
-                    temp2 = temp2.next
-                temp = temp.next
-            if temp1:
-                temp.next = temp1
-            elif temp2:
-                temp.next = temp2
-            return dummyHead.next
-        
-        if not head:
-            return head
-        
-        length = 0
-        node = head
-        while node:
-            length += 1
-            node = node.next
-        
-        dummyHead = ListNode(0, head)
-        subLength = 1
-        while subLength < length:
-            prev, curr = dummyHead, dummyHead.next
-            while curr:
-                head1 = curr
-                for i in range(1, subLength):
-                    if curr.next:
-                        curr = curr.next
-                    else:
-                        break
-                head2 = curr.next
-                curr.next = None
-                curr = head2
-                for i in range(1, subLength):
-                    if curr and curr.next:
-                        curr = curr.next
-                    else:
-                        break
-                
-                succ = None
-                if curr:
-                    succ = curr.next
-                    curr.next = None
-                
-                merged = merge(head1, head2)
-                prev.next = merged
-                while prev.next:
-                    prev = prev.next
-                curr = succ
-            subLength <<= 1
-        
-        return dummyHead.next
-```
-
-```Golang
-func merge(head1, head2 *ListNode) *ListNode {
-    dummyHead := &ListNode{}
-    temp, temp1, temp2 := dummyHead, head1, head2
-    for temp1 != nil && temp2 != nil {
-        if temp1.Val <= temp2.Val {
-            temp.Next = temp1
-            temp1 = temp1.Next
-        } else {
-            temp.Next = temp2
-            temp2 = temp2.Next
-        }
-        temp = temp.Next
-    }
-    if temp1 != nil {
-        temp.Next = temp1
-    } else if temp2 != nil {
-        temp.Next = temp2
-    }
-    return dummyHead.Next
-}
-
-func sortList(head *ListNode) *ListNode {
-    if head == nil {
-        return head
-    }
-
-    length := 0
-    for node := head; node != nil; node = node.Next {
-        length++
-    }
-
-    dummyHead := &ListNode{Next: head}
-    for subLength := 1; subLength < length; subLength <<= 1 {
-        prev, cur := dummyHead, dummyHead.Next
-        for cur != nil {
-            head1 := cur
-            for i := 1; i < subLength && cur.Next != nil; i++ {
-                cur = cur.Next
-            }
-
-            head2 := cur.Next
-            cur.Next = nil
-            cur = head2
-            for i := 1; i < subLength && cur != nil && cur.Next != nil; i++ {
-                cur = cur.Next
-            }
-
-            var next *ListNode
-            if cur != nil {
-                next = cur.Next
-                cur.Next = nil
-            }
-
-            prev.Next = merge(head1, head2)
-
-            for prev.Next != nil {
-                prev = prev.Next
-            }
-            cur = next
-        }
-    }
-    return dummyHead.Next
-}
-```
-
-```C
-struct ListNode* merge(struct ListNode* head1, struct ListNode* head2) {
-    struct ListNode* dummyHead = malloc(sizeof(struct ListNode));
-    dummyHead->val = 0;
-    struct ListNode *temp = dummyHead, *temp1 = head1, *temp2 = head2;
-    while (temp1 != NULL && temp2 != NULL) {
-        if (temp1->val <= temp2->val) {
-            temp->next = temp1;
-            temp1 = temp1->next;
-        } else {
-            temp->next = temp2;
-            temp2 = temp2->next;
-        }
-        temp = temp->next;
-    }
-    if (temp1 != NULL) {
-        temp->next = temp1;
-    } else if (temp2 != NULL) {
-        temp->next = temp2;
-    }
-    return dummyHead->next;
-}
-
-struct ListNode* sortList(struct ListNode* head) {
-    if (head == NULL) {
-        return head;
-    }
-    int length = 0;
-    struct ListNode* node = head;
-    while (node != NULL) {
-        length++;
-        node = node->next;
-    }
-    struct ListNode* dummyHead = malloc(sizeof(struct ListNode));
-    dummyHead->next = head;
-    for (int subLength = 1; subLength < length; subLength <<= 1) {
-        struct ListNode *prev = dummyHead, *curr = dummyHead->next;
-        while (curr != NULL) {
-            struct ListNode* head1 = curr;
-            for (int i = 1; i < subLength && curr->next != NULL; i++) {
-                curr = curr->next;
-            }
-            struct ListNode* head2 = curr->next;
-            curr->next = NULL;
-            curr = head2;
-            for (int i = 1; i < subLength && curr != NULL && curr->next != NULL;
-                 i++) {
-                curr = curr->next;
-            }
-            struct ListNode* next = NULL;
-            if (curr != NULL) {
-                next = curr->next;
-                curr->next = NULL;
-            }
-            struct ListNode* merged = merge(head1, head2);
-            prev->next = merged;
-            while (prev->next != NULL) {
-                prev = prev->next;
-            }
-            curr = next;
-        }
-    }
-    return dummyHead->next;
-}
 ```
 
 **复杂度分析**
@@ -6981,51 +3445,6 @@ public:
 
 实现本题的两种操作，需要用到一个哈希表和一个双向链表。在面试中，面试官一般会期望读者能够自己实现一个简单的双向链表，而不是使用语言自带的、封装好的数据结构。在 `Python` 语言中，有一种结合了哈希表与双向链表的数据结构 `OrderedDict`，只需要短短的几行代码就可以完成本题。在 `Java` 语言中，同样有类似的数据结构 `LinkedHashMap`。这些做法都不会符合面试官的要求，因此下面只给出使用封装好的数据结构实现的代码，而不多做任何阐述。
 
-```Python
-class LRUCache(collections.OrderedDict):
-
-    def __init__(self, capacity: int):
-        super().__init__()
-        self.capacity = capacity
-
-    def get(self, key: int) -> int:
-        if key not in self:
-            return -1
-        self.move_to_end(key)
-        return self[key]
-
-    def put(self, key: int, value: int) -> None:
-        if key in self:
-            self.move_to_end(key)
-        self[key] = value
-        if len(self) > self.capacity:
-            self.popitem(last=False)
-```
-
-```Java
-class LRUCache extends LinkedHashMap<Integer, Integer>{
-    private int capacity;
-    
-    public LRUCache(int capacity) {
-        super(capacity, 0.75F, true);
-        this.capacity = capacity;
-    }
-
-    public int get(int key) {
-        return super.getOrDefault(key, -1);
-    }
-
-    public void put(int key, int value) {
-        super.put(key, value);
-    }
-
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
-        return size() > capacity; 
-    }
-}
-```
-
 #### 方法一：哈希表 + 双向链表
 
 **算法**
@@ -7058,162 +3477,7 @@ LRU 缓存机制可以通过哈希表辅以双向链表实现，我们用一个�
 
 <![fig1](https://assets.leetcode.cn/solution-static/146/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/146/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/146/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/146/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/146/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/146/6.PNG),![fig7](https://assets.leetcode.cn/solution-static/146/7.PNG),![fig8](https://assets.leetcode.cn/solution-static/146/8.PNG),![fig9](https://assets.leetcode.cn/solution-static/146/9.PNG),![fig10](https://assets.leetcode.cn/solution-static/146/10.PNG)>
 
-```Python
-class DLinkedNode:
-    def __init__(self, key=0, value=0):
-        self.key = key
-        self.value = value
-        self.prev = None
-        self.next = None
-
-class LRUCache:
-
-    def __init__(self, capacity: int):
-        self.cache = dict()
-        # 使用伪头部和伪尾部节点    
-        self.head = DLinkedNode()
-        self.tail = DLinkedNode()
-        self.head.next = self.tail
-        self.tail.prev = self.head
-        self.capacity = capacity
-        self.size = 0
-
-    def get(self, key: int) -> int:
-        if key not in self.cache:
-            return -1
-        # 如果 key 存在，先通过哈希表定位，再移到头部
-        node = self.cache[key]
-        self.moveToHead(node)
-        return node.value
-
-    def put(self, key: int, value: int) -> None:
-        if key not in self.cache:
-            # 如果 key 不存在，创建一个新的节点
-            node = DLinkedNode(key, value)
-            # 添加进哈希表
-            self.cache[key] = node
-            # 添加至双向链表的头部
-            self.addToHead(node)
-            self.size += 1
-            if self.size > self.capacity:
-                # 如果超出容量，删除双向链表的尾部节点
-                removed = self.removeTail()
-                # 删除哈希表中对应的项
-                self.cache.pop(removed.key)
-                self.size -= 1
-        else:
-            # 如果 key 存在，先通过哈希表定位，再修改 value，并移到头部
-            node = self.cache[key]
-            node.value = value
-            self.moveToHead(node)
-    
-    def addToHead(self, node):
-        node.prev = self.head
-        node.next = self.head.next
-        self.head.next.prev = node
-        self.head.next = node
-    
-    def removeNode(self, node):
-        node.prev.next = node.next
-        node.next.prev = node.prev
-
-    def moveToHead(self, node):
-        self.removeNode(node)
-        self.addToHead(node)
-
-    def removeTail(self):
-        node = self.tail.prev
-        self.removeNode(node)
-        return node
-```
-
-```Java
-public class LRUCache {
-    class DLinkedNode {
-        int key;
-        int value;
-        DLinkedNode prev;
-        DLinkedNode next;
-        public DLinkedNode() {}
-        public DLinkedNode(int _key, int _value) {key = _key; value = _value;}
-    }
-
-    private Map<Integer, DLinkedNode> cache = new HashMap<Integer, DLinkedNode>();
-    private int size;
-    private int capacity;
-    private DLinkedNode head, tail;
-
-    public LRUCache(int capacity) {
-        this.size = 0;
-        this.capacity = capacity;
-        // 使用伪头部和伪尾部节点
-        head = new DLinkedNode();
-        tail = new DLinkedNode();
-        head.next = tail;
-        tail.prev = head;
-    }
-
-    public int get(int key) {
-        DLinkedNode node = cache.get(key);
-        if (node == null) {
-            return -1;
-        }
-        // 如果 key 存在，先通过哈希表定位，再移到头部
-        moveToHead(node);
-        return node.value;
-    }
-
-    public void put(int key, int value) {
-        DLinkedNode node = cache.get(key);
-        if (node == null) {
-            // 如果 key 不存在，创建一个新的节点
-            DLinkedNode newNode = new DLinkedNode(key, value);
-            // 添加进哈希表
-            cache.put(key, newNode);
-            // 添加至双向链表的头部
-            addToHead(newNode);
-            ++size;
-            if (size > capacity) {
-                // 如果超出容量，删除双向链表的尾部节点
-                DLinkedNode tail = removeTail();
-                // 删除哈希表中对应的项
-                cache.remove(tail.key);
-                --size;
-            }
-        }
-        else {
-            // 如果 key 存在，先通过哈希表定位，再修改 value，并移到头部
-            node.value = value;
-            moveToHead(node);
-        }
-    }
-
-    private void addToHead(DLinkedNode node) {
-        node.prev = head;
-        node.next = head.next;
-        head.next.prev = node;
-        head.next = node;
-    }
-
-    private void removeNode(DLinkedNode node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
-
-    private void moveToHead(DLinkedNode node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    private DLinkedNode removeTail() {
-        DLinkedNode res = tail.prev;
-        removeNode(res);
-        return res;
-    }
-}
-```
-
-```C++
+```cpp
 struct DLinkedNode {
     int key, value;
     DLinkedNode* prev;
@@ -7299,89 +3563,6 @@ public:
         return node;
     }
 };
-```
-
-```golang
-type LRUCache struct {
-    size int
-    capacity int
-    cache map[int]*DLinkedNode
-    head, tail *DLinkedNode
-}
-
-type DLinkedNode struct {
-    key, value int
-    prev, next *DLinkedNode
-}
-
-func initDLinkedNode(key, value int) *DLinkedNode {
-    return &DLinkedNode{
-        key: key,
-        value: value,
-    }
-}
-
-func Constructor(capacity int) LRUCache {
-    l := LRUCache{
-        cache: map[int]*DLinkedNode{},
-        head: initDLinkedNode(0, 0),
-        tail: initDLinkedNode(0, 0),
-        capacity: capacity,
-    }
-    l.head.next = l.tail
-    l.tail.prev = l.head
-    return l
-}
-
-func (this *LRUCache) Get(key int) int {
-    if _, ok := this.cache[key]; !ok {
-        return -1
-    }
-    node := this.cache[key]
-    this.moveToHead(node)
-    return node.value
-}
-
-func (this *LRUCache) Put(key int, value int)  {
-    if _, ok := this.cache[key]; !ok {
-        node := initDLinkedNode(key, value)
-        this.cache[key] = node
-        this.addToHead(node)
-        this.size++
-        if this.size > this.capacity {
-            removed := this.removeTail()
-            delete(this.cache, removed.key)
-            this.size--
-        }
-    } else {
-        node := this.cache[key]
-        node.value = value
-        this.moveToHead(node)
-    }
-}
-
-func (this *LRUCache) addToHead(node *DLinkedNode) {
-    node.prev = this.head
-    node.next = this.head.next
-    this.head.next.prev = node
-    this.head.next = node
-}
-
-func (this *LRUCache) removeNode(node *DLinkedNode) {
-    node.prev.next = node.next
-    node.next.prev = node.prev
-}
-
-func (this *LRUCache) moveToHead(node *DLinkedNode) {
-    this.removeNode(node)
-    this.addToHead(node)
-}
-
-func (this *LRUCache) removeTail() *DLinkedNode {
-    node := this.tail.prev
-    this.removeNode(node)
-    return node
-}
 ```
 
 **复杂度分析**
@@ -7475,7 +3656,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     ListNode *detectCycle(ListNode *head) {
@@ -7490,85 +3671,6 @@ public:
         return nullptr;
     }
 };
-```
-
-```Java
-public class Solution {
-    public ListNode detectCycle(ListNode head) {
-        ListNode pos = head;
-        Set<ListNode> visited = new HashSet<ListNode>();
-        while (pos != null) {
-            if (visited.contains(pos)) {
-                return pos;
-            } else {
-                visited.add(pos);
-            }
-            pos = pos.next;
-        }
-        return null;
-    }
-}
-```
-
-```C
-struct hashTable {
-    struct ListNode* key;
-    UT_hash_handle hh;
-};
-
-struct hashTable* hashtable;
-
-struct hashTable* find(struct ListNode* ikey) {
-    struct hashTable* tmp;
-    HASH_FIND_PTR(hashtable, &ikey, tmp);
-    return tmp;
-}
-
-void insert(struct ListNode* ikey) {
-    struct hashTable* tmp = malloc(sizeof(struct hashTable));
-    tmp->key = ikey;
-    HASH_ADD_PTR(hashtable, key, tmp);
-}
-
-struct ListNode* detectCycle(struct ListNode* head) {
-    hashtable = NULL;
-    while (head != NULL) {
-        if (find(head) != NULL) {
-            return head;
-        }
-        insert(head);
-        head = head->next;
-    }
-    return false;
-}
-```
-
-```JavaScript
-var detectCycle = function(head) {
-    const visited = new Set();
-    while (head !== null) {
-        if (visited.has(head)) {
-            return head;
-        }
-        visited.add(head);
-        head = head.next;
-    }
-    return null;
-};
-```
-
-```Golang
-func detectCycle(head *ListNode) *ListNode {
-    seen := map[*ListNode]struct{}{}
-    for head != nil {
-        if _, ok := seen[head]; ok {
-            return head
-        }
-        seen[head] = struct{}{}
-        head = head.Next
-    }
-    return nil
-}
 ```
 
 **复杂度分析**
@@ -7599,7 +3701,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     ListNode *detectCycle(ListNode *head) {
@@ -7622,104 +3724,6 @@ public:
         return nullptr;
     }
 };
-```
-
-```Java
-public class Solution {
-    public ListNode detectCycle(ListNode head) {
-        if (head == null) {
-            return null;
-        }
-        ListNode slow = head, fast = head;
-        while (fast != null) {
-            slow = slow.next;
-            if (fast.next != null) {
-                fast = fast.next.next;
-            } else {
-                return null;
-            }
-            if (fast == slow) {
-                ListNode ptr = head;
-                while (ptr != slow) {
-                    ptr = ptr.next;
-                    slow = slow.next;
-                }
-                return ptr;
-            }
-        }
-        return null;
-    }
-}
-```
-
-```C
-struct ListNode* detectCycle(struct ListNode* head) {
-    struct ListNode *slow = head, *fast = head;
-    while (fast != NULL) {
-        slow = slow->next;
-        if (fast->next == NULL) {
-            return NULL;
-        }
-        fast = fast->next->next;
-        if (fast == slow) {
-            struct ListNode* ptr = head;
-            while (ptr != slow) {
-                ptr = ptr->next;
-                slow = slow->next;
-            }
-            return ptr;
-        }
-    }
-    return NULL;
-}
-```
-
-```JavaScript
-var detectCycle = function(head) {
-    if (head === null) {
-        return null;
-    }
-    let slow = head, fast = head;
-    while (fast !== null) {
-        slow = slow.next;
-        if (fast.next !== null) {
-            fast = fast.next.next;
-        } else {
-            return null;
-        }
-        if (fast === slow) {
-            let ptr = head;
-            while (ptr !== slow) {
-                ptr = ptr.next;
-                slow = slow.next;
-            }
-            return ptr;
-        }
-    }
-    return null;
-};
-```
-
-```Golang
-func detectCycle(head *ListNode) *ListNode {
-    slow, fast := head, head
-    for fast != nil {
-        slow = slow.Next
-        if fast.Next == nil {
-            return nil
-        }
-        fast = fast.Next.Next
-        if fast == slow {
-            p := head
-            for p != slow {
-                p = p.Next
-                slow = slow.Next
-            }
-            return p
-        }
-    }
-    return nil
-}
 ```
 
 **复杂度分析**
@@ -7815,22 +3819,7 @@ public:
 
 **代码**
 
-```Java
-public class Solution {
-    public boolean hasCycle(ListNode head) {
-        Set<ListNode> seen = new HashSet<ListNode>();
-        while (head != null) {
-            if (!seen.add(head)) {
-                return true;
-            }
-            head = head.next;
-        }
-        return false;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool hasCycle(ListNode *head) {
@@ -7845,65 +3834,6 @@ public:
         return false;
     }
 };
-```
-
-```Python
-class Solution:
-    def hasCycle(self, head: ListNode) -> bool:
-        seen = set()
-        while head:
-            if head in seen:
-                return True
-            seen.add(head)
-            head = head.next
-        return False
-```
-
-```Golang
-func hasCycle(head *ListNode) bool {
-    seen := map[*ListNode]struct{}{}
-    for head != nil {
-        if _, ok := seen[head]; ok {
-            return true
-        }
-        seen[head] = struct{}{}
-        head = head.Next
-    }
-    return false
-}
-```
-
-```C
-struct hashTable {
-    struct ListNode* key;
-    UT_hash_handle hh;
-};
-
-struct hashTable* hashtable;
-
-struct hashTable* find(struct ListNode* ikey) {
-    struct hashTable* tmp;
-    HASH_FIND_PTR(hashtable, &ikey, tmp);
-    return tmp;
-}
-
-void insert(struct ListNode* ikey) {
-    struct hashTable* tmp = malloc(sizeof(struct hashTable));
-    tmp->key = ikey;
-    HASH_ADD_PTR(hashtable, key, tmp);
-}
-
-bool hasCycle(struct ListNode* head) {
-    hashtable = NULL;
-    while (head != NULL) {
-        if (find(head) != NULL) {
-            return true;
-        }
-        insert(head);
-        head = head->next;
-    }
-    return false;
-}
 ```
 
 **复杂度分析**
@@ -7934,27 +3864,7 @@ bool hasCycle(struct ListNode* head) {
 
 **代码**
 
-```Java
-public class Solution {
-    public boolean hasCycle(ListNode head) {
-        if (head == null || head.next == null) {
-            return false;
-        }
-        ListNode slow = head;
-        ListNode fast = head.next;
-        while (slow != fast) {
-            if (fast == null || fast.next == null) {
-                return false;
-            }
-            slow = slow.next;
-            fast = fast.next.next;
-        }
-        return true;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool hasCycle(ListNode* head) {
@@ -7973,59 +3883,6 @@ public:
         return true;
     }
 };
-```
-
-```Python
-class Solution:
-    def hasCycle(self, head: ListNode) -> bool:
-        if not head or not head.next:
-            return False
-        
-        slow = head
-        fast = head.next
-
-        while slow != fast:
-            if not fast or not fast.next:
-                return False
-            slow = slow.next
-            fast = fast.next.next
-        
-        return True
-```
-
-```Golang
-func hasCycle(head *ListNode) bool {
-    if head == nil || head.Next == nil {
-        return false
-    }
-    slow, fast := head, head.Next
-    for fast != slow {
-        if fast == nil || fast.Next == nil {
-            return false
-        }
-        slow = slow.Next
-        fast = fast.Next.Next
-    }
-    return true
-}
-```
-
-```C
-bool hasCycle(struct ListNode* head) {
-    if (head == NULL || head->next == NULL) {
-        return false;
-    }
-    struct ListNode* slow = head;
-    struct ListNode* fast = head->next;
-    while (slow != fast) {
-        if (fast == NULL || fast->next == NULL) {
-            return false;
-        }
-        slow = slow->next;
-        fast = fast->next->next;
-    }
-    return true;
-}
 ```
 
 **复杂度分析**
@@ -8114,123 +3971,6 @@ $$
 对于边界条件，我们定义 $\textit{dp}[0]=true$ 表示空串且合法。
 
 有能力的读者也可以考虑怎么结合字典树 $\text{Trie}$ 来实现，这里不再展开。
-
-```Java
-public class Solution {
-    public boolean wordBreak(String s, List<String> wordDict) {
-        Set<String> wordDictSet = new HashSet(wordDict);
-        boolean[] dp = new boolean[s.length() + 1];
-        dp[0] = true;
-        for (int i = 1; i <= s.length(); i++) {
-            for (int j = 0; j < i; j++) {
-                if (dp[j] && wordDictSet.contains(s.substring(j, i))) {
-                    dp[i] = true;
-                    break;
-                }
-            }
-        }
-        return dp[s.length()];
-    }
-}
-```
-
-```TypeScript
-function wordBreak(s: string, wordDict: string[]): boolean {
-    const n: number = s.length;
-    const wordDictSet: Set<string> = new Set(wordDict);
-    const dp: Array<boolean> = new Array(n + 1).fill(false);
-    dp[0] = true;
-    for (let i = 1; i <= n; i++) {
-        for (let j = 0; j < i; j++) {
-            if (dp[j] && wordDictSet.has(s.substr(j, i - j))) {
-                dp[i] = true;
-                break;
-            }
-        }
-    }
-    return dp[n];
-};
-```
-
-```golang
-func wordBreak(s string, wordDict []string) bool {
-    wordDictSet := make(map[string]bool)
-    for _, w := range wordDict {
-        wordDictSet[w] = true
-    }
-    dp := make([]bool, len(s) + 1)
-    dp[0] = true
-    for i := 1; i <= len(s); i++ {
-        for j := 0; j < i; j++ {
-            if dp[j] && wordDictSet[s[j:i]] {
-                dp[i] = true
-                break
-            }
-        }
-    }
-    return dp[len(s)]
-}
-```
-
-```C
-unsigned long long Hash(char* s, int l, int r) {
-    unsigned long long value = 0;
-    for (int i = l; i < r; i++) {
-        value = value * 2333ull;
-        value += s[i] - 'a' + 1;
-    }
-    return value;
-}
-bool query(unsigned long long* rec, int len_rec, unsigned long long x) {
-    for (int i = 0; i < len_rec; i++) {
-        if (rec[i] == x) return true;
-    }
-    return false;
-}
-bool wordBreak(char* s, char** wordDict, int wordDictSize) {
-    unsigned long long rec[wordDictSize + 1];
-    for (int i = 0; i < wordDictSize; i++) {
-        rec[i] = Hash(wordDict[i], 0, strlen(wordDict[i]));
-    }
-    int len_s = strlen(s);
-    bool dp[len_s + 1];
-    memset(dp, 0, sizeof(dp));
-    dp[0] = true;
-    for (int i = 1; i <= len_s; i++) {
-        for (int j = 0; j < i; j++) {
-            if (dp[j] && query(rec, wordDictSize, Hash(s, j, i))) {
-                dp[i] = true;
-                break;
-            }
-        }
-    }
-    return dp[len_s];
-}
-```
-
-```csharp
-public class Solution {
-    public bool WordBreak(string s, IList<string> wordDict) {
-        var wordDictSet = new HashSet<string>(wordDict);
-
-        var dp = new bool [s.Length + 1];
-        dp[0] = true;
-        for (int i = 1; i <= s.Length; ++i) 
-        {
-            for (int j = 0; j < i; ++j) 
-            {
-                if (dp[j] && wordDictSet.Contains(s.Substring(j, i - j))) 
-                {
-                    dp[i] = true;
-                    break;
-                }
-            }
-        }
-
-        return dp[s.Length];
-    }
-}
-```
 
 ```cpp
 class Solution {
@@ -8353,18 +4093,6 @@ $$
 
 因此，数组中的全部元素的异或运算结果即为数组中只出现一次的数字。
 
-```Java
-class Solution {
-    public int singleNumber(int[] nums) {
-        int single = 0;
-        for (int num : nums) {
-            single ^= num;
-        }
-        return single;
-    }
-}
-```
-
 ```cpp
 class Solution {
 public:
@@ -8374,32 +4102,6 @@ public:
         return ret;
     }
 };
-```
-
-```python
-class Solution:
-    def singleNumber(self, nums: List[int]) -> int:
-        return reduce(lambda x, y: x ^ y, nums)
-```
-
-```csharp
-public class Solution {
-    public int SingleNumber(int[] nums) {
-        int ret = 0;
-        foreach (int e in nums) ret ^= e;
-        return ret;
-    }
-}
-```
-
-```golang
-func singleNumber(nums []int) int {
-    single := 0
-    for _, num := range nums {
-        single ^= num
-    }
-    return single
-}
 ```
 
 **复杂度分析**
@@ -8507,70 +4209,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int countSubstrings(String s) {
-        int n = s.length(), ans = 0;
-        for (int i = 0; i < 2 * n - 1; ++i) {
-            int l = i / 2, r = i / 2 + i % 2;
-            while (l >= 0 && r < n && s.charAt(l) == s.charAt(r)) {
-                --l;
-                ++r;
-                ++ans;
-            }
-        }
-        return ans;
-    }
-}
-```
-
-```JavaScript
-var countSubstrings = function(s) {
-    const n = s.length;
-    let ans = 0;
-    for (let i = 0; i < 2 * n - 1; ++i) {
-        let l = i / 2, r = i / 2 + i % 2;
-        while (l >= 0 && r < n && s.charAt(l) == s.charAt(r)) {
-            --l;
-            ++r;
-            ++ans;
-        }
-    }
-    return ans;
-};
-```
-
-```C
-int countSubstrings(char* s) {
-    int n = strlen(s), ans = 0;
-    for (int i = 0; i < 2 * n - 1; ++i) {
-        int l = i / 2, r = i / 2 + i % 2;
-        while (l >= 0 && r < n && s[l] == s[r]) {
-            --l;
-            ++r;
-            ++ans;
-        }
-    }
-    return ans;
-}
-```
-
-```golang
-func countSubstrings(s string) int {
-    n := len(s)
-    ans := 0
-    for i := 0; i < 2 * n - 1; i++ {
-        l, r := i / 2, i / 2 + i % 2
-        for l >= 0 && r < n && s[l] == s[r] {
-            l--
-            r++
-            ans++
-        }
-    }
-    return ans
-}
-```
-
 **复杂度分析**
 
 + 时间复杂度：$O(n^2)$。
@@ -8634,152 +4272,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public int countSubstrings(String s) {
-        int n = s.length();
-        StringBuffer t = new StringBuffer("$#");
-        for (int i = 0; i < n; ++i) {
-            t.append(s.charAt(i));
-            t.append('#');
-        }
-        n = t.length();
-        t.append('!');
-
-        int[] f = new int[n];
-        int iMax = 0, rMax = 0, ans = 0;
-        for (int i = 1; i < n; ++i) {
-            // 初始化 f[i]
-            f[i] = i <= rMax ? Math.min(rMax - i + 1, f[2 * iMax - i]) : 1;
-            // 中心拓展
-            while (t.charAt(i + f[i]) == t.charAt(i - f[i])) {
-                ++f[i];
-            }
-            // 动态维护 iMax 和 rMax
-            if (i + f[i] - 1 > rMax) {
-                iMax = i;
-                rMax = i + f[i] - 1;
-            }
-            // 统计答案, 当前贡献为 (f[i] - 1) / 2 上取整
-            ans += f[i] / 2;
-        }
-
-        return ans;
-    }
-}
-```
-
-```JavaScript
-var countSubstrings = function(s) {
-    let n = s.length;
-    let t = ['$', '#'];
-    for (let i = 0; i < n; ++i) {
-        t.push(s.charAt(i));
-        t.push('#');
-    }
-    n = t.length;
-    t.push('!');
-    t = t.join('');
-
-    const f = new Array(n);
-    let iMax = 0, rMax = 0, ans = 0;
-    for (let i = 1; i < n; ++i) {
-        // 初始化 f[i]
-        f[i] = i <= rMax ? Math.min(rMax - i + 1, f[2 * iMax - i]) : 1;
-        // 中心拓展
-        while (t.charAt(i + f[i]) == t.charAt(i - f[i])) {
-            ++f[i];
-        }
-        // 动态维护 iMax 和 rMax
-        if (i + f[i] - 1 > rMax) {
-            iMax = i;
-            rMax = i + f[i] - 1;
-        }
-        // 统计答案, 当前贡献为 (f[i] - 1) / 2 上取整
-        ans += Math.floor(f[i] / 2);
-    }
-
-    return ans;
-};
-```
-
-```C
-int countSubstrings(char* s) {
-    int n = strlen(s);
-    char* t = malloc(sizeof(char) * (n * 2 + 4));
-    t[0] = '$', t[1] = '#';
-    for (int i = 0; i < n; i++) {
-        t[2 * i + 2] = s[i];
-        t[2 * i + 3] = '#';
-    }
-    t[2 * n + 2] = '!';
-    t[2 * n + 3] = '\0';
-    n = 2 * n + 3;
-
-    int f[n];
-    memset(f, 0, sizeof(f));
-    int iMax = 0, rMax = 0, ans = 0;
-    for (int i = 1; i < n; ++i) {
-        // 初始化 f[i]
-        f[i] = (i <= rMax) ? fmin(rMax - i + 1, f[2 * iMax - i]) : 1;
-        // 中心拓展
-        while (t[i + f[i]] == t[i - f[i]]) ++f[i];
-        // 动态维护 iMax 和 rMax
-        if (i + f[i] - 1 > rMax) {
-            iMax = i;
-            rMax = i + f[i] - 1;
-        }
-        // 统计答案, 当前贡献为 (f[i] - 1) / 2 上取整
-        ans += (f[i] / 2);
-    }
-    free(t);
-
-    return ans;
-}
-```
-
-```golang
-func countSubstrings(s string) int {
-    n := len(s)
-    t := "$#"
-    for i := 0; i < n; i++ {
-        t += string(s[i]) + "#"
-    }
-    n = len(t)
-    t += "!"
-
-    f := make([]int, n)
-    iMax, rMax, ans := 0, 0, 0
-    for i := 1; i < n; i++ {
-        // 初始化 f[i]
-        if i <= rMax {
-            f[i] = min(rMax - i + 1, f[2 * iMax - i])
-        } else {
-            f[i] = 1
-        }
-        // 中心拓展
-        for t[i + f[i]] == t[i - f[i]] {
-            f[i]++
-        }
-        // 动态维护 iMax 和 rMax
-        if i + f[i] - 1 > rMax {
-            iMax = i
-            rMax = i + f[i] - 1
-        }
-        // 统计答案, 当前贡献为 (f[i] - 1) / 2 上取整
-        ans += f[i] / 2
-    }
-    return ans
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -8860,56 +4352,7 @@ public:
 
 增加了判断跳过的逻辑之后，时间复杂度是多少呢？外层循环需要 $O(n)$ 的时间复杂度，只有当一个数是连续序列的第一个数的情况下才会进入内层循环，然后在内层循环中匹配连续序列中的数，因此数组中的每个数只会进入内层循环一次。根据上述分析可知，总时间复杂度为 $O(n)$，符合题目要求。
 
-```Java
-class Solution {
-    public int longestConsecutive(int[] nums) {
-        Set<Integer> num_set = new HashSet<Integer>();
-        for (int num : nums) {
-            num_set.add(num);
-        }
-
-        int longestStreak = 0;
-
-        for (int num : num_set) {
-            if (!num_set.contains(num - 1)) {
-                int currentNum = num;
-                int currentStreak = 1;
-
-                while (num_set.contains(currentNum + 1)) {
-                    currentNum += 1;
-                    currentStreak += 1;
-                }
-
-                longestStreak = Math.max(longestStreak, currentStreak);
-            }
-        }
-
-        return longestStreak;
-    }
-}
-```
-
-```Python
-class Solution:
-    def longestConsecutive(self, nums: List[int]) -> int:
-        longest_streak = 0
-        num_set = set(nums)
-
-        for num in num_set:
-            if num - 1 not in num_set:
-                current_num = num
-                current_streak = 1
-
-                while current_num + 1 in num_set:
-                    current_num += 1
-                    current_streak += 1
-
-                longest_streak = max(longest_streak, current_streak)
-
-        return longest_streak
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int longestConsecutive(vector<int>& nums) {
@@ -8937,57 +4380,6 @@ public:
         return longestStreak;           
     }
 };
-```
-
-```TypeScript
-var longestConsecutive = function(nums: number[]): number {
-    let num_set: Set<number> = new Set();
-    for (const num of nums) {
-        num_set.add(num);
-    }
-
-    let longestStreak = 0;
-
-    for (const num of num_set) {
-        if (!num_set.has(num - 1)) {
-            let currentNum = num;
-            let currentStreak = 1;
-
-            while (num_set.has(currentNum + 1)) {
-                currentNum += 1;
-                currentStreak += 1;
-            }
-
-            longestStreak = Math.max(longestStreak, currentStreak);
-        }
-    }
-
-    return longestStreak;   
-};
-```
-
-```golang
-func longestConsecutive(nums []int) int {
-    numSet := map[int]bool{}
-    for _, num := range nums {
-        numSet[num] = true
-    }
-    longestStreak := 0
-    for num := range numSet {
-        if !numSet[num-1] {
-            currentNum := num
-            currentStreak := 1
-            for numSet[currentNum+1] {
-                currentNum++
-                currentStreak++
-            }
-            if longestStreak < currentStreak {
-                longestStreak = currentStreak
-            }
-        }
-    }
-    return longestStreak
-}
 ```
 
 **复杂度分析**
@@ -9095,66 +4487,7 @@ public:
 
 <![fig1](https://assets.leetcode.cn/solution-static/124/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/124/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/124/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/124/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/124/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/124/6.PNG),![fig7](https://assets.leetcode.cn/solution-static/124/7.PNG)>
 
-```Java
-class Solution {
-    int maxSum = Integer.MIN_VALUE;
-
-    public int maxPathSum(TreeNode root) {
-        maxGain(root);
-        return maxSum;
-    }
-
-    public int maxGain(TreeNode node) {
-        if (node == null) {
-            return 0;
-        }
-        
-        // 递归计算左右子节点的最大贡献值
-        // 只有在最大贡献值大于 0 时，才会选取对应子节点
-        int leftGain = Math.max(maxGain(node.left), 0);
-        int rightGain = Math.max(maxGain(node.right), 0);
-
-        // 节点的最大路径和取决于该节点的值与该节点的左右子节点的最大贡献值
-        int priceNewpath = node.val + leftGain + rightGain;
-
-        // 更新答案
-        maxSum = Math.max(maxSum, priceNewpath);
-
-        // 返回节点的最大贡献值
-        return node.val + Math.max(leftGain, rightGain);
-    }
-}
-```
-
-```Python
-class Solution:
-    def __init__(self):
-        self.maxSum = float("-inf")
-
-    def maxPathSum(self, root: TreeNode) -> int:
-        def maxGain(node):
-            if not node:
-                return 0
-
-            # 递归计算左右子节点的最大贡献值
-            # 只有在最大贡献值大于 0 时，才会选取对应子节点
-            leftGain = max(maxGain(node.left), 0)
-            rightGain = max(maxGain(node.right), 0)
-            
-            # 节点的最大路径和取决于该节点的值与该节点的左右子节点的最大贡献值
-            priceNewpath = node.val + leftGain + rightGain
-            
-            # 更新答案
-            self.maxSum = max(self.maxSum, priceNewpath)
-        
-            # 返回节点的最大贡献值
-            return node.val + max(leftGain, rightGain)
-   
-        maxGain(root)
-        return self.maxSum
-```
-
-```C++
+```cpp
 class Solution {
 private:
     int maxSum = INT_MIN;
@@ -9185,76 +4518,6 @@ public:
         return maxSum;
     }
 };
-```
-
-```golang
-func maxPathSum(root *TreeNode) int {
-    maxSum := math.MinInt32
-    var maxGain func(*TreeNode) int
-    maxGain = func(node *TreeNode) int {
-        if node == nil {
-            return 0
-        }
-
-        // 递归计算左右子节点的最大贡献值
-        // 只有在最大贡献值大于 0 时，才会选取对应子节点
-        leftGain := max(maxGain(node.Left), 0)
-        rightGain := max(maxGain(node.Right), 0)
-
-        // 节点的最大路径和取决于该节点的值与该节点的左右子节点的最大贡献值
-        priceNewPath := node.Val + leftGain + rightGain
-
-        // 更新答案
-        maxSum = max(maxSum, priceNewPath)
-
-        // 返回节点的最大贡献值
-        return node.Val + max(leftGain, rightGain)
-    }
-    maxGain(root)
-    return maxSum
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-```
-
-```csharp
-public class Solution 
-{
-    int maxSum = int.MinValue;
-
-    public int MaxPathSum(TreeNode root) 
-    {
-        MaxGain(root);
-        return maxSum;
-    }
-    
-    int MaxGain(TreeNode node) 
-    {
-        if (node == null) 
-        {
-            return 0;
-        }
-        
-        // 递归计算左右子节点的最大贡献值
-        // 只有在最大贡献值大于 0 时，才会选取对应子节点
-        int leftGain = Math.Max(MaxGain(node.left), 0);
-        int rightGain = Math.Max(MaxGain(node.right), 0);
-
-        // 节点的最大路径和取决于该节点的值与该节点的左右子节点的最大贡献值
-        int priceNewpath = node.val + leftGain + rightGain;
-
-        // 更新答案
-        maxSum = Math.Max(maxSum, priceNewpath);
-
-        // 返回节点的最大贡献值
-        return node.val + Math.Max(leftGain, rightGain);
-    }
-}
 ```
 
 **复杂度分析**
@@ -9363,7 +4626,7 @@ $$
 
 在上面的递归树中，我们可以看到许多子问题被多次计算。例如，$F(1)$ 被计算了 $13$ 次。为了避免重复的计算，我们将每个子问题的答案存在一个数组中进行记忆化，如果下次还要计算这个问题的值直接从数组中取出返回即可，这样能保证每个子问题最多只被计算一次。 
 
-```C++
+```cpp
 class Solution {
     vector<int>count;
     int dp(vector<int>& coins, int rem) {
@@ -9387,55 +4650,6 @@ public:
         return dp(coins, amount);
     }
 };
-```
-```Java
-public class Solution {
-    public int coinChange(int[] coins, int amount) {
-        if (amount < 1) {
-            return 0;
-        }
-        return coinChange(coins, amount, new int[amount]);
-    }
-
-    private int coinChange(int[] coins, int rem, int[] count) {
-        if (rem < 0) {
-            return -1;
-        }
-        if (rem == 0) {
-            return 0;
-        }
-        if (count[rem - 1] != 0) {
-            return count[rem - 1];
-        }
-        int min = Integer.MAX_VALUE;
-        for (int coin : coins) {
-            int res = coinChange(coins, rem - coin, count);
-            if (res >= 0 && res < min) {
-                min = 1 + res;
-            }
-        }
-        count[rem - 1] = (min == Integer.MAX_VALUE) ? -1 : min;
-        return count[rem - 1];
-    }
-}
-```
-```Python
-class Solution:
-    def coinChange(self, coins: List[int], amount: int) -> int:
-        @functools.lru_cache(amount)
-        def dp(rem) -> int:
-            if rem < 0: return -1
-            if rem == 0: return 0
-            mini = int(1e9)
-            for coin in self.coins:
-                res = dp(rem - coin)
-                if res >= 0 and res < mini:
-                    mini = res + 1
-            return mini if mini < int(1e9) else -1
-
-        self.coins = coins
-        if amount < 1: return 0
-        return dp(amount)
 ```
 **复杂度分析**
 
@@ -9487,7 +4701,7 @@ F(3) &= \min({F(3- c_1), F(3-c_2), F(3-c_3)}) + 1 \\
 \end{aligned}
 $$
 
-```C++
+```cpp
 class Solution {
 public:
     int coinChange(vector<int>& coins, int amount) {
@@ -9504,35 +4718,6 @@ public:
         return dp[amount] > amount ? -1 : dp[amount];
     }
 };
-```
-```Java
-public class Solution {
-    public int coinChange(int[] coins, int amount) {
-        int max = amount + 1;
-        int[] dp = new int[amount + 1];
-        Arrays.fill(dp, max);
-        dp[0] = 0;
-        for (int i = 1; i <= amount; i++) {
-            for (int j = 0; j < coins.length; j++) {
-                if (coins[j] <= i) {
-                    dp[i] = Math.min(dp[i], dp[i - coins[j]] + 1);
-                }
-            }
-        }
-        return dp[amount] > amount ? -1 : dp[amount];
-    }
-}
-```
-```Python
-class Solution:
-    def coinChange(self, coins: List[int], amount: int) -> int:
-        dp = [float('inf')] * (amount + 1)
-        dp[0] = 0
-        
-        for coin in coins:
-            for x in range(coin, amount + 1):
-                dp[x] = min(dp[x], dp[x - coin] + 1)
-        return dp[amount] if dp[amount] != float('inf') else -1 
 ```
 
 **复杂度分析**
@@ -9606,88 +4791,7 @@ public:
 
 可以使用回溯的方法遍历所有的表达式，回溯过程中维护一个计数器 $\textit{count}$，当遇到一种表达式的结果等于目标数 $\textit{target}$ 时，将 $\textit{count}$ 的值加 $1$。遍历完所有的表达式之后，即可得到结果等于目标数 $\textit{target}$ 的表达式的数目。
 
-```Java
-class Solution {
-    int count = 0;
-
-    public int findTargetSumWays(int[] nums, int target) {
-        backtrack(nums, target, 0, 0);
-        return count;
-    }
-
-    public void backtrack(int[] nums, int target, int index, int sum) {
-        if (index == nums.length) {
-            if (sum == target) {
-                count++;
-            }
-        } else {
-            backtrack(nums, target, index + 1, sum + nums[index]);
-            backtrack(nums, target, index + 1, sum - nums[index]);
-        }
-    }
-}
-```
-
-```C#
-public class Solution {
-    int count = 0;
-
-    public int FindTargetSumWays(int[] nums, int target) {
-        Backtrack(nums, target, 0, 0);
-        return count;
-    }
-
-    public void Backtrack(int[] nums, int target, int index, int sum) {
-        if (index == nums.Length) {
-            if (sum == target) {
-                count++;
-            }
-        } else {
-            Backtrack(nums, target, index + 1, sum + nums[index]);
-            Backtrack(nums, target, index + 1, sum - nums[index]);
-        }
-    }
-}
-```
-
-```JavaScript
-var findTargetSumWays = function(nums, target) {
-    let count = 0;
-    const backtrack = (nums, target, index, sum) => {
-        if (index === nums.length) {
-            if (sum === target) {
-                count++;
-            }
-        } else {
-            backtrack(nums, target, index + 1, sum + nums[index]);
-            backtrack(nums, target, index + 1, sum - nums[index]);
-        }
-    }
-    
-    backtrack(nums, target, 0, 0);
-    return count;
-};
-```
-
-```go
-func findTargetSumWays(nums []int, target int) (count int) {
-    var backtrack func(int, int)
-    backtrack = func(index, sum int) {
-        if index == len(nums) {
-            if sum == target {
-                count++
-            }
-            return
-        }
-        backtrack(index+1, sum+nums[index])
-        backtrack(index+1, sum-nums[index])
-    }
-    backtrack(0, 0)
-    return
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int count = 0;
@@ -9708,27 +4812,6 @@ public:
         }
     }
 };
-```
-
-```C
-int count;
-
-int findTargetSumWays(int* nums, int numsSize, int target) {
-    count = 0;
-    backtrack(nums, numsSize, target, 0, 0);
-    return count;
-}
-
-void backtrack(int* nums, int numSize, int target, int index, int sum) {
-    if (index == numSize) {
-        if (sum == target) {
-            count++;
-        }
-    } else {
-        backtrack(nums, numSize, target, index + 1, sum + nums[index]);
-        backtrack(nums, numSize, target, index + 1, sum - nums[index]);
-    }
-}
 ```
 
 **复杂度分析**
@@ -9785,117 +4868,7 @@ $$
 
 由此可以得到空间复杂度为 $O(n \times \textit{neg})$ 的实现。
 
-```Java
-class Solution {
-    public int findTargetSumWays(int[] nums, int target) {
-        int sum = 0;
-        for (int num : nums) {
-            sum += num;
-        }
-        int diff = sum - target;
-        if (diff < 0 || diff % 2 != 0) {
-            return 0;
-        }
-        int n = nums.length, neg = diff / 2;
-        int[][] dp = new int[n + 1][neg + 1];
-        dp[0][0] = 1;
-        for (int i = 1; i <= n; i++) {
-            int num = nums[i - 1];
-            for (int j = 0; j <= neg; j++) {
-                dp[i][j] = dp[i - 1][j];
-                if (j >= num) {
-                    dp[i][j] += dp[i - 1][j - num];
-                }
-            }
-        }
-        return dp[n][neg];
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int FindTargetSumWays(int[] nums, int target) {
-        int sum = 0;
-        foreach (int num in nums) {
-            sum += num;
-        }
-        int diff = sum - target;
-        if (diff < 0 || diff % 2 != 0) {
-            return 0;
-        }
-        int n = nums.Length, neg = diff / 2;
-        int[,] dp = new int[n + 1, neg + 1];
-        dp[0, 0] = 1;
-        for (int i = 1; i <= n; i++) {
-            int num = nums[i - 1];
-            for (int j = 0; j <= neg; j++) {
-                dp[i, j] = dp[i - 1, j];
-                if (j >= num) {
-                    dp[i, j] += dp[i - 1, j - num];
-                }
-            }
-        }
-        return dp[n, neg];
-    }
-}
-```
-
-```JavaScript
-var findTargetSumWays = function(nums, target) {
-    let sum = 0;
-    for (const num of nums) {
-        sum += num;
-    }
-    const diff = sum - target;
-    if (diff < 0 || diff % 2 !== 0) {
-        return 0;
-    }
-    const n = nums.length, neg = diff / 2;
-    const dp = new Array(n + 1).fill(0).map(() => new Array(neg + 1).fill(0));
-    dp[0][0] = 1;
-    for (let i = 1; i <= n; i++) {
-        const num = nums[i - 1];
-        for (let j = 0; j <= neg; j++) {
-            dp[i][j] = dp[i - 1][j];
-            if (j >= num) {
-                dp[i][j] += dp[i - 1][j - num];
-            }
-        }
-    }
-    return dp[n][neg];
-};
-```
-
-```go
-func findTargetSumWays(nums []int, target int) int {
-    sum := 0
-    for _, v := range nums {
-        sum += v
-    }
-    diff := sum - target
-    if diff < 0 || diff%2 == 1 {
-        return 0
-    }
-    n, neg := len(nums), diff/2
-    dp := make([][]int, n+1)
-    for i := range dp {
-        dp[i] = make([]int, neg+1)
-    }
-    dp[0][0] = 1
-    for i, num := range nums {
-        for j := 0; j <= neg; j++ {
-            dp[i+1][j] = dp[i][j]
-            if j >= num {
-                dp[i+1][j] += dp[i][j-num]
-            }
-        }
-    }
-    return dp[n][neg]
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int findTargetSumWays(vector<int>& nums, int target) {
@@ -9924,130 +4897,11 @@ public:
 };
 ```
 
-```C
-int findTargetSumWays(int* nums, int numsSize, int target) {
-    int sum = 0;
-    for (int i = 0; i < numsSize; i++) {
-        sum += nums[i];
-    }
-    int diff = sum - target;
-    if (diff < 0 || diff % 2 != 0) {
-        return 0;
-    }
-    int n = numsSize, neg = diff / 2;
-    int dp[n + 1][neg + 1];
-    memset(dp, 0, sizeof(dp));
-    dp[0][0] = 1;
-    for (int i = 1; i <= n; i++) {
-        int num = nums[i - 1];
-        for (int j = 0; j <= neg; j++) {
-            dp[i][j] = dp[i - 1][j];
-            if (j >= num) {
-                dp[i][j] += dp[i - 1][j - num];
-            }
-        }
-    }
-    return dp[n][neg];
-}
-```
-
 由于 $\textit{dp}$ 的每一行的计算只和上一行有关，因此可以使用滚动数组的方式，去掉 $\textit{dp}$ 的第一个维度，将空间复杂度优化到 $O(\textit{neg})$。
 
 实现时，内层循环需采用倒序遍历的方式，这种方式保证转移来的是 $\textit{dp}[i-1][]$ 中的元素值。
 
-```Java
-class Solution {
-    public int findTargetSumWays(int[] nums, int target) {
-        int sum = 0;
-        for (int num : nums) {
-            sum += num;
-        }
-        int diff = sum - target;
-        if (diff < 0 || diff % 2 != 0) {
-            return 0;
-        }
-        int neg = diff / 2;
-        int[] dp = new int[neg + 1];
-        dp[0] = 1;
-        for (int num : nums) {
-            for (int j = neg; j >= num; j--) {
-                dp[j] += dp[j - num];
-            }
-        }
-        return dp[neg];
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int FindTargetSumWays(int[] nums, int target) {
-        int sum = 0;
-        foreach (int num in nums) {
-            sum += num;
-        }
-        int diff = sum - target;
-        if (diff < 0 || diff % 2 != 0) {
-            return 0;
-        }
-        int neg = diff / 2;
-        int[] dp = new int[neg + 1];
-        dp[0] = 1;
-        foreach (int num in nums) {
-            for (int j = neg; j >= num; j--) {
-                dp[j] += dp[j - num];
-            }
-        }
-        return dp[neg];
-    }
-}
-```
-
-```JavaScript
-var findTargetSumWays = function(nums, target) {
-    let sum = 0;
-    for (const num of nums) {
-        sum += num;
-    }
-    const diff = sum - target;
-    if (diff < 0 || diff % 2 !== 0) {
-        return 0;
-    }
-    const neg = Math.floor(diff / 2);
-    const dp = new Array(neg + 1).fill(0);
-    dp[0] = 1;
-    for (const num of nums) {
-        for (let j = neg; j >= num; j--) {
-            dp[j] += dp[j - num];
-        }
-    }
-    return dp[neg];
-};
-```
-
-```go
-func findTargetSumWays(nums []int, target int) int {
-    sum := 0
-    for _, v := range nums {
-        sum += v
-    }
-    diff := sum - target
-    if diff < 0 || diff%2 == 1 {
-        return 0
-    }
-    neg := diff / 2
-    dp := make([]int, neg+1)
-    dp[0] = 1
-    for _, num := range nums {
-        for j := neg; j >= num; j-- {
-            dp[j] += dp[j-num]
-        }
-    }
-    return dp[neg]
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int findTargetSumWays(vector<int>& nums, int target) {
@@ -10070,30 +4924,6 @@ public:
         return dp[neg];
     }
 };
-```
-
-```C
-int findTargetSumWays(int* nums, int numsSize, int target) {
-    int sum = 0;
-    for (int i = 0; i < numsSize; i++) {
-        sum += nums[i];
-    }
-    int diff = sum - target;
-    if (diff < 0 || diff % 2 != 0) {
-        return 0;
-    }
-    int neg = diff / 2;
-    int dp[neg + 1];
-    memset(dp, 0, sizeof(dp));
-    dp[0] = 1;
-    for (int i = 0; i < numsSize; i++) {
-        int num = nums[i];
-        for (int j = neg; j >= num; j--) {
-            dp[j] += dp[j - num];
-        }
-    }
-    return dp[neg];
-}
 ```
 
 **复杂度分析**
@@ -10178,33 +5008,13 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int hammingDistance(int x, int y) {
         return __builtin_popcount(x ^ y);
     }
 };
-```
-
-```Java
-class Solution {
-    public int hammingDistance(int x, int y) {
-        return Integer.bitCount(x ^ y);
-    }
-}
-```
-
-```go
-func hammingDistance(x, y int) int {
-    return bits.OnesCount(uint(x ^ y))
-}
-```
-
-```C
-int hammingDistance(int x, int y) {
-    return __builtin_popcount(x ^ y);
-}
 ```
 
 **复杂度分析**
@@ -10225,7 +5035,7 @@ int hammingDistance(int x, int y) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int hammingDistance(int x, int y) {
@@ -10237,63 +5047,6 @@ public:
         return ret;
     }
 };
-```
-
-```Java
-class Solution {
-    public int hammingDistance(int x, int y) {
-        int s = x ^ y, ret = 0;
-        while (s != 0) {
-            ret += s & 1;
-            s >>= 1;
-        }
-        return ret;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int HammingDistance(int x, int y) {
-        int s = x ^ y, ret = 0;
-        while (s != 0) {
-            ret += s & 1;
-            s >>= 1;
-        }
-        return ret;
-    }
-}
-```
-
-```JavaScript
-var hammingDistance = function(x, y) {
-    let s = x ^ y, ret = 0;
-    while (s != 0) {
-        ret += s & 1;
-        s >>= 1;
-    }
-    return ret;
-};
-```
-
-```go
-func hammingDistance(x, y int) (ans int) {
-    for s := x ^ y; s > 0; s >>= 1 {
-        ans += s & 1
-    }
-    return
-}
-```
-
-```C
-int hammingDistance(int x, int y) {
-    int s = x ^ y, ret = 0;
-    while (s) {
-        ret += s & 1;
-        s >>= 1;
-    }
-    return ret;
-}
 ```
 
 **复杂度分析**
@@ -10320,7 +5073,7 @@ $\text{Brian Kernighan}$ 算法发布在 $1988$ 年出版的 $\text{The C Progra
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int hammingDistance(int x, int y) {
@@ -10332,63 +5085,6 @@ public:
         return ret;
     }
 };
-```
-
-```Java
-class Solution {
-    public int hammingDistance(int x, int y) {
-        int s = x ^ y, ret = 0;
-        while (s != 0) {
-            s &= s - 1;
-            ret++;
-        }
-        return ret;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int HammingDistance(int x, int y) {
-        int s = x ^ y, ret = 0;
-        while (s != 0) {
-            s &= s - 1;
-            ret++;
-        }
-        return ret;
-    }
-}
-```
-
-```JavaScript
-var hammingDistance = function(x, y) {
-    let s = x ^ y, ret = 0;
-    while (s != 0) {
-        s &= s - 1;
-        ret++;
-    }
-    return ret;
-};
-```
-
-```go
-func hammingDistance(x, y int) (ans int) {
-    for s := x ^ y; s > 0; s &= s - 1 {
-        ans++
-    }
-    return
-}
-```
-
-```C
-int hammingDistance(int x, int y) {
-    int s = x ^ y, ret = 0;
-    while (s) {
-        s &= s - 1;
-        ret++;
-    }
-    return ret;
-}
 ```
 
 **复杂度分析**
@@ -10464,7 +5160,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     const int mod = 998244353;
@@ -10484,91 +5180,6 @@ public:
         }
         return ret;
     }
-};
-```
-
-```Java
-class Solution {
-    public List<Integer> findDisappearedNumbers(int[] nums) {
-        int n = nums.length;
-        for (int num : nums) {
-            int x = (num - 1) % n;
-            if (nums[x] <= n) {
-                nums[x] += n;
-            }
-        }
-        List<Integer> ret = new ArrayList<Integer>();
-        for (int i = 0; i < n; i++) {
-            if (nums[i] <= n) {
-                ret.add(i + 1);
-            }
-        }
-        return ret;
-    }
-}
-```
-
-```Python
-class Solution:
-    def findDisappearedNumbers(self, nums: List[int]) -> List[int]:
-        n = len(nums)
-        for num in nums:
-            x = (num - 1) % n
-            nums[x] += n
-        
-        ret = [i + 1 for i, num in enumerate(nums) if num <= n]
-        return ret
-```
-
-```go
-func findDisappearedNumbers(nums []int) (ans []int) {
-    n := len(nums)
-    for _, v := range nums {
-        v = (v - 1) % n
-        nums[v] += n
-    }
-    for i, v := range nums {
-        if v <= n {
-            ans = append(ans, i+1)
-        }
-    }
-    return
-}
-```
-
-```C
-int* findDisappearedNumbers(int* nums, int numsSize, int* returnSize) {
-    for (int i = 0; i < numsSize; i++) {
-        int x = (nums[i] - 1) % numsSize;
-        if (nums[x] <= numsSize) {
-            nums[x] += numsSize;
-        }
-    }
-    int* ret = malloc(sizeof(int) * numsSize);
-    *returnSize = 0;
-    for (int i = 0; i < numsSize; i++) {
-        if (nums[i] <= numsSize) {
-            ret[(*returnSize)++] = i + 1;
-        }
-    }
-    return ret;
-}
-```
-
-```JavaScript
-var findDisappearedNumbers = function(nums) {
-    const n = nums.length;
-    for (const num of nums) {
-        const x = (num - 1) % n;
-        nums[x] += n;
-    }
-    const ret = [];
-    for (const [i, num] of nums.entries()) {
-        if (num <= n) {
-            ret.push(i + 1);
-        }
-    }
-    return ret;
 };
 ```
 
@@ -10647,105 +5258,7 @@ public:
 
 **代码**
 
-```Python
-class Solution:
-    def findAnagrams(self, s: str, p: str) -> List[int]:
-        s_len, p_len = len(s), len(p)
-        
-        if s_len < p_len:
-            return []
-
-        ans = []
-        s_count = [0] * 26
-        p_count = [0] * 26
-        for i in range(p_len):
-            s_count[ord(s[i]) - 97] += 1
-            p_count[ord(p[i]) - 97] += 1
-
-        if s_count == p_count:
-            ans.append(0)
-
-        for i in range(s_len - p_len):
-            s_count[ord(s[i]) - 97] -= 1
-            s_count[ord(s[i + p_len]) - 97] += 1
-            
-            if s_count == p_count:
-                ans.append(i + 1)
-
-        return ans
-```
-
-```Java
-class Solution {
-    public List<Integer> findAnagrams(String s, String p) {
-        int sLen = s.length(), pLen = p.length();
-
-        if (sLen < pLen) {
-            return new ArrayList<Integer>();
-        }
-
-        List<Integer> ans = new ArrayList<Integer>();
-        int[] sCount = new int[26];
-        int[] pCount = new int[26];
-        for (int i = 0; i < pLen; ++i) {
-            ++sCount[s.charAt(i) - 'a'];
-            ++pCount[p.charAt(i) - 'a'];
-        }
-
-        if (Arrays.equals(sCount, pCount)) {
-            ans.add(0);
-        }
-
-        for (int i = 0; i < sLen - pLen; ++i) {
-            --sCount[s.charAt(i) - 'a'];
-            ++sCount[s.charAt(i + pLen) - 'a'];
-
-            if (Arrays.equals(sCount, pCount)) {
-                ans.add(i + 1);
-            }
-        }
-
-        return ans;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public IList<int> FindAnagrams(string s, string p) {
-        int sLen = s.Length, pLen = p.Length;
-
-        if (sLen < pLen) {
-            return new List<int>();
-        }
-
-        IList<int> ans = new List<int>();
-        int[] sCount = new int[26];
-        int[] pCount = new int[26];
-        for (int i = 0; i < pLen; ++i) {
-            ++sCount[s[i] - 'a'];
-            ++pCount[p[i] - 'a'];
-        }
-
-        if (Enumerable.SequenceEqual(sCount, pCount)) {
-            ans.Add(0);
-        }
-
-        for (int i = 0; i < sLen - pLen; ++i) {
-            --sCount[s[i] - 'a'];
-            ++sCount[s[i + pLen] - 'a'];
-
-            if (Enumerable.SequenceEqual(sCount, pCount)) {
-                ans.Add(i + 1);
-            }
-        }
-
-        return ans;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> findAnagrams(string s, string p) {
@@ -10781,66 +5294,6 @@ public:
 };
 ```
 
-```go
-func findAnagrams(s, p string) (ans []int) {
-    sLen, pLen := len(s), len(p)
-    if sLen < pLen {
-        return
-    }
-
-    var sCount, pCount [26]int
-    for i, ch := range p {
-        sCount[s[i]-'a']++
-        pCount[ch-'a']++
-    }
-    if sCount == pCount {
-        ans = append(ans, 0)
-    }
-
-    for i, ch := range s[:sLen-pLen] {
-        sCount[ch-'a']--
-        sCount[s[i+pLen]-'a']++
-        if sCount == pCount {
-            ans = append(ans, i+1)
-        }
-    }
-    return
-}
-```
-
-```JavaScript
-var findAnagrams = function(s, p) {
-    const sLen = s.length, pLen = p.length;
-
-    if (sLen < pLen) {
-        return [];
-    }
-
-    const ans = [];
-    const sCount = new Array(26).fill(0);
-    const pCount = new Array(26).fill(0);
-    for (let i = 0; i < pLen; ++i) {
-        ++sCount[s[i].charCodeAt() - 'a'.charCodeAt()];
-        ++pCount[p[i].charCodeAt() - 'a'.charCodeAt()];
-    }
-
-    if (sCount.toString() === pCount.toString()) {
-        ans.push(0);
-    }
-
-    for (let i = 0; i < sLen - pLen; ++i) {
-        --sCount[s[i].charCodeAt() - 'a'.charCodeAt()];
-        ++sCount[s[i + pLen].charCodeAt() - 'a'.charCodeAt()];
-
-        if (sCount.toString() === pCount.toString()) {
-            ans.push(i + 1);
-        }
-    }
-
-    return ans;
-};
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(m + (n-m) \times \Sigma)$，其中 $n$ 为字符串 $s$ 的长度，$m$ 为字符串 $p$ 的长度，$\Sigma$ 为所有可能的字符数。我们需要 $O(m)$ 来统计字符串 $p$ 中每种字母的数量；需要 $O(m)$ 来初始化滑动窗口；需要判断 $n-m+1$ 个滑动窗口中每种字母的数量是否与字符串 $p$ 中每种字母的数量相同，每次判断需要 $O(\Sigma)$ 。因为 $s$ 和 $p$ 仅包含小写字母，所以 $\Sigma = 26$。
@@ -10857,149 +5310,7 @@ var findAnagrams = function(s, p) {
 
 **代码**
 
-```Python
-class Solution:
-    def findAnagrams(self, s: str, p: str) -> List[int]:
-        s_len, p_len = len(s), len(p)
-
-        if s_len < p_len:
-            return []
-
-        ans = []
-        count = [0] * 26
-        for i in range(p_len):
-            count[ord(s[i]) - 97] += 1
-            count[ord(p[i]) - 97] -= 1
-
-        differ = [c != 0 for c in count].count(True)
-
-        if differ == 0:
-            ans.append(0)
-
-        for i in range(s_len - p_len):
-            if count[ord(s[i]) - 97] == 1:  # 窗口中字母 s[i] 的数量与字符串 p 中的数量从不同变得相同
-                differ -= 1
-            elif count[ord(s[i]) - 97] == 0:  # 窗口中字母 s[i] 的数量与字符串 p 中的数量从相同变得不同
-                differ += 1
-            count[ord(s[i]) - 97] -= 1
-
-            if count[ord(s[i + p_len]) - 97] == -1:  # 窗口中字母 s[i+p_len] 的数量与字符串 p 中的数量从不同变得相同
-                differ -= 1
-            elif count[ord(s[i + p_len]) - 97] == 0:  # 窗口中字母 s[i+p_len] 的数量与字符串 p 中的数量从相同变得不同
-                differ += 1
-            count[ord(s[i + p_len]) - 97] += 1
-            
-            if differ == 0:
-                ans.append(i + 1)
-
-        return ans
-```
-
-```Java
-class Solution {
-    public List<Integer> findAnagrams(String s, String p) {
-        int sLen = s.length(), pLen = p.length();
-
-        if (sLen < pLen) {
-            return new ArrayList<Integer>();
-        }
-
-        List<Integer> ans = new ArrayList<Integer>();
-        int[] count = new int[26];
-        for (int i = 0; i < pLen; ++i) {
-            ++count[s.charAt(i) - 'a'];
-            --count[p.charAt(i) - 'a'];
-        }
-
-        int differ = 0;
-        for (int j = 0; j < 26; ++j) {
-            if (count[j] != 0) {
-                ++differ;
-            }
-        }
-
-        if (differ == 0) {
-            ans.add(0);
-        }
-
-        for (int i = 0; i < sLen - pLen; ++i) {
-            if (count[s.charAt(i) - 'a'] == 1) {  // 窗口中字母 s[i] 的数量与字符串 p 中的数量从不同变得相同
-                --differ;
-            } else if (count[s.charAt(i) - 'a'] == 0) {  // 窗口中字母 s[i] 的数量与字符串 p 中的数量从相同变得不同
-                ++differ;
-            }
-            --count[s.charAt(i) - 'a'];
-
-            if (count[s.charAt(i + pLen) - 'a'] == -1) {  // 窗口中字母 s[i+pLen] 的数量与字符串 p 中的数量从不同变得相同
-                --differ;
-            } else if (count[s.charAt(i + pLen) - 'a'] == 0) {  // 窗口中字母 s[i+pLen] 的数量与字符串 p 中的数量从相同变得不同
-                ++differ;
-            }
-            ++count[s.charAt(i + pLen) - 'a'];
-            
-            if (differ == 0) {
-                ans.add(i + 1);
-            }
-        }
-
-        return ans;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public IList<int> FindAnagrams(string s, string p) {
-        int sLen = s.Length, pLen = p.Length;
-
-        if (sLen < pLen) {
-            return new List<int>();
-        }
-
-        IList<int> ans = new List<int>();
-        int[] count = new int[26];
-        for (int i = 0; i < pLen; ++i) {
-            ++count[s[i] - 'a'];
-            --count[p[i] - 'a'];
-        }
-
-        int differ = 0;
-        for (int j = 0; j < 26; ++j) {
-            if (count[j] != 0) {
-                ++differ;
-            }
-        }
-
-        if (differ == 0) {
-            ans.Add(0);
-        }
-
-        for (int i = 0; i < sLen - pLen; ++i) {
-            if (count[s[i] - 'a'] == 1) {  // 窗口中字母 s[i] 的数量与字符串 p 中的数量从不同变得相同
-                --differ;
-            } else if (count[s[i] - 'a'] == 0) {  // 窗口中字母 s[i] 的数量与字符串 p 中的数量从相同变得不同
-                ++differ;
-            }
-            --count[s[i] - 'a'];
-
-            if (count[s[i + pLen] - 'a'] == -1) {  // 窗口中字母 s[i+pLen] 的数量与字符串 p 中的数量从不同变得相同
-                --differ;
-            } else if (count[s[i + pLen] - 'a'] == 0) {  // 窗口中字母 s[i+pLen] 的数量与字符串 p 中的数量从相同变得不同
-                ++differ;
-            }
-            ++count[s[i + pLen] - 'a'];
-            
-            if (differ == 0) {
-                ans.Add(i + 1);
-            }
-        }
-
-        return ans;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> findAnagrams(string s, string p) {
@@ -11049,102 +5360,6 @@ public:
 
         return ans;
     }
-};
-```
-
-```go
-func findAnagrams(s, p string) (ans []int) {
-    sLen, pLen := len(s), len(p)
-    if sLen < pLen {
-        return
-    }
-
-    count := [26]int{}
-    for i, ch := range p {
-        count[s[i]-'a']++
-        count[ch-'a']--
-    }
-
-    differ := 0
-    for _, c := range count {
-        if c != 0 {
-            differ++
-        }
-    }
-    if differ == 0 {
-        ans = append(ans, 0)
-    }
-
-    for i, ch := range s[:sLen-pLen] {
-        if count[ch-'a'] == 1 { // 窗口中字母 s[i] 的数量与字符串 p 中的数量从不同变得相同
-            differ--
-        } else if count[ch-'a'] == 0 { // 窗口中字母 s[i] 的数量与字符串 p 中的数量从相同变得不同
-            differ++
-        }
-        count[ch-'a']--
-
-        if count[s[i+pLen]-'a'] == -1 { // 窗口中字母 s[i+pLen] 的数量与字符串 p 中的数量从不同变得相同
-            differ--
-        } else if count[s[i+pLen]-'a'] == 0 { // 窗口中字母 s[i+pLen] 的数量与字符串 p 中的数量从相同变得不同
-            differ++
-        }
-        count[s[i+pLen]-'a']++
-
-        if differ == 0 {
-            ans = append(ans, i+1)
-        }
-    }
-    return
-}
-```
-
-```JavaScript
-var findAnagrams = function(s, p) {
-    const sLen = s.length, pLen = p.length;
-
-    if (sLen < pLen) {
-        return [];
-    }
-
-    const ans = [];
-    const count = Array(26).fill(0);
-    for (let i = 0; i < pLen; ++i) {
-        ++count[s[i].charCodeAt() - 'a'.charCodeAt()];
-        --count[p[i].charCodeAt() - 'a'.charCodeAt()];
-    }
-
-    let differ = 0;
-    for (let j = 0; j < 26; ++j) {
-        if (count[j] !== 0) {
-            ++differ;
-        }
-    }
-
-    if (differ === 0) {
-        ans.push(0);
-    }
-
-    for (let i = 0; i < sLen - pLen; ++i) {
-        if (count[s[i].charCodeAt() - 'a'.charCodeAt()] === 1) {  // 窗口中字母 s[i] 的数量与字符串 p 中的数量从不同变得相同
-            --differ;
-        } else if (count[s[i].charCodeAt() - 'a'.charCodeAt()] === 0) {  // 窗口中字母 s[i] 的数量与字符串 p 中的数量从相同变得不同
-            ++differ;
-        }
-        --count[s[i].charCodeAt() - 'a'.charCodeAt()];
-
-        if (count[s[i + pLen].charCodeAt() - 'a'.charCodeAt()] === -1) {  // 窗口中字母 s[i+pLen] 的数量与字符串 p 中的数量从不同变得相同
-            --differ;
-        } else if (count[s[i + pLen].charCodeAt() - 'a'.charCodeAt()] === 0) {  // 窗口中字母 s[i+pLen] 的数量与字符串 p 中的数量从相同变得不同
-            ++differ;
-        }
-        ++count[s[i + pLen].charCodeAt() - 'a'.charCodeAt()];
-
-        if (differ === 0) {
-            ans.push(i + 1);
-        }
-    }
-
-    return ans;
 };
 ```
 
@@ -11231,7 +5446,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int rootSum(TreeNode* root, long long targetSum) {
@@ -11262,147 +5477,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int pathSum(TreeNode root, long targetSum) {
-        if (root == null) {
-            return 0;
-        }
-
-        int ret = rootSum(root, targetSum);
-        ret += pathSum(root.left, targetSum);
-        ret += pathSum(root.right, targetSum);
-        return ret;
-    }
-
-    public int rootSum(TreeNode root, long targetSum) {
-        int ret = 0;
-
-        if (root == null) {
-            return 0;
-        }
-        int val = root.val;
-        if (val == targetSum) {
-            ret++;
-        } 
-
-        ret += rootSum(root.left, targetSum - val);
-        ret += rootSum(root.right, targetSum - val);
-        return ret;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int PathSum(TreeNode root, int targetSum) {
-        if (root == null) {
-            return 0;
-        }
-
-        int ret = RootSum(root, targetSum);
-        ret += PathSum(root.left, targetSum);
-        ret += PathSum(root.right, targetSum);
-        return ret;
-    }
-
-    public int RootSum(TreeNode root, long targetSum) {
-        int ret = 0;
-
-        if (root == null) {
-            return 0;
-        }
-        int val = root.val;
-        if (val == targetSum) {
-            ret++;
-        } 
-
-        ret += RootSum(root.left, targetSum - val);
-        ret += RootSum(root.right, targetSum - val);
-        return ret;
-    }
-}
-
-```
-
-```Python
-class Solution:
-    def pathSum(self, root: TreeNode, targetSum: int) -> int:
-        def rootSum(root, targetSum):
-            if root is None:
-                return 0
-
-            ret = 0
-            if root.val == targetSum:
-                ret += 1
-
-            ret += rootSum(root.left, targetSum - root.val)
-            ret += rootSum(root.right, targetSum - root.val)
-            return ret
-        
-        if root is None:
-            return 0
-            
-        ret = rootSum(root, targetSum)
-        ret += self.pathSum(root.left, targetSum)
-        ret += self.pathSum(root.right, targetSum)
-        return ret
-```
-
-```JavaScript
-var pathSum = function(root, targetSum) {
-    if (root == null) {
-        return 0;
-    }
-    
-    let ret = rootSum(root, targetSum);
-    ret += pathSum(root.left, targetSum);
-    ret += pathSum(root.right, targetSum);
-    return ret;
-};
-
-const rootSum = (root, targetSum) => {
-    let ret = 0;
-
-    if (root == null) {
-        return 0;
-    }
-    const val = root.val;
-    if (val === targetSum) {
-        ret++;
-    } 
-
-    ret += rootSum(root.left, targetSum - val);
-    ret += rootSum(root.right, targetSum - val);
-    return ret;
-}
-```
-
-```go
-func rootSum(root *TreeNode, targetSum int) (res int) {
-    if root == nil {
-        return
-    }
-    val := root.Val
-    if val == targetSum {
-        res++
-    }
-    res += rootSum(root.Left, targetSum-val)
-    res += rootSum(root.Right, targetSum-val)
-    return
-}
-
-func pathSum(root *TreeNode, targetSum int) int {
-    if root == nil {
-        return 0
-    }
-    res := rootSum(root, targetSum)
-    res += pathSum(root.Left, targetSum)
-    res += pathSum(root.Right, targetSum)
-    return res
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(N^2)$，其中 $N$ 为该二叉树节点的个数。对于每一个节点，求以该节点为起点的路径数目时，则需要遍历以该节点为根节点的子树的所有节点，因此求该路径所花费的最大时间为 $O(N)$，我们会对每个节点都求一次以该节点为起点的路径数目，因此时间复杂度为 $O(N^{2})$。
@@ -11424,7 +5498,7 @@ func pathSum(root *TreeNode, targetSum int) int {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     unordered_map<long long, int> prefix;
@@ -11453,133 +5527,6 @@ public:
         return dfs(root, 0, targetSum);
     }
 };
-```
-
-```Java
-class Solution {
-    public int pathSum(TreeNode root, int targetSum) {
-        Map<Long, Integer> prefix = new HashMap<Long, Integer>();
-        prefix.put(0L, 1);
-        return dfs(root, prefix, 0, targetSum);
-    }
-
-    public int dfs(TreeNode root, Map<Long, Integer> prefix, long curr, int targetSum) {
-        if (root == null) {
-            return 0;
-        }
-
-        int ret = 0;
-        curr += root.val;
-
-        ret = prefix.getOrDefault(curr - targetSum, 0);
-        prefix.put(curr, prefix.getOrDefault(curr, 0) + 1);
-        ret += dfs(root.left, prefix, curr, targetSum);
-        ret += dfs(root.right, prefix, curr, targetSum);
-        prefix.put(curr, prefix.getOrDefault(curr, 0) - 1);
-
-        return ret;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int PathSum(TreeNode root, int targetSum) {
-        Dictionary<long, int> prefix = new Dictionary<long, int>();
-        prefix.Add(0, 1);
-        return DFS(root, prefix, 0, targetSum);
-    }
-
-    public int DFS(TreeNode root, Dictionary<long, int> prefix, long curr, int targetSum) {
-        if (root == null) {
-            return 0;
-        }
-
-        int ret = 0;
-        curr += root.val;
-
-        prefix.TryGetValue(curr - targetSum, out ret);
-        if (prefix.ContainsKey(curr)) {
-            ++prefix[curr];
-        } else {
-            prefix.Add(curr, 1);
-        }
-        ret += DFS(root.left, prefix, curr, targetSum);
-        ret += DFS(root.right, prefix, curr, targetSum);
-        --prefix[curr];
-
-        return ret;
-    }
-}
-```
-
-```Python
-class Solution:
-    def pathSum(self, root: TreeNode, targetSum: int) -> int:
-        prefix = collections.defaultdict(int)
-        prefix[0] = 1
-
-        def dfs(root, curr):
-            if not root:
-                return 0
-            
-            ret = 0
-            curr += root.val
-            ret += prefix[curr - targetSum]
-            prefix[curr] += 1
-            ret += dfs(root.left, curr)
-            ret += dfs(root.right, curr)
-            prefix[curr] -= 1
-
-            return ret
-
-        return dfs(root, 0)
-```
-
-```JavaScript
-var pathSum = function(root, targetSum) {
-    const prefix = new Map();
-    prefix.set(0, 1);
-    return dfs(root, prefix, 0, targetSum);
-}
-
-const dfs = (root, prefix, curr, targetSum) => {
-    if (root == null) {
-        return 0;
-    }
-
-    let ret = 0;
-    curr += root.val;
-
-    ret = prefix.get(curr - targetSum) || 0;
-    prefix.set(curr, (prefix.get(curr) || 0) + 1);
-    ret += dfs(root.left, prefix, curr, targetSum);
-    ret += dfs(root.right, prefix, curr, targetSum);
-    prefix.set(curr, (prefix.get(curr) || 0) - 1);
-
-    return ret;
-}
-```
-
-```go
-func pathSum(root *TreeNode, targetSum int) (ans int) {
-    preSum := map[int64]int{0: 1}
-    var dfs func(*TreeNode, int64)
-    dfs = func(node *TreeNode, curr int64) {
-        if node == nil {
-            return
-        }
-        curr += int64(node.Val)
-        ans += preSum[curr-int64(targetSum)]
-        preSum[curr]++
-        dfs(node.Left, curr)
-        dfs(node.Right, curr)
-        preSum[curr]--
-        return
-    }
-    dfs(root, 0)
-    return
-}
 ```
 
 **复杂度分析**
@@ -11686,46 +5633,7 @@ $$
 
 <![ppt1](https://assets.leetcode.cn/solution-static/416/1.png),![ppt2](https://assets.leetcode.cn/solution-static/416/2.png),![ppt3](https://assets.leetcode.cn/solution-static/416/3.png),![ppt4](https://assets.leetcode.cn/solution-static/416/4.png),![ppt5](https://assets.leetcode.cn/solution-static/416/5.png),![ppt6](https://assets.leetcode.cn/solution-static/416/6.png),![ppt7](https://assets.leetcode.cn/solution-static/416/7.png),![ppt8](https://assets.leetcode.cn/solution-static/416/8.png),![ppt9](https://assets.leetcode.cn/solution-static/416/9.png),![ppt10](https://assets.leetcode.cn/solution-static/416/10.png),![ppt11](https://assets.leetcode.cn/solution-static/416/11.png),![ppt12](https://assets.leetcode.cn/solution-static/416/12.png)>
 
-```Java
-class Solution {
-    public boolean canPartition(int[] nums) {
-        int n = nums.length;
-        if (n < 2) {
-            return false;
-        }
-        int sum = 0, maxNum = 0;
-        for (int num : nums) {
-            sum += num;
-            maxNum = Math.max(maxNum, num);
-        }
-        if (sum % 2 != 0) {
-            return false;
-        }
-        int target = sum / 2;
-        if (maxNum > target) {
-            return false;
-        }
-        boolean[][] dp = new boolean[n][target + 1];
-        for (int i = 0; i < n; i++) {
-            dp[i][0] = true;
-        }
-        dp[0][nums[0]] = true;
-        for (int i = 1; i < n; i++) {
-            int num = nums[i];
-            for (int j = 1; j <= target; j++) {
-                if (j >= num) {
-                    dp[i][j] = dp[i - 1][j] | dp[i - 1][j - num];
-                } else {
-                    dp[i][j] = dp[i - 1][j];
-                }
-            }
-        }
-        return dp[n - 1][target];
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool canPartition(vector<int>& nums) {
@@ -11762,157 +5670,6 @@ public:
 };
 ```
 
-```JavaScript
-var canPartition = function(nums) {
-    const n = nums.length;
-    if (n < 2) {
-        return false;
-    }
-    let sum = 0, maxNum = 0;
-    for (const num of nums) {
-        sum += num;
-        maxNum = maxNum > num ? maxNum : num;
-    }
-    if (sum & 1) {
-        return false;
-    }
-    const target = Math.floor(sum / 2);
-    if (maxNum > target) {
-        return false;
-    }
-    const dp = new Array(n).fill(0).map(() => new Array(target + 1, false));
-    for (let i = 0; i < n; i++) {
-        dp[i][0] = true;
-    }
-    dp[0][nums[0]] = true;
-    for (let i = 1; i < n; i++) {
-        const num = nums[i];
-        for (let j = 1; j <= target; j++) {
-            if (j >= num) {
-                dp[i][j] = dp[i - 1][j] | dp[i - 1][j - num];
-            } else {
-                dp[i][j] = dp[i - 1][j];
-            }
-        }
-    }
-    return dp[n - 1][target];
-};
-```
-
-```Golang
-func canPartition(nums []int) bool {
-    n := len(nums)
-    if n < 2 {
-        return false
-    }
-
-    sum, max := 0, 0
-    for _, v := range nums {
-        sum += v
-        if v > max {
-            max = v
-        }
-    }
-    if sum%2 != 0 {
-        return false
-    }
-
-    target := sum / 2
-    if max > target {
-        return false
-    }
-
-    dp := make([][]bool, n)
-    for i := range dp {
-        dp[i] = make([]bool, target+1)
-    }
-    for i := 0; i < n; i++ {
-        dp[i][0] = true
-    }
-    dp[0][nums[0]] = true
-    for i := 1; i < n; i++ {
-        v := nums[i]
-        for j := 1; j <= target; j++ {
-            if j >= v {
-                dp[i][j] = dp[i-1][j] || dp[i-1][j-v]
-            } else {
-                dp[i][j] = dp[i-1][j]
-            }
-        }
-    }
-    return dp[n-1][target]
-}
-```
-
-```C
-bool canPartition(int* nums, int numsSize) {
-    if (numsSize < 2) {
-        return false;
-    }
-    int sum = 0, maxNum = 0;
-    for (int i = 0; i < numsSize; ++i) {
-        sum += nums[i];
-        maxNum = fmax(maxNum, nums[i]);
-    }
-    if (sum & 1) {
-        return false;
-    }
-    int target = sum / 2;
-    if (maxNum > target) {
-        return false;
-    }
-    int dp[numsSize][target + 1];
-    memset(dp, 0, sizeof(dp));
-    for (int i = 0; i < numsSize; i++) {
-        dp[i][0] = true;
-    }
-    dp[0][nums[0]] = true;
-    for (int i = 1; i < numsSize; i++) {
-        int num = nums[i];
-        for (int j = 1; j <= target; j++) {
-            if (j >= num) {
-                dp[i][j] = dp[i - 1][j] | dp[i - 1][j - num];
-            } else {
-                dp[i][j] = dp[i - 1][j];
-            }
-        }
-    }
-    return dp[numsSize - 1][target];
-}
-```
-
-```Python
-class Solution:
-    def canPartition(self, nums: List[int]) -> bool:
-        n = len(nums)
-        if n < 2:
-            return False
-        
-        total = sum(nums)
-        maxNum = max(nums)
-        if total & 1:
-            return False
-        
-        target = total // 2
-        if maxNum > target:
-            return False
-        
-        dp = [[False] * (target + 1) for _ in range(n)]
-        for i in range(n):
-            dp[i][0] = True
-        
-        dp[0][nums[0]] = True
-        for i in range(1, n):
-            num = nums[i]
-            for j in range(1, target + 1):
-                if j >= num:
-                    dp[i][j] = dp[i - 1][j] | dp[i - 1][j - num]
-                else:
-                    dp[i][j] = dp[i - 1][j]
-        
-        return dp[n - 1][target]
-```
-
 上述代码的空间复杂度是 $O(n \times \textit{target})$。但是可以发现在计算 $\textit{dp}$ 的过程中，每一行的 $dp$ 值都只与上一行的 $dp$ 值有关，因此只需要一个一维数组即可将空间复杂度降到 $O(\textit{target})$。此时的转移方程为：
 $$
 \textit{dp}[j]=\textit{dp}[j]\ |\ dp[j-\textit{nums}[i]]
@@ -11921,39 +5678,7 @@ $$
 
 **代码**
 
-```Java
-class Solution {
-    public boolean canPartition(int[] nums) {
-        int n = nums.length;
-        if (n < 2) {
-            return false;
-        }
-        int sum = 0, maxNum = 0;
-        for (int num : nums) {
-            sum += num;
-            maxNum = Math.max(maxNum, num);
-        }
-        if (sum % 2 != 0) {
-            return false;
-        }
-        int target = sum / 2;
-        if (maxNum > target) {
-            return false;
-        }
-        boolean[] dp = new boolean[target + 1];
-        dp[0] = true;
-        for (int i = 0; i < n; i++) {
-            int num = nums[i];
-            for (int j = target; j >= num; --j) {
-                dp[j] |= dp[j - num];
-            }
-        }
-        return dp[target];
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool canPartition(vector<int>& nums) {
@@ -11984,120 +5709,6 @@ public:
         return dp[target];
     }
 };
-```
-
-```JavaScript
-var canPartition = function(nums) {
-    const n = nums.length;
-    if (n < 2) {
-        return false;
-    }
-    let sum = 0, maxNum = 0;
-    for (const num of nums) {
-        sum += num;
-        maxNum = maxNum > num ? maxNum : num;
-    }
-    if (sum & 1) {
-        return false;
-    }
-    const target = Math.floor(sum / 2);
-    if (maxNum > target) {
-        return false;
-    }
-    const dp = new Array(target + 1).fill(false);
-    dp[0] = true;
-    for (const num of nums) {
-        for (let j = target; j >= num; --j) {
-            dp[j] |= dp[j - num];
-        }
-    }
-    return dp[target];
-};
-```
-
-```Golang
-func canPartition(nums []int) bool {
-    n := len(nums)
-    if n < 2 {
-        return false
-    }
-
-    sum, max := 0, 0
-    for _, v := range nums {
-        sum += v
-        if v > max {
-            max = v
-        }
-    }
-    if sum%2 != 0 {
-        return false
-    }
-
-    target := sum / 2
-    if max > target {
-        return false
-    }
-
-    dp := make([]bool, target+1)
-    dp[0] = true
-    for i := 0; i < n; i++ {
-        v := nums[i]
-        for j := target; j >= v; j-- {
-            dp[j] = dp[j] || dp[j-v]
-        }
-    }
-    return dp[target]
-}
-```
-
-```C
-bool canPartition(int* nums, int numsSize) {
-    if (numsSize < 2) {
-        return false;
-    }
-    int sum = 0, maxNum = 0;
-    for (int i = 0; i < numsSize; ++i) {
-        sum += nums[i];
-        maxNum = fmax(maxNum, nums[i]);
-    }
-    if (sum & 1) {
-        return false;
-    }
-    int target = sum / 2;
-    if (maxNum > target) {
-        return false;
-    }
-    int dp[target + 1];
-    memset(dp, 0, sizeof(dp));
-    dp[0] = true;
-    for (int i = 0; i < numsSize; i++) {
-        int num = nums[i];
-        for (int j = target; j >= num; --j) {
-            dp[j] |= dp[j - num];
-        }
-    }
-    return dp[target];
-}
-```
-
-```Python
-class Solution:
-    def canPartition(self, nums: List[int]) -> bool:
-        n = len(nums)
-        if n < 2:
-            return False
-        
-        total = sum(nums)
-        if total % 2 != 0:
-            return False
-        
-        target = total // 2
-        dp = [True] + [False] * target
-        for i, num in enumerate(nums):
-            for j in range(target, num - 1, -1):
-                dp[j] |= dp[j - num]
-        
-        return dp[target]
 ```
 
 **复杂度分析**
@@ -12186,7 +5797,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
@@ -12212,107 +5823,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int[][] reconstructQueue(int[][] people) {
-        Arrays.sort(people, new Comparator<int[]>() {
-            public int compare(int[] person1, int[] person2) {
-                if (person1[0] != person2[0]) {
-                    return person1[0] - person2[0];
-                } else {
-                    return person2[1] - person1[1];
-                }
-            }
-        });
-        int n = people.length;
-        int[][] ans = new int[n][];
-        for (int[] person : people) {
-            int spaces = person[1] + 1;
-            for (int i = 0; i < n; ++i) {
-                if (ans[i] == null) {
-                    --spaces;
-                    if (spaces == 0) {
-                        ans[i] = person;
-                        break;
-                    }
-                }
-            }
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:
-        people.sort(key=lambda x: (x[0], -x[1]))
-        n = len(people)
-        ans = [[] for _ in range(n)]
-        for person in people:
-            spaces = person[1] + 1
-            for i in range(n):
-                if not ans[i]:
-                    spaces -= 1
-                    if spaces == 0:
-                        ans[i] = person
-                        break
-        return ans
-```
-
-```Golang
-func reconstructQueue(people [][]int) [][]int {
-    sort.Slice(people, func(i, j int) bool {
-        a, b := people[i], people[j]
-        return a[0] < b[0] || a[0] == b[0] && a[1] > b[1]
-    })
-    ans := make([][]int, len(people))
-    for _, person := range people {
-        spaces := person[1] + 1
-        for i := range ans {
-            if ans[i] == nil {
-                spaces--
-                if spaces == 0 {
-                    ans[i] = person
-                    break
-                }
-            }
-        }
-    }
-    return ans
-}
-```
-
-```C
-int cmp(const void* _a, const void* _b) {
-    int *a = *(int**)_a, *b = *(int**)_b;
-    return a[0] == b[0] ? b[1] - a[1] : a[0] - b[0];
-}
-
-int** reconstructQueue(int** people, int peopleSize, int* peopleColSize, int* returnSize, int** returnColumnSizes) {
-    qsort(people, peopleSize, sizeof(int*), cmp);
-    int** ans = malloc(sizeof(int*) * peopleSize);
-    *returnSize = peopleSize;
-    *returnColumnSizes = malloc(sizeof(int) * peopleSize);
-    memset(*returnColumnSizes, 0, sizeof(int) * peopleSize);
-    for (int i = 0; i < peopleSize; ++i) {
-        int spaces = people[i][1] + 1;
-        for (int j = 0; j < peopleSize; ++j) {
-            if ((*returnColumnSizes)[j] == 0) {
-                spaces--;
-                if (!spaces) {
-                    (*returnColumnSizes)[j] = 2;
-                    ans[j] = malloc(sizeof(int) * 2);
-                    ans[j][0] = people[i][0], ans[j][1] = people[i][1];
-                    break;
-                }
-            }
-        }
-    }
-    return ans;
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n^2)$，其中 $n$ 是数组 $\textit{people}$ 的长度。我们需要 $O(n \log n)$ 的时间进行排序，随后需要 $O(n^2)$ 的时间遍历每一个人并将他们放入队列中。由于前者在渐近意义下小于后者，因此总时间复杂度为 $O(n^2)$。
@@ -12333,7 +5843,7 @@ int** reconstructQueue(int** people, int peopleSize, int* peopleColSize, int* re
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
@@ -12347,80 +5857,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public int[][] reconstructQueue(int[][] people) {
-        Arrays.sort(people, new Comparator<int[]>() {
-            public int compare(int[] person1, int[] person2) {
-                if (person1[0] != person2[0]) {
-                    return person2[0] - person1[0];
-                } else {
-                    return person1[1] - person2[1];
-                }
-            }
-        });
-        List<int[]> ans = new ArrayList<int[]>();
-        for (int[] person : people) {
-            ans.add(person[1], person);
-        }
-        return ans.toArray(new int[ans.size()][]);
-    }
-}
-```
-
-```Python
-class Solution:
-    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:
-        people.sort(key=lambda x: (-x[0], x[1]))
-        n = len(people)
-        ans = list()
-        for person in people:
-            ans[person[1]:person[1]] = [person]
-        return ans
-```
-
-```Golang
-func reconstructQueue(people [][]int) (ans [][]int) {
-    sort.Slice(people, func(i, j int) bool {
-        a, b := people[i], people[j]
-        return a[0] > b[0] || a[0] == b[0] && a[1] < b[1]
-    })
-    for _, person := range people {
-        idx := person[1]
-        ans = append(ans[:idx], append([][]int{person}, ans[idx:]...)...)
-    }
-    return
-}
-```
-
-```C
-int cmp(const void* _a, const void* _b) {
-    int *a = *(int**)_a, *b = *(int**)_b;
-    return a[0] == b[0] ? a[1] - b[1] : b[0] - a[0];
-}
-
-int** reconstructQueue(int** people, int peopleSize, int* peopleColSize, int* returnSize, int** returnColumnSizes) {
-    qsort(people, peopleSize, sizeof(int*), cmp);
-    int** ans = malloc(sizeof(int*) * peopleSize);
-    *returnSize = 0;
-    *returnColumnSizes = malloc(sizeof(int) * peopleSize);
-    for (int i = 0; i < peopleSize; i++) {
-        (*returnColumnSizes)[i] = 2;
-    }
-    for (int i = 0; i < peopleSize; ++i) {
-        int* person = people[i];
-        (*returnSize)++;
-        for (int j = (*returnSize) - 1; j > person[1]; j--) {
-            ans[j] = ans[j - 1];
-        }
-        int* tmp = malloc(sizeof(int) * 2);
-        tmp[0] = person[0], tmp[1] = person[1];
-        ans[person[1]] = tmp;
-    }
-    return ans;
-}
 ```
 
 **复杂度分析**
@@ -12510,7 +5946,7 @@ public:
 
 在构建完图之后，对于任何一个查询，就可以从起点出发，通过广度优先搜索的方式，不断更新起点与当前点之间的路径长度，直到搜索到终点为止。
 
-```C++
+```cpp
 class Solution {
 public:
     vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries) {
@@ -12569,199 +6005,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public double[] calcEquation(List<List<String>> equations, double[] values, List<List<String>> queries) {
-        int nvars = 0;
-        Map<String, Integer> variables = new HashMap<String, Integer>();
-
-        int n = equations.size();
-        for (int i = 0; i < n; i++) {
-            if (!variables.containsKey(equations.get(i).get(0))) {
-                variables.put(equations.get(i).get(0), nvars++);
-            }
-            if (!variables.containsKey(equations.get(i).get(1))) {
-                variables.put(equations.get(i).get(1), nvars++);
-            }
-        }
-
-        // 对于每个点，存储其直接连接到的所有点及对应的权值
-        List<Pair>[] edges = new List[nvars];
-        for (int i = 0; i < nvars; i++) {
-            edges[i] = new ArrayList<Pair>();
-        }
-        for (int i = 0; i < n; i++) {
-            int va = variables.get(equations.get(i).get(0)), vb = variables.get(equations.get(i).get(1));
-            edges[va].add(new Pair(vb, values[i]));
-            edges[vb].add(new Pair(va, 1.0 / values[i]));
-        }
-
-        int queriesCount = queries.size();
-        double[] ret = new double[queriesCount];
-        for (int i = 0; i < queriesCount; i++) {
-            List<String> query = queries.get(i);
-            double result = -1.0;
-            if (variables.containsKey(query.get(0)) && variables.containsKey(query.get(1))) {
-                int ia = variables.get(query.get(0)), ib = variables.get(query.get(1));
-                if (ia == ib) {
-                    result = 1.0;
-                } else {
-                    Queue<Integer> points = new LinkedList<Integer>();
-                    points.offer(ia);
-                    double[] ratios = new double[nvars];
-                    Arrays.fill(ratios, -1.0);
-                    ratios[ia] = 1.0;
-
-                    while (!points.isEmpty() && ratios[ib] < 0) {
-                        int x = points.poll();
-                        for (Pair pair : edges[x]) {
-                            int y = pair.index;
-                            double val = pair.value;
-                            if (ratios[y] < 0) {
-                                ratios[y] = ratios[x] * val;
-                                points.offer(y);
-                            }
-                        }
-                    }
-                    result = ratios[ib];
-                }
-            }
-            ret[i] = result;
-        }
-        return ret;
-    }
-}
-
-class Pair {
-    int index;
-    double value;
-
-    Pair(int index, double value) {
-        this.index = index;
-        this.value = value;
-    }
-}
-```
-
-```go
-func calcEquation(equations [][]string, values []float64, queries [][]string) []float64 {
-    // 给方程组中的每个变量编号
-    id := map[string]int{}
-    for _, eq := range equations {
-        a, b := eq[0], eq[1]
-        if _, has := id[a]; !has {
-            id[a] = len(id)
-        }
-        if _, has := id[b]; !has {
-            id[b] = len(id)
-        }
-    }
-
-    // 建图
-    type edge struct {
-        to     int
-        weight float64
-    }
-    graph := make([][]edge, len(id))
-    for i, eq := range equations {
-        v, w := id[eq[0]], id[eq[1]]
-        graph[v] = append(graph[v], edge{w, values[i]})
-        graph[w] = append(graph[w], edge{v, 1 / values[i]})
-    }
-
-    bfs := func(start, end int) float64 {
-        ratios := make([]float64, len(graph))
-        ratios[start] = 1
-        queue := []int{start}
-        for len(queue) > 0 {
-            v := queue[0]
-            queue = queue[1:]
-            if v == end {
-                return ratios[v]
-            }
-            for _, e := range graph[v] {
-                if w := e.to; ratios[w] == 0 {
-                    ratios[w] = ratios[v] * e.weight
-                    queue = append(queue, w)
-                }
-            }
-        }
-        return -1
-    }
-
-    ans := make([]float64, len(queries))
-    for i, q := range queries {
-        start, hasS := id[q[0]]
-        end, hasE := id[q[1]]
-        if !hasS || !hasE {
-            ans[i] = -1
-        } else {
-            ans[i] = bfs(start, end)
-        }
-    }
-    return ans
-}
-```
-
-```JavaScript
-var calcEquation = function(equations, values, queries) {
-    let nvars = 0;
-    const variables = new Map();
-
-    const n = equations.length;
-    for (let i = 0; i < n; i++) {
-        if (!variables.has(equations[i][0])) {
-            variables.set(equations[i][0], nvars++);
-        }
-        if (!variables.has(equations[i][1])) {
-            variables.set(equations[i][1], nvars++);
-        }
-    }
-
-    // 对于每个点，存储其直接连接到的所有点及对应的权值
-    const edges = new Array(nvars).fill(0);
-    for (let i = 0; i < nvars; i++) {
-        edges[i] = [];
-    }
-    for (let i = 0; i < n; i++) {
-        const va = variables.get(equations[i][0]), vb = variables.get(equations[i][1]);
-        edges[va].push([vb, values[i]]);
-        edges[vb].push([va, 1.0 / values[i]]);
-    }
-
-    const queriesCount = queries.length;
-    const ret = [];
-    for (let i = 0; i < queriesCount; i++) {
-        const query = queries[i];
-        let result = -1.0;
-        if (variables.has(query[0]) && variables.has(query[1])) {
-            const ia = variables.get(query[0]), ib = variables.get(query[1]);
-            if (ia === ib) {
-                result = 1.0;
-            } else {
-                const points = [];
-                points.push(ia);
-                const ratios = new Array(nvars).fill(-1.0);
-                ratios[ia] = 1.0;
-
-                while (points.length && ratios[ib] < 0) {
-                    const x = points.pop();
-                    for (const [y, val] of edges[x]) {
-                        if (ratios[y] < 0) {
-                            ratios[y] = ratios[x] * val;
-                            points.push(y);
-                        }
-                    }
-                }
-                result = ratios[ib];
-            }
-        }
-        ret[i] = result;
-    }
-    return ret;
-};
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(ML+Q\cdot(L+M))$，其中 $M$ 为边的数量，$Q$ 为询问的数量，$L$ 为字符串的平均长度。构建图时，需要处理 $M$ 条边，每条边都涉及到 $O(L)$ 的字符串比较；处理查询时，每次查询首先要进行一次 $O(L)$ 的比较，然后至多遍历 $O(M)$ 条边。
@@ -12774,7 +6017,7 @@ var calcEquation = function(equations, values, queries) {
 
 在本题中，我们可以使用 $\text{Floyd}$ 算法，预先计算出任意两点之间的距离。
 
-```C++
+```cpp
 class Solution {
 public:
     vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries) {
@@ -12823,157 +6066,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public double[] calcEquation(List<List<String>> equations, double[] values, List<List<String>> queries) {
-        int nvars = 0;
-        Map<String, Integer> variables = new HashMap<String, Integer>();
-
-        int n = equations.size();
-        for (int i = 0; i < n; i++) {
-            if (!variables.containsKey(equations.get(i).get(0))) {
-                variables.put(equations.get(i).get(0), nvars++);
-            }
-            if (!variables.containsKey(equations.get(i).get(1))) {
-                variables.put(equations.get(i).get(1), nvars++);
-            }
-        }
-        double[][] graph = new double[nvars][nvars];
-        for (int i = 0; i < nvars; i++) {
-            Arrays.fill(graph[i], -1.0);
-        }
-        for (int i = 0; i < n; i++) {
-            int va = variables.get(equations.get(i).get(0)), vb = variables.get(equations.get(i).get(1));
-            graph[va][vb] = values[i];
-            graph[vb][va] = 1.0 / values[i];
-        }
-
-        for (int k = 0; k < nvars; k++) {
-            for (int i = 0; i < nvars; i++) {
-                for (int j = 0; j < nvars; j++) {
-                    if (graph[i][k] > 0 && graph[k][j] > 0) {
-                        graph[i][j] = graph[i][k] * graph[k][j];
-                    }
-                }
-            }
-        }
-
-        int queriesCount = queries.size();
-        double[] ret = new double[queriesCount];
-        for (int i = 0; i < queriesCount; i++) {
-            List<String> query = queries.get(i);
-            double result = -1.0;
-            if (variables.containsKey(query.get(0)) && variables.containsKey(query.get(1))) {
-                int ia = variables.get(query.get(0)), ib = variables.get(query.get(1));
-                if (graph[ia][ib] > 0) {
-                    result = graph[ia][ib];
-                }
-            }
-            ret[i] = result;
-        }
-        return ret;
-    }
-}
-```
-
-```go
-func calcEquation(equations [][]string, values []float64, queries [][]string) []float64 {
-    // 给方程组中的每个变量编号
-    id := map[string]int{}
-    for _, eq := range equations {
-        a, b := eq[0], eq[1]
-        if _, has := id[a]; !has {
-            id[a] = len(id)
-        }
-        if _, has := id[b]; !has {
-            id[b] = len(id)
-        }
-    }
-
-    // 建图
-    graph := make([][]float64, len(id))
-    for i := range graph {
-        graph[i] = make([]float64, len(id))
-    }
-    for i, eq := range equations {
-        v, w := id[eq[0]], id[eq[1]]
-        graph[v][w] = values[i]
-        graph[w][v] = 1 / values[i]
-    }
-
-    // 执行 Floyd 算法
-    for k := range graph {
-        for i := range graph {
-            for j := range graph {
-                if graph[i][k] > 0 && graph[k][j] > 0 {
-                    graph[i][j] = graph[i][k] * graph[k][j]
-                }
-            }
-        }
-    }
-
-    ans := make([]float64, len(queries))
-    for i, q := range queries {
-        start, hasS := id[q[0]]
-        end, hasE := id[q[1]]
-        if !hasS || !hasE || graph[start][end] == 0 {
-            ans[i] = -1
-        } else {
-            ans[i] = graph[start][end]
-        }
-    }
-    return ans
-}
-```
-
-```JavaScript
-var calcEquation = function(equations, values, queries) {
-    let nvars = 0;
-    const variables = new Map();
-
-    const n = equations.length;
-    for (let i = 0; i < n; i++) {
-        if (!variables.has(equations[i][0])) {
-            variables.set(equations[i][0], nvars++);
-        }
-        if (!variables.has(equations[i][1])) {
-            variables.set(equations[i][1], nvars++);
-        }
-    }
-    const graph = new Array(nvars).fill(0).map(() => new Array(nvars).fill(-1.0));
-    for (let i = 0; i < n; i++) {
-        const va = variables.get(equations[i][0]), vb = variables.get(equations[i][1]);
-        graph[va][vb] = values[i];
-        graph[vb][va] = 1.0 / values[i];
-    }
-
-    for (let k = 0; k < nvars; k++) {
-        for (let i = 0; i < nvars; i++) {
-            for (let j = 0; j < nvars; j++) {
-                if (graph[i][k] > 0 && graph[k][j] > 0) {
-                    graph[i][j] = graph[i][k] * graph[k][j];
-                }
-            }
-        }
-    }
-
-    const queriesCount = queries.length;
-    const ret = new Array(queriesCount).fill(0);
-    for (let i = 0; i < queriesCount; i++) {
-        const query = queries[i];
-        let result = -1.0;
-        if (variables.has(query[0]) && variables.has(query[1])) {
-            const ia = variables.get(query[0]), ib = variables.get(query[1]);
-            if (graph[ia][ib] > 0) {
-                result = graph[ia][ib];
-            }
-        }
-        ret[i] = result;
-    }
-    return ret;
-};
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(ML+N^3+QL)$。构建图需要 $O(ML)$ 的时间；$\text{Floyd}$ 算法需要 $O(N^3)$ 的时间；处理查询时，单次查询只需要 $O(L)$ 的字符串比较以及常数时间的额外操作。
@@ -13013,7 +6105,7 @@ $$
 
 也就是说，当在已有的图中添加一条方程式 $\frac{v[x]}{v[y]}=k$ 时，需要将 $w[f_x]$ 更新为 $k\cdot \frac{w[y]}{w[x]}$。
 
-```C++
+```cpp
 class Solution {
 public:
     int findf(vector<int>& f, vector<double>& w, int x) {
@@ -13069,175 +6161,6 @@ public:
         }
         return ret;
     }
-};
-```
-
-```Java
-class Solution {
-    public double[] calcEquation(List<List<String>> equations, double[] values, List<List<String>> queries) {
-        int nvars = 0;
-        Map<String, Integer> variables = new HashMap<String, Integer>();
-
-        int n = equations.size();
-        for (int i = 0; i < n; i++) {
-            if (!variables.containsKey(equations.get(i).get(0))) {
-                variables.put(equations.get(i).get(0), nvars++);
-            }
-            if (!variables.containsKey(equations.get(i).get(1))) {
-                variables.put(equations.get(i).get(1), nvars++);
-            }
-        }
-        int[] f = new int[nvars];
-        double[] w = new double[nvars];
-        Arrays.fill(w, 1.0);
-        for (int i = 0; i < nvars; i++) {
-            f[i] = i;
-        }
-
-        for (int i = 0; i < n; i++) {
-            int va = variables.get(equations.get(i).get(0)), vb = variables.get(equations.get(i).get(1));
-            merge(f, w, va, vb, values[i]);
-        }
-        int queriesCount = queries.size();
-        double[] ret = new double[queriesCount];
-        for (int i = 0; i < queriesCount; i++) {
-            List<String> query = queries.get(i);
-            double result = -1.0;
-            if (variables.containsKey(query.get(0)) && variables.containsKey(query.get(1))) {
-                int ia = variables.get(query.get(0)), ib = variables.get(query.get(1));
-                int fa = findf(f, w, ia), fb = findf(f, w, ib);
-                if (fa == fb) {
-                    result = w[ia] / w[ib];
-                }
-            }
-            ret[i] = result;
-        }
-        return ret;
-    }
-
-    public void merge(int[] f, double[] w, int x, int y, double val) {
-        int fx = findf(f, w, x);
-        int fy = findf(f, w, y);
-        f[fx] = fy;
-        w[fx] = val * w[y] / w[x];
-    }
-
-    public int findf(int[] f, double[] w, int x) {
-        if (f[x] != x) {
-            int father = findf(f, w, f[x]);
-            w[x] = w[x] * w[f[x]];
-            f[x] = father;
-        }
-        return f[x];
-    }
-}
-```
-
-```go
-func calcEquation(equations [][]string, values []float64, queries [][]string) []float64 {
-    // 给方程组中的每个变量编号
-    id := map[string]int{}
-    for _, eq := range equations {
-        a, b := eq[0], eq[1]
-        if _, has := id[a]; !has {
-            id[a] = len(id)
-        }
-        if _, has := id[b]; !has {
-            id[b] = len(id)
-        }
-    }
-
-    fa := make([]int, len(id))
-    w := make([]float64, len(id))
-    for i := range fa {
-        fa[i] = i
-        w[i] = 1
-    }
-    var find func(int) int
-    find = func(x int) int {
-        if fa[x] != x {
-            f := find(fa[x])
-            w[x] *= w[fa[x]]
-            fa[x] = f
-        }
-        return fa[x]
-    }
-    merge := func(from, to int, val float64) {
-        fFrom, fTo := find(from), find(to)
-        w[fFrom] = val * w[to] / w[from]
-        fa[fFrom] = fTo
-    }
-
-    for i, eq := range equations {
-        merge(id[eq[0]], id[eq[1]], values[i])
-    }
-
-    ans := make([]float64, len(queries))
-    for i, q := range queries {
-        start, hasS := id[q[0]]
-        end, hasE := id[q[1]]
-        if hasS && hasE && find(start) == find(end) {
-            ans[i] = w[start] / w[end]
-        } else {
-            ans[i] = -1
-        }
-    }
-    return ans
-}
-```
-
-```JavaScript
-var calcEquation = function(equations, values, queries) {
-    let nvars = 0;
-    const variables = new Map();
-
-    const n = equations.length;
-    for (let i = 0; i < n; i++) {
-        if (!variables.has(equations[i][0])) {
-            variables.set(equations[i][0], nvars++);
-        }
-        if (!variables.has(equations[i][1])) {
-            variables.set(equations[i][1], nvars++);
-        }
-    }
-    const f = new Array(nvars).fill(0).map((val, index) => index);
-    const w = new Array(nvars).fill(1.0);
-
-    for (let i = 0; i < n; i++) {
-        const va = variables.get(equations[i][0]), vb = variables.get(equations[i][1]);
-        merge(f, w, va, vb, values[i]);
-    }
-    const queriesCount = queries.length;
-    const ret = new Array(queriesCount).fill(0);
-    for (let i = 0; i < queriesCount; i++) {
-        const query = queries[i];
-        let result = -1.0;
-        if (variables.has(query[0]) && variables.has(query[1])) {
-            const ia = variables.get(query[0]), ib = variables.get(query[1]);
-            const fa = findf(f, w, ia), fb = findf(f, w, ib);
-            if (fa == fb) {
-                result = w[ia] / w[ib];
-            }
-        }
-        ret[i] = result;
-    }
-    return ret;
-}
-
-const merge = (f, w, x, y, val) => {
-    const fx = findf(f, w, x);
-    const fy = findf(f, w, y);
-    f[fx] = fy;
-    w[fx] = val * w[y] / w[x];
-}
-
-const findf = (f, w, x) => {
-    if (f[x] != x) {
-        const father = findf(f, w, f[x]);
-        w[x] = w[x] * w[f[x]];
-        f[x] = father;
-    }
-    return f[x];
 };
 ```
 
@@ -13388,115 +6311,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    int ptr;
-
-    public String decodeString(String s) {
-        LinkedList<String> stk = new LinkedList<String>();
-        ptr = 0;
-
-        while (ptr < s.length()) {
-            char cur = s.charAt(ptr);
-            if (Character.isDigit(cur)) {
-                // 获取一个数字并进栈
-                String digits = getDigits(s);
-                stk.addLast(digits);
-            } else if (Character.isLetter(cur) || cur == '[') {
-                // 获取一个字母并进栈
-                stk.addLast(String.valueOf(s.charAt(ptr++))); 
-            } else {
-                ++ptr;
-                LinkedList<String> sub = new LinkedList<String>();
-                while (!"[".equals(stk.peekLast())) {
-                    sub.addLast(stk.removeLast());
-                }
-                Collections.reverse(sub);
-                // 左括号出栈
-                stk.removeLast();
-                // 此时栈顶为当前 sub 对应的字符串应该出现的次数
-                int repTime = Integer.parseInt(stk.removeLast());
-                StringBuffer t = new StringBuffer();
-                String o = getString(sub);
-                // 构造字符串
-                while (repTime-- > 0) {
-                    t.append(o);
-                }
-                // 将构造好的字符串入栈
-                stk.addLast(t.toString());
-            }
-        }
-
-        return getString(stk);
-    }
-
-    public String getDigits(String s) {
-        StringBuffer ret = new StringBuffer();
-        while (Character.isDigit(s.charAt(ptr))) {
-            ret.append(s.charAt(ptr++));
-        }
-        return ret.toString();
-    }
-
-    public String getString(LinkedList<String> v) {
-        StringBuffer ret = new StringBuffer();
-        for (String s : v) {
-            ret.append(s);
-        }
-        return ret.toString();
-    }
-}
-```
-
-```golang
-func decodeString(s string) string {
-    stk := []string{}
-    ptr := 0
-    for ptr < len(s) {
-        cur := s[ptr]
-        if cur >= '0' && cur <= '9' {
-            digits := getDigits(s, &ptr)
-            stk = append(stk, digits)
-        } else if (cur >= 'a' && cur <= 'z' || cur >= 'A' && cur <= 'Z') || cur == '[' {
-            stk = append(stk, string(cur))
-            ptr++
-        } else {
-            ptr++
-            sub := []string{}
-            for stk[len(stk)-1] != "[" {
-                sub = append(sub, stk[len(stk)-1])
-                stk = stk[:len(stk)-1]
-            }
-            for i := 0; i < len(sub)/2; i++ {
-                sub[i], sub[len(sub)-i-1] = sub[len(sub)-i-1], sub[i]
-            }
-            stk = stk[:len(stk)-1]
-            repTime, _ := strconv.Atoi(stk[len(stk)-1])
-            stk = stk[:len(stk)-1]
-            t := strings.Repeat(getString(sub), repTime)
-            stk = append(stk, t)
-        }
-    }
-    return getString(stk)
-}
-
-func getDigits(s string, ptr *int) string {
-    ret := ""
-    for ; s[*ptr] >= '0' && s[*ptr] <= '9'; *ptr++ {
-        ret += string(s[*ptr])
-    }
-    return ret
-}
-
-func getString(v []string) string {
-    ret := ""
-    for _, s := range v {
-        ret += s
-    }
-    return ret
-}
-```
-
 **复杂度分析**
 
 + 时间复杂度：记解码后得出的字符串长度为 $S$，除了遍历一次原字符串 $s$，我们还需要将解码后的字符串中的每个字符都入栈，并最终拼接进答案中，故渐进时间复杂度为 $O(S+|s|)$，即 $O(S)$。
@@ -13609,101 +6423,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    String src;
-    int ptr;
-
-    public String decodeString(String s) {
-        src = s;
-        ptr = 0;
-        return getString();
-    }
-
-    public String getString() {
-        if (ptr == src.length() || src.charAt(ptr) == ']') {
-            // String -> EPS
-            return "";
-        }
-
-        char cur = src.charAt(ptr);
-        int repTime = 1;
-        String ret = "";
-
-        if (Character.isDigit(cur)) {
-            // String -> Digits [ String ] String
-            // 解析 Digits
-            repTime = getDigits(); 
-            // 过滤左括号
-            ++ptr;
-            // 解析 String
-            String str = getString(); 
-            // 过滤右括号
-            ++ptr;
-            // 构造字符串
-            while (repTime-- > 0) {
-                ret += str;
-            }
-        } else if (Character.isLetter(cur)) {
-            // String -> Char String
-            // 解析 Char
-            ret = String.valueOf(src.charAt(ptr++));
-        }
-        
-        return ret + getString();
-    }
-
-    public int getDigits() {
-        int ret = 0;
-        while (ptr < src.length() && Character.isDigit(src.charAt(ptr))) {
-            ret = ret * 10 + src.charAt(ptr++) - '0';
-        }
-        return ret;
-    }
-}
-```
-
-```golang
-var (
-    src string
-    ptr int
-)
-
-func decodeString(s string) string {
-    src = s
-    ptr = 0
-    return getString()
-}
-
-func getString() string {
-    if ptr == len(src) || src[ptr] == ']' {
-        return ""
-    }
-    cur := src[ptr]
-    repTime := 1
-    ret := ""
-    if cur >= '0' && cur <= '9' {
-        repTime = getDigits()
-        ptr++
-        str := getString()
-        ptr++
-        ret = strings.Repeat(str, repTime)
-    } else if cur >= 'a' && cur <= 'z' || cur >= 'A' && cur <= 'Z' {
-        ret = string(cur)
-        ptr++
-    }
-    return ret + getString()
-}
-
-func getDigits() int {
-    ret := 0
-    for ; src[ptr] >= '0' && src[ptr] <= '9'; ptr++ {
-        ret = ret * 10 + int(src[ptr] - '0')
-    }
-    return ret
-}
-```
-
 **复杂度分析**
 
 + 时间复杂度：记解码后得出的字符串长度为 $S$，除了遍历一次原字符串 $s$，我们还需要将解码后的字符串中的每个字符都拼接进答案中，故渐进时间复杂度为 $O(S+|s|)$，即 $O(S)$。
@@ -13779,7 +6498,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     static bool cmp(pair<int, int>& m, pair<int, int>& n) {
@@ -13814,175 +6533,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int[] topKFrequent(int[] nums, int k) {
-        Map<Integer, Integer> occurrences = new HashMap<Integer, Integer>();
-        for (int num : nums) {
-            occurrences.put(num, occurrences.getOrDefault(num, 0) + 1);
-        }
-
-        // int[] 的第一个元素代表数组的值，第二个元素代表了该值出现的次数
-        PriorityQueue<int[]> queue = new PriorityQueue<int[]>(new Comparator<int[]>() {
-            public int compare(int[] m, int[] n) {
-                return m[1] - n[1];
-            }
-        });
-        for (Map.Entry<Integer, Integer> entry : occurrences.entrySet()) {
-            int num = entry.getKey(), count = entry.getValue();
-            if (queue.size() == k) {
-                if (queue.peek()[1] < count) {
-                    queue.poll();
-                    queue.offer(new int[]{num, count});
-                }
-            } else {
-                queue.offer(new int[]{num, count});
-            }
-        }
-        int[] ret = new int[k];
-        for (int i = 0; i < k; ++i) {
-            ret[i] = queue.poll()[0];
-        }
-        return ret;
-    }
-}
-```
-
-```C
-struct hash_table {
-    int key;
-    int val;
-    UT_hash_handle hh;
-};
-
-typedef struct hash_table* hash_ptr;
-
-struct pair {
-    int first;
-    int second;
-};
-
-struct pair* heap;
-int heapSize;
-
-void swap(struct pair* a, struct pair* b) {
-    struct pair t = *a;
-    *a = *b, *b = t;
-}
-
-bool cmp(struct pair* a, struct pair* b) {
-    return a->second < b->second;
-}
-
-struct pair top() {
-    return heap[1];
-}
-
-void push(hash_ptr x) {
-    heap[++heapSize].first = x->key;
-    heap[heapSize].second = x->val;
-    int p = heapSize, s;
-    while (p > 1) {
-        s = p >> 1;
-        if (cmp(&heap[s], &heap[p])) return;
-        swap(&heap[p], &heap[s]);
-        p = s;
-    }
-}
-
-void pop() {
-    heap[1] = heap[heapSize--];
-    int p = 1, s;
-    while ((p << 1) <= heapSize) {
-        s = p << 1;
-        if (s < heapSize && cmp(&heap[s + 1], &heap[s])) s++;
-        if (cmp(&heap[p], &heap[s])) return;
-        swap(&heap[p], &heap[s]);
-        p = s;
-    }
-}
-
-int* topKFrequent(int* nums, int numsSize, int k, int* returnSize) {
-    hash_ptr head = NULL;
-    hash_ptr p = NULL, tmp = NULL;
-
-    for (int i = 0; i < numsSize; i++) {
-        HASH_FIND_INT(head, &nums[i], p);
-        if (p == NULL) {
-            p = malloc(sizeof(struct hash_table));
-            p->key = nums[i];
-            p->val = 1;
-            HASH_ADD_INT(head, key, p);
-        } else {
-            p->val++;
-        }
-    }
-
-    heap = malloc(sizeof(struct pair) * (k + 1));
-    heapSize = 0;
-
-    HASH_ITER(hh, head, p, tmp) {
-        if (heapSize == k) {
-            struct pair tmp = top();
-            if (tmp.second < p->val) {
-                pop();
-                push(p);
-            }
-        } else {
-            push(p);
-        }
-    }
-    *returnSize = k;
-    int* ret = malloc(sizeof(int) * k);
-    for (int i = 0; i < k; i++) {
-        struct pair tmp = top();
-        pop();
-        ret[i] = tmp.first;
-    }
-    return ret;
-}
-```
-
-```golang
-func topKFrequent(nums []int, k int) []int {
-    occurrences := map[int]int{}
-    for _, num := range nums {
-        occurrences[num]++
-    }
-    h := &IHeap{}
-    heap.Init(h)
-    for key, value := range occurrences {
-        heap.Push(h, [2]int{key, value})
-        if h.Len() > k {
-            heap.Pop(h)
-        }
-    }
-    ret := make([]int, k)
-    for i := 0; i < k; i++ {
-        ret[k - i - 1] = heap.Pop(h).([2]int)[0]
-    }
-    return ret
-}
-
-type IHeap [][2]int
-
-func (h IHeap) Len() int           { return len(h) }
-func (h IHeap) Less(i, j int) bool { return h[i][1] < h[j][1] }
-func (h IHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-func (h *IHeap) Push(x interface{}) {
-    *h = append(*h, x.([2]int))
-}
-
-func (h *IHeap) Pop() interface{} {
-    old := *h
-    n := len(old)
-    x := old[n-1]
-    *h = old[0 : n-1]
-    return x
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(N\log k)$，其中 $N$ 为数组的长度。我们首先遍历原数组，并使用哈希表记录出现次数，每个元素需要 $O(1)$ 的时间，共需 $O(N)$ 的时间。随后，我们遍历「出现次数数组」，由于堆的大小至多为 $k$，因此每次堆操作需要 $O(\log k)$ 的时间，共需 $O(N\log k)$ 的时间。二者之和为 $O(N\log k)$。
@@ -14004,7 +6554,7 @@ func (h *IHeap) Pop() interface{} {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     void qsort(vector<pair<int, int>>& v, int start, int end, vector<int>& ret, int k) {
@@ -14054,188 +6604,6 @@ public:
         return ret;
     }
 };
-```
-
-```Java
-class Solution {
-    public int[] topKFrequent(int[] nums, int k) {
-        Map<Integer, Integer> occurrences = new HashMap<Integer, Integer>();
-        for (int num : nums) {
-            occurrences.put(num, occurrences.getOrDefault(num, 0) + 1);
-        }
-        // 获取每个数字出现次数
-        List<int[]> values = new ArrayList<int[]>();
-        for (Map.Entry<Integer, Integer> entry : occurrences.entrySet()) {
-            int num = entry.getKey(), count = entry.getValue();
-            values.add(new int[]{num, count});
-        }
-        int[] ret = new int[k];
-        qsort(values, 0, values.size() - 1, ret, 0, k);
-        return ret;
-    }
-
-    public void qsort(List<int[]> values, int start, int end, int[] ret, int retIndex, int k) {
-        int picked = (int) (Math.random() * (end - start + 1)) + start;
-        Collections.swap(values, picked, start);
-        
-        int pivot = values.get(start)[1];
-        int index = start;
-        for (int i = start + 1; i <= end; i++) {
-            // 使用双指针把不小于基准值的元素放到左边，
-            // 小于基准值的元素放到右边
-            if (values.get(i)[1] >= pivot) {
-                Collections.swap(values, index + 1, i);
-                index++;
-            }
-        }
-        Collections.swap(values, start, index);
-
-        if (k <= index - start) {
-            // 前 k 大的值在左侧的子数组里
-            qsort(values, start, index - 1, ret, retIndex, k);
-        } else {
-            // 前 k 大的值等于左侧的子数组全部元素
-            // 加上右侧子数组中前 k - (index - start + 1) 大的值
-            for (int i = start; i <= index; i++) {
-                ret[retIndex++] = values.get(i)[0];
-            }
-            if (k > index - start + 1) {
-                qsort(values, index + 1, end, ret, retIndex, k - (index - start + 1));
-            }
-        }
-    }
-}
-```
-
-```C
-struct hash_table {
-    int key;
-    int val;
-    // 查看 https://troydhanson.github.io/uthash/ 了解更多
-    UT_hash_handle hh;
-};
-
-typedef struct hash_table* hash_ptr;
-
-struct pair {
-    int first;
-    int second;
-};
-
-void swap(struct pair* a, struct pair* b) {
-    struct pair t = *a;
-    *a = *b, *b = t;
-}
-
-void sort(struct pair* v, int start, int end, int* ret, int* retSize, int k) {
-    int picked = rand() % (end - start + 1) + start;
-    swap(&v[picked], &v[start]);
-
-    int pivot = v[start].second;
-    int index = start;
-    for (int i = start + 1; i <= end; i++) {
-        // 使用双指针把不小于基准值的元素放到左边，
-        // 小于基准值的元素放到右边
-        if (v[i].second >= pivot) {
-            swap(&v[index + 1], &v[i]);
-            index++;
-        }
-    }
-    swap(&v[start], &v[index]);
-
-    if (k <= index - start) {
-        // 前 k 大的值在左侧的子数组里
-        sort(v, start, index - 1, ret, retSize, k);
-    } else {
-        // 前 k 大的值等于左侧的子数组全部元素
-        // 加上右侧子数组中前 k - (index - start + 1) 大的值
-        for (int i = start; i <= index; i++) {
-            ret[(*retSize)++] = v[i].first;
-        }
-        if (k > index - start + 1) {
-            sort(v, index + 1, end, ret, retSize, k - (index - start + 1));
-        }
-    }
-}
-
-int* topKFrequent(int* nums, int numsSize, int k, int* returnSize) {
-    hash_ptr head = NULL;
-    hash_ptr p = NULL, tmp = NULL;
-
-    // 获取每个数字出现次数
-    for (int i = 0; i < numsSize; i++) {
-        HASH_FIND_INT(head, &nums[i], p);
-        if (p == NULL) {
-            p = malloc(sizeof(struct hash_table));
-            p->key = nums[i];
-            p->val = 1;
-            HASH_ADD_INT(head, key, p);
-        } else {
-            p->val++;
-        }
-    }
-    struct pair values[numsSize];
-    int valuesSize = 0;
-
-    HASH_ITER(hh, head, p, tmp) {
-        values[valuesSize].first = p->key;
-        values[valuesSize++].second = p->val;
-    }
-    int* ret = malloc(sizeof(int) * k);
-    *returnSize = 0;
-    sort(values, 0, valuesSize - 1, ret, returnSize, k);
-    return ret;
-}
-```
-
-```golang
-func topKFrequent(nums []int, k int) []int {
-    occurrences := map[int]int{}
-    // 获取每个数字出现次数
-    for _, num := range nums {
-        occurrences[num]++
-    }
-    values := [][]int{}
-    for key, value := range occurrences {
-        values = append(values, []int{key, value})
-    }
-    ret := make([]int, k)
-    qsort(values, 0, len(values) - 1, ret, 0, k)
-    return ret
-}
-
-func qsort(values [][]int, start, end int, ret []int, retIndex, k int) {
-    rand.Seed(time.Now().UnixNano())
-    picked := rand.Int() % (end - start + 1) + start;
-    values[picked], values[start] = values[start], values[picked]
-
-    pivot := values[start][1]
-    index := start
-
-    for i := start + 1; i <= end; i++ {
-        // 使用双指针把不小于基准值的元素放到左边，
-        // 小于基准值的元素放到右边
-        if values[i][1] >= pivot {
-            values[index + 1], values[i] = values[i], values[index + 1]
-            index++
-        }
-    }
-    values[start], values[index] = values[index], values[start]
-    if k <= index - start {
-        // 前 k 大的值在左侧的子数组里
-        qsort(values, start, index - 1, ret, retIndex, k)
-    } else {
-        // 前 k 大的值等于左侧的子数组全部元素
-        // 加上右侧子数组中前 k - (index - start + 1) 大的值
-        for i := start; i <= index; i++ {
-            ret[retIndex] = values[i][0]
-            retIndex++
-        }
-        if k > index - start + 1 {
-            qsort(values, index + 1, end, ret, retIndex, k - (index - start + 1))
-        }
-    }
-}
 ```
 
 **复杂度分析**
@@ -14328,78 +6696,7 @@ public:
 
 对于给定的 $n$，计算从 $0$ 到 $n$ 的每个整数的「一比特数」的时间都不会超过 $O(\log n)$，因此总时间复杂度为 $O(n \log n)$。
 
-```Java
-class Solution {
-    public int[] countBits(int n) {
-        int[] bits = new int[n + 1];
-        for (int i = 0; i <= n; i++) {
-            bits[i] = countOnes(i);
-        }
-        return bits;
-    }
-
-    public int countOnes(int x) {
-        int ones = 0;
-        while (x > 0) {
-            x &= (x - 1);
-            ones++;
-        }
-        return ones;
-    }
-}
-```
-
-```JavaScript
-var countBits = function(n) {
-    const bits = new Array(n + 1).fill(0);
-    for (let i = 0; i <= n; i++) {
-        bits[i] = countOnes(i);
-    }
-    return bits
-};
-
-const countOnes = (x) => {
-    let ones = 0;
-    while (x > 0) {
-        x &= (x - 1);
-        ones++;
-    }
-    return ones;
-}
-```
-
-```go
-func onesCount(x int) (ones int) {
-    for ; x > 0; x &= x - 1 {
-        ones++
-    }
-    return
-}
-
-func countBits(n int) []int {
-    bits := make([]int, n+1)
-    for i := range bits {
-        bits[i] = onesCount(i)
-    }
-    return bits
-}
-```
-
-```Python
-class Solution:
-    def countBits(self, n: int) -> List[int]:
-        def countOnes(x: int) -> int:
-            ones = 0
-            while x > 0:
-                x &= (x - 1)
-                ones += 1
-            return ones
-        
-        bits = [countOnes(i) for i in range(n + 1)]
-        return bits
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int countOnes(int x) {
@@ -14419,26 +6716,6 @@ public:
         return bits;
     }
 };
-```
-
-```C
-int countOnes(int x) {
-    int ones = 0;
-    while (x > 0) {
-        x &= (x - 1);
-        ones++;
-    }
-    return ones;
-}
-
-int* countBits(int n, int* returnSize) {
-    int* bits = malloc(sizeof(int) * (n + 1));
-    *returnSize = n + 1;
-    for (int i = 0; i <= n; i++) {
-        bits[i] = countOnes(i);
-    }
-    return bits;
-}
 ```
 
 **复杂度分析**
@@ -14465,63 +6742,7 @@ int* countBits(int n, int* returnSize) {
 
 最终得到的数组 $\textit{bits}$ 即为答案。
 
-```Java
-class Solution {
-    public int[] countBits(int n) {
-        int[] bits = new int[n + 1];
-        int highBit = 0;
-        for (int i = 1; i <= n; i++) {
-            if ((i & (i - 1)) == 0) {
-                highBit = i;
-            }
-            bits[i] = bits[i - highBit] + 1;
-        }
-        return bits;
-    }
-}
-```
-
-```JavaScript
-var countBits = function(n) {
-    const bits = new Array(n + 1).fill(0);
-    let highBit = 0;
-    for (let i = 1; i <= n; i++) {
-        if ((i & (i - 1)) == 0) {
-            highBit = i;
-        }
-        bits[i] = bits[i - highBit] + 1;
-    }
-    return bits;
-};
-```
-
-```go
-func countBits(n int) []int {
-    bits := make([]int, n+1)
-    highBit := 0
-    for i := 1; i <= n; i++ {
-        if i&(i-1) == 0 {
-            highBit = i
-        }
-        bits[i] = bits[i-highBit] + 1
-    }
-    return bits
-}
-```
-
-```Python
-class Solution:
-    def countBits(self, n: int) -> List[int]:
-        bits = [0]
-        highBit = 0
-        for i in range(1, n + 1):
-            if i & (i - 1) == 0:
-                highBit = i
-            bits.append(bits[i - highBit] + 1)
-        return bits
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> countBits(int n) {
@@ -14536,22 +6757,6 @@ public:
         return bits;
     }
 };
-```
-
-```C
-int* countBits(int n, int* returnSize) {
-    int* bits = malloc(sizeof(int) * (n + 1));
-    *returnSize = n + 1;
-    bits[0] = 0;
-    int highBit = 0;
-    for (int i = 1; i <= n; i++) {
-        if ((i & (i - 1)) == 0) {
-            highBit = i;
-        }
-        bits[i] = bits[i - highBit] + 1;
-    }
-    return bits;
-}
 ```
 
 **复杂度分析**
@@ -14576,48 +6781,7 @@ int* countBits(int n, int* returnSize) {
 
 遍历从 $1$ 到 $n$ 的每个正整数 $i$，计算 $\textit{bits}$ 的值。最终得到的数组 $\textit{bits}$ 即为答案。
 
-```Java
-class Solution {
-    public int[] countBits(int n) {
-        int[] bits = new int[n + 1];
-        for (int i = 1; i <= n; i++) {
-            bits[i] = bits[i >> 1] + (i & 1);
-        }
-        return bits;
-    }
-}
-```
-
-```JavaScript
-var countBits = function(n) {
-    const bits = new Array(n + 1).fill(0);
-    for (let i = 1; i <= n; i++) {
-        bits[i] = bits[i >> 1] + (i & 1);
-    }
-    return bits;
-};
-```
-
-```go
-func countBits(n int) []int {
-    bits := make([]int, n+1)
-    for i := 1; i <= n; i++ {
-        bits[i] = bits[i>>1] + i&1
-    }
-    return bits
-}
-```
-
-```Python
-class Solution:
-    def countBits(self, n: int) -> List[int]:
-        bits = [0]
-        for i in range(1, n + 1):
-            bits.append(bits[i >> 1] + (i & 1))
-        return bits
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> countBits(int n) {
@@ -14628,18 +6792,6 @@ public:
         return bits;
     }
 };
-```
-
-```C
-int* countBits(int n, int* returnSize) {
-    int* bits = malloc(sizeof(int) * (n + 1));
-    *returnSize = n + 1;
-    bits[0] = 0;
-    for (int i = 1; i <= n; i++) {
-        bits[i] = bits[i >> 1] + (i & 1);
-    }
-    return bits;
-}
 ```
 
 **复杂度分析**
@@ -14656,48 +6808,7 @@ int* countBits(int n, int* returnSize) {
 
 遍历从 $1$ 到 $n$ 的每个正整数 $i$，计算 $\textit{bits}$ 的值。最终得到的数组 $\textit{bits}$ 即为答案。
 
-```Java
-class Solution {
-    public int[] countBits(int n) {
-        int[] bits = new int[n + 1];
-        for (int i = 1; i <= n; i++) {
-            bits[i] = bits[i & (i - 1)] + 1;
-        }
-        return bits;
-    }
-}
-```
-
-```JavaScript
-var countBits = function(n) {
-    const bits = new Array(n + 1).fill(0);
-    for (let i = 1; i <= n; i++) {
-        bits[i] = bits[i & (i - 1)] + 1;
-    }
-    return bits;
-};
-```
-
-```go
-func countBits(n int) []int {
-    bits := make([]int, n+1)
-    for i := 1; i <= n; i++ {
-        bits[i] = bits[i&(i-1)] + 1
-    }
-    return bits
-}
-```
-
-```Python
-class Solution:
-    def countBits(self, n: int) -> List[int]:
-        bits = [0]
-        for i in range(1, n + 1):
-            bits.append(bits[i & (i - 1)] + 1)
-        return bits
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> countBits(int n) {
@@ -14708,18 +6819,6 @@ public:
         return bits;
     }
 };
-```
-
-```C
-int* countBits(int n, int* returnSize) {
-    int* bits = malloc(sizeof(int) * (n + 1));
-    *returnSize = n + 1;
-    bits[0] = 0;
-    for (int i = 1; i <= n; i++) {
-        bits[i] = bits[i & (i - 1)] + 1;
-    }
-    return bits;
-}
 ```
 
 **复杂度分析**
@@ -14832,48 +6931,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    Map<TreeNode, Integer> f = new HashMap<TreeNode, Integer>();
-    Map<TreeNode, Integer> g = new HashMap<TreeNode, Integer>();
-
-    public int rob(TreeNode root) {
-        dfs(root);
-        return Math.max(f.getOrDefault(root, 0), g.getOrDefault(root, 0));
-    }
-
-    public void dfs(TreeNode node) {
-        if (node == null) {
-            return;
-        }
-        dfs(node.left);
-        dfs(node.right);
-        f.put(node, node.val + g.getOrDefault(node.left, 0) + g.getOrDefault(node.right, 0));
-        g.put(node, Math.max(f.getOrDefault(node.left, 0), g.getOrDefault(node.left, 0)) + Math.max(f.getOrDefault(node.right, 0), g.getOrDefault(node.right, 0)));
-    }
-}
-```
-
-```JavaScript
-var rob = function(root) {
-    const f = new Map();
-    const g = new Map();
-
-    const dfs = (node) => {
-        if (node === null) {
-            return;
-        }
-        dfs(node.left);
-        dfs(node.right);
-        f.set(node, node.val + (g.get(node.left) || 0) + (g.get(node.right) || 0));
-        g.set(node, Math.max(f.get(node.left) || 0, g.get(node.left) || 0) + Math.max(f.get(node.right) || 0, g.get(node.right) || 0));
-    }
-    
-    dfs(root);
-    return Math.max(f.get(root) || 0, g.get(root) || 0);
-};
-```
-
 假设二叉树的节点个数为 $n$。
 
 我们可以看出，以上的算法对二叉树做了一次后序遍历，时间复杂度是 $O(n)$；由于递归会使用到栈空间，空间代价是 $O(n)$，哈希表的空间代价也是 $O(n)$，故空间复杂度也是 $O(n)$。
@@ -14908,91 +6965,6 @@ public:
         return max(rootStatus.selected, rootStatus.notSelected);
     }
 };
-```
-
-```Java
-class Solution {
-    public int rob(TreeNode root) {
-        int[] rootStatus = dfs(root);
-        return Math.max(rootStatus[0], rootStatus[1]);
-    }
-
-    public int[] dfs(TreeNode node) {
-        if (node == null) {
-            return new int[]{0, 0};
-        }
-        int[] l = dfs(node.left);
-        int[] r = dfs(node.right);
-        int selected = node.val + l[1] + r[1];
-        int notSelected = Math.max(l[0], l[1]) + Math.max(r[0], r[1]);
-        return new int[]{selected, notSelected};
-    }
-}
-```
-
-```JavaScript
-var rob = function(root) {
-    const dfs = (node) => {
-        if (node === null) {
-            return [0, 0];
-        }
-        const l = dfs(node.left);
-        const r = dfs(node.right);
-        const selected = node.val + l[1] + r[1];
-        const notSelected = Math.max(l[0], l[1]) + Math.max(r[0], r[1]);
-        return [selected, notSelected];
-    }
-    
-    const rootStatus = dfs(root);
-    return Math.max(rootStatus[0], rootStatus[1]);
-}; 
-```
-
-```golang
-func rob(root *TreeNode) int {
-    val := dfs(root)
-    return max(val[0], val[1])
-}
-
-func dfs(node *TreeNode) []int {
-    if node == nil {
-        return []int{0, 0}
-    }
-    l, r := dfs(node.Left), dfs(node.Right)
-    selected := node.Val + l[1] + r[1]
-    notSelected := max(l[0], l[1]) + max(r[0], r[1])
-    return []int{selected, notSelected}
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-```
-
-```C
-struct SubtreeStatus {
-    int selected;
-    int notSelected;
-};
-
-struct SubtreeStatus dfs(struct TreeNode *node) {
-    if (!node) {
-        return (struct SubtreeStatus){0, 0};
-    }
-    struct SubtreeStatus l = dfs(node->left);
-    struct SubtreeStatus r = dfs(node->right);
-    int selected = node->val + l.notSelected + r.notSelected;
-    int notSelected = fmax(l.selected, l.notSelected) + fmax(r.selected, r.notSelected);
-    return (struct SubtreeStatus){selected, notSelected};
-}
-
-int rob(struct TreeNode *root) {
-    struct SubtreeStatus rootStatus = dfs(root);
-    return fmax(rootStatus.selected, rootStatus.notSelected);
-}
 ```
 
 **复杂度分析**
@@ -15063,33 +7035,7 @@ public:
 
 #### 方法一：暴力法【超时】
 
-```Java
-public class Solution {
-    public int maxProfit(int[] prices) {
-        int maxprofit = 0;
-        for (int i = 0; i < prices.length - 1; i++) {
-            for (int j = i + 1; j < prices.length; j++) {
-                int profit = prices[j] - prices[i];
-                if (profit > maxprofit) {
-                    maxprofit = profit;
-                }
-            }
-        }
-        return maxprofit;
-    }
-}
-```
-```python
-# 此方法会超时
-class Solution:
-    def maxProfit(self, prices: List[int]) -> int:
-        ans = 0
-        for i in range(len(prices)):
-            for j in range(i + 1, len(prices)):
-                ans = max(ans, prices[j] - prices[i])
-        return ans
-```
-```C++
+```cpp
 class Solution {
 public:
     int maxProfit(vector<int>& prices) {
@@ -15125,34 +7071,7 @@ public:
 
 因此，我们只需要遍历价格数组一遍，记录历史最低点，然后在每一天考虑这么一个问题：如果我是在历史最低点买进的，那么我今天卖出能赚多少钱？当考虑完所有天数之时，我们就得到了最好的答案。
 
-```Java
-public class Solution {
-    public int maxProfit(int prices[]) {
-        int minprice = Integer.MAX_VALUE;
-        int maxprofit = 0;
-        for (int i = 0; i < prices.length; i++) {
-            if (prices[i] < minprice) {
-                minprice = prices[i];
-            } else if (prices[i] - minprice > maxprofit) {
-                maxprofit = prices[i] - minprice;
-            }
-        }
-        return maxprofit;
-    }
-}
-```
-```python
-class Solution:
-    def maxProfit(self, prices: List[int]) -> int:
-        inf = int(1e9)
-        minprice = inf
-        maxprofit = 0
-        for price in prices:
-            maxprofit = max(price - minprice, maxprofit)
-            minprice = min(price, minprice)
-        return maxprofit
-```
-```C++
+```cpp
 class Solution {
 public:
     int maxProfit(vector<int>& prices) {
@@ -15258,7 +7177,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     vector<vector<int>> rec;
@@ -15293,134 +7212,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int[][] rec;
-    public int[] val;
-
-    public int maxCoins(int[] nums) {
-        int n = nums.length;
-        val = new int[n + 2];
-        for (int i = 1; i <= n; i++) {
-            val[i] = nums[i - 1];
-        }
-        val[0] = val[n + 1] = 1;
-        rec = new int[n + 2][n + 2];
-        for (int i = 0; i <= n + 1; i++) {
-            Arrays.fill(rec[i], -1);
-        }
-        return solve(0, n + 1);
-    }
-
-    public int solve(int left, int right) {
-        if (left >= right - 1) {
-            return 0;
-        }
-        if (rec[left][right] != -1) {
-            return rec[left][right];
-        }
-        for (int i = left + 1; i < right; i++) {
-            int sum = val[left] * val[i] * val[right];
-            sum += solve(left, i) + solve(i, right);
-            rec[left][right] = Math.max(rec[left][right], sum);
-        }
-        return rec[left][right];
-    }
-}
-```
-
-```Python
-class Solution:
-    def maxCoins(self, nums: List[int]) -> int:
-        n = len(nums)
-        val = [1] + nums + [1]
-        
-        @lru_cache(None)
-        def solve(left: int, right: int) -> int:
-            if left >= right - 1:
-                return 0
-            
-            best = 0
-            for i in range(left + 1, right):
-                total = val[left] * val[i] * val[right]
-                total += solve(left, i) + solve(i, right)
-                best = max(best, total)
-            
-            return best
-
-        return solve(0, n + 1)
-```
-
-```golang
-func maxCoins(nums []int) int {
-    n := len(nums)
-    val := make([]int, n + 2)
-    for i := 1; i <= n; i++ {
-        val[i] = nums[i - 1]
-    }
-    val[0], val[n+1] = 1, 1
-    rec := make([][]int, n + 2)
-    for i := 0; i < len(rec); i++ {
-        rec[i] = make([]int, n + 2)
-        for j := 0; j < len(rec[i]); j++ {
-            rec[i][j] = -1
-        }
-    }
-    return solve(0, n + 1, val, rec)
-}
-
-func solve(left, right int, val []int, rec [][]int) int {
-    if left >= right - 1 {
-        return 0
-    }
-    if rec[left][right] != -1 {
-        return rec[left][right]
-    }
-    for i := left + 1; i < right; i++ {
-        sum := val[left] * val[i] * val[right]
-        sum += solve(left, i, val, rec) + solve(i, right, val, rec)
-        rec[left][right] = max(rec[left][right], sum)
-    }
-    return rec[left][right]
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-```
-
-```C
-int rec[502][502];
-int val[502];
-int solve(int left, int right) {
-    if (left >= right - 1) {
-        return 0;
-    }
-    if (rec[left][right] != -1) {
-        return rec[left][right];
-    }
-    for (int i = left + 1; i < right; i++) {
-        int sum = val[left] * val[i] * val[right];
-        sum += solve(left, i) + solve(i, right);
-        rec[left][right] = fmax(rec[left][right], sum);
-    }
-    return rec[left][right];
-}
-
-int maxCoins(int* nums, int numsSize) {
-    memset(rec, -1, sizeof(rec));
-    val[0] = val[numsSize + 1] = 1;
-    for (int i = 1; i <= numsSize; i++) {
-        val[i] = nums[i - 1];
-    }
-
-    return solve(0, numsSize + 1);
-}
-```
-
 **复杂度分析**
 
 * 时间复杂度：$O(n^3)$，其中 $n$ 是气球数量。区间数为 $n^2$，区间迭代复杂度为 $O(n)$，最终复杂度为 $O(n^2 \times n) = O(n^3)$。
@@ -15449,7 +7240,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int maxCoins(vector<int>& nums) {
@@ -15472,101 +7263,6 @@ public:
         return rec[0][n + 1];
     }
 };
-```
-
-```Java
-class Solution {
-    public int maxCoins(int[] nums) {
-        int n = nums.length;
-        int[][] rec = new int[n + 2][n + 2];
-        int[] val = new int[n + 2];
-        val[0] = val[n + 1] = 1;
-        for (int i = 1; i <= n; i++) {
-            val[i] = nums[i - 1];
-        }
-        for (int i = n - 1; i >= 0; i--) {
-            for (int j = i + 2; j <= n + 1; j++) {
-                for (int k = i + 1; k < j; k++) {
-                    int sum = val[i] * val[k] * val[j];
-                    sum += rec[i][k] + rec[k][j];
-                    rec[i][j] = Math.max(rec[i][j], sum);
-                }
-            }
-        }
-        return rec[0][n + 1];
-    }
-}
-```
-
-```Python
-class Solution:
-    def maxCoins(self, nums: List[int]) -> int:
-        n = len(nums)
-        rec = [[0] * (n + 2) for _ in range(n + 2)]
-        val = [1] + nums + [1]
-
-        for i in range(n - 1, -1, -1):
-            for j in range(i + 2, n + 2):
-                for k in range(i + 1, j):
-                    total = val[i] * val[k] * val[j]
-                    total += rec[i][k] + rec[k][j]
-                    rec[i][j] = max(rec[i][j], total)
-        
-        return rec[0][n + 1]
-```
-
-```golang
-func maxCoins(nums []int) int {
-    n := len(nums)
-    rec := make([][]int, n + 2)
-    for i := 0; i < n + 2; i++ {
-        rec[i] = make([]int, n + 2)
-    }
-    val := make([]int, n + 2)
-    val[0], val[n+1] = 1, 1
-    for i := 1; i <= n; i++ {
-        val[i] = nums[i-1]
-    }
-    for i := n - 1; i >= 0; i-- {
-        for j := i + 2; j <= n + 1; j++ {
-            for k := i + 1; k < j; k++ {
-                sum := val[i] * val[k] * val[j]
-                sum += rec[i][k] + rec[k][j]
-                rec[i][j] = max(rec[i][j], sum)
-            }
-        }
-    }
-    return rec[0][n+1]
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-```
-
-```C
-int maxCoins(int* nums, int numsSize) {
-    int rec[numsSize + 2][numsSize + 2];
-    memset(rec, 0, sizeof(rec));
-    int val[numsSize + 2];
-    val[0] = val[numsSize + 1] = 1;
-    for (int i = 1; i <= numsSize; i++) {
-        val[i] = nums[i - 1];
-    }
-    for (int i = numsSize - 1; i >= 0; i--) {
-        for (int j = i + 2; j <= numsSize + 1; j++) {
-            for (int k = i + 1; k < j; k++) {
-                int sum = val[i] * val[k] * val[j];
-                sum += rec[i][k] + rec[k][j];
-                rec[i][j] = fmax(rec[i][j], sum);
-            }
-        }
-    }
-    return rec[0][numsSize + 1];
-}
 ```
 
 **复杂度分析**
@@ -15710,7 +7406,7 @@ $$
 
 这样我们就可以从第 $1$ 天开始，根据上面的状态转移方程进行进行动态规划，直到计算出第 $n-1$ 天的结果。
 
-```C++
+```cpp
 class Solution {
 public:
     int maxProfit(vector<int>& prices) {
@@ -15734,101 +7430,11 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int maxProfit(int[] prices) {
-        if (prices.length == 0) {
-            return 0;
-        }
-
-        int n = prices.length;
-        // f[i][0]: 手上持有股票的最大收益
-        // f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
-        // f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
-        int[][] f = new int[n][3];
-        f[0][0] = -prices[0];
-        for (int i = 1; i < n; ++i) {
-            f[i][0] = Math.max(f[i - 1][0], f[i - 1][2] - prices[i]);
-            f[i][1] = f[i - 1][0] + prices[i];
-            f[i][2] = Math.max(f[i - 1][1], f[i - 1][2]);
-        }
-        return Math.max(f[n - 1][1], f[n - 1][2]);
-    }
-}
-```
-
-```Python
-class Solution:
-    def maxProfit(self, prices: List[int]) -> int:
-        if not prices:
-            return 0
-        
-        n = len(prices)
-        # f[i][0]: 手上持有股票的最大收益
-        # f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
-        # f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
-        f = [[-prices[0], 0, 0]] + [[0] * 3 for _ in range(n - 1)]
-        for i in range(1, n):
-            f[i][0] = max(f[i - 1][0], f[i - 1][2] - prices[i])
-            f[i][1] = f[i - 1][0] + prices[i]
-            f[i][2] = max(f[i - 1][1], f[i - 1][2])
-        
-        return max(f[n - 1][1], f[n - 1][2])
-```
-
-```C
-int maxProfit(int* prices, int pricesSize) {
-    if (pricesSize == 0) {
-        return 0;
-    }
-
-    // f[i][0]: 手上持有股票的最大收益
-    // f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
-    // f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
-    int f[pricesSize][3];
-    f[0][0] = -prices[0];
-    f[0][1] = f[0][2] = 0;
-    for (int i = 1; i < pricesSize; ++i) {
-        f[i][0] = fmax(f[i - 1][0], f[i - 1][2] - prices[i]);
-        f[i][1] = f[i - 1][0] + prices[i];
-        f[i][2] = fmax(f[i - 1][1], f[i - 1][2]);
-    }
-    return fmax(f[pricesSize - 1][1], f[pricesSize - 1][2]);
-}
-```
-
-```golang
-func maxProfit(prices []int) int {
-    if len(prices) == 0 {
-        return 0
-    }
-    n := len(prices)
-    // f[i][0]: 手上持有股票的最大收益
-    // f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
-    // f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
-    f := make([][3]int, n)
-    f[0][0] = -prices[0]
-    for i := 1; i < n; i++ {
-        f[i][0] = max(f[i-1][0], f[i-1][2] - prices[i])
-        f[i][1] = f[i-1][0] + prices[i]
-        f[i][2] = max(f[i-1][1], f[i-1][2]) 
-    }
-    return max(f[n-1][1], f[n-1][2])
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-```
-
 **空间优化**
 
 注意到上面的状态转移方程中，$f[i][..]$ 只与 $f[i-1][..]$ 有关，而与 $f[i-2][..]$ 及之前的所有状态都无关，因此我们不必存储这些无关的状态。也就是说，我们只需要将 $f[i-1][0]$，$f[i-1][1]$，$f[i-1][2]$ 存放在三个变量中，通过它们计算出 $f[i][0]$，$f[i][1]$，$f[i][2]$ 并存回对应的变量，以便于第 $i+1$ 天的状态转移即可。 
 
-```C++
+```cpp
 class Solution {
 public:
     int maxProfit(vector<int>& prices) {
@@ -15854,7 +7460,7 @@ public:
 };
 ```
 
-```C++
+```cpp
 class Solution {
 public:
     int maxProfit(vector<int>& prices) {
@@ -15873,94 +7479,6 @@ public:
         return max(f1, f2);
     }
 };
-```
-
-```Java
-class Solution {
-    public int maxProfit(int[] prices) {
-        if (prices.length == 0) {
-            return 0;
-        }
-
-        int n = prices.length;
-        int f0 = -prices[0];
-        int f1 = 0;
-        int f2 = 0;
-        for (int i = 1; i < n; ++i) {
-            int newf0 = Math.max(f0, f2 - prices[i]);
-            int newf1 = f0 + prices[i];
-            int newf2 = Math.max(f1, f2);
-            f0 = newf0;
-            f1 = newf1;
-            f2 = newf2;
-        }
-
-        return Math.max(f1, f2);
-    }
-}
-```
-
-```Python
-class Solution:
-    def maxProfit(self, prices: List[int]) -> int:
-        if not prices:
-            return 0
-        
-        n = len(prices)
-        f0, f1, f2 = -prices[0], 0, 0
-        for i in range(1, n):
-            newf0 = max(f0, f2 - prices[i])
-            newf1 = f0 + prices[i]
-            newf2 = max(f1, f2)
-            f0, f1, f2 = newf0, newf1, newf2
-        
-        return max(f1, f2)
-```
-
-```C
-int maxProfit(int* prices, int pricesSize) {
-    if (pricesSize == 0) {
-        return 0;
-    }
-
-    int f0 = -prices[0];
-    int f1 = 0;
-    int f2 = 0;
-    for (int i = 1; i < pricesSize; ++i) {
-        int newf0 = fmax(f0, f2 - prices[i]);
-        int newf1 = f0 + prices[i];
-        int newf2 = fmax(f1, f2);
-        f0 = newf0;
-        f1 = newf1;
-        f2 = newf2;
-    }
-
-    return fmax(f1, f2);
-}
-```
-
-```golang
-func maxProfit(prices []int) int {
-    if len(prices) == 0 {
-        return 0
-    }
-    n := len(prices)
-    f0, f1, f2 := -prices[0], 0, 0
-    for i := 1; i < n; i++ {
-        newf0 := max(f0, f2 - prices[i])
-        newf1 := f0 + prices[i]
-        newf2 := max(f1, f2)
-        f0, f1, f2 = newf0, newf1, newf2
-    }
-    return max(f1, f2)
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -16057,76 +7575,7 @@ public:
 
 **代码**
 
-```Java
-class Solution {
-    private List<String> res = new ArrayList<String>();
-
-    public List<String> removeInvalidParentheses(String s) {
-        int lremove = 0;
-        int rremove = 0;
-
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '(') {
-                lremove++;
-            } else if (s.charAt(i) == ')') {
-                if (lremove == 0) {
-                    rremove++;
-                } else {
-                    lremove--;
-                }
-            }
-        }
-        helper(s, 0, lremove, rremove);
-
-        return res;
-    }
-
-    private void helper(String str, int start, int lremove, int rremove) {
-        if (lremove == 0 && rremove == 0) {
-            if (isValid(str)) {
-                res.add(str);
-            }
-            return;
-        }
-
-        for (int i = start; i < str.length(); i++) {
-            if (i != start && str.charAt(i) == str.charAt(i - 1)) {
-                continue;
-            }
-            // 如果剩余的字符无法满足去掉的数量要求，直接返回
-            if (lremove + rremove > str.length() - i) {
-                return;
-            }
-            // 尝试去掉一个左括号
-            if (lremove > 0 && str.charAt(i) == '(') {
-                helper(str.substring(0, i) + str.substring(i + 1), i, lremove - 1, rremove);
-            }
-            // 尝试去掉一个右括号
-            if (rremove > 0 && str.charAt(i) == ')') {
-                helper(str.substring(0, i) + str.substring(i + 1), i, lremove, rremove - 1);
-            }
-        }
-    }
-
-    private boolean isValid(String str) {
-        int cnt = 0;
-        for (int i = 0; i < str.length(); i++) {
-            if (str.charAt(i) == '(') {
-                cnt++;
-            } else if (str.charAt(i) == ')') {
-                cnt--;
-                if (cnt < 0) {
-                    return false;
-                }
-            }
-        }
-
-        return cnt == 0;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<string> res;
@@ -16194,253 +7643,6 @@ public:
 };
 ```
 
-```C#
-public class Solution {
-    private IList<string> res = new List<string>();
-
-    public IList<string> RemoveInvalidParentheses(string s) {
-        int lremove = 0;
-        int rremove = 0;
-
-        for (int i = 0; i < s.Length; i++) {
-            if (s[i] == '(') {
-                lremove++;
-            } else if (s[i] == ')') {
-                if (lremove == 0) {
-                    rremove++;
-                } else {
-                    lremove--;
-                }
-            }
-        }
-        Helper(s, 0, lremove, rremove);
-
-        return res;
-    }
-
-    private void Helper(String str, int start, int lremove, int rremove) {
-        if (lremove == 0 && rremove == 0) {
-            if (IsValid(str)) {
-                res.Add(str);
-            }
-            return;
-        }
-
-        for (int i = start; i < str.Length; i++) {
-            if (i != start && str[i] == str[i - 1]) {
-                continue;
-            }
-            // 如果剩余的字符无法满足去掉的数量要求，直接返回
-            if (lremove + rremove > str.Length - i) {
-                return;
-            }
-            // 尝试去掉一个左括号
-            if (lremove > 0 && str[i] == '(') {
-                Helper(str.Substring(0, i) + str.Substring(i + 1), i, lremove - 1, rremove);
-            }
-            // 尝试去掉一个右括号
-            if (rremove > 0 && str[i] == ')') {
-                Helper(str.Substring(0, i) + str.Substring(i + 1), i, lremove, rremove - 1);
-            }
-        }
-    }
-
-    private bool IsValid(String str) {
-        int cnt = 0;
-        for (int i = 0; i < str.Length; i++) {
-            if (str[i] == '(') {
-                cnt++;
-            } else if (str[i] == ')') {
-                cnt--;
-                if (cnt < 0) {
-                    return false;
-                }
-            }
-        }
-
-        return cnt == 0;
-    }
-}
-```
-
-```Python
-class Solution:
-    def removeInvalidParentheses(self, s: str) -> List[str]:
-        res = []
-        lremove, rremove = 0, 0
-        for c in s:
-            if c == '(':
-                lremove += 1
-            elif c == ')':
-                if lremove == 0:
-                    rremove += 1
-                else:
-                    lremove -= 1
-
-        def isValid(str):
-            cnt = 0
-            for c in str:
-                if c == '(':
-                    cnt += 1
-                elif c == ')':
-                    cnt -= 1
-                    if cnt < 0:
-                        return False
-            return cnt == 0
-
-        def helper(s, start, lremove, rremove):
-            if lremove == 0 and rremove == 0:
-                if isValid(s):
-                    res.append(s)
-                return
-
-            for  i in range(start, len(s)):
-                if i > start and s[i] == s[i - 1]:
-                    continue
-                # 如果剩余的字符无法满足去掉的数量要求，直接返回
-                if lremove + rremove > len(s) - i:
-                    break
-                # 尝试去掉一个左括号
-                if lremove > 0 and s[i] == '(':
-                    helper(s[:i] + s[i + 1:], i, lremove - 1, rremove);
-                # 尝试去掉一个右括号
-                if rremove > 0 and s[i] == ')':
-                    helper(s[:i] + s[i + 1:], i, lremove, rremove - 1);
-                # 统计当前字符串中已有的括号数量
-
-        helper(s, 0, lremove, rremove)
-        return res
-```
-
-```JavaScript
-var removeInvalidParentheses = function(s) {
-
-    const helper = (str, start, lremove, rremove) => {
-        if (lremove === 0 && rremove === 0) {
-            if (isValid(str)) {
-                res.push(str);
-            }
-            return;
-        }
-
-        for (let i = start; i < str.length; i++) {
-            if (i !== start && str[i] === str[i - 1]) {
-                continue;
-            }
-            // 如果剩余的字符无法满足去掉的数量要求，直接返回
-            if (lremove + rremove > str.length - i) {
-                return;
-            } 
-            // 尝试去掉一个左括号
-            if (lremove > 0 && str[i] === '(') {
-                helper(str.substr(0, i) + str.substr(i + 1), i, lremove - 1, rremove);
-            }
-            // 尝试去掉一个右括号
-            if (rremove > 0 && str[i] === ')') {
-                helper(str.substr(0, i) + str.substr(i + 1), i, lremove, rremove - 1);
-            }
-        }
-    }
-
-    const res = [];
-    let lremove = 0;
-    let rremove = 0;
-
-    for (const c of s) {
-        if (c === '(') {
-            lremove++;
-        } else if (c === ')') {
-            if (lremove === 0) {
-                rremove++;
-            } else {
-                lremove--;
-            }
-        }
-    }
-    helper(s, 0, lremove, rremove);
-    return res;
-}
-
-const isValid = (str) => {
-    let cnt = 0;
-
-    for (let i = 0; i < str.length; i++) {
-        if (str[i] === '(') {
-            cnt++;
-        } else if (str[i] === ')') {
-            cnt--;
-            if (cnt < 0) {
-                return false;
-            }
-        }
-    }
-
-    return cnt === 0;
-}
-```
-
-```go
-func isValid(str string) bool {
-    cnt := 0
-    for _, ch := range str {
-        if ch == '(' {
-            cnt++
-        } else if ch == ')' {
-            cnt--
-            if cnt < 0 {
-                return false
-            }
-        }
-    }
-    return cnt == 0
-}
-
-func helper(ans *[]string, str string, start, lremove, rremove int) {
-    if lremove == 0 && rremove == 0 {
-        if isValid(str) {
-            *ans = append(*ans, str)
-        }
-        return
-    }
-
-    for i := start; i < len(str); i++ {
-        if i != start && str[i] == str[i-1] {
-            continue
-        }
-        // 如果剩余的字符无法满足去掉的数量要求，直接返回
-        if lremove+rremove > len(str)-i {
-            return
-        }
-        // 尝试去掉一个左括号
-        if lremove > 0 && str[i] == '(' {
-            helper(ans, str[:i]+str[i+1:], i, lremove-1, rremove)
-        }
-        // 尝试去掉一个右括号
-        if rremove > 0 && str[i] == ')' {
-            helper(ans, str[:i]+str[i+1:], i, lremove, rremove-1)
-        }
-    }
-}
-
-func removeInvalidParentheses(s string) (ans []string) {
-    lremove, rremove := 0, 0
-    for _, ch := range s {
-        if ch == '(' {
-            lremove++
-        } else if ch == ')' {
-            if lremove == 0 {
-                rremove++
-            } else {
-                lremove--
-            }
-        }
-    }
-
-    helper(&ans, s, 0, lremove, rremove)
-    return
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n \times 2^n)$，其中 $n$ 为字符串的长度。考虑到一个字符串最多可能有 $2^n$ 个子序列，每个子序列可能需要进行一次合法性检测，因此时间复杂度为 $O(n \times 2^n)$。
@@ -16457,58 +7659,7 @@ func removeInvalidParentheses(s string) (ans []string) {
 
 **代码**
 
-```Java
-class Solution {
-    public List<String> removeInvalidParentheses(String s) {
-        List<String> ans = new ArrayList<String>();
-        Set<String> currSet = new HashSet<String>();
-
-        currSet.add(s);
-        while (true) {
-            for (String str : currSet) {
-                if (isValid(str)) {
-                    ans.add(str);
-                }
-            }
-            if (ans.size() > 0) {
-                return ans;
-            }
-            Set<String> nextSet = new HashSet<String>();
-            for (String str : currSet) {
-                for (int i = 0; i < str.length(); i ++) {
-                    if (i > 0 && str.charAt(i) == str.charAt(i - 1)) {
-                        continue;
-                    }
-                    if (str.charAt(i) == '(' || str.charAt(i) == ')') {
-                        nextSet.add(str.substring(0, i) + str.substring(i + 1));
-                    }
-                }
-            }
-            currSet = nextSet;
-        }
-    }
-
-    private boolean isValid(String str) {
-        char[] ss = str.toCharArray();
-        int count = 0;
-
-        for (char c : ss) {
-            if (c == '(') {
-                count++;
-            } else if (c == ')') {
-                count--;
-                if (count < 0) {
-                    return false;
-                }
-            }
-        }
-
-        return count == 0;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool isValid(string str) {
@@ -16558,181 +7709,6 @@ public:
 };
 ```
 
-```C#
-public class Solution {
-    public IList<string> RemoveInvalidParentheses(string s) {
-        List<string> ans = new List<string>();
-        ISet<string> currSet = new HashSet<string>();
-
-        currSet.Add(s);
-        while (true) {
-            foreach (String str in currSet) {
-                if (IsValid(str)) {
-                    ans.Add(str);
-                }
-            }
-            if (ans.Count > 0) {
-                return ans;
-            }
-            ISet<string> nextSet = new HashSet<string>();
-            foreach (string str in currSet) {
-                for (int i = 0; i < str.Length; i++) {
-                    if (i > 0 && str[i] == str[i - 1]) {
-                        continue;
-                    }
-                    if (str[i] == '(' || str[i] == ')') {
-                        nextSet.Add(str.Substring(0, i) + str.Substring(i + 1));
-                    }
-                }
-            }
-            currSet = nextSet;
-        }
-    }
-
-    private bool IsValid(String str) {
-        int count = 0;
-
-        foreach (char c in str) {
-            if (c == '(') {
-                count++;
-            } else if (c == ')') {
-                count--;
-                if (count < 0) {
-                    return false;
-                }
-            }
-        }
-
-        return count == 0;
-    }
-}
-```
-
-```Python
-class Solution:
-    def removeInvalidParentheses(self, s: str) -> List[str]:
-        def isValid(s):
-            count = 0
-            for c in s:
-                if c == '(':
-                    count += 1
-                elif c == ')':
-                    count -= 1
-                    if count < 0:
-                        return False
-            return count == 0
-
-        ans = []
-        currSet = set([s])
-
-        while True:
-            for ss in currSet:
-                if isValid(ss):
-                    ans.append(ss)
-            if len(ans) > 0:
-                return ans
-            nextSet = set()
-            for ss in currSet:
-                for i in range(len(ss)):
-                    if i > 0 and ss[i] == s[i - 1]:
-                        continue
-                    if ss[i] == '(' or ss[i] == ')':
-                        nextSet.add(ss[:i] + ss[i + 1:])
-            currSet = nextSet
-        return ans
-```
-
-```JavaScript
-var removeInvalidParentheses = function(s) {
-    const ans = [];
-    let currSet = new Set();
-
-    currSet.add(s);
-    while (true) {
-        for (const str of currSet) {
-            if (isValid(str)) {
-                ans.push(str);
-            }
-        }
-        if (ans.length > 0) {
-            return ans;
-        }
-        const nextSet = new Set();
-        for (const str of currSet) {
-            for (let i = 0; i < str.length; i ++) {
-                if (i > 0 && str[i] === str[i - 1]) {
-                    continue;
-                }
-                if (str[i] === '(' || str[i] === ')') {
-                    nextSet.add(str.substring(0, i) + str.substring(i + 1));
-                }
-            }
-        }
-        currSet = nextSet;
-    }
-}
-
-const isValid = (str) => {
-    let count = 0;
-
-    for (const c of str) {
-        if (c === '(') {
-            count++;
-        } else if (c === ')') {
-            count--;
-            if (count < 0) {
-                return false;
-            }
-        }
-    }
-
-    return count === 0;
-}
-```
-
-```go
-func isValid(str string) bool {
-    cnt := 0
-    for _, ch := range str {
-        if ch == '(' {
-            cnt++
-        } else if ch == ')' {
-            cnt--
-            if cnt < 0 {
-                return false
-            }
-        }
-    }
-    return cnt == 0
-}
-
-func removeInvalidParentheses(s string) (ans []string) {
-    curSet := map[string]struct{}{s: {}}
-    for {
-        for str := range curSet {
-            if isValid(str) {
-                ans = append(ans, str)
-            }
-        }
-        if len(ans) > 0 {
-            return
-        }
-        nextSet := map[string]struct{}{}
-        for str := range curSet {
-            for i, ch := range str {
-                if i > 0 && byte(ch) == str[i-1] {
-                    continue
-                }
-                if ch == '(' || ch == ')' {
-                    nextSet[str[:i]+str[i+1:]] = struct{}{}
-                }
-            }
-        }
-        curSet = nextSet
-    }
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n \times 2^n)$，其中 $n$ 为字符串的长度。考虑到一个字符串最多可能有 $2^n$ 个子序列，因此时间复杂度为 $O(n \times 2^n)$。
@@ -16747,112 +7723,7 @@ func removeInvalidParentheses(s string) (ans []string) {
 
 **代码**
 
-```Java
-class Solution {
-    public List<String> removeInvalidParentheses(String s) {
-        int lremove = 0;
-        int rremove = 0;
-        List<Integer> left = new ArrayList<Integer>();
-        List<Integer> right = new ArrayList<Integer>();
-        List<String> ans = new ArrayList<String>();
-        Set<String> cnt = new HashSet<String>();
-
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '(') {
-                left.add(i);
-                lremove++;
-            } else if (s.charAt(i) == ')') {
-                right.add(i);
-                if (lremove == 0) {
-                    rremove++;
-                } else {
-                    lremove--;
-                }
-            }
-        }
-
-        int m = left.size();
-        int n = right.size();
-        List<Integer> maskArr1 = new ArrayList<Integer>();
-        List<Integer> maskArr2 = new ArrayList<Integer>();
-        for (int i = 0; i < (1 << m); i++) {
-            if (Integer.bitCount(i) != lremove) {
-                continue;
-            }
-            maskArr1.add(i);
-        }
-        for (int i = 0; i < (1 << n); i++) {
-            if (Integer.bitCount(i) != rremove) {
-                continue;
-            }
-            maskArr2.add(i);
-        }
-        for (int mask1 : maskArr1) {
-            for (int mask2 : maskArr2) {
-                if (checkValid(s, mask1, left, mask2, right)) {
-                    cnt.add(recoverStr(s, mask1, left, mask2, right));
-                }
-            }
-        }
-        for (String v : cnt) {
-            ans.add(v);
-        }
-
-        return ans;
-    }
-
-    private boolean checkValid(String str, int lmask, List<Integer> left, int rmask, List<Integer> right) {
-        int pos1 = 0;
-        int pos2 = 0;
-        int cnt = 0;
-
-        for (int i = 0; i < str.length(); i++) {
-            if (pos1 < left.size() && i == left.get(pos1)) {
-                if ((lmask & (1 << pos1)) == 0) {
-                    cnt++;
-                }
-                pos1++;
-            } else if (pos2 < right.size() && i == right.get(pos2)) {
-                if ((rmask & (1 << pos2)) == 0) {
-                    cnt--;
-                    if (cnt < 0) {
-                        return false;
-                    }
-                }
-                pos2++;
-            }
-        }
-
-        return cnt == 0;
-    }
-
-    private String recoverStr(String str, int lmask, List<Integer> left, int rmask, List<Integer> right) {
-        StringBuilder sb = new StringBuilder();
-        int pos1 = 0;
-        int pos2 = 0;
-
-        for (int i = 0; i < str.length(); i++) {
-            if (pos1 < left.size() && i == left.get(pos1)) {
-                if ((lmask & (1 << pos1)) == 0) {
-                    sb.append(str.charAt(i));
-                }
-                pos1++;
-            } else if (pos2 < right.size() && i == right.get(pos2)) {
-                if ((rmask & (1 << pos2)) == 0) {
-                    sb.append(str.charAt(i));
-                }
-                pos2++;
-            } else {
-                sb.append(str.charAt(i));
-            }
-        }
-
-        return sb.toString();
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool checkValid(const string & str, int lmask, vector<int> & left, int rmask, vector<int> & right) {
@@ -16958,400 +7829,6 @@ public:
 };
 ```
 
-```C#
-public class Solution {
-    public IList<string> RemoveInvalidParentheses(string s) {
-        int lremove = 0;
-        int rremove = 0;
-        IList<int> left = new List<int>();
-        IList<int> right = new List<int>();
-        IList<string> ans = new List<string>();
-        ISet<string> cnt = new HashSet<string>();
-
-        for (int i = 0; i < s.Length; i++) {
-            if (s[i] == '(') {
-                left.Add(i);
-                lremove++;
-            } else if (s[i] == ')') {
-                right.Add(i);
-                if (lremove == 0) {
-                    rremove++;
-                } else {
-                    lremove--;
-                }
-            }
-        }
-
-        int m = left.Count;
-        int n = right.Count;
-        IList<int> maskArr1 = new List<int>();
-        IList<int> maskArr2 = new List<int>();
-        for (int i = 0; i < (1 << m); i++) {
-            if (CountBit(i) != lremove) {
-                continue;
-            }
-            maskArr1.Add(i);
-        }
-        for (int i = 0; i < (1 << n); i++) {
-            if (CountBit(i) != rremove) {
-                continue;
-            }
-            maskArr2.Add(i);
-        }
-        foreach (int mask1 in maskArr1) {
-            foreach (int mask2 in maskArr2) {
-                if (CheckValid(s, mask1, left, mask2, right)) {
-                    cnt.Add(RecoverStr(s, mask1, left, mask2, right));
-                }
-            }
-        }
-        foreach (string v in cnt) {
-            ans.Add(v);
-        }
-
-        return ans;
-    }
-
-    private bool CheckValid(string str, int lmask, IList<int> left, int rmask, IList<int> right) {
-        int pos1 = 0;
-        int pos2 = 0;
-        int cnt = 0;
-
-        for (int i = 0; i < str.Length; i++) {
-            if (pos1 < left.Count && i == left[pos1]) {
-                if ((lmask & (1 << pos1)) == 0) {
-                    cnt++;
-                }
-                pos1++;
-            } else if (pos2 < right.Count && i == right[pos2]) {
-                if ((rmask & (1 << pos2)) == 0) {
-                    cnt--;
-                    if (cnt < 0) {
-                        return false;
-                    }
-                }
-                pos2++;
-            }
-        }
-
-        return cnt == 0;
-    }
-
-    private string RecoverStr(String str, int lmask, IList<int> left, int rmask, IList<int> right) {
-        StringBuilder sb = new StringBuilder();
-        int pos1 = 0;
-        int pos2 = 0;
-
-        for (int i = 0; i < str.Length; i++) {
-            if (pos1 < left.Count && i == left[pos1]) {
-                if ((lmask & (1 << pos1)) == 0) {
-                    sb.Append(str[i]);
-                }
-                pos1++;
-            } else if (pos2 < right.Count && i == right[pos2]) {
-                if ((rmask & (1 << pos2)) == 0) {
-                    sb.Append(str[i]);
-                }
-                pos2++;
-            } else {
-                sb.Append(str[i]);
-            }
-        }
-
-        return sb.ToString();
-    }
-
-    private int CountBit(int x) {
-        int res = 0;
-        while (x != 0) {
-            x &= (x - 1);
-            res++;
-        }
-        return res;
-    }
-}
-```
-
-```Python
-class Solution:
-    def removeInvalidParentheses(self, s: str) -> List[str]:
-        def checkValid(str, lmask, left, rmask, right):
-            pos1, pos2 = 0, 0
-            cnt = 0
-
-            for i in range(len(str)):
-                if pos1 < len(left) and i == left[pos1]:
-                    if lmask & (1 << pos1) == 0:
-                        cnt += 1
-                    pos1 += 1
-                elif pos2 < len(right) and i == right[pos2]:
-                    if rmask & (1 << pos2) == 0:
-                        cnt -= 1
-                        if cnt < 0:
-                            return False
-                    pos2 += 1
-
-            return cnt == 0
-
-        def recoverStr(lmask, left, rmask, right):
-            pos1, pos2 = 0, 0
-            res = ""
-
-            for i in range(len(s)):
-                if pos1 < len(left) and i == left[pos1]:
-                    if lmask & (1 << pos1) == 0:
-                        res += s[i]
-                    pos1 += 1
-                elif pos2 < len(right) and i == right[pos2]:
-                    if rmask & (1 << pos2) == 0:
-                        res += s[i]
-                    pos2 += 1
-                else:
-                    res += s[i]
-
-            return res
-
-        def countBit(x):
-            res = 0
-            while x != 0:
-                x = x & (x - 1)
-                res += 1
-            return res
-
-        lremove, rremove = 0, 0
-        left, right = [], []
-        ans = []
-        cnt = set()
-
-        for i in range(len(s)):
-            if s[i] == '(':
-                left.append(i)
-                lremove += 1
-            elif s[i] == ')':
-                right.append(i)
-                if lremove == 0:
-                    rremove += 1
-                else:
-                    lremove -= 1
-
-        m, n = len(left), len(right)
-        maskArr1, maskArr2 = [], []
-        for i in range(1 << m):
-            if countBit(i) != lremove:
-                continue
-            maskArr1.append(i)
-        for i in range(1 << n):
-            if countBit(i) != rremove:
-                continue
-            maskArr2.append(i)
-        for mask1 in maskArr1:
-            for mask2 in maskArr2:
-                if checkValid(s, mask1, left, mask2, right):
-                    cnt.add(recoverStr(mask1, left, mask2, right))
-            
-        return [val for val in cnt]
-```
-
-```JavaScript
-var removeInvalidParentheses = function(s) {
-    let lremove = 0;
-    let rremove = 0;
-    const left = [];
-    const right = [];
-    const ans = [];
-    const cnt = new Set();
-
-    for (let i = 0; i < s.length; i++) {
-        if (s[i] === '(') {
-            left.push(i);
-            lremove++;
-        } else if (s[i] === ')') {
-            right.push(i);
-            if (lremove === 0) {
-                rremove++;
-            } else {
-                lremove--;
-            }
-        }
-    }
-
-    const m = left.length;
-    const n = right.length;
-    const maskArr1 = [];
-    const maskArr2 = [];
-    for (let i = 0; i < (1 << m); i++) {
-        if (bitCount(i) !== lremove) {
-            continue;
-        }
-        maskArr1.push(i);
-    }
-    for (let i = 0; i < (1 << n); i++) {
-        if (bitCount(i) !== rremove) {
-            continue;
-        }
-        maskArr2.push(i);
-    }
-    for (const mask1 of maskArr1) {
-        for (const mask2 of maskArr2) {
-            if (checkValid(s, mask1, left, mask2, right)) {
-                cnt.add(recoverStr(s, mask1, left, mask2, right));
-            }
-        }
-    }
-    for (const v of cnt) {
-        ans.push(v);
-    }
-
-    return ans;
-}
-
-const bitCount = (n) => {
-    let ret = 0;
-    while (n) {
-        n &= n - 1;
-        ret++;
-    }
-    return ret;
-};
-
-const checkValid = (str, lmask, left, rmask, right) => {
-    let pos1 = 0;
-    let pos2 = 0;
-    let cnt = 0;
-
-    for (let i = 0; i < str.length; i++) {
-        if (pos1 < left.length && i === left[pos1]) {
-            if ((lmask & (1 << pos1)) === 0) {
-                cnt++;
-            }
-            pos1++;
-        } else if (pos2 < right.length && i === right[pos2]) {
-            if ((rmask & (1 << pos2)) === 0) {
-                cnt--;
-                if (cnt < 0) {
-                    return false;
-                }
-            }
-            pos2++;
-        }
-    }
-
-    return cnt === 0;
-}
-
-const recoverStr = (str, lmask, left, rmask, right) => {
-    const sb = [];
-    let pos1 = 0;
-    let pos2 = 0;
-
-    for (let i = 0; i < str.length; i++) {
-        if (pos1 < left.length && i === left[pos1]) {
-            if ((lmask & (1 << pos1)) === 0) {
-                sb.push(str[i]);
-            }
-            pos1++;
-        } else if (pos2 < right.length && i === right[pos2]) {
-            if ((rmask & (1 << pos2)) === 0) {
-                sb.push(str[i]);
-            }
-            pos2++;
-        } else {
-            sb.push(str[i]);
-        }
-    }
-
-    return sb.join('');
-}
-```
-
-```go
-func checkValid(str string, lmask, rmask int, left, right []int) bool {
-    cnt := 0
-    pos1, pos2 := 0, 0
-    for i := range str {
-        if pos1 < len(left) && i == left[pos1] {
-            if lmask>>pos1&1 == 0 {
-                cnt++
-            }
-            pos1++
-        } else if pos2 < len(right) && i == right[pos2] {
-            if rmask>>pos2&1 == 0 {
-                cnt--
-                if cnt < 0 {
-                    return false
-                }
-            }
-            pos2++
-        }
-    }
-    return cnt == 0
-}
-
-func recoverStr(str string, lmask, rmask int, left, right []int) string {
-    res := []rune{}
-    pos1, pos2 := 0, 0
-    for i, ch := range str {
-        if pos1 < len(left) && i == left[pos1] {
-            if lmask>>pos1&1 == 0 {
-                res = append(res, ch)
-            }
-            pos1++
-        } else if pos2 < len(right) && i == right[pos2] {
-            if rmask>>pos2&1 == 0 {
-                res = append(res, ch)
-            }
-            pos2++
-        } else {
-            res = append(res, ch)
-        }
-    }
-    return string(res)
-}
-
-func removeInvalidParentheses(s string) (ans []string) {
-    var left, right []int
-    lremove, rremove := 0, 0
-    for i, ch := range s {
-        if ch == '(' {
-            left = append(left, i)
-            lremove++
-        } else if ch == ')' {
-            right = append(right, i)
-            if lremove == 0 {
-                rremove++
-            } else {
-                lremove--
-            }
-        }
-    }
-
-    var maskArr1, maskArr2 []int
-    for i := 0; i < 1<<len(left); i++ {
-        if bits.OnesCount(uint(i)) == lremove {
-            maskArr1 = append(maskArr1, i)
-        }
-    }
-    for i := 0; i < 1<<len(right); i++ {
-        if bits.OnesCount(uint(i)) == rremove {
-            maskArr2 = append(maskArr2, i)
-        }
-    }
-
-    res := map[string]struct{}{}
-    for _, mask1 := range maskArr1 {
-        for _, mask2 := range maskArr2 {
-            if checkValid(s, mask1, mask2, left, right) {
-                res[recoverStr(s, mask1, mask2, left, right)] = struct{}{}
-            }
-        }
-    }
-    for str := range res {
-        ans = append(ans, str)
-    }
-    return
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n \times 2^n)$，其中 $n$ 为字符串的长度。考虑到一个字符串最多可能有 $2^n$ 个子序列，每个子序列可能需要进行一次合法性检测，因此时间复杂度为 $O(n \times 2^n)$。
@@ -17442,30 +7919,7 @@ $$
 
 <![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide1.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide2.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide3.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide4.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide5.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide6.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide7.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide8.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide9.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide10.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide11.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide12.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide13.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide14.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide15.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide16.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide17.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide18.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide19.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide20.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide21.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide22.PNG),![在这里插入图片描述](https://pic.leetcode.cn/Figures/300_LISSlide23.PNG)>
 
-```Java
-class Solution {
-    public int lengthOfLIS(int[] nums) {
-        if (nums.length == 0) {
-            return 0;
-        }
-        int[] dp = new int[nums.length];
-        dp[0] = 1;
-        int maxans = 1;
-        for (int i = 1; i < nums.length; i++) {
-            dp[i] = 1;
-            for (int j = 0; j < i; j++) {
-                if (nums[i] > nums[j]) {
-                    dp[i] = Math.max(dp[i], dp[j] + 1);
-                }
-            }
-            maxans = Math.max(maxans, dp[i]);
-        }
-        return maxans;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int lengthOfLIS(vector<int>& nums) {
@@ -17485,20 +7939,6 @@ public:
         return *max_element(dp.begin(), dp.end());
     }
 };
-```
-
-```Python3 [sol1-Python3]
-class Solution:
-    def lengthOfLIS(self, nums: List[int]) -> int:
-        if not nums:
-            return 0
-        dp = []
-        for i in range(len(nums)):
-            dp.append(1)
-            for j in range(i):
-                if nums[i] > nums[j]:
-                    dp[i] = max(dp[i], dp[j] + 1)
-        return max(dp)
 ```
 
 **复杂度分析**
@@ -17543,38 +7983,7 @@ class Solution:
 
 最终得到最大递增子序列长度为 $3$。
 
-```Java
-class Solution {
-    public int lengthOfLIS(int[] nums) {
-        int len = 1, n = nums.length;
-        if (n == 0) {
-            return 0;
-        }
-        int[] d = new int[n + 1];
-        d[len] = nums[0];
-        for (int i = 1; i < n; ++i) {
-            if (nums[i] > d[len]) {
-                d[++len] = nums[i];
-            } else {
-                int l = 1, r = len, pos = 0; // 如果找不到说明所有的数都比 nums[i] 大，此时要更新 d[1]，所以这里将 pos 设为 0
-                while (l <= r) {
-                    int mid = (l + r) >> 1;
-                    if (d[mid] < nums[i]) {
-                        pos = mid;
-                        l = mid + 1;
-                    } else {
-                        r = mid - 1;
-                    }
-                }
-                d[pos + 1] = nums[i];
-            }
-        }
-        return len;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int lengthOfLIS(vector<int>& nums) {
@@ -17604,27 +8013,6 @@ public:
         return len;
     }
 };
-```
-
-```Python
-class Solution:
-    def lengthOfLIS(self, nums: List[int]) -> int:
-        d = []
-        for n in nums:
-            if not d or n > d[-1]:
-                d.append(n)
-            else:
-                l, r = 0, len(d) - 1
-                loc = r
-                while l <= r:
-                    mid = (l + r) // 2
-                    if d[mid] >= n:
-                        loc = mid
-                        r = mid - 1
-                    else:
-                        l = mid + 1
-                d[loc] = n
-        return len(d)
 ```
 
 **复杂度分析**
@@ -17748,85 +8136,7 @@ public:
 
 **代码**
 
-```Java
-public class Codec {
-    public String serialize(TreeNode root) {
-        return rserialize(root, "");
-    }
-  
-    public TreeNode deserialize(String data) {
-        String[] dataArray = data.split(",");
-        List<String> dataList = new LinkedList<String>(Arrays.asList(dataArray));
-        return rdeserialize(dataList);
-    }
-
-    public String rserialize(TreeNode root, String str) {
-        if (root == null) {
-            str += "None,";
-        } else {
-            str += str.valueOf(root.val) + ",";
-            str = rserialize(root.left, str);
-            str = rserialize(root.right, str);
-        }
-        return str;
-    }
-  
-    public TreeNode rdeserialize(List<String> dataList) {
-        if (dataList.get(0).equals("None")) {
-            dataList.remove(0);
-            return null;
-        }
-  
-        TreeNode root = new TreeNode(Integer.valueOf(dataList.get(0)));
-        dataList.remove(0);
-        root.left = rdeserialize(dataList);
-        root.right = rdeserialize(dataList);
-    
-        return root;
-    }
-}
-```
-
-```C#
-public class Codec {
-    public string serialize(TreeNode root) {
-        return rserialize(root, "");
-    }
-
-    public TreeNode deserialize(string data) {
-        string[] dataArray = data.Split(",");
-        LinkedList<string> dataList = new LinkedList<string>(dataArray.ToList());
-        return rdeserialize(dataList);
-    }
-
-    public string rserialize(TreeNode root, string str) {
-        if (root == null) {
-            str += "None,";
-        } else {
-            str += root.val.ToString() + ",";
-            str = rserialize(root.left, str);
-            str = rserialize(root.right, str);
-        }
-        return str;
-    }
-  
-    public TreeNode rdeserialize(LinkedList<string> dataList) {
-        if (dataList.First.Value.Equals("None")) {
-            dataList.RemoveFirst();
-            return null;
-        }
-  
-        TreeNode root = new TreeNode(int.Parse(dataList.First.Value));
-        dataList.RemoveFirst();
-        root.left = rdeserialize(dataList);
-        root.right = rdeserialize(dataList);
-    
-        return root;
-    }
-}
-```
-
-```C++
+```cpp
 class Codec {
 public:
     void rserialize(TreeNode* root, string& str) {
@@ -17878,82 +8188,6 @@ public:
 };
 ```
 
-```JavaScript
-var serialize = function(root) {
-    return rserialize(root, '');
-};
-
-var deserialize = function(data) {
-    const dataArray = data.split(",");
-    return rdeserialize(dataArray);
-};
-
-const rserialize = (root, str) => {
-    if (root === null) {
-        str += "None,";
-    } else {
-        str += root.val + '' + ",";
-        str = rserialize(root.left, str);
-        str = rserialize(root.right, str);
-    }
-    return str;
-}
-
-const rdeserialize = (dataList) => {
-    if (dataList[0] === "None") {
-        dataList.shift();
-        return null;
-    }
-
-    const root = new TreeNode(parseInt(dataList[0]));
-    dataList.shift();
-    root.left = rdeserialize(dataList);
-    root.right = rdeserialize(dataList);
-
-    return root;
-}
-```
-
-```go
-type Codec struct{}
-
-func Constructor() (_ Codec) {
-    return
-}
-
-func (Codec) serialize(root *TreeNode) string {
-    sb := &strings.Builder{}
-    var dfs func(*TreeNode)
-    dfs = func(node *TreeNode) {
-        if node == nil {
-            sb.WriteString("null,")
-            return
-        }
-        sb.WriteString(strconv.Itoa(node.Val))
-        sb.WriteByte(',')
-        dfs(node.Left)
-        dfs(node.Right)
-    }
-    dfs(root)
-    return sb.String()
-}
-
-func (Codec) deserialize(data string) *TreeNode {
-    sp := strings.Split(data, ",")
-    var build func() *TreeNode
-    build = func() *TreeNode {
-        if sp[0] == "null" {
-            sp = sp[1:]
-            return nil
-        }
-        val, _ := strconv.Atoi(sp[0])
-        sp = sp[1:]
-        return &TreeNode{val, build(), build()}
-    }
-    return build()
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：在序列化和反序列化函数中，我们只访问每个节点一次，因此时间复杂度为 $O(n)$，其中 $n$ 是节点数，即树的大小。 
@@ -17995,105 +8229,7 @@ T -> (T) num (T) | X
 
 **代码**
 
-```Java
-public class Codec {
-    public String serialize(TreeNode root) {
-        if (root == null) {
-            return "X";
-        }
-        String left = "(" + serialize(root.left) + ")";
-        String right = "(" + serialize(root.right) + ")";
-        return left + root.val + right;
-    }
-
-    public TreeNode deserialize(String data) {
-        int[] ptr = {0};
-        return parse(data, ptr);
-    }
-
-    public TreeNode parse(String data, int[] ptr) {
-        if (data.charAt(ptr[0]) == 'X') {
-            ++ptr[0];
-            return null;
-        }
-        TreeNode cur = new TreeNode(0);
-        cur.left = parseSubtree(data, ptr);
-        cur.val = parseInt(data, ptr);
-        cur.right = parseSubtree(data, ptr);
-        return cur;
-    }
-
-    public TreeNode parseSubtree(String data, int[] ptr) {
-        ++ptr[0]; // 跳过左括号
-        TreeNode subtree = parse(data, ptr);
-        ++ptr[0]; // 跳过右括号
-        return subtree;
-    }
-
-    public int parseInt(String data, int[] ptr) {
-        int x = 0, sgn = 1;
-        if (!Character.isDigit(data.charAt(ptr[0]))) {
-            sgn = -1;
-            ++ptr[0];
-        }
-        while (Character.isDigit(data.charAt(ptr[0]))) {
-            x = x * 10 + data.charAt(ptr[0]++) - '0';
-        }
-        return x * sgn;
-    }
-}
-```
-
-```C#
-public class Codec {
-    public string serialize(TreeNode root) {
-        if (root == null) {
-            return "X";
-        }
-        string left = "(" + serialize(root.left) + ")";
-        string right = "(" + serialize(root.right) + ")";
-        return left + root.val + right;
-    }
-
-    public TreeNode deserialize(string data) {
-        int[] ptr = {0};
-        return parse(data, ptr);
-    }
-
-    public TreeNode parse(string data, int[] ptr) {
-        if (data[ptr[0]] == 'X') {
-            ++ptr[0];
-            return null;
-        }
-        TreeNode cur = new TreeNode(0);
-        cur.left = parseSubtree(data, ptr);
-        cur.val = parseInt(data, ptr);
-        cur.right = parseSubtree(data, ptr);
-        return cur;
-    }
-
-    public TreeNode parseSubtree(string data, int[] ptr) {
-        ++ptr[0]; // 跳过左括号
-        TreeNode subtree = parse(data, ptr);
-        ++ptr[0]; // 跳过右括号
-        return subtree;
-    }
-
-    public int parseInt(string data, int[] ptr) {
-        int x = 0, sgn = 1;
-        if (!char.IsDigit(data[ptr[0]])) {
-            sgn = -1;
-            ++ptr[0];
-        }
-        while (char.IsDigit(data[ptr[0]])) {
-            x = x * 10 + data[ptr[0]++] - '0';
-        }
-        return x * sgn;
-    }
-}
-```
-
-```C++
+```cpp
 class Codec {
 public:
     string serialize(TreeNode* root) {
@@ -18141,95 +8277,6 @@ public:
         return parse(data, ptr);
     }
 };
-```
-
-```JavaScript
-var serialize = function(root) {
-    if (root == null) {
-        return "X";
-    }
-    const left = "(" + serialize(root.left) + ")";
-    const right = "(" + serialize(root.right) + ")";
-    return left + root.val + right;
-};
-
-var deserialize = function(data) {
-    const ptr = [0];
-    return parse(data, ptr);
-};
-
-const parse = (data, ptr) => {
-    if (data[ptr[0]] === 'X') {
-        ++ptr[0];
-        return null;
-    }
-    let cur = new TreeNode(0);
-    cur.left = parseSubtree(data, ptr);
-    cur.val = parseInt(data, ptr);
-    cur.right = parseSubtree(data, ptr);
-    return cur;
-}
-
-const parseSubtree = (data, ptr) => {
-    ++ptr[0]; // 跳过左括号
-    const subtree = parse(data, ptr);
-    ++ptr[0]; // 跳过右括号
-    return subtree;
-}
-
-const parseInt = (data, ptr) => {
-    let x = 0, sgn = 1;
-    if (isNaN(Number(data[ptr[0]]))) {
-        sgn = -1;
-        ++ptr[0];
-    }
-    while (!isNaN(Number(data[ptr[0]]))) {
-        x = x * 10 + data[ptr[0]++].charCodeAt() - '0'.charCodeAt();
-    }
-    return x * sgn;
-}
-```
-
-```go
-type Codec struct{}
-
-func Constructor() (_ Codec) {
-    return
-}
-
-func (c Codec) serialize(root *TreeNode) string {
-    if root == nil {
-        return "X"
-    }
-    left := "(" + c.serialize(root.Left) + ")"
-    right := "(" + c.serialize(root.Right) + ")"
-    return left + strconv.Itoa(root.Val) + right
-}
-
-func (Codec) deserialize(data string) *TreeNode {
-    var parse func() *TreeNode
-    parse = func() *TreeNode {
-        if data[0] == 'X' {
-            data = data[1:]
-            return nil
-        }
-        node := &TreeNode{}
-        data = data[1:] // 跳过左括号
-        node.Left = parse()
-        data = data[1:] // 跳过右括号
-        i := 0
-        for data[i] == '-' || '0' <= data[i] && data[i] <= '9' {
-            i++
-        }
-        node.Val, _ = strconv.Atoi(data[:i])
-        data = data[i:]
-        data = data[1:] // 跳过左括号
-        node.Right = parse()
-        data = data[1:] // 跳过右括号
-        return node
-    }
-    return parse()
-}
 ```
 
 **复杂度分析**
@@ -18327,7 +8374,7 @@ cnt | 1 | 3 | 4 | 5
 
 因此我们生成的数组一定具有上述性质的。
 
-```C++
+```cpp
 class Solution {
 public:
     int findDuplicate(vector<int>& nums) {
@@ -18349,76 +8396,6 @@ public:
         return ans;
     }
 };
-```
-
-```JavaScript
-var findDuplicate = function(nums) {
-    const n = nums.length;
-    let l = 1, r = n - 1, ans = -1;
-    while (l <= r) {
-        let mid = (l + r) >> 1;
-        let cnt = 0;
-        for (let i = 0; i < n; ++i) {
-            cnt += nums[i] <= mid;
-        }
-        if (cnt <= mid) {
-            l = mid + 1;
-        } else {
-            r = mid - 1;
-            ans = mid;
-        }
-    }
-    return ans;
-};
-```
-
-```Java
-class Solution {
-    public int findDuplicate(int[] nums) {
-        int n = nums.length;
-        int l = 1, r = n - 1, ans = -1;
-        while (l <= r) {
-            int mid = (l + r) >> 1;
-            int cnt = 0;
-            for (int i = 0; i < n; ++i) {
-                if (nums[i] <= mid) {
-                    cnt++;
-                }
-            }
-            if (cnt <= mid) {
-                l = mid + 1;
-            } else {
-                r = mid - 1;
-                ans = mid;
-            }
-        }
-        return ans;
-    }
-}
-```
-
-```golang
-func findDuplicate(nums []int) int {
-    n := len(nums)
-    l, r := 1, n - 1
-    ans := -1
-    for l <= r {
-        mid := (l + r) >> 1
-        cnt := 0
-        for i := 0; i < n; i++ {
-            if nums[i] <= mid {
-                cnt++
-            }
-        }
-        if cnt <= mid {
-            l = mid + 1
-        } else {
-            r = mid - 1
-            ans = mid
-        }
-    }
-    return ans
-}
 ```
 
 **复杂度分析**
@@ -18455,7 +8432,7 @@ func findDuplicate(nums []int) int {
 
 也就是说如果 $\textit{target}$ 第 $i$ 位为 $1$，那么每次替换后只会使 $x$ 不变或增大，如果为 $0$，只会使 $x$ 不变或减小，始终满足 $x>y$ 时 $\textit{target}$ 第 $i$ 位为 $1$，否则为 $0$，因此我们只要按位还原这个重复的数即可。
 
-```C++
+```cpp
 class Solution {
 public:
     int findDuplicate(vector<int>& nums) {
@@ -18482,86 +8459,6 @@ public:
         return ans;
     }
 };
-```
-
-```JavaScript
-var findDuplicate = function(nums) {
-    const n = nums.length;
-    let ans = 0;
-    // 确定二进制下最高位是多少
-    let bit_max = 31;
-    while (!((n - 1) >> bit_max)) {
-        bit_max -= 1;
-    }
-    for (let bit = 0; bit <= bit_max; ++bit) {
-        let x = 0, y = 0;
-        for (let i = 0; i < n; ++i) {
-            if (nums[i] & (1 << bit)) {
-                x += 1;
-            }
-            if (i >= 1 && (i & (1 << bit))) {
-                y += 1;
-            }
-        }
-        if (x > y) {
-            ans |= 1 << bit;
-        }
-    }
-    return ans;
-};
-```
-
-```Java
-class Solution {
-    public int findDuplicate(int[] nums) {
-        int n = nums.length, ans = 0;
-        int bit_max = 31;
-        while (((n - 1) >> bit_max) == 0) {
-            bit_max -= 1;
-        }
-        for (int bit = 0; bit <= bit_max; ++bit) {
-            int x = 0, y = 0;
-            for (int i = 0; i < n; ++i) {
-                if ((nums[i] & (1 << bit)) != 0) {
-                    x += 1;
-                }
-                if (i >= 1 && ((i & (1 << bit)) != 0)) {
-                    y += 1;
-                }
-            }
-            if (x > y) {
-                ans |= 1 << bit;
-            }
-        }
-        return ans;
-    }
-}
-```
-
-```golang
-func findDuplicate(nums []int) int {
-    n := len(nums)
-    ans := 0
-    bit_max := 31
-    for ((n-1) >> bit_max) == 0 {
-        bit_max--
-    }
-    for bit := 0; bit <= bit_max; bit++ {
-        x, y := 0, 0
-        for i := 0; i < n; i++ {
-            if (nums[i] & (1 << bit)) > 0 {
-                x++
-            }
-            if i >= 1 && (i & (1 << bit)) > 0 {
-                y++
-            }
-        }
-        if x > y {
-            ans |= 1 << bit
-        }
-    }
-    return ans
-}
 ```
 
 **复杂度证明**
@@ -18594,7 +8491,7 @@ a=(k-1)L+(L-b)=(k-1)L+c
 $$
 从上述等式可知，如果慢指针从起点出发，快指针从相遇位置出发，每次两个指针都移动一步，则慢指针走了 $a$ 步之后到达环的入口，快指针在环里走了 $k-1$ 圈之后又走了 $c$ 步，由于从相遇位置继续走 $c$ 步即可回到环的入口，因此快指针也到达环的入口。两个指针在环的入口相遇，相遇点就是答案。
 
-```C++
+```cpp
 class Solution {
 public:
     int findDuplicate(vector<int>& nums) {
@@ -18611,53 +8508,6 @@ public:
         return slow;
     }
 };
-```
-
-```JavaScript
-var findDuplicate = function(nums) {
-    let slow = 0, fast = 0;
-    do {
-        slow = nums[slow];
-        fast = nums[nums[fast]];
-    } while (slow != fast);
-    slow = 0;
-    while (slow != fast) {
-        slow = nums[slow];
-        fast = nums[fast];
-    }
-    return slow;
-};
-```
-
-```Java
-class Solution {
-    public int findDuplicate(int[] nums) {
-        int slow = 0, fast = 0;
-        do {
-            slow = nums[slow];
-            fast = nums[nums[fast]];
-        } while (slow != fast);
-        slow = 0;
-        while (slow != fast) {
-            slow = nums[slow];
-            fast = nums[fast];
-        }
-        return slow;
-    }
-}
-```
-
-```golang
-func findDuplicate(nums []int) int {
-    slow, fast := 0, 0
-    for slow, fast = nums[slow], nums[nums[fast]]; slow != fast; slow, fast = nums[slow], nums[nums[fast]] { }
-    slow = 0
-    for slow != fast {
-        slow = nums[slow]
-        fast = nums[fast]
-    }
-    return slow
-}
 ```
 
 **复杂度分析**
@@ -18734,7 +8584,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     void moveZeroes(vector<int>& nums) {
@@ -18748,70 +8598,6 @@ public:
         }
     }
 };
-```
-
-```Java
-class Solution {
-    public void moveZeroes(int[] nums) {
-        int n = nums.length, left = 0, right = 0;
-        while (right < n) {
-            if (nums[right] != 0) {
-                swap(nums, left, right);
-                left++;
-            }
-            right++;
-        }
-    }
-
-    public void swap(int[] nums, int left, int right) {
-        int temp = nums[left];
-        nums[left] = nums[right];
-        nums[right] = temp;
-    }
-}
-```
-
-```Python
-class Solution:
-    def moveZeroes(self, nums: List[int]) -> None:
-        n = len(nums)
-        left = right = 0
-        while right < n:
-            if nums[right] != 0:
-                nums[left], nums[right] = nums[right], nums[left]
-                left += 1
-            right += 1
-```
-
-```Golang
-func moveZeroes(nums []int) {
-    left, right, n := 0, 0, len(nums)
-    for right < n {
-        if nums[right] != 0 {
-            nums[left], nums[right] = nums[right], nums[left]
-            left++
-        }
-        right++
-    }
-}
-```
-
-```C
-void swap(int *a, int *b) {
-    int t = *a;
-    *a = *b, *b = t;
-}
-
-void moveZeroes(int *nums, int numsSize) {
-    int left = 0, right = 0;
-    while (right < numsSize) {
-        if (nums[right]) {
-            swap(nums + left, nums + right);
-            left++;
-        }
-        right++;
-    }
-}
 ```
 
 **复杂度分析**
@@ -18887,7 +8673,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int numSquares(int n) {
@@ -18902,88 +8688,6 @@ public:
         return f[n];
     }
 };
-```
-
-```Java
-class Solution {
-    public int numSquares(int n) {
-        int[] f = new int[n + 1];
-        for (int i = 1; i <= n; i++) {
-            int minn = Integer.MAX_VALUE;
-            for (int j = 1; j * j <= i; j++) {
-                minn = Math.min(minn, f[i - j * j]);
-            }
-            f[i] = minn + 1;
-        }
-        return f[n];
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int NumSquares(int n) {
-        int[] f = new int[n + 1];
-        for (int i = 1; i <= n; i++) {
-            int minn = int.MaxValue;
-            for (int j = 1; j * j <= i; j++) {
-                minn = Math.Min(minn, f[i - j * j]);
-            }
-            f[i] = minn + 1;
-        }
-        return f[n];
-    }
-}
-```
-
-```go
-func numSquares(n int) int {
-    f := make([]int, n+1)
-    for i := 1; i <= n; i++ {
-        minn := math.MaxInt32
-        for j := 1; j*j <= i; j++ {
-            minn = min(minn, f[i-j*j])
-        }
-        f[i] = minn + 1
-    }
-    return f[n]
-}
-
-func min(a, b int) int {
-    if a < b {
-        return a
-    }
-    return b
-}
-```
-
-```JavaScript
-var numSquares = function(n) {
-    const f = new Array(n + 1).fill(0);
-    for (let i = 1; i <= n; i++) {
-        let minn = Number.MAX_VALUE;
-        for (let j = 1; j * j <= i; j++) {
-            minn = Math.min(minn, f[i - j * j]);
-        }
-        f[i] = minn + 1;
-    }
-    return f[n];
-};
-```
-
-```C
-int numSquares(int n) {
-    int f[n + 1];
-    f[0] = 0;
-    for (int i = 1; i <= n; i++) {
-        int minn = INT_MAX;
-        for (int j = 1; j * j <= i; j++) {
-            minn = fmin(minn, f[i - j * j]);
-        }
-        f[i] = minn + 1;
-    }
-    return f[n];
-}
 ```
 
 **复杂度分析**
@@ -19012,7 +8716,7 @@ int numSquares(int n) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     // 判断是否为完全平方数
@@ -19045,170 +8749,6 @@ public:
         return 3;
     }
 };
-```
-
-```Java
-class Solution {
-    public int numSquares(int n) {
-        if (isPerfectSquare(n)) {
-            return 1;
-        }
-        if (checkAnswer4(n)) {
-            return 4;
-        }
-        for (int i = 1; i * i <= n; i++) {
-            int j = n - i * i;
-            if (isPerfectSquare(j)) {
-                return 2;
-            }
-        }
-        return 3;
-    }
-
-    // 判断是否为完全平方数
-    public boolean isPerfectSquare(int x) {
-        int y = (int) Math.sqrt(x);
-        return y * y == x;
-    }
-
-    // 判断是否能表示为 4^k*(8m+7)
-    public boolean checkAnswer4(int x) {
-        while (x % 4 == 0) {
-            x /= 4;
-        }
-        return x % 8 == 7;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int NumSquares(int n) {
-        if (IsPerfectSquare(n)) {
-            return 1;
-        }
-        if (CheckAnswer4(n)) {
-            return 4;
-        }
-        for (int i = 1; i * i <= n; i++) {
-            int j = n - i * i;
-            if (IsPerfectSquare(j)) {
-                return 2;
-            }
-        }
-        return 3;
-    }
-
-    // 判断是否为完全平方数
-    public bool IsPerfectSquare(int x) {
-        int y = (int) Math.Sqrt(x);
-        return y * y == x;
-    }
-
-    // 判断是否能表示为 4^k*(8m+7)
-    public bool CheckAnswer4(int x) {
-        while (x % 4 == 0) {
-            x /= 4;
-        }
-        return x % 8 == 7;
-    }
-}
-```
-
-```go
-// 判断是否为完全平方数
-func isPerfectSquare(x int) bool {
-    y := int(math.Sqrt(float64(x)))
-    return y*y == x
-}
-
-// 判断是否能表示为 4^k*(8m+7)
-func checkAnswer4(x int) bool {
-    for x%4 == 0 {
-        x /= 4
-    }
-    return x%8 == 7
-}
-
-func numSquares(n int) int {
-    if isPerfectSquare(n) {
-        return 1
-    }
-    if checkAnswer4(n) {
-        return 4
-    }
-    for i := 1; i*i <= n; i++ {
-        j := n - i*i
-        if isPerfectSquare(j) {
-            return 2
-        }
-    }
-    return 3
-}
-```
-
-```JavaScript
-var numSquares = function(n) {
-    if (isPerfectSquare(n)) {
-        return 1;
-    }
-    if (checkAnswer4(n)) {
-        return 4;
-    }
-    for (let i = 1; i * i <= n; i++) {
-        let j = n - i * i;
-        if (isPerfectSquare(j)) {
-            return 2;
-        }
-    }
-    return 3;
-}
-
-// 判断是否为完全平方数
-const isPerfectSquare = (x) => {
-    const y = Math.floor(Math.sqrt(x));
-    return y * y == x;
-}
-
-// 判断是否能表示为 4^k*(8m+7)
-const checkAnswer4 = (x) => {
-    while (x % 4 == 0) {
-        x /= 4;
-    }
-    return x % 8 == 7;
-}
-```
-
-```C
-// 判断是否为完全平方数
-bool isPerfectSquare(int x) {
-    int y = sqrt(x);
-    return y * y == x;
-}
-
-// 判断是否能表示为 4^k*(8m+7)
-bool checkAnswer4(int x) {
-    while (x % 4 == 0) {
-        x /= 4;
-    }
-    return x % 8 == 7;
-}
-
-int numSquares(int n) {
-    if (isPerfectSquare(n)) {
-        return 1;
-    }
-    if (checkAnswer4(n)) {
-        return 4;
-    }
-    for (int i = 1; i * i <= n; i++) {
-        int j = n - i * i;
-        if (isPerfectSquare(j)) {
-            return 2;
-        }
-    }
-    return 3;
-}
 ```
 
 **复杂度分析**
@@ -19299,7 +8839,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     bool searchMatrix(vector<vector<int>>& matrix, int target) {
@@ -19313,59 +8853,6 @@ public:
         return false;
     }
 };
-```
-
-```Java
-class Solution {
-    public boolean searchMatrix(int[][] matrix, int target) {
-        for (int[] row : matrix) {
-            for (int element : row) {
-                if (element == target) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public bool SearchMatrix(int[][] matrix, int target) {
-        foreach (int[] row in matrix) {
-            foreach (int element in row) {
-                if (element == target) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-}
-```
-
-```Python
-class Solution:
-    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
-        for row in matrix:
-            for element in row:
-                if element == target:
-                    return True
-        return False
-```
-
-```go
-func searchMatrix(matrix [][]int, target int) bool {
-    for _, row := range matrix {
-        for _, v := range row {
-            if v == target {
-                return true
-            }
-        }
-    }
-    return false
-}
 ```
 
 **复杂度分析**
@@ -19382,7 +8869,7 @@ func searchMatrix(matrix [][]int, target int) bool {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     bool searchMatrix(vector<vector<int>>& matrix, int target) {
@@ -19395,116 +8882,6 @@ public:
         return false;
     }
 };
-```
-
-```Java
-class Solution {
-    public boolean searchMatrix(int[][] matrix, int target) {
-        for (int[] row : matrix) {
-            int index = search(row, target);
-            if (index >= 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public int search(int[] nums, int target) {
-        int low = 0, high = nums.length - 1;
-        while (low <= high) {
-            int mid = (high - low) / 2 + low;
-            int num = nums[mid];
-            if (num == target) {
-                return mid;
-            } else if (num > target) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-        return -1;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public bool SearchMatrix(int[][] matrix, int target) {
-        foreach (int[] row in matrix) {
-            int index = Search(row, target);
-            if (index >= 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public int Search(int[] nums, int target) {
-        int low = 0, high = nums.Length - 1;
-        while (low <= high) {
-            int mid = (high - low) / 2 + low;
-            int num = nums[mid];
-            if (num == target) {
-                return mid;
-            } else if (num > target) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-        return -1;
-    }
-}
-```
-
-```Python
-class Solution:
-    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
-        for row in matrix:
-            idx = bisect.bisect_left(row, target)
-            if idx < len(row) and row[idx] == target:
-                return True
-        return False
-```
-
-```JavaScript
-var searchMatrix = function(matrix, target) {
-    for (const row of matrix) {
-        const index = search(row, target);
-        if (index >= 0) {
-            return true;
-        }
-    }
-    return false;
-};
-
-const search = (nums, target) => {
-    let low = 0, high = nums.length - 1;
-    while (low <= high) {
-        const mid = Math.floor((high - low) / 2) + low;
-        const num = nums[mid];
-        if (num === target) {
-            return mid;
-        } else if (num > target) {
-            high = mid - 1;
-        } else {
-            low = mid + 1;
-        }
-    }
-    return -1;
-}
-```
-
-```go
-func searchMatrix(matrix [][]int, target int) bool {
-    for _, row := range matrix {
-        i := sort.SearchInts(row, target)
-        if i < len(row) && row[i] == target {
-            return true
-        }
-    }
-    return false
-}
 ```
 
 **复杂度分析**
@@ -19529,7 +8906,7 @@ func searchMatrix(matrix [][]int, target int) bool {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     bool searchMatrix(vector<vector<int>>& matrix, int target) {
@@ -19549,97 +8926,6 @@ public:
         return false;
     }
 };
-```
-
-```Java
-class Solution {
-    public boolean searchMatrix(int[][] matrix, int target) {
-        int m = matrix.length, n = matrix[0].length;
-        int x = 0, y = n - 1;
-        while (x < m && y >= 0) {
-            if (matrix[x][y] == target) {
-                return true;
-            }
-            if (matrix[x][y] > target) {
-                --y;
-            } else {
-                ++x;
-            }
-        }
-        return false;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public bool SearchMatrix(int[][] matrix, int target) {
-        int m = matrix.Length, n = matrix[0].Length;
-        int x = 0, y = n - 1;
-        while (x < m && y >= 0) {
-            if (matrix[x][y] == target) {
-                return true;
-            }
-            if (matrix[x][y] > target) {
-                --y;
-            } else {
-                ++x;
-            }
-        }
-        return false;
-    }
-}
-```
-
-```Python
-class Solution:
-    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
-        m, n = len(matrix), len(matrix[0])
-        x, y = 0, n - 1
-        while x < m and y >= 0:
-            if matrix[x][y] == target:
-                return True
-            if matrix[x][y] > target:
-                y -= 1
-            else:
-                x += 1
-        return False
-```
-
-```JavaScript
-var searchMatrix = function(matrix, target) {
-    const m = matrix.length, n = matrix[0].length;
-    let x = 0, y = n - 1;
-    while (x < m && y >= 0) {
-        if (matrix[x][y] === target) {
-            return true;
-        }
-        if (matrix[x][y] > target) {
-            --y;
-        } else {
-            ++x;
-        }
-    }
-    return false;
-};
-```
-
-```go
-func searchMatrix(matrix [][]int, target int) bool {
-    m, n := len(matrix), len(matrix[0])
-    x, y := 0, n-1
-    for x < m && y >= 0 {
-        if matrix[x][y] == target {
-            return true
-        }
-        if matrix[x][y] > target {
-            y--
-        } else {
-            x++
-        }
-    }
-    return false
-}
 ```
 
 **复杂度分析**
@@ -19724,7 +9010,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     vector<int> maxSlidingWindow(vector<int>& nums, int k) {
@@ -19744,168 +9030,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public int[] maxSlidingWindow(int[] nums, int k) {
-        int n = nums.length;
-        PriorityQueue<int[]> pq = new PriorityQueue<int[]>(new Comparator<int[]>() {
-            public int compare(int[] pair1, int[] pair2) {
-                return pair1[0] != pair2[0] ? pair2[0] - pair1[0] : pair2[1] - pair1[1];
-            }
-        });
-        for (int i = 0; i < k; ++i) {
-            pq.offer(new int[]{nums[i], i});
-        }
-        int[] ans = new int[n - k + 1];
-        ans[0] = pq.peek()[0];
-        for (int i = k; i < n; ++i) {
-            pq.offer(new int[]{nums[i], i});
-            while (pq.peek()[1] <= i - k) {
-                pq.poll();
-            }
-            ans[i - k + 1] = pq.peek()[0];
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
-        n = len(nums)
-        # 注意 Python 默认的优先队列是小根堆
-        q = [(-nums[i], i) for i in range(k)]
-        heapq.heapify(q)
-
-        ans = [-q[0][0]]
-        for i in range(k, n):
-            heapq.heappush(q, (-nums[i], i))
-            while q[0][1] <= i - k:
-                heapq.heappop(q)
-            ans.append(-q[0][0])
-        
-        return ans
-```
-
-```go
-var a []int
-type hp struct{ sort.IntSlice }
-func (h hp) Less(i, j int) bool  { return a[h.IntSlice[i]] > a[h.IntSlice[j]] }
-func (h *hp) Push(v interface{}) { h.IntSlice = append(h.IntSlice, v.(int)) }
-func (h *hp) Pop() interface{}   { a := h.IntSlice; v := a[len(a)-1]; h.IntSlice = a[:len(a)-1]; return v }
-
-func maxSlidingWindow(nums []int, k int) []int {
-    a = nums
-    q := &hp{make([]int, k)}
-    for i := 0; i < k; i++ {
-        q.IntSlice[i] = i
-    }
-    heap.Init(q)
-
-    n := len(nums)
-    ans := make([]int, 1, n-k+1)
-    ans[0] = nums[q.IntSlice[0]]
-    for i := k; i < n; i++ {
-        heap.Push(q, i)
-        for q.IntSlice[0] <= i-k {
-            heap.Pop(q)
-        }
-        ans = append(ans, nums[q.IntSlice[0]])
-    }
-    return ans
-}
-```
-
-```C
-void swap(int** a, int** b) {
-    int* tmp = *a;
-    *a = *b, *b = tmp;
-}
-
-int cmp(int* a, int* b) {
-    return a[0] == b[0] ? a[1] - b[1] : a[0] - b[0];
-}
-
-struct Heap {
-    int** heap;
-    int size;
-    int capacity;
-};
-
-void init(struct Heap* obj, int capacity) {
-    obj->size = 0;
-    obj->heap = NULL;
-    obj->capacity = capacity;
-    obj->heap = malloc(sizeof(int*) * (obj->capacity + 1));
-    for (int i = 1; i <= obj->capacity; i++) {
-        obj->heap[i] = malloc(sizeof(int) * 2);
-    }
-}
-
-void setFree(struct Heap* obj) {
-    for (int i = 1; i <= obj->capacity; i++) {
-        free(obj->heap[i]);
-    }
-    free(obj->heap);
-    free(obj);
-}
-
-void push(struct Heap* obj, int num0, int num1) {
-    int sub1 = ++(obj->size), sub2 = sub1 >> 1;
-    (obj->heap[sub1])[0] = num0, (obj->heap[sub1])[1] = num1;
-    while (sub2 > 0 && cmp(obj->heap[sub2], obj->heap[sub1]) < 0) {
-        swap(&(obj->heap[sub1]), &(obj->heap[sub2]));
-        sub1 = sub2, sub2 = sub1 >> 1;
-    }
-}
-
-void pop(struct Heap* obj) {
-    int sub = 1;
-    swap(&(obj->heap[sub]), &(obj->heap[(obj->size)--]));
-    while (sub <= obj->size) {
-        int sub1 = sub << 1, sub2 = sub << 1 | 1;
-        int maxSub = sub;
-        if (sub1 <= obj->size && cmp(obj->heap[maxSub], obj->heap[sub1]) < 0) {
-            maxSub = sub1;
-        }
-        if (sub2 <= obj->size && cmp(obj->heap[maxSub], obj->heap[sub2]) < 0) {
-            maxSub = sub2;
-        }
-        if (sub == maxSub) {
-            break;
-        }
-        swap(&(obj->heap[sub]), &(obj->heap[maxSub]));
-        sub = maxSub;
-    }
-}
-
-int* top(struct Heap* obj) {
-    return obj->heap[1];
-}
-
-int* maxSlidingWindow(int* nums, int numsSize, int k, int* returnSize) {
-    struct Heap* q = malloc(sizeof(struct Heap));
-    init(q, numsSize);
-    for (int i = 0; i < k; i++) {
-        push(q, nums[i], i);
-    }
-    int* ans = malloc(sizeof(int) * (numsSize - k + 1));
-    *returnSize = 0;
-    ans[(*returnSize)++] = top(q)[0];
-
-    for (int i = k; i < numsSize; ++i) {
-        push(q, nums[i], i);
-        while (top(q)[1] <= i - k) {
-            pop(q);
-        }
-        ans[(*returnSize)++] = top(q)[0];
-    }
-    setFree(q);
-    return ans;
-}
 ```
 
 **复杂度分析**
@@ -19934,7 +9058,7 @@ int* maxSlidingWindow(int* nums, int numsSize, int k, int* returnSize) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     vector<int> maxSlidingWindow(vector<int>& nums, int k) {
@@ -19960,138 +9084,6 @@ public:
         }
         return ans;
     }
-};
-```
-
-```Java
-class Solution {
-    public int[] maxSlidingWindow(int[] nums, int k) {
-        int n = nums.length;
-        Deque<Integer> deque = new LinkedList<Integer>();
-        for (int i = 0; i < k; ++i) {
-            while (!deque.isEmpty() && nums[i] >= nums[deque.peekLast()]) {
-                deque.pollLast();
-            }
-            deque.offerLast(i);
-        }
-
-        int[] ans = new int[n - k + 1];
-        ans[0] = nums[deque.peekFirst()];
-        for (int i = k; i < n; ++i) {
-            while (!deque.isEmpty() && nums[i] >= nums[deque.peekLast()]) {
-                deque.pollLast();
-            }
-            deque.offerLast(i);
-            while (deque.peekFirst() <= i - k) {
-                deque.pollFirst();
-            }
-            ans[i - k + 1] = nums[deque.peekFirst()];
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
-        n = len(nums)
-        q = collections.deque()
-        for i in range(k):
-            while q and nums[i] >= nums[q[-1]]:
-                q.pop()
-            q.append(i)
-
-        ans = [nums[q[0]]]
-        for i in range(k, n):
-            while q and nums[i] >= nums[q[-1]]:
-                q.pop()
-            q.append(i)
-            while q[0] <= i - k:
-                q.popleft()
-            ans.append(nums[q[0]])
-        
-        return ans
-```
-
-```go
-func maxSlidingWindow(nums []int, k int) []int {
-    q := []int{}
-    push := func(i int) {
-        for len(q) > 0 && nums[i] >= nums[q[len(q)-1]] {
-            q = q[:len(q)-1]
-        }
-        q = append(q, i)
-    }
-
-    for i := 0; i < k; i++ {
-        push(i)
-    }
-
-    n := len(nums)
-    ans := make([]int, 1, n-k+1)
-    ans[0] = nums[q[0]]
-    for i := k; i < n; i++ {
-        push(i)
-        for q[0] <= i-k {
-            q = q[1:]
-        }
-        ans = append(ans, nums[q[0]])
-    }
-    return ans
-}
-```
-
-```C
-int* maxSlidingWindow(int* nums, int numsSize, int k, int* returnSize) {
-    int q[numsSize];
-    int left = 0, right = 0;
-    for (int i = 0; i < k; ++i) {
-        while (left < right && nums[i] >= nums[q[right - 1]]) {
-            right--;
-        }
-        q[right++] = i;
-    }
-    *returnSize = 0;
-    int* ans = malloc(sizeof(int) * (numsSize - k + 1));
-    ans[(*returnSize)++] = nums[q[left]];
-    for (int i = k; i < numsSize; ++i) {
-        while (left < right && nums[i] >= nums[q[right - 1]]) {
-            right--;
-        }
-        q[right++] = i;
-        while (q[left] <= i - k) {
-            left++;
-        }
-        ans[(*returnSize)++] = nums[q[left]];
-    }
-    return ans;
-}
-```
-
-```JavaScript
-var maxSlidingWindow = function(nums, k) {
-    const n = nums.length;
-    const q = [];
-    for (let i = 0; i < k; i++) {
-        while (q.length && nums[i] >= nums[q[q.length - 1]]) {
-            q.pop();
-        }
-        q.push(i);
-    }
-
-    const ans = [nums[q[0]]];
-    for (let i = k; i < n; i++) {
-        while (q.length && nums[i] >= nums[q[q.length - 1]]) {
-            q.pop();
-        }
-        q.push(i);
-        while (q[0] <= i - k) {
-            q.shift();
-        }
-        ans.push(nums[q[0]]);
-    }
-    return ans;
 };
 ```
 
@@ -20145,7 +9137,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     vector<int> maxSlidingWindow(vector<int>& nums, int k) {
@@ -20175,146 +9167,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public int[] maxSlidingWindow(int[] nums, int k) {
-        int n = nums.length;
-        int[] prefixMax = new int[n];
-        int[] suffixMax = new int[n];
-        for (int i = 0; i < n; ++i) {
-            if (i % k == 0) {
-                prefixMax[i] = nums[i];
-            }
-            else {
-                prefixMax[i] = Math.max(prefixMax[i - 1], nums[i]);
-            }
-        }
-        for (int i = n - 1; i >= 0; --i) {
-            if (i == n - 1 || (i + 1) % k == 0) {
-                suffixMax[i] = nums[i];
-            } else {
-                suffixMax[i] = Math.max(suffixMax[i + 1], nums[i]);
-            }
-        }
-
-        int[] ans = new int[n - k + 1];
-        for (int i = 0; i <= n - k; ++i) {
-            ans[i] = Math.max(suffixMax[i], prefixMax[i + k - 1]);
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
-        n = len(nums)
-        prefixMax, suffixMax = [0] * n, [0] * n
-        for i in range(n):
-            if i % k == 0:
-                prefixMax[i] = nums[i]
-            else:
-                prefixMax[i] = max(prefixMax[i - 1], nums[i])
-        for i in range(n - 1, -1, -1):
-            if i == n - 1 or (i + 1) % k == 0:
-                suffixMax[i] = nums[i]
-            else:
-                suffixMax[i] = max(suffixMax[i + 1], nums[i])
-
-        ans = [max(suffixMax[i], prefixMax[i + k - 1]) for i in range(n - k + 1)]
-        return ans
-```
-
-```go
-func maxSlidingWindow(nums []int, k int) []int {
-    n := len(nums)
-    prefixMax := make([]int, n)
-    suffixMax := make([]int, n)
-    for i, v := range nums {
-        if i%k == 0 {
-            prefixMax[i] = v
-        } else {
-            prefixMax[i] = max(prefixMax[i-1], v)
-        }
-    }
-    for i := n - 1; i >= 0; i-- {
-        if i == n-1 || (i+1)%k == 0 {
-            suffixMax[i] = nums[i]
-        } else {
-            suffixMax[i] = max(suffixMax[i+1], nums[i])
-        }
-    }
-
-    ans := make([]int, n-k+1)
-    for i := range ans {
-        ans[i] = max(suffixMax[i], prefixMax[i+k-1])
-    }
-    return ans
-}
-
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
-}
-```
-
-```C
-int* maxSlidingWindow(int* nums, int numsSize, int k, int* returnSize) {
-    int prefixMax[numsSize], suffixMax[numsSize];
-    for (int i = 0; i < numsSize; ++i) {
-        if (i % k == 0) {
-            prefixMax[i] = nums[i];
-        } else {
-            prefixMax[i] = fmax(prefixMax[i - 1], nums[i]);
-        }
-    }
-    for (int i = numsSize - 1; i >= 0; --i) {
-        if (i == numsSize - 1 || (i + 1) % k == 0) {
-            suffixMax[i] = nums[i];
-        } else {
-            suffixMax[i] = fmax(suffixMax[i + 1], nums[i]);
-        }
-    }
-
-    *returnSize = 0;
-    int* ans = malloc(sizeof(int) * (numsSize - k + 1));
-    for (int i = 0; i <= numsSize - k; ++i) {
-        ans[(*returnSize)++] = fmax(suffixMax[i], prefixMax[i + k - 1]);
-    }
-    return ans;
-}
-```
-
-```JavaScript
-var maxSlidingWindow = function(nums, k) {
-    const n = nums.length;
-    const prefixMax = new Array(n).fill(0);
-    const suffixMax = new Array(n).fill(0);
-    for (let i = 0; i < n; i++) {
-        if (i % k === 0) {
-            prefixMax[i] = nums[i];
-        } else {
-            prefixMax[i] = Math.max(prefixMax[i - 1], nums[i]);
-        }
-    }
-    for (let i = n - 1; i >= 0; --i) {
-        if (i === n || (i + 1) % k === 0) {
-            suffixMax[i] = nums[i];
-        } else {
-            suffixMax[i] = Math.max(suffixMax[i + 1], nums[i]);
-        }
-    }
-    const ans = [];
-    for (let i = 0; i < n - k + 1; i++) {
-        ans.push(Math.max(suffixMax[i], prefixMax[i + k - 1]));
-    }
-    return ans;
-};  
 ```
 
 **复杂度分析**
@@ -20382,71 +9234,7 @@ public:
 
 为了检查序列是否有效，我们遍历这个序列，并使用一个变量 $\textit{balance}$ 表示左括号的数量减去右括号的数量。如果在遍历过程中 $\textit{balance}$ 的值小于零，或者结束时 $\textit{balance}$ 的值不为零，那么该序列就是无效的，否则它是有效的。
 
-```Java
-class Solution {
-    public List<String> generateParenthesis(int n) {
-        List<String> combinations = new ArrayList<String>();
-        generateAll(new char[2 * n], 0, combinations);
-        return combinations;
-    }
-
-    public void generateAll(char[] current, int pos, List<String> result) {
-        if (pos == current.length) {
-            if (valid(current)) {
-                result.add(new String(current));
-            }
-        } else {
-            current[pos] = '(';
-            generateAll(current, pos + 1, result);
-            current[pos] = ')';
-            generateAll(current, pos + 1, result);
-        }
-    }
-
-    public boolean valid(char[] current) {
-        int balance = 0;
-        for (char c: current) {
-            if (c == '(') {
-                ++balance;
-            } else {
-                --balance;
-            }
-            if (balance < 0) {
-                return false;
-            }
-        }
-        return balance == 0;
-    }
-}
-```
-```Python
-class Solution:
-    def generateParenthesis(self, n: int) -> List[str]:
-        def generate(A):
-            if len(A) == 2*n:
-                if valid(A):
-                    ans.append("".join(A))
-            else:
-                A.append('(')
-                generate(A)
-                A.pop()
-                A.append(')')
-                generate(A)
-                A.pop()
-
-        def valid(A):
-            bal = 0
-            for c in A:
-                if c == '(': bal += 1
-                else: bal -= 1
-                if bal < 0: return False
-            return bal == 0
-
-        ans = []
-        generate([])
-        return ans
-```
-```C++
+```cpp
 class Solution {
     bool valid(const string& str) {
         int balance = 0;
@@ -20501,53 +9289,7 @@ public:
 
 如果左括号数量不大于 $n$，我们可以放一个左括号。如果右括号数量小于左括号的数量，我们可以放一个右括号。
 
-```Java
-class Solution {
-    public List<String> generateParenthesis(int n) {
-        List<String> ans = new ArrayList<String>();
-        backtrack(ans, new StringBuilder(), 0, 0, n);
-        return ans;
-    }
-
-    public void backtrack(List<String> ans, StringBuilder cur, int open, int close, int max) {
-        if (cur.length() == max * 2) {
-            ans.add(cur.toString());
-            return;
-        }
-        if (open < max) {
-            cur.append('(');
-            backtrack(ans, cur, open + 1, close, max);
-            cur.deleteCharAt(cur.length() - 1);
-        }
-        if (close < open) {
-            cur.append(')');
-            backtrack(ans, cur, open, close + 1, max);
-            cur.deleteCharAt(cur.length() - 1);
-        }
-    }
-}
-```
-```Python
-class Solution:
-    def generateParenthesis(self, n: int) -> List[str]:
-        ans = []
-        def backtrack(S, left, right):
-            if len(S) == 2 * n:
-                ans.append(''.join(S))
-                return
-            if left < n:
-                S.append('(')
-                backtrack(S, left+1, right)
-                S.pop()
-            if right < left:
-                S.append(')')
-                backtrack(S, left, right+1)
-                S.pop()
-
-        backtrack([], 0, 0)
-        return ans
-```
-```C++
+```cpp
 class Solution {
     void backtrack(vector<string>& ans, string& cur, int open, int close, int n) {
         if (cur.size() == n * 2) {
@@ -20598,49 +9340,7 @@ public:
 
 为了节省计算时间，我们在每次 $\textit{generate}(i)$ 函数返回之前，把返回值存储起来，下次再调用 $\textit{generate}(i)$ 时可以直接返回，不需要再递归计算。
 
-```Java
-class Solution {
-    ArrayList[] cache = new ArrayList[100];
-
-    public List<String> generate(int n) {
-        if (cache[n] != null) {
-            return cache[n];
-        }
-        ArrayList<String> ans = new ArrayList<String>();
-        if (n == 0) {
-            ans.add("");
-        } else {
-            for (int c = 0; c < n; ++c) {
-                for (String left: generate(c)) {
-                    for (String right: generate(n - 1 - c)) {
-                        ans.add("(" + left + ")" + right);
-                    }
-                }
-            }
-        }
-        cache[n] = ans;
-        return ans;
-    }
-
-    public List<String> generateParenthesis(int n) {
-        return generate(n);
-    }
-}
-```
-```Python
-class Solution:
-    @lru_cache(None)
-    def generateParenthesis(self, n: int) -> List[str]:
-        if n == 0:
-            return ['']
-        ans = []
-        for c in range(n):
-            for left in self.generateParenthesis(c):
-                for right in self.generateParenthesis(n-1-c):
-                    ans.append('({}){}'.format(left, right))
-        return ans
-```
-```C++
+```cpp
 class Solution {
     shared_ptr<vector<string>> cache[100] = {nullptr};
 public:
@@ -20744,56 +9444,7 @@ public:
 
 由于互为字母异位词的两个字符串包含的字母相同，因此对两个字符串分别进行排序之后得到的字符串一定是相同的，故可以将排序之后的字符串作为哈希表的键。
 
-```Java
-class Solution {
-    public List<List<String>> groupAnagrams(String[] strs) {
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
-        for (String str : strs) {
-            char[] array = str.toCharArray();
-            Arrays.sort(array);
-            String key = new String(array);
-            List<String> list = map.getOrDefault(key, new ArrayList<String>());
-            list.add(str);
-            map.put(key, list);
-        }
-        return new ArrayList<List<String>>(map.values());
-    }
-}
-```
-
-```JavaScript
-var groupAnagrams = function(strs) {
-    const map = new Map();
-    for (let str of strs) {
-        let array = Array.from(str);
-        array.sort();
-        let key = array.toString();
-        let list = map.get(key) ? map.get(key) : new Array();
-        list.push(str);
-        map.set(key, list);
-    }
-    return Array.from(map.values());
-};
-```
-
-```Golang
-func groupAnagrams(strs []string) [][]string {
-    mp := map[string][]string{}
-    for _, str := range strs {
-        s := []byte(str)
-        sort.Slice(s, func(i, j int) bool { return s[i] < s[j] })
-        sortedStr := string(s)
-        mp[sortedStr] = append(mp[sortedStr], str)
-    }
-    ans := make([][]string, 0, len(mp))
-    for _, v := range mp {
-        ans = append(ans, v)
-    }
-    return ans
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<vector<string>> groupAnagrams(vector<string>& strs) {
@@ -20812,18 +9463,6 @@ public:
 };
 ```
 
-```Python
-class Solution:
-    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
-        mp = collections.defaultdict(list)
-
-        for st in strs:
-            key = "".join(sorted(st))
-            mp[key].append(st)
-        
-        return list(mp.values())
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(nk \log k)$，其中 $n$ 是 $\textit{strs}$ 中的字符串的数量，$k$ 是 $\textit{strs}$ 中的字符串的的最大长度。需要遍历 $n$ 个字符串，对于每个字符串，需要 $O(k \log k)$ 的时间进行排序以及 $O(1)$ 的时间更新哈希表，因此总时间复杂度是 $O(nk \log k)$。
@@ -20836,67 +9475,7 @@ class Solution:
 
 由于字符串只包含小写字母，因此对于每个字符串，可以使用长度为 $26$ 的数组记录每个字母出现的次数。需要注意的是，在使用数组作为哈希表的键时，不同语言的支持程度不同，因此不同语言的实现方式也不同。
 
-```Java
-class Solution {
-    public List<List<String>> groupAnagrams(String[] strs) {
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
-        for (String str : strs) {
-            int[] counts = new int[26];
-            int length = str.length();
-            for (int i = 0; i < length; i++) {
-                counts[str.charAt(i) - 'a']++;
-            }
-            // 将每个出现次数大于 0 的字母和出现次数按顺序拼接成字符串，作为哈希表的键
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < 26; i++) {
-                if (counts[i] != 0) {
-                    sb.append((char) ('a' + i));
-                    sb.append(counts[i]);
-                }
-            }
-            String key = sb.toString();
-            List<String> list = map.getOrDefault(key, new ArrayList<String>());
-            list.add(str);
-            map.put(key, list);
-        }
-        return new ArrayList<List<String>>(map.values());
-    }
-}
-```
-
-```JavaScript
-var groupAnagrams = function(strs) {
-    const map = new Object();
-    for (let s of strs) {
-        const count = new Array(26).fill(0);
-        for (let c of s) {
-            count[c.charCodeAt() - 'a'.charCodeAt()]++;
-        }
-        map[count] ? map[count].push(s) : map[count] = [s];
-    }
-    return Object.values(map);
-};
-```
-
-```Golang
-func groupAnagrams(strs []string) [][]string {
-    mp := map[[26]int][]string{}
-    for _, str := range strs {
-        cnt := [26]int{}
-        for _, b := range str {
-            cnt[b-'a']++
-        }
-        mp[cnt] = append(mp[cnt], str)
-    }
-    ans := make([][]string, 0, len(mp))
-    for _, v := range mp {
-        ans = append(ans, v)
-    }
-    return ans
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<vector<string>> groupAnagrams(vector<string>& strs) {
@@ -20923,21 +9502,6 @@ public:
         return ans;
     }
 };
-```
-
-```Python
-class Solution:
-    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
-        mp = collections.defaultdict(list)
-
-        for st in strs:
-            counts = [0] * 26
-            for ch in st:
-                counts[ord(ch) - ord("a")] += 1
-            # 需要将 list 转换成 tuple 才能进行哈希
-            mp[tuple(counts)].append(st)
-        
-        return list(mp.values())
 ```
 
 **复杂度分析**
@@ -21062,7 +9626,7 @@ $$
 
 这样以来，我们使用一个与 $\textit{matrix}$ 大小相同的辅助数组 ${matrix}_\textit{new}$，临时存储旋转后的结果。我们遍历 $\textit{matrix}$ 中的每一个元素，根据上述规则将该元素存放到 ${matrix}_\textit{new}$ 中对应的位置。在遍历完成之后，再将 ${matrix}_\textit{new}$ 中的结果复制到原数组中即可。
 
-```C++
+```cpp
 class Solution {
 public:
     void rotate(vector<vector<int>>& matrix) {
@@ -21078,87 +9642,6 @@ public:
         matrix = matrix_new;
     }
 };
-```
-
-```Java
-class Solution {
-    public void rotate(int[][] matrix) {
-        int n = matrix.length;
-        int[][] matrix_new = new int[n][n];
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                matrix_new[j][n - i - 1] = matrix[i][j];
-            }
-        }
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                matrix[i][j] = matrix_new[i][j];
-            }
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def rotate(self, matrix: List[List[int]]) -> None:
-        n = len(matrix)
-        # Python 这里不能 matrix_new = matrix 或 matrix_new = matrix[:] 因为是引用拷贝
-        matrix_new = [[0] * n for _ in range(n)]
-        for i in range(n):
-            for j in range(n):
-                matrix_new[j][n - i - 1] = matrix[i][j]
-        # 不能写成 matrix = matrix_new
-        matrix[:] = matrix_new
-```
-
-```JavaScript
-var rotate = function(matrix) {
-    const n = matrix.length;
-    const matrix_new = new Array(n).fill(0).map(() => new Array(n).fill(0));
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            matrix_new[j][n - i - 1] = matrix[i][j];
-        }
-    }
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            matrix[i][j] = matrix_new[i][j];
-        }
-    }
-};
-```
-
-```Go
-func rotate(matrix [][]int) {
-    n := len(matrix)
-    tmp := make([][]int, n)
-    for i := range tmp {
-        tmp[i] = make([]int, n)
-    }
-    for i, row := range matrix {
-        for j, v := range row {
-            tmp[j][n-1-i] = v
-        }
-    }
-    copy(matrix, tmp) // 拷贝 tmp 矩阵每行的引用
-}
-```
-
-```C
-void rotate(int** matrix, int matrixSize, int* matrixColSize) {
-    int matrix_new[matrixSize][matrixSize];
-    for (int i = 0; i < matrixSize; i++) {
-        for (int j = 0; j < matrixSize; j++) {
-            matrix_new[i][j] = matrix[i][j];
-        }
-    }
-    for (int i = 0; i < matrixSize; ++i) {
-        for (int j = 0; j < matrixSize; ++j) {
-            matrix[j][matrixSize - i - 1] = matrix_new[i][j];
-        }
-    }
-}
 ```
 
 **复杂度分析**
@@ -21309,7 +9792,7 @@ $$
 
 同样保证了不重复、不遗漏，矩阵正中央的点无需旋转。
 
-```C++
+```cpp
 class Solution {
 public:
     void rotate(vector<vector<int>>& matrix) {
@@ -21327,7 +9810,7 @@ public:
 };
 ```
 
-```C++
+```cpp
 class Solution {
 public:
     void rotate(vector<vector<int>>& matrix) {
@@ -21340,74 +9823,6 @@ public:
         }
     }
 };
-```
-
-```Java
-class Solution {
-    public void rotate(int[][] matrix) {
-        int n = matrix.length;
-        for (int i = 0; i < n / 2; ++i) {
-            for (int j = 0; j < (n + 1) / 2; ++j) {
-                int temp = matrix[i][j];
-                matrix[i][j] = matrix[n - j - 1][i];
-                matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
-                matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
-                matrix[j][n - i - 1] = temp;
-            }
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def rotate(self, matrix: List[List[int]]) -> None:
-        n = len(matrix)
-        for i in range(n // 2):
-            for j in range((n + 1) // 2):
-                matrix[i][j], matrix[n - j - 1][i], matrix[n - i - 1][n - j - 1], matrix[j][n - i - 1] \
-                    = matrix[n - j - 1][i], matrix[n - i - 1][n - j - 1], matrix[j][n - i - 1], matrix[i][j]
-```
-
-```JavaScript
-var rotate = function(matrix) {
-    const n = matrix.length;
-    for (let i = 0; i < Math.floor(n / 2); ++i) {
-        for (let j = 0; j < Math.floor((n + 1) / 2); ++j) {
-            const temp = matrix[i][j];
-            matrix[i][j] = matrix[n - j - 1][i];
-            matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
-            matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
-            matrix[j][n - i - 1] = temp;
-        }
-    }
-};
-```
-
-```Go
-func rotate(matrix [][]int) {
-    n := len(matrix)
-    for i := 0; i < n/2; i++ {
-        for j := 0; j < (n+1)/2; j++ {
-            matrix[i][j], matrix[n-j-1][i], matrix[n-i-1][n-j-1], matrix[j][n-i-1] =
-                matrix[n-j-1][i], matrix[n-i-1][n-j-1], matrix[j][n-i-1], matrix[i][j]
-        }
-    }
-}
-```
-
-```C
-void rotate(int** matrix, int matrixSize, int* matrixColSize) {
-    for (int i = 0; i < matrixSize / 2; ++i) {
-        for (int j = 0; j < (matrixSize + 1) / 2; ++j) {
-            int temp = matrix[i][j];
-            matrix[i][j] = matrix[matrixSize - j - 1][i];
-            matrix[matrixSize - j - 1][i] = matrix[matrixSize - i - 1][matrixSize - j - 1];
-            matrix[matrixSize - i - 1][matrixSize - j - 1] = matrix[j][matrixSize - i - 1];
-            matrix[j][matrixSize - i - 1] = temp;
-        }
-    }
-}
 ```
 
 **复杂度分析**
@@ -21494,7 +9909,7 @@ $$
 
 是一致的。
 
-```C++
+```cpp
 class Solution {
 public:
     void rotate(vector<vector<int>>& matrix) {
@@ -21513,100 +9928,6 @@ public:
         }
     }
 };
-```
-
-```Java
-class Solution {
-    public void rotate(int[][] matrix) {
-        int n = matrix.length;
-        // 水平翻转
-        for (int i = 0; i < n / 2; ++i) {
-            for (int j = 0; j < n; ++j) {
-                int temp = matrix[i][j];
-                matrix[i][j] = matrix[n - i - 1][j];
-                matrix[n - i - 1][j] = temp;
-            }
-        }
-        // 主对角线翻转
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < i; ++j) {
-                int temp = matrix[i][j];
-                matrix[i][j] = matrix[j][i];
-                matrix[j][i] = temp;
-            }
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def rotate(self, matrix: List[List[int]]) -> None:
-        n = len(matrix)
-        # 水平翻转
-        for i in range(n // 2):
-            for j in range(n):
-                matrix[i][j], matrix[n - i - 1][j] = matrix[n - i - 1][j], matrix[i][j]
-        # 主对角线翻转
-        for i in range(n):
-            for j in range(i):
-                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
-```
-
-```JavaScript
-var rotate = function(matrix) {
-    const n = matrix.length;
-    // 水平翻转
-    for (let i = 0; i < Math.floor(n / 2); i++) {
-        for (let j = 0; j < n; j++) {
-            [matrix[i][j], matrix[n - i - 1][j]] = [matrix[n - i - 1][j], matrix[i][j]];
-        }
-    }
-    // 主对角线翻转
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < i; j++) {
-            [matrix[i][j], matrix[j][i]] = [matrix[j][i], matrix[i][j]];
-        }
-    }
-};
-```
-
-```Go
-func rotate(matrix [][]int) {
-    n := len(matrix)
-    // 水平翻转
-    for i := 0; i < n/2; i++ {
-        matrix[i], matrix[n-1-i] = matrix[n-1-i], matrix[i]
-    }
-    // 主对角线翻转
-    for i := 0; i < n; i++ {
-        for j := 0; j < i; j++ {
-            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
-        }
-    }
-}
-```
-
-```C
-void swap(int* a, int* b) {
-    int t = *a;
-    *a = *b, *b = t;
-}
-
-void rotate(int** matrix, int matrixSize, int* matrixColSize) {
-    // 水平翻转
-    for (int i = 0; i < matrixSize / 2; ++i) {
-        for (int j = 0; j < matrixSize; ++j) {
-            swap(&matrix[i][j], &matrix[matrixSize - i - 1][j]);
-        }
-    }
-    // 主对角线翻转
-    for (int i = 0; i < matrixSize; ++i) {
-        for (int j = 0; j < i; ++j) {
-            swap(&matrix[i][j], &matrix[j][i]);
-        }
-    }
-}
 ```
 
 **复杂度分析**
@@ -21702,64 +10023,7 @@ public:
 
 **代码**
 
-```Java
-class Solution {
-    public List<List<Integer>> permute(int[] nums) {
-        List<List<Integer>> res = new ArrayList<List<Integer>>();
-
-        List<Integer> output = new ArrayList<Integer>();
-        for (int num : nums) {
-            output.add(num);
-        }
-
-        int n = nums.length;
-        backtrack(n, output, res, 0);
-        return res;
-    }
-
-    public void backtrack(int n, List<Integer> output, List<List<Integer>> res, int first) {
-        // 所有数都填完了
-        if (first == n) {
-            res.add(new ArrayList<Integer>(output));
-        }
-        for (int i = first; i < n; i++) {
-            // 动态维护数组
-            Collections.swap(output, first, i);
-            // 继续递归填下一个数
-            backtrack(n, output, res, first + 1);
-            // 撤销操作
-            Collections.swap(output, first, i);
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def permute(self, nums):
-        """
-        :type nums: List[int]
-        :rtype: List[List[int]]
-        """
-        def backtrack(first = 0):
-            # 所有数都填完了
-            if first == n:  
-                res.append(nums[:])
-            for i in range(first, n):
-                # 动态维护数组
-                nums[first], nums[i] = nums[i], nums[first]
-                # 继续递归填下一个数
-                backtrack(first + 1)
-                # 撤销操作
-                nums[first], nums[i] = nums[i], nums[first]
-        
-        n = len(nums)
-        res = []
-        backtrack()
-        return res
-```
-
-```C++
+```cpp
 class Solution {
 public:
     void backtrack(vector<vector<int>>& res, vector<int>& output, int first, int len){
@@ -21876,122 +10140,7 @@ public:
 
 ![fig1](https://assets.leetcode.cn/solution-static/42/1.png)
 
-```Java
-class Solution {
-    public int trap(int[] height) {
-        int n = height.length;
-        if (n == 0) {
-            return 0;
-        }
-
-        int[] leftMax = new int[n];
-        leftMax[0] = height[0];
-        for (int i = 1; i < n; ++i) {
-            leftMax[i] = Math.max(leftMax[i - 1], height[i]);
-        }
-
-        int[] rightMax = new int[n];
-        rightMax[n - 1] = height[n - 1];
-        for (int i = n - 2; i >= 0; --i) {
-            rightMax[i] = Math.max(rightMax[i + 1], height[i]);
-        }
-
-        int ans = 0;
-        for (int i = 0; i < n; ++i) {
-            ans += Math.min(leftMax[i], rightMax[i]) - height[i];
-        }
-        return ans;
-    }
-}
-```
-
-```go
-func trap(height []int) (ans int) {
-    n := len(height)
-    if n == 0 {
-        return
-    }
-
-    leftMax := make([]int, n)
-    leftMax[0] = height[0]
-    for i := 1; i < n; i++ {
-        leftMax[i] = max(leftMax[i-1], height[i])
-    }
-
-    rightMax := make([]int, n)
-    rightMax[n-1] = height[n-1]
-    for i := n - 2; i >= 0; i-- {
-        rightMax[i] = max(rightMax[i+1], height[i])
-    }
-
-    for i, h := range height {
-        ans += min(leftMax[i], rightMax[i]) - h
-    }
-    return
-}
-
-func min(a, b int) int {
-    if a < b {
-        return a
-    }
-    return b
-}
-
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
-}
-```
-
-```JavaScript
-var trap = function(height) {
-    const n = height.length;
-    if (n == 0) {
-        return 0;
-    }
-
-    const leftMax = new Array(n).fill(0);
-    leftMax[0] = height[0];
-    for (let i = 1; i < n; ++i) {
-        leftMax[i] = Math.max(leftMax[i - 1], height[i]);
-    }
-
-    const rightMax = new Array(n).fill(0);
-    rightMax[n - 1] = height[n - 1];
-    for (let i = n - 2; i >= 0; --i) {
-        rightMax[i] = Math.max(rightMax[i + 1], height[i]);
-    }
-
-    let ans = 0;
-    for (let i = 0; i < n; ++i) {
-        ans += Math.min(leftMax[i], rightMax[i]) - height[i];
-    }
-    return ans;
-};
-```
-
-```Python
-class Solution:
-    def trap(self, height: List[int]) -> int:
-        if not height:
-            return 0
-        
-        n = len(height)
-        leftMax = [height[0]] + [0] * (n - 1)
-        for i in range(1, n):
-            leftMax[i] = max(leftMax[i - 1], height[i])
-
-        rightMax = [0] * (n - 1) + [height[n - 1]]
-        for i in range(n - 2, -1, -1):
-            rightMax[i] = max(rightMax[i + 1], height[i])
-
-        ans = sum(min(leftMax[i], rightMax[i]) - height[i] for i in range(n))
-        return ans
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int trap(vector<int>& height) {
@@ -22020,34 +10169,6 @@ public:
 };
 ```
 
-```C
-int trap(int* height, int heightSize) {
-    int n = heightSize;
-    if (n == 0) {
-        return 0;
-    }
-    int leftMax[n];
-    memset(leftMax, 0, sizeof(leftMax));
-    leftMax[0] = height[0];
-    for (int i = 1; i < n; ++i) {
-        leftMax[i] = fmax(leftMax[i - 1], height[i]);
-    }
-
-    int rightMax[n];
-    memset(rightMax, 0, sizeof(rightMax));
-    rightMax[n - 1] = height[n - 1];
-    for (int i = n - 2; i >= 0; --i) {
-        rightMax[i] = fmax(rightMax[i + 1], height[i]);
-    }
-
-    int ans = 0;
-    for (int i = 0; i < n; ++i) {
-        ans += fmin(leftMax[i], rightMax[i]) - height[i];
-    }
-    return ans;
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n)$，其中 $n$ 是数组 $\textit{height}$ 的长度。计算数组 $\textit{leftMax}$ 和 $\textit{rightMax}$ 的元素值各需要遍历数组 $\textit{height}$ 一次，计算能接的雨水总量还需要遍历一次。
@@ -22070,102 +10191,7 @@ int trap(int* height, int heightSize) {
 
 <![f1](https://assets.leetcode.cn/solution-static/42/f1.png),![f2](https://assets.leetcode.cn/solution-static/42/f2.png),![f3](https://assets.leetcode.cn/solution-static/42/f3.png),![f4](https://assets.leetcode.cn/solution-static/42/f4.png),![f5](https://assets.leetcode.cn/solution-static/42/f5.png),![f6](https://assets.leetcode.cn/solution-static/42/f6.png),![f7](https://assets.leetcode.cn/solution-static/42/f7.png),![f8](https://assets.leetcode.cn/solution-static/42/f8.png),![f9](https://assets.leetcode.cn/solution-static/42/f9.png),![f10](https://assets.leetcode.cn/solution-static/42/f10.png),![f11](https://assets.leetcode.cn/solution-static/42/f11.png),![f12](https://assets.leetcode.cn/solution-static/42/f12.png),![f13](https://assets.leetcode.cn/solution-static/42/f13.png),![f14](https://assets.leetcode.cn/solution-static/42/f14.png),![f15](https://assets.leetcode.cn/solution-static/42/f15.png),![f16](https://assets.leetcode.cn/solution-static/42/f16.png),![f17](https://assets.leetcode.cn/solution-static/42/f17.png),![f18](https://assets.leetcode.cn/solution-static/42/f18.png),![f19](https://assets.leetcode.cn/solution-static/42/f19.png),![f20](https://assets.leetcode.cn/solution-static/42/f20.png),![f21](https://assets.leetcode.cn/solution-static/42/f21.png)>
 
-```Java
-class Solution {
-    public int trap(int[] height) {
-        int ans = 0;
-        Deque<Integer> stack = new LinkedList<Integer>();
-        int n = height.length;
-        for (int i = 0; i < n; ++i) {
-            while (!stack.isEmpty() && height[i] > height[stack.peek()]) {
-                int top = stack.pop();
-                if (stack.isEmpty()) {
-                    break;
-                }
-                int left = stack.peek();
-                int currWidth = i - left - 1;
-                int currHeight = Math.min(height[left], height[i]) - height[top];
-                ans += currWidth * currHeight;
-            }
-            stack.push(i);
-        }
-        return ans;
-    }
-}
-```
-
-```go
-func trap(height []int) (ans int) {
-    stack := []int{}
-    for i, h := range height {
-        for len(stack) > 0 && h > height[stack[len(stack)-1]] {
-            top := stack[len(stack)-1]
-            stack = stack[:len(stack)-1]
-            if len(stack) == 0 {
-                break
-            }
-            left := stack[len(stack)-1]
-            curWidth := i - left - 1
-            curHeight := min(height[left], h) - height[top]
-            ans += curWidth * curHeight
-        }
-        stack = append(stack, i)
-    }
-    return
-}
-
-func min(a, b int) int {
-    if a < b {
-        return a
-    }
-    return b
-}
-```
-
-```JavaScript
-var trap = function(height) {
-    let ans = 0;
-    const stack = [];
-    const n = height.length;
-    for (let i = 0; i < n; ++i) {
-        while (stack.length && height[i] > height[stack[stack.length - 1]]) {
-            const top = stack.pop();
-            if (!stack.length) {
-                break;
-            }
-            const left = stack[stack.length - 1];
-            const currWidth = i - left - 1;
-            const currHeight = Math.min(height[left], height[i]) - height[top];
-            ans += currWidth * currHeight;
-        }
-        stack.push(i);
-    }
-    return ans;
-};
-```
-
-```Python
-class Solution:
-    def trap(self, height: List[int]) -> int:
-        ans = 0
-        stack = list()
-        n = len(height)
-        
-        for i, h in enumerate(height):
-            while stack and h > height[stack[-1]]:
-                top = stack.pop()
-                if not stack:
-                    break
-                left = stack[-1]
-                currWidth = i - left - 1
-                currHeight = min(height[left], height[i]) - height[top]
-                ans += currWidth * currHeight
-            stack.append(i)
-        
-        return ans
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int trap(vector<int>& height) {
@@ -22189,31 +10215,6 @@ public:
         return ans;
     }
 };
-```
-
-```C
-int trap(int* height, int heightSize) {
-    int n = heightSize;
-    if (n == 0) {
-        return 0;
-    }
-    int ans = 0;
-    int stk[n], top = 0;
-    for (int i = 0; i < n; ++i) {
-        while (top && height[i] > height[stk[top - 1]]) {
-            int stk_top = stk[--top];
-            if (!top) {
-                break;
-            }
-            int left = stk[top - 1];
-            int currWidth = i - left - 1;
-            int currHeight = fmin(height[left], height[i]) - height[stk_top];
-            ans += currWidth * currHeight;
-        }
-        stk[top++] = i;
-    }
-    return ans;
-}
 ```
 
 **复杂度分析**
@@ -22244,95 +10245,7 @@ int trap(int* height, int heightSize) {
 
 <![p1](https://assets.leetcode.cn/solution-static/42/p1.png),![p2](https://assets.leetcode.cn/solution-static/42/p2.png),![p3](https://assets.leetcode.cn/solution-static/42/p3.png),![p4](https://assets.leetcode.cn/solution-static/42/p4.png),![p5](https://assets.leetcode.cn/solution-static/42/p5.png),![p6](https://assets.leetcode.cn/solution-static/42/p6.png),![p7](https://assets.leetcode.cn/solution-static/42/p7.png),![p8](https://assets.leetcode.cn/solution-static/42/p8.png),![p9](https://assets.leetcode.cn/solution-static/42/p9.png),![p10](https://assets.leetcode.cn/solution-static/42/p10.png),![p11](https://assets.leetcode.cn/solution-static/42/p11.png),![p12](https://assets.leetcode.cn/solution-static/42/p12.png)>
 
-```Java
-class Solution {
-    public int trap(int[] height) {
-        int ans = 0;
-        int left = 0, right = height.length - 1;
-        int leftMax = 0, rightMax = 0;
-        while (left < right) {
-            leftMax = Math.max(leftMax, height[left]);
-            rightMax = Math.max(rightMax, height[right]);
-            if (height[left] < height[right]) {
-                ans += leftMax - height[left];
-                ++left;
-            } else {
-                ans += rightMax - height[right];
-                --right;
-            }
-        }
-        return ans;
-    }
-}
-```
-
-```go
-func trap(height []int) (ans int) {
-    left, right := 0, len(height)-1
-    leftMax, rightMax := 0, 0
-    for left < right {
-        leftMax = max(leftMax, height[left])
-        rightMax = max(rightMax, height[right])
-        if height[left] < height[right] {
-            ans += leftMax - height[left]
-            left++
-        } else {
-            ans += rightMax - height[right]
-            right--
-        }
-    }
-    return
-}
-
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
-}
-```
-
-```JavaScript
-var trap = function(height) {
-    let ans = 0;
-    let left = 0, right = height.length - 1;
-    let leftMax = 0, rightMax = 0;
-    while (left < right) {
-        leftMax = Math.max(leftMax, height[left]);
-        rightMax = Math.max(rightMax, height[right]);
-        if (height[left] < height[right]) {
-            ans += leftMax - height[left];
-            ++left;
-        } else {
-            ans += rightMax - height[right];
-            --right;
-        }
-    }
-    return ans;
-};
-```
-
-```Python
-class Solution:
-    def trap(self, height: List[int]) -> int:
-        ans = 0
-        left, right = 0, len(height) - 1
-        leftMax = rightMax = 0
-
-        while left < right:
-            leftMax = max(leftMax, height[left])
-            rightMax = max(rightMax, height[right])
-            if height[left] < height[right]:
-                ans += leftMax - height[left]
-                left += 1
-            else:
-                ans += rightMax - height[right]
-                right -= 1
-        
-        return ans
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int trap(vector<int>& height) {
@@ -22353,26 +10266,6 @@ public:
         return ans;
     }
 };
-```
-
-```C
-int trap(int* height, int heightSize) {
-    int ans = 0;
-    int left = 0, right = heightSize - 1;
-    int leftMax = 0, rightMax = 0;
-    while (left < right) {
-        leftMax = fmax(leftMax, height[left]);
-        rightMax = fmax(rightMax, height[right]);
-        if (height[left] < height[right]) {
-            ans += leftMax - height[left];
-            ++left;
-        } else {
-            ans += rightMax - height[right];
-            --right;
-        }
-    }
-    return ans;
-}
 ```
 
 **复杂度分析**
@@ -22460,7 +10353,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     void dfs(vector<int>& candidates, int target, vector<vector<int>>& ans, vector<int>& combine, int idx) {
@@ -22488,130 +10381,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public List<List<Integer>> combinationSum(int[] candidates, int target) {
-        List<List<Integer>> ans = new ArrayList<List<Integer>>();
-        List<Integer> combine = new ArrayList<Integer>();
-        dfs(candidates, target, ans, combine, 0);
-        return ans;
-    }
-
-    public void dfs(int[] candidates, int target, List<List<Integer>> ans, List<Integer> combine, int idx) {
-        if (idx == candidates.length) {
-            return;
-        }
-        if (target == 0) {
-            ans.add(new ArrayList<Integer>(combine));
-            return;
-        }
-        // 直接跳过
-        dfs(candidates, target, ans, combine, idx + 1);
-        // 选择当前数
-        if (target - candidates[idx] >= 0) {
-            combine.add(candidates[idx]);
-            dfs(candidates, target - candidates[idx], ans, combine, idx);
-            combine.remove(combine.size() - 1);
-        }
-    }
-}
-```
-
-```JavaScript
-var combinationSum = function(candidates, target) {
-    const ans = [];
-    const dfs = (target, combine, idx) => {
-        if (idx === candidates.length) {
-            return;
-        }
-        if (target === 0) {
-            ans.push(combine);
-            return;
-        }
-        // 直接跳过
-        dfs(target, combine, idx + 1);
-        // 选择当前数
-        if (target - candidates[idx] >= 0) {
-            dfs(target - candidates[idx], [...combine, candidates[idx]], idx);
-        }
-    }
-
-    dfs(target, [], 0);
-    return ans;
-};
-```
-
-```C
-int candidatesSize_tmp;
-
-int ansSize;
-
-int combineSize;
-
-int* ansColumnSize;
-
-void dfs(int* candidates, int target, int** ans, int* combine, int idx) {
-    if (idx == candidatesSize_tmp) {
-        return;
-    }
-    if (target == 0) {
-        int* tmp = malloc(sizeof(int) * combineSize);
-        for (int i = 0; i < combineSize; ++i) {
-            tmp[i] = combine[i];
-        }
-        ans[ansSize] = tmp;
-        ansColumnSize[ansSize++] = combineSize;
-        return;
-    }
-    // 直接跳过
-    dfs(candidates, target, ans, combine, idx + 1);
-    // 选择当前数
-    if (target - candidates[idx] >= 0) {
-        combine[combineSize++] = candidates[idx];
-        dfs(candidates, target - candidates[idx], ans, combine, idx);
-        combineSize--;
-    }
-}
-
-int** combinationSum(int* candidates, int candidatesSize, int target, int* returnSize, int** returnColumnSizes) {
-    candidatesSize_tmp = candidatesSize;
-    ansSize = combineSize = 0;
-    int** ans = malloc(sizeof(int*) * 1001);
-    ansColumnSize = malloc(sizeof(int) * 1001);
-    int combine[2001];
-    dfs(candidates, target, ans, combine, 0);
-    *returnSize = ansSize;
-    *returnColumnSizes = ansColumnSize;
-    return ans;
-}
-```
-
-```Golang
-func combinationSum(candidates []int, target int) (ans [][]int) {
-	comb := []int{}
-	var dfs func(target, idx int)
-	dfs = func(target, idx int) {
-		if idx == len(candidates) {
-			return
-		}
-		if target == 0 {
-			ans = append(ans, append([]int(nil), comb...))
-			return
-		}
-		// 直接跳过
-		dfs(target, idx+1)
-		// 选择当前数
-		if target-candidates[idx] >= 0 {
-			comb = append(comb, candidates[idx])
-			dfs(target-candidates[idx], idx)
-			comb = comb[:len(comb)-1]
-		}
-	}
-	dfs(target, 0)
-	return
-}
 ```
 
 **复杂度分析**
@@ -22710,47 +10479,7 @@ $$L+R+1$$
 
 递归搜索每个节点并设一个全局变量 $ans$ 记录 $d_\textit{node}$ 的最大值，最后返回 `ans-1` 即为树的直径。
 
-```Python
-class Solution:
-    def diameterOfBinaryTree(self, root: TreeNode) -> int:
-        self.ans = 1
-        def depth(node):
-            # 访问到空节点了，返回0
-            if not node:
-                return 0
-            # 左儿子为根的子树的深度
-            L = depth(node.left)
-            # 右儿子为根的子树的深度
-            R = depth(node.right)
-            # 计算d_node即L+R+1 并更新ans
-            self.ans = max(self.ans, L + R + 1)
-            # 返回该节点为根的子树的深度
-            return max(L, R) + 1
-
-        depth(root)
-        return self.ans - 1
-```
-
-```Java
-class Solution {
-    int ans;
-    public int diameterOfBinaryTree(TreeNode root) {
-        ans = 1;
-        depth(root);
-        return ans - 1;
-    }
-    public int depth(TreeNode node) {
-        if (node == null) {
-            return 0; // 访问到空节点了，返回0
-        }
-        int L = depth(node.left); // 左儿子为根的子树的深度
-        int R = depth(node.right); // 右儿子为根的子树的深度
-        ans = Math.max(ans, L+R+1); // 计算d_node即L+R+1 并更新ans
-        return Math.max(L, R) + 1; // 返回该节点为根的子树的深度
-    }
-}
-```
-```C++
+```cpp
 class Solution {
     int ans;
     int depth(TreeNode* rt){
@@ -22851,7 +10580,7 @@ public:
 
 <![ppt1](https://assets.leetcode.cn/solution-static/34/1.png),![ppt2](https://assets.leetcode.cn/solution-static/34/2.png),![ppt3](https://assets.leetcode.cn/solution-static/34/3.png),![ppt4](https://assets.leetcode.cn/solution-static/34/4.png),![ppt5](https://assets.leetcode.cn/solution-static/34/5.png),![ppt6](https://assets.leetcode.cn/solution-static/34/6.png),![ppt7](https://assets.leetcode.cn/solution-static/34/7.png),![ppt8](https://assets.leetcode.cn/solution-static/34/8.png),![ppt9](https://assets.leetcode.cn/solution-static/34/9.png),![ppt10](https://assets.leetcode.cn/solution-static/34/10.png),![ppt11](https://assets.leetcode.cn/solution-static/34/11.png),![ppt12](https://assets.leetcode.cn/solution-static/34/12.png),![ppt13](https://assets.leetcode.cn/solution-static/34/13.png),![ppt14](https://assets.leetcode.cn/solution-static/34/14.png)>
 
-```C++
+```cpp
 class Solution { 
 public:
     int binarySearch(vector<int>& nums, int target, bool lower) {
@@ -22877,99 +10606,6 @@ public:
         return vector<int>{-1, -1};
     }
 };
-```
-
-```Java
-class Solution {
-    public int[] searchRange(int[] nums, int target) {
-        int leftIdx = binarySearch(nums, target, true);
-        int rightIdx = binarySearch(nums, target, false) - 1;
-        if (leftIdx <= rightIdx && rightIdx < nums.length && nums[leftIdx] == target && nums[rightIdx] == target) {
-            return new int[]{leftIdx, rightIdx};
-        } 
-        return new int[]{-1, -1};
-    }
-
-    public int binarySearch(int[] nums, int target, boolean lower) {
-        int left = 0, right = nums.length - 1, ans = nums.length;
-        while (left <= right) {
-            int mid = (left + right) / 2;
-            if (nums[mid] > target || (lower && nums[mid] >= target)) {
-                right = mid - 1;
-                ans = mid;
-            } else {
-                left = mid + 1;
-            }
-        }
-        return ans;
-    }
-}
-```
-
-```JavaScript
-const binarySearch = (nums, target, lower) => {
-    let left = 0, right = nums.length - 1, ans = nums.length;
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        if (nums[mid] > target || (lower && nums[mid] >= target)) {
-            right = mid - 1;
-            ans = mid;
-        } else {
-            left = mid + 1;
-        }
-    }
-    return ans;
-}
-
-var searchRange = function(nums, target) {
-    let ans = [-1, -1];
-    const leftIdx = binarySearch(nums, target, true);
-    const rightIdx = binarySearch(nums, target, false) - 1;
-    if (leftIdx <= rightIdx && rightIdx < nums.length && nums[leftIdx] === target && nums[rightIdx] === target) {
-        ans = [leftIdx, rightIdx];
-    } 
-    return ans;
-};
-```
-
-```Golang
-func searchRange(nums []int, target int) []int {
-    leftmost := sort.SearchInts(nums, target)
-    if leftmost == len(nums) || nums[leftmost] != target {
-        return []int{-1, -1}
-    }
-    rightmost := sort.SearchInts(nums, target + 1) - 1
-    return []int{leftmost, rightmost}
-}
-```
-
-```C
-int binarySearch(int* nums, int numsSize, int target, bool lower) {
-    int left = 0, right = numsSize - 1, ans = numsSize;
-    while (left <= right) {
-        int mid = (left + right) / 2;
-        if (nums[mid] > target || (lower && nums[mid] >= target)) {
-            right = mid - 1;
-            ans = mid;
-        } else {
-            left = mid + 1;
-        }
-    }
-    return ans;
-}
-
-int* searchRange(int* nums, int numsSize, int target, int* returnSize) {
-    int leftIdx = binarySearch(nums, numsSize, target, true);
-    int rightIdx = binarySearch(nums, numsSize, target, false) - 1;
-    int* ret = malloc(sizeof(int) * 2);
-    *returnSize = 2;
-    if (leftIdx <= rightIdx && rightIdx < numsSize && nums[leftIdx] == target && nums[rightIdx] == target) {
-        ret[0] = leftIdx, ret[1] = rightIdx;
-        return ret;
-    }
-    ret[0] = -1, ret[1] = -1;
-    return ret;
-}
 ```
 
 **复杂度分析**
@@ -23060,7 +10696,7 @@ public:
 
 需要注意的是，二分的写法有很多种，所以在判断 `target` 大小与有序部分的关系的时候可能会出现细节上的差别。
 
-```C++
+```cpp
 class Solution {
 public:
     int search(vector<int>& nums, int target) {
@@ -23092,62 +10728,6 @@ public:
         return -1;
     }
 };
-```
-```Java
-class Solution {
-    public int search(int[] nums, int target) {
-        int n = nums.length;
-        if (n == 0) {
-            return -1;
-        }
-        if (n == 1) {
-            return nums[0] == target ? 0 : -1;
-        }
-        int l = 0, r = n - 1;
-        while (l <= r) {
-            int mid = (l + r) / 2;
-            if (nums[mid] == target) {
-                return mid;
-            }
-            if (nums[0] <= nums[mid]) {
-                if (nums[0] <= target && target < nums[mid]) {
-                    r = mid - 1;
-                } else {
-                    l = mid + 1;
-                }
-            } else {
-                if (nums[mid] < target && target <= nums[n - 1]) {
-                    l = mid + 1;
-                } else {
-                    r = mid - 1;
-                }
-            }
-        }
-        return -1;
-    }
-}
-```
-```Python
-class Solution:
-    def search(self, nums: List[int], target: int) -> int:
-        if not nums:
-            return -1
-        l, r = 0, len(nums) - 1
-        while l <= r:
-            mid = (l + r) // 2
-            if nums[mid] == target:
-                return mid
-            if nums[0] <= nums[mid]:
-                if nums[0] <= target < nums[mid]:
-                    r = mid - 1
-                else:
-                    l = mid + 1
-            else:
-                if nums[mid] < target <= nums[len(nums) - 1]:
-                    l = mid + 1
-                else:
-                    r = mid - 1
-        return -1
 ```
 
 **复杂度分析**
@@ -23240,27 +10820,7 @@ public:
 
 <![fig1](https://assets.leetcode.cn/solution-static/32/p1.png),![fig2](https://assets.leetcode.cn/solution-static/32/p2.png),![fig3](https://assets.leetcode.cn/solution-static/32/p3.png),![fig4](https://assets.leetcode.cn/solution-static/32/p4.png),![fig5](https://assets.leetcode.cn/solution-static/32/p5.png),![fig6](https://assets.leetcode.cn/solution-static/32/p6.png),![fig7](https://assets.leetcode.cn/solution-static/32/p7.png),![fig8](https://assets.leetcode.cn/solution-static/32/p8.png)>
 
-```Java
-class Solution {
-    public int longestValidParentheses(String s) {
-        int maxans = 0;
-        int[] dp = new int[s.length()];
-        for (int i = 1; i < s.length(); i++) {
-            if (s.charAt(i) == ')') {
-                if (s.charAt(i - 1) == '(') {
-                    dp[i] = (i >= 2 ? dp[i - 2] : 0) + 2;
-                } else if (i - dp[i - 1] > 0 && s.charAt(i - dp[i - 1] - 1) == '(') {
-                    dp[i] = dp[i - 1] + ((i - dp[i - 1]) >= 2 ? dp[i - dp[i - 1] - 2] : 0) + 2;
-                }
-                maxans = Math.max(maxans, dp[i]);
-            }
-        }
-        return maxans;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int longestValidParentheses(string s) {
@@ -23279,60 +10839,6 @@ public:
         return maxans;
     }
 };
-```
-
-```C
-int longestValidParentheses(char* s) {
-    int maxans = 0, n = strlen(s);
-    if (n == 0) return 0;
-    int dp[n];
-    memset(dp, 0, sizeof(dp));
-    for (int i = 1; i < n; i++) {
-        if (s[i] == ')') {
-            if (s[i - 1] == '(') {
-                dp[i] = (i >= 2 ? dp[i - 2] : 0) + 2;
-            } else if (i - dp[i - 1] > 0 && s[i - dp[i - 1] - 1] == '(') {
-                dp[i] = dp[i - 1] +
-                        ((i - dp[i - 1]) >= 2 ? dp[i - dp[i - 1] - 2] : 0) + 2;
-            }
-            maxans = fmax(maxans, dp[i]);
-        }
-    }
-    return maxans;
-}
-```
-
-```golang
-func longestValidParentheses(s string) int {
-    maxAns := 0
-    dp := make([]int, len(s))
-    for i := 1; i < len(s); i++ {
-        if s[i] == ')' {
-            if s[i-1] == '(' {
-                if i >= 2 {
-                    dp[i] = dp[i - 2] + 2
-                } else {
-                    dp[i] = 2
-                }
-            } else if i - dp[i - 1] > 0 && s[i - dp[i - 1] - 1] == '(' {
-                if i - dp[i - 1] >= 2 {
-                    dp[i] = dp[i - 1] + dp[i - dp[i - 1] - 2] + 2
-                } else {
-                    dp[i] = dp[i - 1] + 2
-                }
-            }
-            maxAns = max(maxAns, dp[i])
-        }
-    }
-    return maxAns
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -23360,30 +10866,7 @@ func max(x, y int) int {
 
 <![ppt1](https://assets.leetcode.cn/solution-static/32/1.png),![ppt2](https://assets.leetcode.cn/solution-static/32/2.png),![ppt3](https://assets.leetcode.cn/solution-static/32/3.png),![ppt4](https://assets.leetcode.cn/solution-static/32/4.png),![ppt5](https://assets.leetcode.cn/solution-static/32/5.png),![ppt6](https://assets.leetcode.cn/solution-static/32/6.png),![ppt7](https://assets.leetcode.cn/solution-static/32/7.png),![ppt8](https://assets.leetcode.cn/solution-static/32/8.png),![ppt9](https://assets.leetcode.cn/solution-static/32/9.png),![ppt10](https://assets.leetcode.cn/solution-static/32/10.png),![ppt11](https://assets.leetcode.cn/solution-static/32/11.png)>
 
-```Java
-class Solution {
-    public int longestValidParentheses(String s) {
-        int maxans = 0;
-        Deque<Integer> stack = new LinkedList<Integer>();
-        stack.push(-1);
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '(') {
-                stack.push(i);
-            } else {
-                stack.pop();
-                if (stack.isEmpty()) {
-                    stack.push(i);
-                } else {
-                    maxans = Math.max(maxans, i - stack.peek());
-                }
-            }
-        }
-        return maxans;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int longestValidParentheses(string s) {
@@ -23405,55 +10888,6 @@ public:
         return maxans;
     }
 };
-```
-
-```C
-int longestValidParentheses(char* s) {
-    int maxans = 0, n = strlen(s);
-    int stk[n + 1], top = -1;
-    stk[++top] = -1;
-    for (int i = 0; i < n; i++) {
-        if (s[i] == '(') {
-            stk[++top] = i;
-        } else {
-            --top;
-            if (top == -1) {
-                stk[++top] = i;
-            } else {
-                maxans = fmax(maxans, i - stk[top]);
-            }
-        }
-    }
-    return maxans;
-}
-```
-
-```golang
-func longestValidParentheses(s string) int {
-    maxAns := 0
-    stack := []int{}
-    stack = append(stack, -1)
-    for i := 0; i < len(s); i++ {
-        if s[i] == '(' {
-            stack = append(stack, i)
-        } else {
-            stack = stack[:len(stack)-1]
-            if len(stack) == 0 {
-                stack = append(stack, i)
-            } else {
-                maxAns = max(maxAns, i - stack[len(stack)-1])
-            }
-        }
-    }
-    return maxAns
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -23479,41 +10913,7 @@ func max(x, y int) int {
 
 <![f1](https://assets.leetcode.cn/solution-static/32/3_1.png),![f2](https://assets.leetcode.cn/solution-static/32/3_2.png),![f3](https://assets.leetcode.cn/solution-static/32/3_3.png),![f4](https://assets.leetcode.cn/solution-static/32/3_4.png),![f5](https://assets.leetcode.cn/solution-static/32/3_5.png),![f6](https://assets.leetcode.cn/solution-static/32/3_6.png),![f7](https://assets.leetcode.cn/solution-static/32/3_7.png),![f8](https://assets.leetcode.cn/solution-static/32/3_8.png),![f9](https://assets.leetcode.cn/solution-static/32/3_9.png),![f10](https://assets.leetcode.cn/solution-static/32/3_10.png),![f11](https://assets.leetcode.cn/solution-static/32/3_11.png),![f12](https://assets.leetcode.cn/solution-static/32/3_12.png),![f13](https://assets.leetcode.cn/solution-static/32/3_13.png),![f14](https://assets.leetcode.cn/solution-static/32/3_14.png),![f15](https://assets.leetcode.cn/solution-static/32/3_15.png),![f16](https://assets.leetcode.cn/solution-static/32/3_16.png),![f17](https://assets.leetcode.cn/solution-static/32/3_17.png)>
 
-```Java
-class Solution {
-    public int longestValidParentheses(String s) {
-        int left = 0, right = 0, maxlength = 0;
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '(') {
-                left++;
-            } else {
-                right++;
-            }
-            if (left == right) {
-                maxlength = Math.max(maxlength, 2 * right);
-            } else if (right > left) {
-                left = right = 0;
-            }
-        }
-        left = right = 0;
-        for (int i = s.length() - 1; i >= 0; i--) {
-            if (s.charAt(i) == '(') {
-                left++;
-            } else {
-                right++;
-            }
-            if (left == right) {
-                maxlength = Math.max(maxlength, 2 * left);
-            } else if (left > right) {
-                left = right = 0;
-            }
-        }
-        return maxlength;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int longestValidParentheses(string s) {
@@ -23546,78 +10946,6 @@ public:
         return maxlength;
     }
 };
-```
-
-```C
-int longestValidParentheses(char* s) {
-    int n = strlen(s);
-    int left = 0, right = 0, maxlength = 0;
-    for (int i = 0; i < n; i++) {
-        if (s[i] == '(') {
-            left++;
-        } else {
-            right++;
-        }
-        if (left == right) {
-            maxlength = fmax(maxlength, 2 * right);
-        } else if (right > left) {
-            left = right = 0;
-        }
-    }
-    left = right = 0;
-    for (int i = n - 1; i >= 0; i--) {
-        if (s[i] == '(') {
-            left++;
-        } else {
-            right++;
-        }
-        if (left == right) {
-            maxlength = fmax(maxlength, 2 * left);
-        } else if (left > right) {
-            left = right = 0;
-        }
-    }
-    return maxlength;
-}
-```
-
-```golang
-func longestValidParentheses(s string) int {
-    left, right, maxLength := 0, 0, 0
-    for i := 0; i < len(s); i++ {
-        if s[i] == '(' {
-            left++
-        } else {
-            right++
-        }
-        if left == right {
-            maxLength = max(maxLength, 2 * right)
-        } else if right > left {
-            left, right = 0, 0
-        }
-    }
-    left, right = 0, 0
-    for i := len(s) - 1; i >= 0; i-- {
-        if s[i] == '(' {
-            left++
-        } else {
-            right++
-        }
-        if left == right {
-            maxLength = max(maxLength, 2 * left)
-        } else if left > right {
-            left, right = 0, 0
-        }
-    }
-    return maxLength
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -23744,7 +11072,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     void nextPermutation(vector<int>& nums) {
@@ -23762,111 +11090,6 @@ public:
         reverse(nums.begin() + i + 1, nums.end());
     }
 };
-```
-
-```Java
-class Solution {
-    public void nextPermutation(int[] nums) {
-        int i = nums.length - 2;
-        while (i >= 0 && nums[i] >= nums[i + 1]) {
-            i--;
-        }
-        if (i >= 0) {
-            int j = nums.length - 1;
-            while (j >= 0 && nums[i] >= nums[j]) {
-                j--;
-            }
-            swap(nums, i, j);
-        }
-        reverse(nums, i + 1);
-    }
-
-    public void swap(int[] nums, int i, int j) {
-        int temp = nums[i];
-        nums[i] = nums[j];
-        nums[j] = temp;
-    }
-
-    public void reverse(int[] nums, int start) {
-        int left = start, right = nums.length - 1;
-        while (left < right) {
-            swap(nums, left, right);
-            left++;
-            right--;
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def nextPermutation(self, nums: List[int]) -> None:
-        i = len(nums) - 2
-        while i >= 0 and nums[i] >= nums[i + 1]:
-            i -= 1
-        if i >= 0:
-            j = len(nums) - 1
-            while j >= 0 and nums[i] >= nums[j]:
-                j -= 1
-            nums[i], nums[j] = nums[j], nums[i]
-        
-        left, right = i + 1, len(nums) - 1
-        while left < right:
-            nums[left], nums[right] = nums[right], nums[left]
-            left += 1
-            right -= 1
-```
-
-```Golang
-func nextPermutation(nums []int) {
-    n := len(nums)
-    i := n - 2
-    for i >= 0 && nums[i] >= nums[i+1] {
-        i--
-    }
-    if i >= 0 {
-        j := n - 1
-        for j >= 0 && nums[i] >= nums[j] {
-            j--
-        }
-        nums[i], nums[j] = nums[j], nums[i]
-    }
-    reverse(nums[i+1:])
-}
-
-func reverse(a []int) {
-    for i, n := 0, len(a); i < n/2; i++ {
-        a[i], a[n-1-i] = a[n-1-i], a[i]
-    }
-}
-```
-
-```C
-void swap(int *a, int *b) {
-    int t = *a;
-    *a = *b, *b = t;
-}
-void reverse(int *nums, int left, int right) {
-    while (left < right) {
-        swap(nums + left, nums + right);
-        left++, right--;
-    }
-}
-
-void nextPermutation(int *nums, int numsSize) {
-    int i = numsSize - 2;
-    while (i >= 0 && nums[i] >= nums[i + 1]) {
-        i--;
-    }
-    if (i >= 0) {
-        int j = numsSize - 1;
-        while (j >= 0 && nums[i] >= nums[j]) {
-            j--;
-        }
-        swap(nums + i, nums + j);
-    }
-    reverse(nums, i + 1, numsSize - 1);
-}
 ```
 
 **复杂度分析**
@@ -23982,7 +11205,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int sum = 0;
@@ -23997,75 +11220,6 @@ public:
         return root;
     }
 };
-```
-
-```Java
-class Solution {
-    int sum = 0;
-
-    public TreeNode convertBST(TreeNode root) {
-        if (root != null) {
-            convertBST(root.right);
-            sum += root.val;
-            root.val = sum;
-            convertBST(root.left);
-        }
-        return root;
-    }
-}
-```
-
-```Python
-class Solution:
-    def convertBST(self, root: TreeNode) -> TreeNode:
-        def dfs(root: TreeNode):
-            nonlocal total
-            if root:
-                dfs(root.right)
-                total += root.val
-                root.val = total
-                dfs(root.left)
-        
-        total = 0
-        dfs(root)
-        return root
-```
-
-```Golang
-func convertBST(root *TreeNode) *TreeNode {
-    sum := 0
-    var dfs func(*TreeNode)
-    dfs = func(node *TreeNode) {
-        if node != nil {
-            dfs(node.Right)
-            sum += node.Val
-            node.Val = sum
-            dfs(node.Left)
-        }
-    }
-    dfs(root)
-    return root
-}
-```
-
-```C
-int sum;
-
-struct TreeNode* dfs(struct TreeNode* root) {
-    if (root != NULL) {
-        dfs(root->right);
-        sum += root->val;
-        root->val = sum;
-        dfs(root->left);
-    }
-    return root;
-}
-
-struct TreeNode* convertBST(struct TreeNode* root) {
-    sum = 0;
-    dfs(root);
-    return root;
-}
 ```
 
 **复杂度分析**
@@ -24096,7 +11250,7 @@ Morris 遍历的核心思想是利用树的大量空闲指针，实现空间开�
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     TreeNode* getSuccessor(TreeNode* node) {
@@ -24133,146 +11287,6 @@ public:
         return root;
     }
 };
-```
-
-```Java
-class Solution {
-    public TreeNode convertBST(TreeNode root) {
-        int sum = 0;
-        TreeNode node = root;
-
-        while (node != null) {
-            if (node.right == null) {
-                sum += node.val;
-                node.val = sum;
-                node = node.left;
-            } else {
-                TreeNode succ = getSuccessor(node);
-                if (succ.left == null) {
-                    succ.left = node;
-                    node = node.right;
-                } else {
-                    succ.left = null;
-                    sum += node.val;
-                    node.val = sum;
-                    node = node.left;
-                }
-            }
-        }
-
-        return root;
-    }
-
-    public TreeNode getSuccessor(TreeNode node) {
-        TreeNode succ = node.right;
-        while (succ.left != null && succ.left != node) {
-            succ = succ.left;
-        }
-        return succ;
-    }
-}
-
-```
-
-```Python
-class Solution:
-    def convertBST(self, root: TreeNode) -> TreeNode:
-        def getSuccessor(node: TreeNode) -> TreeNode:
-            succ = node.right
-            while succ.left and succ.left != node:
-                succ = succ.left
-            return succ
-        
-        total = 0
-        node = root
-
-        while node:
-            if not node.right:
-                total += node.val
-                node.val = total
-                node = node.left
-            else:
-                succ = getSuccessor(node)
-                if not succ.left:
-                    succ.left = node
-                    node = node.right
-                else:
-                    succ.left = None
-                    total += node.val
-                    node.val = total
-                    node = node.left
-
-        return roota
-```
-
-```Golang
-func getSuccessor(node *TreeNode) *TreeNode {
-    succ := node.Right
-    for succ.Left != nil && succ.Left != node {
-        succ = succ.Left
-    }
-    return succ
-}
-
-func convertBST(root *TreeNode) *TreeNode {
-    sum := 0
-    node := root
-    for node != nil {
-        if node.Right == nil {
-            sum += node.Val
-            node.Val = sum
-            node = node.Left
-        } else {
-            succ := getSuccessor(node)
-            if succ.Left == nil {
-                succ.Left = node
-                node = node.Right
-            } else {
-                succ.Left = nil
-                sum += node.Val
-                node.Val = sum
-                node = node.Left
-            }
-        }
-    }
-    return root
-}
-```
-
-```C
-struct TreeNode* getSuccessor(struct TreeNode* node) {
-    struct TreeNode* succ = node->right;
-    while (succ->left != NULL && succ->left != node) {
-        succ = succ->left;
-    }
-    return succ;
-}
-
-struct TreeNode* convertBST(struct TreeNode* root) {
-    int sum = 0;
-    struct TreeNode* node = root;
-
-    while (node != NULL) {
-        if (node->right == NULL) {
-            sum += node->val;
-            node->val = sum;
-            node = node->left;
-        } else {
-            struct TreeNode* succ = getSuccessor(node);
-            if (succ->left == NULL) {
-                succ->left = node;
-                node = node->right;
-            } else {
-                succ->left = NULL;
-                sum += node->val;
-                node->val = sum;
-                node = node->left;
-            }
-        }
-    }
-
-    return root;
-}
 ```
 
 **复杂度分析**
@@ -24388,28 +11402,6 @@ ListNode* mergeTwoLists(ListNode *a, ListNode *b) {
 }
 ```
 
-```Java
-public ListNode mergeTwoLists(ListNode a, ListNode b) {
-    if (a == null || b == null) {
-        return a != null ? a : b;
-    }
-    ListNode head = new ListNode(0);
-    ListNode tail = head, aPtr = a, bPtr = b;
-    while (aPtr != null && bPtr != null) {
-        if (aPtr.val < bPtr.val) {
-            tail.next = aPtr;
-            aPtr = aPtr.next;
-        } else {
-            tail.next = bPtr;
-            bPtr = bPtr.next;
-        }
-        tail = tail.next;
-    }
-    tail.next = (aPtr != null ? aPtr : bPtr);
-    return head.next;
-}
-```
-
 **复杂度分析**
 
 + 时间复杂度：$O(n)$。
@@ -24449,38 +11441,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public ListNode mergeKLists(ListNode[] lists) {
-        ListNode ans = null;
-        for (int i = 0; i < lists.length; ++i) {
-            ans = mergeTwoLists(ans, lists[i]);
-        }
-        return ans;
-    }
-
-    public ListNode mergeTwoLists(ListNode a, ListNode b) {
-        if (a == null || b == null) {
-            return a != null ? a : b;
-        }
-        ListNode head = new ListNode(0);
-        ListNode tail = head, aPtr = a, bPtr = b;
-        while (aPtr != null && bPtr != null) {
-            if (aPtr.val < bPtr.val) {
-                tail.next = aPtr;
-                aPtr = aPtr.next;
-            } else {
-                tail.next = bPtr;
-                bPtr = bPtr.next;
-            }
-            tail = tail.next;
-        }
-        tail.next = (aPtr != null ? aPtr : bPtr);
-        return head.next;
-    }
-}
 ```
 
 **复杂度分析**
@@ -24533,45 +11493,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public ListNode mergeKLists(ListNode[] lists) {
-        return merge(lists, 0, lists.length - 1);
-    }
-
-    public ListNode merge(ListNode[] lists, int l, int r) {
-        if (l == r) {
-            return lists[l];
-        }
-        if (l > r) {
-            return null;
-        }
-        int mid = (l + r) >> 1;
-        return mergeTwoLists(merge(lists, l, mid), merge(lists, mid + 1, r));
-    }
-
-    public ListNode mergeTwoLists(ListNode a, ListNode b) {
-        if (a == null || b == null) {
-            return a != null ? a : b;
-        }
-        ListNode head = new ListNode(0);
-        ListNode tail = head, aPtr = a, bPtr = b;
-        while (aPtr != null && bPtr != null) {
-            if (aPtr.val < bPtr.val) {
-                tail.next = aPtr;
-                aPtr = aPtr.next;
-            } else {
-                tail.next = bPtr;
-                bPtr = bPtr.next;
-            }
-            tail = tail.next;
-        }
-        tail.next = (aPtr != null ? aPtr : bPtr);
-        return head.next;
-    }
-}
-```
-
 **复杂度分析**
 
 + 时间复杂度：考虑递归「向上回升」的过程——第一轮合并 $\frac{k}{2}$ 组链表，每一组的时间代价是 $O(2n)$；第二轮合并 $\frac{k}{4}$ 组链表，每一组的时间代价是 $O(4n)$......所以总的时间代价是 $O(\sum_{i = 1}^{\infty} \frac{k}{2^i} \times 2^i n) = O(kn \times \log k)$，故渐进时间复杂度为 $O(kn \times \log k)$。
@@ -24612,45 +11533,6 @@ public:
         return head.next;
     }
 };
-```
-
-```Java
-class Solution {
-    class Status implements Comparable<Status> {
-        int val;
-        ListNode ptr;
-
-        Status(int val, ListNode ptr) {
-            this.val = val;
-            this.ptr = ptr;
-        }
-
-        public int compareTo(Status status2) {
-            return this.val - status2.val;
-        }
-    }
-
-    PriorityQueue<Status> queue = new PriorityQueue<Status>();
-
-    public ListNode mergeKLists(ListNode[] lists) {
-        for (ListNode node: lists) {
-            if (node != null) {
-                queue.offer(new Status(node.val, node));
-            }
-        }
-        ListNode head = new ListNode(0);
-        ListNode tail = head;
-        while (!queue.isEmpty()) {
-            Status f = queue.poll();
-            tail.next = f.ptr;
-            tail = tail.next;
-            if (f.ptr.next != null) {
-                queue.offer(new Status(f.ptr.next.val, f.ptr.next));
-            }
-        }
-        return head.next;
-    }
-}
 ```
 
 **复杂度分析**
@@ -24717,25 +11599,7 @@ public:
 
 我们可以枚举 $[0..i]$ 里所有的下标 $j$ 来判断是否符合条件，可能有读者会认为假定我们确定了子数组的开头和结尾，还需要 $O(n)$ 的时间复杂度遍历子数组来求和，那样复杂度就将达到 $O(n^3)$ 从而无法通过所有测试用例。但是如果我们知道 $[j,i]$ 子数组的和，就能 $O(1)$ 推出 $[j-1,i]$ 的和，因此这部分的遍历求和是不需要的，我们在枚举下标 $j$ 的时候已经能 $O(1)$ 求出 $[j,i]$ 的子数组之和。
 
-```Java
-public class Solution {
-    public int subarraySum(int[] nums, int k) {
-        int count = 0;
-        for (int start = 0; start < nums.length; ++start) {
-            int sum = 0;
-            for (int end = start; end >= 0; --end) {
-                sum += nums[end];
-                if (sum == k) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int subarraySum(vector<int>& nums, int k) {
@@ -24758,38 +11622,6 @@ public:
     }
 };
 
-```
-
-```JavaScript
-var subarraySum = function(nums, k) {
-    let count = 0;
-    for (let start = 0; start < nums.length; ++start) {
-        let sum = 0;
-        for (let end = start; end >= 0; --end) {
-            sum += nums[end];
-            if (sum == k) {
-                count++;
-            }
-        }
-    }
-    return count;
-};
-```
-
-```golang
-func subarraySum(nums []int, k int) int {
-    count := 0
-    for start := 0; start < len(nums); start++ {
-        sum := 0
-        for end := start; end >= 0; end-- {
-            sum += nums[end]
-            if sum == k {
-                count++
-            }
-        }
-    }
-    return count
-}
 ```
 
 **复杂度分析**
@@ -24827,25 +11659,7 @@ $$
 
 <![fig1](https://assets.leetcode.cn/solution-static/560/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/560/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/560/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/560/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/560/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/560/6.PNG),![fig7](https://assets.leetcode.cn/solution-static/560/7.PNG),![fig8](https://assets.leetcode.cn/solution-static/560/8.PNG),![fig9](https://assets.leetcode.cn/solution-static/560/9.PNG)>
 
-```Java
-public class Solution {
-    public int subarraySum(int[] nums, int k) {
-        int count = 0, pre = 0;
-        HashMap < Integer, Integer > mp = new HashMap < > ();
-        mp.put(0, 1);
-        for (int i = 0; i < nums.length; i++) {
-            pre += nums[i];
-            if (mp.containsKey(pre - k)) {
-                count += mp.get(pre - k);
-            }
-            mp.put(pre, mp.getOrDefault(pre, 0) + 1);
-        }
-        return count;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int subarraySum(vector<int>& nums, int k) {
@@ -24862,42 +11676,6 @@ public:
         return count;
     }
 };
-```
-
-```JavaScript
-var subarraySum = function(nums, k) {
-    const mp = new Map();
-    mp.set(0, 1);
-    let count = 0, pre = 0;
-    for (const x of nums) {
-        pre += x;
-        if (mp.has(pre - k)) {
-            count += mp.get(pre - k);
-        }
-        if (mp.has(pre)) {
-            mp.set(pre, mp.get(pre) + 1);
-        } else {
-            mp.set(pre, 1);
-        }
-    }
-    return count;
-};
-```
-
-```golang
-func subarraySum(nums []int, k int) int {
-    count, pre := 0, 0
-    m := map[int]int{}
-    m[0] = 1
-    for i := 0; i < len(nums); i++ {
-        pre += nums[i]
-        if _, ok := m[pre - k]; ok {
-            count += m[pre - k]
-        }
-        m[pre] += 1
-    }
-    return count
-}
 ```
 
 **复杂度分析**
@@ -24997,74 +11775,7 @@ $$
 
 如果 `l1` 或者 `l2` 一开始就是空链表 ，那么没有任何操作需要合并，所以我们只需要返回非空链表。否则，我们要判断 `l1` 和 `l2` 哪一个链表的头节点的值更小，然后递归地决定下一个添加到结果里的节点。如果两个链表有一个为空，递归结束。
 
-```Java
-class Solution {
-    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
-        if (l1 == null) {
-            return l2;
-        } else if (l2 == null) {
-            return l1;
-        } else if (l1.val < l2.val) {
-            l1.next = mergeTwoLists(l1.next, l2);
-            return l1;
-        } else {
-            l2.next = mergeTwoLists(l1, l2.next);
-            return l2;
-        }
-    }
-}
-```
-
-```C#
-public class Solution {
-    public ListNode MergeTwoLists(ListNode l1, ListNode l2) {
-        if (l1 == null) {
-            return l2;
-        } else if (l2 == null) {
-            return l1;
-        } else if (l1.val < l2.val) {
-            l1.next = MergeTwoLists(l1.next, l2);
-            return l1;
-        } else {
-            l2.next = MergeTwoLists(l1, l2.next);
-            return l2;
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
-        if l1 is None:
-            return l2
-        elif l2 is None:
-            return l1
-        elif l1.val < l2.val:
-            l1.next = self.mergeTwoLists(l1.next, l2)
-            return l1
-        else:
-            l2.next = self.mergeTwoLists(l1, l2.next)
-            return l2
-```
-
-```JavaScript
-var mergeTwoLists = function(l1, l2) {
-    if (l1 === null) {
-        return l2;
-    } else if (l2 === null) {
-        return l1;
-    } else if (l1.val < l2.val) {
-        l1.next = mergeTwoLists(l1.next, l2);
-        return l1;
-    } else {
-        l2.next = mergeTwoLists(l1, l2.next);
-        return l2;
-    }
-};
-```
-
-```C++
+```cpp
 class Solution {
 public:
     ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
@@ -25081,23 +11792,6 @@ public:
         }
     }
 };
-```
-
-```Golang
-func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
-	if list1 == nil {
-		return list2
-	}
-	if list2 == nil {
-		return list1
-	}
-	if list1.Val < list2.Val {
-		list1.Next = mergeTwoLists(list1.Next, list2)
-		return list1
-	}
-	list2.Next = mergeTwoLists(list1, list2.Next)
-	return list2
-}
 ```
 
 **复杂度分析**
@@ -25122,101 +11816,7 @@ func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
 
 <![fig1](https://assets.leetcode.cn/solution-static/21/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/21/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/21/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/21/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/21/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/21/6.PNG),![fig7](https://assets.leetcode.cn/solution-static/21/7.PNG),![fig8](https://assets.leetcode.cn/solution-static/21/8.PNG),![fig9](https://assets.leetcode.cn/solution-static/21/9.PNG),![fig10](https://assets.leetcode.cn/solution-static/21/10.PNG),![fig11](https://assets.leetcode.cn/solution-static/21/11.PNG),![fig12](https://assets.leetcode.cn/solution-static/21/12.PNG),![fig13](https://assets.leetcode.cn/solution-static/21/13.PNG),![fig14](https://assets.leetcode.cn/solution-static/21/14.PNG),![fig15](https://assets.leetcode.cn/solution-static/21/15.PNG),![fig16](https://assets.leetcode.cn/solution-static/21/16.PNG),![fig17](https://assets.leetcode.cn/solution-static/21/17.PNG),![fig18](https://assets.leetcode.cn/solution-static/21/18.PNG),![fig19](https://assets.leetcode.cn/solution-static/21/19.PNG),![fig20](https://assets.leetcode.cn/solution-static/21/20.PNG),![fig21](https://assets.leetcode.cn/solution-static/21/21.PNG),![fig22](https://assets.leetcode.cn/solution-static/21/22.PNG),![fig23](https://assets.leetcode.cn/solution-static/21/23.PNG),![fig24](https://assets.leetcode.cn/solution-static/21/24.PNG),![fig25](https://assets.leetcode.cn/solution-static/21/25.PNG),![fig26](https://assets.leetcode.cn/solution-static/21/26.PNG),![fig27](https://assets.leetcode.cn/solution-static/21/27.PNG),![fig28](https://assets.leetcode.cn/solution-static/21/28.PNG),![fig29](https://assets.leetcode.cn/solution-static/21/29.PNG),![fig30](https://assets.leetcode.cn/solution-static/21/30.PNG),![fig31](https://assets.leetcode.cn/solution-static/21/31.PNG),![fig32](https://assets.leetcode.cn/solution-static/21/32.PNG),![fig33](https://assets.leetcode.cn/solution-static/21/33.PNG),![fig34](https://assets.leetcode.cn/solution-static/21/34.PNG),![fig35](https://assets.leetcode.cn/solution-static/21/35.PNG)>
 
-```Java
-class Solution {
-    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
-        ListNode prehead = new ListNode(-1);
-
-        ListNode prev = prehead;
-        while (l1 != null && l2 != null) {
-            if (l1.val <= l2.val) {
-                prev.next = l1;
-                l1 = l1.next;
-            } else {
-                prev.next = l2;
-                l2 = l2.next;
-            }
-            prev = prev.next;
-        }
-
-        // 合并后 l1 和 l2 最多只有一个还未被合并完，我们直接将链表末尾指向未合并完的链表即可
-        prev.next = l1 == null ? l2 : l1;
-
-        return prehead.next;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public ListNode MergeTwoLists(ListNode l1, ListNode l2) {
-        ListNode prehead = new ListNode(-1);
-
-        ListNode prev = prehead;
-        while (l1 != null && l2 != null) {
-            if (l1.val <= l2.val) {
-                prev.next = l1;
-                l1 = l1.next;
-            } else {
-                prev.next = l2;
-                l2 = l2.next;
-            }
-            prev = prev.next;
-        }
-
-        // 合并后 l1 和 l2 最多只有一个还未被合并完，我们直接将链表末尾指向未合并完的链表即可
-        prev.next = l1 == null ? l2 : l1;
-
-        return prehead.next;
-    }
-}
-```
-
-```Python
-class Solution:
-    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
-        prehead = ListNode(-1)
-
-        prev = prehead
-        while l1 and l2:
-            if l1.val <= l2.val:
-                prev.next = l1
-                l1 = l1.next
-            else:
-                prev.next = l2
-                l2 = l2.next            
-            prev = prev.next
-
-        # 合并后 l1 和 l2 最多只有一个还未被合并完，我们直接将链表末尾指向未合并完的链表即可
-        prev.next = l1 if l1 is not None else l2
-
-        return prehead.next
-```
-
-```JavaScript
-var mergeTwoLists = function(l1, l2) {
-    const prehead = new ListNode(-1);
-
-    let prev = prehead;
-    while (l1 != null && l2 != null) {
-        if (l1.val <= l2.val) {
-            prev.next = l1;
-            l1 = l1.next;
-        } else {
-            prev.next = l2;
-            l2 = l2.next;
-        }
-        prev = prev.next;
-    }
-
-    // 合并后 l1 和 l2 最多只有一个还未被合并完，我们直接将链表末尾指向未合并完的链表即可
-    prev.next = l1 === null ? l2 : l1;
-
-    return prehead.next;
-};
-```
-
-```C++
+```cpp
 class Solution {
 public:
     ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
@@ -25240,29 +11840,6 @@ public:
         return preHead->next;
     }
 };
-```
-
-```Golang
-func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
-	preHead := new(ListNode)
-	prev := preHead
-	for list1 != nil && list2 != nil {
-		if list1.Val <= list2.Val {
-			prev.Next = list1
-			list1 = list1.Next
-		} else {
-			prev.Next = list2
-			list2 = list2.Next
-		}
-		prev = prev.Next
-	}
-	if list1 == nil {
-		prev.Next = list2
-	} else {
-		prev.Next = list1
-	}
-	return preHead.Next
-}
 ```
 
 **复杂度分析**
@@ -25352,7 +11929,7 @@ public:
 
 注意到有效字符串的长度一定为偶数，因此如果字符串的长度为奇数，我们可以直接返回 $\text{False}$，省去后续的遍历判断过程。
 
-```C++
+```cpp
 class Solution {
 public:
     bool isValid(string s) {
@@ -25381,141 +11958,6 @@ public:
         return stk.empty();
     }
 };
-```
-
-```Java
-class Solution {
-    public boolean isValid(String s) {
-        int n = s.length();
-        if (n % 2 == 1) {
-            return false;
-        }
-
-        Map<Character, Character> pairs = new HashMap<Character, Character>() {{
-            put(')', '(');
-            put(']', '[');
-            put('}', '{');
-        }};
-        Deque<Character> stack = new LinkedList<Character>();
-        for (int i = 0; i < n; i++) {
-            char ch = s.charAt(i);
-            if (pairs.containsKey(ch)) {
-                if (stack.isEmpty() || stack.peek() != pairs.get(ch)) {
-                    return false;
-                }
-                stack.pop();
-            } else {
-                stack.push(ch);
-            }
-        }
-        return stack.isEmpty();
-    }
-}
-```
-
-```Python
-class Solution:
-    def isValid(self, s: str) -> bool:
-        if len(s) % 2 == 1:
-            return False
-        
-        pairs = {
-            ")": "(",
-            "]": "[",
-            "}": "{",
-        }
-        stack = list()
-        for ch in s:
-            if ch in pairs:
-                if not stack or stack[-1] != pairs[ch]:
-                    return False
-                stack.pop()
-            else:
-                stack.append(ch)
-        
-        return not stack
-```
-
-```JavaScript
-var isValid = function(s) {
-    const n = s.length;
-    if (n % 2 === 1) {
-        return false;
-    }
-    const pairs = new Map([
-        [')', '('],
-        [']', '['],
-        ['}', '{']
-    ]);
-    const stk = [];
-    for (let ch of s){
-        if (pairs.has(ch)) {
-            if (!stk.length || stk[stk.length - 1] !== pairs.get(ch)) {
-                return false;
-            }
-            stk.pop();
-        } 
-        else {
-            stk.push(ch);
-        }
-    };
-    return !stk.length;
-};
-```
-
-```golang
-func isValid(s string) bool {
-    n := len(s)
-    if n % 2 == 1 {
-        return false
-    }
-    pairs := map[byte]byte{
-        ')': '(',
-        ']': '[',
-        '}': '{',
-    }
-    stack := []byte{}
-    for i := 0; i < n; i++ {
-        if pairs[s[i]] > 0 {
-            if len(stack) == 0 || stack[len(stack)-1] != pairs[s[i]] {
-                return false
-            }
-            stack = stack[:len(stack)-1]
-        } else {
-            stack = append(stack, s[i])
-        }
-    }
-    return len(stack) == 0
-}
-```
-
-```C
-char pairs(char a) {
-    if (a == '}') return '{';
-    if (a == ']') return '[';
-    if (a == ')') return '(';
-    return 0;
-}
-
-bool isValid(char* s) {
-    int n = strlen(s);
-    if (n % 2 == 1) {
-        return false;
-    }
-    int stk[n + 1], top = 0;
-    for (int i = 0; i < n; i++) {
-        char ch = pairs(s[i]);
-        if (ch) {
-            if (top == 0 || stk[top - 1] != ch) {
-                return false;
-            }
-            top--;
-        } else {
-            stk[top++] = s[i];
-        }
-    }
-    return top == 0;
-}
 ```
 
 **复杂度分析**
@@ -25616,7 +12058,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int getLength(ListNode* head) {
@@ -25643,95 +12085,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public ListNode removeNthFromEnd(ListNode head, int n) {
-        ListNode dummy = new ListNode(0, head);
-        int length = getLength(head);
-        ListNode cur = dummy;
-        for (int i = 1; i < length - n + 1; ++i) {
-            cur = cur.next;
-        }
-        cur.next = cur.next.next;
-        ListNode ans = dummy.next;
-        return ans;
-    }
-
-    public int getLength(ListNode head) {
-        int length = 0;
-        while (head != null) {
-            ++length;
-            head = head.next;
-        }
-        return length;
-    }
-}
-```
-
-```Python
-class Solution:
-    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
-        def getLength(head: ListNode) -> int:
-            length = 0
-            while head:
-                length += 1
-                head = head.next
-            return length
-        
-        dummy = ListNode(0, head)
-        length = getLength(head)
-        cur = dummy
-        for i in range(1, length - n + 1):
-            cur = cur.next
-        cur.next = cur.next.next
-        return dummy.next
-```
-
-```Golang
-func getLength(head *ListNode) (length int) {
-    for ; head != nil; head = head.Next {
-        length++
-    }
-    return
-}
-
-func removeNthFromEnd(head *ListNode, n int) *ListNode {
-    length := getLength(head)
-    dummy := &ListNode{0, head}
-    cur := dummy
-    for i := 0; i < length-n; i++ {
-        cur = cur.Next
-    }
-    cur.Next = cur.Next.Next
-    return dummy.Next
-}
-```
-
-```C
-int getLength(struct ListNode* head) {
-    int length = 0;
-    while (head) {
-        ++length;
-        head = head->next;
-    }
-    return length;
-}
-
-struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
-    struct ListNode* dummy = malloc(sizeof(struct ListNode));
-    dummy->val = 0, dummy->next = head;
-    int length = getLength(head);
-    struct ListNode* cur = dummy;
-    for (int i = 1; i < length - n + 1; ++i) {
-        cur = cur->next;
-    }
-    cur->next = cur->next->next;
-    struct ListNode* ans = dummy->next;
-    free(dummy);
-    return ans;
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(L)$，其中 $L$ 是链表的长度。
@@ -25748,7 +12101,7 @@ struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     ListNode* removeNthFromEnd(ListNode* head, int n) {
@@ -25769,88 +12122,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public ListNode removeNthFromEnd(ListNode head, int n) {
-        ListNode dummy = new ListNode(0, head);
-        Deque<ListNode> stack = new LinkedList<ListNode>();
-        ListNode cur = dummy;
-        while (cur != null) {
-            stack.push(cur);
-            cur = cur.next;
-        }
-        for (int i = 0; i < n; ++i) {
-            stack.pop();
-        }
-        ListNode prev = stack.peek();
-        prev.next = prev.next.next;
-        ListNode ans = dummy.next;
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
-        dummy = ListNode(0, head)
-        stack = list()
-        cur = dummy
-        while cur:
-            stack.append(cur)
-            cur = cur.next
-        
-        for i in range(n):
-            stack.pop()
-
-        prev = stack[-1]
-        prev.next = prev.next.next
-        return dummy.next
-```
-
-```Golang
-func removeNthFromEnd(head *ListNode, n int) *ListNode {
-    nodes := []*ListNode{}
-    dummy := &ListNode{0, head}
-    for node := dummy; node != nil; node = node.Next {
-        nodes = append(nodes, node)
-    }
-    prev := nodes[len(nodes)-1-n]
-    prev.Next = prev.Next.Next
-    return dummy.Next
-}
-```
-
-```C
-struct Stack {
-    struct ListNode* val;
-    struct Stack* next;
-};
-
-struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
-    struct ListNode* dummy = malloc(sizeof(struct ListNode));
-    dummy->val = 0, dummy->next = head;
-    struct Stack* stk = NULL;
-    struct ListNode* cur = dummy;
-    while (cur) {
-        struct Stack* tmp = malloc(sizeof(struct Stack));
-        tmp->val = cur, tmp->next = stk;
-        stk = tmp;
-        cur = cur->next;
-    }
-    for (int i = 0; i < n; ++i) {
-        struct Stack* tmp = stk->next;
-        free(stk);
-        stk = tmp;
-    }
-    struct ListNode* prev = stk->val;
-    prev->next = prev->next->next;
-    struct ListNode* ans = dummy->next;
-    free(dummy);
-    return ans;
-}
 ```
 
 **复杂度分析**
@@ -25877,7 +12148,7 @@ struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     ListNode* removeNthFromEnd(ListNode* head, int n) {
@@ -25897,78 +12168,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public ListNode removeNthFromEnd(ListNode head, int n) {
-        ListNode dummy = new ListNode(0, head);
-        ListNode first = head;
-        ListNode second = dummy;
-        for (int i = 0; i < n; ++i) {
-            first = first.next;
-        }
-        while (first != null) {
-            first = first.next;
-            second = second.next;
-        }
-        second.next = second.next.next;
-        ListNode ans = dummy.next;
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
-        dummy = ListNode(0, head)
-        first = head
-        second = dummy
-        for i in range(n):
-            first = first.next
-
-        while first:
-            first = first.next
-            second = second.next
-        
-        second.next = second.next.next
-        return dummy.next
-```
-
-```Golang
-func removeNthFromEnd(head *ListNode, n int) *ListNode {
-    dummy := &ListNode{0, head}
-    first, second := head, dummy
-    for i := 0; i < n; i++ {
-        first = first.Next
-    }
-    for ; first != nil; first = first.Next {
-        second = second.Next
-    }
-    second.Next = second.Next.Next
-    return dummy.Next
-}
-```
-
-```C
-struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
-    struct ListNode* dummy = malloc(sizeof(struct ListNode));
-    dummy->val = 0, dummy->next = head;
-    struct ListNode* first = head;
-    struct ListNode* second = dummy;
-    for (int i = 0; i < n; ++i) {
-        first = first->next;
-    }
-    while (first) {
-        first = first->next;
-        second = second->next;
-    }
-    second->next = second->next->next;
-    struct ListNode* ans = dummy->next;
-    free(dummy);
-    return ans;
-}
 ```
 
 **复杂度分析**
@@ -26038,45 +12237,7 @@ public:
 
 <![fig1](https://assets.leetcode.cn/solution-static/17/1.png),![fig2](https://assets.leetcode.cn/solution-static/17/2.png),![fig3](https://assets.leetcode.cn/solution-static/17/3.png),![fig4](https://assets.leetcode.cn/solution-static/17/4.png),![fig5](https://assets.leetcode.cn/solution-static/17/5.png),![fig6](https://assets.leetcode.cn/solution-static/17/6.png),![fig7](https://assets.leetcode.cn/solution-static/17/7.png),![fig8](https://assets.leetcode.cn/solution-static/17/8.png),![fig9](https://assets.leetcode.cn/solution-static/17/9.png),![fig10](https://assets.leetcode.cn/solution-static/17/10.png),![fig11](https://assets.leetcode.cn/solution-static/17/11.png),![fig12](https://assets.leetcode.cn/solution-static/17/12.png),![fig13](https://assets.leetcode.cn/solution-static/17/13.png),![fig14](https://assets.leetcode.cn/solution-static/17/14.png)>
 
-```Java
-class Solution {
-    public List<String> letterCombinations(String digits) {
-        List<String> combinations = new ArrayList<String>();
-        if (digits.length() == 0) {
-            return combinations;
-        }
-        Map<Character, String> phoneMap = new HashMap<Character, String>() {{
-            put('2', "abc");
-            put('3', "def");
-            put('4', "ghi");
-            put('5', "jkl");
-            put('6', "mno");
-            put('7', "pqrs");
-            put('8', "tuv");
-            put('9', "wxyz");
-        }};
-        backtrack(combinations, phoneMap, digits, 0, new StringBuffer());
-        return combinations;
-    }
-
-    public void backtrack(List<String> combinations, Map<Character, String> phoneMap, String digits, int index, StringBuffer combination) {
-        if (index == digits.length()) {
-            combinations.add(combination.toString());
-        } else {
-            char digit = digits.charAt(index);
-            String letters = phoneMap.get(digit);
-            int lettersCount = letters.length();
-            for (int i = 0; i < lettersCount; i++) {
-                combination.append(letters.charAt(i));
-                backtrack(combinations, phoneMap, digits, index + 1, combination);
-                combination.deleteCharAt(index);
-            }
-        }
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<string> letterCombinations(string digits) {
@@ -26113,145 +12274,6 @@ public:
         }
     }
 };
-```
-
-```golang
-var phoneMap map[string]string = map[string]string{
-    "2": "abc",
-    "3": "def",
-    "4": "ghi",
-    "5": "jkl",
-    "6": "mno",
-    "7": "pqrs",
-    "8": "tuv",
-    "9": "wxyz",
-}
-
-var combinations []string
-
-func letterCombinations(digits string) []string {
-    if len(digits) == 0 {
-        return []string{}
-    }
-    combinations = []string{}
-    backtrack(digits, 0, "")
-    return combinations
-}
-
-func backtrack(digits string, index int, combination string) {
-    if index == len(digits) {
-        combinations = append(combinations, combination)
-    } else {
-        digit := string(digits[index])
-        letters := phoneMap[digit]
-        lettersCount := len(letters)
-        for i := 0; i < lettersCount; i++ {
-            backtrack(digits, index + 1, combination + string(letters[i]))
-        }
-    }
-}
-```
-
-```C
-char phoneMap[11][5] = {"\0", "\0", "abc\0", "def\0", "ghi\0", "jkl\0", "mno\0", "pqrs\0", "tuv\0", "wxyz\0"};
-
-char* digits_tmp;
-int digits_size;
-
-char** combinations;
-int combinations_size;
-
-char* combination;
-int combination_size;
-
-void backtrack(int index) {
-    if (index == digits_size) {
-        char* tmp = malloc(sizeof(char) * (combination_size + 1));
-        memcpy(tmp, combination, sizeof(char) * (combination_size + 1));
-        combinations[combinations_size++] = tmp;
-    } else {
-        char digit = digits_tmp[index];
-        char* letters = phoneMap[digit - '0'];
-        int len = strlen(letters);
-        for (int i = 0; i < len; i++) {
-            combination[combination_size++] = letters[i];
-            combination[combination_size] = 0;
-            backtrack(index + 1);
-            combination[--combination_size] = 0;
-        }
-    }
-}
-
-char** letterCombinations(char* digits, int* returnSize) {
-    combinations_size = combination_size = 0;
-    digits_tmp = digits;
-    digits_size = strlen(digits);
-    if (digits_size == 0) {
-        *returnSize = 0;
-        return combinations;
-    }
-    int num = 1;
-    for (int i = 0; i < digits_size; i++) num *= 4;
-    combinations = malloc(sizeof(char*) * num);
-    combination = malloc(sizeof(char) * digits_size + 1);
-    backtrack(0);
-    *returnSize = combinations_size;
-    return combinations;
-}
-```
-
-```Python
-class Solution:
-    def letterCombinations(self, digits: str) -> List[str]:
-        if not digits:
-            return list()
-        
-        phoneMap = {
-            "2": "abc",
-            "3": "def",
-            "4": "ghi",
-            "5": "jkl",
-            "6": "mno",
-            "7": "pqrs",
-            "8": "tuv",
-            "9": "wxyz",
-        }
-
-        def backtrack(index: int):
-            if index == len(digits):
-                combinations.append("".join(combination))
-            else:
-                digit = digits[index]
-                for letter in phoneMap[digit]:
-                    combination.append(letter)
-                    backtrack(index + 1)
-                    combination.pop()
-
-        combination = list()
-        combinations = list()
-        backtrack(0)
-        return combinations
-```
-
-```Python
-class Solution:
-    def letterCombinations(self, digits: str) -> List[str]:
-        if not digits:
-            return list()
-        
-        phoneMap = {
-            "2": "abc",
-            "3": "def",
-            "4": "ghi",
-            "5": "jkl",
-            "6": "mno",
-            "7": "pqrs",
-            "8": "tuv",
-            "9": "wxyz",
-        }
-
-        groups = (phoneMap[digit] for digit in digits)
-        return ["".join(combination) for combination in itertools.product(*groups)]
 ```
 
 **复杂度分析**
@@ -26396,7 +12418,7 @@ for first = 0 .. n-1
 
 上述的伪代码中还有一些细节需要补充，例如我们需要保持左指针一直在右指针的左侧（即满足 $b \leq c$），具体可以参考下面的代码，均给出了详细的注释。
 
-```C++
+```cpp
 class Solution {
 public:
     vector<vector<int>> threeSum(vector<int>& nums) {
@@ -26435,122 +12457,6 @@ public:
         return ans;
     }
 };
-```
-
-```Python
-class Solution:
-    def threeSum(self, nums: List[int]) -> List[List[int]]:
-        n = len(nums)
-        nums.sort()
-        ans = list()
-        
-        # 枚举 a
-        for first in range(n):
-            # 需要和上一次枚举的数不相同
-            if first > 0 and nums[first] == nums[first - 1]:
-                continue
-            # c 对应的指针初始指向数组的最右端
-            third = n - 1
-            target = -nums[first]
-            # 枚举 b
-            for second in range(first + 1, n):
-                # 需要和上一次枚举的数不相同
-                if second > first + 1 and nums[second] == nums[second - 1]:
-                    continue
-                # 需要保证 b 的指针在 c 的指针的左侧
-                while second < third and nums[second] + nums[third] > target:
-                    third -= 1
-                # 如果指针重合，随着 b 后续的增加
-                # 就不会有满足 a+b+c=0 并且 b<c 的 c 了，可以退出循环
-                if second == third:
-                    break
-                if nums[second] + nums[third] == target:
-                    ans.append([nums[first], nums[second], nums[third]])
-        
-        return ans
-```
-
-```Java
-class Solution {
-    public List<List<Integer>> threeSum(int[] nums) {
-        int n = nums.length;
-        Arrays.sort(nums);
-        List<List<Integer>> ans = new ArrayList<List<Integer>>();
-        // 枚举 a
-        for (int first = 0; first < n; ++first) {
-            // 需要和上一次枚举的数不相同
-            if (first > 0 && nums[first] == nums[first - 1]) {
-                continue;
-            }
-            // c 对应的指针初始指向数组的最右端
-            int third = n - 1;
-            int target = -nums[first];
-            // 枚举 b
-            for (int second = first + 1; second < n; ++second) {
-                // 需要和上一次枚举的数不相同
-                if (second > first + 1 && nums[second] == nums[second - 1]) {
-                    continue;
-                }
-                // 需要保证 b 的指针在 c 的指针的左侧
-                while (second < third && nums[second] + nums[third] > target) {
-                    --third;
-                }
-                // 如果指针重合，随着 b 后续的增加
-                // 就不会有满足 a+b+c=0 并且 b<c 的 c 了，可以退出循环
-                if (second == third) {
-                    break;
-                }
-                if (nums[second] + nums[third] == target) {
-                    List<Integer> list = new ArrayList<Integer>();
-                    list.add(nums[first]);
-                    list.add(nums[second]);
-                    list.add(nums[third]);
-                    ans.add(list);
-                }
-            }
-        }
-        return ans;
-    }
-}
-```
-
-```golang
-func threeSum(nums []int) [][]int {
-    n := len(nums)
-    sort.Ints(nums)
-    ans := make([][]int, 0)
- 
-    // 枚举 a
-    for first := 0; first < n; first++ {
-        // 需要和上一次枚举的数不相同
-        if first > 0 && nums[first] == nums[first - 1] {
-            continue
-        }
-        // c 对应的指针初始指向数组的最右端
-        third := n - 1
-        target := -1 * nums[first]
-        // 枚举 b
-        for second := first + 1; second < n; second++ {
-            // 需要和上一次枚举的数不相同
-            if second > first + 1 && nums[second] == nums[second - 1] {
-                continue
-            }
-            // 需要保证 b 的指针在 c 的指针的左侧
-            for second < third && nums[second] + nums[third] > target {
-                third--
-            }
-            // 如果指针重合，随着 b 后续的增加
-            // 就不会有满足 a+b+c=0 并且 b<c 的 c 了，可以退出循环
-            if second == third {
-                break
-            }
-            if nums[second] + nums[third] == target {
-                ans = append(ans, []int{nums[first], nums[second], nums[third]})
-            }
-        }
-    }
-    return ans
-}
 ```
 
 **复杂度分析**
@@ -26725,7 +12631,7 @@ $$
 
 答案就是我们每次以双指针为左右边界（也就是「数组」的左右边界）计算出的容量中的最大值。
 
-```C++
+```cpp
 class Solution {
 public:
     int maxArea(vector<int>& height) {
@@ -26744,41 +12650,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-public class Solution {
-    public int maxArea(int[] height) {
-        int l = 0, r = height.length - 1;
-        int ans = 0;
-        while (l < r) {
-            int area = Math.min(height[l], height[r]) * (r - l);
-            ans = Math.max(ans, area);
-            if (height[l] <= height[r]) {
-                ++l;
-            }
-            else {
-                --r;
-            }
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def maxArea(self, height: List[int]) -> int:
-        l, r = 0, len(height) - 1
-        ans = 0
-        while l < r:
-            area = min(height[l], height[r]) * (r - l)
-            ans = max(ans, area)
-            if height[l] <= height[r]:
-                l += 1
-            else:
-                r -= 1
-        return ans
 ```
 
 **复杂度分析**
@@ -26929,7 +12800,7 @@ $$
 
 在上面的状态转移方程中，如果字符串 $p$ 中包含一个「字符 + 星号」的组合（例如 `a*`），那么在进行状态转移时，会先将 `a` 进行匹配（当 $p[j]$ 为 `a` 时），再将 `a*` 作为整体进行匹配（当 $p[j]$ 为 `*` 时）。然而，在题目描述中，我们**必须**将 `a*` 看成一个整体，因此将 `a` 进行匹配是不符合题目要求的。看来我们进行了额外的状态转移，这样会对最终的答案产生影响吗？这个问题留给读者进行思考。
 
-```C++
+```cpp
 class Solution {
 public:
     bool isMatch(string s, string p) {
@@ -26966,103 +12837,6 @@ public:
         return f[m][n];
     }
 };
-```
-
-```Java
-class Solution {
-    public boolean isMatch(String s, String p) {
-        int m = s.length();
-        int n = p.length();
-
-        boolean[][] f = new boolean[m + 1][n + 1];
-        f[0][0] = true;
-        for (int i = 0; i <= m; ++i) {
-            for (int j = 1; j <= n; ++j) {
-                if (p.charAt(j - 1) == '*') {
-                    f[i][j] = f[i][j - 2];
-                    if (matches(s, p, i, j - 1)) {
-                        f[i][j] = f[i][j] || f[i - 1][j];
-                    }
-                } else {
-                    if (matches(s, p, i, j)) {
-                        f[i][j] = f[i - 1][j - 1];
-                    }
-                }
-            }
-        }
-        return f[m][n];
-    }
-
-    public boolean matches(String s, String p, int i, int j) {
-        if (i == 0) {
-            return false;
-        }
-        if (p.charAt(j - 1) == '.') {
-            return true;
-        }
-        return s.charAt(i - 1) == p.charAt(j - 1);
-    }
-}
-```
-
-```Python
-class Solution:
-    def isMatch(self, s: str, p: str) -> bool:
-        m, n = len(s), len(p)
-
-        def matches(i: int, j: int) -> bool:
-            if i == 0:
-                return False
-            if p[j - 1] == '.':
-                return True
-            return s[i - 1] == p[j - 1]
-
-        f = [[False] * (n + 1) for _ in range(m + 1)]
-        f[0][0] = True
-        for i in range(m + 1):
-            for j in range(1, n + 1):
-                if p[j - 1] == '*':
-                    f[i][j] |= f[i][j - 2]
-                    if matches(i, j - 1):
-                        f[i][j] |= f[i - 1][j]
-                else:
-                    if matches(i, j):
-                        f[i][j] |= f[i - 1][j - 1]
-        return f[m][n]
-```
-
-```golang
-func isMatch(s string, p string) bool {
-    m, n := len(s), len(p)
-    matches := func(i, j int) bool {
-        if i == 0 {
-            return false
-        }
-        if p[j-1] == '.' {
-            return true
-        }
-        return s[i-1] == p[j-1]
-    }
-
-    f := make([][]bool, m + 1)
-    for i := 0; i < len(f); i++ {
-        f[i] = make([]bool, n + 1)
-    }
-    f[0][0] = true
-    for i := 0; i <= m; i++ {
-        for j := 1; j <= n; j++ {
-            if p[j-1] == '*' {
-                f[i][j] = f[i][j] || f[i][j-2]
-                if matches(i, j - 1) {
-                    f[i][j] = f[i][j] || f[i-1][j]
-                }
-            } else if matches(i, j) {
-                f[i][j] = f[i][j] || f[i-1][j-1]
-            }
-        }
-    }
-    return f[m][n]
-}
 ```
 
 **复杂度分析**
@@ -27160,100 +12934,7 @@ $$
 
 根据这个思路，我们就可以完成动态规划了，最终的答案即为所有 $P(i, j) = \text{true}$ 中 $j-i+1$（即子串长度）的最大值。**注意：在状态转移方程中，我们是从长度较短的字符串向长度较长的字符串进行转移的，因此一定要注意动态规划的循环顺序。**
 
-```Java
-public class Solution {
-
-    public String longestPalindrome(String s) {
-        int len = s.length();
-        if (len < 2) {
-            return s;
-        }
-
-        int maxLen = 1;
-        int begin = 0;
-        // dp[i][j] 表示 s[i..j] 是否是回文串
-        boolean[][] dp = new boolean[len][len];
-        // 初始化：所有长度为 1 的子串都是回文串
-        for (int i = 0; i < len; i++) {
-            dp[i][i] = true;
-        }
-
-        char[] charArray = s.toCharArray();
-        // 递推开始
-        // 先枚举子串长度
-        for (int L = 2; L <= len; L++) {
-            // 枚举左边界，左边界的上限设置可以宽松一些
-            for (int i = 0; i < len; i++) {
-                // 由 L 和 i 可以确定右边界，即 j - i + 1 = L 得
-                int j = L + i - 1;
-                // 如果右边界越界，就可以退出当前循环
-                if (j >= len) {
-                    break;
-                }
-
-                if (charArray[i] != charArray[j]) {
-                    dp[i][j] = false;
-                } else {
-                    if (j - i < 3) {
-                        dp[i][j] = true;
-                    } else {
-                        dp[i][j] = dp[i + 1][j - 1];
-                    }
-                }
-
-                // 只要 dp[i][L] == true 成立，就表示子串 s[i..L] 是回文，此时记录回文长度和起始位置
-                if (dp[i][j] && j - i + 1 > maxLen) {
-                    maxLen = j - i + 1;
-                    begin = i;
-                }
-            }
-        }
-        return s.substring(begin, begin + maxLen);
-    }
-}
-```
-
-```Python
-class Solution:
-    def longestPalindrome(self, s: str) -> str:
-        n = len(s)
-        if n < 2:
-            return s
-        
-        max_len = 1
-        begin = 0
-        # dp[i][j] 表示 s[i..j] 是否是回文串
-        dp = [[False] * n for _ in range(n)]
-        for i in range(n):
-            dp[i][i] = True
-        
-        # 递推开始
-        # 先枚举子串长度
-        for L in range(2, n + 1):
-            # 枚举左边界，左边界的上限设置可以宽松一些
-            for i in range(n):
-                # 由 L 和 i 可以确定右边界，即 j - i + 1 = L 得
-                j = L + i - 1
-                # 如果右边界越界，就可以退出当前循环
-                if j >= n:
-                    break
-                    
-                if s[i] != s[j]:
-                    dp[i][j] = False 
-                else:
-                    if j - i < 3:
-                        dp[i][j] = True
-                    else:
-                        dp[i][j] = dp[i + 1][j - 1]
-                
-                # 只要 dp[i][L] == true 成立，就表示子串 s[i..L] 是回文，此时记录回文长度和起始位置
-                if dp[i][j] and j - i + 1 > max_len:
-                    max_len = j - i + 1
-                    begin = i
-        return s[begin:begin + max_len]
-```
-
-```C++
+```cpp
 #include <iostream>
 #include <string>
 #include <vector>
@@ -27342,56 +13023,7 @@ $$
 
 聪明的读者此时应该可以发现，「边界情况」对应的子串实际上就是我们「扩展」出的回文串的「回文中心」。方法二的本质即为：我们枚举所有的「回文中心」并尝试「扩展」，直到无法扩展为止，此时的回文串长度即为此「回文中心」下的最长回文串长度。我们对所有的长度求出最大值，即可得到最终的答案。
 
-```Java
-class Solution {
-    public String longestPalindrome(String s) {
-        if (s == null || s.length() < 1) {
-            return "";
-        }
-        int start = 0, end = 0;
-        for (int i = 0; i < s.length(); i++) {
-            int len1 = expandAroundCenter(s, i, i);
-            int len2 = expandAroundCenter(s, i, i + 1);
-            int len = Math.max(len1, len2);
-            if (len > end - start) {
-                start = i - (len - 1) / 2;
-                end = i + len / 2;
-            }
-        }
-        return s.substring(start, end + 1);
-    }
-
-    public int expandAroundCenter(String s, int left, int right) {
-        while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
-            --left;
-            ++right;
-        }
-        return right - left - 1;
-    }
-}
-```
-
-```Python
-class Solution:
-    def expandAroundCenter(self, s, left, right):
-        while left >= 0 and right < len(s) and s[left] == s[right]:
-            left -= 1
-            right += 1
-        return left + 1, right - 1
-
-    def longestPalindrome(self, s: str) -> str:
-        start, end = 0, 0
-        for i in range(len(s)):
-            left1, right1 = self.expandAroundCenter(s, i, i)
-            left2, right2 = self.expandAroundCenter(s, i, i + 1)
-            if right1 - left1 > end - start:
-                start, end = left1, right1
-            if right2 - left2 > end - start:
-                start, end = left2, right2
-        return s[start: end + 1]
-```
-
-```C++
+```cpp
 class Solution {
 public:
     pair<int, int> expandAroundCenter(const string& s, int left, int right) {
@@ -27419,31 +13051,6 @@ public:
         return s.substr(start, end - start + 1);
     }
 };
-```
-
-```golang
-func longestPalindrome(s string) string {
-    if s == "" {
-        return ""
-    }
-    start, end := 0, 0
-    for i := 0; i < len(s); i++ {
-        left1, right1 := expandAroundCenter(s, i, i)
-        left2, right2 := expandAroundCenter(s, i, i + 1)
-        if right1 - left1 > end - start {
-            start, end = left1, right1
-        }
-        if right2 - left2 > end - start {
-            start, end = left2, right2
-        }
-    }
-    return s[start:end+1]
-}
-
-func expandAroundCenter(s string, left, right int) (int, int) {
-    for ; left >= 0 && right < len(s) && s[left] == s[right]; left, right = left-1 , right+1 { }
-    return left + 1, right - 1
-}
 ```
 
 **复杂度分析**
@@ -27478,91 +13085,7 @@ func expandAroundCenter(s string, left, right int) (int, int) {
 
 注意这里的特殊字符不需要是没有出现过的字母，我们可以使用任何一个字符来作为这个特殊字符。这是因为，当我们只考虑长度为奇数的回文字符串时，每次我们比较的两个字符奇偶性一定是相同的，所以原来字符串中的字符不会与插入的特殊字符互相比较，不会因此产生问题。
 
-```Java
-class Solution {
-    public String longestPalindrome(String s) {
-        int start = 0, end = -1;
-        StringBuffer t = new StringBuffer("#");
-        for (int i = 0; i < s.length(); ++i) {
-            t.append(s.charAt(i));
-            t.append('#');
-        }
-        t.append('#');
-        s = t.toString();
-
-        List<Integer> arm_len = new ArrayList<Integer>();
-        int right = -1, j = -1;
-        for (int i = 0; i < s.length(); ++i) {
-            int cur_arm_len;
-            if (right >= i) {
-                int i_sym = j * 2 - i;
-                int min_arm_len = Math.min(arm_len.get(i_sym), right - i);
-                cur_arm_len = expand(s, i - min_arm_len, i + min_arm_len);
-            } else {
-                cur_arm_len = expand(s, i, i);
-            }
-            arm_len.add(cur_arm_len);
-            if (i + cur_arm_len > right) {
-                j = i;
-                right = i + cur_arm_len;
-            }
-            if (cur_arm_len * 2 + 1 > end - start) {
-                start = i - cur_arm_len;
-                end = i + cur_arm_len;
-            }
-        }
-
-        StringBuffer ans = new StringBuffer();
-        for (int i = start; i <= end; ++i) {
-            if (s.charAt(i) != '#') {
-                ans.append(s.charAt(i));
-            }
-        }
-        return ans.toString();
-    }
-
-    public int expand(String s, int left, int right) {
-        while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
-            --left;
-            ++right;
-        }
-        return (right - left - 2) / 2;
-    }
-}
-```
-
-```Python
-class Solution:
-    def expand(self, s, left, right):
-        while left >= 0 and right < len(s) and s[left] == s[right]:
-            left -= 1
-            right += 1
-        return (right - left - 2) // 2
-
-    def longestPalindrome(self, s: str) -> str:
-        end, start = -1, 0
-        s = '#' + '#'.join(list(s)) + '#'
-        arm_len = []
-        right = -1
-        j = -1
-        for i in range(len(s)):
-            if right >= i:
-                i_sym = 2 * j - i
-                min_arm_len = min(arm_len[i_sym], right - i)
-                cur_arm_len = self.expand(s, i - min_arm_len, i + min_arm_len)
-            else:
-                cur_arm_len = self.expand(s, i, i)
-            arm_len.append(cur_arm_len)
-            if i + cur_arm_len > right:
-                j = i
-                right = i + cur_arm_len
-            if 2 * cur_arm_len + 1 > end - start:
-                start = i - cur_arm_len
-                end = i + cur_arm_len
-        return s[start+1:end+1:2]
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int expand(const string& s, int left, int right) {
@@ -27614,58 +13137,6 @@ public:
         return ans;
     }
 };
-```
-
-```golang
-func longestPalindrome(s string) string {
-    start, end := 0, -1
-    t := "#"
-    for i := 0; i < len(s); i++ {
-        t += string(s[i]) + "#"
-    }
-    t += "#"
-    s = t
-    arm_len := []int{}
-    right, j := -1, -1
-    for i := 0; i < len(s); i++ {
-        var cur_arm_len int
-        if right >= i {
-            i_sym := j * 2 - i
-            min_arm_len := min(arm_len[i_sym], right-i)
-            cur_arm_len = expand(s, i-min_arm_len, i+min_arm_len)
-        } else {
-            cur_arm_len = expand(s, i, i)
-        }
-        arm_len = append(arm_len, cur_arm_len)
-        if i + cur_arm_len > right {
-            j = i
-            right = i + cur_arm_len
-        }
-        if cur_arm_len * 2 + 1 > end - start {
-            start = i - cur_arm_len
-            end = i + cur_arm_len
-        }
-    }
-    ans := ""
-    for i := start; i <= end; i++ {
-        if s[i] != '#' {
-            ans += string(s[i])
-        }
-    }
-    return ans
-}
-
-func expand(s string, left, right int) int {
-    for ; left >= 0 && right < len(s) && s[left] == s[right]; left, right = left-1, right+1 { }
-    return (right - left - 2) / 2
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -27815,68 +13286,7 @@ B: [1 2 3] 4 5 6 7 8 9
            ↑
 ```
 
-```Java
-class Solution {
-    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
-        int length1 = nums1.length, length2 = nums2.length;
-        int totalLength = length1 + length2;
-        if (totalLength % 2 == 1) {
-            int midIndex = totalLength / 2;
-            double median = getKthElement(nums1, nums2, midIndex + 1);
-            return median;
-        } else {
-            int midIndex1 = totalLength / 2 - 1, midIndex2 = totalLength / 2;
-            double median = (getKthElement(nums1, nums2, midIndex1 + 1) + getKthElement(nums1, nums2, midIndex2 + 1)) / 2.0;
-            return median;
-        }
-    }
-
-    public int getKthElement(int[] nums1, int[] nums2, int k) {
-        /* 主要思路：要找到第 k (k>1) 小的元素，那么就取 pivot1 = nums1[k/2-1] 和 pivot2 = nums2[k/2-1] 进行比较
-         * 这里的 "/" 表示整除
-         * nums1 中小于等于 pivot1 的元素有 nums1[0 .. k/2-2] 共计 k/2-1 个
-         * nums2 中小于等于 pivot2 的元素有 nums2[0 .. k/2-2] 共计 k/2-1 个
-         * 取 pivot = min(pivot1, pivot2)，两个数组中小于等于 pivot 的元素共计不会超过 (k/2-1) + (k/2-1) <= k-2 个
-         * 这样 pivot 本身最大也只能是第 k-1 小的元素
-         * 如果 pivot = pivot1，那么 nums1[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums1 数组
-         * 如果 pivot = pivot2，那么 nums2[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums2 数组
-         * 由于我们 "删除" 了一些元素（这些元素都比第 k 小的元素要小），因此需要修改 k 的值，减去删除的数的个数
-         */
-
-        int length1 = nums1.length, length2 = nums2.length;
-        int index1 = 0, index2 = 0;
-        int kthElement = 0;
-
-        while (true) {
-            // 边界情况
-            if (index1 == length1) {
-                return nums2[index2 + k - 1];
-            }
-            if (index2 == length2) {
-                return nums1[index1 + k - 1];
-            }
-            if (k == 1) {
-                return Math.min(nums1[index1], nums2[index2]);
-            }
-            
-            // 正常情况
-            int half = k / 2;
-            int newIndex1 = Math.min(index1 + half, length1) - 1;
-            int newIndex2 = Math.min(index2 + half, length2) - 1;
-            int pivot1 = nums1[newIndex1], pivot2 = nums2[newIndex2];
-            if (pivot1 <= pivot2) {
-                k -= (newIndex1 - index1 + 1);
-                index1 = newIndex1 + 1;
-            } else {
-                k -= (newIndex2 - index2 + 1);
-                index2 = newIndex2 + 1;
-            }
-        }
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int getKthElement(const vector<int>& nums1, const vector<int>& nums2, int k) {
@@ -27933,100 +13343,6 @@ public:
         }
     }
 };
-```
-
-```Python
-class Solution:
-    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
-        def getKthElement(k):
-            """
-            - 主要思路：要找到第 k (k>1) 小的元素，那么就取 pivot1 = nums1[k/2-1] 和 pivot2 = nums2[k/2-1] 进行比较
-            - 这里的 "/" 表示整除
-            - nums1 中小于等于 pivot1 的元素有 nums1[0 .. k/2-2] 共计 k/2-1 个
-            - nums2 中小于等于 pivot2 的元素有 nums2[0 .. k/2-2] 共计 k/2-1 个
-            - 取 pivot = min(pivot1, pivot2)，两个数组中小于等于 pivot 的元素共计不会超过 (k/2-1) + (k/2-1) <= k-2 个
-            - 这样 pivot 本身最大也只能是第 k-1 小的元素
-            - 如果 pivot = pivot1，那么 nums1[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums1 数组
-            - 如果 pivot = pivot2，那么 nums2[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums2 数组
-            - 由于我们 "删除" 了一些元素（这些元素都比第 k 小的元素要小），因此需要修改 k 的值，减去删除的数的个数
-            """
-            
-            index1, index2 = 0, 0
-            while True:
-                # 特殊情况
-                if index1 == m:
-                    return nums2[index2 + k - 1]
-                if index2 == n:
-                    return nums1[index1 + k - 1]
-                if k == 1:
-                    return min(nums1[index1], nums2[index2])
-
-                # 正常情况
-                newIndex1 = min(index1 + k // 2 - 1, m - 1)
-                newIndex2 = min(index2 + k // 2 - 1, n - 1)
-                pivot1, pivot2 = nums1[newIndex1], nums2[newIndex2]
-                if pivot1 <= pivot2:
-                    k -= newIndex1 - index1 + 1
-                    index1 = newIndex1 + 1
-                else:
-                    k -= newIndex2 - index2 + 1
-                    index2 = newIndex2 + 1
-        
-        m, n = len(nums1), len(nums2)
-        totalLength = m + n
-        if totalLength % 2 == 1:
-            return getKthElement((totalLength + 1) // 2)
-        else:
-            return (getKthElement(totalLength // 2) + getKthElement(totalLength // 2 + 1)) / 2
-
-```
-
-```golang
-func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
-    totalLength := len(nums1) + len(nums2)
-    if totalLength%2 == 1 {
-        midIndex := totalLength/2
-        return float64(getKthElement(nums1, nums2, midIndex + 1))
-    } else {
-        midIndex1, midIndex2 := totalLength/2 - 1, totalLength/2
-        return float64(getKthElement(nums1, nums2, midIndex1 + 1) + getKthElement(nums1, nums2, midIndex2 + 1)) / 2.0
-    }
-    return 0
-}
-
-func getKthElement(nums1, nums2 []int, k int) int {
-    index1, index2 := 0, 0
-    for {
-        if index1 == len(nums1) {
-            return nums2[index2 + k - 1]
-        }
-        if index2 == len(nums2) {
-            return nums1[index1 + k - 1]
-        }
-        if k == 1 {
-            return min(nums1[index1], nums2[index2])
-        }
-        half := k/2
-        newIndex1 := min(index1 + half, len(nums1)) - 1
-        newIndex2 := min(index2 + half, len(nums2)) - 1
-        pivot1, pivot2 := nums1[newIndex1], nums2[newIndex2]
-        if pivot1 <= pivot2 {
-            k -= (newIndex1 - index1 + 1)
-            index1 = newIndex1 + 1
-        } else {
-            k -= (newIndex2 - index2 + 1)
-            index2 = newIndex2 + 1
-        }
-    }
-    return 0
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -28135,47 +13451,7 @@ $$
 
 因此我们可以对 $i$ 在 $[0, m]$ 的区间上进行二分搜索，找到最大的满足 $\text{A}[i-1] \leq \text{B}[j]$ 的 $i$ 值，就得到了划分的方法。此时，划分前一部分元素中的最大值，以及划分后一部分元素中的最小值，才可能作为就是这两个数组的中位数。
 
-```Java
-class Solution {
-    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
-        if (nums1.length > nums2.length) {
-            return findMedianSortedArrays(nums2, nums1);
-        }
-
-        int m = nums1.length;
-        int n = nums2.length;
-        int left = 0, right = m;
-        // median1：前一部分的最大值
-        // median2：后一部分的最小值
-        int median1 = 0, median2 = 0;
-
-        while (left <= right) {
-            // 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
-            // 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
-            int i = (left + right) / 2;
-            int j = (m + n + 1) / 2 - i;
-
-            // nums_im1, nums_i, nums_jm1, nums_j 分别表示 nums1[i-1], nums1[i], nums2[j-1], nums2[j]
-            int nums_im1 = (i == 0 ? Integer.MIN_VALUE : nums1[i - 1]);
-            int nums_i = (i == m ? Integer.MAX_VALUE : nums1[i]);
-            int nums_jm1 = (j == 0 ? Integer.MIN_VALUE : nums2[j - 1]);
-            int nums_j = (j == n ? Integer.MAX_VALUE : nums2[j]);
-
-            if (nums_im1 <= nums_j) {
-                median1 = Math.max(nums_im1, nums_jm1);
-                median2 = Math.min(nums_i, nums_j);
-                left = i + 1;
-            } else {
-                right = i - 1;
-            }
-        }
-
-        return (m + n) % 2 == 0 ? (median1 + median2) / 2.0 : median1;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
@@ -28214,96 +13490,6 @@ public:
         return (m + n) % 2 == 0 ? (median1 + median2) / 2.0 : median1;
     }
 };
-```
-
-```Python
-class Solution:
-    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
-        if len(nums1) > len(nums2):
-            return self.findMedianSortedArrays(nums2, nums1)
-
-        infinty = 2**40
-        m, n = len(nums1), len(nums2)
-        left, right = 0, m
-        # median1：前一部分的最大值
-        # median2：后一部分的最小值
-        median1, median2 = 0, 0
-
-        while left <= right:
-            # 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
-            # // 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
-            i = (left + right) // 2
-            j = (m + n + 1) // 2 - i
-
-            # nums_im1, nums_i, nums_jm1, nums_j 分别表示 nums1[i-1], nums1[i], nums2[j-1], nums2[j]
-            nums_im1 = (-infinty if i == 0 else nums1[i - 1])
-            nums_i = (infinty if i == m else nums1[i])
-            nums_jm1 = (-infinty if j == 0 else nums2[j - 1])
-            nums_j = (infinty if j == n else nums2[j])
-
-            if nums_im1 <= nums_j:
-                median1, median2 = max(nums_im1, nums_jm1), min(nums_i, nums_j)
-                left = i + 1
-            else:
-                right = i - 1
-
-        return (median1 + median2) / 2 if (m + n) % 2 == 0 else median1
-```
-
-```golang
-func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
-    if len(nums1) > len(nums2) {
-        return findMedianSortedArrays(nums2, nums1)
-    }
-    m, n := len(nums1), len(nums2)
-    left, right := 0, m
-    median1, median2 := 0, 0
-    for left <= right {
-        i := (left + right) / 2
-        j := (m + n + 1) / 2 - i
-        nums_im1 := math.MinInt32
-        if i != 0 {
-            nums_im1 = nums1[i-1]
-        }
-        nums_i := math.MaxInt32
-        if i != m {
-            nums_i = nums1[i]
-        }
-        nums_jm1 := math.MinInt32
-        if j != 0 {
-            nums_jm1 = nums2[j-1]
-        }
-        nums_j := math.MaxInt32
-        if j != n {
-            nums_j = nums2[j]
-        }
-        if nums_im1 <= nums_j {
-            median1 = max(nums_im1, nums_jm1)
-            median2 = min(nums_i, nums_j)
-            left = i + 1
-        } else {
-            right = i - 1
-        }
-    }
-    if (m + n) % 2 == 0 {
-        return float64(median1 + median2) / 2.0
-    }
-    return  float64(median1)
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -28403,7 +13589,7 @@ public:
 
 至此，我们就完美解决了本题。
 
-```C++
+```cpp
 class Solution {
 public:
     int lengthOfLongestSubstring(string s) {
@@ -28429,108 +13615,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public int lengthOfLongestSubstring(String s) {
-        // 哈希集合，记录每个字符是否出现过
-        Set<Character> occ = new HashSet<Character>();
-        int n = s.length();
-        // 右指针，初始值为 -1，相当于我们在字符串的左边界的左侧，还没有开始移动
-        int rk = -1, ans = 0;
-        for (int i = 0; i < n; ++i) {
-            if (i != 0) {
-                // 左指针向右移动一格，移除一个字符
-                occ.remove(s.charAt(i - 1));
-            }
-            while (rk + 1 < n && !occ.contains(s.charAt(rk + 1))) {
-                // 不断地移动右指针
-                occ.add(s.charAt(rk + 1));
-                ++rk;
-            }
-            // 第 i 到 rk 个字符是一个极长的无重复字符子串
-            ans = Math.max(ans, rk - i + 1);
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def lengthOfLongestSubstring(self, s: str) -> int:
-        # 哈希集合，记录每个字符是否出现过
-        occ = set()
-        n = len(s)
-        # 右指针，初始值为 -1，相当于我们在字符串的左边界的左侧，还没有开始移动
-        rk, ans = -1, 0
-        for i in range(n):
-            if i != 0:
-                # 左指针向右移动一格，移除一个字符
-                occ.remove(s[i - 1])
-            while rk + 1 < n and s[rk + 1] not in occ:
-                # 不断地移动右指针
-                occ.add(s[rk + 1])
-                rk += 1
-            # 第 i 到 rk 个字符是一个极长的无重复字符子串
-            ans = max(ans, rk - i + 1)
-        return ans
-```
-
-```JavaScript
-var lengthOfLongestSubstring = function(s) {
-    // 哈希集合，记录每个字符是否出现过
-    const occ = new Set();
-    const n = s.length;
-    // 右指针，初始值为 -1，相当于我们在字符串的左边界的左侧，还没有开始移动
-    let rk = -1, ans = 0;
-    for (let i = 0; i < n; ++i) {
-        if (i != 0) {
-            // 左指针向右移动一格，移除一个字符
-            occ.delete(s.charAt(i - 1));
-        }
-        while (rk + 1 < n && !occ.has(s.charAt(rk + 1))) {
-            // 不断地移动右指针
-            occ.add(s.charAt(rk + 1));
-            ++rk;
-        }
-        // 第 i 到 rk 个字符是一个极长的无重复字符子串
-        ans = Math.max(ans, rk - i + 1);
-    }
-    return ans;
-};
-```
-
-```golang
-func lengthOfLongestSubstring(s string) int {
-    // 哈希集合，记录每个字符是否出现过
-    m := map[byte]int{}
-    n := len(s)
-    // 右指针，初始值为 -1，相当于我们在字符串的左边界的左侧，还没有开始移动
-    rk, ans := -1, 0
-    for i := 0; i < n; i++ {
-        if i != 0 {
-            // 左指针向右移动一格，移除一个字符
-            delete(m, s[i-1])
-        }
-        for rk + 1 < n && m[s[rk+1]] == 0 {
-            // 不断地移动右指针
-            m[s[rk+1]]++
-            rk++
-        }
-        // 第 i 到 rk 个字符是一个极长的无重复字符子串
-        ans = max(ans, rk - i + 1)
-    }
-    return ans
-}
-
-func max(x, y int) int {
-    if x < y {
-        return y
-    }
-    return x
-}
 ```
 
 **复杂度分析**
@@ -28626,7 +13710,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
@@ -28656,205 +13740,6 @@ public:
         return head;
     }
 };
-```
-
-```Java
-class Solution {
-    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        ListNode head = null, tail = null;
-        int carry = 0;
-        while (l1 != null || l2 != null) {
-            int n1 = l1 != null ? l1.val : 0;
-            int n2 = l2 != null ? l2.val : 0;
-            int sum = n1 + n2 + carry;
-            if (head == null) {
-                head = tail = new ListNode(sum % 10);
-            } else {
-                tail.next = new ListNode(sum % 10);
-                tail = tail.next;
-            }
-            carry = sum / 10;
-            if (l1 != null) {
-                l1 = l1.next;
-            }
-            if (l2 != null) {
-                l2 = l2.next;
-            }
-        }
-        if (carry > 0) {
-            tail.next = new ListNode(carry);
-        }
-        return head;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public ListNode AddTwoNumbers(ListNode l1, ListNode l2) {
-        ListNode head = null, tail = null;
-        int carry = 0;
-        while (l1 != null || l2 != null) {
-            int n1 = l1 != null ? l1.val : 0;
-            int n2 = l2 != null ? l2.val : 0;
-            int sum = n1 + n2 + carry;
-            if (head == null) {
-                head = tail = new ListNode(sum % 10);
-            } else {
-                tail.next = new ListNode(sum % 10);
-                tail = tail.next;
-            }
-            carry = sum / 10;
-            if (l1 != null) {
-                l1 = l1.next;
-            }
-            if (l2 != null) {
-                l2 = l2.next;
-            }
-        }
-        if (carry > 0) {
-            tail.next = new ListNode(carry);
-        }
-        return head;
-    }
-}
-```
-
-```Python3 [sol1-Python3]
-class Solution:
-    def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
-        if l1.val+l2.val >= 10:
-            i = 1
-        else:
-            i = 0
-        node1 = ListNode((l1.val+l2.val)%10)
-        node = node1
-        if l1.next!=None and l2.next!=None:
-            while l1.next and l2.next:
-                node.next = ListNode((l1.next.val+l2.next.val+i)%10)
-                if l1.next.val+l2.next.val+i >= 10:
-                    i = 1
-                else:
-                    i = 0
-                l1 = l1.next
-                l2 = l2.next
-                node = node.next
-        if l1.next != None:
-            while l1.next:
-                node.next = ListNode((l1.next.val+i)%10)
-                if l1.next.val+i >= 10:
-                    i = 1
-                else:
-                    i = 0
-                l1 = l1.next
-                node = node.next
-        if l2.next != None:
-            while l2.next:
-                node.next = ListNode((l2.next.val+i)%10)
-                if l2.next.val+i >= 10:
-                    i = 1
-                else:
-                    i = 0
-                l2 = l2.next
-                node = node.next
-        if i == 1:
-            node.next = ListNode(1)
-        return node1
-```
-
-```JavaScript
-var addTwoNumbers = function(l1, l2) {
-    let head = null, tail = null;
-    let carry = 0;
-    while (l1 || l2) {
-        const n1 = l1 ? l1.val : 0;
-        const n2 = l2 ? l2.val : 0;
-        const sum = n1 + n2 + carry;
-        if (!head) {
-            head = tail = new ListNode(sum % 10);
-        } else {
-            tail.next = new ListNode(sum % 10);
-            tail = tail.next;
-        }
-        carry = Math.floor(sum / 10);
-        if (l1) {
-            l1 = l1.next;
-        }
-        if (l2) {
-            l2 = l2.next;
-        }
-    }
-    if (carry > 0) {
-        tail.next = new ListNode(carry);
-    }
-    return head;
-};
-```
-
-```Golang
-func addTwoNumbers(l1, l2 *ListNode) (head *ListNode) {
-    var tail *ListNode
-    carry := 0
-    for l1 != nil || l2 != nil {
-        n1, n2 := 0, 0
-        if l1 != nil {
-            n1 = l1.Val
-            l1 = l1.Next
-        }
-        if l2 != nil {
-            n2 = l2.Val
-            l2 = l2.Next
-        }
-        sum := n1 + n2 + carry
-        sum, carry = sum%10, sum/10
-        if head == nil {
-            head = &ListNode{Val: sum}
-            tail = head
-        } else {
-            tail.Next = &ListNode{Val: sum}
-            tail = tail.Next
-        }
-    }
-    if carry > 0 {
-        tail.Next = &ListNode{Val: carry}
-    }
-    return
-}
-```
-
-```C
-struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
-    struct ListNode *head = NULL, *tail = NULL;
-    int carry = 0;
-    while (l1 || l2) {
-        int n1 = l1 ? l1->val : 0;
-        int n2 = l2 ? l2->val : 0;
-        int sum = n1 + n2 + carry;
-        if (!head) {
-            head = tail = malloc(sizeof(struct ListNode));
-            tail->val = sum % 10;
-            tail->next = NULL;
-        } else {
-            tail->next = malloc(sizeof(struct ListNode));
-            tail->next->val = sum % 10;
-            tail = tail->next;
-            tail->next = NULL;
-        }
-        carry = sum / 10;
-        if (l1) {
-            l1 = l1->next;
-        }
-        if (l2) {
-            l2 = l2->next;
-        }
-    }
-    if (carry > 0) {
-        tail->next = malloc(sizeof(struct ListNode));
-        tail->next->val = carry;
-        tail->next->next = NULL;
-    }
-    return head;
-}
 ```
 
 **复杂度分析**
@@ -28944,7 +13829,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     bool check(vector<vector<char>>& board, vector<vector<int>>& visited, int i, int j, string& s, int k) {
@@ -28986,214 +13871,6 @@ public:
         return false;
     }
 };
-```
-
-```Java
-class Solution {
-    public boolean exist(char[][] board, String word) {
-        int h = board.length, w = board[0].length;
-        boolean[][] visited = new boolean[h][w];
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                boolean flag = check(board, visited, i, j, word, 0);
-                if (flag) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean check(char[][] board, boolean[][] visited, int i, int j, String s, int k) {
-        if (board[i][j] != s.charAt(k)) {
-            return false;
-        } else if (k == s.length() - 1) {
-            return true;
-        }
-        visited[i][j] = true;
-        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-        boolean result = false;
-        for (int[] dir : directions) {
-            int newi = i + dir[0], newj = j + dir[1];
-            if (newi >= 0 && newi < board.length && newj >= 0 && newj < board[0].length) {
-                if (!visited[newi][newj]) {
-                    boolean flag = check(board, visited, newi, newj, s, k + 1);
-                    if (flag) {
-                        result = true;
-                        break;
-                    }
-                }
-            }
-        }
-        visited[i][j] = false;
-        return result;
-    }
-}
-```
-
-```Python
-class Solution:
-    def exist(self, board: List[List[str]], word: str) -> bool:
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-
-        def check(i: int, j: int, k: int) -> bool:
-            if board[i][j] != word[k]:
-                return False
-            if k == len(word) - 1:
-                return True
-            
-            visited.add((i, j))
-            result = False
-            for di, dj in directions:
-                newi, newj = i + di, j + dj
-                if 0 <= newi < len(board) and 0 <= newj < len(board[0]):
-                    if (newi, newj) not in visited:
-                        if check(newi, newj, k + 1):
-                            result = True
-                            break
-            
-            visited.remove((i, j))
-            return result
-
-        h, w = len(board), len(board[0])
-        visited = set()
-        for i in range(h):
-            for j in range(w):
-                if check(i, j, 0):
-                    return True
-        
-        return False
-```
-
-```JavaScript
-var exist = function(board, word) {
-    const h = board.length, w = board[0].length;
-    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-    const visited = new Array(h);
-    for (let i = 0; i < visited.length; ++i) {
-        visited[i] = new Array(w).fill(false);
-    }
-    const check = (i, j, s, k) => {
-        if (board[i][j] != s.charAt(k)) {
-            return false;
-        } else if (k == s.length - 1) {
-            return true;
-        }
-        visited[i][j] = true;
-        let result = false;
-        for (const [dx, dy] of directions) {
-            let newi = i + dx, newj = j + dy;
-            if (newi >= 0 && newi < h && newj >= 0 && newj < w) {
-                if (!visited[newi][newj]) {
-                    const flag = check(newi, newj, s, k + 1);
-                    if (flag) {
-                        result = true;
-                        break;
-                    }
-                }
-            }
-        }
-        visited[i][j] = false;
-        return result;
-    }
-
-    for (let i = 0; i < h; i++) {
-        for (let j = 0; j < w; j++) {
-            const flag = check(i, j, word, 0);
-            if (flag) {
-                return true;
-            }
-        }
-    }
-    return false;
-};
-```
-
-```Golang
-type pair struct{ x, y int }
-
-var directions = []pair{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} // 上下左右
-
-func exist(board [][]byte, word string) bool {
-	h, w := len(board), len(board[0])
-	vis := make([][]bool, h)
-	for i := range vis {
-		vis[i] = make([]bool, w)
-	}
-	var check func(i, j, k int) bool
-	check = func(i, j, k int) bool {
-		if board[i][j] != word[k] { // 剪枝：当前字符不匹配
-			return false
-		}
-		if k == len(word)-1 { // 单词存在于网格中
-			return true
-		}
-		vis[i][j] = true
-		defer func() { vis[i][j] = false }() // 回溯时还原已访问的单元格
-		for _, dir := range directions {
-			if newI, newJ := i+dir.x, j+dir.y; 0 <= newI && newI < h && 0 <= newJ && newJ < w && !vis[newI][newJ] {
-				if check(newI, newJ, k+1) {
-					return true
-				}
-			}
-		}
-		return false
-	}
-	for i, row := range board {
-		for j := range row {
-			if check(i, j, 0) {
-				return true
-			}
-		}
-	}
-	return false
-}
-```
-
-```C
-int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-
-bool check(char** board, int boardSize, int boardColSize, int** visited, int i, int j, char* s, int sSize, int k) {
-    if (board[i][j] != s[k]) {
-        return false;
-    } else if (k == sSize - 1) {
-        return true;
-    }
-    visited[i][j] = true;
-    bool result = false;
-    for (int sel = 0; sel < 4; sel++) {
-        int newi = i + directions[sel][0], newj = j + directions[sel][1];
-        if (newi >= 0 && newi < boardSize && newj >= 0 && newj < boardColSize) {
-            if (!visited[newi][newj]) {
-                bool flag = check(board, boardSize, boardColSize, visited, newi, newj, s, sSize, k + 1);
-                if (flag) {
-                    result = true;
-                    break;
-                }
-            }
-        }
-    }
-    visited[i][j] = false;
-    return result;
-}
-
-bool exist(char** board, int boardSize, int* boardColSize, char* word) {
-    int** visited = malloc(sizeof(int*) * boardSize);
-    for (int i = 0; i < boardSize; i++) {
-        visited[i] = malloc(sizeof(int) * boardColSize[0]);
-        memset(visited[i], 0, sizeof(int) * boardColSize[0]);
-    }
-    int wordSize = strlen(word);
-    for (int i = 0; i < boardSize; i++) {
-        for (int j = 0; j < boardColSize[0]; j++) {
-            bool flag = check(board, boardSize, boardColSize[0], visited, i, j, word, wordSize, 0);
-            if (flag) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
 ```
 
 **复杂度分析**
@@ -29281,29 +13958,6 @@ public:
 
 前序遍历可以通过递归或者迭代的方式实现。以下代码通过递归实现前序遍历。
 
-```Java
-class Solution {
-    public void flatten(TreeNode root) {
-        List<TreeNode> list = new ArrayList<TreeNode>();
-        preorderTraversal(root, list);
-        int size = list.size();
-        for (int i = 1; i < size; i++) {
-            TreeNode prev = list.get(i - 1), curr = list.get(i);
-            prev.left = null;
-            prev.right = curr;
-        }
-    }
-
-    public void preorderTraversal(TreeNode root, List<TreeNode> list) {
-        if (root != null) {
-            list.add(root);
-            preorderTraversal(root.left, list);
-            preorderTraversal(root.right, list);
-        }
-    }
-}
-```
-
 ```cpp
 class Solution {
 public:
@@ -29328,118 +13982,7 @@ public:
 };
 ```
 
-```golang
-func flatten(root *TreeNode)  {
-    list := preorderTraversal(root)
-    for i := 1; i < len(list); i++ {
-        prev, curr := list[i-1], list[i]
-        prev.Left, prev.Right = nil, curr
-    }
-}
-
-func preorderTraversal(root *TreeNode) []*TreeNode {
-    list := []*TreeNode{}
-    if root != nil {
-        list = append(list, root)
-        list = append(list, preorderTraversal(root.Left)...)
-        list = append(list, preorderTraversal(root.Right)...)
-    }
-    return list
-}
-```
-
-```Python
-class Solution:
-    def flatten(self, root: TreeNode) -> None:
-        preorderList = list()
-
-        def preorderTraversal(root: TreeNode):
-            if root:
-                preorderList.append(root)
-                preorderTraversal(root.left)
-                preorderTraversal(root.right)
-        
-        preorderTraversal(root)
-        size = len(preorderList)
-        for i in range(1, size):
-            prev, curr = preorderList[i - 1], preorderList[i]
-            prev.left = None
-            prev.right = curr
-```
-
-```JavaScript
-var flatten = function(root) {
-    const list = [];
-    preorderTraversal(root, list);
-    const size = list.length;
-    for (let i = 1; i < size; i++) {
-        const prev = list[i - 1], curr = list[i];
-        prev.left = null;
-        prev.right = curr;
-    }
-};
-
-const preorderTraversal = (root, list) => {
-    if (root != null) {
-        list.push(root);
-        preorderTraversal(root.left, list);
-        preorderTraversal(root.right, list);
-    }
-}
-```
-
-```C
-int num;
-
-void flatten(struct TreeNode* root) {
-    num = 0;
-    struct TreeNode** l = (struct TreeNode**)malloc(0);
-    preorderTraversal(root, &l);
-    for (int i = 1; i < num; i++) {
-        struct TreeNode *prev = l[i - 1], *curr = l[i];
-        prev->left = NULL;
-        prev->right = curr;
-    }
-    free(l);
-}
-
-void preorderTraversal(struct TreeNode* root, struct TreeNode*** l) {
-    if (root != NULL) {
-        num++;
-        (*l) = (struct TreeNode**)realloc((*l), sizeof(struct TreeNode*) * num);
-        (*l)[num - 1] = root;
-        preorderTraversal(root->left, l);
-        preorderTraversal(root->right, l);
-    }
-}
-```
-
 以下代码通过迭代实现前序遍历。
-
-```Java
-class Solution {
-    public void flatten(TreeNode root) {
-        List<TreeNode> list = new ArrayList<TreeNode>();
-        Deque<TreeNode> stack = new LinkedList<TreeNode>();
-        TreeNode node = root;
-        while (node != null || !stack.isEmpty()) {
-            while (node != null) {
-                list.add(node);
-                stack.push(node);
-                node = node.left;
-            }
-            node = stack.pop();
-            node = node.right;
-        }
-        int size = list.size();
-        for (int i = 1; i < size; i++) {
-            TreeNode prev = list.get(i - 1), curr = list.get(i);
-            prev.left = null;
-            prev.right = curr;
-        }
-    }
-}
-```
 
 ```cpp
 class Solution {
@@ -29467,104 +14010,6 @@ public:
 };
 ```
 
-```golang
-func flatten(root *TreeNode)  {
-    list := []*TreeNode{}
-    stack := []*TreeNode{}
-    node := root
-    for node != nil || len(stack) > 0 {
-        for node != nil {
-            list = append(list, node)
-            stack = append(stack, node)
-            node = node.Left
-        }
-        node = stack[len(stack)-1]
-        node = node.Right
-        stack = stack[:len(stack)-1]
-    }
-
-    for i := 1; i < len(list); i++ {
-        prev, curr := list[i-1], list[i]
-        prev.Left, prev.Right = nil, curr
-    }
-}
-```
-
-```Python
-class Solution:
-    def flatten(self, root: TreeNode) -> None:
-        preorderList = list()
-        stack = list()
-        node = root
-
-        while node or stack:
-            while node:
-                preorderList.append(node)
-                stack.append(node)
-                node = node.left
-            node = stack.pop()
-            node = node.right
-        
-        size = len(preorderList)
-        for i in range(1, size):
-            prev, curr = preorderList[i - 1], preorderList[i]
-            prev.left = None
-            prev.right = curr
-```
-
-```JavaScript
-var flatten = function(root) {
-    const list = [];
-    const stack = [];
-    let node = root;
-    while (node !== null || stack.length) {
-        while (node !== null) {
-            list.push(node);
-            stack.push(node);
-            node = node.left;
-        }
-        node = stack.pop();
-        node = node.right;
-    }
-    const size = list.length;
-    for (let i = 1; i < size; i++) {
-        const prev = list[i - 1], curr = list[i];
-        prev.left = null;
-        prev.right = curr;
-    }
-};
-```
-
-```C
-void flatten(struct TreeNode* root) {
-    struct TreeNode** stk = (struct TreeNode**)malloc(0);
-    int stk_top = 0;
-    struct TreeNode** vec = (struct TreeNode**)malloc(0);
-    int vec_len = 0;
-    struct TreeNode* node = root;
-    while (node != NULL || stk_top != 0) {
-        while (node != NULL) {
-            vec_len++;
-            vec = (struct TreeNode**)realloc(vec, sizeof(struct TreeNode*) * vec_len);
-            vec[vec_len - 1] = node;
-            stk_top++;
-            stk = (struct TreeNode**)realloc(stk, sizeof(struct TreeNode*) * stk_top);
-            stk[stk_top - 1] = node;
-            node = node->left;
-        }
-        node = stk[--stk_top];
-        node = node->right;
-    }
-    for (int i = 1; i < vec_len; i++) {
-        struct TreeNode *prev = vec[i - 1], *curr = vec[i];
-        prev->left = NULL;
-        prev->right = curr;
-    }
-    free(stk);
-    free(vec);
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n)$，其中 $n$ 是二叉树的节点数。前序遍历的时间复杂度是 $O(n)$，前序遍历之后，需要对每个节点更新左右子节点的信息，时间复杂度也是 $O(n)$。
@@ -29580,34 +14025,6 @@ void flatten(struct TreeNode* root) {
 该做法不适用于递归实现的前序遍历，只适用于迭代实现的前序遍历。修改后的前序遍历的具体做法是，每次从栈内弹出一个节点作为当前访问的节点，获得该节点的子节点，如果子节点不为空，则依次将右子节点和左子节点压入栈内（注意入栈顺序）。
 
 展开为单链表的做法是，维护上一个访问的节点 `prev`，每次访问一个节点时，令当前访问的节点为 `curr`，将 `prev` 的左子节点设为 `null` 以及将 `prev` 的右子节点设为 `curr`，然后将 `curr` 赋值给 `prev`，进入下一个节点的访问，直到遍历结束。需要注意的是，初始时 `prev` 为 `null`，只有在 `prev` 不为 `null` 时才能对 `prev` 的左右子节点进行更新。
-
-```Java
-class Solution {
-    public void flatten(TreeNode root) {
-        if (root == null) {
-            return;
-        }
-        Deque<TreeNode> stack = new LinkedList<TreeNode>();
-        stack.push(root);
-        TreeNode prev = null;
-        while (!stack.isEmpty()) {
-            TreeNode curr = stack.pop();
-            if (prev != null) {
-                prev.left = null;
-                prev.right = curr;
-            }
-            TreeNode left = curr.left, right = curr.right;
-            if (right != null) {
-                stack.push(right);
-            }
-            if (left != null) {
-                stack.push(left);
-            }
-            prev = curr;
-        }
-    }
-}
-```
 
 ```cpp
 class Solution {
@@ -29638,111 +14055,6 @@ public:
 };
 ```
 
-```golang
-func flatten(root *TreeNode)  {
-    if root == nil {
-        return
-    }
-    stack := []*TreeNode{root}
-    var prev *TreeNode
-    for len(stack) > 0 {
-        curr := stack[len(stack)-1]
-        stack = stack[:len(stack)-1]
-        if prev != nil {
-            prev.Left, prev.Right = nil, curr
-        }
-        left, right := curr.Left, curr.Right
-        if right != nil {
-            stack = append(stack, right)
-        }
-        if left != nil {
-            stack = append(stack, left)
-        }
-        prev = curr
-    }
-}
-```
-
-```Python
-class Solution:
-    def flatten(self, root: TreeNode) -> None:
-        if not root:
-            return
-        
-        stack = [root]
-        prev = None
-        
-        while stack:
-            curr = stack.pop()
-            if prev:
-                prev.left = None
-                prev.right = curr
-            left, right = curr.left, curr.right
-            if right:
-                stack.append(right)
-            if left:
-                stack.append(left)
-            prev = curr
-```
-
-```JavaScript
-var flatten = function(root) {
-    if (root === null) {
-        return;
-    }
-    const stack = [];
-    stack.push(root);
-    let prev = null;
-    while (stack.length) {
-        const curr = stack.pop();
-        if (prev !== null) {
-            prev.left = null;
-            prev.right = curr;
-        }
-        const left = curr.left, right = curr.right;
-        if (right !== null) {
-            stack.push(right);
-        }
-        if (left !== null) {
-            stack.push(left);
-        }
-        prev = curr;
-    }
-};
-```
-
-```C
-void flatten(struct TreeNode *root) {
-    if (root == NULL) {
-        return;
-    }
-    struct TreeNode **stk = (struct TreeNode **)malloc(sizeof(struct TreeNode *));
-    int stk_top = 1;
-    stk[0] = root;
-    struct TreeNode *prev = NULL;
-    while (stk_top != 0) {
-        struct TreeNode *curr = stk[--stk_top];
-        if (prev != NULL) {
-            prev->left = NULL;
-            prev->right = curr;
-        }
-        struct TreeNode *left = curr->left, *right = curr->right;
-        if (right != NULL) {
-            stk_top++;
-            stk = (struct TreeNode **)realloc(stk, sizeof(struct TreeNode *) * stk_top);
-            stk[stk_top - 1] = right;
-        }
-        if (left != NULL) {
-            stk_top++;
-            stk = (struct TreeNode **)realloc(stk, sizeof(struct TreeNode *) * stk_top);
-            stk[stk_top - 1] = left;
-        }
-        prev = curr;
-    }
-    free(stk);
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n)$，其中 $n$ 是二叉树的节点数。前序遍历的时间复杂度是 $O(n)$，前序遍历的同时对每个节点更新左右子节点的信息，更新子节点信息的时间复杂度是 $O(1)$，因此总时间复杂度是 $O(n)$。
@@ -29758,27 +14070,6 @@ void flatten(struct TreeNode *root) {
 具体做法是，对于当前节点，如果其左子节点不为空，则在其左子树中找到最右边的节点，作为前驱节点，将当前节点的右子节点赋给前驱节点的右子节点，然后将当前节点的左子节点赋给当前节点的右子节点，并将当前节点的左子节点设为空。对当前节点处理结束后，继续处理链表中的下一个节点，直到所有节点都处理结束。
 
 <![fig1](https://assets.leetcode.cn/solution-static/114/1.png),![fig2](https://assets.leetcode.cn/solution-static/114/2.png),![fig3](https://assets.leetcode.cn/solution-static/114/3.png),![fig4](https://assets.leetcode.cn/solution-static/114/4.png),![fig5](https://assets.leetcode.cn/solution-static/114/5.png),![fig6](https://assets.leetcode.cn/solution-static/114/6.png),![fig7](https://assets.leetcode.cn/solution-static/114/7.png),![fig8](https://assets.leetcode.cn/solution-static/114/8.png),![fig9](https://assets.leetcode.cn/solution-static/114/9.png),![fig10](https://assets.leetcode.cn/solution-static/114/10.png),![fig11](https://assets.leetcode.cn/solution-static/114/11.png),![fig12](https://assets.leetcode.cn/solution-static/114/12.png),![fig13](https://assets.leetcode.cn/solution-static/114/13.png),![fig14](https://assets.leetcode.cn/solution-static/114/14.png),![fig15](https://assets.leetcode.cn/solution-static/114/15.png),![fig16](https://assets.leetcode.cn/solution-static/114/16.png),![fig17](https://assets.leetcode.cn/solution-static/114/17.png),![fig18](https://assets.leetcode.cn/solution-static/114/18.png)>
-
-```Java
-class Solution {
-    public void flatten(TreeNode root) {
-        TreeNode curr = root;
-        while (curr != null) {
-            if (curr.left != null) {
-                TreeNode next = curr.left;
-                TreeNode predecessor = next;
-                while (predecessor.right != null) {
-                    predecessor = predecessor.right;
-                }
-                predecessor.right = curr.right;
-                curr.left = null;
-                curr.right = next;
-            }
-            curr = curr.right;
-        }
-    }
-}
-```
 
 ```cpp
 class Solution {
@@ -29800,77 +14091,6 @@ public:
         }
     }
 };
-```
-
-```golang
-func flatten(root *TreeNode)  {
-    curr := root
-    for curr != nil {
-        if curr.Left != nil {
-            next := curr.Left
-            predecessor := next
-            for predecessor.Right != nil {
-                predecessor = predecessor.Right
-            }
-            predecessor.Right = curr.Right
-            curr.Left, curr.Right = nil, next
-        }
-        curr = curr.Right
-    }
-}
-```
-
-```Python
-class Solution:
-    def flatten(self, root: TreeNode) -> None:
-        curr = root
-        while curr:
-            if curr.left:
-                predecessor = nxt = curr.left
-                while predecessor.right:
-                    predecessor = predecessor.right
-                predecessor.right = curr.right
-                curr.left = None
-                curr.right = nxt
-            curr = curr.right
-```
-
-```JavaScript
-var flatten = function(root) {
-    let curr = root;
-    while (curr !== null) {
-        if (curr.left !== null) {
-            const next = curr.left;
-            let predecessor = next;
-            while (predecessor.right !== null) {
-                predecessor = predecessor.right;
-            }
-            predecessor.right = curr.right;
-            curr.left = null;
-            curr.right = next;
-        }
-        curr = curr.right;
-    }
-};
-```
-
-```C
-void flatten(struct TreeNode* root) {
-    struct TreeNode* curr = root;
-    while (curr != NULL) {
-        if (curr->left != NULL) {
-            struct TreeNode* next = curr->left;
-            struct TreeNode* predecessor = next;
-            while (predecessor->right != NULL) {
-                predecessor = predecessor->right;
-            }
-            predecessor->right = curr->right;
-            curr->left = NULL;
-            curr->right = next;
-        }
-        curr = curr->right;
-    }
-}
 ```
 
 **复杂度分析**
@@ -30026,7 +14246,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int leastInterval(vector<char>& tasks, int n) {
@@ -30068,199 +14288,6 @@ public:
         return time;
     }
 };
-```
-
-```Java
-class Solution {
-    public int leastInterval(char[] tasks, int n) {
-        Map<Character, Integer> freq = new HashMap<Character, Integer>();
-        for (char ch : tasks) {
-            freq.put(ch, freq.getOrDefault(ch, 0) + 1);
-        }
-        
-        // 任务种类数
-        int m = freq.size();
-        List<Integer> nextValid = new ArrayList<Integer>();
-        List<Integer> rest = new ArrayList<Integer>();
-        Set<Map.Entry<Character, Integer>> entrySet = freq.entrySet();
-        for (Map.Entry<Character, Integer> entry : entrySet) {
-            int value = entry.getValue();
-            nextValid.add(1);
-            rest.add(value);
-        }
-
-        int time = 0;
-        for (int i = 0; i < tasks.length; ++i) {
-            ++time;
-            int minNextValid = Integer.MAX_VALUE;
-            for (int j = 0; j < m; ++j) {
-                if (rest.get(j) != 0) {
-                    minNextValid = Math.min(minNextValid, nextValid.get(j));
-                }
-            }
-            time = Math.max(time, minNextValid);
-            int best = -1;
-            for (int j = 0; j < m; ++j) {
-                if (rest.get(j) != 0 && nextValid.get(j) <= time) {
-                    if (best == -1 || rest.get(j) > rest.get(best)) {
-                        best = j;
-                    }
-                }
-            }
-            nextValid.set(best, time + n + 1);
-            rest.set(best, rest.get(best) - 1);
-        }
-
-        return time;
-    }
-}
-```
-
-```Python
-class Solution:
-    def leastInterval(self, tasks: List[str], n: int) -> int:
-        freq = collections.Counter(tasks)
-
-        # 任务种类数
-        m = len(freq)
-        nextValid = [1] * m
-        rest = list(freq.values())
-
-        time = 0
-        for i in range(len(tasks)):
-            time += 1
-            minNextValid = min(nextValid[j] for j in range(m) if rest[j] > 0)
-            time = max(time, minNextValid)
-            
-            best = -1
-            for j in range(m):
-                if rest[j] and nextValid[j] <= time:
-                    if best == -1 or rest[j] > rest[best]:
-                        best = j
-            
-            nextValid[best] = time + n + 1
-            rest[best] -= 1
-
-        return time
-```
-
-```JavaScript
-var leastInterval = function(tasks, n) {
-    const freq = _.countBy(tasks);
-
-    // 任务种类数
-    const m = Object.keys(freq).length;
-    const nextValid = new Array(m).fill(1);
-    const rest = Object.values(freq);
-
-    let time = 0;
-    for (let i = 0; i < tasks.length; i++) {
-        time++;
-        let minNextValid = Number.MAX_VALUE;
-        for (let j = 0; j < m; j++) {
-            if (rest[j] > 0) {
-                minNextValid = Math.min(nextValid[j], minNextValid);
-            }
-        }
-        time = Math.max(time, minNextValid);
-
-        let best = -1;
-        for (let j = 0; j < m; j++) {
-            if (rest[j] && nextValid[j] <= time) {
-                if (best === -1 || rest[j] > rest[best]) {
-                    best = j;
-                }
-            }
-        }
-
-        nextValid[best] = time + n + 1;
-        rest[best]--;
-    }
-
-    return time;
-};
-```
-
-```Golang
-func leastInterval(tasks []byte, n int) (minTime int) {
-    cnt := map[byte]int{}
-    for _, t := range tasks {
-        cnt[t]++
-    }
-
-    nextValid := make([]int, 0, len(cnt))
-    rest := make([]int, 0, len(cnt))
-    for _, c := range cnt {
-        nextValid = append(nextValid, 1)
-        rest = append(rest, c)
-    }
-
-    for range tasks {
-        minTime++
-        minNextValid := math.MaxInt64
-        for i, r := range rest {
-            if r > 0 && nextValid[i] < minNextValid {
-                minNextValid = nextValid[i]
-            }
-        }
-        if minNextValid > minTime {
-            minTime = minNextValid
-        }
-        best := -1
-        for i, r := range rest {
-            if r > 0 && nextValid[i] <= minTime && (best == -1 || r > rest[best]) {
-                best = i
-            }
-        }
-        nextValid[best] = minTime + n + 1
-        rest[best]--
-    }
-    return
-}
-```
-
-```C
-int leastInterval(char* tasks, int tasksSize, int n) {
-    int freq[26];
-    memset(freq, 0, sizeof(freq));
-    for (int i = 0; i < tasksSize; ++i) {
-        ++freq[tasks[i] - 'A'];
-    }
-
-    // 任务种类数
-    int m = 0;
-    int nextValid[26], rest[26];
-    for (int i = 0; i < 26; ++i) {
-        if (freq[i] > 0) {
-            nextValid[m] = 1;
-            rest[m++] = freq[i];
-        }
-    }
-
-    int time = 0;
-    for (int i = 0; i < tasksSize; ++i) {
-        ++time;
-        int minNextValid = INT_MAX;
-        for (int j = 0; j < m; ++j) {
-            if (rest[j]) {
-                minNextValid = fmin(minNextValid, nextValid[j]);
-            }
-        }
-        time = fmax(time, minNextValid);
-        int best = -1;
-        for (int j = 0; j < m; ++j) {
-            if (rest[j] && nextValid[j] <= time) {
-                if (best == -1 || rest[j] > rest[best]) {
-                    best = j;
-                }
-            }
-        }
-        nextValid[best] = time + n + 1;
-        --rest[best];
-    }
-
-    return time;
-}
 ```
 
 **复杂度分析**
@@ -30327,7 +14354,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int leastInterval(vector<char>& tasks, int n) {
@@ -30348,112 +14375,6 @@ public:
         return max((maxExec - 1) * (n + 1) + maxCount, static_cast<int>(tasks.size()));
     }
 };
-```
-
-```Java
-class Solution {
-    public int leastInterval(char[] tasks, int n) {
-        Map<Character, Integer> freq = new HashMap<Character, Integer>();
-        // 最多的执行次数
-        int maxExec = 0;
-        for (char ch : tasks) {
-            int exec = freq.getOrDefault(ch, 0) + 1;
-            freq.put(ch, exec);
-            maxExec = Math.max(maxExec, exec);
-        }
-
-        // 具有最多执行次数的任务数量
-        int maxCount = 0;
-        Set<Map.Entry<Character, Integer>> entrySet = freq.entrySet();
-        for (Map.Entry<Character, Integer> entry : entrySet) {
-            int value = entry.getValue();
-            if (value == maxExec) {
-                ++maxCount;
-            }
-        }
-
-        return Math.max((maxExec - 1) * (n + 1) + maxCount, tasks.length);
-    }
-}
-```
-
-```Python
-class Solution:
-    def leastInterval(self, tasks: List[str], n: int) -> int:
-        freq = collections.Counter(tasks)
-
-        # 最多的执行次数
-        maxExec = max(freq.values())
-        # 具有最多执行次数的任务数量
-        maxCount = sum(1 for v in freq.values() if v == maxExec)
-
-        return max((maxExec - 1) * (n + 1) + maxCount, len(tasks))
-```
-
-```JavaScript
-var leastInterval = function(tasks, n) {
-    const freq = _.countBy(tasks);
-
-    // 最多的执行次数
-    const maxExec = Math.max(...Object.values(freq));
-    // 具有最多执行次数的任务数量
-    let maxCount = 0;
-    Object.values(freq).forEach(v => {
-        if (v === maxExec) {
-            maxCount++;
-        }
-    })
-
-    return Math.max((maxExec - 1) * (n + 1) + maxCount, tasks.length);
-};
-```
-
-```Golang
-func leastInterval(tasks []byte, n int) int {
-    cnt := map[byte]int{}
-    for _, t := range tasks {
-        cnt[t]++
-    }
-
-    maxExec, maxExecCnt := 0, 0
-    for _, c := range cnt {
-        if c > maxExec {
-            maxExec, maxExecCnt = c, 1
-        } else if c == maxExec {
-            maxExecCnt++
-        }
-    }
-
-    if time := (maxExec-1)*(n+1) + maxExecCnt; time > len(tasks) {
-        return time
-    }
-    return len(tasks)
-}
-```
-
-```C
-int leastInterval(char* tasks, int tasksSize, int n) {
-    int freq[26];
-    memset(freq, 0, sizeof(freq));
-    for (int i = 0; i < tasksSize; ++i) {
-        ++freq[tasks[i] - 'A'];
-    }
-
-    // 最多的执行次数
-    int maxExec = 0;
-    for (int i = 0; i < 26; i++) {
-        maxExec = fmax(maxExec, freq[i]);
-    }
-    // 具有最多执行次数的任务数量
-    int maxCount = 0;
-    for (int i = 0; i < 26; i++) {
-        if (maxExec == freq[i]) {
-            maxCount++;
-        }
-    }
-
-    return fmax((maxExec - 1) * (n + 1) + maxCount, tasksSize);
-}
 ```
 
 **复杂度分析**
@@ -30543,23 +14464,6 @@ public:
 
 <![ppt1](https://assets.leetcode.cn/solution-static/617/1.png),![ppt2](https://assets.leetcode.cn/solution-static/617/2.png),![ppt3](https://assets.leetcode.cn/solution-static/617/3.png),![ppt4](https://assets.leetcode.cn/solution-static/617/4.png),![ppt5](https://assets.leetcode.cn/solution-static/617/5.png),![ppt6](https://assets.leetcode.cn/solution-static/617/6.png),![ppt7](https://assets.leetcode.cn/solution-static/617/7.png),![ppt8](https://assets.leetcode.cn/solution-static/617/8.png),![ppt9](https://assets.leetcode.cn/solution-static/617/9.png),![ppt10](https://assets.leetcode.cn/solution-static/617/10.png),![ppt11](https://assets.leetcode.cn/solution-static/617/11.png),![ppt12](https://assets.leetcode.cn/solution-static/617/12.png),![ppt13](https://assets.leetcode.cn/solution-static/617/13.png),![ppt14](https://assets.leetcode.cn/solution-static/617/14.png),![ppt15](https://assets.leetcode.cn/solution-static/617/15.png)>
 
-```Java
-class Solution {
-    public TreeNode mergeTrees(TreeNode t1, TreeNode t2) {
-        if (t1 == null) {
-            return t2;
-        }
-        if (t2 == null) {
-            return t1;
-        }
-        TreeNode merged = new TreeNode(t1.val + t2.val);
-        merged.left = mergeTrees(t1.left, t2.left);
-        merged.right = mergeTrees(t1.right, t2.right);
-        return merged;
-    }
-}
-```
-
 ```cpp
 class Solution {
 public:
@@ -30576,51 +14480,6 @@ public:
         return merged;
     }
 };
-```
-
-```Golang
-func mergeTrees(t1, t2 *TreeNode) *TreeNode {
-    if t1 == nil {
-        return t2
-    }
-    if t2 == nil {
-        return t1
-    }
-    t1.Val += t2.Val
-    t1.Left = mergeTrees(t1.Left, t2.Left)
-    t1.Right = mergeTrees(t1.Right, t2.Right)
-    return t1
-}
-```
-
-```C
-struct TreeNode* mergeTrees(struct TreeNode* t1, struct TreeNode* t2) {
-    if (t1 == NULL) {
-        return t2;
-    }
-    if (t2 == NULL) {
-        return t1;
-    }
-    struct TreeNode* merged = malloc(sizeof(struct TreeNode));
-    merged->val = t1->val + t2->val;
-    merged->left = mergeTrees(t1->left, t2->left);
-    merged->right = mergeTrees(t1->right, t2->right);
-    return merged;
-}
-```
-
-```Python
-class Solution:
-    def mergeTrees(self, t1: TreeNode, t2: TreeNode) -> TreeNode:
-        if not t1:
-            return t2
-        if not t2:
-            return t1
-        
-        merged = TreeNode(t1.val + t2.val)
-        merged.left = self.mergeTrees(t1.left, t2.left)
-        merged.right = self.mergeTrees(t1.right, t2.right)
-        return merged
 ```
 
 **复杂度分析**
@@ -30646,57 +14505,6 @@ class Solution:
 对于右子节点和右子树，处理方法与左子节点和左子树相同。
 
 <![fig1](https://assets.leetcode.cn/solution-static/617/2_1.png),![fig2](https://assets.leetcode.cn/solution-static/617/2_2.png),![fig3](https://assets.leetcode.cn/solution-static/617/2_3.png),![fig4](https://assets.leetcode.cn/solution-static/617/2_4.png),![fig5](https://assets.leetcode.cn/solution-static/617/2_5.png),![fig6](https://assets.leetcode.cn/solution-static/617/2_6.png),![fig7](https://assets.leetcode.cn/solution-static/617/2_7.png),![fig8](https://assets.leetcode.cn/solution-static/617/2_8.png),![fig9](https://assets.leetcode.cn/solution-static/617/2_9.png),![fig10](https://assets.leetcode.cn/solution-static/617/2_10.png),![fig11](https://assets.leetcode.cn/solution-static/617/2_11.png),![fig12](https://assets.leetcode.cn/solution-static/617/2_12.png),![fig13](https://assets.leetcode.cn/solution-static/617/2_13.png)>
-
-```Java
-class Solution {
-    public TreeNode mergeTrees(TreeNode t1, TreeNode t2) {
-        if (t1 == null) {
-            return t2;
-        }
-        if (t2 == null) {
-            return t1;
-        }
-        TreeNode merged = new TreeNode(t1.val + t2.val);
-        Queue<TreeNode> queue = new LinkedList<TreeNode>();
-        Queue<TreeNode> queue1 = new LinkedList<TreeNode>();
-        Queue<TreeNode> queue2 = new LinkedList<TreeNode>();
-        queue.offer(merged);
-        queue1.offer(t1);
-        queue2.offer(t2);
-        while (!queue1.isEmpty() && !queue2.isEmpty()) {
-            TreeNode node = queue.poll(), node1 = queue1.poll(), node2 = queue2.poll();
-            TreeNode left1 = node1.left, left2 = node2.left, right1 = node1.right, right2 = node2.right;
-            if (left1 != null || left2 != null) {
-                if (left1 != null && left2 != null) {
-                    TreeNode left = new TreeNode(left1.val + left2.val);
-                    node.left = left;
-                    queue.offer(left);
-                    queue1.offer(left1);
-                    queue2.offer(left2);
-                } else if (left1 != null) {
-                    node.left = left1;
-                } else if (left2 != null) {
-                    node.left = left2;
-                }
-            }
-            if (right1 != null || right2 != null) {
-                if (right1 != null && right2 != null) {
-                    TreeNode right = new TreeNode(right1.val + right2.val);
-                    node.right = right;
-                    queue.offer(right);
-                    queue1.offer(right1);
-                    queue2.offer(right2);
-                } else if (right1 != null) {
-                    node.right = right1;
-                } else {
-                    node.right = right2;
-                }
-            }
-        }
-        return merged;
-    }
-}
-```
 
 ```cpp
 class Solution {
@@ -30751,171 +14559,6 @@ public:
         return merged;
     }
 };
-```
-
-```Golang
-func mergeTrees(t1, t2 *TreeNode) *TreeNode {
-    if t1 == nil {
-        return t2
-    }
-    if t2 == nil {
-        return t1
-    }
-    merged := &TreeNode{Val: t1.Val + t2.Val}
-    queue := []*TreeNode{merged}
-    queue1 := []*TreeNode{t1}
-    queue2 := []*TreeNode{t2}
-    for len(queue1) > 0 && len(queue2) > 0 {
-        node := queue[0]
-        queue = queue[1:]
-        node1 := queue1[0]
-        queue1 = queue1[1:]
-        node2 := queue2[0]
-        queue2 = queue2[1:]
-        left1, right1 := node1.Left, node1.Right
-        left2, right2 := node2.Left, node2.Right
-        if left1 != nil || left2 != nil {
-            if left1 != nil && left2 != nil {
-                left := &TreeNode{Val: left1.Val + left2.Val}
-                node.Left = left
-                queue = append(queue, left)
-                queue1 = append(queue1, left1)
-                queue2 = append(queue2, left2)
-            } else if left1 != nil {
-                node.Left = left1
-            } else { // left2 != nil
-                node.Left = left2
-            }
-        }
-        if right1 != nil || right2 != nil {
-            if right1 != nil && right2 != nil {
-                right := &TreeNode{Val: right1.Val + right2.Val}
-                node.Right = right
-                queue = append(queue, right)
-                queue1 = append(queue1, right1)
-                queue2 = append(queue2, right2)
-            } else if right1 != nil {
-                node.Right = right1
-            } else { // right2 != nil
-                node.Right = right2
-            }
-        }
-    }
-    return merged
-}
-```
-
-```C
-struct TreeNode* mergeTrees(struct TreeNode* t1, struct TreeNode* t2) {
-    if (t1 == NULL) {
-        return t2;
-    }
-    if (t2 == NULL) {
-        return t1;
-    }
-    struct TreeNode* merged = malloc(sizeof(struct TreeNode));
-    merged->val = t1->val + t2->val;
-    struct TreeNode** q = malloc(sizeof(struct TreeNode*) * 2001);
-    struct TreeNode** queue1 = malloc(sizeof(struct TreeNode*) * 2001);
-    struct TreeNode** queue2 = malloc(sizeof(struct TreeNode*) * 2001);
-    int qleft = 0, qright = 0;
-    q[qright] = merged;
-    queue1[qright] = t1;
-    queue2[qright] = t2;
-    qright++;
-    while (qleft < qright) {
-        struct TreeNode *node = q[qleft], *node1 = queue1[qleft], *node2 = queue2[qleft];
-        qleft++;
-        struct TreeNode *left1 = node1->left, *left2 = node2->left, *right1 = node1->right, *right2 = node2->right;
-        if (left1 != NULL || left2 != NULL) {
-            if (left1 != NULL && left2 != NULL) {
-                struct TreeNode* left = malloc(sizeof(struct TreeNode));
-                left->val = left1->val + left2->val;
-                node->left = left;
-                q[qright] = left;
-                queue1[qright] = left1;
-                queue2[qright] = left2;
-                qright++;
-            } else if (left1 != NULL) {
-                node->left = left1;
-            } else if (left2 != NULL) {
-                node->left = left2;
-            }
-        } else {
-            node->left = NULL;
-        }
-        if (right1 != NULL || right2 != NULL) {
-            if (right1 != NULL && right2 != NULL) {
-                struct TreeNode* right = malloc(sizeof(struct TreeNode));
-                right->val = right1->val + right2->val;
-                node->right = right;
-                q[qright] = right;
-                queue1[qright] = right1;
-                queue2[qright] = right2;
-                qright++;
-            } else if (right1 != NULL) {
-                node->right = right1;
-            } else {
-                node->right = right2;
-            }
-        } else {
-            node->right = NULL;
-        }
-    }
-    return merged;
-}
-```
-
-```Python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, x):
-#         self.val = x
-#         self.left = None
-#         self.right = None
-
-class Solution:
-    def mergeTrees(self, t1: TreeNode, t2: TreeNode) -> TreeNode:
-        if not t1:
-            return t2
-        if not t2:
-            return t1
-        
-        merged = TreeNode(t1.val + t2.val)
-        queue = collections.deque([merged])
-        queue1 = collections.deque([t1])
-        queue2 = collections.deque([t2])
-
-        while queue1 and queue2:
-            node = queue.popleft()
-            node1 = queue1.popleft()
-            node2 = queue2.popleft()
-            left1, right1 = node1.left, node1.right
-            left2, right2 = node2.left, node2.right
-            if left1 or left2:
-                if left1 and left2:
-                    left = TreeNode(left1.val + left2.val)
-                    node.left = left
-                    queue.append(left)
-                    queue1.append(left1)
-                    queue2.append(left2)
-                elif left1:
-                    node.left = left1
-                elif left2:
-                    node.left = left2
-            if right1 or right2:
-                if right1 and right2:
-                    right = TreeNode(right1.val + right2.val)
-                    node.right = right
-                    queue.append(right)
-                    queue1.append(right1)
-                    queue2.append(right2)
-                elif right1:
-                    node.right = right1
-                elif right2:
-                    node.right = right2
-        
-        return merged
 ```
 
 **复杂度分析**
@@ -31036,7 +14679,7 @@ public:
 
 下面的代码给出了详细的注释。
 
-```C++
+```cpp
 class Solution {
 private:
     unordered_map<int, int> index;
@@ -31074,93 +14717,6 @@ public:
         return myBuildTree(preorder, inorder, 0, n - 1, 0, n - 1);
     }
 };
-```
-
-```Java
-class Solution {
-    private Map<Integer, Integer> indexMap;
-
-    public TreeNode myBuildTree(int[] preorder, int[] inorder, int preorder_left, int preorder_right, int inorder_left, int inorder_right) {
-        if (preorder_left > preorder_right) {
-            return null;
-        }
-
-        // 前序遍历中的第一个节点就是根节点
-        int preorder_root = preorder_left;
-        // 在中序遍历中定位根节点
-        int inorder_root = indexMap.get(preorder[preorder_root]);
-        
-        // 先把根节点建立出来
-        TreeNode root = new TreeNode(preorder[preorder_root]);
-        // 得到左子树中的节点数目
-        int size_left_subtree = inorder_root - inorder_left;
-        // 递归地构造左子树，并连接到根节点
-        // 先序遍历中「从 左边界+1 开始的 size_left_subtree」个元素就对应了中序遍历中「从 左边界 开始到 根节点定位-1」的元素
-        root.left = myBuildTree(preorder, inorder, preorder_left + 1, preorder_left + size_left_subtree, inorder_left, inorder_root - 1);
-        // 递归地构造右子树，并连接到根节点
-        // 先序遍历中「从 左边界+1+左子树节点数目 开始到 右边界」的元素就对应了中序遍历中「从 根节点定位+1 到 右边界」的元素
-        root.right = myBuildTree(preorder, inorder, preorder_left + size_left_subtree + 1, preorder_right, inorder_root + 1, inorder_right);
-        return root;
-    }
-
-    public TreeNode buildTree(int[] preorder, int[] inorder) {
-        int n = preorder.length;
-        // 构造哈希映射，帮助我们快速定位根节点
-        indexMap = new HashMap<Integer, Integer>();
-        for (int i = 0; i < n; i++) {
-            indexMap.put(inorder[i], i);
-        }
-        return myBuildTree(preorder, inorder, 0, n - 1, 0, n - 1);
-    }
-}
-```
-
-```Python
-class Solution:
-    def buildTree(self, preorder: List[int], inorder: List[int]) -> TreeNode:
-        def myBuildTree(preorder_left: int, preorder_right: int, inorder_left: int, inorder_right: int):
-            if preorder_left > preorder_right:
-                return None
-            
-            # 前序遍历中的第一个节点就是根节点
-            preorder_root = preorder_left
-            # 在中序遍历中定位根节点
-            inorder_root = index[preorder[preorder_root]]
-            
-            # 先把根节点建立出来
-            root = TreeNode(preorder[preorder_root])
-            # 得到左子树中的节点数目
-            size_left_subtree = inorder_root - inorder_left
-            # 递归地构造左子树，并连接到根节点
-            # 先序遍历中「从 左边界+1 开始的 size_left_subtree」个元素就对应了中序遍历中「从 左边界 开始到 根节点定位-1」的元素
-            root.left = myBuildTree(preorder_left + 1, preorder_left + size_left_subtree, inorder_left, inorder_root - 1)
-            # 递归地构造右子树，并连接到根节点
-            # 先序遍历中「从 左边界+1+左子树节点数目 开始到 右边界」的元素就对应了中序遍历中「从 根节点定位+1 到 右边界」的元素
-            root.right = myBuildTree(preorder_left + size_left_subtree + 1, preorder_right, inorder_root + 1, inorder_right)
-            return root
-        
-        n = len(preorder)
-        # 构造哈希映射，帮助我们快速定位根节点
-        index = {element: i for i, element in enumerate(inorder)}
-        return myBuildTree(0, n - 1, 0, n - 1)
-```
-
-```golang
-func buildTree(preorder []int, inorder []int) *TreeNode {
-    if len(preorder) == 0 {
-        return nil
-    }
-    root := &TreeNode{preorder[0], nil, nil}
-    i := 0
-    for ; i < len(inorder); i++ {
-        if inorder[i] == preorder[0] {
-            break
-        }
-    }
-    root.Left = buildTree(preorder[1:len(inorder[:i])+1], inorder[:i])
-    root.Right = buildTree(preorder[len(inorder[:i])+1:], inorder[i+1:])
-    return root
-}
 ```
 
 **复杂度分析**
@@ -31260,7 +14816,7 @@ inorder = [4, 5, 8, 10, 9, 3, 15, 20, 7]
 
 最后得到的二叉树即为答案。
 
-```C++
+```cpp
 class Solution {
 public:
     TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
@@ -31291,90 +14847,6 @@ public:
         return root;
     }
 };
-```
-
-```Java
-class Solution {
-    public TreeNode buildTree(int[] preorder, int[] inorder) {
-        if (preorder == null || preorder.length == 0) {
-            return null;
-        }
-        TreeNode root = new TreeNode(preorder[0]);
-        Deque<TreeNode> stack = new LinkedList<TreeNode>();
-        stack.push(root);
-        int inorderIndex = 0;
-        for (int i = 1; i < preorder.length; i++) {
-            int preorderVal = preorder[i];
-            TreeNode node = stack.peek();
-            if (node.val != inorder[inorderIndex]) {
-                node.left = new TreeNode(preorderVal);
-                stack.push(node.left);
-            } else {
-                while (!stack.isEmpty() && stack.peek().val == inorder[inorderIndex]) {
-                    node = stack.pop();
-                    inorderIndex++;
-                }
-                node.right = new TreeNode(preorderVal);
-                stack.push(node.right);
-            }
-        }
-        return root;
-    }
-}
-```
-
-```Python
-class Solution:
-    def buildTree(self, preorder: List[int], inorder: List[int]) -> TreeNode:
-        if not preorder:
-            return None
-
-        root = TreeNode(preorder[0])
-        stack = [root]
-        inorderIndex = 0
-        for i in range(1, len(preorder)):
-            preorderVal = preorder[i]
-            node = stack[-1]
-            if node.val != inorder[inorderIndex]:
-                node.left = TreeNode(preorderVal)
-                stack.append(node.left)
-            else:
-                while stack and stack[-1].val == inorder[inorderIndex]:
-                    node = stack.pop()
-                    inorderIndex += 1
-                node.right = TreeNode(preorderVal)
-                stack.append(node.right)
-
-        return root
-```
-
-```golang
-func buildTree(preorder []int, inorder []int) *TreeNode {
-    if len(preorder) == 0 {
-        return nil
-    }
-    root := &TreeNode{preorder[0], nil, nil}
-    stack := []*TreeNode{}
-    stack = append(stack, root)
-    var inorderIndex int
-    for i := 1; i < len(preorder); i++ {
-        preorderVal := preorder[i]
-        node := stack[len(stack)-1]
-        if node.Val != inorder[inorderIndex] {
-            node.Left = &TreeNode{preorderVal, nil, nil}
-            stack = append(stack, node.Left)
-        } else {
-            for len(stack) != 0 && stack[len(stack)-1].Val == inorder[inorderIndex] {
-                node = stack[len(stack)-1]
-                stack = stack[:len(stack)-1]
-                inorderIndex++
-            }
-            node.Right = &TreeNode{preorderVal, nil, nil}
-            stack = append(stack, node.Right)
-        }
-    }
-    return root
-}
 ```
 
 **复杂度分析**
@@ -31457,7 +14929,7 @@ $$
 
 <![fig1](https://assets.leetcode.cn/solution-static/104/1.png),![fig2](https://assets.leetcode.cn/solution-static/104/2.png),![fig3](https://assets.leetcode.cn/solution-static/104/3.png),![fig4](https://assets.leetcode.cn/solution-static/104/4.png),![fig5](https://assets.leetcode.cn/solution-static/104/5.png),![fig6](https://assets.leetcode.cn/solution-static/104/6.png),![fig7](https://assets.leetcode.cn/solution-static/104/7.png),![fig8](https://assets.leetcode.cn/solution-static/104/8.png),![fig9](https://assets.leetcode.cn/solution-static/104/9.png),![fig10](https://assets.leetcode.cn/solution-static/104/10.png)>
 
-```C++
+```cpp
 class Solution {
 public:
     int maxDepth(TreeNode* root) {
@@ -31465,52 +14937,6 @@ public:
         return max(maxDepth(root->left), maxDepth(root->right)) + 1;
     }
 };
-```
-```java
-class Solution {
-    public int maxDepth(TreeNode root) {
-        if (root == null) {
-            return 0;
-        } else {
-            int leftHeight = maxDepth(root.left);
-            int rightHeight = maxDepth(root.right);
-            return Math.max(leftHeight, rightHeight) + 1;
-        }
-    }
-}
-```
-```python
-class Solution:
-    def maxDepth(self, root):
-        if root is None: 
-            return 0 
-        else: 
-            left_height = self.maxDepth(root.left) 
-            right_height = self.maxDepth(root.right) 
-            return max(left_height, right_height) + 1 
-```
-
-```golang
-func maxDepth(root *TreeNode) int {
-    if root == nil {
-        return 0
-    }
-    return max(maxDepth(root.Left), maxDepth(root.Right)) + 1
-}
-
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
-}
-```
-
-```C
-int maxDepth(struct TreeNode *root) {
-    if (root == NULL) return 0;
-    return fmax(maxDepth(root->left), maxDepth(root->right)) + 1;
-}
 ```
 
 **复杂度分析**
@@ -31525,7 +14951,7 @@ int maxDepth(struct TreeNode *root) {
 
 我们也可以用「广度优先搜索」的方法来解决这道题目，但我们需要对其进行一些修改，此时我们广度优先搜索的队列里存放的是「当前层的所有节点」。每次拓展下一层的时候，不同于广度优先搜索的每次只从队列里拿出一个节点，我们需要将队列里的所有节点都拿出来进行拓展，这样能保证每次拓展完的时候队列里存放的是当前层的所有节点，即我们是一层一层地进行拓展，最后我们用一个变量 $\textit{ans}$ 来维护拓展的次数，该二叉树的最大深度即为 $\textit{ans}$。
 
-```C++
+```cpp
 class Solution {
 public:
     int maxDepth(TreeNode* root) {
@@ -31546,101 +14972,6 @@ public:
         return ans;
     }
 };
-```
-```java
-class Solution {
-    public int maxDepth(TreeNode root) {
-        if (root == null) {
-            return 0;
-        }
-        Queue<TreeNode> queue = new LinkedList<TreeNode>();
-        queue.offer(root);
-        int ans = 0;
-        while (!queue.isEmpty()) {
-            int size = queue.size();
-            while (size > 0) {
-                TreeNode node = queue.poll();
-                if (node.left != null) {
-                    queue.offer(node.left);
-                }
-                if (node.right != null) {
-                    queue.offer(node.right);
-                }
-                size--;
-            }
-            ans++;
-        }
-        return ans;
-    }
-}
-```
-
-```golang
-func maxDepth(root *TreeNode) int {
-    if root == nil {
-        return 0
-    }
-    queue := []*TreeNode{}
-    queue = append(queue, root)
-    ans := 0
-    for len(queue) > 0 {
-        sz := len(queue)
-        for sz > 0 {
-            node := queue[0]
-            queue = queue[1:]
-            if node.Left != nil {
-                queue = append(queue, node.Left)
-            }
-            if node.Right != nil {
-                queue = append(queue, node.Right)
-            }
-            sz--
-        }
-        ans++
-    }
-    return ans
-}
-```
-
-```C
-struct QueNode {
-    struct TreeNode *p;
-    struct QueNode *next;
-};
-
-void init(struct QueNode **p, struct TreeNode *t) {
-    (*p) = (struct QueNode *)malloc(sizeof(struct QueNode));
-    (*p)->p = t;
-    (*p)->next = NULL;
-}
-
-int maxDepth(struct TreeNode *root) {
-    if (root == NULL) return 0;
-    struct QueNode *left, *right;
-    init(&left, root);
-    right = left;
-    int ans = 0, sz = 1, tmp = 0;
-    while (left != NULL) {
-        tmp = 0;
-        while (sz > 0) {
-            if (left->p->left != NULL) {
-                init(&right->next, left->p->left);
-                right = right->next;
-                tmp++;
-            }
-            if (left->p->right != NULL) {
-                init(&right->next, left->p->right);
-                right = right->next;
-                tmp++;
-            }
-            left = left->next;
-            sz--;
-        }
-        sz += tmp;
-        ans++;
-    }
-    return ans;
-}
 ```
 
 **复杂度分析**
@@ -31771,87 +15102,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public List<List<Integer>> levelOrder(TreeNode root) {
-        List<List<Integer>> ret = new ArrayList<List<Integer>>();
-        if (root == null) {
-            return ret;
-        }
-
-        Queue<TreeNode> queue = new LinkedList<TreeNode>();
-        queue.offer(root);
-        while (!queue.isEmpty()) {
-            List<Integer> level = new ArrayList<Integer>();
-            int currentLevelSize = queue.size();
-            for (int i = 1; i <= currentLevelSize; ++i) {
-                TreeNode node = queue.poll();
-                level.add(node.val);
-                if (node.left != null) {
-                    queue.offer(node.left);
-                }
-                if (node.right != null) {
-                    queue.offer(node.right);
-                }
-            }
-            ret.add(level);
-        }
-        
-        return ret;
-    }
-}
-```
-
-```JavaScript
-var levelOrder = function(root) {
-    const ret = [];
-    if (!root) {
-        return ret;
-    }
-
-    const q = [];
-    q.push(root);
-    while (q.length !== 0) {
-        const currentLevelSize = q.length;
-        ret.push([]);
-        for (let i = 1; i <= currentLevelSize; ++i) {
-            const node = q.shift();
-            ret[ret.length - 1].push(node.val);
-            if (node.left) q.push(node.left);
-            if (node.right) q.push(node.right);
-        }
-    }
-        
-    return ret;
-};
-```
-
-```golang
-func levelOrder(root *TreeNode) [][]int {
-    ret := [][]int{}
-    if root == nil {
-        return ret
-    }
-    q := []*TreeNode{root}
-    for i := 0; len(q) > 0; i++ {
-        ret = append(ret, []int{})
-        p := []*TreeNode{}
-        for j := 0; j < len(q); j++ {
-            node := q[j]
-            ret[i] = append(ret[i], node.Val)
-            if node.Left != nil {
-                p = append(p, node.Left)
-            }
-            if node.Right != nil {
-                p = append(p, node.Right)
-            }
-        }
-        q = p
-    }
-    return ret
-}
-```
-
 **复杂度分析**
 
 记树上所有节点的个数为 $n$。
@@ -31961,51 +15211,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public boolean isSymmetric(TreeNode root) {
-        return check(root.left, root.right);
-    }
-
-    public boolean check(TreeNode p, TreeNode q) {
-        if (p == null && q == null) {
-            return true;
-        }
-        if (p == null || q == null) {
-            return false;
-        }
-        return p.val == q.val && check(p.left, q.right) && check(p.right, q.left);
-    }
-}
-```
-
-```golang
-func isSymmetric(root *TreeNode) bool {
-    return check(root.Left, root.Right)
-}
-
-func check(p, q *TreeNode) bool {
-    if p == nil && q == nil {
-        return true
-    }
-    if p == nil || q == nil {
-        return false
-    }
-    return p.Val == q.Val && check(p.Left, q.Right) && check(p.Right, q.Left) 
-}
-```
-
-```TypeScript
-const check = (p: TreeNode | null, q: TreeNode | null): boolean => {
-    if (!p && !q) return true;
-    if (!p || !q) return false;
-    return p.val === q.val && check(p.left, q.right) && check(p.right, q.left);
-}
-var isSymmetric = function(root: TreeNode | null): boolean {
-    return check(root.left, root.right);
-};
-```
-
 **复杂度分析**
 
 假设树上一共 $n$ 个节点。
@@ -32043,90 +15248,6 @@ public:
     bool isSymmetric(TreeNode* root) {
         return check(root, root);
     }
-};
-```
-
-```Java
-class Solution {
-    public boolean isSymmetric(TreeNode root) {
-        return check(root, root);
-    }
-
-    public boolean check(TreeNode u, TreeNode v) {
-        Queue<TreeNode> q = new LinkedList<TreeNode>();
-        q.offer(u);
-        q.offer(v);
-        while (!q.isEmpty()) {
-            u = q.poll();
-            v = q.poll();
-            if (u == null && v == null) {
-                continue;
-            }
-            if ((u == null || v == null) || (u.val != v.val)) {
-                return false;
-            }
-
-            q.offer(u.left);
-            q.offer(v.right);
-
-            q.offer(u.right);
-            q.offer(v.left);
-        }
-        return true;
-    }
-}
-```
-
-```golang
-func isSymmetric(root *TreeNode) bool {
-    u, v := root, root
-    q := []*TreeNode{}
-    q = append(q, u)
-    q = append(q, v)
-    for len(q) > 0 {
-        u, v = q[0], q[1]
-        q = q[2:]
-        if u == nil && v == nil {
-            continue
-        }
-        if u == nil || v == nil {
-            return false
-        }
-        if u.Val != v.Val {
-            return false
-        }
-        q = append(q, u.Left)
-        q = append(q, v.Right)
-
-        q = append(q, u.Right)
-        q = append(q, v.Left)
-    }
-    return true
-}
-```
-
-```TypeScript
-const check = (u: TreeNode | null, v: TreeNode | null): boolean => {
-    const q: (TreeNode | null)[] = [];
-    q.push(u),q.push(v);
-
-    while (q.length) {
-        u = q.shift()!;
-        v = q.shift()!;
-
-        if (!u && !v) continue;
-        if ((!u || !v) || (u.val !== v.val)) return false;
-
-        q.push(u.left); 
-        q.push(v.right);
-
-        q.push(u.right); 
-        q.push(v.left);
-    }
-    return true;
-}
-var isSymmetric = function(root: TreeNode | null): boolean {
-    return check(root, root);
 };
 ```
 
@@ -32221,7 +15342,7 @@ public:
 
 <![fig1](https://assets.leetcode.cn/solution-static/98/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/98/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/98/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/98/4.PNG)>
 
-```C++
+```cpp
 class Solution {
 public:
     bool helper(TreeNode* root, long long lower, long long upper) {
@@ -32237,75 +15358,6 @@ public:
         return helper(root, LONG_MIN, LONG_MAX);
     }
 };
-```
-
-```JavaScript
-const helper = (root, lower, upper) => {
-    if (root === null) {
-        return true;
-    }
-    if (root.val <= lower || root.val >= upper) {
-        return false;
-    }
-    return helper(root.left, lower, root.val) && helper(root.right, root.val, upper);
-}
-var isValidBST = function(root) {
-    return helper(root, -Infinity, Infinity);
-};
-```
-
-```Java
-class Solution {
-    public boolean isValidBST(TreeNode root) {
-        return isValidBST(root, Long.MIN_VALUE, Long.MAX_VALUE);
-    }
-
-    public boolean isValidBST(TreeNode node, long lower, long upper) {
-        if (node == null) {
-            return true;
-        }
-        if (node.val <= lower || node.val >= upper) {
-            return false;
-        }
-        return isValidBST(node.left, lower, node.val) && isValidBST(node.right, node.val, upper);
-    }
-}
-```
-
-```Python
-class Solution:
-    def isValidBST(self, root: TreeNode) -> bool:
-        def helper(node, lower = float('-inf'), upper = float('inf')) -> bool:
-            if not node:
-                return True
-            
-            val = node.val
-            if val <= lower or val >= upper:
-                return False
-
-            if not helper(node.right, val, upper):
-                return False
-            if not helper(node.left, lower, val):
-                return False
-            return True
-
-        return helper(root)
-```
-
-```golang
-func isValidBST(root *TreeNode) bool {
-    return helper(root, math.MinInt64, math.MaxInt64)
-}
-
-func helper(root *TreeNode, lower, upper int) bool {
-    if root == nil {
-        return true
-    }
-    if root.Val <= lower || root.Val >= upper {
-        return false
-    }
-    return helper(root.Left, lower, root.Val) && helper(root.Right, root.Val, upper)
-}
 ```
 
 **复杂度分析**
@@ -32324,7 +15376,7 @@ func helper(root *TreeNode, lower, upper int) bool {
 
 ![fig1](https://assets.leetcode.cn/solution-static/98/98_fig1.gif)
 
-```C++
+```cpp
 class Solution {
 public:
     bool isValidBST(TreeNode* root) {
@@ -32348,92 +15400,6 @@ public:
         return true;
     }
 };
-```
-
-```JavaScript
-var isValidBST = function(root) {
-    let stack = [];
-    let inorder = -Infinity;
-
-    while (stack.length || root !== null) {
-        while (root !== null) {
-            stack.push(root);
-            root = root.left;
-        }
-        root = stack.pop();
-        // 如果中序遍历得到的节点的值小于等于前一个 inorder，说明不是二叉搜索树
-        if (root.val <= inorder) {
-            return false;
-        }
-        inorder = root.val;
-        root = root.right;
-    }
-    return true;
-};
-```
-
-```Java
-class Solution {
-    public boolean isValidBST(TreeNode root) {
-        Deque<TreeNode> stack = new LinkedList<TreeNode>();
-        double inorder = -Double.MAX_VALUE;
-
-        while (!stack.isEmpty() || root != null) {
-            while (root != null) {
-                stack.push(root);
-                root = root.left;
-            }
-            root = stack.pop();
-              // 如果中序遍历得到的节点的值小于等于前一个 inorder，说明不是二叉搜索树
-            if (root.val <= inorder) {
-                return false;
-            }
-            inorder = root.val;
-            root = root.right;
-        }
-        return true;
-    }
-}
-```
-
-```Python
-class Solution:
-    def isValidBST(self, root: TreeNode) -> bool:
-        stack, inorder = [], float('-inf')
-        
-        while stack or root:
-            while root:
-                stack.append(root)
-                root = root.left
-            root = stack.pop()
-            # 如果中序遍历得到的节点的值小于等于前一个 inorder，说明不是二叉搜索树
-            if root.val <= inorder:
-                return False
-            inorder = root.val
-            root = root.right
-
-        return True
-```
-
-```golang
-func isValidBST(root *TreeNode) bool {
-    stack := []*TreeNode{}
-    inorder := math.MinInt64
-    for len(stack) > 0 || root != nil {
-        for root != nil {
-            stack = append(stack, root)
-            root = root.Left
-        }
-        root = stack[len(stack)-1]
-        stack = stack[:len(stack)-1]
-        if root.Val <= inorder {
-            return false
-        }
-        inorder = root.Val
-        root = root.Right
-    }
-    return true
-}
 ```
 
 **复杂度分析**
@@ -32543,7 +15509,7 @@ $$
 
 至此，我们从小到大计算 $G$ 函数即可，因为 $G(n)$ 的值依赖于 $G(0) \cdots G(n-1)$。
 
-```C++
+```cpp
 class Solution {
 public:
     int numTrees(int n) {
@@ -32559,79 +15525,6 @@ public:
         return G[n];
     }
 };
-```
-```Java
-class Solution {
-    public int numTrees(int n) {
-        int[] G = new int[n + 1];
-        G[0] = 1;
-        G[1] = 1;
-
-        for (int i = 2; i <= n; ++i) {
-            for (int j = 1; j <= i; ++j) {
-                G[i] += G[j - 1] * G[i - j];
-            }
-        }
-        return G[n];
-    }
-}
-```
-```Python
-class Solution:
-    def numTrees(self, n):
-        """
-        :type n: int
-        :rtype: int
-        """
-        G = [0]*(n+1)
-        G[0], G[1] = 1, 1
-
-        for i in range(2, n+1):
-            for j in range(1, i+1):
-                G[i] += G[j-1] * G[i-j]
-
-        return G[n]
-```
-```JavaScript
-var numTrees = function(n) {
-    const G = new Array(n + 1).fill(0);
-    G[0] = 1;
-    G[1] = 1;
-
-    for (let i = 2; i <= n; ++i) {
-        for (let j = 1; j <= i; ++j) {
-            G[i] += G[j - 1] * G[i - j];
-        }
-    }
-    return G[n];
-};
-```
-
-```golang
-func numTrees(n int) int {
-    G := make([]int, n + 1)
-    G[0], G[1] = 1, 1
-    for i := 2; i <= n; i++ {
-        for j := 1; j <= i; j++ {
-            G[i] += G[j-1] * G[i-j]
-        }
-    }
-    return G[n]
-}
-```
-
-```C
-int numTrees(int n) {
-    int G[n + 1];
-    memset(G, 0, sizeof(G));
-    G[0] = G[1] = 1;
-    for (int i = 2; i <= n; ++i) {
-        for (int j = 1; j <= i; ++j) {
-            G[i] += G[j - 1] * G[i - j];
-        }
-    }
-    return G[n];
-}
 ```
 
 **复杂度分析**
@@ -32652,7 +15545,7 @@ $$
 
 证明过程可以参考上述文献，此处不再赘述。
 
-```C++
+```cpp
 class Solution {
 public:
     int numTrees(int n) {
@@ -32663,62 +15556,6 @@ public:
         return (int)C;
     }
 };
-```
-
-```Java
-class Solution {
-    public int numTrees(int n) {
-        // 提示：我们在这里需要用 long 类型防止计算过程中的溢出
-        long C = 1;
-        for (int i = 0; i < n; ++i) {
-            C = C * 2 * (2 * i + 1) / (i + 2);
-        }
-        return (int) C;
-    }
-}
-```
-
-```Python
-class Solution(object):
-    def numTrees(self, n):
-        """
-        :type n: int
-        :rtype: int
-        """
-        C = 1
-        for i in range(0, n):
-            C = C * 2*(2*i+1)/(i+2)
-        return int(C)
-```
-
-```JavaScript
-var numTrees = function(n) {
-    let C = 1;
-    for (let i = 0; i < n; ++i) {
-        C = C * 2 * (2 * i + 1) / (i + 2);
-    }
-    return C;
-};
-```
-
-```golang
-func numTrees(n int) int {
-    C := 1
-    for i := 0; i < n; i++ {
-        C = C * 2 * (2 * i + 1) / (i + 2);
-    }
-    return C
-}
-```
-
-```C
-int numTrees(int n) {
-    long long C = 1;
-    for (int i = 0; i < n; ++i) {
-        C = C * 2 * (2 * i + 1) / (i + 2);
-    }
-    return (int)C;
-}
 ```
 
 **复杂度分析**
@@ -32804,7 +15641,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     void inorder(TreeNode* root, vector<int>& res) {
@@ -32823,75 +15660,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public List<Integer> inorderTraversal(TreeNode root) {
-        List<Integer> res = new ArrayList<Integer>();
-        inorder(root, res);
-        return res;
-    }
-
-    public void inorder(TreeNode root, List<Integer> res) {
-        if (root == null) {
-            return;
-        }
-        inorder(root.left, res);
-        res.add(root.val);
-        inorder(root.right, res);
-    }
-}
-```
-
-```JavaScript
-var inorderTraversal = function(root) {
-    const res = [];
-    const inorder = (root) => {
-        if (!root) {
-            return;
-        }
-        inorder(root.left);
-        res.push(root.val);
-        inorder(root.right);
-    }
-    inorder(root);
-    return res;
-};
-```
-
-```Golang
-func inorderTraversal(root *TreeNode) (res []int) {
-	var inorder func(node *TreeNode)
-	inorder = func(node *TreeNode) {
-		if node == nil {
-			return
-		}
-		inorder(node.Left)
-		res = append(res, node.Val)
-		inorder(node.Right)
-	}
-	inorder(root)
-	return
-}
-```
-
-```C
-void inorder(struct TreeNode* root, int* res, int* resSize) {
-    if (!root) {
-        return;
-    }
-    inorder(root->left, res, resSize);
-    res[(*resSize)++] = root->val;
-    inorder(root->right, res, resSize);
-}
-
-int* inorderTraversal(struct TreeNode* root, int* returnSize) {
-    int* res = malloc(sizeof(int) * 501);
-    *returnSize = 0;
-    inorder(root, res, returnSize);
-    return res;
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(n)$，其中 $n$ 为二叉树节点的个数。二叉树的遍历中每个节点会被访问一次且只会被访问一次。
@@ -32908,7 +15676,7 @@ int* inorderTraversal(struct TreeNode* root, int* returnSize) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     vector<int> inorderTraversal(TreeNode* root) {
@@ -32927,78 +15695,6 @@ public:
         return res;
     }
 };
-```
-
-```Java
-class Solution {
-    public List<Integer> inorderTraversal(TreeNode root) {
-        List<Integer> res = new ArrayList<Integer>();
-        Deque<TreeNode> stk = new LinkedList<TreeNode>();
-        while (root != null || !stk.isEmpty()) {
-            while (root != null) {
-                stk.push(root);
-                root = root.left;
-            }
-            root = stk.pop();
-            res.add(root.val);
-            root = root.right;
-        }
-        return res;
-    }
-}
-```
-
-```JavaScript
-var inorderTraversal = function(root) {
-    const res = [];
-    const stk = [];
-    while (root || stk.length) {
-        while (root) {
-            stk.push(root);
-            root = root.left;
-        }
-        root = stk.pop();
-        res.push(root.val);
-        root = root.right;
-    }
-    return res;
-};
-```
-
-```Golang
-func inorderTraversal(root *TreeNode) (res []int) {
-	stack := []*TreeNode{}
-	for root != nil || len(stack) > 0 {
-		for root != nil {
-			stack = append(stack, root)
-			root = root.Left
-		}
-		root = stack[len(stack)-1]
-		stack = stack[:len(stack)-1]
-		res = append(res, root.Val)
-		root = root.Right
-	}
-	return
-}
-```
-
-```C
-int* inorderTraversal(struct TreeNode* root, int* returnSize) {
-    *returnSize = 0;
-    int* res = malloc(sizeof(int) * 501);
-    struct TreeNode** stk = malloc(sizeof(struct TreeNode*) * 501);
-    int top = 0;
-    while (root != NULL || top > 0) {
-        while (root != NULL) {
-            stk[top++] = root;
-            root = root->left;
-        }
-        root = stk[--top];
-        res[(*returnSize)++] = root->val;
-        root = root->right;
-    }
-    return res;
-}
 ```
 
 **复杂度分析**
@@ -33027,7 +15723,7 @@ int* inorderTraversal(struct TreeNode* root, int* returnSize) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     vector<int> inorderTraversal(TreeNode* root) {
@@ -33063,148 +15759,6 @@ public:
         return res;
     }
 };
-```
-
-```Java
-class Solution {
-    public List<Integer> inorderTraversal(TreeNode root) {
-        List<Integer> res = new ArrayList<Integer>();
-        TreeNode predecessor = null;
-
-        while (root != null) {
-            if (root.left != null) {
-                // predecessor 节点就是当前 root 节点向左走一步，然后一直向右走至无法走为止
-                predecessor = root.left;
-                while (predecessor.right != null && predecessor.right != root) {
-                    predecessor = predecessor.right;
-                }
-                
-                // 让 predecessor 的右指针指向 root，继续遍历左子树
-                if (predecessor.right == null) {
-                    predecessor.right = root;
-                    root = root.left;
-                }
-                // 说明左子树已经访问完了，我们需要断开链接
-                else {
-                    res.add(root.val);
-                    predecessor.right = null;
-                    root = root.right;
-                }
-            }
-            // 如果没有左孩子，则直接访问右孩子
-            else {
-                res.add(root.val);
-                root = root.right;
-            }
-        }
-        return res;
-    }
-}
-```
-
-```JavaScript
-var inorderTraversal = function(root) {
-    const res = [];
-    let predecessor = null;
-
-    while (root) {
-        if (root.left) {
-            // predecessor 节点就是当前 root 节点向左走一步，然后一直向右走至无法走为止
-            predecessor = root.left;
-            while (predecessor.right && predecessor.right !== root) {
-                predecessor = predecessor.right;
-            }
-
-            // 让 predecessor 的右指针指向 root，继续遍历左子树
-            if (!predecessor.right) {
-                predecessor.right = root;
-                root = root.left;
-            }
-            // 说明左子树已经访问完了，我们需要断开链接
-            else {
-                res.push(root.val);
-                predecessor.right = null;
-                root = root.right;
-            }
-        }
-        // 如果没有左孩子，则直接访问右孩子
-        else {
-            res.push(root.val);
-            root = root.right;
-        }
-    }
-
-    return res;
-};
-```
-
-```Golang
-func inorderTraversal(root *TreeNode) (res []int) {
-	for root != nil {
-		if root.Left != nil {
-			// predecessor 节点表示当前 root 节点向左走一步，然后一直向右走至无法走为止的节点
-			predecessor := root.Left
-			for predecessor.Right != nil && predecessor.Right != root {
-				// 有右子树且没有设置过指向 root，则继续向右走
-				predecessor = predecessor.Right
-			}
-			if predecessor.Right == nil {
-				// 将 predecessor 的右指针指向 root，这样后面遍历完左子树 root.Left 后，就能通过这个指向回到 root
-				predecessor.Right = root
-				// 遍历左子树
-				root = root.Left
-			} else { // predecessor 的右指针已经指向了 root，则表示左子树 root.Left 已经访问完了
-				res = append(res, root.Val)
-				// 恢复原样
-				predecessor.Right = nil
-				// 遍历右子树
-				root = root.Right
-			}
-		} else { // 没有左子树
-			res = append(res, root.Val)
-			// 若有右子树，则遍历右子树
-			// 若没有右子树，则整颗左子树已遍历完，root 会通过之前设置的指向回到这颗子树的父节点
-			root = root.Right
-		}
-	}
-	return
-}
-```
-
-```C
-int* inorderTraversal(struct TreeNode* root, int* returnSize) {
-    int* res = malloc(sizeof(int) * 501);
-    *returnSize = 0;
-    struct TreeNode* predecessor = NULL;
-
-    while (root != NULL) {
-        if (root->left != NULL) {
-            // predecessor 节点就是当前 root 节点向左走一步，然后一直向右走至无法走为止
-            predecessor = root->left;
-            while (predecessor->right != NULL && predecessor->right != root) {
-                predecessor = predecessor->right;
-            }
-
-            // 让 predecessor 的右指针指向 root，继续遍历左子树
-            if (predecessor->right == NULL) {
-                predecessor->right = root;
-                root = root->left;
-            }
-            // 说明左子树已经访问完了，我们需要断开链接
-            else {
-                res[(*returnSize)++] = root->val;
-                predecessor->right = NULL;
-                root = root->right;
-            }
-        }
-        // 如果没有左孩子，则直接访问右孩子
-        else {
-            res[(*returnSize)++] = root->val;
-            root = root->right;
-        }
-    }
-    return res;
-}
 ```
 
 **复杂度分析**
@@ -33306,7 +15860,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int maximalRectangle(vector<vector<char>>& matrix) {
@@ -33345,305 +15899,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int maximalRectangle(char[][] matrix) {
-        int m = matrix.length;
-        if (m == 0) {
-            return 0;
-        }
-        int n = matrix[0].length;
-        int[][] left = new int[m][n];
-
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == '1') {
-                    left[i][j] = (j == 0 ? 0 : left[i][j - 1]) + 1;
-                }
-            }
-        }
-
-        int ret = 0;
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == '0') {
-                    continue;
-                }
-                int width = left[i][j];
-                int area = width;
-                for (int k = i - 1; k >= 0; k--) {
-                    width = Math.min(width, left[k][j]);
-                    area = Math.max(area, (i - k + 1) * width);
-                }
-                ret = Math.max(ret, area);
-            }
-        }
-        return ret;
-    }
-}
-```
-
-```JavaScript
-var maximalRectangle = function(matrix) {
-    const m = matrix.length;
-    if (m === 0) {
-        return 0;
-    }
-    const n = matrix[0].length;
-    const left = new Array(m).fill(0).map(() => new Array(n).fill(0));
-
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (matrix[i][j] === '1') {
-                left[i][j] = (j === 0 ? 0 : left[i][j - 1]) + 1;
-            }
-        }
-    }
-
-    let ret = 0;
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (matrix[i][j] === '0') {
-                continue;
-            }
-            let width = left[i][j];
-            let area = width;
-            for (let k = i - 1; k >= 0; k--) {
-                width = Math.min(width, left[k][j]);
-                area = Math.max(area, (i - k + 1) * width);
-            }
-            ret = Math.max(ret, area);
-        }
-    }
-    return ret;
-};
-```
-
-```go
-func maximalRectangle(matrix [][]byte) (ans int) {
-    if len(matrix) == 0 {
-        return
-    }
-    m, n := len(matrix), len(matrix[0])
-    left := make([][]int, m)
-    for i, row := range matrix {
-        left[i] = make([]int, n)
-        for j, v := range row {
-            if v == '0' {
-                continue
-            }
-            if j == 0 {
-                left[i][j] = 1
-            } else {
-                left[i][j] = left[i][j-1] + 1
-            }
-        }
-    }
-    for i, row := range matrix {
-        for j, v := range row {
-            if v == '0' {
-                continue
-            }
-            width := left[i][j]
-            area := width
-            for k := i - 1; k >= 0; k-- {
-                width = min(width, left[k][j])
-                area = max(area, (i-k+1)*width)
-            }
-            ans = max(ans, area)
-        }
-    }
-    return
-}
-
-func min(a, b int) int {
-    if a < b {
-        return a
-    }
-    return b
-}
-
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
-}
-```
-
-```C
-int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize) {
-    int m = matrixSize;
-    if (m == 0) {
-        return 0;
-    }
-    int n = matrixColSize[0];
-    int left[m][n];
-    memset(left, 0, sizeof(left));
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            if (matrix[i][j] == '1') {
-                left[i][j] = (j == 0 ? 0 : left[i][j - 1]) + 1;
-            }
-        }
-    }
-
-    int ret = 0;
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            if (matrix[i][j] == '0') {
-                continue;
-            }
-            int width = left[i][j];
-            int area = width;
-            for (int k = i - 1; k >= 0; k--) {
-                width = fmin(width, left[k][j]);
-                area = fmax(area, (i - k + 1) * width);
-            }
-            ret = fmax(ret, area);
-        }
-    }
-    return ret;
-}
-```
-
-```C#
-public class Solution {
-    public int MaximalRectangle(char[][] matrix) {
-        int m = matrix.Length;
-        if (m == 0) return 0;
-        int n = matrix[0].Length;
-        int[][] left = new int[m][];
-        for (int i = 0; i < m; i++) {
-            left[i] = new int[n];
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == '1') {
-                    left[i][j] = (j == 0 ? 0 : left[i][j - 1]) + 1;
-                }
-            }
-        }
-
-        int ret = 0;
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == '0') {
-                    continue;
-                }
-                int width = left[i][j];
-                int area = width;
-                for (int k = i - 1; k >= 0; k--) {
-                    width = Math.Min(width, left[k][j]);
-                    area = Math.Max(area, (i - k + 1) * width);
-                }
-                ret = Math.Max(ret, area);
-            }
-        }
-        return ret;
-    }
-}
-```
-
-```Python
-class Solution:
-    def maximalRectangle(self, matrix: list[list[str]]) -> int:
-        if not matrix:
-            return 0
-        m, n = len(matrix), len(matrix[0])
-        left = [[0] * n for _ in range(m)]
-
-        for i in range(m):
-            for j in range(n):
-                if matrix[i][j] == '1':
-                    left[i][j] = (0 if j == 0 else left[i][j - 1]) + 1
-
-        ret = 0
-        for i in range(m):
-            for j in range(n):
-                if matrix[i][j] == '0':
-                    continue
-                width = left[i][j]
-                area = width
-                for k in range(i - 1, -1, -1):
-                    width = min(width, left[k][j])
-                    area = max(area, (i - k + 1) * width)
-                ret = max(ret, area)
-        return ret
-```
-
-```TypeScript
-function maximalRectangle(matrix: string[][]): number {
-    const m = matrix.length;
-    if (m === 0) {
-        return 0;
-    }
-    const n = matrix[0].length;
-    const left: number[][] = Array.from({ length: m }, () => Array(n).fill(0));
-
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (matrix[i][j] === '1') {
-                left[i][j] = (j === 0 ? 0 : left[i][j - 1]) + 1;
-            }
-        }
-    }
-
-    let ret = 0;
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (matrix[i][j] === '0') {
-                continue;
-            }
-            let width = left[i][j];
-            let area = width;
-            for (let k = i - 1; k >= 0; k--) {
-                width = Math.min(width, left[k][j]);
-                area = Math.max(area, (i - k + 1) * width);
-            }
-            ret = Math.max(ret, area);
-        }
-    }
-    return ret;
-}
-```
-
-```Rust
-impl Solution {
-    pub fn maximal_rectangle(matrix: Vec<Vec<char>>) -> i32 {
-        let m = matrix.len();
-        if m == 0 {
-            return 0;
-        }
-        let n = matrix[0].len();
-        let mut left = vec![vec![0; n]; m];
-
-        for i in 0..m {
-            for j in 0..n {
-                if matrix[i][j] == '1' {
-                    left[i][j] = if j == 0 { 0 } else { left[i][j - 1] } + 1;
-                }
-            }
-        }
-
-        let mut ret = 0;
-        for i in 0..m {
-            for j in 0..n {
-                if matrix[i][j] == '0' {
-                    continue;
-                }
-                let mut width = left[i][j];
-                let mut area = width;
-                for k in (0..i).rev() {
-                    width = width.min(left[k][j]);
-                    area = area.max((i - k + 1) * width);
-                }
-                ret = ret.max(area);
-            }
-        }
-        ret as i32
-    }
-}
-```
-
 **复杂度分析**
 
 * 时间复杂度：$O(m^2n)$，其中 $m$ 和 $n$ 分别是矩阵的行数和列数。计算 $\textit{left}$ 矩阵需要 $O(mn)$ 的时间。随后对于矩阵的每个点，需要 $O(m)$ 的时间枚举高度。故总的时间复杂度为 $O(mn) + O(mn) \cdot O(m) = O(m^2n)$。
@@ -33660,7 +15915,7 @@ impl Solution {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int maximalRectangle(vector<vector<char>>& matrix) {
@@ -33709,413 +15964,6 @@ public:
         return ret;
     }
 };
-```
-
-```Java
-class Solution {
-    public int maximalRectangle(char[][] matrix) {
-        int m = matrix.length;
-        if (m == 0) {
-            return 0;
-        }
-        int n = matrix[0].length;
-        int[][] left = new int[m][n];
-
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == '1') {
-                    left[i][j] = (j == 0 ? 0 : left[i][j - 1]) + 1;
-                }
-            }
-        }
-
-        int ret = 0;
-        for (int j = 0; j < n; j++) { // 对于每一列，使用基于柱状图的方法
-            int[] up = new int[m];
-            int[] down = new int[m];
-
-            Deque<Integer> stack = new ArrayDeque<Integer>();
-            for (int i = 0; i < m; i++) {
-                while (!stack.isEmpty() && left[stack.peek()][j] >= left[i][j]) {
-                    stack.pop();
-                }
-                up[i] = stack.isEmpty() ? -1 : stack.peek();
-                stack.push(i);
-            }
-            stack.clear();
-            for (int i = m - 1; i >= 0; i--) {
-                while (!stack.isEmpty() && left[stack.peek()][j] >= left[i][j]) {
-                    stack.pop();
-                }
-                down[i] = stack.isEmpty() ? m : stack.peek();
-                stack.push(i);
-            }
-
-            for (int i = 0; i < m; i++) {
-                int height = down[i] - up[i] - 1;
-                int area = height * left[i][j];
-                ret = Math.max(ret, area);
-            }
-        }
-        return ret;
-    }
-}
-```
-
-```JavaScript
-var maximalRectangle = function(matrix) {
-    const m = matrix.length;
-    if (m === 0) {
-        return 0;
-    }
-    const n = matrix[0].length;
-    const left = new Array(m).fill(0).map(() => new Array(n).fill(0));
-
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (matrix[i][j] === '1') {
-                left[i][j] = (j === 0 ? 0 : left[i][j - 1]) + 1;
-            }
-        }
-    }
-
-    let ret = 0;
-    for (let j = 0; j < n; j++) { // 对于每一列，使用基于柱状图的方法
-        const up = new Array(m).fill(0);
-        const down = new Array(m).fill(0);
-
-        let stack = new Array();
-        for (let i = 0; i < m; i++) {
-            while (stack.length && left[stack[stack.length - 1]][j] >= left[i][j]) {
-                stack.pop();
-            }
-            up[i] = stack.length === 0 ? -1 : stack[stack.length - 1];
-            stack.push(i);
-        }
-        stack = [];
-        for (let i = m - 1; i >= 0; i--) {
-            while (stack.length && left[stack[stack.length - 1]][j] >= left[i][j]) {
-                stack.pop();
-            }
-            down[i] = stack.length === 0 ? m : stack[stack.length - 1];
-            stack.push(i);
-        }
-
-        for (let i = 0; i < m; i++) {
-            const height = down[i] - up[i] - 1;
-            const area = height * left[i][j];
-            ret = Math.max(ret, area);
-        }
-    }
-    return ret;
-};
-```
-
-```go
-func maximalRectangle(matrix [][]byte) (ans int) {
-    if len(matrix) == 0 {
-        return
-    }
-    m, n := len(matrix), len(matrix[0])
-    left := make([][]int, m)
-    for i, row := range matrix {
-        left[i] = make([]int, n)
-        for j, v := range row {
-            if v == '0' {
-                continue
-            }
-            if j == 0 {
-                left[i][j] = 1
-            } else {
-                left[i][j] = left[i][j-1] + 1
-            }
-        }
-    }
-    for j := 0; j < n; j++ { // 对于每一列，使用基于柱状图的方法
-        up := make([]int, m)
-        down := make([]int, m)
-        stk := []int{}
-        for i, l := range left {
-            for len(stk) > 0 && left[stk[len(stk)-1]][j] >= l[j] {
-                stk = stk[:len(stk)-1]
-            }
-            up[i] = -1
-            if len(stk) > 0 {
-                up[i] = stk[len(stk)-1]
-            }
-            stk = append(stk, i)
-        }
-        stk = nil
-        for i := m - 1; i >= 0; i-- {
-            for len(stk) > 0 && left[stk[len(stk)-1]][j] >= left[i][j] {
-                stk = stk[:len(stk)-1]
-            }
-            down[i] = m
-            if len(stk) > 0 {
-                down[i] = stk[len(stk)-1]
-            }
-            stk = append(stk, i)
-        }
-        for i, l := range left {
-            height := down[i] - up[i] - 1
-            area := height * l[j]
-            ans = max(ans, area)
-        }
-    }
-    return
-}
-
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
-}
-```
-
-```C
-int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize) {
-    int m = matrixSize;
-    if (m == 0) {
-        return 0;
-    }
-    int n = matrixColSize[0];
-    int left[m][n];
-    memset(left, 0, sizeof(left));
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            if (matrix[i][j] == '1') {
-                left[i][j] = (j == 0 ? 0 : left[i][j - 1]) + 1;
-            }
-        }
-    }
-
-    int ret = 0;
-    for (int j = 0; j < n; j++) {  // 对于每一列，使用基于柱状图的方法
-        int up[m], down[m];
-        memset(up, 0, sizeof(up));
-        memset(down, 0, sizeof(down));
-        int stk[m], top = 0;
-        for (int i = 0; i < m; i++) {
-            while (top > 0 && left[stk[top - 1]][j] >= left[i][j]) {
-                top--;
-            }
-            up[i] = top == 0 ? -1 : stk[top - 1];
-            stk[top++] = i;
-        }
-        top = 0;
-        for (int i = m - 1; i >= 0; i--) {
-            while (top > 0 && left[stk[top - 1]][j] >= left[i][j]) {
-                top--;
-            }
-            down[i] = top == 0 ? m : stk[top - 1];
-            stk[top++] = i;
-        }
-
-        for (int i = 0; i < m; i++) {
-            int height = down[i] - up[i] - 1;
-            int area = height * left[i][j];
-            ret = fmax(ret, area);
-        }
-    }
-    return ret;
-}
-```
-
-```C#
-public class Solution {
-    public int MaximalRectangle(char[][] matrix) {
-        int m = matrix.Length;
-        if (m == 0) return 0;
-        int n = matrix[0].Length;
-        int[][] left = new int[m][];
-        for (int i = 0; i < m; i++) {
-            left[i] = new int[n];
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == '1') {
-                    left[i][j] = (j == 0 ? 0 : left[i][j - 1]) + 1;
-                }
-            }
-        }
-
-        int ret = 0;
-        for (int j = 0; j < n; j++) {
-            int[] up = new int[m];
-            int[] down = new int[m];
-            Stack<int> stk = new Stack<int>();
-
-            for (int i = 0; i < m; i++) {
-                while (stk.Count > 0 && left[stk.Peek()][j] >= left[i][j])
-                    stk.Pop();
-                up[i] = stk.Count == 0 ? -1 : stk.Peek();
-                stk.Push(i);
-            }
-
-            stk.Clear();
-            for (int i = m - 1; i >= 0; i--) {
-                while (stk.Count > 0 && left[stk.Peek()][j] >= left[i][j])
-                    stk.Pop();
-                down[i] = stk.Count == 0 ? m : stk.Peek();
-                stk.Push(i);
-            }
-
-            for (int i = 0; i < m; i++) {
-                int height = down[i] - up[i] - 1;
-                ret = Math.Max(ret, height * left[i][j]);
-            }
-        }
-        return ret;
-    }
-}
-```
-
-```Python
-class Solution:
-    def maximalRectangle(self, matrix: List[List[str]]) -> int:
-        if not matrix:
-            return 0
-        m, n = len(matrix), len(matrix[0])
-        left = [[0] * n for _ in range(m)]
-
-        for i in range(m):
-            for j in range(n):
-                if matrix[i][j] == '1':
-                    left[i][j] = (0 if j == 0 else left[i][j - 1]) + 1
-
-        ret = 0
-        for j in range(n):
-            up = [0] * m
-            down = [0] * m
-            stk = []
-
-            for i in range(m):
-                while stk and left[stk[-1]][j] >= left[i][j]:
-                    stk.pop()
-                up[i] = stk[-1] if stk else -1
-                stk.append(i)
-
-            stk = []
-            for i in range(m - 1, -1, -1):
-                while stk and left[stk[-1]][j] >= left[i][j]:
-                    stk.pop()
-                down[i] = stk[-1] if stk else m
-                stk.append(i)
-
-            for i in range(m):
-                height = down[i] - up[i] - 1
-                ret = max(ret, height * left[i][j])
-
-        return ret
-```
-
-```TypeScript
-function maximalRectangle(matrix: string[][]): number {
-    const m = matrix.length;
-    if (m === 0) {
-        return 0;
-    }
-    const n = matrix[0].length;
-    const left: number[][] = Array.from({ length: m }, () => Array(n).fill(0));
-
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (matrix[i][j] === '1') {
-                left[i][j] = (j === 0 ? 0 : left[i][j - 1]) + 1;
-            }
-        }
-    }
-
-    let ret = 0;
-    for (let j = 0; j < n; j++) {
-        const up: number[] = new Array(m);
-        const down: number[] = new Array(m);
-        const stk: number[] = [];
-
-        for (let i = 0; i < m; i++) {
-            while (stk.length && left[stk[stk.length - 1]][j] >= left[i][j]) {
-                stk.pop();
-            }
-            up[i] = stk.length ? stk[stk.length - 1] : -1;
-            stk.push(i);
-        }
-
-        stk.length = 0;
-        for (let i = m - 1; i >= 0; i--) {
-            while (stk.length && left[stk[stk.length - 1]][j] >= left[i][j]) {
-                stk.pop();
-            }
-            down[i] = stk.length ? stk[stk.length - 1] : m;
-            stk.push(i);
-        }
-
-        for (let i = 0; i < m; i++) {
-            const height = down[i] - up[i] - 1;
-            ret = Math.max(ret, height * left[i][j]);
-        }
-    }
-
-    return ret;
-}
-```
-
-```Rust
-impl Solution {
-    pub fn maximal_rectangle(matrix: Vec<Vec<char>>) -> i32 {
-        let m = matrix.len();
-        if m == 0 {
-            return 0;
-        }
-        let n = matrix[0].len();
-        let mut left = vec![vec![0; n]; m];
-
-        for i in 0..m {
-            for j in 0..n {
-                if matrix[i][j] == '1' {
-                    left[i][j] = if j == 0 { 0 } else { left[i][j - 1] } + 1;
-                }
-            }
-        }
-
-        let mut ret = 0;
-        for j in 0..n {
-            let mut up = vec![0; m];
-            let mut down = vec![0; m];
-            let mut stk: Vec<usize> = Vec::new();
-
-            for i in 0..m {
-                while let Some(&top) = stk.last() {
-                    if left[top][j] >= left[i][j] {
-                        stk.pop();
-                    } else {
-                        break;
-                    }
-                }
-                up[i] = stk.last().map(|&x| x as i32).unwrap_or(-1);
-                stk.push(i);
-            }
-
-            stk.clear();
-            for i in (0..m).rev() {
-                while let Some(&top) = stk.last() {
-                    if left[top][j] >= left[i][j] {
-                        stk.pop();
-                    } else {
-                        break;
-                    }
-                }
-                down[i] = stk.last().copied().unwrap_or(m);
-                stk.push(i);
-            }
-
-            for i in 0..m {
-                let height = down[i] - up[i] as usize - 1;
-                ret = ret.max(height * left[i][j]);
-            }
-        }
-
-        ret as i32
-    }
-}
 ```
 
 读者可以自行比对上面的代码与此前第 84 题的代码的相似之处。
@@ -34187,7 +16035,7 @@ public:
 
 - 如果我们枚举「宽」，我们可以使用两重循环枚举矩形的左右边界以固定宽度 $w$，此时矩形的高度 $h$，就是所有包含在内的柱子的「最小高度」，对应的面积为 $w \times h$。下面给出了这种方法的 `C++` 代码。
 
-```C++
+```cpp
 class Solution {
 public:
     int largestRectangleArea(vector<int>& heights) {
@@ -34211,7 +16059,7 @@ public:
 
 - 如果我们枚举「高」，我们可以使用一重循环枚举某一根柱子，将其固定为矩形的高度 $h$。随后我们从这跟柱子开始向两侧延伸，直到遇到高度小于 $h$ 的柱子，就确定了矩形的左右边界。如果左右边界之间的宽度为 $w$，那么对应的面积为 $w \times h$。下面给出了这种方法的 `C++` 代码。
 
-```C++
+```cpp
 class Solution {
 public:
     int largestRectangleArea(vector<int>& heights) {
@@ -34320,7 +16168,7 @@ $$
 
 因此当我们从左向右/总右向左遍历数组时，对栈的操作的次数就为 $O(N)$。所以单调栈的总时间复杂度为 $O(N)$。
 
-```C++
+```cpp
 class Solution {
 public:
     int largestRectangleArea(vector<int>& heights) {
@@ -34354,107 +16202,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int largestRectangleArea(int[] heights) {
-        int n = heights.length;
-        int[] left = new int[n];
-        int[] right = new int[n];
-        
-        Deque<Integer> mono_stack = new ArrayDeque<Integer>();
-        for (int i = 0; i < n; ++i) {
-            while (!mono_stack.isEmpty() && heights[mono_stack.peek()] >= heights[i]) {
-                mono_stack.pop();
-            }
-            left[i] = (mono_stack.isEmpty() ? -1 : mono_stack.peek());
-            mono_stack.push(i);
-        }
-
-        mono_stack.clear();
-        for (int i = n - 1; i >= 0; --i) {
-            while (!mono_stack.isEmpty() && heights[mono_stack.peek()] >= heights[i]) {
-                mono_stack.pop();
-            }
-            right[i] = (mono_stack.isEmpty() ? n : mono_stack.peek());
-            mono_stack.push(i);
-        }
-        
-        int ans = 0;
-        for (int i = 0; i < n; ++i) {
-            ans = Math.max(ans, (right[i] - left[i] - 1) * heights[i]);
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def largestRectangleArea(self, heights: List[int]) -> int:
-        n = len(heights)
-        left, right = [0] * n, [0] * n
-
-        mono_stack = list()
-        for i in range(n):
-            while mono_stack and heights[mono_stack[-1]] >= heights[i]:
-                mono_stack.pop()
-            left[i] = mono_stack[-1] if mono_stack else -1
-            mono_stack.append(i)
-        
-        mono_stack = list()
-        for i in range(n - 1, -1, -1):
-            while mono_stack and heights[mono_stack[-1]] >= heights[i]:
-                mono_stack.pop()
-            right[i] = mono_stack[-1] if mono_stack else n
-            mono_stack.append(i)
-        
-        ans = max((right[i] - left[i] - 1) * heights[i] for i in range(n)) if n > 0 else 0
-        return ans
-```
-
-```golang
-func largestRectangleArea(heights []int) int {
-    n := len(heights)
-    left, right := make([]int, n), make([]int, n)
-    mono_stack := []int{}
-    for i := 0; i < n; i++ {
-        for len(mono_stack) > 0 && heights[mono_stack[len(mono_stack)-1]] >= heights[i] {
-            mono_stack = mono_stack[:len(mono_stack)-1]
-        }
-        if len(mono_stack) == 0 {
-            left[i] = -1
-        } else {
-            left[i] = mono_stack[len(mono_stack)-1]
-        }
-        mono_stack = append(mono_stack, i)
-    }
-    mono_stack = []int{}
-    for i := n - 1; i >= 0; i-- {
-        for len(mono_stack) > 0 && heights[mono_stack[len(mono_stack)-1]] >= heights[i] {
-            mono_stack = mono_stack[:len(mono_stack)-1]
-        }
-        if len(mono_stack) == 0 {
-            right[i] = n
-        } else {
-            right[i] = mono_stack[len(mono_stack)-1]
-        }
-        mono_stack = append(mono_stack, i)
-    }
-    ans := 0
-    for i := 0; i < n; i++ {
-        ans = max(ans, (right[i] - left[i] - 1) * heights[i])
-    }
-    return ans
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：$O(N)$。
@@ -34475,7 +16222,7 @@ func max(x, y int) int {
 
 <![fig1](https://assets.leetcode.cn/solution-static/84/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/84/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/84/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/84/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/84/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/84/6.PNG),![fig7](https://assets.leetcode.cn/solution-static/84/7.PNG),![fig8](https://assets.leetcode.cn/solution-static/84/8.PNG),![fig9](https://assets.leetcode.cn/solution-static/84/9.PNG),![fig10](https://assets.leetcode.cn/solution-static/84/10.PNG),![fig11](https://assets.leetcode.cn/solution-static/84/11.PNG),![fig12](https://assets.leetcode.cn/solution-static/84/12.PNG),![fig13](https://assets.leetcode.cn/solution-static/84/13.PNG),![fig14](https://assets.leetcode.cn/solution-static/84/14.PNG),![fig15](https://assets.leetcode.cn/solution-static/84/15.PNG),![fig16](https://assets.leetcode.cn/solution-static/84/16.PNG),![fig17](https://assets.leetcode.cn/solution-static/84/17.PNG),![fig18](https://assets.leetcode.cn/solution-static/84/18.PNG)>
 
-```C++
+```cpp
 class Solution {
 public:
     int largestRectangleArea(vector<int>& heights) {
@@ -34499,86 +16246,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    public int largestRectangleArea(int[] heights) {
-        int n = heights.length;
-        int[] left = new int[n];
-        int[] right = new int[n];
-        Arrays.fill(right, n);
-        
-        Deque<Integer> mono_stack = new ArrayDeque<Integer>();
-        for (int i = 0; i < n; ++i) {
-            while (!mono_stack.isEmpty() && heights[mono_stack.peek()] >= heights[i]) {
-                right[mono_stack.peek()] = i;
-                mono_stack.pop();
-            }
-            left[i] = (mono_stack.isEmpty() ? -1 : mono_stack.peek());
-            mono_stack.push(i);
-        }
-        
-        int ans = 0;
-        for (int i = 0; i < n; ++i) {
-            ans = Math.max(ans, (right[i] - left[i] - 1) * heights[i]);
-        }
-        return ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def largestRectangleArea(self, heights: List[int]) -> int:
-        n = len(heights)
-        left, right = [0] * n, [n] * n
-
-        mono_stack = list()
-        for i in range(n):
-            while mono_stack and heights[mono_stack[-1]] >= heights[i]:
-                right[mono_stack[-1]] = i
-                mono_stack.pop()
-            left[i] = mono_stack[-1] if mono_stack else -1
-            mono_stack.append(i)
-        
-        ans = max((right[i] - left[i] - 1) * heights[i] for i in range(n)) if n > 0 else 0
-        return ans
-```
-
-```golang
-func largestRectangleArea(heights []int) int {
-    n := len(heights)
-    left, right := make([]int, n), make([]int, n)
-    for i := 0; i < n; i++ {
-        right[i] = n
-    }
-    mono_stack := []int{}
-    for i := 0; i < n; i++ {
-        for len(mono_stack) > 0 && heights[mono_stack[len(mono_stack)-1]] >= heights[i] {
-            right[mono_stack[len(mono_stack)-1]] = i
-            mono_stack = mono_stack[:len(mono_stack)-1]
-        }
-        if len(mono_stack) == 0 {
-            left[i] = -1
-        } else {
-            left[i] = mono_stack[len(mono_stack)-1]
-        }
-        mono_stack = append(mono_stack, i)
-    }
-    ans := 0
-    for i := 0; i < n; i++ {
-        ans = max(ans, (right[i] - left[i] - 1) * heights[i])
-    }
-    return ans
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
 ```
 
 **复杂度分析**
@@ -34660,23 +16327,7 @@ public:
 
 **代码**
 
-```Java
-class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        int n = nums.length;
-        for (int i = 0; i < n; ++i) {
-            for (int j = i + 1; j < n; ++j) {
-                if (nums[i] + nums[j] == target) {
-                    return new int[]{i, j};
-                }
-            }
-        }
-        return new int[0];
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> twoSum(vector<int>& nums, int target) {
@@ -34691,48 +16342,6 @@ public:
         return {};
     }
 };
-```
-
-```C
-int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
-    for (int i = 0; i < numsSize; ++i) {
-        for (int j = i + 1; j < numsSize; ++j) {
-            if (nums[i] + nums[j] == target) {
-                int* ret = malloc(sizeof(int) * 2);
-                ret[0] = i, ret[1] = j;
-                *returnSize = 2;
-                return ret;
-            }
-        }
-    }
-    *returnSize = 0;
-    return NULL;
-}
-```
-
-```Python
-class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
-        n = len(nums)
-        for i in range(n):
-            for j in range(i + 1, n):
-                if nums[i] + nums[j] == target:
-                    return [i, j]
-        
-        return []
-```
-
-```Golang
-func twoSum(nums []int, target int) []int {
-    for i, x := range nums {
-        for j := i + 1; j < len(nums); j++ {
-            if x+nums[j] == target {
-                return []int{i, j}
-            }
-        }
-    }
-    return nil
-}
 ```
 
 **复杂度分析**
@@ -34753,22 +16362,7 @@ func twoSum(nums []int, target int) []int {
 
 **代码**
 
-```Java
-class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        Map<Integer, Integer> hashtable = new HashMap<Integer, Integer>();
-        for (int i = 0; i < nums.length; ++i) {
-            if (hashtable.containsKey(target - nums[i])) {
-                return new int[]{hashtable.get(target - nums[i]), i};
-            }
-            hashtable.put(nums[i], i);
-        }
-        return new int[0];
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<int> twoSum(vector<int>& nums, int target) {
@@ -34783,73 +16377,6 @@ public:
         return {};
     }
 };
-```
-
-```C
-struct hashTable {
-    int key;
-    int val;
-    UT_hash_handle hh;
-};
-
-struct hashTable* hashtable;
-
-struct hashTable* find(int ikey) {
-    struct hashTable* tmp;
-    HASH_FIND_INT(hashtable, &ikey, tmp);
-    return tmp;
-}
-
-void insert(int ikey, int ival) {
-    struct hashTable* it = find(ikey);
-    if (it == NULL) {
-        struct hashTable* tmp = malloc(sizeof(struct hashTable));
-        tmp->key = ikey, tmp->val = ival;
-        HASH_ADD_INT(hashtable, key, tmp);
-    } else {
-        it->val = ival;
-    }
-}
-
-int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
-    hashtable = NULL;
-    for (int i = 0; i < numsSize; i++) {
-        struct hashTable* it = find(target - nums[i]);
-        if (it != NULL) {
-            int* ret = malloc(sizeof(int) * 2);
-            ret[0] = it->val, ret[1] = i;
-            *returnSize = 2;
-            return ret;
-        }
-        insert(nums[i], i);
-    }
-    *returnSize = 0;
-    return NULL;
-}
-```
-
-```Python
-class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
-        hashtable = dict()
-        for i, num in enumerate(nums):
-            if target - num in hashtable:
-                return [hashtable[target - num], i]
-            hashtable[nums[i]] = i
-        return []
-```
-
-```Golang
-func twoSum(nums []int, target int) []int {
-    hashTable := map[int]int{}
-    for i, x := range nums {
-        if p, ok := hashTable[target-x]; ok {
-            return []int{p, i}
-        }
-        hashTable[x] = i
-    }
-    return nil
-}
 ```
 
 **复杂度分析**
@@ -34951,82 +16478,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    List<Integer> t = new ArrayList<Integer>();
-    List<List<Integer>> ans = new ArrayList<List<Integer>>();
-
-    public List<List<Integer>> subsets(int[] nums) {
-        int n = nums.length;
-        for (int mask = 0; mask < (1 << n); ++mask) {
-            t.clear();
-            for (int i = 0; i < n; ++i) {
-                if ((mask & (1 << i)) != 0) {
-                    t.add(nums[i]);
-                }
-            }
-            ans.add(new ArrayList<Integer>(t));
-        }
-        return ans;
-    }
-}
-```
-
-```Golang
-func subsets(nums []int) (ans [][]int) {
-    n := len(nums)
-    for mask := 0; mask < 1<<n; mask++ {
-        set := []int{}
-        for i, v := range nums {
-            if mask>>i&1 > 0 {
-                set = append(set, v)
-            }
-        }
-        ans = append(ans, append([]int(nil), set...))
-    }
-    return
-}
-```
-
-```JavaScript
-var subsets = function(nums) {
-    const ans = [];
-    const n = nums.length;
-    for (let mask = 0; mask < (1 << n); ++mask) {
-        const t = [];
-        for (let i = 0; i < n; ++i) {
-            if (mask & (1 << i)) {
-                t.push(nums[i]);
-            }
-        }
-        ans.push(t);
-    }
-    return ans;
-};
-```
-
-```C
-int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
-    int** ans = malloc(sizeof(int*) * (1 << numsSize));
-    *returnColumnSizes = malloc(sizeof(int) * (1 << numsSize));
-    *returnSize = 1 << numsSize;
-    int t[numsSize];
-    for (int mask = 0; mask < (1 << numsSize); ++mask) {
-        int tSize = 0;
-        for (int i = 0; i < numsSize; ++i) {
-            if (mask & (1 << i)) {
-                t[tSize++] = nums[i];
-            }
-        }
-        int* tmp = malloc(sizeof(int) * tSize);
-        memcpy(tmp, t, sizeof(int) * tSize);
-        (*returnColumnSizes)[mask] = tSize;
-        ans[mask] = tmp;
-    }
-    return ans;
-}
-```
-
 **复杂度分析**
 
 + 时间复杂度：$O(n \times 2^n)$。一共 $2^n$ 个状态，每种状态需要 $O(n)$ 的时间来构造子集。
@@ -35084,101 +16535,6 @@ public:
         return ans;
     }
 };
-```
-
-```Java
-class Solution {
-    List<Integer> t = new ArrayList<Integer>();
-    List<List<Integer>> ans = new ArrayList<List<Integer>>();
-
-    public List<List<Integer>> subsets(int[] nums) {
-        dfs(0, nums);
-        return ans;
-    }
-
-    public void dfs(int cur, int[] nums) {
-        if (cur == nums.length) {
-            ans.add(new ArrayList<Integer>(t));
-            return;
-        }
-        t.add(nums[cur]);
-        dfs(cur + 1, nums);
-        t.remove(t.size() - 1);
-        dfs(cur + 1, nums);
-    }
-}
-```
-
-```Golang
-func subsets(nums []int) (ans [][]int) {
-    set := []int{}
-    var dfs func(int)
-    dfs = func(cur int) {
-        if cur == len(nums) {
-            ans = append(ans, append([]int(nil), set...))
-            return
-        }
-        set = append(set, nums[cur])
-        dfs(cur + 1)
-        set = set[:len(set)-1]
-        dfs(cur + 1)
-    }
-    dfs(0)
-    return
-}
-```
-
-```JavaScript
-var subsets = function(nums) {
-    const t = [];
-    const ans = [];
-    const dfs = (cur) => {
-        if (cur === nums.length) {
-            ans.push(t.slice());
-            return;
-        }
-        t.push(nums[cur]);
-        dfs(cur + 1);
-        t.pop(t.length - 1);
-        dfs(cur + 1);
-    }
-    dfs(0);
-    return ans;
-};
-```
-
-```C
-int** ans;
-int* ansColSize;
-int ansSize;
-
-int* t;
-int tSize;
-
-void dfs(int cur, int* nums, int numsSize) {
-    if (cur == numsSize) {
-        int* tmp = malloc(sizeof(int) * tSize);
-        memcpy(tmp, t, sizeof(int) * tSize);
-        ansColSize[ansSize] = tSize;
-        ans[ansSize++] = tmp;
-        return;
-    }
-    t[tSize++] = nums[cur];
-    dfs(cur + 1, nums, numsSize);
-    tSize--;
-    dfs(cur + 1, nums, numsSize);
-}
-
-int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
-    ans = malloc(sizeof(int*) * (1 << numsSize));
-    ansColSize = malloc(sizeof(int) * (1 << numsSize));
-    t = malloc(sizeof(int) * numsSize);
-    *returnSize = 1 << numsSize;
-    ansSize = tSize = 0;
-    dfs(0, nums, numsSize);
-    *returnColumnSizes = ansColSize;
-    return ans;
-}
 ```
 
 **复杂度分析**
@@ -35313,96 +16669,6 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    Map<Character, Integer> ori = new HashMap<Character, Integer>();
-    Map<Character, Integer> cnt = new HashMap<Character, Integer>();
-
-    public String minWindow(String s, String t) {
-        int tLen = t.length();
-        for (int i = 0; i < tLen; i++) {
-            char c = t.charAt(i);
-            ori.put(c, ori.getOrDefault(c, 0) + 1);
-        }
-        int l = 0, r = -1;
-        int len = Integer.MAX_VALUE, ansL = -1, ansR = -1;
-        int sLen = s.length();
-        while (r < sLen) {
-            ++r;
-            if (r < sLen && ori.containsKey(s.charAt(r))) {
-                cnt.put(s.charAt(r), cnt.getOrDefault(s.charAt(r), 0) + 1);
-            }
-            while (check() && l <= r) {
-                if (r - l + 1 < len) {
-                    len = r - l + 1;
-                    ansL = l;
-                    ansR = l + len;
-                }
-                if (ori.containsKey(s.charAt(l))) {
-                    cnt.put(s.charAt(l), cnt.getOrDefault(s.charAt(l), 0) - 1);
-                }
-                ++l;
-            }
-        }
-        return ansL == -1 ? "" : s.substring(ansL, ansR);
-    }
-
-    public boolean check() {
-        Iterator iter = ori.entrySet().iterator(); 
-        while (iter.hasNext()) { 
-            Map.Entry entry = (Map.Entry) iter.next(); 
-            Character key = (Character) entry.getKey(); 
-            Integer val = (Integer) entry.getValue(); 
-            if (cnt.getOrDefault(key, 0) < val) {
-                return false;
-            }
-        } 
-        return true;
-    }
-}
-```
-
-```golang
-func minWindow(s string, t string) string {
-    ori, cnt := map[byte]int{}, map[byte]int{}
-    for i := 0; i < len(t); i++ {
-        ori[t[i]]++
-    }
-
-    sLen := len(s)
-    len := math.MaxInt32
-    ansL, ansR := -1, -1
-
-    check := func() bool {
-        for k, v := range ori {
-            if cnt[k] < v {
-                return false
-            }
-        }
-        return true
-    }
-    for l, r := 0, 0; r < sLen; r++ {
-        if r < sLen && ori[s[r]] > 0 {
-            cnt[s[r]]++
-        }
-        for check() && l <= r {
-            if (r - l + 1 < len) {
-                len = r - l + 1
-                ansL, ansR = l, l + len
-            }
-            if _, ok := ori[s[l]]; ok {
-                cnt[s[l]] -= 1
-            }
-            l++
-        }
-    }
-    if ansL == -1 {
-        return ""
-    }
-    return s[ansL:ansR]
-}
-```
-
 **复杂度分析**
 
 + 时间复杂度：最坏情况下左右指针对 $s$ 的每个元素各遍历一遍，哈希表中对 $s$ 中的每个元素各插入、删除一次，对 $t$ 中的元素各插入一次。每次检查是否可行会遍历整个 $t$ 的哈希表，哈希表的大小与字符集的大小有关，设字符集大小为 $C$，则渐进时间复杂度为 $O(C\cdot |s| + |t|)$。
@@ -35490,7 +16756,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     void sortColors(vector<int>& nums) {
@@ -35510,86 +16776,6 @@ public:
         }
     }
 };
-```
-
-```Java
-class Solution {
-    public void sortColors(int[] nums) {
-        int n = nums.length;
-        int ptr = 0;
-        for (int i = 0; i < n; ++i) {
-            if (nums[i] == 0) {
-                int temp = nums[i];
-                nums[i] = nums[ptr];
-                nums[ptr] = temp;
-                ++ptr;
-            }
-        }
-        for (int i = ptr; i < n; ++i) {
-            if (nums[i] == 1) {
-                int temp = nums[i];
-                nums[i] = nums[ptr];
-                nums[ptr] = temp;
-                ++ptr;
-            }
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def sortColors(self, nums: List[int]) -> None:
-        n = len(nums)
-        ptr = 0
-        for i in range(n):
-            if nums[i] == 0:
-                nums[i], nums[ptr] = nums[ptr], nums[i]
-                ptr += 1
-        for i in range(ptr, n):
-            if nums[i] == 1:
-                nums[i], nums[ptr] = nums[ptr], nums[i]
-                ptr += 1
-```
-
-```Golang
-func swapColors(colors []int, target int) (countTarget int) {
-    for i, c := range colors {
-        if c == target {
-            colors[i], colors[countTarget] = colors[countTarget], colors[i]
-            countTarget++
-        }
-    }
-    return
-}
-
-func sortColors(nums []int) {
-    count0 := swapColors(nums, 0) // 把 0 排到前面
-    swapColors(nums[count0:], 1)  // nums[:count0] 全部是 0 了，对剩下的 nums[count0:] 把 1 排到前面
-}
-```
-
-```C
-void swap(int *a, int *b) {
-    int t = *a;
-    *a = *b, *b = t;
-}
-
-void sortColors(int *nums, int numsSize) {
-    int ptr = 0;
-    for (int i = 0; i < numsSize; ++i) {
-        if (nums[i] == 0) {
-            swap(&nums[i], &nums[ptr]);
-            ++ptr;
-        }
-    }
-    for (int i = ptr; i < numsSize; ++i) {
-        if (nums[i] == 1) {
-            swap(&nums[i], &nums[ptr]);
-            ++ptr;
-        }
-    }
-}
 ```
 
 **复杂度分析**
@@ -35614,7 +16800,7 @@ void sortColors(int *nums, int numsSize) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     void sortColors(vector<int>& nums) {
@@ -35635,94 +16821,6 @@ public:
         }
     }
 };
-```
-
-```Java
-class Solution {
-    public void sortColors(int[] nums) {
-        int n = nums.length;
-        int p0 = 0, p1 = 0;
-        for (int i = 0; i < n; ++i) {
-            if (nums[i] == 1) {
-                int temp = nums[i];
-                nums[i] = nums[p1];
-                nums[p1] = temp;
-                ++p1;
-            } else if (nums[i] == 0) {
-                int temp = nums[i];
-                nums[i] = nums[p0];
-                nums[p0] = temp;
-                if (p0 < p1) {
-                    temp = nums[i];
-                    nums[i] = nums[p1];
-                    nums[p1] = temp;
-                }
-                ++p0;
-                ++p1;
-            }
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def sortColors(self, nums: List[int]) -> None:
-        n = len(nums)
-        p0 = p1 = 0
-        for i in range(n):
-            if nums[i] == 1:
-                nums[i], nums[p1] = nums[p1], nums[i]
-                p1 += 1
-            elif nums[i] == 0:
-                nums[i], nums[p0] = nums[p0], nums[i]
-                if p0 < p1:
-                    nums[i], nums[p1] = nums[p1], nums[i]
-                p0 += 1
-                p1 += 1
-```
-
-```Golang
-func sortColors(nums []int) {
-    p0, p1 := 0, 0
-    for i, c := range nums {
-        if c == 0 {
-            nums[i], nums[p0] = nums[p0], nums[i]
-            if p0 < p1 {
-                nums[i], nums[p1] = nums[p1], nums[i]
-            }
-            p0++
-            p1++
-        } else if c == 1 {
-            nums[i], nums[p1] = nums[p1], nums[i]
-            p1++
-        }
-    }
-}
-```
-
-```C
-void swap(int *a, int *b) {
-    int t = *a;
-    *a = *b, *b = t;
-}
-
-void sortColors(int *nums, int numsSize) {
-    int p0 = 0, p1 = 0;
-    for (int i = 0; i < numsSize; ++i) {
-        if (nums[i] == 1) {
-            swap(&nums[i], &nums[p1]);
-            ++p1;
-        } else if (nums[i] == 0) {
-            swap(&nums[i], &nums[p0]);
-            if (p0 < p1) {
-                swap(&nums[i], &nums[p1]);
-            }
-            ++p0;
-            ++p1;
-        }
-    }
-}
 ```
 
 **复杂度分析**
@@ -35753,7 +16851,7 @@ void sortColors(int *nums, int numsSize) {
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     void sortColors(vector<int>& nums) {
@@ -35771,81 +16869,6 @@ public:
         }
     }
 };
-```
-
-```Java
-class Solution {
-    public void sortColors(int[] nums) {
-        int n = nums.length;
-        int p0 = 0, p2 = n - 1;
-        for (int i = 0; i <= p2; ++i) {
-            while (i <= p2 && nums[i] == 2) {
-                int temp = nums[i];
-                nums[i] = nums[p2];
-                nums[p2] = temp;
-                --p2;
-            }
-            if (nums[i] == 0) {
-                int temp = nums[i];
-                nums[i] = nums[p0];
-                nums[p0] = temp;
-                ++p0;
-            }
-        }
-    }
-}
-```
-
-```Python
-class Solution:
-    def sortColors(self, nums: List[int]) -> None:
-        n = len(nums)
-        p0, p2 = 0, n - 1
-        i = 0
-        while i <= p2:
-            while i <= p2 and nums[i] == 2:
-                nums[i], nums[p2] = nums[p2], nums[i]
-                p2 -= 1
-            if nums[i] == 0:
-                nums[i], nums[p0] = nums[p0], nums[i]
-                p0 += 1
-            i += 1
-```
-
-```Golang
-func sortColors(nums []int) {
-    p0, p2 := 0, len(nums)-1
-    for i := 0; i <= p2; i++ {
-        for ; i <= p2 && nums[i] == 2; p2-- {
-            nums[i], nums[p2] = nums[p2], nums[i]
-        }
-        if nums[i] == 0 {
-            nums[i], nums[p0] = nums[p0], nums[i]
-            p0++
-        }
-    }
-}
-```
-
-```C
-void swap(int *a, int *b) {
-    int t = *a;
-    *a = *b, *b = t;
-}
-
-void sortColors(int *nums, int numsSize) {
-    int p0 = 0, p2 = numsSize - 1;
-    for (int i = 0; i <= p2; ++i) {
-        while (i <= p2 && nums[i] == 2) {
-            swap(&nums[i], &nums[p2]);
-            --p2;
-        }
-        if (nums[i] == 0) {
-            swap(&nums[i], &nums[p0]);
-            ++p0;
-        }
-    }
-}
 ```
 
 **复杂度分析**
@@ -36011,78 +17034,7 @@ public:
 
 <![1.PNG](https://pic.leetcode.cn/789c8780345198976ed5d00dc9ae6dc4d7081825d596c14a720b3e0d875a95cd-%E5%B9%BB%E7%81%AF%E7%89%871.PNG),![2.PNG](https://pic.leetcode.cn/8704230781a0bc6f11ff317757c73505e8c4cb2c1ca1dcdfb9b0c84eb08d901f-%E5%B9%BB%E7%81%AF%E7%89%872.PNG),![3.PNG](https://pic.leetcode.cn/bfc8d2232a17c8999b7d700806bf0048ad4727b567ee756e01fa16750e9e0d07-%E5%B9%BB%E7%81%AF%E7%89%873.PNG),![4.PNG](https://pic.leetcode.cn/0e81d8994ffa586183a32f545c259f81d7b33baa753275a4ffb9587c65a55c15-%E5%B9%BB%E7%81%AF%E7%89%874.PNG),![5.PNG](https://pic.leetcode.cn/860fb6ce901f4de52b8bac17131d74bab4cb2b8d633e288ddb36bab1bc20249c-%E5%B9%BB%E7%81%AF%E7%89%875.PNG),![6.PNG](https://pic.leetcode.cn/f254a89172c460d91c1b454142c599f2389049bf21a7060f50f0d0aabfe09b5e-%E5%B9%BB%E7%81%AF%E7%89%876.PNG),![7.PNG](https://pic.leetcode.cn/c49fad2770eba17d15a5257aba379b675db8e8152da1883673c71822c68c9ba4-%E5%B9%BB%E7%81%AF%E7%89%877.PNG),![8.PNG](https://pic.leetcode.cn/77fa15a23a169df7f33ccd0b5445ceb0ab22ad4f77c70064944cac55affb2c49-%E5%B9%BB%E7%81%AF%E7%89%878.PNG),![9.PNG](https://pic.leetcode.cn/6f9b5036460105d06b7c98c7c2dd72389d0379e73f6621079c1db00b643c17a0-%E5%B9%BB%E7%81%AF%E7%89%879.PNG),![10.PNG](https://pic.leetcode.cn/dfa6b2c2c466502a383d60e5eadd557687e64b11f4ab3789a4d75d0bbf69d720-%E5%B9%BB%E7%81%AF%E7%89%8710.PNG),![11.PNG](https://pic.leetcode.cn/78d17699e393ec5417b5da2be35d995da9bea7e802b25d16ef6bf56b82cb3277-%E5%B9%BB%E7%81%AF%E7%89%8711.PNG),![12.PNG](https://pic.leetcode.cn/4dfdfe1748e5081aa36ccab5ec6e2737a2d38419e8cd51b2fed4611917836562-%E5%B9%BB%E7%81%AF%E7%89%8712.PNG),![13.PNG](https://pic.leetcode.cn/47d2a9d6226203e41733c89a1b72fe4c1aaa51ef09d4c20734c3e92c7a977228-%E5%B9%BB%E7%81%AF%E7%89%8713.PNG),![14.PNG](https://pic.leetcode.cn/1e3391bc602c292daa057bfa281af9f5ba53d675fe8aa08da64196518fb30ea9-%E5%B9%BB%E7%81%AF%E7%89%8714.PNG),![15.PNG](https://pic.leetcode.cn/bed40ddda779d9e7224097b4ee684f5d48707fd334310d96ecff83d78297f6d5-%E5%B9%BB%E7%81%AF%E7%89%8715.PNG),![16.PNG](https://pic.leetcode.cn/9c02287ab77434d502a57310383507623ad5adcf12c5295ed29418fe8a2c8beb-%E5%B9%BB%E7%81%AF%E7%89%8716.PNG),![17.PNG](https://pic.leetcode.cn/8c08e736fecc8c4d8b28b95b48d77609d957c7a42ef558901112f81eec6223b6-%E5%B9%BB%E7%81%AF%E7%89%8717.PNG),![18.PNG](https://pic.leetcode.cn/03ed835002669d8b1128cd5d57cd908f17cfbf8891d5f979985a6e3a07bb5a7d-%E5%B9%BB%E7%81%AF%E7%89%8718.PNG),![19.PNG](https://pic.leetcode.cn/d80ab86b923d5d0bb9ccc13c060b374c30fe714aef10ebe34ba00d8c2c427733-%E5%B9%BB%E7%81%AF%E7%89%8719.PNG)>
 
-```Java
-class Solution {
-    public int minDistance(String word1, String word2) {
-        int n = word1.length();
-        int m = word2.length();
-
-        // 有一个字符串为空串
-        if (n * m == 0) {
-            return n + m;
-        }
-
-        // DP 数组
-        int[][] D = new int[n + 1][m + 1];
-
-        // 边界状态初始化
-        for (int i = 0; i < n + 1; i++) {
-            D[i][0] = i;
-        }
-        for (int j = 0; j < m + 1; j++) {
-            D[0][j] = j;
-        }
-
-        // 计算所有 DP 值
-        for (int i = 1; i < n + 1; i++) {
-            for (int j = 1; j < m + 1; j++) {
-                int left = D[i - 1][j] + 1;
-                int down = D[i][j - 1] + 1;
-                int left_down = D[i - 1][j - 1];
-                if (word1.charAt(i - 1) != word2.charAt(j - 1)) {
-                    left_down += 1;
-                }
-                D[i][j] = Math.min(left, Math.min(down, left_down));
-            }
-        }
-        return D[n][m];
-    }
-}
-```
-
-```Python
-class Solution:
-    def minDistance(self, word1: str, word2: str) -> int:
-        n = len(word1)
-        m = len(word2)
-
-        # 有一个字符串为空串
-        if n * m == 0:
-            return n + m
-
-        # DP 数组
-        D = [ [0] * (m + 1) for _ in range(n + 1)]
-
-        # 边界状态初始化
-        for i in range(n + 1):
-            D[i][0] = i
-        for j in range(m + 1):
-            D[0][j] = j
-
-        # 计算所有 DP 值
-        for i in range(1, n + 1):
-            for j in range(1, m + 1):
-                left = D[i - 1][j] + 1
-                down = D[i][j - 1] + 1
-                left_down = D[i - 1][j - 1]
-                if word1[i - 1] != word2[j - 1]:
-                    left_down += 1
-                D[i][j] = min(left, down, left_down)
-
-        return D[n][m]
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int minDistance(string word1, string word2) {
@@ -36197,7 +17149,7 @@ $$f(x) = f(x - 1) + f(x - 2)$$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int climbStairs(int n) {
@@ -36210,69 +17162,6 @@ public:
         return r;
     }
 };
-```
-
-```Java
-class Solution {
-    public int climbStairs(int n) {
-        int p = 0, q = 0, r = 1;
-        for (int i = 1; i <= n; ++i) {
-            p = q; 
-            q = r; 
-            r = p + q;
-        }
-        return r;
-    }
-}
-```
-
-```TypeScript
-function climbStairs(n: number): number {
-    let p: number = 0, q: number = 0, r: number = 1;
-    for (let i = 1; i <= n; ++i) {
-        p = q; 
-        q = r; 
-        r = p + q;
-    }
-    return r;
-};
-
-```
-
-```Go
-func climbStairs(n int) int {
-    p, q, r := 0, 0, 1
-    for i := 1; i <= n; i++ {
-        p = q
-        q = r
-        r = p + q
-    }
-    return r
-}
-```
-
-```JavaScript
-var climbStairs = function(n) {
-    let p = 0, q = 0, r = 1;
-    for (let i = 1; i <= n; ++i) {
-        p = q;
-        q = r;
-        r = p + q;
-    }
-    return r;
-};
-```
-
-```C
-int climbStairs(int n) {
-    int p = 0, q = 0, r = 1;
-    for (int i = 1; i <= n; ++i) {
-        p = q;
-        q = r;
-        r = p + q;
-    }
-    return r;
-}
 ```
 
 **复杂度分析**
@@ -36377,39 +17266,7 @@ $$g(x) = g(x - 1) + g(x - 2) + g(x - 3)$$
 
 **代码**
 
-```Java
-public class Solution {
-    public int climbStairs(int n) {
-        int[][] q = {{1, 1}, {1, 0}};
-        int[][] res = pow(q, n);
-        return res[0][0];
-    }
-
-    public int[][] pow(int[][] a, int n) {
-        int[][] ret = {{1, 0}, {0, 1}};
-        while (n > 0) {
-            if ((n & 1) == 1) {
-                ret = multiply(ret, a);
-            }
-            n >>= 1;
-            a = multiply(a, a);
-        }
-        return ret;
-    }
-
-    public int[][] multiply(int[][] a, int[][] b) {
-        int[][] c = new int[2][2];
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                c[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j];
-            }
-        }
-        return c;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<vector<long long>> multiply(vector<vector<long long>> &a, vector<vector<long long>> &b) {
@@ -36442,103 +17299,6 @@ public:
 };
 ```
 
-```JavaScript
-var climbStairs = function(n) {
-    const q = [[1, 1], [1, 0]];
-    const res = pow(q, n);
-    return res[0][0];
-};
-
-const pow = (a, n) => {
-    let ret = [[1, 0], [0, 1]];
-    while (n > 0) {
-        if ((n & 1) === 1) {
-            ret = multiply(ret, a);
-        }
-        n >>= 1;
-        a = multiply(a, a);
-    }
-    return ret;
-}
-
-const multiply = (a, b) => {
-    const c = new Array(2).fill(0).map(() => new Array(2).fill(0));
-    for (let i = 0; i < 2; i++) {
-        for (let j = 0; j < 2; j++) {
-            c[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j];
-        }
-    }
-    return c;
-}
-```
-
-```Go
-type matrix [2][2]int
-
-func mul(a, b matrix) (c matrix) {
-    for i := 0; i < 2; i++ {
-        for j := 0; j < 2; j++ {
-            c[i][j] = a[i][0]*b[0][j] + a[i][1]*b[1][j]
-        }
-    }
-    return c
-}
-
-func pow(a matrix, n int) matrix {
-    res := matrix{{1, 0}, {0, 1}}
-    for ; n > 0; n >>= 1 {
-        if n&1 == 1 {
-            res = mul(res, a)
-        }
-        a = mul(a, a)
-    }
-    return res
-}
-
-func climbStairs(n int) int {
-    res := pow(matrix{{1, 1}, {1, 0}}, n)
-    return res[0][0]
-}
-```
-
-```C
-struct Matrix {
-    long long mat[2][2];
-};
-
-struct Matrix multiply(struct Matrix a, struct Matrix b) {
-    struct Matrix c;
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 2; j++) {
-            c.mat[i][j] = a.mat[i][0] * b.mat[0][j] + a.mat[i][1] * b.mat[1][j];
-        }
-    }
-    return c;
-}
-
-struct Matrix matrixPow(struct Matrix a, int n) {
-    struct Matrix ret;
-    ret.mat[0][0] = ret.mat[1][1] = 1;
-    ret.mat[0][1] = ret.mat[1][0] = 0;
-    while (n > 0) {
-        if ((n & 1) == 1) {
-            ret = multiply(ret, a);
-        }
-        n >>= 1;
-        a = multiply(a, a);
-    }
-    return ret;
-}
-
-int climbStairs(int n) {
-    struct Matrix ret;
-    ret.mat[1][1] = 0;
-    ret.mat[0][0] = ret.mat[0][1] = ret.mat[1][0] = 1;
-    struct Matrix res = matrixPow(ret, n);
-    return res.mat[0][0];
-}
-```
-
 **复杂度分析**
 
 - 时间复杂度：同快速幂，$O(\log n)$。
@@ -36560,17 +17320,7 @@ $$f(n) = \frac{1}{\sqrt{5}}\left[ \left(\frac{1+\sqrt{5}}{2}\right)^{n} - \left(
 
 **代码**
 
-```Java
-public class Solution {
-    public int climbStairs(int n) {
-        double sqrt5 = Math.sqrt(5);
-        double fibn = Math.pow((1 + sqrt5) / 2, n + 1) - Math.pow((1 - sqrt5) / 2, n + 1);
-        return (int) Math.round(fibn / sqrt5);
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     int climbStairs(int n) {
@@ -36579,31 +17329,6 @@ public:
         return (int)round(fibn / sqrt5);
     }
 };
-```
-
-```JavaScript
-var climbStairs = function(n) {
-    const sqrt5 = Math.sqrt(5);
-    const fibn = Math.pow((1 + sqrt5) / 2, n + 1) - Math.pow((1 - sqrt5) / 2, n + 1);
-    return Math.round(fibn / sqrt5);
-};
-```
-
-```Go
-func climbStairs(n int) int {
-    sqrt5 := math.Sqrt(5)
-    pow1 := math.Pow((1+sqrt5)/2, float64(n+1))
-    pow2 := math.Pow((1-sqrt5)/2, float64(n+1))
-    return int(math.Round((pow1 - pow2) / sqrt5))
-}
-```
-
-```C
-int climbStairs(int n) {
-    double sqrt5 = sqrt(5);
-    double fibn = pow((1 + sqrt5) / 2, n + 1) - pow((1 - sqrt5) / 2, n + 1);
-    return (int) round(fibn / sqrt5);
-}
 ```
 
 **复杂度分析**
@@ -36692,7 +17417,7 @@ public:
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int findUnsortedSubarray(vector<int>& nums) {
@@ -36712,172 +17437,6 @@ public:
         return right - left + 1;
     }
 };
-```
-
-```Java
-class Solution {
-    public int findUnsortedSubarray(int[] nums) {
-        if (isSorted(nums)) {
-            return 0;
-        }
-        int[] numsSorted = new int[nums.length];
-        System.arraycopy(nums, 0, numsSorted, 0, nums.length);
-        Arrays.sort(numsSorted);
-        int left = 0;
-        while (nums[left] == numsSorted[left]) {
-            left++;
-        }
-        int right = nums.length - 1;
-        while (nums[right] == numsSorted[right]) {
-            right--;
-        }
-        return right - left + 1;
-    }
-
-    public boolean isSorted(int[] nums) {
-        for (int i = 1; i < nums.length; i++) {
-            if (nums[i] < nums[i - 1]) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int FindUnsortedSubarray(int[] nums) {
-        if (IsSorted(nums)) {
-            return 0;
-        }
-        int[] numsSorted = new int[nums.Length];
-        Array.Copy(nums, numsSorted, nums.Length);
-        Array.Sort(numsSorted);
-        int left = 0;
-        while (nums[left] == numsSorted[left]) {
-            left++;
-        }
-        int right = nums.Length - 1;
-        while (nums[right] == numsSorted[right]) {
-            right--;
-        }
-        return right - left + 1;
-    }
-
-    public bool IsSorted(int[] nums) {
-        for (int i = 1; i < nums.Length; i++) {
-            if (nums[i] < nums[i - 1]) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-```
-
-```Python
-class Solution:
-    def findUnsortedSubarray(self, nums: List[int]) -> int:
-        n = len(nums)
-
-        def isSorted() -> bool:
-            for i in range(1, n):
-                if nums[i - 1] > nums[i]:
-                    return False
-            return True
-        
-        if isSorted():
-            return 0
-        
-        numsSorted = sorted(nums)
-        left = 0
-        while nums[left] == numsSorted[left]:
-            left += 1
-
-        right = n - 1
-        while nums[right] == numsSorted[right]:
-            right -= 1
-        
-        return right - left + 1
-```
-
-```JavaScript
-var findUnsortedSubarray = function(nums) {
-    if (isSorted(nums)) {
-        return 0;
-    }
-    const numsSorted = [...nums].sort((a, b) => a - b);
-    let left = 0;
-    while (nums[left] === numsSorted[left]) {
-        left++;
-    }
-    let right = nums.length - 1;
-    while (nums[right] == numsSorted[right]) {
-        right--;
-    }
-    return right - left + 1;
-};
-
-const isSorted = (nums) => {
-    for (let i = 1; i < nums.length; i++) {
-        if (nums[i] < nums[i - 1]) {
-            return false;
-        }
-    }
-    return true;
-}
-```
-
-```go
-func findUnsortedSubarray(nums []int) int {
-    if sort.IntsAreSorted(nums) {
-        return 0
-    }
-    numsSorted := append([]int(nil), nums...)
-    sort.Ints(numsSorted)
-    left, right := 0, len(nums)-1
-    for nums[left] == numsSorted[left] {
-        left++
-    }
-    for nums[right] == numsSorted[right] {
-        right--
-    }
-    return right - left + 1
-}
-```
-
-```C
-bool is_sorted(int* arr, int arrSize) {
-    for (int i = 1; i < arrSize; i++) {
-        if (arr[i - 1] > arr[i]) {
-            return false;
-        }
-    }
-    return true;
-}
-
-int cmp(int* a, int* b) {
-    return *a - *b;
-}
-
-int findUnsortedSubarray(int* nums, int numsSize) {
-    if (is_sorted(nums, numsSize)) {
-        return 0;
-    }
-    int numsSorted[numsSize];
-    memcpy(numsSorted, nums, sizeof(int) * numsSize);
-    qsort(numsSorted, numsSize, sizeof(int), cmp);
-    int left = 0;
-    while (nums[left] == numsSorted[left]) {
-        left++;
-    }
-    int right = numsSize - 1;
-    while (nums[right] == numsSorted[right]) {
-        right--;
-    }
-    return right - left + 1;
-}
 ```
 
 **复杂度分析**
@@ -36906,7 +17465,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int findUnsortedSubarray(vector<int>& nums) {
@@ -36928,139 +17487,6 @@ public:
         return right == -1 ? 0 : right - left + 1;
     }
 };
-```
-
-```Java
-class Solution {
-    public int findUnsortedSubarray(int[] nums) {
-        int n = nums.length;
-        int maxn = Integer.MIN_VALUE, right = -1;
-        int minn = Integer.MAX_VALUE, left = -1;
-        for (int i = 0; i < n; i++) {
-            if (maxn > nums[i]) {
-                right = i;
-            } else {
-                maxn = nums[i];
-            }
-            if (minn < nums[n - i - 1]) {
-                left = n - i - 1;
-            } else {
-                minn = nums[n - i - 1];
-            }
-        }
-        return right == -1 ? 0 : right - left + 1;
-    }
-}
-```
-
-```C#
-public class Solution {
-    public int FindUnsortedSubarray(int[] nums) {
-        int n = nums.Length;
-        int maxn = int.MinValue, right = -1;
-        int minn = int.MaxValue, left = -1;
-        for (int i = 0; i < n; i++) {
-            if (maxn > nums[i]) {
-                right = i;
-            } else {
-                maxn = nums[i];
-            }
-            if (minn < nums[n - i - 1]) {
-                left = n - i - 1;
-            } else {
-                minn = nums[n - i - 1];
-            }
-        }
-        return right == -1 ? 0 : right - left + 1;
-    }
-}
-```
-
-```Python
-class Solution:
-    def findUnsortedSubarray(self, nums: List[int]) -> int:
-        n = len(nums)
-        maxn, right = float("-inf"), -1
-        minn, left = float("inf"), -1
-
-        for i in range(n):
-            if maxn > nums[i]:
-                right = i
-            else:
-                maxn = nums[i]
-            
-            if minn < nums[n - i - 1]:
-                left = n - i - 1
-            else:
-                minn = nums[n - i - 1]
-        
-        return 0 if right == -1 else right - left + 1
-```
-
-```JavaScript
-var findUnsortedSubarray = function(nums) {
-    const n = nums.length;
-    let maxn = -Number.MAX_VALUE, right = -1;
-    let minn = Number.MAX_VALUE, left = -1;
-    for (let i = 0; i < n; i++) {
-        if (maxn > nums[i]) {
-            right = i;
-        } else {
-            maxn = nums[i];
-        }
-        if (minn < nums[n - i - 1]) {
-            left = n - i - 1;
-        } else {
-            minn = nums[n - i - 1];
-        }
-    }
-    return right === -1 ? 0 : right - left + 1;
-};
-```
-
-```go
-func findUnsortedSubarray(nums []int) int {
-    n := len(nums)
-    minn, maxn := math.MaxInt64, math.MinInt64
-    left, right := -1, -1
-    for i, num := range nums {
-        if maxn > num {
-            right = i
-        } else {
-            maxn = num
-        }
-        if minn < nums[n-i-1] {
-            left = n - i - 1
-        } else {
-            minn = nums[n-i-1]
-        }
-    }
-    if right == -1 {
-        return 0
-    }
-    return right - left + 1
-}
-```
-
-```C
-int findUnsortedSubarray(int* nums, int numsSize) {
-    int n = numsSize;
-    int maxn = INT_MIN, right = -1;
-    int minn = INT_MAX, left = -1;
-    for (int i = 0; i < n; i++) {
-        if (maxn > nums[i]) {
-            right = i;
-        } else {
-            maxn = nums[i];
-        }
-        if (minn < nums[n - i - 1]) {
-            left = n - i - 1;
-        } else {
-            minn = nums[n - i - 1];
-        }
-    }
-    return right == -1 ? 0 : right - left + 1;
-}
 ```
 
 **复杂度分析**
@@ -37141,31 +17567,6 @@ public:
 
 <![fig1](https://assets.leetcode.cn/solution-static/64/1.png),![fig2](https://assets.leetcode.cn/solution-static/64/2.png),![fig3](https://assets.leetcode.cn/solution-static/64/3.png),![fig4](https://assets.leetcode.cn/solution-static/64/4.png),![fig5](https://assets.leetcode.cn/solution-static/64/5.png),![fig6](https://assets.leetcode.cn/solution-static/64/6.png),![fig7](https://assets.leetcode.cn/solution-static/64/7.png),![fig8](https://assets.leetcode.cn/solution-static/64/8.png),![fig9](https://assets.leetcode.cn/solution-static/64/9.png),![fig10](https://assets.leetcode.cn/solution-static/64/10.png),![fig11](https://assets.leetcode.cn/solution-static/64/11.png),![fig12](https://assets.leetcode.cn/solution-static/64/12.png),![fig13](https://assets.leetcode.cn/solution-static/64/13.png),![fig14](https://assets.leetcode.cn/solution-static/64/14.png),![fig15](https://assets.leetcode.cn/solution-static/64/15.png),![fig16](https://assets.leetcode.cn/solution-static/64/16.png),![fig17](https://assets.leetcode.cn/solution-static/64/17.png)>
 
-```Java
-class Solution {
-    public int minPathSum(int[][] grid) {
-        if (grid == null || grid.length == 0 || grid[0].length == 0) {
-            return 0;
-        }
-        int rows = grid.length, columns = grid[0].length;
-        int[][] dp = new int[rows][columns];
-        dp[0][0] = grid[0][0];
-        for (int i = 1; i < rows; i++) {
-            dp[i][0] = dp[i - 1][0] + grid[i][0];
-        }
-        for (int j = 1; j < columns; j++) {
-            dp[0][j] = dp[0][j - 1] + grid[0][j];
-        }
-        for (int i = 1; i < rows; i++) {
-            for (int j = 1; j < columns; j++) {
-                dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
-            }
-        }
-        return dp[rows - 1][columns - 1];
-    }
-}
-```
-
 ```cpp
 class Solution {
 public:
@@ -37190,82 +17591,6 @@ public:
         return dp[rows - 1][columns - 1];
     }
 };
-```
-
-```golang
-func minPathSum(grid [][]int) int {
-    if len(grid) == 0 || len(grid[0]) == 0 {
-        return 0
-    }
-    rows, columns := len(grid), len(grid[0])
-    dp := make([][]int, rows)
-    for i := 0; i < len(dp); i++ {
-        dp[i] = make([]int, columns)
-    }
-    dp[0][0] = grid[0][0]
-    for i := 1; i < rows; i++ {
-        dp[i][0] = dp[i - 1][0] + grid[i][0]
-    }
-    for j := 1; j < columns; j++ {
-        dp[0][j] = dp[0][j - 1] + grid[0][j]
-    }
-    for i := 1; i < rows; i++ {
-        for j := 1; j < columns; j++ {
-            dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]
-        }
-    }
-    return dp[rows - 1][columns - 1]
-}
-
-func min(x, y int) int {
-    if x < y {
-        return x
-    }
-    return y
-}
-```
-
-```Python
-class Solution:
-    def minPathSum(self, grid: List[List[int]]) -> int:
-        if not grid or not grid[0]:
-            return 0
-        
-        rows, columns = len(grid), len(grid[0])
-        dp = [[0] * columns for _ in range(rows)]
-        dp[0][0] = grid[0][0]
-        for i in range(1, rows):
-            dp[i][0] = dp[i - 1][0] + grid[i][0]
-        for j in range(1, columns):
-            dp[0][j] = dp[0][j - 1] + grid[0][j]
-        for i in range(1, rows):
-            for j in range(1, columns):
-                dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]
-        
-        return dp[rows - 1][columns - 1]
-```
-
-```C
-int minPathSum(int** grid, int gridSize, int* gridColSize) {
-    int rows = gridSize, columns = gridColSize[0];
-    if (rows == 0 || columns == 0) {
-        return 0;
-    }
-    int dp[rows][columns];
-    dp[0][0] = grid[0][0];
-    for (int i = 1; i < rows; i++) {
-        dp[i][0] = dp[i - 1][0] + grid[i][0];
-    }
-    for (int j = 1; j < columns; j++) {
-        dp[0][j] = dp[0][j - 1] + grid[0][j];
-    }
-    for (int i = 1; i < rows; i++) {
-        for (int j = 1; j < columns; j++) {
-            dp[i][j] = fmin(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
-        }
-    }
-    return dp[rows - 1][columns - 1];
-}
 ```
 
 **复杂度分析**
@@ -37371,7 +17696,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int uniquePaths(int m, int n) {
@@ -37392,95 +17717,9 @@ public:
 };
 ```
 
-```Java
-class Solution {
-    public int uniquePaths(int m, int n) {
-        int[][] f = new int[m][n];
-        for (int i = 0; i < m; ++i) {
-            f[i][0] = 1;
-        }
-        for (int j = 0; j < n; ++j) {
-            f[0][j] = 1;
-        }
-        for (int i = 1; i < m; ++i) {
-            for (int j = 1; j < n; ++j) {
-                f[i][j] = f[i - 1][j] + f[i][j - 1];
-            }
-        }
-        return f[m - 1][n - 1];
-    }
-}
-```
-
-```Python
-class Solution:
-    def uniquePaths(self, m: int, n: int) -> int:
-        f = [[1] * n] + [[1] + [0] * (n - 1) for _ in range(m - 1)]
-        print(f)
-        for i in range(1, m):
-            for j in range(1, n):
-                f[i][j] = f[i - 1][j] + f[i][j - 1]
-        return f[m - 1][n - 1]
-```
-
-```Golang
-func uniquePaths(m, n int) int {
-    dp := make([][]int, m)
-    for i := range dp {
-        dp[i] = make([]int, n)
-        dp[i][0] = 1
-    }
-    for j := 0; j < n; j++ {
-        dp[0][j] = 1
-    }
-    for i := 1; i < m; i++ {
-        for j := 1; j < n; j++ {
-            dp[i][j] = dp[i-1][j] + dp[i][j-1]
-        }
-    }
-    return dp[m-1][n-1]
-}
-```
-
-```C
-int uniquePaths(int m, int n) {
-    int f[m][n];
-    for (int i = 0; i < m; ++i) {
-        f[i][0] = 1;
-    }
-    for (int j = 0; j < n; ++j) {
-        f[0][j] = 1;
-    }
-    for (int i = 1; i < m; ++i) {
-        for (int j = 1; j < n; ++j) {
-            f[i][j] = f[i - 1][j] + f[i][j - 1];
-        }
-    }
-    return f[m - 1][n - 1];
-}
-```
-
-```JavaScript
-var uniquePaths = function(m, n) {
-    const f = new Array(m).fill(0).map(() => new Array(n).fill(0));
-    for (let i = 0; i < m; i++) {
-        f[i][0] = 1;
-    }
-    for (let j = 0; j < n; j++) {
-        f[0][j] = 1;
-    }
-    for (let i = 1; i < m; i++) {
-        for (let j = 1; j < n; j++) {
-            f[i][j] = f[i - 1][j] + f[i][j - 1];
-        }
-    }
-    return f[m - 1][n - 1];
-};
-```
-
 此外，由于 $f(i, j)$ 仅与第 $i$ 行和第 $i-1$ 行的状态有关，因此我们可以使用滚动数组代替代码中的二维数组，使空间复杂度降低为 $O(n)$。
 
-```C++
+```cpp
 class Solution {
 public:
     int uniquePaths(int m, int n) {
@@ -37492,75 +17731,6 @@ public:
         }
         return f[n - 1];
     }
-};
-```
-
-```Java
-class Solution {
-    public int uniquePaths(int m, int n) {
-        int[] f = new int[n];
-        for (int i = 0; i < n; ++i) {
-            f[i] = 1;
-        }
-        for (int i = 1; i < m; ++i) {
-            for (int j = 1; j < n; ++j) {
-                f[j] += f[j - 1];
-            }
-        }
-        return f[n - 1];
-    }
-}
-```
-
-```Python3 [sol2-Python3]
-class Solution:
-    def uniquePaths(self, m: int, n: int) -> int:
-        f = [1] * n
-        for i in range(1, m):
-            for j in range(1, n):
-                f[j] += f[j - 1]
-        return f[n - 1]
-```
-
-```Golang
-func uniquePaths(m, n int) int {
-    dp := make([]int, n)
-    for i := range dp {
-        dp[i] = 1
-    }
-    for i := 1; i < m; i++ {
-        for j := 1; j < n; j++ {
-            dp[j] += dp[j-1]
-        }
-    }
-    return dp[n-1]
-}
-```
-
-```C
-int uniquePaths(int m, int n) {
-    int f[n];
-    for (int i = 0; i < n; ++i) {
-        f[i] = 1;
-    }
-    for (int i = 1; i < m; ++i) {
-        for (int j = 1; j < n; ++j) {
-            f[j] += f[j-1];
-        }
-    }
-    return f[n - 1];
-}
-```
-
-```JavaScript
-var uniquePaths = function(m, n) {
-    const f = new Array(n).fill(1)
-    for (let i = 1; i < m; i++) {
-        for (let j = 1; j < n; j++) {
-            f[j] += f[j-1]
-        }
-    }
-    return f[n - 1];
 };
 ```
 
@@ -37588,7 +17758,7 @@ $$
 
 **代码**
 
-```C++
+```cpp
 class Solution {
 public:
     int uniquePaths(int m, int n) {
@@ -37598,50 +17768,6 @@ public:
         }
         return ans;
     }
-};
-```
-
-```Java
-class Solution {
-    public int uniquePaths(int m, int n) {
-        long ans = 1;
-        for (int x = n, y = 1; y < m; ++x, ++y) {
-            ans = ans * x / y;
-        }
-        return (int) ans;
-    }
-}
-```
-
-```Python
-class Solution:
-    def uniquePaths(self, m: int, n: int) -> int:
-        return comb(m + n - 2, n - 1)
-```
-
-```Golang
-func uniquePaths(m, n int) int {
-    return int(new(big.Int).Binomial(int64(m+n-2), int64(n-1)).Int64())
-}
-```
-
-```C
-int uniquePaths(int m, int n) {
-    long long ans = 1;
-    for (int x = n, y = 1; y < m; ++x, ++y) {
-        ans = ans * x / y;
-    }
-    return ans;
-}
-```
-
-```JavaScript
-var uniquePaths = function(m, n) {
-    let ans = 1;
-    for (let x = n, y = 1; y < m; ++x, ++y) {
-        ans = Math.floor(ans * x / y);
-    }
-    return ans;
 };
 ```
 
@@ -37744,24 +17870,7 @@ $$
 
 产生了矛盾！这说明假设是不成立的。因此，所有能够合并的区间都必然是连续的。
 
-```Python
-class Solution:
-    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
-        intervals.sort(key=lambda x: x[0])
-
-        merged = []
-        for interval in intervals:
-            # 如果列表为空，或者当前区间与上一区间不重合，直接添加
-            if not merged or merged[-1][1] < interval[0]:
-                merged.append(interval)
-            else:
-                # 否则的话，我们就可以与上一区间进行合并
-                merged[-1][1] = max(merged[-1][1], interval[1])
-
-        return merged
-```
-
-```C++
+```cpp
 class Solution {
 public:
     vector<vector<int>> merge(vector<vector<int>>& intervals) {
@@ -37782,53 +17891,6 @@ public:
         return merged;
     }
 };
-```
-
-```Java
-class Solution {
-    public int[][] merge(int[][] intervals) {
-        if (intervals.length == 0) {
-            return new int[0][2];
-        }
-        Arrays.sort(intervals, new Comparator<int[]>() {
-            public int compare(int[] interval1, int[] interval2) {
-                return interval1[0] - interval2[0];
-            }
-        });
-        List<int[]> merged = new ArrayList<int[]>();
-        for (int i = 0; i < intervals.length; ++i) {
-            int L = intervals[i][0], R = intervals[i][1];
-            if (merged.size() == 0 || merged.get(merged.size() - 1)[1] < L) {
-                merged.add(new int[]{L, R});
-            } else {
-                merged.get(merged.size() - 1)[1] = Math.max(merged.get(merged.size() - 1)[1], R);
-            }
-        }
-        return merged.toArray(new int[merged.size()][]);
-    }
-}
-```
-
-```Golang
-func merge(intervals [][]int) [][]int {
-	ans := [][]int{}
-	if len(intervals) == 0 {
-		return ans
-	}
-	sort.Slice(intervals, func(i, j int) bool {
-		return intervals[i][0] < intervals[j][0]
-	})
-	ans = append(ans, intervals[0])
-	for i := 1; i < len(intervals); i++ {
-		last := ans[len(ans)-1]
-		if last[1] < intervals[i][0] {
-			ans = append(ans, intervals[i])
-		} else {
-			last[1] = max(last[1], intervals[i][1])
-		}
-	}
-	return ans
-}
 ```
 
 **复杂度分析**
@@ -37929,25 +17991,7 @@ public:
 
 在遍历完成之后，位置 $4$ 仍然不可达，因此我们返回 `False`。
 
-```Java
-public class Solution {
-    public boolean canJump(int[] nums) {
-        int n = nums.length;
-        int rightmost = 0;
-        for (int i = 0; i < n; ++i) {
-            if (i <= rightmost) {
-                rightmost = Math.max(rightmost, i + nums[i]);
-                if (rightmost >= n - 1) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-}
-```
-
-```C++
+```cpp
 class Solution {
 public:
     bool canJump(vector<int>& nums) {
@@ -37964,18 +18008,6 @@ public:
         return false;
     }
 };
-```
-
-```Python
-class Solution:
-    def canJump(self, nums: List[int]) -> bool:
-        n, rightmost = len(nums), 0
-        for i in range(n):
-            if i <= rightmost:
-                rightmost = max(rightmost, i + nums[i])
-                if rightmost >= n - 1:
-                    return True
-        return False
 ```
 
 **复杂度分析**
@@ -38076,69 +18108,6 @@ public:
 };
 ```
 
-```csharp
-public class Solution {
-    public int MaxSubArray(int[] nums) {
-        int pre = 0, maxAns = nums[0];
-        foreach (int x in nums) {
-            pre = Math.Max(pre + x, x);
-            maxAns = Math.Max(maxAns, pre);
-        }
-        return maxAns;
-    }
-}
-```
-
-```Java
-class Solution {
-    public int maxSubArray(int[] nums) {
-        int pre = 0, maxAns = nums[0];
-        for (int x : nums) {
-            pre = Math.max(pre + x, x);
-            maxAns = Math.max(maxAns, pre);
-        }
-        return maxAns;
-    }
-}
-```
-
-```JavaScript
-var maxSubArray = function(nums) {
-    let pre = 0, maxAns = nums[0];
-    nums.forEach((x) => {
-        pre = Math.max(pre + x, x);
-        maxAns = Math.max(maxAns, pre);
-    });
-    return maxAns;
-};
-```
-
-```golang
-func maxSubArray(nums []int) int {
-    max := nums[0]
-    for i := 1; i < len(nums); i++ {
-        if nums[i] + nums[i-1] > nums[i] {
-            nums[i] += nums[i-1]
-        }
-        if nums[i] > max {
-            max = nums[i]
-        }
-    }
-    return max
-}
-```
-
-```C
-int maxSubArray(int* nums, int numsSize) {
-    int pre = 0, maxAns = nums[0];
-    for (int i = 0; i < numsSize; i++) {
-        pre = fmax(pre + nums[i], nums[i]);
-        maxAns = fmax(maxAns, pre);
-    }
-    return maxAns;
-}
-```
-
 **复杂度**
 
 + 时间复杂度：$O(n)$，其中 $n$ 为 $\textit{nums}$ 数组的长度。我们只需要遍历一遍数组即可求得答案。
@@ -38202,170 +18171,6 @@ public:
         return get(nums, 0, nums.size() - 1).mSum;
     }
 };
-```
-
-```csharp
-public class Solution {
-    public class Status {
-        public int lSum, rSum, mSum, iSum;
-        public Status(int lSum_, int rSum_, int mSum_, int iSum_) {
-            lSum = lSum_; rSum = rSum_; mSum = mSum_; iSum = iSum_;
-        }
-    }
-
-    public Status pushUp(Status l, Status r) {
-        int iSum = l.iSum + r.iSum;
-        int lSum = Math.Max(l.lSum, l.iSum + r.lSum);
-        int rSum = Math.Max(r.rSum, r.iSum + l.rSum);
-        int mSum = Math.Max(Math.Max(l.mSum, r.mSum), l.rSum + r.lSum);
-        return new Status(lSum, rSum, mSum, iSum);
-    }
-
-    public Status getInfo(int[] a, int l, int r) {
-        if (l == r) {
-            return new Status(a[l], a[l], a[l], a[l]);
-        }
-        int m = (l + r) >> 1;
-        Status lSub = getInfo(a, l, m);
-        Status rSub = getInfo(a, m + 1, r);
-        return pushUp(lSub, rSub);
-    }
-
-    public int MaxSubArray(int[] nums) {
-        return getInfo(nums, 0, nums.Length - 1).mSum;
-    }
-}
-```
-
-```Java
-class Solution {
-    public class Status {
-        public int lSum, rSum, mSum, iSum;
-
-        public Status(int lSum, int rSum, int mSum, int iSum) {
-            this.lSum = lSum;
-            this.rSum = rSum;
-            this.mSum = mSum;
-            this.iSum = iSum;
-        }
-    }
-
-    public int maxSubArray(int[] nums) {
-        return getInfo(nums, 0, nums.length - 1).mSum;
-    }
-
-    public Status getInfo(int[] a, int l, int r) {
-        if (l == r) {
-            return new Status(a[l], a[l], a[l], a[l]);
-        }
-        int m = (l + r) >> 1;
-        Status lSub = getInfo(a, l, m);
-        Status rSub = getInfo(a, m + 1, r);
-        return pushUp(lSub, rSub);
-    }
-
-    public Status pushUp(Status l, Status r) {
-        int iSum = l.iSum + r.iSum;
-        int lSum = Math.max(l.lSum, l.iSum + r.lSum);
-        int rSum = Math.max(r.rSum, r.iSum + l.rSum);
-        int mSum = Math.max(Math.max(l.mSum, r.mSum), l.rSum + r.lSum);
-        return new Status(lSum, rSum, mSum, iSum);
-    }
-}
-```
-
-```JavaScript
-function Status(l, r, m, i) {
-    this.lSum = l;
-    this.rSum = r;
-    this.mSum = m;
-    this.iSum = i;
-}
-
-const pushUp = (l, r) => {
-    const iSum = l.iSum + r.iSum;
-    const lSum = Math.max(l.lSum, l.iSum + r.lSum);
-    const rSum = Math.max(r.rSum, r.iSum + l.rSum);
-    const mSum = Math.max(Math.max(l.mSum, r.mSum), l.rSum + r.lSum);
-    return new Status(lSum, rSum, mSum, iSum);
-}
-
-const getInfo = (a, l, r) => {
-    if (l === r) {
-        return new Status(a[l], a[l], a[l], a[l]);
-    }
-    const m = (l + r) >> 1;
-    const lSub = getInfo(a, l, m);
-    const rSub = getInfo(a, m + 1, r);
-    return pushUp(lSub, rSub);
-}
-
-var maxSubArray = function(nums) {
-    return getInfo(nums, 0, nums.length - 1).mSum;
-};
-```
-
-```golang
-func maxSubArray(nums []int) int {
-    return get(nums, 0, len(nums) - 1).mSum;
-}
-
-func pushUp(l, r Status) Status {
-    iSum := l.iSum + r.iSum
-    lSum := max(l.lSum, l.iSum + r.lSum)
-    rSum := max(r.rSum, r.iSum + l.rSum)
-    mSum := max(max(l.mSum, r.mSum), l.rSum + r.lSum)
-    return Status{lSum, rSum, mSum, iSum}
-}
-
-func get(nums []int, l, r int) Status {
-    if (l == r) {
-        return Status{nums[l], nums[l], nums[l], nums[l]}
-    }
-    m := (l + r) >> 1
-    lSub := get(nums, l, m)
-    rSub := get(nums, m + 1, r)
-    return pushUp(lSub, rSub)
-}
-
-func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
-}
-
-type Status struct {
-    lSum, rSum, mSum, iSum int
-}
-```
-
-```C
-struct Status {
-    int lSum, rSum, mSum, iSum;
-};
-
-struct Status pushUp(struct Status l, struct Status r) {
-    int iSum = l.iSum + r.iSum;
-    int lSum = fmax(l.lSum, l.iSum + r.lSum);
-    int rSum = fmax(r.rSum, r.iSum + l.rSum);
-    int mSum = fmax(fmax(l.mSum, r.mSum), l.rSum + r.lSum);
-    return (struct Status){lSum, rSum, mSum, iSum};
-};
-
-struct Status get(int* a, int l, int r) {
-    if (l == r) {
-        return (struct Status){a[l], a[l], a[l], a[l]};
-    }
-    int m = (l + r) >> 1;
-    struct Status lSub = get(a, l, m);
-    struct Status rSub = get(a, m + 1, r);
-    return pushUp(lSub, rSub);
-}
-
-int maxSubArray(int* nums, int numsSize) {
-    return get(nums, 0, numsSize - 1).mSum;
-}
 ```
 
 **复杂度分析**
