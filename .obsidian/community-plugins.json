@@ -1,3 +1,8 @@
 [
-  "obsidian-git"
+  "obsidian-git",
+  "agent-client",
+  "code-styler",
+  "obsidian-custom-attachment-location",
+  "obsidian-linter",
+  "obsidian-style-settings"
 ]

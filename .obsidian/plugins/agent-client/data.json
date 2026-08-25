@@ -110,6 +110,14 @@
   },
   "savedSessions": [
     {
+      "sessionId": "b1d6288f-a637-491e-9198-5f7c86f13068",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "这个快慢指针，如果是偶数个元素的话，slow在中间靠前那个元素",
+      "createdAt": "2026-08-25T10:18:35.901Z",
+      "updatedAt": "2026-08-25T10:18:35.902Z"
+    },
+    {
       "sessionId": "b6aeed8b-2862-4ec2-bbaa-b0b48aabc0b0",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
