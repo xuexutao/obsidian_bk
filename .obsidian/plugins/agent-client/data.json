@@ -110,6 +110,14 @@
   },
   "savedSessions": [
     {
+      "sessionId": "b6aeed8b-2862-4ec2-bbaa-b0b48aabc0b0",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "内容有点简单，是不是还可以扩充一些呢？这个更像是 视频生成的视频世界模型？",
+      "createdAt": "2026-08-25T07:07:02.853Z",
+      "updatedAt": "2026-08-25T07:07:02.855Z"
+    },
+    {
       "sessionId": "f42305f9-3a4c-4036-b9b0-9ce79e8373f1",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
