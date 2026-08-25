@@ -1,0 +1,74 @@
+/* ==========================================================================
+   彩色文字与高亮
+   用法：<span class="red">文字</span>/  <span class="hl-red">文字</span>
+   ========================================================================== */
+
+/* --- 文字色 --- */
+.red    { color: var(--ct-red); }
+.orange { color: var(--ct-orange); }
+.yellow { color: var(--ct-yellow); }
+.green  { color: var(--ct-green); }
+.blue   { color: var(--ct-blue); }
+.purple { color: var(--ct-purple); }
+.grey   { color: var(--ct-grey); }
+
+/* 加粗变体：想同时红+粗时用 class="red b"，省掉一层 ** */
+.b { font-weight: var(--bold-weight, 600); }
+
+/* --- 背景高亮 --- */
+.hl-red,
+.hl-orange,
+.hl-yellow,
+.hl-green,
+.hl-blue,
+.hl-purple {
+  border-radius: 3px;
+  padding: 0 3px;
+  /* 高亮块用主题正文色，避免彩底+ 彩字对比度不足 */
+  color: var(--text-normal);
+}
+
+.hl-red    { background-color: var(--ct-red-bg); }
+.hl-orange { background-color: var(--ct-orange-bg); }
+.hl-yellow { background-color: var(--ct-yellow-bg); }
+.hl-green  { background-color: var(--ct-green-bg); }
+.hl-blue   { background-color: var(--ct-blue-bg); }
+.hl-purple { background-color: var(--ct-purple-bg); }
+
+/* --- 色值：亮色模式 --- */
+/* 文字色取较深的档位，保证白底上4.5:1 对比度 */
+.theme-light {
+  --ct-red:    #c92a2a;
+  --ct-orange: #d9480f;
+  --ct-yellow: #a07c00;
+  --ct-green:  #2b8a3e;
+  --ct-blue:   #1864ab;
+  --ct-purple: #6741d9;
+  --ct-grey:   #868e96;
+
+  --ct-red-bg:    #ffe3e3;
+  --ct-orange-bg: #ffe8cc;
+  --ct-yellow-bg: #fff3bf;
+  --ct-green-bg:  #d3f9d8;
+  --ct-blue-bg:   #d0ebff;
+  --ct-purple-bg: #e5dbff;
+}
+
+/* --- 色值：深色模式 --- */
+/* 同一个红在深底上会闷掉，所以整体提亮、降饱和；背景色反过来压暗 */
+.theme-dark {
+  --ct-red:    #ff8787;
+  --ct-orange: #ffa94d;
+  --ct-yellow: #ffd43b;
+  --ct-green:  #8ce99a;
+  --ct-blue:   #74c0fc;
+  --ct-purple: #b197fc;
+  --ct-grey:   #adb5bd;
+
+  --ct-red-bg:    #5c2223;
+  --ct-orange-bg: #5c3a16;
+  --ct-yellow-bg: #544c14;
+  --ct-green-bg:  #1e4620;
+  --ct-blue-bg:   #1c3a5e;
+  --ct-purple-bg: #3a2d5c;
+}
