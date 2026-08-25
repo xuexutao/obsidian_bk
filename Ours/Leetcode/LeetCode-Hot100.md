@@ -1,7 +1,7 @@
 # LeetCode 热题 100（Hot 100）
 
 > 来源：[力扣 LeetCode.cn 热题 100](https://leetcode.cn/problem-list/2cktkvj/)
-> 抓取时间：2026-08-25 16:54:30
+> 抓取时间：2026-08-25 16:59:55
 > 内容：题目描述（含示例）＋ Python3 代码模板 ＋ 力扣官方题解。
 
 ## 目录
@@ -569,8 +569,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/solutions/er-cha-shu-de-zui-jin-gong-gong-zu-xian-by-leetc-2/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：递归
@@ -1542,8 +1540,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/daily-temperatures/solutions/mei-ri-wen-du-by-leetcode-solution/
 
-### 📺 视频题解
-
 ### 📖 文字题解
 
 #### 方法一：暴力
@@ -1984,8 +1980,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/maximal-square/solutions/zui-da-zheng-fang-xing-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 方法一：暴力法
 
@@ -2384,8 +2378,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/shu-zu-zhong-de-di-kge-zui-da-yuan-su-by-leetcod-2/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 
@@ -3104,8 +3096,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/course-schedule/solutions/ke-cheng-biao-by-leetcode-solution/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 
@@ -3910,8 +3900,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/number-of-islands/solutions/dao-yu-shu-liang-by-leetcode/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 方法一：深度优先搜索
 
@@ -4441,8 +4429,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/house-robber/solutions/da-jia-jie-she-by-leetcode-solution/
-
-### 📺视频题解  
 
 ### 📖文字题解
 
@@ -5221,8 +5207,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/product-of-array-except-self/solutions/chu-zi-shen-yi-wai-shu-zu-de-cheng-ji-by-leetcode-/
 
-### 📺视频题解  
-
 ### 📖文字题解
 
 #### 前言
@@ -5641,8 +5625,6 @@ class MinStack:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/min-stack/solutions/zui-xiao-zhan-by-leetcode-solution/
-
-### 📺视频题解  
 
 ### 📖文字题解
 
@@ -6890,8 +6872,6 @@ class LRUCache:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/lru-cache/solutions/lruhuan-cun-ji-zhi-by-leetcode-solution/
-
-### 📺视频题解  
 
 ### 📖文字题解
 
@@ -8214,8 +8194,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/single-number/solutions/zhi-chu-xian-yi-ci-de-shu-zi-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 方法一：位运算
 
@@ -8945,8 +8923,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/binary-tree-maximum-path-sum/solutions/er-cha-shu-zhong-de-zui-da-lu-jing-he-by-leetcode-/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：递归
@@ -11488,8 +11464,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/partition-equal-subset-sum/solutions/fen-ge-deng-he-zi-ji-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 前言
 
@@ -13158,8 +13132,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/decode-string/solutions/zi-fu-chuan-jie-ma-by-leetcode-solution/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：栈操作
@@ -14877,8 +14849,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/solutions/121-mai-mai-gu-piao-de-zui-jia-shi-ji-by-leetcode-/
 
-### 📺 视频题解
-
 ### 📖 文字题解
 #### 解决方案
 
@@ -15443,7 +15413,348 @@ class Solution:
 
 ### 官方题解
 
-> ⚠️ 该题官方题解需会员或未公开，可前往题目页查看社区题解。
+> 题解链接：https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/solutions/zui-jia-mai-mai-gu-piao-shi-ji-han-leng-dong-qi-4/
+
+#### 前言
+
+对于力扣平台上的股票类型的题目：
+
+- [121. 买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/)
+
+- [122. 买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)
+
+- [123. 买卖股票的最佳时机 III](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/)
+
+- [188. 买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/)
+
+- （本题）[309. 最佳买卖股票时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
+
+- [714. 买卖股票的最佳时机含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
+
+- [剑指 Offer 63. 股票的最大利润](https://leetcode.cn/problems/gu-piao-de-zui-da-li-run-lcof/)
+
+一种常用的方法是将「买入」和「卖出」分开进行考虑：「买入」为负收益，而「卖出」为正收益。在初入股市时，你只有「买入」的权利，只能获得负收益。而当你「买入」之后，你就有了「卖出」的权利，可以获得正收益。显然，我们需要尽可能地降低负收益而提高正收益，因此我们的目标总是将收益值最大化。因此，我们可以使用动态规划的方法，维护在股市中每一天结束后可以获得的「累计最大收益」，并以此进行状态转移，得到最终的答案。
+
+#### 方法一：动态规划
+
+**思路与算法**
+
+我们用 $f[i]$ 表示**第 $i$ 天结束之后**的「累计最大收益」。根据题目描述，由于我们最多只能同时买入（持有）一支股票，并且卖出股票后有冷冻期的限制，因此我们会有三种不同的状态：
+
+- 我们目前持有一支股票，对应的「累计最大收益」记为 $f[i][0]$；
+
+- 我们目前不持有任何股票，并且处于冷冻期中，对应的「累计最大收益」记为 $f[i][1]$；
+
+- 我们目前不持有任何股票，并且不处于冷冻期中，对应的「累计最大收益」记为 $f[i][2]$。
+
+> **这里的「处于冷冻期」指的是在第 $i$ 天结束之后的状态。也就是说：如果第 $i$ 天结束之后处于冷冻期，那么第 $i+1$ 天无法买入股票。**
+
+如何进行状态转移呢？在第 $i$ 天时，我们可以在不违反规则的前提下进行「买入」或者「卖出」操作，此时第 $i$ 天的状态会从第 $i-1$ 天的状态转移而来；我们也可以不进行任何操作，此时第 $i$ 天的状态就等同于第 $i-1$ 天的状态。那么我们分别对这三种状态进行分析：
+
+- 对于 $f[i][0]$，我们目前持有的这一支股票可以是在第 $i-1$ 天就已经持有的，对应的状态为 $f[i-1][0]$；或者是第 $i$ 天买入的，那么第 $i-1$ 天就不能持有股票并且不处于冷冻期中，对应的状态为 $f[i-1][2]$ 加上买入股票的负收益 ${\it prices}[i]$。因此状态转移方程为：
+
+    $$
+    f[i][0] = \max(f[i-1][0], f[i-1][2] - {\it prices}[i])
+    $$
+
+- 对于 $f[i][1]$，我们在第 $i$ 天结束之后处于冷冻期的原因是在当天卖出了股票，那么说明在第 $i-1$ 天时我们必须持有一支股票，对应的状态为 $f[i-1][0]$ 加上卖出股票的正收益 ${\it prices}[i]$。因此状态转移方程为：
+
+    $$
+    f[i][1] = f[i-1][0] + {\it prices}[i]
+    $$
+
+- 对于 $f[i][2]$，我们在第 $i$ 天结束之后不持有任何股票并且不处于冷冻期，说明当天没有进行任何操作，即第 $i-1$ 天时不持有任何股票：如果处于冷冻期，对应的状态为 $f[i-1][1]$；如果不处于冷冻期，对应的状态为 $f[i-1][2]$。因此状态转移方程为：
+
+    $$
+    f[i][2] = \max(f[i-1][1], f[i-1][2])
+    $$
+
+这样我们就得到了所有的状态转移方程。如果一共有 $n$ 天，那么最终的答案即为：
+
+$$
+\max(f[n-1][0], f[n-1][1], f[n-1][2])
+$$
+
+注意到如果在最后一天（第 $n-1$ 天）结束之后，手上仍然持有股票，那么显然是没有任何意义的。因此更加精确地，最终的答案实际上是 $f[n-1][1]$ 和 $f[n-1][2]$ 中的较大值，即：
+
+$$
+\max(f[n-1][1], f[n-1][2])
+$$
+
+**细节**
+
+我们可以将第 $0$ 天的情况作为动态规划中的边界条件：
+
+$$
+\begin{cases}
+f[0][0] &= -{\it prices}[0] \\
+f[0][1] &= 0 \\
+f[0][2] &= 0
+\end{cases}
+$$
+
+在第 $0$ 天时，如果持有股票，那么只能是在第 $0$ 天买入的，对应负收益 $-{\it prices}[0]$；如果不持有股票，那么收益为零。注意到第 $0$ 天实际上是不存在处于冷冻期的情况的，但我们仍然可以将对应的状态 $f[0][1]$ 置为零，这其中的原因留给读者进行思考。
+
+这样我们就可以从第 $1$ 天开始，根据上面的状态转移方程进行进行动态规划，直到计算出第 $n-1$ 天的结果。
+
+```C++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if (prices.empty()) {
+            return 0;
+        }
+
+        int n = prices.size();
+        // f[i][0]: 手上持有股票的最大收益
+        // f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
+        // f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
+        vector<vector<int>> f(n, vector<int>(3));
+        f[0][0] = -prices[0];
+        for (int i = 1; i < n; ++i) {
+            f[i][0] = max(f[i - 1][0], f[i - 1][2] - prices[i]);
+            f[i][1] = f[i - 1][0] + prices[i];
+            f[i][2] = max(f[i - 1][1], f[i - 1][2]);
+        }
+        return max(f[n - 1][1], f[n - 1][2]);
+    }
+};
+```
+
+```Java
+class Solution {
+    public int maxProfit(int[] prices) {
+        if (prices.length == 0) {
+            return 0;
+        }
+
+        int n = prices.length;
+        // f[i][0]: 手上持有股票的最大收益
+        // f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
+        // f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
+        int[][] f = new int[n][3];
+        f[0][0] = -prices[0];
+        for (int i = 1; i < n; ++i) {
+            f[i][0] = Math.max(f[i - 1][0], f[i - 1][2] - prices[i]);
+            f[i][1] = f[i - 1][0] + prices[i];
+            f[i][2] = Math.max(f[i - 1][1], f[i - 1][2]);
+        }
+        return Math.max(f[n - 1][1], f[n - 1][2]);
+    }
+}
+```
+
+```Python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        if not prices:
+            return 0
+        
+        n = len(prices)
+        # f[i][0]: 手上持有股票的最大收益
+        # f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
+        # f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
+        f = [[-prices[0], 0, 0]] + [[0] * 3 for _ in range(n - 1)]
+        for i in range(1, n):
+            f[i][0] = max(f[i - 1][0], f[i - 1][2] - prices[i])
+            f[i][1] = f[i - 1][0] + prices[i]
+            f[i][2] = max(f[i - 1][1], f[i - 1][2])
+        
+        return max(f[n - 1][1], f[n - 1][2])
+```
+
+```C
+int maxProfit(int* prices, int pricesSize) {
+    if (pricesSize == 0) {
+        return 0;
+    }
+
+    // f[i][0]: 手上持有股票的最大收益
+    // f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
+    // f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
+    int f[pricesSize][3];
+    f[0][0] = -prices[0];
+    f[0][1] = f[0][2] = 0;
+    for (int i = 1; i < pricesSize; ++i) {
+        f[i][0] = fmax(f[i - 1][0], f[i - 1][2] - prices[i]);
+        f[i][1] = f[i - 1][0] + prices[i];
+        f[i][2] = fmax(f[i - 1][1], f[i - 1][2]);
+    }
+    return fmax(f[pricesSize - 1][1], f[pricesSize - 1][2]);
+}
+```
+
+```golang
+func maxProfit(prices []int) int {
+    if len(prices) == 0 {
+        return 0
+    }
+    n := len(prices)
+    // f[i][0]: 手上持有股票的最大收益
+    // f[i][1]: 手上不持有股票，并且处于冷冻期中的累计最大收益
+    // f[i][2]: 手上不持有股票，并且不在冷冻期中的累计最大收益
+    f := make([][3]int, n)
+    f[0][0] = -prices[0]
+    for i := 1; i < n; i++ {
+        f[i][0] = max(f[i-1][0], f[i-1][2] - prices[i])
+        f[i][1] = f[i-1][0] + prices[i]
+        f[i][2] = max(f[i-1][1], f[i-1][2]) 
+    }
+    return max(f[n-1][1], f[n-1][2])
+}
+
+func max(x, y int) int {
+    if x > y {
+        return x
+    }
+    return y
+}
+```
+
+**空间优化**
+
+注意到上面的状态转移方程中，$f[i][..]$ 只与 $f[i-1][..]$ 有关，而与 $f[i-2][..]$ 及之前的所有状态都无关，因此我们不必存储这些无关的状态。也就是说，我们只需要将 $f[i-1][0]$，$f[i-1][1]$，$f[i-1][2]$ 存放在三个变量中，通过它们计算出 $f[i][0]$，$f[i][1]$，$f[i][2]$ 并存回对应的变量，以便于第 $i+1$ 天的状态转移即可。 
+
+```C++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if (prices.empty()) {
+            return 0;
+        }
+
+        int n = prices.size();
+        int f0 = -prices[0];
+        int f1 = 0;
+        int f2 = 0;
+        for (int i = 1; i < n; ++i) {
+            int newf0 = max(f0, f2 - prices[i]);
+            int newf1 = f0 + prices[i];
+            int newf2 = max(f1, f2);
+            f0 = newf0;
+            f1 = newf1;
+            f2 = newf2;
+        }
+
+        return max(f1, f2);
+    }
+};
+```
+
+```C++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if (prices.empty()) {
+            return 0;
+        }
+
+        int n = prices.size();
+        int f0 = -prices[0];
+        int f1 = 0;
+        int f2 = 0;
+        for (int i = 1; i < n; ++i) {
+            tie(f0, f1, f2) = make_tuple(max(f0, f2 - prices[i]), f0 + prices[i], max(f1, f2));
+        }
+
+        return max(f1, f2);
+    }
+};
+```
+
+```Java
+class Solution {
+    public int maxProfit(int[] prices) {
+        if (prices.length == 0) {
+            return 0;
+        }
+
+        int n = prices.length;
+        int f0 = -prices[0];
+        int f1 = 0;
+        int f2 = 0;
+        for (int i = 1; i < n; ++i) {
+            int newf0 = Math.max(f0, f2 - prices[i]);
+            int newf1 = f0 + prices[i];
+            int newf2 = Math.max(f1, f2);
+            f0 = newf0;
+            f1 = newf1;
+            f2 = newf2;
+        }
+
+        return Math.max(f1, f2);
+    }
+}
+```
+
+```Python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        if not prices:
+            return 0
+        
+        n = len(prices)
+        f0, f1, f2 = -prices[0], 0, 0
+        for i in range(1, n):
+            newf0 = max(f0, f2 - prices[i])
+            newf1 = f0 + prices[i]
+            newf2 = max(f1, f2)
+            f0, f1, f2 = newf0, newf1, newf2
+        
+        return max(f1, f2)
+```
+
+```C
+int maxProfit(int* prices, int pricesSize) {
+    if (pricesSize == 0) {
+        return 0;
+    }
+
+    int f0 = -prices[0];
+    int f1 = 0;
+    int f2 = 0;
+    for (int i = 1; i < pricesSize; ++i) {
+        int newf0 = fmax(f0, f2 - prices[i]);
+        int newf1 = f0 + prices[i];
+        int newf2 = fmax(f1, f2);
+        f0 = newf0;
+        f1 = newf1;
+        f2 = newf2;
+    }
+
+    return fmax(f1, f2);
+}
+```
+
+```golang
+func maxProfit(prices []int) int {
+    if len(prices) == 0 {
+        return 0
+    }
+    n := len(prices)
+    f0, f1, f2 := -prices[0], 0, 0
+    for i := 1; i < n; i++ {
+        newf0 := max(f0, f2 - prices[i])
+        newf1 := f0 + prices[i]
+        newf2 := max(f1, f2)
+        f0, f1, f2 = newf0, newf1, newf2
+    }
+    return max(f1, f2)
+}
+
+func max(x, y int) int {
+    if x > y {
+        return x
+    }
+    return y
+}
+```
+
+**复杂度分析**
+
+- 时间复杂度：$O(n)$，其中 $n$ 为数组 ${\it prices}$ 的长度。
+
+- 空间复杂度：$O(n)$。我们需要 $3n$ 的空间存储动态规划中的所有状态，对应的空间复杂度为 $O(n)$。如果使用空间优化，空间复杂度可以优化至 $O(1)$。
 
 ---
 
@@ -17768,8 +18079,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/find-the-duplicate-number/solutions/xun-zhao-zhong-fu-shu-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 
 #### 方法一：二分查找
@@ -18691,7 +19000,7 @@ int numSquares(int n) {
 
 ### 题目描述
 
-
+> ⚠️ 该题为会员题，题目内容需开通力扣 Plus 会员后查看。
 
 ### 官方题解
 
@@ -19820,8 +20129,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/generate-parentheses/solutions/gua-hao-sheng-cheng-by-leetcode-solution/
 
-### 📺 视频题解 
-
 ### 📖 文字题解
 
 #### 方法一：暴力法
@@ -20181,8 +20488,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/group-anagrams/solutions/zi-mu-yi-wei-ci-fen-zu-by-leetcode-solut-gyoc/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 前言
 
@@ -20449,8 +20754,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/rotate-image/solutions/xuan-zhuan-tu-xiang-by-leetcode-solution-vu3m/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 
@@ -21296,8 +21599,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/trapping-rain-water/solutions/jie-yu-shui-by-leetcode-solution-tuvc/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 方法一：动态规划
 
@@ -22118,8 +22419,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/diameter-of-binary-tree/solutions/er-cha-shu-de-zhi-jing-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 
 #### 方法一：深度优先搜索
@@ -22267,8 +22566,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/solutions/zai-pai-xu-shu-zu-zhong-cha-zhao-yuan-su-de-di-3-4/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：二分查找
@@ -22470,8 +22767,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/search-in-rotated-sorted-array/solutions/sou-suo-xuan-zhuan-pai-xu-shu-zu-by-leetcode-solut/
 
-### 📺 视频题解
-
 ### 📖 文字题解
 #### 方法一：二分查找
 
@@ -22640,8 +22935,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/longest-valid-parentheses/solutions/zui-chang-you-xiao-gua-hao-by-leetcode-solution/
-
-### 📺视频题解  
 
 ### 📖文字题解
 #### 方法一：动态规划
@@ -23769,8 +24062,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/merge-k-sorted-lists/solutions/he-bing-kge-pai-xu-lian-biao-by-leetcode-solutio-2/
 
-### 📺 视频题解
-
 ### 📖 文字题解
 #### 前置知识：合并两个有序链表
 
@@ -24116,8 +24407,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/subarray-sum-equals-k/solutions/he-wei-kde-zi-shu-zu-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 
 #### 方法一：枚举
@@ -24373,8 +24662,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/merge-two-sorted-lists/solutions/he-bing-liang-ge-you-xu-lian-biao-by-leetcode-solu/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 
@@ -24739,8 +25026,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/valid-parentheses/solutions/you-xiao-de-gua-hao-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 方法一：栈
 
@@ -24984,7 +25269,391 @@ class Solution:
 
 ### 官方题解
 
-> ⚠️ 该题官方题解需会员或未公开，可前往题目页查看社区题解。
+> 题解链接：https://leetcode.cn/problems/remove-nth-node-from-end-of-list/solutions/shan-chu-lian-biao-de-dao-shu-di-nge-jie-dian-b-61/
+
+### 📖 文字题解
+#### 前言
+
+在对链表进行操作时，一种常用的技巧是添加一个哑节点（dummy node），它的 $\textit{next}$ 指针指向链表的头节点。这样一来，我们就不需要对头节点进行特殊的判断了。
+
+例如，在本题中，如果我们要删除节点 $y$，我们需要知道节点 $y$ 的前驱节点 $x$，并将 $x$ 的指针指向 $y$ 的后继节点。但由于头节点不存在前驱节点，因此我们需要在删除头节点时进行特殊判断。但如果我们添加了哑节点，那么头节点的前驱节点就是哑节点本身，此时我们就只需要考虑通用的情况即可。
+
+特别地，在某些语言中，由于需要自行对内存进行管理。因此在实际的面试中，对于「是否需要释放被删除节点对应的空间」这一问题，我们需要和面试官进行积极的沟通以达成一致。下面的代码中默认不释放空间。
+
+#### 方法一：计算链表长度
+
+**思路与算法**
+
+一种容易想到的方法是，我们首先从头节点开始对链表进行一次遍历，得到链表的长度 $L$。随后我们再从头节点开始对链表进行一次遍历，当遍历到第 $L-n+1$ 个节点时，它就是我们需要删除的节点。
+
+> 为了与题目中的 $n$ 保持一致，节点的编号从 $1$ 开始，头节点为编号 $1$ 的节点。
+
+为了方便删除操作，我们可以从哑节点开始遍历 $L-n+1$ 个节点。当遍历到第 $L-n+1$ 个节点时，**它的下一个节点**就是我们需要删除的节点，这样我们只需要修改一次指针，就能完成删除操作。
+
+![p1](https://assets.leetcode.cn/solution-static/19/p1.png)
+
+**代码**
+
+```C++
+class Solution {
+public:
+    int getLength(ListNode* head) {
+        int length = 0;
+        while (head) {
+            ++length;
+            head = head->next;
+        }
+        return length;
+    }
+
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode* dummy = new ListNode(0, head);
+        int length = getLength(head);
+        ListNode* cur = dummy;
+        for (int i = 1; i < length - n + 1; ++i) {
+            cur = cur->next;
+        }
+        cur->next = cur->next->next;
+        ListNode* ans = dummy->next;
+        delete dummy;
+        return ans;
+    }
+};
+```
+
+```Java
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummy = new ListNode(0, head);
+        int length = getLength(head);
+        ListNode cur = dummy;
+        for (int i = 1; i < length - n + 1; ++i) {
+            cur = cur.next;
+        }
+        cur.next = cur.next.next;
+        ListNode ans = dummy.next;
+        return ans;
+    }
+
+    public int getLength(ListNode head) {
+        int length = 0;
+        while (head != null) {
+            ++length;
+            head = head.next;
+        }
+        return length;
+    }
+}
+```
+
+```Python
+class Solution:
+    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        def getLength(head: ListNode) -> int:
+            length = 0
+            while head:
+                length += 1
+                head = head.next
+            return length
+        
+        dummy = ListNode(0, head)
+        length = getLength(head)
+        cur = dummy
+        for i in range(1, length - n + 1):
+            cur = cur.next
+        cur.next = cur.next.next
+        return dummy.next
+```
+
+```Golang
+func getLength(head *ListNode) (length int) {
+    for ; head != nil; head = head.Next {
+        length++
+    }
+    return
+}
+
+func removeNthFromEnd(head *ListNode, n int) *ListNode {
+    length := getLength(head)
+    dummy := &ListNode{0, head}
+    cur := dummy
+    for i := 0; i < length-n; i++ {
+        cur = cur.Next
+    }
+    cur.Next = cur.Next.Next
+    return dummy.Next
+}
+```
+
+```C
+int getLength(struct ListNode* head) {
+    int length = 0;
+    while (head) {
+        ++length;
+        head = head->next;
+    }
+    return length;
+}
+
+struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
+    struct ListNode* dummy = malloc(sizeof(struct ListNode));
+    dummy->val = 0, dummy->next = head;
+    int length = getLength(head);
+    struct ListNode* cur = dummy;
+    for (int i = 1; i < length - n + 1; ++i) {
+        cur = cur->next;
+    }
+    cur->next = cur->next->next;
+    struct ListNode* ans = dummy->next;
+    free(dummy);
+    return ans;
+}
+```
+
+**复杂度分析**
+
+- 时间复杂度：$O(L)$，其中 $L$ 是链表的长度。
+
+- 空间复杂度：$O(1)$。
+
+#### 方法二：栈
+
+**思路与算法**
+
+我们也可以在遍历链表的同时将所有节点依次入栈。根据栈「先进后出」的原则，我们弹出栈的第 $n$ 个节点就是需要删除的节点，并且目前栈顶的节点就是待删除节点的前驱节点。这样一来，删除操作就变得十分方便了。
+
+<![ppt1](https://assets.leetcode.cn/solution-static/19/1.png),![ppt2](https://assets.leetcode.cn/solution-static/19/2.png),![ppt3](https://assets.leetcode.cn/solution-static/19/3.png),![ppt4](https://assets.leetcode.cn/solution-static/19/4.png),![ppt5](https://assets.leetcode.cn/solution-static/19/5.png),![ppt6](https://assets.leetcode.cn/solution-static/19/6.png),![ppt7](https://assets.leetcode.cn/solution-static/19/7.png),![ppt8](https://assets.leetcode.cn/solution-static/19/8.png),![ppt9](https://assets.leetcode.cn/solution-static/19/9.png),![ppt10](https://assets.leetcode.cn/solution-static/19/10.png)>
+
+**代码**
+
+```C++
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode* dummy = new ListNode(0, head);
+        stack<ListNode*> stk;
+        ListNode* cur = dummy;
+        while (cur) {
+            stk.push(cur);
+            cur = cur->next;
+        }
+        for (int i = 0; i < n; ++i) {
+            stk.pop();
+        }
+        ListNode* prev = stk.top();
+        prev->next = prev->next->next;
+        ListNode* ans = dummy->next;
+        delete dummy;
+        return ans;
+    }
+};
+```
+
+```Java
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummy = new ListNode(0, head);
+        Deque<ListNode> stack = new LinkedList<ListNode>();
+        ListNode cur = dummy;
+        while (cur != null) {
+            stack.push(cur);
+            cur = cur.next;
+        }
+        for (int i = 0; i < n; ++i) {
+            stack.pop();
+        }
+        ListNode prev = stack.peek();
+        prev.next = prev.next.next;
+        ListNode ans = dummy.next;
+        return ans;
+    }
+}
+```
+
+```Python
+class Solution:
+    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        dummy = ListNode(0, head)
+        stack = list()
+        cur = dummy
+        while cur:
+            stack.append(cur)
+            cur = cur.next
+        
+        for i in range(n):
+            stack.pop()
+
+        prev = stack[-1]
+        prev.next = prev.next.next
+        return dummy.next
+```
+
+```Golang
+func removeNthFromEnd(head *ListNode, n int) *ListNode {
+    nodes := []*ListNode{}
+    dummy := &ListNode{0, head}
+    for node := dummy; node != nil; node = node.Next {
+        nodes = append(nodes, node)
+    }
+    prev := nodes[len(nodes)-1-n]
+    prev.Next = prev.Next.Next
+    return dummy.Next
+}
+```
+
+```C
+struct Stack {
+    struct ListNode* val;
+    struct Stack* next;
+};
+
+struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
+    struct ListNode* dummy = malloc(sizeof(struct ListNode));
+    dummy->val = 0, dummy->next = head;
+    struct Stack* stk = NULL;
+    struct ListNode* cur = dummy;
+    while (cur) {
+        struct Stack* tmp = malloc(sizeof(struct Stack));
+        tmp->val = cur, tmp->next = stk;
+        stk = tmp;
+        cur = cur->next;
+    }
+    for (int i = 0; i < n; ++i) {
+        struct Stack* tmp = stk->next;
+        free(stk);
+        stk = tmp;
+    }
+    struct ListNode* prev = stk->val;
+    prev->next = prev->next->next;
+    struct ListNode* ans = dummy->next;
+    free(dummy);
+    return ans;
+}
+```
+
+**复杂度分析**
+
+- 时间复杂度：$O(L)$，其中 $L$ 是链表的长度。
+
+- 空间复杂度：$O(L)$，其中 $L$ 是链表的长度。主要为栈的开销。
+
+#### 方法三：双指针
+
+**思路与算法**
+
+我们也可以在不预处理出链表的长度，以及使用常数空间的前提下解决本题。
+
+由于我们需要找到倒数第 $n$ 个节点，因此我们可以使用两个指针 $\textit{first}$ 和 $\textit{second}$ 同时对链表进行遍历，并且 $\textit{first}$ 比 $\textit{second}$ 超前 $n$ 个节点。当 $\textit{first}$ 遍历到链表的末尾时，$\textit{second}$ 就恰好处于倒数第 $n$ 个节点。
+
+具体地，初始时 $\textit{first}$ 和 $\textit{second}$ 均指向头节点。我们首先使用 $\textit{first}$ 对链表进行遍历，遍历的次数为 $n$。此时，$\textit{first}$ 和 $\textit{second}$ 之间间隔了 $n-1$ 个节点，即 $\textit{first}$ 比 $\textit{second}$ 超前了 $n$ 个节点。
+
+在这之后，我们同时使用 $\textit{first}$ 和 $\textit{second}$ 对链表进行遍历。当 $\textit{first}$ 遍历到链表的末尾（即 $\textit{first}$ 为空指针）时，$\textit{second}$ 恰好指向倒数第 $n$ 个节点。
+
+根据方法一和方法二，如果我们能够得到的是倒数第 $n$ 个节点的前驱节点而不是倒数第 $n$ 个节点的话，删除操作会更加方便。因此我们可以考虑在初始时将 $\textit{second}$ 指向哑节点，其余的操作步骤不变。这样一来，当 $\textit{first}$ 遍历到链表的末尾时，$\textit{second}$ 的**下一个节点**就是我们需要删除的节点。
+
+![p3](https://assets.leetcode.cn/solution-static/19/p3.png)
+
+**代码**
+
+```C++
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode* dummy = new ListNode(0, head);
+        ListNode* first = head;
+        ListNode* second = dummy;
+        for (int i = 0; i < n; ++i) {
+            first = first->next;
+        }
+        while (first) {
+            first = first->next;
+            second = second->next;
+        }
+        second->next = second->next->next;
+        ListNode* ans = dummy->next;
+        delete dummy;
+        return ans;
+    }
+};
+```
+
+```Java
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummy = new ListNode(0, head);
+        ListNode first = head;
+        ListNode second = dummy;
+        for (int i = 0; i < n; ++i) {
+            first = first.next;
+        }
+        while (first != null) {
+            first = first.next;
+            second = second.next;
+        }
+        second.next = second.next.next;
+        ListNode ans = dummy.next;
+        return ans;
+    }
+}
+```
+
+```Python
+class Solution:
+    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        dummy = ListNode(0, head)
+        first = head
+        second = dummy
+        for i in range(n):
+            first = first.next
+
+        while first:
+            first = first.next
+            second = second.next
+        
+        second.next = second.next.next
+        return dummy.next
+```
+
+```Golang
+func removeNthFromEnd(head *ListNode, n int) *ListNode {
+    dummy := &ListNode{0, head}
+    first, second := head, dummy
+    for i := 0; i < n; i++ {
+        first = first.Next
+    }
+    for ; first != nil; first = first.Next {
+        second = second.Next
+    }
+    second.Next = second.Next.Next
+    return dummy.Next
+}
+```
+
+```C
+struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
+    struct ListNode* dummy = malloc(sizeof(struct ListNode));
+    dummy->val = 0, dummy->next = head;
+    struct ListNode* first = head;
+    struct ListNode* second = dummy;
+    for (int i = 0; i < n; ++i) {
+        first = first->next;
+    }
+    while (first) {
+        first = first->next;
+        second = second->next;
+    }
+    second->next = second->next->next;
+    struct ListNode* ans = dummy->next;
+    free(dummy);
+    return ans;
+}
+```
+
+**复杂度分析**
+
+- 时间复杂度：$O(L)$，其中 $L$ 是链表的长度。
+
+- 空间复杂度：$O(1)$。
 
 ---
 
@@ -25031,8 +25700,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/letter-combinations-of-a-phone-number/solutions/dian-hua-hao-ma-de-zi-mu-zu-he-by-leetcode-solutio/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：回溯
@@ -25326,8 +25993,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/3sum/solutions/san-shu-zhi-he-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 
 #### 前言
@@ -25615,8 +26280,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/container-with-most-water/solutions/sheng-zui-duo-shui-de-rong-qi-by-leetcode-solution/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：双指针
@@ -26112,8 +26775,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/longest-palindromic-substring/solutions/zui-chang-hui-wen-zi-chuan-by-leetcode-solution/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：动态规划
@@ -26719,7 +27380,591 @@ class Solution:
 
 ### 官方题解
 
-> ⚠️ 该题官方题解需会员或未公开，可前往题目页查看社区题解。
+> 题解链接：https://leetcode.cn/problems/median-of-two-sorted-arrays/solutions/xun-zhao-liang-ge-you-xu-shu-zu-de-zhong-wei-s-114/
+
+### 📖文字题解
+
+#### 方法一：二分查找
+
+给定两个有序数组，要求找到两个有序数组的中位数，最直观的思路有以下两种：
+
+- 使用归并的方式，合并两个有序数组，得到一个大的有序数组。大的有序数组的中间位置的元素，即为中位数。
+
+- 不需要合并两个有序数组，只要找到中位数的位置即可。由于两个数组的长度已知，因此中位数对应的两个数组的下标之和也是已知的。维护两个指针，初始时分别指向两个数组的下标 $0$ 的位置，每次将指向较小值的指针后移一位（如果一个指针已经到达数组末尾，则只需要移动另一个数组的指针），直到到达中位数的位置。
+
+假设两个有序数组的长度分别为 $m$ 和 $n$，上述两种思路的复杂度如何？
+
+第一种思路的时间复杂度是 $O(m+n)$，空间复杂度是 $O(m+n)$。第二种思路虽然可以将空间复杂度降到 $O(1)$，但是时间复杂度仍是 $O(m+n)$。
+
+如何把时间复杂度降低到 $O(\log(m+n))$ 呢？如果对时间复杂度的要求有 $\log$，通常都需要用到二分查找，这道题也可以通过二分查找实现。
+
+根据中位数的定义，当 $m+n$ 是奇数时，中位数是两个有序数组中的第 $(m+n+1)/2$ 个元素，当 $m+n$ 是偶数时，中位数是两个有序数组中的第 $(m+n)/2$ 个元素和第 $(m+n)/2+1$ 个元素的平均值。因此，这道题可以转化成寻找两个有序数组中的第 $k$ 小的数，其中 $k$ 为 $(m+n)/2$ 或 $(m+n)/2+1$。
+
+假设两个有序数组分别是 $\text{A}$ 和 $\text{B}$。要找到第 $k$ 个元素，我们可以比较 $\text{A}[k/2-1]$ 和 $\text{B}[k/2-1]$，其中 $/$ 表示整数除法。由于 $\text{A}[k/2-1]$ 和 $\text{B}[k/2-1]$ 的前面分别有 $\text{A}[0\,..\,k/2-2]$ 和 $\text{B}[0\,..\,k/2-2]$，即 $k/2-1$ 个元素，对于 $\text{A}[k/2-1]$ 和 $\text{B}[k/2-1]$ 中的较小值，最多只会有 $(k/2-1)+(k/2-1) \leq k-2$ 个元素比它小，那么它就不能是第 $k$ 小的数了。
+
+因此我们可以归纳出三种情况：
+
+- 如果 $\text{A}[k/2-1] < \text{B}[k/2-1]$，则比 $\text{A}[k/2-1]$ 小的数最多只有 $\text{A}$ 的前 $k/2-1$ 个数和 $\text{B}$ 的前 $k/2-1$ 个数，即比 $\text{A}[k/2-1]$ 小的数最多只有 $k-2$ 个，因此 $\text{A}[k/2-1]$ 不可能是第 $k$ 个数，$\text{A}[0]$ 到 $\text{A}[k/2-1]$ 也都不可能是第 $k$ 个数，可以全部排除。
+
+- 如果 $\text{A}[k/2-1] > \text{B}[k/2-1]$，则可以排除 $\text{B}[0]$ 到 $\text{B}[k/2-1]$。
+
+- 如果 $\text{A}[k/2-1] = \text{B}[k/2-1]$，则可以归入第一种情况处理。
+
+![fig1](https://assets.leetcode.cn/solution-static/4/4_fig1.png)
+
+可以看到，比较 $\text{A}[k/2-1]$ 和 $\text{B}[k/2-1]$ 之后，可以排除 $k/2$ 个不可能是第 $k$ 小的数，查找范围缩小了一半。同时，我们将在排除后的新数组上继续进行二分查找，并且根据我们排除数的个数，减少 $k$ 的值，这是因为我们排除的数都不大于第 $k$ 小的数。
+
+有以下三种情况需要特殊处理：
+
+- 如果 $\text{A}[k/2-1]$ 或者 $\text{B}[k/2-1]$ 越界，那么我们可以选取对应数组中的最后一个元素。在这种情况下，我们**必须根据排除数的个数减少 $k$ 的值**，而不能直接将 $k$ 减去 $k/2$。
+
+- 如果一个数组为空，说明该数组中的所有元素都被排除，我们可以直接返回另一个数组中第 $k$ 小的元素。
+
+- 如果 $k=1$，我们只要返回两个数组首元素的最小值即可。
+
+用一个例子说明上述算法。假设两个有序数组如下：
+
+```
+A: 1 3 4 9
+B: 1 2 3 4 5 6 7 8 9
+```
+两个有序数组的长度分别是 $4$ 和 $9$，长度之和是 $13$，中位数是两个有序数组中的第 $7$ 个元素，因此需要找到第 $k=7$ 个元素。
+
+比较两个有序数组中下标为 $k/2-1=2$ 的数，即 $\text{A}[2]$ 和 $\text{B}[2]$，如下面所示：
+
+```
+A: 1 3 4 9
+       ↑
+B: 1 2 3 4 5 6 7 8 9
+       ↑
+```
+由于 $\text{A}[2] > \text{B}[2]$，因此排除 $\text{B}[0]$ 到 $\text{B}[2]$，即数组 $\text{B}$ 的下标偏移（offset）变为 $3$，同时更新 $k$ 的值：$k=k-k/2=4$。
+
+下一步寻找，比较两个有序数组中下标为 $k/2-1=1$ 的数，即 $\text{A}[1]$ 和 $\text{B}[4]$，如下面所示，其中方括号部分表示已经被排除的数。
+
+```
+A: 1 3 4 9
+     ↑
+B: [1 2 3] 4 5 6 7 8 9
+             ↑
+```
+由于 $\text{A}[1] < \text{B}[4]$，因此排除 $\text{A}[0]$ 到 $\text{A}[1]$，即数组 $\text{A}$ 的下标偏移变为 $2$，同时更新 $k$ 的值：$k=k-k/2=2$。
+
+下一步寻找，比较两个有序数组中下标为 $k/2-1=0$ 的数，即比较 $\text{A}[2]$ 和 $\text{B}[3]$，如下面所示，其中方括号部分表示已经被排除的数。
+
+```
+A: [1 3] 4 9
+         ↑
+B: [1 2 3] 4 5 6 7 8 9
+           ↑
+```
+由于 $\text{A}[2]=\text{B}[3]$，根据之前的规则，排除 $\text{A}$ 中的元素，因此排除 $\text{A}[2]$，即数组 $\text{A}$ 的下标偏移变为 $3$，同时更新 $k$ 的值： $k=k-k/2=1$。
+
+由于 $k$ 的值变成 $1$，因此比较两个有序数组中的未排除下标范围内的第一个数，其中较小的数即为第 $k$ 个数，由于 $\text{A}[3] > \text{B}[3]$，因此第 $k$ 个数是 $\text{B}[3]=4$。
+
+```
+A: [1 3 4] 9
+           ↑
+B: [1 2 3] 4 5 6 7 8 9
+           ↑
+```
+
+```Java
+class Solution {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int length1 = nums1.length, length2 = nums2.length;
+        int totalLength = length1 + length2;
+        if (totalLength % 2 == 1) {
+            int midIndex = totalLength / 2;
+            double median = getKthElement(nums1, nums2, midIndex + 1);
+            return median;
+        } else {
+            int midIndex1 = totalLength / 2 - 1, midIndex2 = totalLength / 2;
+            double median = (getKthElement(nums1, nums2, midIndex1 + 1) + getKthElement(nums1, nums2, midIndex2 + 1)) / 2.0;
+            return median;
+        }
+    }
+
+    public int getKthElement(int[] nums1, int[] nums2, int k) {
+        /* 主要思路：要找到第 k (k>1) 小的元素，那么就取 pivot1 = nums1[k/2-1] 和 pivot2 = nums2[k/2-1] 进行比较
+         * 这里的 "/" 表示整除
+         * nums1 中小于等于 pivot1 的元素有 nums1[0 .. k/2-2] 共计 k/2-1 个
+         * nums2 中小于等于 pivot2 的元素有 nums2[0 .. k/2-2] 共计 k/2-1 个
+         * 取 pivot = min(pivot1, pivot2)，两个数组中小于等于 pivot 的元素共计不会超过 (k/2-1) + (k/2-1) <= k-2 个
+         * 这样 pivot 本身最大也只能是第 k-1 小的元素
+         * 如果 pivot = pivot1，那么 nums1[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums1 数组
+         * 如果 pivot = pivot2，那么 nums2[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums2 数组
+         * 由于我们 "删除" 了一些元素（这些元素都比第 k 小的元素要小），因此需要修改 k 的值，减去删除的数的个数
+         */
+
+        int length1 = nums1.length, length2 = nums2.length;
+        int index1 = 0, index2 = 0;
+        int kthElement = 0;
+
+        while (true) {
+            // 边界情况
+            if (index1 == length1) {
+                return nums2[index2 + k - 1];
+            }
+            if (index2 == length2) {
+                return nums1[index1 + k - 1];
+            }
+            if (k == 1) {
+                return Math.min(nums1[index1], nums2[index2]);
+            }
+            
+            // 正常情况
+            int half = k / 2;
+            int newIndex1 = Math.min(index1 + half, length1) - 1;
+            int newIndex2 = Math.min(index2 + half, length2) - 1;
+            int pivot1 = nums1[newIndex1], pivot2 = nums2[newIndex2];
+            if (pivot1 <= pivot2) {
+                k -= (newIndex1 - index1 + 1);
+                index1 = newIndex1 + 1;
+            } else {
+                k -= (newIndex2 - index2 + 1);
+                index2 = newIndex2 + 1;
+            }
+        }
+    }
+}
+```
+
+```C++
+class Solution {
+public:
+    int getKthElement(const vector<int>& nums1, const vector<int>& nums2, int k) {
+        /* 主要思路：要找到第 k (k>1) 小的元素，那么就取 pivot1 = nums1[k/2-1] 和 pivot2 = nums2[k/2-1] 进行比较
+         * 这里的 "/" 表示整除
+         * nums1 中小于等于 pivot1 的元素有 nums1[0 .. k/2-2] 共计 k/2-1 个
+         * nums2 中小于等于 pivot2 的元素有 nums2[0 .. k/2-2] 共计 k/2-1 个
+         * 取 pivot = min(pivot1, pivot2)，两个数组中小于等于 pivot 的元素共计不会超过 (k/2-1) + (k/2-1) <= k-2 个
+         * 这样 pivot 本身最大也只能是第 k-1 小的元素
+         * 如果 pivot = pivot1，那么 nums1[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums1 数组
+         * 如果 pivot = pivot2，那么 nums2[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums2 数组
+         * 由于我们 "删除" 了一些元素（这些元素都比第 k 小的元素要小），因此需要修改 k 的值，减去删除的数的个数
+         */
+
+        int m = nums1.size();
+        int n = nums2.size();
+        int index1 = 0, index2 = 0;
+
+        while (true) {
+            // 边界情况
+            if (index1 == m) {
+                return nums2[index2 + k - 1];
+            }
+            if (index2 == n) {
+                return nums1[index1 + k - 1];
+            }
+            if (k == 1) {
+                return min(nums1[index1], nums2[index2]);
+            }
+
+            // 正常情况
+            int newIndex1 = min(index1 + k / 2 - 1, m - 1);
+            int newIndex2 = min(index2 + k / 2 - 1, n - 1);
+            int pivot1 = nums1[newIndex1];
+            int pivot2 = nums2[newIndex2];
+            if (pivot1 <= pivot2) {
+                k -= newIndex1 - index1 + 1;
+                index1 = newIndex1 + 1;
+            }
+            else {
+                k -= newIndex2 - index2 + 1;
+                index2 = newIndex2 + 1;
+            }
+        }
+    }
+
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        int totalLength = nums1.size() + nums2.size();
+        if (totalLength % 2 == 1) {
+            return getKthElement(nums1, nums2, (totalLength + 1) / 2);
+        }
+        else {
+            return (getKthElement(nums1, nums2, totalLength / 2) + getKthElement(nums1, nums2, totalLength / 2 + 1)) / 2.0;
+        }
+    }
+};
+```
+
+```Python
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+        def getKthElement(k):
+            """
+            - 主要思路：要找到第 k (k>1) 小的元素，那么就取 pivot1 = nums1[k/2-1] 和 pivot2 = nums2[k/2-1] 进行比较
+            - 这里的 "/" 表示整除
+            - nums1 中小于等于 pivot1 的元素有 nums1[0 .. k/2-2] 共计 k/2-1 个
+            - nums2 中小于等于 pivot2 的元素有 nums2[0 .. k/2-2] 共计 k/2-1 个
+            - 取 pivot = min(pivot1, pivot2)，两个数组中小于等于 pivot 的元素共计不会超过 (k/2-1) + (k/2-1) <= k-2 个
+            - 这样 pivot 本身最大也只能是第 k-1 小的元素
+            - 如果 pivot = pivot1，那么 nums1[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums1 数组
+            - 如果 pivot = pivot2，那么 nums2[0 .. k/2-1] 都不可能是第 k 小的元素。把这些元素全部 "删除"，剩下的作为新的 nums2 数组
+            - 由于我们 "删除" 了一些元素（这些元素都比第 k 小的元素要小），因此需要修改 k 的值，减去删除的数的个数
+            """
+            
+            index1, index2 = 0, 0
+            while True:
+                # 特殊情况
+                if index1 == m:
+                    return nums2[index2 + k - 1]
+                if index2 == n:
+                    return nums1[index1 + k - 1]
+                if k == 1:
+                    return min(nums1[index1], nums2[index2])
+
+                # 正常情况
+                newIndex1 = min(index1 + k // 2 - 1, m - 1)
+                newIndex2 = min(index2 + k // 2 - 1, n - 1)
+                pivot1, pivot2 = nums1[newIndex1], nums2[newIndex2]
+                if pivot1 <= pivot2:
+                    k -= newIndex1 - index1 + 1
+                    index1 = newIndex1 + 1
+                else:
+                    k -= newIndex2 - index2 + 1
+                    index2 = newIndex2 + 1
+        
+        m, n = len(nums1), len(nums2)
+        totalLength = m + n
+        if totalLength % 2 == 1:
+            return getKthElement((totalLength + 1) // 2)
+        else:
+            return (getKthElement(totalLength // 2) + getKthElement(totalLength // 2 + 1)) / 2
+
+```
+
+```golang
+func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
+    totalLength := len(nums1) + len(nums2)
+    if totalLength%2 == 1 {
+        midIndex := totalLength/2
+        return float64(getKthElement(nums1, nums2, midIndex + 1))
+    } else {
+        midIndex1, midIndex2 := totalLength/2 - 1, totalLength/2
+        return float64(getKthElement(nums1, nums2, midIndex1 + 1) + getKthElement(nums1, nums2, midIndex2 + 1)) / 2.0
+    }
+    return 0
+}
+
+func getKthElement(nums1, nums2 []int, k int) int {
+    index1, index2 := 0, 0
+    for {
+        if index1 == len(nums1) {
+            return nums2[index2 + k - 1]
+        }
+        if index2 == len(nums2) {
+            return nums1[index1 + k - 1]
+        }
+        if k == 1 {
+            return min(nums1[index1], nums2[index2])
+        }
+        half := k/2
+        newIndex1 := min(index1 + half, len(nums1)) - 1
+        newIndex2 := min(index2 + half, len(nums2)) - 1
+        pivot1, pivot2 := nums1[newIndex1], nums2[newIndex2]
+        if pivot1 <= pivot2 {
+            k -= (newIndex1 - index1 + 1)
+            index1 = newIndex1 + 1
+        } else {
+            k -= (newIndex2 - index2 + 1)
+            index2 = newIndex2 + 1
+        }
+    }
+    return 0
+}
+
+func min(x, y int) int {
+    if x < y {
+        return x
+    }
+    return y
+}
+```
+
+**复杂度分析**
+
+* 时间复杂度：$O(\log(m+n))$，其中 $m$ 和 $n$ 分别是数组 $\textit{nums}_1$ 和 $\textit{nums}_2$ 的长度。初始时有 $k=(m+n)/2$ 或 $k=(m+n)/2+1$，每一轮循环可以将查找范围减少一半，因此时间复杂度是 $O(\log(m+n))$。
+
+* 空间复杂度：$O(1)$。
+
+#### 方法二：划分数组
+
+**说明**
+
+方法一的时间复杂度已经很优秀了，但本题存在时间复杂度更低的一种方法。这里给出推导过程，勇于挑战自己的读者可以进行尝试。
+
+**思路与算法**
+
+为了使用划分的方法解决这个问题，需要理解「中位数的作用是什么」。在统计中，中位数被用来：
+
+> 将一个集合划分为两个长度相等的子集，其中一个子集中的元素总是大于另一个子集中的元素。
+
+如果理解了中位数的划分作用，就很接近答案了。
+
+首先，在任意位置 $i$ 将 $\text{A}$ 划分成两个部分：
+
+```
+           left_A            |          right_A
+    A[0], A[1], ..., A[i-1]  |  A[i], A[i+1], ..., A[m-1]
+```
+
+由于 $\text{A}$ 中有 $m$ 个元素， 所以有 $m+1$ 种划分的方法（$i \in [0, m]$）。
+
+> $\text{len}(\text{left\_A}) = i, \text{len}(\text{right\_A}) = m - i$.
+>
+> 注意：当 $i = 0$ 时，$\text{left\_A}$ 为空集， 而当 $i = m$ 时, $\text{right\_A}$ 为空集。
+
+采用同样的方式，在任意位置 $j$ 将 $\text{B}$ 划分成两个部分：
+
+```
+           left_B            |          right_B
+    B[0], B[1], ..., B[j-1]  |  B[j], B[j+1], ..., B[n-1]
+```
+
+将 $\text{left\_A}$ 和 $\text{left\_B}$ 放入一个集合，并将 $\text{right\_A}$ 和 $\text{right\_B}$ 放入另一个集合。 再把这两个新的集合分别命名为 $\text{left\_part}$ 和 $\text{right\_part}$：
+
+```
+          left_part          |         right_part
+    A[0], A[1], ..., A[i-1]  |  A[i], A[i+1], ..., A[m-1]
+    B[0], B[1], ..., B[j-1]  |  B[j], B[j+1], ..., B[n-1]
+```
+
+当 $\text{A}$ 和 $\text{B}$ 的总长度是偶数时，如果可以确认：
+
+- $\text{len}(\text{left\_part}) = \text{len}(\text{right\_part})$
+- $\max(\text{left\_part}) \leq \min(\text{right\_part})$
+
+那么，$\{\text{A}, \text{B}\}$ 中的所有元素已经被划分为相同长度的两个部分，且前一部分中的元素总是小于或等于后一部分中的元素。中位数就是前一部分的最大值和后一部分的最小值的平均值：
+
+$$
+\text{median} = \frac{\text{max}(\text{left}\_\text{part}) + \text{min}(\text{right}\_\text{part})}{2}
+$$
+
+当 $\text{A}$ 和 $\text{B}$ 的总长度是奇数时，如果可以确认：
+
+- $\text{len}(\text{left\_part}) = \text{len}(\text{right\_part})+1$
+- $\max(\text{left\_part}) \leq \min(\text{right\_part})$
+
+那么，$\{\text{A}, \text{B}\}$ 中的所有元素已经被划分为两个部分，前一部分比后一部分多一个元素，且前一部分中的元素总是小于或等于后一部分中的元素。中位数就是前一部分的最大值：
+
+$$
+\text{median} = \text{max}(\text{left}\_\text{part})
+$$
+
+第一个条件对于总长度是偶数和奇数的情况有所不同，但是可以将两种情况合并。第二个条件对于总长度是偶数和奇数的情况是一样的。
+
+要确保这两个条件，只需要保证：
+
+- $i + j = m - i + n - j$（当 $m+n$ 为偶数）或 $i + j = m - i + n - j + 1$（当 $m+n$ 为奇数）。等号左侧为前一部分的元素个数，等号右侧为后一部分的元素个数。将 $i$ 和 $j$ 全部移到等号左侧，我们就可以得到 $i+j = \frac{m + n + 1}{2}$。这里的分数结果只保留整数部分。
+
+- $0 \leq i \leq m$，$0 \leq j \leq n$。如果我们规定 $\text{A}$ 的长度小于等于 $\text{B}$ 的长度，即 $m \leq n$。这样对于任意的 $i \in [0, m]$，都有 $j = \frac{m + n + 1}{2} - i \in [0, n]$，那么我们在 $[0, m]$ 的范围内枚举 $i$ 并得到 $j$，就不需要额外的性质了。
+
+    - 如果 $\text{A}$ 的长度较大，那么我们只要交换 $\text{A}$ 和 $\text{B}$ 即可。
+
+    - 如果 $m > n$ ，那么得出的 $j$ 有可能是负数。
+
+- $\text{B}[j-1] \leq \text{A}[i]$ 以及 $\text{A}[i-1] \leq \text{B}[j]$，即前一部分的最大值小于等于后一部分的最小值。
+
+为了简化分析，假设 $\text{A}[i-1], \text{B}[j-1], \text{A}[i], \text{B}[j]$ 总是存在。对于 $i=0$、$i=m$、$j=0$、$j=n$ 这样的临界条件，我们只需要规定 $\text{A}[-1]=\text{B}[-1]=-\infty$，$A[m]=\text{B}[n]=\infty$ 即可。这也是比较直观的：当一个数组不出现在前一部分时，对应的值为负无穷，就不会对前一部分的**最大值**产生影响；当一个数组不出现在后一部分时，对应的值为正无穷，就不会对后一部分的**最小值**产生影响。
+
+所以我们需要做的是：
+
+> 在 $[0, m]$ 中找到 $i$，使得：
+>
+> $\qquad \text{B}[j-1] \leq \text{A}[i]$ 且 $\text{A}[i-1] \leq \text{B}[j]$，其中 $j = \frac{m + n + 1}{2} - i$
+
+我们证明它等价于：
+
+> 在 $[0, m]$ 中找到最大的 $i$，使得：
+>
+> $\qquad \text{A}[i-1] \leq \text{B}[j]$，其中 $j = \frac{m + n + 1}{2} - i$
+
+这是因为：
+
+- 当 $i$ 从 $0 \sim m$ 递增时，$\text{A}[i-1]$ 递增，$\text{B}[j]$ 递减，所以一定存在一个最大的 $i$ 满足 $\text{A}[i-1] \leq \text{B}[j]$；
+
+- 如果 $i$ 是最大的，那么说明 $i+1$ 不满足。将 $i+1$ 带入可以得到 $\text{A}[i] > \text{B}[j-1]$，也就是 $\text{B}[j - 1] < \text{A}[i]$，就和我们进行等价变换前 $i$ 的性质一致了（甚至还要更强）。
+
+因此我们可以对 $i$ 在 $[0, m]$ 的区间上进行二分搜索，找到最大的满足 $\text{A}[i-1] \leq \text{B}[j]$ 的 $i$ 值，就得到了划分的方法。此时，划分前一部分元素中的最大值，以及划分后一部分元素中的最小值，才可能作为就是这两个数组的中位数。
+
+```Java
+class Solution {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        if (nums1.length > nums2.length) {
+            return findMedianSortedArrays(nums2, nums1);
+        }
+
+        int m = nums1.length;
+        int n = nums2.length;
+        int left = 0, right = m;
+        // median1：前一部分的最大值
+        // median2：后一部分的最小值
+        int median1 = 0, median2 = 0;
+
+        while (left <= right) {
+            // 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
+            // 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
+            int i = (left + right) / 2;
+            int j = (m + n + 1) / 2 - i;
+
+            // nums_im1, nums_i, nums_jm1, nums_j 分别表示 nums1[i-1], nums1[i], nums2[j-1], nums2[j]
+            int nums_im1 = (i == 0 ? Integer.MIN_VALUE : nums1[i - 1]);
+            int nums_i = (i == m ? Integer.MAX_VALUE : nums1[i]);
+            int nums_jm1 = (j == 0 ? Integer.MIN_VALUE : nums2[j - 1]);
+            int nums_j = (j == n ? Integer.MAX_VALUE : nums2[j]);
+
+            if (nums_im1 <= nums_j) {
+                median1 = Math.max(nums_im1, nums_jm1);
+                median2 = Math.min(nums_i, nums_j);
+                left = i + 1;
+            } else {
+                right = i - 1;
+            }
+        }
+
+        return (m + n) % 2 == 0 ? (median1 + median2) / 2.0 : median1;
+    }
+}
+```
+
+```C++
+class Solution {
+public:
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        if (nums1.size() > nums2.size()) {
+            return findMedianSortedArrays(nums2, nums1);
+        }
+        
+        int m = nums1.size();
+        int n = nums2.size();
+        int left = 0, right = m;
+        // median1：前一部分的最大值
+        // median2：后一部分的最小值
+        int median1 = 0, median2 = 0;
+
+        while (left <= right) {
+            // 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
+            // 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
+            int i = (left + right) / 2;
+            int j = (m + n + 1) / 2 - i;
+
+            // nums_im1, nums_i, nums_jm1, nums_j 分别表示 nums1[i-1], nums1[i], nums2[j-1], nums2[j]
+            int nums_im1 = (i == 0 ? INT_MIN : nums1[i - 1]);
+            int nums_i = (i == m ? INT_MAX : nums1[i]);
+            int nums_jm1 = (j == 0 ? INT_MIN : nums2[j - 1]);
+            int nums_j = (j == n ? INT_MAX : nums2[j]);
+
+            if (nums_im1 <= nums_j) {
+                median1 = max(nums_im1, nums_jm1);
+                median2 = min(nums_i, nums_j);
+                left = i + 1;
+            } else {
+                right = i - 1;
+            }
+        }
+
+        return (m + n) % 2 == 0 ? (median1 + median2) / 2.0 : median1;
+    }
+};
+```
+
+```Python
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+        if len(nums1) > len(nums2):
+            return self.findMedianSortedArrays(nums2, nums1)
+
+        infinty = 2**40
+        m, n = len(nums1), len(nums2)
+        left, right = 0, m
+        # median1：前一部分的最大值
+        # median2：后一部分的最小值
+        median1, median2 = 0, 0
+
+        while left <= right:
+            # 前一部分包含 nums1[0 .. i-1] 和 nums2[0 .. j-1]
+            # // 后一部分包含 nums1[i .. m-1] 和 nums2[j .. n-1]
+            i = (left + right) // 2
+            j = (m + n + 1) // 2 - i
+
+            # nums_im1, nums_i, nums_jm1, nums_j 分别表示 nums1[i-1], nums1[i], nums2[j-1], nums2[j]
+            nums_im1 = (-infinty if i == 0 else nums1[i - 1])
+            nums_i = (infinty if i == m else nums1[i])
+            nums_jm1 = (-infinty if j == 0 else nums2[j - 1])
+            nums_j = (infinty if j == n else nums2[j])
+
+            if nums_im1 <= nums_j:
+                median1, median2 = max(nums_im1, nums_jm1), min(nums_i, nums_j)
+                left = i + 1
+            else:
+                right = i - 1
+
+        return (median1 + median2) / 2 if (m + n) % 2 == 0 else median1
+```
+
+```golang
+func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
+    if len(nums1) > len(nums2) {
+        return findMedianSortedArrays(nums2, nums1)
+    }
+    m, n := len(nums1), len(nums2)
+    left, right := 0, m
+    median1, median2 := 0, 0
+    for left <= right {
+        i := (left + right) / 2
+        j := (m + n + 1) / 2 - i
+        nums_im1 := math.MinInt32
+        if i != 0 {
+            nums_im1 = nums1[i-1]
+        }
+        nums_i := math.MaxInt32
+        if i != m {
+            nums_i = nums1[i]
+        }
+        nums_jm1 := math.MinInt32
+        if j != 0 {
+            nums_jm1 = nums2[j-1]
+        }
+        nums_j := math.MaxInt32
+        if j != n {
+            nums_j = nums2[j]
+        }
+        if nums_im1 <= nums_j {
+            median1 = max(nums_im1, nums_jm1)
+            median2 = min(nums_i, nums_j)
+            left = i + 1
+        } else {
+            right = i - 1
+        }
+    }
+    if (m + n) % 2 == 0 {
+        return float64(median1 + median2) / 2.0
+    }
+    return  float64(median1)
+}
+
+func max(x, y int) int {
+    if x > y {
+        return x
+    }
+    return y
+}
+
+func min(x, y int) int {
+    if x < y {
+        return x
+    }
+    return y
+}
+```
+
+**复杂度分析**
+
+* 时间复杂度：$O(\log\min(m,n)))$，其中 $m$ 和 $n$ 分别是数组 $\textit{nums}_1$ 和 $\textit{nums}_2$ 的长度。查找的区间是 $[0, m]$，而该区间的长度在每次循环之后都会减少为原来的一半。所以，只需要执行 $\log m$ 次循环。由于每次循环中的操作次数是常数，所以时间复杂度为 $O(\log m)$。由于我们可能需要交换 $\textit{nums}_1$ 和 $\textit{nums}_2$ 使得 $m \leq n$，因此时间复杂度是 $O(\log\min(m,n)))$。
+
+* 空间复杂度：$O(1)$。
 
 ---
 
@@ -26773,8 +28018,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/longest-substring-without-repeating-characters/solutions/wu-zhong-fu-zi-fu-de-zui-chang-zi-chuan-by-leetc-2/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：滑动窗口
@@ -27007,8 +28250,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/add-two-numbers/solutions/liang-shu-xiang-jia-by-leetcode-solution/
-
-### 📺 视频题解
 
 ### 📖 文字题解
 
@@ -29356,8 +30597,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/solutions/cong-qian-xu-yu-zhong-xu-bian-li-xu-lie-gou-zao-9/
 
-### 📺视频题解  
-
 ### 📖文字题解
 
 #### 前言
@@ -29805,8 +31044,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/maximum-depth-of-binary-tree/solutions/er-cha-shu-de-zui-da-shen-du-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 方法一：深度优先搜索
 
@@ -30069,8 +31306,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/binary-tree-level-order-traversal/solutions/er-cha-shu-de-ceng-xu-bian-li-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 
 #### 方法一：广度优先搜索
@@ -30272,8 +31507,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/symmetric-tree/solutions/dui-cheng-er-cha-shu-by-leetcode-solution/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：递归
@@ -30542,9 +31775,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/validate-binary-search-tree/solutions/yan-zheng-er-cha-sou-suo-shu-by-leetcode-solution/
-
-### 📺 视频题解 
- 
 
 ### 📖 文字题解
 
@@ -32501,8 +33731,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/largest-rectangle-in-histogram/solutions/zhu-zhuang-tu-zhong-zui-da-de-ju-xing-by-leetcode-/
 
-### 📺视频题解  
-
 ### 📖文字题解
 
 #### 前言
@@ -32969,8 +34197,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/two-sum/solutions/liang-shu-zhi-he-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 方法一：暴力枚举
 
@@ -33224,8 +34450,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/subsets/solutions/zi-ji-by-leetcode-solution/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：迭代法实现子集枚举
@@ -33566,8 +34790,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/minimum-window-substring/solutions/zui-xiao-fu-gai-zi-chuan-by-leetcode-solution/
 
-### 📺视频题解  
-
 ### 📖文字题解
 
 #### 方法一：滑动窗口
@@ -33785,8 +35007,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/sort-colors/solutions/yan-se-fen-lei-by-leetcode-solution/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 前言
@@ -34231,8 +35451,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/edit-distance/solutions/bian-ji-ju-chi-by-leetcode-solution/
 
-### 📺 视频题解
-
 ### 📖 文字题解
 
 #### 想法
@@ -34491,8 +35709,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/climbing-stairs/solutions/pa-lou-ti-by-leetcode-solution/
-
-### 📺 视频题解  
 
 #### 方法一：动态规划
 
@@ -35429,8 +36645,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/minimum-path-sum/solutions/zui-xiao-lu-jing-he-by-leetcode-solution/
 
-### 📺 视频题解  
-
 ### 📖 文字题解
 #### 方法一：动态规划
 
@@ -35650,8 +36864,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/unique-paths/solutions/bu-tong-lu-jing-by-leetcode-solution-hzjf/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 #### 方法一：动态规划
@@ -36186,8 +37398,6 @@ class Solution:
 
 > 题解链接：https://leetcode.cn/problems/jump-game/solutions/tiao-yue-you-xi-by-leetcode-solution/
 
-### 📺 视频题解
-
 ### 📖 文字题解
 
 #### 方法一：贪心
@@ -36338,8 +37548,6 @@ class Solution:
 ### 官方题解
 
 > 题解链接：https://leetcode.cn/problems/maximum-subarray/solutions/zui-da-zi-xu-he-by-leetcode-solution/
-
-### 📺 视频题解  
 
 ### 📖 文字题解
 
