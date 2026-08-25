@@ -1,17 +1,17 @@
-**结论先看：** 这篇《From Seeing to Knowing the World: A Survey of Vision World Models》可以看作视觉世界模型方向的一篇“总纲式综述”。它最重要的价值，不是提出某个新模型，而是把分散在视频生成、表征学习、机器人、自动驾驶里的 world model 研究，统一收束到一个 **Vision Encoding → Knowledge Learning → Controllable Simulation** 的分析框架里。
+结论先看： 这篇《From Seeing to Knowing the World: A Survey of Vision World Models》可以看作视觉世界模型方向的一篇“总纲式综述”。它最重要的价值，不是提出某个新模型，而是把分散在视频生成、表征学习、机器人、自动驾驶里的 world model 研究，统一收束到一个 Vision Encoding → Knowledge Learning → Controllable Simulation 的分析框架里。
 
-**一个必须带着读的补充判断：** 这篇 survey 的框架是 vision-centric 的，但它的方法语料库是 **video-generation-heavy** 的——配套论文库 294 条方法条目里，两类 diffusion 合计 142 条（48%），且 2026 年的增量几乎全在 diffusion 侧。因此如果只读框架图和 taxonomy，很容易得到“视觉世界模型 ≈ 可控视频生成”的错误印象。要纠正它，必须主动去看 JEPA、state transition、object-centric、显式几何这四条体量小但性质不同的主线（本笔记第 5 节专门展开）。
+一个必须带着读的补充判断： 这篇 survey 的框架是 vision-centric 的，但它的方法语料库是 video-generation-heavy 的——配套论文库 294 条方法条目里，两类 diffusion 合计 142 条（48%），且 2026 年的增量几乎全在 diffusion 侧。因此如果只读框架图和 taxonomy，很容易得到“视觉世界模型 ≈ 可控视频生成”的错误印象。要纠正它，必须主动去看 JEPA、state transition、object-centric、显式几何这四条体量小但性质不同的主线（本笔记第 5 节专门展开）。
 
-**重要性评估：★★★★☆（4/5）**
+重要性评估：★★★★☆（4/5）
 
-- **为什么值得刷入视野：** 它适合作为“世界模型方向的地图册”和后续追踪论文的坐标系。
-- **为什么不是 5 星：** 它本质上是综述，不是提出新 SOTA 模型；对训练 recipe、数据配比、统一实验复现并没有给出可直接落地的一套新范式；且它的分类学与语料分布之间存在张力（见 7.5）。
+- 为什么值得刷入视野： 它适合作为“世界模型方向的地图册”和后续追踪论文的坐标系。
+- 为什么不是 5 星： 它本质上是综述，不是提出新 SOTA 模型；对训练 recipe、数据配比、统一实验复现并没有给出可直接落地的一套新范式；且它的分类学与语料分布之间存在张力（见 7.5）。
 
 ## 1. 背景
 
 这篇内容对应的微信公众号文章标题是《图文速览|VWM综述解读：视觉世界模型》，主线指向官方论文《From Seeing to Knowing the World: A Survey of Vision World Models》。原论文项目页为[AIWorldLab Survey](https://aiworldlab.github.io/survey/)，官方 PDF 为[preprint.pdf](https://aiworldlab.github.io/survey/preprint.pdf)，预印本落在[Preprints 页面](https://www.preprints.org/manuscript/202604.2072)。
 
-论文要解决的问题不是“再造一个世界模型”，而是先回答一个更基础的问题：**什么才算 Vision World Model（VWM），以及我们该如何系统比较不同 world model 路线。**
+论文要解决的问题不是“再造一个世界模型”，而是先回答一个更基础的问题：什么才算 Vision World Model（VWM），以及我们该如何系统比较不同 world model 路线。
 
 作者认为，现有相关工作虽然都在讨论“世界建模”，但社区来源非常分散：
 
@@ -22,12 +22,12 @@
 
 因此，同样叫“world model”，不同论文常常在以下维度上互不兼容：
 
-- **问题定义不统一**：到底是在做未来帧生成、latent rollout，还是行动条件下的可控仿真；
-- **方法分类不统一**：autoregressive、diffusion、JEPA、RSSM、object-centric 常被分开讨论；
-- **评测协议不统一**：有的看 FVD/FID，有的看 planning score，有的看 physics benchmark；
-- **研究目标不统一**：有的偏视觉 realism，有的偏物理一致性，有的偏下游控制成功率。
+- 问题定义不统一：到底是在做未来帧生成、latent rollout，还是行动条件下的可控仿真；
+- 方法分类不统一：autoregressive、diffusion、JEPA、RSSM、object-centric 常被分开讨论；
+- 评测协议不统一：有的看 FVD/FID，有的看 planning score，有的看 physics benchmark；
+- 研究目标不统一：有的偏视觉 realism，有的偏物理一致性，有的偏下游控制成功率。
 
-所以这篇综述的核心贡献，是试图给出一个**视觉中心（vision-centric）**的统一视角：不是把 vision 当作输入模态之一，而是把“视觉如何揭示世界变化”当作 world model 的核心出发点。
+所以这篇综述的核心贡献，是试图给出一个视觉中心（vision-centric）的统一视角：不是把 vision 当作输入模态之一，而是把“视觉如何揭示世界变化”当作 world model 的核心出发点。
 
 ## 2. 文章主线 / 论文线索
 
@@ -49,7 +49,7 @@
     1. 作者把 VWM 定义为：**从视觉数据中学习世界知识，并在交互条件下生成未来世界状态的 AI 模型。**
 2. **VWM 的方法版图如何统一整理？**
     1. 作者提出一个统一框架，把方法拆成三个部件：
-        
+
         - **Vision Encoding**：如何把视觉输入编码成适合建模世界变化的表示；
         - **Knowledge Learning**：如何从视觉中学到时空一致性、物理动力学、因果机制；
         - **Controllable Simulation**：如何在动作 / 指令等交互条件下模拟未来。
