@@ -322,7 +322,105 @@ $$\mathcal{J}_{w,d_{\text{ego}}} = \sum_t \Big(\sum_j \mathcal{L}_{\text{soft}}\
 
 **这张表是我认为本节最值得带走的东西：**四篇都叫"自回归世界模型"，但离散化的对象分别是像素、动作、冗余度、几何。所以读一篇新的自回归世界模型时，第一个要问的问题不是"它是不是 AR"，而是**"它把什么东西离散化了"**。
 
-### 4.3 七类代表性子设计（含配套论文库的实际规模）
+### 4.3 Diffusion-based Generation 内部：为什么"自回归扩散"是这一族的真正拐点
+
+这一族占了全部条目的 48%，但它内部的 latent diffusion 与 autoregressive diffusion 之分，比家族之间的差别更值得搞清楚。
+
+#### 4.3.1 目标函数：先把三种写法的关系理清
+
+三种常见写法（$\alpha_t,\sigma_t$ 为噪声调度）：
+
+$$\text{DDPM }\epsilon\text{-预测：}\quad \mathcal{L}=\mathbb{E}\big\lVert\epsilon-\epsilon_\theta(z_t,t,c)\big\rVert_2^2,\qquad z_t=\alpha_t z_0+\sigma_t\epsilon$$
+
+$$\text{v-预测：}\quad v\equiv\alpha_t\epsilon-\sigma_t x$$
+
+$$\text{Flow matching / rectified flow：}\quad \mathcal{L}=\mathbb{E}\big\lVert v_\theta(z_t,t,c)-(\epsilon-z_0)\big\rVert^2$$
+
+各家的**实际选择**（这里最容易出错，所以逐一核对过）：
+
+| 模型 | 目标函数 |
+|---|---|
+| `Cosmos`（2501.03575） | **EDM，$x_0$-预测** + 不确定性重加权 |
+| `Cosmos-Predict2.5`（2511.00062） | **rectified flow 速度场** $v=\epsilon-x$ |
+| `GAIA-2`（2503.20523） | **flow matching 速度场** $v=x-\epsilon$ |
+| `Vista`（2405.17398） | EDM 框架 + v-预测 |
+| `DIAMOND`（2405.12399） | **EDM，$x_0$-预测** |
+
+> ⚠️ **两个陷阱。**（1）**没有任何一版 Cosmos 用 Salimans–Ho 意义上的 v-预测**——Predict1 是 EDM 预处理下的 $x_0$-预测，Predict2.5 是 flow matching 速度场，两者不是一回事。（2）**符号约定互相冲突**：SD3 与 Cosmos-Predict2.5 取 $t{=}0$ 为数据，故 $v=\epsilon-x$；GAIA-2、Lipman、Liu 取 $t{=}0$ 为噪声，故 $v=x-\epsilon$。写速度场时必须同时说明方向，否则符号是错的。
+>
+> 至于"扩散与 flow matching 等价"——Cosmos 原文自己就说了两者"理论上等价，主要区别在预处理设计与超参数选择"。精确关系是 $\hat u=\hat\epsilon-\hat x$，且 DDIM ≡ flow matching 的 Euler 步。但注意这说的是**框架可互换，不是任意两个训好的模型等价**。
+
+#### 4.3.2 Diffusion Forcing：一个改动，把 teacher forcing 与全序列扩散统一了
+
+`Diffusion Forcing`（2407.01392）是理解 autoregressive diffusion 这一支的钥匙。核心改动只有一句话：**给每一帧独立采一个噪声等级**。
+
+$$\mathbb{E}\sum_{t=1}^{T}\Big[\big\lVert\epsilon_t-\epsilon_\theta(z_{t-1},x_t^{k_t},k_t)\big\rVert^2\Big],\qquad k_{1:T}\sim\text{Uniform}([K]^T)$$
+
+关键在 $k_{1:T}$ 是**逐帧独立**采的。原文的 Theorem 3.1 说这优化的是一个重加权 ELBO，并且在适当条件下是对**所有噪声等级序列同时**成立的似然下界。
+
+**"加噪即遮蔽"这个视角最值得记：** $k_t=0$ 表示未遮蔽，$k_t=K$ 表示完全遮蔽。于是——
+
+- teacher forcing = 沿**时间轴**遮蔽；
+- 全序列扩散 = 沿**噪声轴**遮蔽；
+- Diffusion Forcing 因为可以自由采整个噪声向量 $k_{1:T}$，**同时涵盖两者**。
+
+还有一个更漂亮的解读（原文附录 B.5）：$p(z_t\mid z_{t-1},x_t^k)$ 在 $k=0$ 时是**后验**、在 $k=K$ 时是**先验**，一个网络参数化了两者之间的一切。
+
+**长 rollout 稳定化的机制比通常转述的更微妙。** 它并**不是**把生成的干净帧重新喂回去，而是把上一步的 latent 维持在一个**小但非零**的噪声等级 $0<k_{\text{small}}\ll K$ 上，用 $z_t^{k_{\text{small}}}$ 继续。理由是：带噪的 $x_t^{k_{\text{small}}}$ 对训练分布来说是**分布内**的，因为 Diffusion Forcing 本来就是从带噪的过去观测训练的。结果是能稳定 rollout 到 **1000 帧**，远超训练时的视界，而 teacher forcing 与全序列扩散在此都已发散。
+
+> ⚠️ 两个必须标注的点：（1）**"history guidance" 不在这篇论文里**，它属于后续工作 `DFoT`（2502.06764，History-Guided Video Diffusion）；（2）这篇论文的**视频结果只有定性展示，没有 FVD/LPIPS 表格**，定量表格只覆盖 D4RL maze 规划与时间序列。模型也很小（24–36M 的 GRU+U-Net，像素空间），作者自陈没做 scaling 研究。
+
+`DFoT` 补上的那个洞察很关键：**无条件 score 就是把 history 用噪声完全遮蔽后的条件 score**（$\mathcal{H}=\varnothing$），于是"对变长历史做 CFG"不需要改架构：
+
+$$\nabla\log p_k(x_\mathcal{G}^k)+\sum_i \omega_i\big[\nabla\log p_k(x_\mathcal{G}^k\mid x_{\mathcal{H}_i}^{k_{\mathcal{H}_i}})-\nabla\log p_k(x_\mathcal{G}^k)\big]$$
+
+它由此做到**单图 rollout 862 帧**。另一个有用的负面结论：**二值 history dropout 的表现不如逐帧噪声**，因为 token 利用率低。
+
+#### 4.3.3 DIAMOND：扩散在 RL 世界模型里赢在哪
+
+`DIAMOND`（2405.12399）常被简化成"扩散比离散 token 好"，但原文给的理由具体得多：**离散 tokenizer 会让奖励相关的小物体在时间上不一致**。在 Asterix 里"一个敌人（橙色）在第二帧变成了奖励（红色），随后又变回来"；Breakout 的砖块与分数会闪烁；Road Runner 的奖励点渲染不稳。DIAMOND 没有这些问题——Breakout 里打到红砖时分数还能正确 **+7**。
+
+$$\mathcal{L}(\theta)=\mathbb{E}\Big[\big\lVert\mathbf{F}_\theta(c_{\text{in}}^\tau\mathbf{x}_{t+1}^\tau,y_t^\tau)-\tfrac{1}{c_{\text{out}}^\tau}(\mathbf{x}_{t+1}^0-c_{\text{skip}}^\tau\mathbf{x}_{t+1}^\tau)\big\rVert^2\Big]$$
+
+**为什么选 EDM 而不是 DDPM 才是真正的关键：** 当 $\sigma\gg\sigma_{\text{data}}$ 时 $c_{\text{skip}}\to0$，训练目标退化成**干净图像**本身；而 DDPM 的 $\epsilon$-预测在噪声主导时会让模型学成**恒等函数**，在采样起点给出很差的 score 估计。量化对比：**1 步 EDM 比 10 步 DDPM 还稳**。最终选 $n=3$ 步（Euler），因为 Boxing 存在多模态转移，1 步去噪会在多个结果之间插值而糊掉。
+
+Atari-100k：mean HNS **1.46**、IQM 0.64、11 个游戏超越人类。$n{=}3$ vs $n{=}1$ 的消融在 top-10 游戏上是 **3.052 → 1.962**，Boxing 最惨（86.9 → 41.9）。
+
+#### 4.3.4 动作条件到底怎么注入：三篇论文给出了互相矛盾的结论
+
+这是我认为本节最有价值的一张表，因为它**不是设计偏好，而是三组各自做过消融的实证结论**：
+
+| 论文 | 机制 | 原文理由 |
+|---|---|---|
+| `DIAMOND` | U-Net res-block 里的 **Adaptive GroupNorm**（动作 + 扩散时间）；观测走**通道拼接** | 消融：帧堆叠 CS:GO FVD **34.8** vs cross-attention **81.4** |
+| `GAIA-2` | ego 动作走 **AdaLN**；3D 框/元数据走 cross-attention | "动作影响每一个空间 token，AdaLN 提供显式信息通道，无需依赖可学习的注意力机制" |
+| `Vista` | **cross-attention** + 零初始化投影 + LoRA | "相比加性 embedding 等方案，收敛更快、可控性更强" |
+| `Cosmos` 扩散版 | 动作 MLP → **加到 timestep embedding 上** | — |
+| `Cosmos` 自回归版 | 动作 MLP → **cross-attention** | 同一个动作，两个家族注入方式不同 |
+
+**三家做了同一个消融，得出了方向相反的结论。** 但都站得住脚，因为决定因素是**条件信号本身的结构**：
+
+- GAIA-2 的动作是一对全局标量（speed、curvature），影响每个 token → AdaLN 合适；
+- Vista 要复用五种异质动作格式（命令/轨迹/速度/角度/目标），需要 attention 的灵活性；
+- DIAMOND 的历史是稠密的逐像素信息 → 直接拼通道的归纳偏置最好。
+
+所以正确的结论不是"哪种注入方式更好"，而是**注入方式应当匹配条件信号的结构**。顺带一提：**这些论文里没有一篇用 ControlNet 式方案做动作条件**（`Cosmos-Transfer` 是 ControlNet 式，但用于模态迁移而非动作）。
+
+#### 4.3.5 Cosmos 的 tokenizer 与条件注入
+
+`Cosmos`（2501.03575）作为这一族的基础设施代表，有几个数字值得记：
+
+$$\mathcal{L}(D_{\theta})=\mathbb{E}_{\sigma}\left[\frac{\lambda(\sigma)}{e^{u(\sigma)}}\mathcal{L}(D_{\theta},\sigma)+u(\sigma)\right],\qquad \lambda(\sigma)=\frac{\sigma^{2}+\sigma_{\text{data}}^{2}}{(\sigma\cdot\sigma_{\text{data}})^{2}}$$
+
+其中 $u(\sigma)$ 是一个 **MLP 参数化的逐噪声等级不确定性**——模型不确定的噪声等级上损失被自动降权。
+
+tokenizer 侧：**时间上因果**（因果时间卷积 + 因果时间注意力，因子化 3D 卷积），前端接**小波变换**，用 LayerNorm 而非 GroupNorm。latent 形状 $(1+T')\times H'\times W'\times C$，前导的 "+1" 让第一帧成为独立 token，从而**图像（$T=0$）与视频统一在一个 latent 空间**。连续版是**纯 AE、latent 维 16、没有 KL**；离散版用 **FSQ，levels $(8,8,8,5,5,5)$ → 词表 64,000**。
+
+Video2World 的条件注入是三件事一起：条件帧沿**时间维拼接**、一个**二值 mask 沿通道维拼接**、以及对条件帧**加增广噪声**（$P_{\text{mean}}=-3.0$、$P_{\text{std}}=2.0$），损失排除条件帧位置。
+
+AdaLN-LoRA 是个实用技巧：把 AdaLN 的密集投影做低秩分解，**参数量从 11B 降到 7B（-36%）而性能持平**——因为 AdaLN 占大量参数却几乎不贡献 FLOPs。
+
+### 4.4 七类代表性子设计（含配套论文库的实际规模）
 
 论文进一步细分成 7 个子设计，另设一类 Other Architectures 收纳混合路线。配套的开源论文库[Awesome-Vision-World-Model](https://github.com/AIWorldLab/Awesome-Vision-World-Model)把每类的代表工作都列了出来，截至 2026-07 共收录 294 条方法条目。把条目数统计出来，比读框架图更能看清这个领域的真实重心：
 
@@ -339,7 +437,7 @@ $$\mathcal{J}_{w,d_{\text{ego}}} = \sum_t \Big(\sum_j \mathcal{L}_{\text{soft}}\
 
 这个拆法的价值在于它不再按应用领域来分，而是按“视觉表示如何编码、世界知识如何学习、未来如何模拟”三个统一部件来比较各路线。但上面这张表同时暴露了一件更重要的事，见下一节。
 
-### 4.4 为什么这篇 survey 读起来像“视频世界模型综述”
+### 4.5 为什么这篇 survey 读起来像“视频世界模型综述”
 
 这是读这篇 survey 时最值得警惕的一点，而且它不是综述作者的表述问题，而是领域现状的真实投影：
 
@@ -349,7 +447,7 @@ $$\mathcal{J}_{w,d_{\text{ego}}} = \sum_t \Big(\sum_j \mathcal{L}_{\text{soft}}\
 
 所以更准确的读法是：这篇 survey 的框架是 vision-centric 的，但它的语料库是 video-generation-heavy 的。 如果只读三段式框架和 taxonomy 图，很容易得到“视觉世界模型 ≈ 可控视频生成”的印象；要纠正这个印象，必须主动去看下面几条被条目数稀释掉的主线。
 
-### 4.5 一个容易被忽略的信号：Dreamer V4 被归到了 diffusion 家族
+### 4.6 一个容易被忽略的信号：Dreamer V4 被归到了 diffusion 家族
 
 论文库把 `PlaNet`、`DreamerV1/V2/V3` 都放在 Latent State-Space Modeling 下，但把 `Dreamer V4`（2509.24527）放进了 Autoregressive Diffusion。
 
@@ -357,7 +455,7 @@ $$\mathcal{J}_{w,d_{\text{ego}}} = \sum_t \Big(\sum_j \mathcal{L}_{\text{soft}}\
 
 判断：四大家族的边界正在从“互斥路线”变成“可组合模块”。 后续读新论文时，与其问“它属于哪一家族”，不如问“它在表示层用了什么、在 transition 层用了什么、在解码层用了什么”这三个独立问题。
 
-### 4.6 这篇综述的真正方法论价值
+### 4.7 这篇综述的真正方法论价值
 
 我认为这篇 survey 真正的价值，在于它把原本混在一起的几个讨论层级分开了：
 
