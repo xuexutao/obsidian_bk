@@ -280,12 +280,92 @@ $$h_{t+1}=f_\theta(h_t, z_t, a_t),\qquad z_{t+1}\sim p_\theta(z_{t+1}\mid h_{t+1
 
 ### 5.1 JEPA / Embedding Prediction：唯一逐年递增的一族
 
-这一族的关键立场是拒绝像素重建。它认为要预测的不是“未来看起来什么样”，而是“未来的表征是什么”，因为像素里绝大部分信息（纹理细节、光照抖动）对决策毫无用处，强迫模型重建它们等于浪费容量。
+这一族的关键立场是拒绝像素重建。它认为要预测的不是“未来看起来什么样”，而是“未来的表征是什么”。
 
-- 表征侧血脉：`V-JEPA`（2404.08471）→ `V-JEPA 2`（2506.09985）→ `V-JEPA 2.1`（2603.14482），后两代已经明确把 understanding / prediction / planning 三件事一起做。
-- 用现成 encoder 做世界模型：`DINO-WM`（2411.04983）与 `DINO-world`（2507.19468）证明冻结的 DINO 特征空间已经足够支撑 latent rollout 与 planning。
-- 训练稳定性问题：JEPA 的老问题是 representation collapse 与训练不稳，[[LeWorldModel - 像素端到端稳定JEPA世界模型|LeWorldModel]]（2603.19312）用 next-embedding prediction + SIGReg 两项损失在 15M 参数下从像素端到端稳定训练，并把 planning 提速最高 48×。
-- 理论侧：[[LeJEPA - 世界模型线性可识别性理论|LeJEPA]] 给出了“在高斯潜变量与平稳加噪转移条件下，latent-space planning 与真实状态规划等价”的可证明结论，这是这一族目前唯一有硬理论支撑的部分。
+#### 5.1.1 V-JEPA 的目标函数：注意是 $\ell_1$ 而不是 L2
+
+`V-JEPA`（2404.08471）的朴素形式会立刻坍塌：
+
+$$\min_{\theta,\phi}\ \big\lVert P_\phi(E_\theta(x),\Delta_y)-E_\theta(y)\big\rVert_1$$
+
+实际使用的是带 EMA target 与 stop-gradient 的版本（原文 Eq. 1）：
+
+$$\min_{\theta,\phi}\ \big\lVert P_\phi(E_\theta(x),\Delta_y)-\mathrm{sg}\big(\overline{E}_\theta(y)\big)\big\rVert_1$$
+
+其中 $x$ 是可见上下文、$y$ 是被 mask 掉的目标区域、$\overline{E}_\theta$ 是 $E_\theta$ 的 EMA 副本（momentum 0.998 → 1.0 线性上升），$P_\phi$ 是一个窄预测器（12 层、宽 384）。
+
+**一个容易被写错的细节：这里用的是 $\ell_1$ 而不是 L2**，原文明确说改成 $\ell_1$ 回归"更稳定"。这不只是工程调参——$\ell_1$ 的最优预测器是条件**中位数**，于是梯度对应的是 median absolute deviation 而不是方差。对"未来本质多模态"的视频预测来说，预测中位数比预测均值更不容易糊成一团。
+
+**Mask 策略的具体数字**（这是它和图像 JEPA 的关键差别）：short-range 取 8 个各覆盖单帧 15% 的 block 的并集，long-range 取 2 个各覆盖 70% 的 block 的并集，且**block 在时间维上整段重复**——所以 mask 是空间连续的"管道"，不是逐帧随机。平均遮蔽率约 90%。之所以必须沿时间整段遮，是因为如果逐帧随机遮，模型可以直接从相邻帧抄答案，任务退化成插值而不是学动力学。
+
+**为什么不重建像素**——原文给的是消融证据而非理论：ViT-L/16 下，feature target 对比 normalized-pixel MSE，K400 冻结评测 **73.7 vs 68.6**，而 fine-tune 后几乎持平（85.6 vs 85.4）。所以准确的说法是"在冻结表征评测上明显更好"，把它讲成"重建像素一定浪费容量"属于合理解读但不是原文证明的结论。
+
+#### 5.1.2 V-JEPA 2-AC：世界模型其实只是一个 300M 的 predictor
+
+`V-JEPA 2`（2506.09985）扩到 ViT-g（1B）、22M 视频、100 万小时以上。真正值得记住的是它的动作条件版 **V-JEPA 2-AC**，因为它把"什么是世界模型"这件事压到了极简：
+
+- **encoder 完全冻结**，逐帧编码 $z_k = E(x_k)\in\mathbb{R}^{16\times16\times1408}$；
+- 只训练一个 ~300M 的 block-causal predictor（24 层）；
+- 动作 $a_k\in\mathbb{R}^7$ 定义为末端执行器状态的**差分**（3 位置 + 3 欧拉角 + 1 夹爪）；
+- 训练数据是 **不到 62 小时** 的 Droid 视频（23k 条轨迹，含失败样本），无奖励、无任务标签、无成功标志。
+
+两项损失。teacher forcing（$T=15$）：
+
+$$\mathcal{L}_{\text{tf}}(\phi)=\frac{1}{T}\sum_{k=1}^{T}\Big\lVert P_\phi\big((a_t,s_t,E(x_t))_{t\le k}\big)-E(x_{k+1})\Big\rVert_1$$
+
+以及 rollout（实际只取 $T=2$，即梯度只穿过一步递归）：
+
+$$\mathcal{L}_{\text{rollout}}(\phi)=\big\lVert P_\phi(a_{1:T},s_1,z_1)-z_{T+1}\big\rVert_1$$
+
+总损失 $L(\phi)=\mathcal{L}_{\text{tf}}+\mathcal{L}_{\text{rollout}}$，**只对 $\phi$ 求导**。
+
+**推理时的 planning 是能量最小化**，这是整条 JEPA 路线最干净的部分：
+
+$$\mathcal{E}(\hat a_{1:T};z_k,s_k,z_g):=\big\lVert P(\hat a_{1:T};s_k,z_k)-z_g\big\rVert_1,\qquad a^\star_{1:T}=\arg\min_{\hat a_{1:T}}\mathcal{E}$$
+
+代价函数就是**在冻结 encoder 的 latent 空间里，到目标图像编码 $z_g$ 的 $\ell_1$ 距离**——没有奖励、没有 decoder、不碰像素。用 CEM 求解（800 采样、10 轮精修、top-10 elite、horizon $T=1$），执行第一步后重规划。
+
+这里有一个数字最能说明"不解码像素"的价值：**每个动作 16 秒，而基于 Cosmos 的对照是 4 分钟**——约 15× 的差距几乎全部来自 planning 循环里没有像素解码。
+
+> **两处必须一起记住的局限**（否则容易高估这条路线）：
+> 1. pick-and-place 任务需要人工提供 2 张 sub-goal 图像，且切换步数是**硬编码**的（4 步 / 10 步 / 4 步），这不是自主长程规划；
+> 2. 能量地形虽然平滑，但最小值落在 $(\Delta x,\Delta y)\approx(0,-0.05)$，真值是 $(0,-0.1)$——**方向对、幅值偏小**。
+
+#### 5.1.3 DINO-WM：把 collapse 问题结构性地消掉
+
+`DINO-WM`（2411.04983）走得更极端：encoder 用**冻结的 DINOv2**，只训练 transition：
+
+$$\mathcal{L}_{pred}=\Big\lVert p_\theta\big(\mathrm{enc}_\theta(o_{t-H:t}),\phi(a_{t-H:t})\big)-\mathrm{enc}_\theta(o_{t+1})\Big\rVert^2$$
+
+注意三件事：
+
+1. **用的是平方 L2，而不是 V-JEPA 的 $\ell_1$**；
+2. **不需要 stop-gradient，也不需要 EMA**——因为 target encoder 是冻结的预训练网络，坍塌在结构上就不可能发生。这是它与 V-JEPA 最本质的差别；
+3. 保留 **patch token** $z_t\in\mathbb{R}^{N\times E}$ 而不是池化成 CLS，动作经 MLP 编成 10 维后**拼到每一个 patch 向量上**。
+
+planning 的代价函数只在终点算：
+
+$$\mathcal{C}=\lVert \hat z_T-z_g\rVert^2$$
+
+同样用 CEM。论文里一个有意思的观察：模型是可微的，所以可以直接对动作做梯度下降，但**CEM 实际打不过梯度下降**——作者推测是因为学到的动力学没有平滑性约束，梯度方向不可靠。
+
+它还顺带解释了 `TD-MPC2` 在这个 setting 下为什么差：**"缺少奖励信号使得学好 latent 表征很困难"**——TD-MPC2 的表征目标在 reward-free 离线设定下根本没有定义。
+
+> 这里有一个值得单独拎出来的**张力**：TD-MPC2 去掉重建是为了让 latent **更任务化**（reward 与 value 塑造表征），DINO-WM 去掉 reward 是为了让 latent **更任务无关**（任何目标图都能当 $z_g$）。两者都声称"去掉某一项让模型更好"，但去掉的东西正好相反。这说明"该保留什么监督"取决于你要的是专用 planner 还是通用世界模型，不存在统一答案。
+
+#### 5.1.4 三种防坍塌方案
+
+把这一族连起来看，"预测自己的特征为什么不会坍塌"其实只有三个答案：
+
+| 方案 | 代表 | 机制 | 代价 |
+|---|---|---|---|
+| EMA + stop-grad + 非对称 predictor | V-JEPA / V-JEPA 2 | target 是自己的慢速副本 | 需要调 momentum schedule，训练脆 |
+| 冻结预训练 encoder | V-JEPA 2-AC、DINO-WM、SlotFormer | 没有可坍塌的东西 | 上限被 encoder 锁死 |
+| 分布正则 | [[LeWorldModel - 像素端到端稳定JEPA世界模型\|LeWorldModel]] 的 SIGReg | 强制 latent 边缘分布逼近各向同性高斯 | 低 intrinsic-dim 数据上反而不占优 |
+
+第三条是本 vault 已有的深读：[[LeWorldModel - 像素端到端稳定JEPA世界模型|LeWorldModel]]（2603.19312）只用 next-embedding prediction + SIGReg 两项损失，在 15M 参数下从像素端到端稳定训练，planning 提速最高 48×。它的关键论点是 VICReg 式的 variance+covariance 只约束二阶矩，挡不住 cluster collapse；而 SIGReg 用 Epps–Pulley 检验比较经验特征函数与高斯特征函数，**约束的是全部阶的矩**。
+
+理论侧则是 [[LeJEPA - 世界模型线性可识别性理论|LeJEPA]]：在高斯潜变量 + 平稳加噪转移的假设下，表征可线性恢复真实 latent（只差一个正交变换），于是 latent-space planning 与真实状态规划等价。而且它是双向结论——想要这种线性可识别性，latent **必须**是高斯。
 
 为什么这一族值得单独盯：它是唯一在结构上就不可能被误认为视频生成器的路线（它压根不输出像素），同时也是 2026 年唯一还在加速的路线。
 
@@ -293,17 +373,90 @@ $$h_{t+1}=f_\theta(h_t, z_t, a_t),\qquad z_{t+1}\sim p_\theta(z_{t+1}\mid h_{t+1
 
 这一族从 `PlaNet`（2018.11）算起已经八年，是唯一贯穿 RL 时代的血脉：`PlaNet` → `DreamerV1/V2/V3` → `TD-MPC2`，加上 token 化变体 `IRIS`（2209.00588）与 `STORM`（2310.09615）。
 
-它与视频生成路线最本质的区别在目标函数的归属：Dreamer 系的重建损失只是辅助，真正的目标是 policy return；而视频扩散世界模型的目标函数就是生成质量本身，planning 效果是外挂评估出来的。
+#### 5.2.1 DreamerV3 的 RSSM：六个组件
+
+$$\begin{aligned}
+\text{序列模型：} &\quad h_t = f_\phi(h_{t-1},z_{t-1},a_{t-1})\\
+\text{编码器（后验）：} &\quad z_t \sim q_\phi(z_t\mid h_t,x_t)\\
+\text{动力学预测器（先验）：} &\quad \hat z_t \sim p_\phi(\hat z_t\mid h_t)\\
+\text{奖励预测器：} &\quad \hat r_t \sim p_\phi(\hat r_t\mid h_t,z_t)\\
+\text{continue 预测器：} &\quad \hat c_t \sim p_\phi(\hat c_t\mid h_t,z_t)\\
+\text{解码器：} &\quad \hat x_t \sim p_\phi(\hat x_t\mid h_t,z_t)
+\end{aligned}$$
+
+$z_t$ 取自 **32 个 categorical × 64 类**的 softmax 向量，用 straight-through 梯度；并且 categorical 参数化成 **1% 均匀 + 99% 网络输出**（unimix）以避免确定性与 KL 尖峰。
+
+#### 5.2.2 KL balancing 与 free bits：这是最值得抄走的一段
+
+$$\begin{aligned}
+\mathcal{L}_{\mathrm{dyn}}(\phi)&=\max\Big(1,\ \mathrm{KL}\big[\ \mathrm{sg}(q_\phi(z_t\mid h_t,x_t))\ \big\|\ p_\phi(z_t\mid h_t)\ \big]\Big)\\
+\mathcal{L}_{\mathrm{rep}}(\phi)&=\max\Big(1,\ \mathrm{KL}\big[\ q_\phi(z_t\mid h_t,x_t)\ \big\|\ \mathrm{sg}(p_\phi(z_t\mid h_t))\ \big]\Big)
+\end{aligned}$$
+
+$$\mathcal{L}(\phi)=\mathbb{E}_{q_\phi}\Big[\sum_{t=1}^{T}\big(\beta_{\mathrm{pred}}\mathcal{L}_{\mathrm{pred}}+\beta_{\mathrm{dyn}}\mathcal{L}_{\mathrm{dyn}}+\beta_{\mathrm{rep}}\mathcal{L}_{\mathrm{rep}}\big)\Big],\quad \beta_{\mathrm{pred}}{=}1,\ \beta_{\mathrm{dyn}}{=}1,\ \beta_{\mathrm{rep}}{=}0.1$$
+
+**这两项是同一个 KL，只是 stop-gradient 放在相反的一侧，权重差 10 倍。** $\mathcal{L}_{\mathrm{dyn}}$ 把先验拉向后验（学动力学），$\mathcal{L}_{\mathrm{rep}}$ 把后验拉向先验（让表征可预测）。free bits 用 $\max(1,\cdot)$ 在 1 nat 以下**直接关闭该项**，把学习重心交回 $\mathcal{L}_{\mathrm{pred}}$，这样就不会走向"极易预测但毫无信息"的退化解。消融里 KL 目标被列为最重要的稳健性技术。
+
+> 需要说清楚的一点：因为有 stop-gradient、不对称权重和截断，**这已经不是一个严格的 ELBO 了**，而是一个放松版本。把它当成"VAE 的变分下界"讲会误导。
+
+#### 5.2.3 imagination 里的 actor-critic
+
+$$R^\lambda_t=r_t+\gamma c_t\big((1-\lambda)v_t+\lambda R^\lambda_{t+1}\big),\qquad R^\lambda_T=v_T$$
+
+注意 **continue 标志 $c_t$ 是乘进递推式里的**，所以 episode 终止在 return 内部就处理掉了。$\gamma=0.997$、imagination horizon 16、$\lambda=0.95$。
+
+actor 用 Reinforce，且**归一化的是 return 而不是 advantage**：
+
+$$\mathcal{L}(\theta)=-\sum_{t}\mathrm{sg}\Big(\big(R^\lambda_t-v_\psi(s_t)\big)/\max(1,S)\Big)\log\pi_\theta(a_t\mid s_t)+\eta\,\mathrm{H}\big[\pi_\theta\big]$$
+
+其中 $S$ 是 return 的 95–5 百分位差的 EMA。$\max(1,S)$ 只会把大 return **缩小**、不会放大小 return——这是刻意的，否则稀疏奖励任务的噪声会被放大到盖过 entropy bonus。
+
+还有一个被广泛借用的技巧，symlog 压缩与 two-hot 离散回归：
+
+$$\mathrm{symlog}(x)=\mathrm{sign}(x)\ln(|x|+1),\qquad \mathrm{symexp}(x)=\mathrm{sign}(x)(\exp(|x|)-1)$$
+
+$$\mathcal{L}(\theta)=-\mathrm{twohot}(y)^{\!\top}\log\mathrm{softmax}(f(x,\theta))$$
+
+关键性质是原文那句话：**损失只取决于分配给各 bin 的概率，与 bin 对应的连续值无关，从而把梯度大小与目标大小解耦。** 这就是 DreamerV3 能用同一套超参跨 150+ 任务的核心原因。
+
+#### 5.2.4 TD-MPC2：彻底没有 decoder
+
+$$\mathcal{L}(\theta)=\mathbb{E}\Big[\sum_{t=0}^{H}\lambda^t\Big(\underbrace{\lVert z'_t-\mathrm{sg}(h(s'_t))\rVert^2_2}_{\text{latent 一致性}}+\underbrace{\mathrm{CE}(\hat r_t,r_t)}_{\text{奖励}}+\underbrace{\mathrm{CE}(\hat q_t,q_t)}_{\text{价值}}\Big)\Big]$$
+
+三项，没有任何重建。两个细节：latent 一致性的 target 是**在线 encoder 的 stop-grad**，不是 EMA；奖励与价值用**对数空间的离散回归**（与 DreamerV3 的 two-hot 同族），而一致性项保持连续回归。稳定性靠 SimNorm 把 $z$ 投到若干单纯形上。
+
+planning 用 MPPI，而**终端价值项是它成立的关键**：
+
+$$\max_{(\mu,\sigma)}\ \mathbb{E}\Big[\gamma^H Q(z_{t+H},a_{t+H})+\sum_{h=t}^{H-1}\gamma^h R(z_h,a_h)\Big]$$
+
+有限步的模型奖励之和 + 一个 $\gamma^H$ 折扣的**学习到的终端价值**去 bootstrap $H$ 之后的一切。没有这个 $Q$ 项，MPC 只能做到"时间局部最优"，不解决完整的 RL 问题。
+
+它与视频生成路线最本质的区别在目标函数的归属：Dreamer 系的重建只是辅助项、TD-MPC2 连重建都没有，真正的目标是 policy return；而视频扩散世界模型的目标函数就是生成质量本身，planning 效果是外挂评估出来的。
 
 值得注意的是这一族在 2026 年只有 1 条新增（`NE-Dreamer`，2603.02765），而它最新的旗舰 `Dreamer V4` 已经被归进 diffusion 家族。这不代表路线死了，而是它的思想被吸收进了别的架构——compact latent state + 长时 imagination 这套东西现在以模块形式出现在各家里。
 
-### 5.3 Object-Centric：体量最小，但对 counterfactual 最关键
+### 5.3 Object-Centric：体量最小，评测意义大于方法意义
 
 `G-SWM`（2010.02054）、`SlotFormer`（2210.05861）、`RoboDreamer`（2404.12377）、`Dreamweaver`（2501.14174）、`SlotPi`（2506.10778）、`Dyn-o`（2507.03298）——十六条，八年，是全表最小的一族。
 
-但它承担了一件别人做不了的事：把世界显式分解成 object slots，从而支持组合泛化与对象级 counterfactual。 综述在 Knowledge Learning 里把 causal mechanisms 列为最高一层，而“如果把这个物体换成那个物体、结果会怎样”这类干预，在一个纠缠的 latent 或一段像素序列里是无法干净表达的，在 slot 表示里却是天然操作。
+以 `SlotFormer` 为例看它怎么做 rollout。先用 Slot Attention 把每帧绑成 $N$ 个 slot $\mathcal{S}_t\in\mathbb{R}^{N\times D}$（这一步的 object-centric 模型是**先用重建损失预训练好再冻结**的），然后：
 
-判断：这一族大概不会自己长成主流，但它的评测意义大于方法意义——它定义了“真正理解世界”的一个可检验下界。
+$$V=[G_1,\dots,G_T]+[P_1,\dots,P_T],\qquad U=\mathcal{T}(V),\qquad \hat{\mathcal{S}}_{T+1}=\mathrm{Linear}(U_T)$$
+
+$$\mathcal{L}=\underbrace{\frac{1}{KN}\sum_{k}\sum_{n}\lVert \hat{\bm s}^n_{T+k}-\bm s^n_{T+k}\rVert^2}_{\mathcal{L}_S\ \text{slot 空间}}+\lambda\underbrace{\frac{1}{K}\sum_k\lVert f_{dec}(\hat{\mathcal{S}}_{T+k})-\bm x_{T+k}\rVert^2}_{\mathcal{L}_I\ \text{像素辅助}}$$
+
+两个设计决定比公式更重要：
+
+1. **位置编码只加在时间维上**（$P_t$ 复制 $N$ 份，同一时刻所有 slot 共享），因此保持了 slot 之间的**置换等变性**——没有哪个 slot 获得独立身份。这正是"能对单个物体做推理"的来源，而且参数更少、效果还更好。
+2. **训练时喂的是自己预测的 slot 而不是 teacher forcing**，消融显示 teacher forcing"显著变差"。这与 V-JEPA 2-AC、DINO-WM 的选择正好相反。
+
+> **一处必须纠正的常见说法（也包括我这篇笔记的上一版）：** SlotFormer **没有做 counterfactual 实验**。CLEVRER 有 descriptive / explanatory / predictive / counterfactual 四类问题，而原文明确只聚焦 **predictive**（+3.4% per-option、+6.0% per-question）。"counterfactual"一词在全文只出现两次，都只是在列举 CLEVRER 的问题类型。
+>
+> 所以准确的表述是：slot 表示**在架构上支持**替换/删除/扰动单个 slot 再 rollout，因此是做对象级干预的天然载体——但这是**合理推断，不是 SlotFormer 的实验结论**。原文真正支撑的是：object-factored、置换等变、长程 rollout 中属性一致。
+>
+> 另外 PHYRE 上的"planning"其实是**动作排序**（用 SlotFormer 模拟的未来训一个成功分类器，对 100 个候选动作排序），不是 CEM/MPC 那种轨迹优化，和上面几族的 planning 不是一回事。
+
+判断：这一族大概不会自己长成主流，但它的评测意义大于方法意义——它定义了"真正理解世界"的一个可检验下界。同时它也是这四条线里**最不"非生成"**的一支：它的 slot 模型靠重建预训练，损失里还留着一项像素辅助。
 
 ### 5.4 显式几何 / 4D：世界状态不一定是视频
 
