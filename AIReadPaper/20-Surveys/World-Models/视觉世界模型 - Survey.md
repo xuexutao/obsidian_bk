@@ -5,7 +5,7 @@
 重要性评估：★★★★☆（4/5）
 
 - 为什么值得刷入视野： 它适合作为“世界模型方向的地图册”和后续追踪论文的坐标系。
-- 为什么不是 5 星： 它本质上是综述，不是提出新 SOTA 模型；对训练 recipe、数据配比、统一实验复现并没有给出可直接落地的一套新范式；且它的分类学与语料分布之间存在张力（见 7.5）。
+- 为什么不是 5 星： 它本质上是综述，不是提出新 SOTA 模型；对训练 recipe、数据配比、统一实验复现并没有给出可直接落地的一套新范式；且它的分类学与语料分布之间存在张力（见 7.6）。
 
 ## 1. 背景
 
@@ -659,6 +659,62 @@ $$\mathcal{L}=\underbrace{\frac{1}{KN}\sum_{k}\sum_{n}\lVert \hat{\bm s}^n_{T+k}
 
 散落在 Other Architectures 与 latent diffusion 里的一批工作，把世界状态直接表示成几何：`OccWorld`（2311.16038）与 `OccTENS`（2509.03887）用 3D occupancy，`GaussianWorld`（2412.10373）与 `ManiGaussian++`（2506.19842）用 3D Gaussian，`GAF`（2506.14135）提出 Gaussian Action Field 作为 4D 表示，`LiDARWM`（2506.23434）在 LiDAR latent 上做 flow matching，`RynnWorld-4D`（2607.06559）是论文库里最新的一条。
 
+#### 5.4.1 GaussianWorld：把场景演化拆成三个先验
+
+`GaussianWorld` 的状态是 25,600 个高斯 $\mathbf{g}=\{\mathbf{p},\mathbf{s},\mathbf{r},\mathbf{c},\mathbf{f}\}$（位置、尺度、旋转、语义概率、时序特征）。它把 occupancy 预测重写成 4D 预测，并按三个先验分解：
+
+1. **自车对齐**：$\mathbf{g}^T_A=\text{Align}(\mathbf{g}^{T-1},\mathbf{M}_{\text{ego}})$——**只对位置做仿射变换，零参数**；
+2. **动态运动**：只精修**位置**，且由动态类语义权重 $I(\cdot)$ 门控；
+3. **场景补全**：出界的高斯丢弃、等量随机重初始化，**这一支才更新全部五个属性**。
+
+这个设计的巧处在于**每个因子只更新它物理上能改变的属性**。自车运动是闭式变换所以不花参数，动力学只碰位置。代价几乎为零：228ms / 7030M，而时序融合类基线是 379–382ms / ~10GB；mIoU 22.13 vs GaussianFormer-B 的 19.73。
+
+消融值得看：去掉自车对齐掉到 **18.47（比单帧的 19.73 还差）**，去掉动力学 21.17，而**去掉补全直接训练崩溃**——说明补全不是可选项。
+
+> ⚠️ 原文**没有给高斯到 voxel 的 splatting 公式**，也没给损失权重；这些要回到 GaussianFormer（2405.17429）：$\Sigma=RSS^\top R^\top$、$g(p)=\exp(-\tfrac12(p-m)^\top\Sigma^{-1}(p-m))\,c$、occupancy $=\sum_{i\in\mathcal{N}(p)}g_i$。另外 Table 1（22.13）与 Table 3（21.50）的差异原文未解释。
+
+#### 5.4.2 GAF：动作是"读"出来的，不是回归出来的
+
+`GAF` 的映射是 $\mathcal{F}_\Theta:\{g(x),t\}\mapsto\{\mu,\Delta\mu,f\}$，即 3DGS 加一个**可学习位移** $\Delta\mu\in\mathbb{R}^3$。同一个场从三个 query 取三种输出：当前帧渲染、未来帧渲染（用 $\mu+\Delta\mu$）、以及动作。
+
+动作那一路是整篇最漂亮的地方——**用 ICP 在夹爪高斯上拟合刚体变换**：
+
+$$T^{t\to t+\Delta t}=\arg\min_{T\in SE(3)}\sum_{k\in\text{gripper}}\lVert T(\mu_k^t)-\mu_k^{t+\Delta t}\rVert^2$$
+
+因为夹爪是刚体，对它的高斯位移拟合一个 $SE(3)$ 就直接得到动作，**不需要额外的动作回归头**。RLBench 9 任务成功率 54.11% vs ManiGaussian 39.22%，NVS PSNR 27.92 vs 16.38。
+
+> ⚠️ 一个真实的方法空缺：**原文从未说明夹爪高斯是如何被识别出来的**——没有 mask、没有分类器、没有机器人模型。而整个 ICP 动作读出都依赖这一步分割，这是个实质性的缺口。
+
+#### 5.4.3 显式记忆：WorldMem 与 VMem 的两种检索
+
+这一支我认为被严重低估，它解决的是"离开再回来，场景还一致吗"。
+
+`WorldMem`（2504.12369）的记忆单元是 $(\mathbf{x}^m_i, \mathbf{p}_i, t_i)$——**latent token**（不是像素）、位姿 $\mathbf{p}\in\mathbb{R}^5$、时间戳。检索用置信度贪心：
+
+$$\boldsymbol{\alpha} = \mathbf{o}\cdot w_o - \mathbf{d}\cdot w_t$$
+
+$\mathbf{o}$ 是 FOV 重叠率（蒙特卡洛估计：在半径 30m 球内采 10,000 点，算两个相机同时可见的比例），$\mathbf{d}$ 是时间距离。取 8 帧记忆。位姿用 **Plücker 射线** $\mathbf{l}_{uv}=(\mathbf{c}\times\mathbf{d}_{uv}, \mathbf{d}_{uv})\in\mathbb{R}^6$ 编码，且**状态只加到 Q/K 上、不加到 V**。
+
+它的机制建立在 Diffusion Forcing 之上：**记忆帧被赋予 $k_{\min}$（近乎干净），上下文帧取 $[k_{\min},k_{\max}]$，待生成帧取 $k_{\max}$**。所以"3D 一致性"来自**条件在正确的过去帧上，而不是拉长窗口**。600 帧记忆 + 100 帧生成下 PSNR 19.32 / LPIPS 0.1429 vs DF 基线 18.04 / 0.4376。检索只占推理 10–20%。原文自陈局限：**显存仍随记忆线性增长**。
+
+`VMem`（2506.18903）更进一步，用 **surfel 作为可见性索引**：$\mathbf{s}_k=(\mathbf{p}_k, \mathbf{n}_k, r_k, \mathcal{I}_k)$，其中 $\mathcal{I}_k$ 是**观测过该 surfel 的历史视角集合**。检索方式是"渲染投票"：把目标位姿平均后光栅化 surfel，取**被渲染次数最多的 top-$K$ 视角索引**。
+
+**关键洞察：surfel 是可见性索引，不是重建。** 所以 CUT3R 的深度误差不会传导到像素上——原文说"只要成功检索到最相关的过去视角，方法就保持稳健"。这也解释了它为什么同时打败相机距离检索与 FOV 重叠检索：**两者都忽略遮挡**，而光栅化天然处理遮挡。环形轨迹 $K{=}4$：LPIPS 0.381 vs FOV 的 0.424 vs 时间最近的 0.794，旋转误差差距超过 2 倍。
+
+#### 5.4.4 Geometry Forcing：把几何"蒸馏"进扩散特征
+
+`Geometry Forcing`（2507.07982）的做法是把扩散中间特征对齐到 **VGGT** 的几何特征，用两项损失：
+
+$$\mathcal{L}_{\text{Angular}} = -\frac{1}{LNP}\sum_{\ell,n,p}\cos\big(y_{\ell,n,p},\, f_\phi(h_{n,p})\big)$$
+
+$$\hat{h}=\frac{f_\phi(h)}{\lVert f_\phi(h)\rVert_2},\qquad \mathcal{L}_{\text{Scale}}=\frac{1}{LNP}\sum\lVert g_\varphi(\hat h)-y\rVert_2^2$$
+
+$$\mathcal{L}=\mathcal{L}_{\text{FM}}+0.5\,\mathcal{L}_{\text{Angular}}+0.05\,\mathcal{L}_{\text{Scale}}$$
+
+对齐在 7 层 U-ViT 的**第 3 层**。动机是个很有说服力的诊断：拿冻结的 DFoT 特征接 DPT 深度头做线性探测，发现原始视频特征"产生不出有意义的几何表征"。
+
+**关键在于把方向与幅值解耦**：单用 cosine 对尺度盲，单用 MSE 会坍塌（FVD 1648）；先用 cosine 管方向、再从**归一化后的特征**回归幅值才有效。256 帧 FVD 消融：基线 364 → 只加 angular 253 → 两项都加 **243**。
+
 这条线与本 vault 已有的 [[GaussianDream - 机器人操控的前馈三维高斯世界模型|GaussianDream]] 直接同源，也与 [[前馈式三维重建与生成式补全 - Survey|前馈式三维重建与生成式补全]] 那篇 survey 的路线 A/B 之分呼应：几何表示天然带来跨视角一致性与长期空间记忆，代价是丢掉外观细节与生成灵活性。
 
 ## 6. 应用域与数据集版图
@@ -697,7 +753,7 @@ $$\mathcal{L}=\underbrace{\frac{1}{KN}\sum_{k}\sum_{n}\lVert \hat{\bm s}^n_{T+k}
     2. 常见指标：PSNR、SSIM、FID、FVD、LPIPS、DreamSim 等。
 2. Physical Plausibility
     1. 评估预测是否满足运动学、几何和长时一致性约束；
-    2. 典型指标包括：ADE/FDE、Chamfer Distance、AbsRel、Revisit Error、Scene Revisit Consistency 等。
+    2. 典型指标包括：ADE/FDE、Chamfer Distance、AbsRel、Revisit Error、Scene Revisit Consistency 等——但**后两个的地位远不如前三个稳固，见 7.3.4**。
 3. Task Performance
     1. 评估 world model 是否真的支持下游决策；
     2. 典型指标包括：Raw Return、Driving Score、Success Rate、MTLC Success Rate、Top-K Accuracy 等。
@@ -706,11 +762,67 @@ $$\mathcal{L}=\underbrace{\frac{1}{KN}\sum_{k}\sum_{n}\lVert \hat{\bm s}^n_{T+k}
 
 ![](assets/视觉世界模型%20-%20Survey/evaluation.png)
 
-### 7.3 数据集与 benchmark 的系统整理
+### 7.3 关键指标的精确定义（含一处必须纠正的说法）
+
+上面那份指标清单如果只当名词记，很容易在复现或比较时踩坑。这里把最常用的几个写清楚。
+
+#### 7.3.1 FVD：三个让数字不可比的陷阱
+
+$$\text{FVD}=\lVert\mu_R-\mu_G\rVert^2+\mathrm{Tr}\big(\Sigma_R+\Sigma_G-2(\Sigma_R\Sigma_G)^{1/2}\big)$$
+
+特征提取器是 **Kinetics-400 上预训练的 I3D**，取的是 **logits 层（400 维）**，输入 224×224 归一到 $[-1,1]$。注意是 logits 而非 pre-logits pooling，这是官方实现里明确选择的。
+
+三个陷阱：
+
+1. **样本量偏差。** 原文明确说"跨模型比较 FVD 时，必须使用相同的样本量"。所以看到没写样本数的 FVD 就该警惕。
+2. **没有正典的片段长度。** 原论文里**并没有**规定用多少帧，FVD$_{16}$ / FVD$_{128}$ 与 2048 样本这些都是 StyleGAN-V 时代形成的惯例。
+3. **两份"官方"权重不一致。** StyleGAN-V 发现 tf.hub 上的 I3D 权重与官方仓库的不同，于是两套"官方"数字互相不可比。此外 FVD **对运动坍塌不敏感、偏向图像质量**——这正是它不足以评价世界模型的原因。
+
+CD-FVD（2404.12391）的修法是换成 **VideoMAE-v2 ViT-g**（1408 维）以消除 Kinetics 的内容偏置，结论是自监督预训练才是关键。
+
+#### 7.3.2 AbsRel 与 Chamfer Distance：对齐协议决定数字
+
+$$\text{AbsRel}=\frac{1}{|T|}\sum|y-y^*|/y^*$$
+
+**真正的复现陷阱在对齐协议**：median scaling（SfMLearner 式，只对尺度、在深度空间）与 MiDaS 式的**在视差空间做最小二乘 scale+shift** 是两套不同标准，后者严格更宽松。所以不同时说明"对齐方式、所在空间、深度截断、裁剪范围"的 AbsRel 之间不可比。
+
+Chamfer Distance 至少有四种互不兼容的约定（求和/求均值、平方/不平方、有无 ½ 因子、是否归一化）。原始 PSGN 版本是**平方距离之和**：
+
+$$d_{CD}=\sum_{x\in S_1}\min_{y\in S_2}\lVert x-y\rVert_2^2+\sum_{y\in S_2}\min_{x\in S_1}\lVert x-y\rVert_2^2$$
+
+而现在常用的 CD-$L_1$（Occupancy Networks 式）是 $\tfrac12(\text{Acc}+\text{Comp})$、不平方。**所以孤立的一个"CD = 0.05"是无法解释的**，必须连同约定一起写。
+
+#### 7.3.3 ADE/FDE 与 IntPhys / Physion
+
+$$\text{ADE}=\frac1T\sum_t\lVert\hat s_t-s_t\rVert_2,\qquad \text{FDE}=\lVert\hat s_T-s_T\rVert_2,\qquad \text{minADE}_K=\min_k \frac1T\sum_t\lVert\hat s^{(k)}_t-s_t\rVert_2$$
+
+一个 benchmark 层面的坑：**Argoverse v1 的 minADE 实际是"min-FDE 那个模态的 ADE"**，不是对所有 ADE 取最小；nuScenes 按**概率**而非 oracle 排序。跨 benchmark 比这些数字要格外小心。
+
+**IntPhys** 用的是 violation-of-expectation 范式，给出可能/不可能配对后计算两个分数：
+
+$$L_R=\frac1N\sum_i \mathbb{1}\Big[\sum_j P(Pos_i^j)<\sum_j P(Imp_i^j)\Big],\qquad L_A=1-\text{AUC}\big(\{P(Pos)\},\{P(Imp)\}\big)$$
+
+$L_R$（相对）比较的是**整个 $k$-uplet 上的求和**，不是逐对比较；$L_A$（绝对）是 AUC。三个 block 分别是 O1 物体永存 / O2 形状恒常 / O3 时空连续——**solidity 只在 IntPhys 2 里**。因为不知道违规发生在哪一帧，视频级分数取**逐帧最小值**。IntPhys 2（2506.09849）报的是普通准确率：人类约 96.4%，而所有模型接近随机（V-JEPA 2 最好，57.5%）。
+
+**Physion** 是二分类 OCP（红色 agent 会不会在所有物体静止前接触黄色 patient），除准确率外还报**与人类平均反应的 Pearson $r$** 和**与单个人类的 Cohen $\kappa$**。人类准确率 0.71，模型约 0.53–0.69。Physion++ 进一步要求推断质量/摩擦/弹性等潜在属性，人类掉到 60%，而最好的模型-人类相关只有 $r=0.12$（人类 split-half 是 0.37），且**多数模型根本没有用上属性推断阶段**。
+
+#### 7.3.4 ⚠️ "Scene Revisit Consistency" 并不是一个已定义的指标
+
+这一条是我核查后必须写进来的纠正，也包括对本笔记上一版的纠正：
+
+- **Revisit Error** 确实存在，但它**只是一个协议 + 借用的统计量，没有公式**：绕 Y 轴环绕 256 帧，用 **rFID** 比较首帧与末帧。出自 `Geometry Forcing` 一篇，一个实现。
+- **Scene Revisit Consistency**：综述把它引到 `SlowFast-VGen`（2410.23277），但**那篇论文没有定义这个名字的指标**——它报的是 FVD 与 "scene cuts"（0.37 vs 0.89）。这个名称看起来是综述自己起的。**所以任何把 SRC 当成有公式的既成指标来引用的表格，都属于过度陈述。**
+- `LoopNav`（2505.22976）的摘要宣称有 Scene Graph Consistency Score，但两个 HTML 版本的正文里都找不到定义，只报 FVD/LPIPS/SSIM。**存疑，不要引用。**
+
+现实是：revisit 一致性目前**没有公认指标**，各家都是"协议 + 现成统计量"。`WorldMem` 用 PSNR/LPIPS/rFID 对比自己早先的帧；`VMem` 用环形轨迹在回程上评分 + DUSt3R 位姿误差；WorldScore 的"3D consistency"甚至只是**相邻帧**重投影误差，根本没测闭环。`VMem` 自己也承认 RealEstate10K"的轨迹很少重访已观测区域"。
+
+**这正好印证了综述 Re-evaluation 那一节的判断：长时程一致性还缺可靠度量。** 换句话说，这是一个**空位**，而不是一个已解决的评测维度。
+
+### 7.4 数据集与 benchmark 的系统整理
 
 原文把数据集分成 Foundational（general prediction / physics & causality）与 Domain-specific（robotics / driving / gaming）两大层，具体条目已经在上面的 [[#6. 应用域与数据集版图]] 展开成表，这里不重复。
 
-### 7.4 这篇综述给出的关键观察
+### 7.5 这篇综述给出的关键观察
 
 作者的关键判断基本可以概括为：
 
@@ -718,7 +830,7 @@ $$\mathcal{L}=\underbrace{\frac{1}{KN}\sum_{k}\sum_{n}\lVert \hat{\bm s}^n_{T+k}
 - 真正可靠的 VWM 必须同时满足视觉合理、物理合理、任务可用；
 - 长时程一致性、几何稳定性、因果干预响应，才是下一阶段 evaluation 的重点。
 
-### 7.5 限制与警惕点
+### 7.6 限制与警惕点
 
 这篇 survey 有几个需要警惕的点，其中第 4 条是我读完条目分布后补的：
 
