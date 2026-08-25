@@ -1,8 +1,8 @@
 # LeetCode 热题 100（Hot 100）
 
 > 来源：[力扣 LeetCode.cn 热题 100](https://leetcode.cn/problem-list/2cktkvj/)
-> 抓取时间：2026-08-25 16:59:55
-> 内容：题目描述（含示例）＋ Python3 代码模板 ＋ 力扣官方题解。
+> 抓取时间：2026-08-25 17:13:29
+> 内容：题目描述（含示例）＋ C++ 代码模板 ＋ 力扣官方题解。
 
 ## 目录
 
@@ -189,17 +189,23 @@
 
 **进阶：**你能否设计一个时间复杂度 `O(m + n)` 、仅用 `O(1)` 内存的解决方案？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, x):
-#         self.val = x
-#         self.next = None
-
-class Solution:
-    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -552,18 +558,24 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
 - `p != q`
 - `p` 和 `q` 均存在于给定的二叉树中。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, x):
-#         self.val = x
-#         self.left = None
-#         self.right = None
-
-class Solution:
-    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -833,16 +845,25 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 
 **进阶：**你能否用 `O(n)` 时间复杂度和 `O(1)` 空间复杂度解决此题？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def isPalindrome(self, head: Optional[ListNode]) -> bool:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -1529,11 +1550,15 @@ bool isPalindrome(struct ListNode* head) {
 - `1 <= temperatures.length <= 10^5`
 - `30 <= temperatures[i] <= 100`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def dailyTemperatures(self, temperatures: List[int]) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> dailyTemperatures(vector<int>& temperatures) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -1812,17 +1837,26 @@ func dailyTemperatures(temperatures []int) []int {
 - 树中节点数目范围在 `[0, 100]` 内
 - `-100 <= Node.val <= 100`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -1969,11 +2003,15 @@ struct TreeNode* invertTree(struct TreeNode* root) {
 - `1 <= m, n <= 300`
 - `matrix[i][j]` 为 `'0'` 或 `'1'`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maximalSquare(self, matrix: List[List[str]]) -> int:
+```cpp
+class Solution {
+public:
+    int maximalSquare(vector<vector<char>>& matrix) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -2368,11 +2406,15 @@ func min(x, y int) int {
 - `1 <= k <= nums.length <= 10^5`
 - `-10^4 <= nums[i] <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def findKthLargest(self, nums: List[int], k: int) -> int:
+```cpp
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -2717,29 +2759,35 @@ trie.search("app");     // 返回 True
 - `word` 和 `prefix` 仅由小写英文字母组成
 - `insert`、`search` 和 `startsWith` 调用次数 **总计** 不超过 `3 * 10^4` 次
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Trie:
-
-    def __init__(self):
+```cpp
+class Trie {
+public:
+    Trie() {
         
-
-    def insert(self, word: str) -> None:
+    }
+    
+    void insert(string word) {
         
-
-    def search(self, word: str) -> bool:
+    }
+    
+    bool search(string word) {
         
-
-    def startsWith(self, prefix: str) -> bool:
+    }
+    
+    bool startsWith(string prefix) {
         
+    }
+};
 
-
-# Your Trie object will be instantiated and called as such:
-# obj = Trie()
-# obj.insert(word)
-# param_2 = obj.search(word)
-# param_3 = obj.startsWith(prefix)
+/**
+ * Your Trie object will be instantiated and called as such:
+ * Trie* obj = new Trie();
+ * obj->insert(word);
+ * bool param_2 = obj->search(word);
+ * bool param_3 = obj->startsWith(prefix);
+ */
 ```
 
 ### 官方题解
@@ -3086,11 +3134,15 @@ void trieFree(Trie* obj) {
 - `0 <= a_i, b_i < numCourses`
 - `prerequisites[i]` 中的所有课程对 **互不相同**
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+```cpp
+class Solution {
+public:
+    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -3649,16 +3701,25 @@ func canFinish(numCourses int, prerequisites [][]int) bool {
 
 **进阶：**链表可以选用迭代或递归方式完成反转。你能否用两种方法解决这道题？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -3889,11 +3950,15 @@ struct ListNode* reverseList(struct ListNode* head) {
 - `1 <= m, n <= 300`
 - `grid[i][j]` 的值为 `'0'` 或 `'1'`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def numIslands(self, grid: List[List[str]]) -> int:
+```cpp
+class Solution {
+public:
+    int numIslands(vector<vector<char>>& grid) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -4419,11 +4484,15 @@ class Solution:
 - `1 <= nums.length <= 100`
 - `0 <= nums[i] <= 400`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def rob(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -4679,11 +4748,15 @@ func max(x, y int) int {
 
 **进阶：**尝试设计时间复杂度为 O(n)、空间复杂度为 O(1) 的算法解决此问题。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def majorityElement(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -5196,11 +5269,15 @@ public:
 
 **进阶：**你可以在 `O(1)` 的额外空间复杂度内完成这个题目吗？（ 出于对空间复杂度分析的目的，输出数组 **不被视为 **额外空间。）
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def productExceptSelf(self, nums: List[int]) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -5593,33 +5670,40 @@ minStack.getMin();   --> 返回 -2.
 - `pop`、`top` 和 `getMin` 操作总是在 **非空栈** 上调用
 - `push`, `pop`, `top`, and `getMin`最多被调用 `3 * 10^4` 次
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class MinStack:
-
-    def __init__(self):
+```cpp
+class MinStack {
+public:
+    MinStack() {
         
-
-    def push(self, value: int) -> None:
+    }
+    
+    void push(int value) {
         
-
-    def pop(self) -> None:
+    }
+    
+    void pop() {
         
-
-    def top(self) -> int:
+    }
+    
+    int top() {
         
-
-    def getMin(self) -> int:
+    }
+    
+    int getMin() {
         
+    }
+};
 
-
-# Your MinStack object will be instantiated and called as such:
-# obj = MinStack()
-# obj.push(value)
-# obj.pop()
-# param_3 = obj.top()
-# param_4 = obj.getMin()
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack* obj = new MinStack();
+ * obj->push(value);
+ * obj->pop();
+ * int param_3 = obj->top();
+ * int param_4 = obj->getMin();
+ */
 ```
 
 ### 官方题解
@@ -5842,11 +5926,15 @@ func min(x, y int) int {
 - `-10 <= nums[i] <= 10`
 - `nums` 的任何子数组的乘积都 **保证** 是一个 **32-位** 整数
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maxProduct(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -6054,16 +6142,25 @@ func min(x, y int) int {
 
 **进阶：**你可以在 `O(n log n)` 时间复杂度和常数级空间复杂度下，对链表进行排序吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def sortList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -6848,25 +6945,30 @@ lRUCache.get(4);    // 返回 4
 - `0 <= value <= 10^5`
 - 最多调用 `2 * 10^5` 次 `get` 和 `put`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class LRUCache:
-
-    def __init__(self, capacity: int):
+```cpp
+class LRUCache {
+public:
+    LRUCache(int capacity) {
         
-
-    def get(self, key: int) -> int:
+    }
+    
+    int get(int key) {
         
-
-    def put(self, key: int, value: int) -> None:
+    }
+    
+    void put(int key, int value) {
         
+    }
+};
 
-
-# Your LRUCache object will be instantiated and called as such:
-# obj = LRUCache(capacity)
-# param_1 = obj.get(key)
-# obj.put(key,value)
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
 ```
 
 ### 官方题解
@@ -7342,17 +7444,23 @@ func (this *LRUCache) removeTail() *DLinkedNode {
 
 **进阶：**你是否可以使用 `O(1)` 空间解决此题？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, x):
-#         self.val = x
-#         self.next = None
-
-class Solution:
-    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -7674,17 +7782,23 @@ func detectCycle(head *ListNode) *ListNode {
 
 **进阶：**你能用 `O(1)`（即，常量）内存解决此问题吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, x):
-#         self.val = x
-#         self.next = None
-
-class Solution:
-    def hasCycle(self, head: Optional[ListNode]) -> bool:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -7970,11 +8084,15 @@ bool hasCycle(struct ListNode* head) {
 - `s` 和 `wordDict[i]` 仅由小写英文字母组成
 - `wordDict` 中的所有字符串 **互不相同**
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+```cpp
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -8183,11 +8301,15 @@ public:
 - `-3 * 10^4 <= nums[i] <= 3 * 10^4`
 - 除了某个元素只出现一次以外，其余每个元素均出现两次。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def singleNumber(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -8323,11 +8445,15 @@ func singleNumber(nums []int) int {
 - `1 <= s.length <= 1000`
 - `s` 由小写英文字母组成
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def countSubstrings(self, s: str) -> int:
+```cpp
+class Solution {
+public:
+    int countSubstrings(string s) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -8703,11 +8829,15 @@ func min(x, y int) int {
 - `0 <= nums.length <= 10^5`
 - `-10^9 <= nums[i] <= 10^9`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def longestConsecutive(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int longestConsecutive(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -8907,17 +9037,26 @@ func longestConsecutive(nums []int) int {
 - 树中节点数目范围是 `[1, 3 * 10^4]`
 - `-1000 <= Node.val <= 1000`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int maxPathSum(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -9168,11 +9307,15 @@ public class Solution
 - `1 <= coins[i] <= 2^31 - 1`
 - `0 <= amount <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def coinChange(self, coins: List[int], amount: int) -> int:
+```cpp
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -9442,11 +9585,15 @@ class Solution:
 - `0 <= sum(nums[i]) <= 1000`
 - `-1000 <= target <= 1000`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int>& nums, int target) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -9994,11 +10141,15 @@ int findTargetSumWays(int* nums, int numsSize, int target) {
 
 **注意：**本题与 2220. 转换数字的最少位翻转次数 相同。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def hammingDistance(self, x: int, y: int) -> int:
+```cpp
+class Solution {
+public:
+    int hammingDistance(int x, int y) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -10280,11 +10431,15 @@ int hammingDistance(int x, int y) {
 
 **进阶：**你能在不使用额外空间且时间复杂度为* *`O(n)`* *的情况下解决这个问题吗? 你可以假定返回的数组不算在额外空间内。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def findDisappearedNumbers(self, nums: List[int]) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> findDisappearedNumbers(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -10461,11 +10616,15 @@ var findDisappearedNumbers = function(nums) {
 - `1 <= s.length, p.length <= 3 * 10^4`
 - `s` 和 `p` 仅包含小写字母
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def findAnagrams(self, s: str, p: str) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -11032,17 +11191,26 @@ var findAnagrams = function(s, p) {
 - `-10^9 <= Node.val <= 10^9`
 - `-1000 <= targetSum <= 1000`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def pathSum(self, root: Optional[TreeNode], targetSum: int) -> int:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int pathSum(TreeNode* root, int targetSum) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -11453,11 +11621,15 @@ func pathSum(root *TreeNode, targetSum int) (ans int) {
 - `1 <= nums.length <= 200`
 - `1 <= nums[i] <= 100`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def canPartition(self, nums: List[int]) -> bool:
+```cpp
+class Solution {
+public:
+    bool canPartition(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -11977,11 +12149,15 @@ class Solution:
 - `0 <= k_i < people.length`
 - 题目数据确保队列可以被重建
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:
+```cpp
+class Solution {
+public:
+    vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -12311,11 +12487,15 @@ int** reconstructQueue(int** people, int peopleSize, int* peopleColSize, int* re
 - `1 <= C_j.length, D_j.length <= 5`
 - `A_i, B_i, C_j, D_j` 由小写英文字母与数字组成
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+```cpp
+class Solution {
+public:
+    vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -13122,11 +13302,15 @@ const findf = (f, w, x) => {
 - `s` 保证是一个 **有效** 的输入。
 - `s` 中所有整数的取值范围为 `[1, 300]`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def decodeString(self, s: str) -> str:
+```cpp
+class Solution {
+public:
+    string decodeString(string s) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -13564,11 +13748,15 @@ func getDigits() int {
 
 **进阶：**你所设计算法的时间复杂度 **必须** 优于 `O(n log n)` ，其中 `n`* *是数组大小。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -14109,11 +14297,15 @@ func qsort(values [][]int, start, end int, ret []int, retIndex, k int) {
 
 - 很容易就能实现时间复杂度为 `O(n log n)` 的解决方案，你可以在线性时间复杂度 `O(n)` 内用一趟扫描解决此问题吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def countBits(self, n: int) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> countBits(int n) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -14577,17 +14769,26 @@ int* countBits(int n, int* returnSize) {
 - 树的节点数在 `[1, 10^4]` 范围内
 - `0 <= Node.val <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def rob(self, root: Optional[TreeNode]) -> int:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int rob(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -14838,11 +15039,15 @@ int rob(struct TreeNode *root) {
 - `1 <= prices.length <= 10^5`
 - `0 <= prices[i] <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maxProfit(self, prices: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -15006,11 +15211,15 @@ coins =  3*1*5    +   3*5*8   +  1*3*8  + 1*8*1 = 167
 - `1 <= n <= 300`
 - `0 <= nums[i] <= 100`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maxCoins(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int maxCoins(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -15404,11 +15613,15 @@ int maxCoins(int* nums, int numsSize) {
 - `1 <= prices.length <= 5000`
 - `0 <= prices[i] <= 1000`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maxProfit(self, prices: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -15797,11 +16010,15 @@ func max(x, y int) int {
 - `s` 由小写英文字母以及括号 `'('` 和 `')'` 组成
 - `s` 中至多含 `20` 个括号
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def removeInvalidParentheses(self, s: str) -> List[str]:
+```cpp
+class Solution {
+public:
+    vector<string> removeInvalidParentheses(string s) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -17186,11 +17403,15 @@ func removeInvalidParentheses(s string) (ans []string) {
 
 - 你能将算法的时间复杂度降低到 `O(n log(n))` 吗?
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def lengthOfLIS(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -17463,38 +17684,35 @@ class Solution:
 - 树中结点数在范围 `[0, 10^4]` 内
 - `-1000 <= Node.val <= 1000`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode(object):
-#     def __init__(self, x):
-#         self.val = x
-#         self.left = None
-#         self.right = None
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Codec {
+public:
 
-class Codec:
-
-    def serialize(self, root):
-        """Encodes a tree to a single string.
+    // Encodes a tree to a single string.
+    string serialize(TreeNode* root) {
         
-        :type root: TreeNode
-        :rtype: str
-        """
-        
+    }
 
-    def deserialize(self, data):
-        """Decodes your encoded data to tree.
+    // Decodes your encoded data to tree.
+    TreeNode* deserialize(string data) {
         
-        :type data: str
-        :rtype: TreeNode
-        """
-        
+    }
+};
 
-# Your Codec object will be instantiated and called as such:
-# ser = Codec()
-# deser = Codec()
-# ans = deser.deserialize(ser.serialize(root))
+// Your Codec object will be instantiated and called as such:
+// Codec ser, deser;
+// TreeNode* ans = deser.deserialize(ser.serialize(root));
 ```
 
 ### 官方题解
@@ -18068,11 +18286,15 @@ func (Codec) deserialize(data string) *TreeNode {
 - 如何证明 `nums` 中至少存在一个重复的数字?
 - 你可以设计一个线性级时间复杂度 `O(n)` 的解决方案吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def findDuplicate(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -18479,14 +18701,15 @@ func findDuplicate(nums []int) int {
 
 **进阶：**你能尽量减少完成的操作次数吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def moveZeroes(self, nums: List[int]) -> None:
-        """
-        Do not return anything, modify nums in-place instead.
-        """
+```cpp
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -18631,11 +18854,15 @@ void moveZeroes(int *nums, int numsSize) {
 
 - `1 <= n <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def numSquares(self, n: int) -> int:
+```cpp
+class Solution {
+public:
+    int numSquares(int n) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -19049,11 +19276,15 @@ int numSquares(int n) {
 - 每列的所有元素从上到下升序排列
 - `-10^9 <= target <= 10^9`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+```cpp
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -19460,11 +19691,15 @@ func searchMatrix(matrix [][]int, target int) bool {
 - `-10^4 <= nums[i] <= 10^4`
 - `1 <= k <= nums.length`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -20118,11 +20353,15 @@ var maxSlidingWindow = function(nums, k) {
 
 - `1 <= n <= 8`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def generateParenthesis(self, n: int) -> List[str]:
+```cpp
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -20477,11 +20716,15 @@ public:
 - `0 <= strs[i].length <= 100`
 - `strs[i]` 仅包含小写字母
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+```cpp
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -20741,14 +20984,15 @@ class Solution:
 - `1 <= n <= 20`
 - `-1000 <= matrix[i][j] <= 1000`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def rotate(self, matrix: List[List[int]]) -> None:
-        """
-        Do not return anything, modify matrix in-place instead.
-        """
+```cpp
+class Solution {
+public:
+    void rotate(vector<vector<int>>& matrix) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -21410,11 +21654,15 @@ void rotate(int** matrix, int matrixSize, int* matrixColSize) {
 - `-10 <= nums[i] <= 10`
 - `nums` 中的所有整数 **互不相同**
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def permute(self, nums: List[int]) -> List[List[int]]:
+```cpp
+class Solution {
+public:
+    vector<vector<int>> permute(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -21588,11 +21836,15 @@ public:
 - `1 <= n <= 2 * 10^4`
 - `0 <= height[i] <= 10^5`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def trap(self, height: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -22177,11 +22429,15 @@ int trap(int* height, int heightSize) {
 - `candidates` 的所有元素 **互不相同**
 - `1 <= target <= 40`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -22402,17 +22658,26 @@ func combinationSum(candidates []int, target int) (ans [][]int) {
 - 树中节点数目在范围 `[1, 10^4]` 内
 - `-100 <= Node.val <= 100`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int diameterOfBinaryTree(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -22556,11 +22821,15 @@ public:
 - `nums` 是一个非递减数组
 - `-10^9 <= target <= 10^9`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def searchRange(self, nums: List[int], target: int) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> searchRange(vector<int>& nums, int target) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -22756,11 +23025,15 @@ int* searchRange(int* nums, int numsSize, int target, int* returnSize) {
 - 题目数据保证 `nums` 在预先未知的某个下标上进行了旋转
 - `-10^4 <= target <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def search(self, nums: List[int], target: int) -> int:
+```cpp
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -22925,11 +23198,15 @@ class Solution:
 - `0 <= s.length <= 3 * 10^4`
 - `s[i]` 为 `'('` 或 `')'`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def longestValidParentheses(self, s: str) -> int:
+```cpp
+class Solution {
+public:
+    int longestValidParentheses(string s) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -23399,14 +23676,15 @@ func max(x, y int) int {
 - `1 <= nums.length <= 100`
 - `0 <= nums[i] <= 100`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def nextPermutation(self, nums: List[int]) -> None:
-        """
-        Do not return anything, modify nums in-place instead.
-        """
+```cpp
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -23658,17 +23936,26 @@ void nextPermutation(int *nums, int numsSize) {
 - 树中的所有值 **互不相同** 。
 - 给定的树为二叉搜索树。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def convertBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* convertBST(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -24046,16 +24333,25 @@ struct TreeNode* convertBST(struct TreeNode* root) {
 - `lists[i]` 按 **升序** 排列
 - `lists[i].length` 的总和不超过 `10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -24396,11 +24692,15 @@ class Solution {
 - `-1000 <= nums[i] <= 1000`
 - `-10^7 <= k <= 10^7`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def subarraySum(self, nums: List[int], k: int) -> int:
+```cpp
+class Solution {
+public:
+    int subarraySum(vector<int>& nums, int k) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -24647,16 +24947,25 @@ func subarraySum(nums []int, k int) int {
 - `-100 <= Node.val <= 100`
 - `l1` 和 `l2` 均按 **非递减顺序** 排列
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -25015,11 +25324,15 @@ func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
 - `1 <= s.length <= 10^4`
 - `s` 仅由括号 `'()[]{}'` 组成
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def isValid(self, s: str) -> bool:
+```cpp
+class Solution {
+public:
+    bool isValid(string s) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -25255,16 +25568,25 @@ bool isValid(char* s) {
 
 **进阶：**你能尝试使用一趟扫描实现吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -25690,11 +26012,15 @@ struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
 - `1 <= digits.length <= 4`
 - `digits[i]` 是范围 `['2', '9']` 的一个数字。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def letterCombinations(self, digits: str) -> List[str]:
+```cpp
+class Solution {
+public:
+    vector<string> letterCombinations(string digits) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -25982,11 +26308,15 @@ nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0 。
 - `3 <= nums.length <= 3000`
 - `-10^5 <= nums[i] <= 10^5`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def threeSum(self, nums: list[int]) -> list[list[int]]:
+```cpp
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -26270,11 +26600,15 @@ func threeSum(nums []int) [][]int {
 - `2 <= n <= 10^5`
 - `0 <= height[i] <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maxArea(self, height: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -26502,11 +26836,15 @@ class Solution:
 - `p` 只包含从 `a-z` 的小写字母，以及字符 `.` 和 `*`。
 - 保证每次出现字符 `*` 时，前面都匹配到有效的字符
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def isMatch(self, s: str, p: str) -> bool:
+```cpp
+class Solution {
+public:
+    bool isMatch(string s, string p) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -26765,11 +27103,15 @@ func isMatch(s string, p string) bool {
 - `1 <= s.length <= 1000`
 - `s` 仅由数字和英文字母组成
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def longestPalindrome(self, s: str) -> str:
+```cpp
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -27371,11 +27713,15 @@ func min(x, y int) int {
 - `1 <= m + n <= 2000`
 - `-10^6 <= nums1[i], nums2[i] <= 10^6`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+```cpp
+class Solution {
+public:
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -28008,11 +28354,15 @@ func min(x, y int) int {
 - `0 <= s.length <= 10^5`
 - `s` 由英文字母、数字、符号和空格组成
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def lengthOfLongestSubstring(self, s: str) -> int:
+```cpp
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -28235,16 +28585,25 @@ func max(x, y int) int {
 - `0 <= Node.val <= 9`
 - 题目数据保证列表表示的数字不含前导零
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for singly-linked list.
-# class ListNode:
-#     def __init__(self, val=0, next=None):
-#         self.val = val
-#         self.next = next
-class Solution:
-    def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -28555,11 +28914,15 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
 
 **进阶：**你可以使用搜索剪枝的技术来优化解决方案，使其在 `board` 更大的情况下可以更快解决问题？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def exist(self, board: List[List[str]], word: str) -> bool:
+```cpp
+class Solution {
+public:
+    bool exist(vector<vector<char>>& board, string word) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -28884,20 +29247,26 @@ bool exist(char** board, int boardSize, int* boardColSize, char* word) {
 
 **进阶：**你可以使用原地算法（`O(1)` 额外空间）展开这棵树吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def flatten(self, root: Optional[TreeNode]) -> None:
-        """
-        Do not return anything, modify root in-place instead.
-        """
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    void flatten(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -29560,11 +29929,15 @@ void flatten(struct TreeNode* root) {
 - `tasks[i]` 是大写英文字母
 - `0 <= n <= 100`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def leastInterval(self, tasks: List[str], n: int) -> int:
+```cpp
+class Solution {
+public:
+    int leastInterval(vector<char>& tasks, int n) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -30128,17 +30501,26 @@ int leastInterval(char* tasks, int tasksSize, int n) {
 - 两棵树中的节点数目在范围 `[0, 2000]` 内
 - `-10^4 <= Node.val <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def mergeTrees(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> Optional[TreeNode]:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -30580,17 +30962,26 @@ class Solution:
 - `preorder` **保证** 为二叉树的前序遍历序列
 - `inorder` **保证** 为二叉树的中序遍历序列
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -31027,17 +31418,26 @@ func buildTree(preorder []int, inorder []int) *TreeNode {
 - 树中节点的数量在 `[0, 10^4]` 区间内。
 - `-100 <= Node.val <= 100`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def maxDepth(self, root: Optional[TreeNode]) -> int:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -31289,17 +31689,26 @@ int maxDepth(struct TreeNode *root) {
 - 树中节点数目在范围 `[0, 2000]` 内
 - `-1000 <= Node.val <= 1000`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -31491,17 +31900,26 @@ func levelOrder(root *TreeNode) [][]int {
 
 **进阶：**你可以运用递归和迭代两种方法解决这个问题吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -31759,17 +32177,26 @@ var isSymmetric = function(root: TreeNode | null): boolean {
 - 树中节点数目范围在`[1, 10^4]` 内
 - `-2^31 <= Node.val <= 2^31 - 1`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isValidBST(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -32047,11 +32474,15 @@ func isValidBST(root *TreeNode) bool {
 
 - `1 <= n <= 19`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def numTrees(self, n: int) -> int:
+```cpp
+class Solution {
+public:
+    int numTrees(int n) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -32337,17 +32768,26 @@ int numTrees(int n) {
 
 **进阶:** 递归算法很简单，你可以通过迭代算法完成吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -32816,11 +33256,15 @@ int* inorderTraversal(struct TreeNode* root, int* returnSize) {
 - `1 <= rows, cols <= 200`
 - `matrix[i][j]` 为 `'0'` 或 `'1'`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maximalRectangle(self, matrix: List[List[str]]) -> int:
+```cpp
+class Solution {
+public:
+    int maximalRectangle(vector<vector<char>>& matrix) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -33720,11 +34164,15 @@ impl Solution {
 - `1 <= heights.length <=10^5`
 - `0 <= heights[i] <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def largestRectangleArea(self, heights: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -34186,11 +34634,15 @@ func max(x, y int) int {
 
 **进阶：**你可以想出一个时间复杂度小于 `O(n^2)` 的算法吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
+```cpp
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -34440,11 +34892,15 @@ func twoSum(nums []int, target int) []int {
 - `-10 <= nums[i] <= 10`
 - `nums` 中的所有元素 **互不相同**
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def subsets(self, nums: List[int]) -> List[List[int]]:
+```cpp
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -34779,11 +35235,15 @@ int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 
 **进阶：**你能设计一个在 `O(m + n)` 时间内解决此问题的算法吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def minWindow(self, s: str, t: str) -> str:
+```cpp
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -34994,14 +35454,15 @@ func minWindow(s string, t string) string {
 
 - 你能想出一个仅使用常数空间的一趟扫描算法吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def sortColors(self, nums: List[int]) -> None:
-        """
-        Do not return anything, modify nums in-place instead.
-        """
+```cpp
+class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -35440,11 +35901,15 @@ exection -> execution (插入 'u')
 - `0 <= word1.length, word2.length <= 500`
 - `word1` 和 `word2` 由小写英文字母组成
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def minDistance(self, word1: str, word2: str) -> int:
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -35699,11 +36164,15 @@ public:
 
 - `1 <= n <= 45`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def climbStairs(self, n: int) -> int:
+```cpp
+class Solution {
+public:
+    int climbStairs(int n) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -36194,11 +36663,15 @@ int climbStairs(int n) {
 
 **进阶：**你可以设计一个时间复杂度为 `O(n)` 的解决方案吗？
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def findUnsortedSubarray(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int findUnsortedSubarray(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -36634,11 +37107,15 @@ int findUnsortedSubarray(int* nums, int numsSize) {
 - `1 <= m, n <= 200`
 - `0 <= grid[i][j] <= 200`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def minPathSum(self, grid: List[List[int]]) -> int:
+```cpp
+class Solution {
+public:
+    int minPathSum(vector<vector<int>>& grid) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -36854,11 +37331,15 @@ int minPathSum(int** grid, int gridSize, int* gridColSize) {
 - `1 <= m, n <= 100`
 - 题目数据保证答案小于等于 `2 * 10^9`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def uniquePaths(self, m: int, n: int) -> int:
+```cpp
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -37212,11 +37693,15 @@ var uniquePaths = function(m, n) {
 - `intervals[i].length == 2`
 - `0 <= start_i <= end_i <= 10^4`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+```cpp
+class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -37387,11 +37872,15 @@ func merge(intervals [][]int) [][]int {
 - `1 <= nums.length <= 10^4`
 - `0 <= nums[i] <= 10^5`
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def canJump(self, nums: List[int]) -> bool:
+```cpp
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
@@ -37538,11 +38027,15 @@ class Solution:
 
 **进阶：**如果你已经实现复杂度为 `O(n)` 的解法，尝试使用更为精妙的 **分治法** 求解。
 
-### 代码模板（Python3）
+### 代码模板（C++）
 
-```python
-class Solution:
-    def maxSubArray(self, nums: List[int]) -> int:
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        
+    }
+};
 ```
 
 ### 官方题解
