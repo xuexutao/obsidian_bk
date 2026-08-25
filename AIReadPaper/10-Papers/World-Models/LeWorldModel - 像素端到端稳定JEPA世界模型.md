@@ -1,4 +1,4 @@
-**核心判断：** LeWorldModel（LeWM）把 **JEPA world model 从“能训起来但很脆”推进到“从像素端到端稳定训练且足够轻量”**。它只保留 **next-embedding prediction + SIGReg** 两项损失，不依赖 stop-gradient、EMA、预训练 encoder 或奖励/重建监督，在 15M 参数、单卡数小时训练的条件下就能完成 reward-free latent planning，并拿到最高 **48×** 的规划速度优势。
+**核心判断：** LeWorldModel（LeWM）把 JEPA world model 从“能训起来但很脆”推进到“从像素端到端稳定训练且足够轻量”。它只保留 next-embedding prediction + SIGReg 两项损失，不依赖 stop-gradient、EMA、预训练 encoder 或奖励/重建监督，在 15M 参数、单卡数小时训练的条件下就能完成 reward-free latent planning，并拿到最高 48× 的规划速度优势。
 
 - **论文：** [LeWorldModel: Stable End-to-End Joint-Embedding Predictive Architecture from Pixels](https://arxiv.org/abs/2603.19312)
 - **代码：** [lucas-maes/le-wm](https://github.com/lucas-maes/le-wm)
@@ -7,18 +7,120 @@
 
 ## 1. 背景
 
-这篇论文讨论的是 **如何从原始像素直接训练一个稳定、可规划、reward-free 的 latent world model**。作者聚焦的是 JEPA（Joint Embedding Predictive Architecture）这一条路线：不用在像素空间做高成本生成，而是在低维 latent 空间里预测未来状态，再在 latent 空间中做规划。
+这篇论文讨论的是如何从原始像素直接训练一个稳定、可规划、reward-free 的 latent world model。作者聚焦的是 JEPA（Joint Embedding Predictive Architecture）这一条路线：不用在像素空间做高成本生成，而是在低维 latent 空间里预测未来状态，再在 latent 空间中做规划。
 
-问题在于，现有 JEPA world model 很容易 **representation collapse**：模型把所有输入都编码成几乎相同的表示，也就失去状态区分能力。此前常见做法通常需要 **多项损失、EMA / stop-gradient、预训练视觉编码器，或者额外监督信号** 来稳住训练，但代价是 recipe 复杂、调参重、训练脆弱。
+问题在于，<span style="color: red">现有 JEPA world model 很容易</span> representation collapse：模型把所有输入都编码成几乎相同的表示，也就失去状态区分能力。此前常见做法通常需要多项损失、EMA / stop-gradient、预训练视觉编码器，或者额外监督信号 来稳住训练，但代价是 recipe 复杂、调参重、训练脆弱。
+
+> JEPA world model 的训练目标本质是(让基于当前观测表征 $o_t$​ 和动作 $a_t$​ 预测出的下一帧表征"尽量接近"真实下一帧的表征)
+
+$$
+\mathcal{L}_{\text{pred}} = \left\| \text{pred}_\phi \big(\text{enc}_\theta(o_t), a_t\big) - \text{enc}_\theta(o_{t+1}) \right\|^2
+$$
+
+> 注意关键一点：等式两边的目标值本身也是被训练的网络产生的（self-referential / moving target）。这和像素重建类世界模型（Dreamer 系）有本质区别——重建的目标是固定的原始像素，encoder 不可能通过"改变答案"来降低 loss。但是JEPA就可以，如果enc编码为常数的话，pred只要也是常数，就可以Loss是精确的0了。
+
+> - **第一点：**
+> - encoder 收到的梯度信号是「让 $z_{t+1}$ 变得更好预测」。<span style="color: red">而降低预测误差最廉价的路径不是学习动力学，而是降低表征的方差 / 丢掉信息</span>——把 latent 的尺度缩小 $\alpha$ 倍，loss 直接缩小 $\alpha^2$ 倍。
+> - 学真正的动力学是困难的、非线性的、要很多步优化；缩方差是一步就能生效的线性方向。优化器天然偏好后者。
+> - 这形成一个正反馈：表征越平坦 → 预测越准 → loss 越低 → 继续压缩。
+> - **第二点：**
+> - 未来本身有不可预测成分（噪声、未观测状态、多模态动力学）。MSE 对随机目标的最优是条件均值，但 encoder 有一条更"聪明"的作弊路径：
+> - 把不可预测的分量从表征中彻底删掉
+> - 问题是这些不可预测分量往往正是任务最关键的细节（物体朝向、接触瞬间、遮挡后的状态）。所以环境越随机、越部分可观测，collapse 的吸引力越强——这也解释了为什么 LeWM 在 3D OGBench-Cube 的旋转类物理量上 probing 明显偏弱：那正是最容易被"预测性压力"挤掉的部分。
+> - **第三点：** 世界模型这个设定比 image JEPA 更容易塌
+> - 正样本对太"容易"：I-JEPA 里 context / target 被强 mask 隔开；而世界模型里 $o_t$ 与 $o_{t+1}$ 时序相邻、极度相似，预测任务本身信息量低 → <span style="color: red">有用学习信号弱，collapse 的相对收益就更高</span>。
+> - 自回归 rollout 有额外的压缩压力：多步展开误差会累积，训练倾向于让 latent 更"平滑收缩"来抑制发散，方向与 collapse 一致。
+> - 没有增强不变性兜底：对比学习里 negative pairs / 增强不变性提供了显式的"必须区分"约束；action-conditioned 预测里没有这个东西。
+
+另外一个容易被忽略的点是：实际训练中很少看到 latent 完全变成常数，更常见的是 partial collapse，而这几种反而更难发现。
+
+|形态|表现|危险性|
+|---|---|---|
+|complete collapse|所有输入 → 同一个 $z$|好发现，loss 直接掉到 ~0|
+|dimensional / rank collapse|只有少数几维有方差，其余维度死掉|loss 曲线看起来正常|
+|cluster collapse|latent 只占据几个离散模态|二阶统计量甚至可能"合格"|
+
+后两种才是真正麻烦的：<span style="color: red">训练指标看不出问题，直到下游 planning 崩掉</span>。因为 LeWM 的规划代价是 $\|\hat z_H - z_g\|^2$，一旦 latent 退化，这个 cost landscape 就变平、变假，CEM 拿不到任何有效信号。所以 collapse 的第一受害者是 planner，而不是 loss 曲线。
+
+理解了根因，也就能看清此前那些技巧的本质：它们大多没有消除平凡解，只是让优化路径更难走到那里。
+
+- **stop-gradient / EMA target**：制造在线网络与目标网络的不对称，让 collapse 变成一个"慢流形"而不是被禁止的解。代价是对 EMA momentum、lr、warmup 极度敏感——本质是在打"塌之前先学到东西"的赛跑。
+- **VICReg 式 variance + covariance 项**：只约束二阶矩，能挡住 rank collapse，挡不住 cluster collapse 和分布形状退化；而且引入多个需要联合平衡的权重（PLDM 6 项 loss 就是这么来的），调参空间爆炸、seed 方差大——§4.4 里 PLDM `78.0 ± 5.0` vs LeWM `96.0 ± 2.83` 正是这个的体现。
+- **frozen 预训练 encoder（DINO-WM）**：直接把 encoder 从优化里拿掉 → 目标变成固定的，collapse 在数学上不可能发生。但这等于放弃 end-to-end，表达上限被预训练 encoder 锁死。
+
+上面第二条值得单独展开——理解"二阶矩约束"的能力边界，正好是理解 SIGReg 为什么必要的最短路径。
+
+> [!note]- 展开：VICReg 的二阶矩约束究竟约束了什么
+>
+> **（1）具体形式**
+>
+> 设一个 batch 的 embedding 矩阵 $Z\in\mathbb{R}^{N\times D}$（$N$ 个样本、$D$ 维），第 $j$ 列记作 $z^{(j)}$。两个正则项是：
+>
+> $$v(Z)=\frac{1}{D}\sum_{j=1}^{D}\max\!\big(0,\ \gamma-\sqrt{\mathrm{Var}(z^{(j)})+\epsilon}\big)$$
+>
+> 一个 hinge：每一维的标准差必须**至少**达到 $\gamma$（通常取 1），达到了就不再施加压力。
+>
+> $$C(Z)=\frac{1}{N-1}(Z-\bar z)^\top (Z-\bar z),\qquad c(Z)=\frac{1}{D}\sum_{i\neq j}\big[C(Z)\big]_{i,j}^{2}$$
+>
+> 把协方差矩阵所有非对角元素的平方压到 0，即去相关。两项合起来就是把经验协方差推向 $\gamma^2 I$——**白化（whitening）**。
+>
+> **（2）为什么说"只约束二阶矩"**
+>
+> $v(Z)$ 和 $c(Z)$ 都只是 $C(Z)$ 的函数，而 $C(Z)$ 是分布的二阶中心矩。所以整个正则项能"看见"的信息仅限 $\mathbb{E}[z]$ 与 $\mathbb{E}[zz^\top]$；三阶及以上的矩（偏度、峰度、模态数、支撑集形状）完全不可见。这是后面所有问题的根源。
+>
+> **（3）为什么要约束：两项各挡一层塌**
+>
+> | 项 | 挡什么 | 不加会怎样 |
+> |---|---|---|
+> | variance（对角） | complete collapse | 所有 $z$ 变成同一常数，$\mathrm{Var}=0$，hinge 顶到 $\gamma$，产生把样本推开的强梯度 |
+> | covariance（非对角） | dimensional / rank collapse | 每维方差都合格，但 $D$ 维全是同一个 1-D 信号的线性拷贝，effective rank = 1 |
+>
+> 只有 variance 项是不够的：把标量 $s$ 复制成 $(s,\dots,s)$，每维方差都是 1，variance 项完美满意，但表征退化成一维。covariance 项强制 $D$ 个维度**携带彼此不同的信息**。
+>
+> 更本质的解释是**信息量下界**。在协方差迹固定时，高斯微分熵 $h(z)=\tfrac12\log\big((2\pi e)^D\det\Sigma\big)$ 在 $\Sigma\propto I$ 时最大（Hadamard 不等式 $\det\Sigma\le\prod_j\Sigma_{jj}$，等号当且仅当对角）。所以 variance + covariance 等价于**用高斯代理最大化 latent 的熵**。collapse 的本质是信息被丢掉，anti-collapse 的本质就是给"latent 必须保留多少信息"设下界——$\mathcal{L}_{\text{pred}}$ 单方向压缩信息，正则项反方向要求信息量，两者对抗，模型才被迫去学真正可预测且有区分度的动力学结构。
+>
+> **（4）为什么这还不够：三个漏洞**
+>
+> - **二阶矩不能决定一个分布。** $D=2$ 时把所有输入映射到 $(\pm1,\pm1)$ 四点、等概率，则 $\mathbb{E}[z]=0$、$\Sigma=I$，两项**完美满足**，但表征只有 4 个离散取值——这就是 cluster collapse。推广到 $\{\pm1\}^D$ 上的均匀分布同样精确满足 $\Sigma=I$，而每维只携带 1 bit。重尾、多模态、低维流形分布都可以有 $\Sigma=I$。**白化 ≠ 分布正常。**
+> - **covariance 只度量线性相关。** $C_{ij}=0$ 不代表独立。取对称分布的 $z_1$，令 $z_2=z_1^2-\mathbb{E}[z_1^2]$，则 $\mathrm{Cov}(z_1,z_2)=\mathbb{E}[z_1^3]=0$，但 $z_2$ 完全由 $z_1$ 决定——非线性冗余对 covariance 项**完全隐形**，effective rank 的度量是假的。
+> - **估计 $D\times D$ 协方差的样本复杂度很差。** LeWM 的设置是 batch 128、embedding dim ≥ 184（§3.5 / §4.4），此时 $N<D$，经验协方差矩阵**必然奇异**；$O(D^2)$ 个非对角元素要用 $O(ND)$ 个数去估，梯度方向本身就不可靠。对比 SIGReg：投到一维后是用 $N$ 个样本估一个 1-D 分布，样本复杂度与 $D$ 无关——这也解释了 §4.4 里为什么投影数与积分结点数"性能基本不敏感"。
+>
+> **（5）对 planning 的具体后果**
+>
+> rank collapse 被挡住了，所以 VICReg 系方法不会彻底失效；但 cluster collapse 会让 $\|\hat z_H-z_g\|^2$ 这个 cost landscape 变成**分段常数**。CEM 依赖"不同动作序列产生不同 cost"来做 elite 排序，一旦 latent 量化成少数几团，大量候选序列 cost 完全相同，CEM 退化成随机搜索。这正是"训练指标正常、planning 崩掉"的机制。
+>
+> **（6）与 SIGReg 的对照**
+>
+> SIGReg 约束的是**全部阶的矩**：Epps–Pulley 检验比较经验特征函数与高斯特征函数 $\hat\varphi(t)=\frac1N\sum_n e^{itu^\top z_n}$ vs $\varphi_{\mathcal N}(t)=e^{-t^2/2}$，而特征函数的泰勒展开包含所有阶矩。
+>
+> | | VICReg（var + cov） | SIGReg |
+> |---|---|---|
+> | 约束对象 | 二阶矩 $\Sigma\to I$ | 沿每个 1-D 投影的完整分布 |
+> | complete collapse | 挡住 | 挡住 |
+> | rank collapse | 挡住 | 挡住 |
+> | cluster collapse | **挡不住**（反例 $\Sigma=I$） | 挡住（投影上非正态） |
+> | 非线性冗余 | 看不见 | 可见（高阶矩） |
+> | 样本复杂度 | $O(D^2)$ 个量，$N<D$ 时奇异 | 每方向 1-D，与 $D$ 无关 |
+> | 超参 | $\gamma$ + 两个权重（PLDM 扩到 6 项） | 只有 $\lambda$ |
+>
+> 一句话：**VICReg 约束的是"latent 的形状指标"，SIGReg 约束的是"latent 的分布本身"**。前者是必要条件，后者接近充分条件。
+
+而 LeWM 的 SIGReg 更"硬"的地方在于，它把约束从二阶矩升级到整个分布：要求 latent 边缘分布逼近各向同性高斯。
+
+- 常数解、低秩解、聚类解全部被同一个正则项排除——它们在某些一维随机投影上都不可能通过 Epps–Pulley 正态性检验。
+- 由 Cramér–Wold 定理，"所有一维投影都匹配" $\Leftrightarrow$ "高维分布匹配"，所以随机投影 + 1D 检验不是近似妥协，而是有理论保证的等价刻画。
+- 一个正则项覆盖所有 collapse 形态 ⇒ 只剩 $\lambda$ 一个超参数要调，且 $0.01\sim0.2$ 都能工作（见 §4.4）。
+
+> 小结：JEPA 的 collapse 是"自指目标 + 无分布约束"这个组合的必然最优解；此前所有技巧都是在绕开它，LeWM 是第一次用一个显式的分布匹配条件把它堵死。
 
 LeWM 的目标很明确：
 
-1. **直接从 raw pixels 端到端训练** encoder + predictor；
-2. **不依赖 reward、重建、预训练 encoder 或外部启发式**；
+1. 直接从 raw pixels 端到端训练 encoder + predictor；
+2. 不依赖 reward、重建、预训练 encoder 或外部启发式；
 3. 用尽量简单的目标函数解决 anti-collapse 问题；
-4. 最终让模型不仅能表征环境动力学，还能真正用于 **latent planning**。
+4. 最终让模型不仅能表征环境动力学，还能真正用于 latent planning。
 
-**为什么值得放进视野：** 这篇工作不是单纯再堆一个更大的世界模型，而是在 recipe 层面给出了一个很干净的结论：**只要 latent 分布约束得当，JEPA 可以在像素端稳定地端到端训练**。这对后续 reward-free world model、具身规划、低成本可部署 world model 都很有参考价值。
+为什么值得放进视野： 这篇工作不是单纯再堆一个更大的世界模型，而是在 recipe 层面给出了一个很干净的结论：只要 latent 分布约束得当，JEPA 可以在像素端稳定地端到端训练。这对后续 reward-free world model、具身规划、低成本可部署 world model 都很有参考价值。
 
 ## 2. 文章主线 / 论文线索
 
@@ -44,7 +146,7 @@ LeWM 想同时拿到三者的优点：
 - **任务无关**
 - **训练目标极简且有 anti-collapse 保证**
 
-![](assets/LeWorldModel%20-%20像素端到端稳定JEPA世界模型/wms.png)
+![930](assets/LeWorldModel%20-%20像素端到端稳定JEPA世界模型/wms.png)
 
 从研究脉络上看，这篇论文连接了几条值得持续追踪的线：
 
@@ -97,8 +199,6 @@ LeWM 的训练目标非常干净：
         - 由 Cramér–Wold theorem 连接到整体分布匹配。
 
 因此最终目标是：
-
-暂时无法在飞书文档外展示此内容
 
 作者给出的默认设置：
 
@@ -153,7 +253,7 @@ LeWM 的规划不在像素空间，而在 latent 空间里做：
 - **PushT**：2D 推块操作
 - **OGBench-Cube**：3D 机械臂抓放方块
 
-![](assets/LeWorldModel%20-%20像素端到端稳定JEPA世界模型/envs.png)
+![752](assets/LeWorldModel%20-%20像素端到端稳定JEPA世界模型/envs.png)
 
 |环境|LeWM|PLDM|DINO-WM|解读|
 |---|---|---|---|---|
