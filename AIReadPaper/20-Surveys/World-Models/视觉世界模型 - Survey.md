@@ -223,7 +223,106 @@ $$h_{t+1}=f_\theta(h_t, z_t, a_t),\qquad z_{t+1}\sim p_\theta(z_{t+1}\mid h_{t+1
 
 另有一类 Other Architectures，收纳不好归入上面四族的混合路线，其中值得注意的是显式 3D 表示这一支：`GaussianWorld`（2412.10373）、`ManiGaussian++`（2506.19842）、`GAF`（2506.14135，Gaussian Action Field 做 4D 表示）、`LiDARWM`（2506.23434，LiDAR latent flow matching）、`NeMo`（neural volumetric world model）。这类工作说明“世界状态”不一定要以视频或 latent 向量为载体，也可以直接是几何。
 
-### 4.2 七类代表性子设计（含配套论文库的实际规模）
+### 4.2 Sequential Generation 内部：四个代表工作的具体 pipeline
+
+上面的列表只能当索引用。这一节挑四篇最有代表性的，把 pipeline 和目标函数写出来——因为**同属"自回归"家族，它们的 token 化对象完全不同**，而这恰恰是理解这一族的关键。
+
+#### 4.2.1 GAIA-1：把"推理"和"渲染"彻底拆开
+
+`GAIA-1`（2309.17080，Wayve）是这一族最早的旗舰，它的结构值得单独记住，因为后来很多工作都在重复这个分工：
+
+$$\mathcal{L}_{\text{world model}}=-\sum_{t=1}^{T}\sum_{i=1}^{n}\log p\big(z_{t,i}\mid z_{<t},\, z_{t,j<i},\, c_{\le t},\, a_{<t}\big)$$
+
+三个组件与具体数字：
+
+| 组件 | 参数量 | 作用 |
+|---|---|---|
+| 图像 tokenizer | 0.3B | 288×512 → $n=18\times32=576$ token，词表 $K=8192$，压缩率约 470:1 |
+| 世界模型 | 6.5B | 在 token 序列上做 next-token prediction |
+| 视频扩散解码器 | 2.6B | 把 token 翻译回高清视频（3D U-Net，DDIM 50 步） |
+
+序列布局是每个时刻交错 **文本 32 + 图像 576 + 动作 2 = 610** 个 token，取 $T=26$ 帧（6.25 Hz，约 4 秒），总上下文 $26\times610=15{,}860$。
+
+几个容易记错的点：
+
+- **损失只加在图像 token 上**（内层求和到 $n=576$）。文本与动作是条件输入，不是预测目标。
+- **动作不做离散化**：2 个标量（speed、curvature）各经一个线性层映到 $d$ 维，绕开码本。
+- tokenizer 不是普通 VQ-VAE，而是 VQ-GAN 家族，且额外加了 **DINO 蒸馏**——把量化后的特征用余弦相似度拉向冻结 DINO 特征（$\lambda=0.1$），目的是让 token 空间偏向**语义**而不是高频细节。这一步是"让 token 空间值得被 transformer 推理"的关键。
+- 训练时条件 dropout 为 **20% 无条件 / 40% 动作条件 / 40% 文本条件**，推理用 CFG 作用在 **logits** 上：$l_{\text{final}}=(1+t)\,l_{\text{cond}}-t\,l_{\text{uncond}}$。
+- 一个不常见的细节：guidance 在**帧内随 token 线性递减**，并**随未来帧数按 cosine 衰减**（越远的未来给越少引导）。
+- 采样用 top-k，动机很实用：argmax 会退化成重复循环，全分布采样会漂出分布。
+
+**为什么不直接用一个纯扩散视频模型？** 原文的分工是：世界模型负责推理场景的高层组成与动力学，扩散模型**只负责把 latent 翻译成高质量视频**。这样做的收益是可以把 LLM 那一整套机器搬过来——因果 transformer、logits 上的 CFG、top-k 采样，以及可预测的 scaling。它确实拟合了幂律 $f(x)=c+(x/a)^b$，并声称用**少于 20× 的算力**就能预测出 6.5B 模型的最终交叉熵。
+
+> ⚠️ 但要注意这是**单模型的算力外推曲线，不是 Chinchilla 式的 compute-optimal 参数/数据配比研究**，$a,b,c$ 的数值也没有公布。把它说成"给出了世界模型的 scaling law 最优前沿"是过度解读。另外论文没有说明 token 具体如何注入 U-Net（拼通道还是 cross-attention），也没有明确说扩散是在像素空间还是 latent 空间——前者是我的强推断（全文没有引入第二个 VAE），但**原文没有这句话**。
+
+#### 4.2.2 Genie：从无动作标注的视频里"发明"动作空间
+
+`Genie`（2402.15391）是这一族里唯一**自己造出动作空间**的工作，也是我认为整个 survey 里机制最巧妙的一篇。它的核心是 Latent Action Model（LAM）：
+
+$$\tilde{a}_{1:t} = \mathrm{Enc}_{\text{LAM}}(x_{1:t}, x_{t+1}),\qquad \hat{x}_{t+1} = \mathrm{Dec}_{\text{LAM}}(x_{1:t}, \tilde{a}_{1:t})$$
+
+$$\mathcal{L}_{\text{LAM}} = \lVert x_{t+1} - \hat{x}_{t+1}\rVert^2 + \mathcal{L}_{\text{VQ}},\qquad |\mathcal{A}| = 8$$
+
+**关键在于一个非对称信息瓶颈：** encoder 能看到未来帧 $x_{t+1}$，但 decoder 看不到——它只拿到历史 $x_{1:t}$ 和那个极小的 latent action $\tilde a_t$。因为历史已经把外观解释掉了，这个 3 bit 的通道能携带的唯一**非冗余**信息就是"从过去到未来的变化"，也就是动作。码本压到 8 个则是为了**人类可玩**。
+
+动力学模型用 MaskGIT 式的目标：
+
+$$\mathcal{L}_{\text{dyn}} = -\sum_{t=2}^{T}\sum_{i} \log p\big(z_t^{(i)} \mid \tilde{z}_{1:t-1},\, \tilde{a}_{1:t-1}\big)$$
+
+三个组件加起来 200M（tokenizer）+ 300M（LAM）+ 10.1B（dynamics）= **10.7B**（摘要里的"11B"是取整）。数据是 55M 筛到 **6.8M 段 16 秒视频、约 3 万小时**。推理时 **LAM 的 encoder/decoder 都被丢掉**，只留 8 个码本项，由用户每帧给一个离散动作。
+
+架构上用 **ST-transformer**：帧内空间注意力 → 跨时间的因果注意力 → **只有一个 FFW**（省掉空间注意力后那个）。代价随帧数线性而非二次增长。消融（同量级 ~200M）：ST-ViViT 的 FVD **81.4** / ΔPSNR **1.66**，而纯空间 ViT 是 114.5 / 1.39，C-ViViT 是 272.7 / 1.37。
+
+可控性指标定义得很干净：$\Delta_t\text{PSNR} = \text{PSNR}(x_t,\hat x_t) - \text{PSNR}(x_t,\hat x'_t)$，其中 $\hat x_t$ 用推断出的动作、$\hat x'_t$ 用随机动作。越大说明动作越真的在控制画面。另一个消融很说明问题：**LAM 建在像素上比建在 token 上可控性更好**（Platformers ΔPSNR 1.91 vs 1.33），因为 tokenization 会破坏运动信息。
+
+> ⚠️ 一个必须带着的批判：后续工作 [What Do Latent Action Models Actually Learn?](https://arxiv.org/abs/2506.15691) 指出这个目标与 PCA 有关，且**并不能内在地把"可控动作"与"外生噪声"分开**——能否恢复真实动作取决于数据生成策略的性质。所以"latent action 就是动作"这个说法需要打折。另外原文**从未提到 classifier-free guidance**，也没说明 latent 网格尺寸（160/4×90/4 不是整数，说明有 padding/crop），这些不要替它补。
+
+#### 4.2.3 iVideoGPT：用非对称 token 预算换交互速度
+
+`iVideoGPT`（2405.15223）解决的是一个很具体的工程问题：**交互式 rollout 里每步都要自回归解码，token 太多就没法用。**
+
+它的答案是条件 VQGAN + 非对称 token 预算：上下文帧走一条通路给足 token，未来帧走另一条通路只给很少：
+
+$$z_t^{(1:N)}=E_c(o_t)\ \ \text{（上下文，}N=16\times16=256\text{）},\qquad z_t^{(1:n)}=E_p(o_t \mid o_{1:T_0})\ \ \text{（未来，}n=4\times4=16\text{）}$$
+
+**16× 的压缩**。之所以成立，是因为只有第一帧需要完整空间细节，后续帧在给定上下文后大部分是冗余的。条件注入用**多尺度 cross-attention**：query 来自预测流，key/value 来自上下文特征。
+
+$$\mathcal{L}_{\text{pre-train}} = -\sum_{i=(N+1)T_0+1}^{L} \log p(x_i \mid x_{<i})$$
+
+注意求和下界——**损失只加在未来帧的 token 上**，跳过上下文帧。动作不是单独的 token，而是**线性投影后加到 slot token 的 embedding 上**。预训练用 Open X-Embodiment 等 35 个数据集共 **140 万条轨迹**（无动作标注），微调时**连 tokenizer 一起更新**（参数高效的变体反而更差）。
+
+这个设计的意义：每个环境步只需约 16 次自回归解码而不是 256 次，MBRL/planning 循环里要查询模型上千次，这个差别决定了能不能用。
+
+#### 4.2.4 OccWorld：世界状态是 3D occupancy，不是像素
+
+`OccWorld`（2311.16038）把"世界状态"换成 3D occupancy，于是**场景预测变成了对码本索引的分类，规划变成了对位移的回归**，两件事进一个损失：
+
+$$\mathcal{J}_{w,d_{\text{ego}}} = \sum_t \Big(\sum_j \mathcal{L}_{\text{soft}}\big(\hat z^t_{j,0},\, \mathcal{C}(z^t_{j,0})\big) + \lambda_2 \mathcal{L}_{L2}\big(d_{\text{ego}}(\hat z^t_0),\, p^t\big)\Big)$$
+
+数据流：occupancy $200\times200\times16$（17 类）→ 每个 voxel 的类别查 embedding → **沿高度维拼接**成 BEV 张量 $200\times200\times128$ → 2D CNN 降采样 4× → token 网格 $50\times50$，码本 512 个 128 维码 → 空间时序 transformer → 解码回 occupancy。
+
+两个设计值得记：
+
+1. **ego token** $z_0$ 与场景 token 拼在一起，预测的是**位移**而不是绝对位姿。消融显示 ego token 上的时序注意力至关重要——ego 预测差会"误导"场景预测，反之亦然。这是"联合建模自车与场景"的实证支持。
+2. 用 **2×2 window merging（stride 2）** 做多尺度（200/100/50/25），每个尺度一个子世界模型，再用 U-Net 式聚合保证空间一致性。
+
+它的价值在于证明了：**不需要实例级或地图级监督**，只靠 occupancy 的自回归就能做规划——这是与 UniAD / VAD 那条重监督路线的根本差别。
+
+> 说明：17 类与 $200\times200\times16$ 来自官方 config 而非论文正文；论文也没有明确写帧率（按 nuScenes 关键帧惯例是 2 Hz）。
+
+#### 4.2.5 一张表看清"自回归"内部的差异
+
+| | 离散化的对象 | 条件来自 | 关键压缩 |
+|---|---|---|---|
+| GAIA-1 | 8192 词表的图像 token | 文本 + speed/curvature | 470:1，扩散负责渲染 |
+| Genie | VQ token + **8 个自己学出来的动作** | 推断出的 latent action | 3 bit 动作瓶颈 |
+| iVideoGPT | 双码本（上下文/未来分离） | 真实动作 | 256 → 16 token/帧 |
+| OccWorld | 512 码的 BEV 场景 token | ego token（与场景联合预测） | 200×200 → 50×50 |
+
+**这张表是我认为本节最值得带走的东西：**四篇都叫"自回归世界模型"，但离散化的对象分别是像素、动作、冗余度、几何。所以读一篇新的自回归世界模型时，第一个要问的问题不是"它是不是 AR"，而是**"它把什么东西离散化了"**。
+
+### 4.3 七类代表性子设计（含配套论文库的实际规模）
 
 论文进一步细分成 7 个子设计，另设一类 Other Architectures 收纳混合路线。配套的开源论文库[Awesome-Vision-World-Model](https://github.com/AIWorldLab/Awesome-Vision-World-Model)把每类的代表工作都列了出来，截至 2026-07 共收录 294 条方法条目。把条目数统计出来，比读框架图更能看清这个领域的真实重心：
 
@@ -240,7 +339,7 @@ $$h_{t+1}=f_\theta(h_t, z_t, a_t),\qquad z_{t+1}\sim p_\theta(z_{t+1}\mid h_{t+1
 
 这个拆法的价值在于它不再按应用领域来分，而是按“视觉表示如何编码、世界知识如何学习、未来如何模拟”三个统一部件来比较各路线。但上面这张表同时暴露了一件更重要的事，见下一节。
 
-### 4.3 为什么这篇 survey 读起来像“视频世界模型综述”
+### 4.4 为什么这篇 survey 读起来像“视频世界模型综述”
 
 这是读这篇 survey 时最值得警惕的一点，而且它不是综述作者的表述问题，而是领域现状的真实投影：
 
@@ -250,7 +349,7 @@ $$h_{t+1}=f_\theta(h_t, z_t, a_t),\qquad z_{t+1}\sim p_\theta(z_{t+1}\mid h_{t+1
 
 所以更准确的读法是：这篇 survey 的框架是 vision-centric 的，但它的语料库是 video-generation-heavy 的。 如果只读三段式框架和 taxonomy 图，很容易得到“视觉世界模型 ≈ 可控视频生成”的印象；要纠正这个印象，必须主动去看下面几条被条目数稀释掉的主线。
 
-### 4.4 一个容易被忽略的信号：Dreamer V4 被归到了 diffusion 家族
+### 4.5 一个容易被忽略的信号：Dreamer V4 被归到了 diffusion 家族
 
 论文库把 `PlaNet`、`DreamerV1/V2/V3` 都放在 Latent State-Space Modeling 下，但把 `Dreamer V4`（2509.24527）放进了 Autoregressive Diffusion。
 
@@ -258,7 +357,7 @@ $$h_{t+1}=f_\theta(h_t, z_t, a_t),\qquad z_{t+1}\sim p_\theta(z_{t+1}\mid h_{t+1
 
 判断：四大家族的边界正在从“互斥路线”变成“可组合模块”。 后续读新论文时，与其问“它属于哪一家族”，不如问“它在表示层用了什么、在 transition 层用了什么、在解码层用了什么”这三个独立问题。
 
-### 4.5 这篇综述的真正方法论价值
+### 4.6 这篇综述的真正方法论价值
 
 我认为这篇 survey 真正的价值，在于它把原本混在一起的几个讨论层级分开了：
 
