@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
   "title": "内容有点简单，是不是还可以扩充一些呢？这个更像是 视频生成的视频世界模型？",
   "createdAt": "2026-08-25T07:07:02.853Z",
-  "updatedAt": "2026-08-25T07:07:02.853Z",
+  "updatedAt": "2026-08-25T07:07:02.855Z",
   "messages": [
     {
       "id": "ec69b62e-2330-406d-834d-b85899728118",
@@ -982,7 +982,22 @@
         }
       ],
       "timestamp": "2026-08-25T07:06:31.513Z"
+    },
+    {
+      "id": "fd112960-e134-40ec-8b5c-1be5c480b3ad",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "涉及的论文很多，但是我希望讲解也深入一些，现在很多都是一笔带过，可以加入论文的部分pipeline",
+          "autoMentionContext": {
+            "noteName": "视觉世界模型 - Survey",
+            "notePath": "AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-25T07:13:49.321Z"
     }
   ],
-  "savedAt": "2026-08-25T07:07:02.858Z"
+  "savedAt": "2026-08-25T07:13:52.178Z"
 }
