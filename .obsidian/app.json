@@ -16,6 +16,5 @@
   "foldIndent": true,
   "rightToLeft": false,
   "spellcheck": false,
-  "autoPairBrackets": false,
-  "settingsPopoutWindow": false
+  "autoPairBrackets": false
 }
