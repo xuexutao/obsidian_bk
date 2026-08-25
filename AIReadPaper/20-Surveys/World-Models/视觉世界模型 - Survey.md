@@ -70,33 +70,67 @@
 
 ### 3.1 统一定义下的 I/O
 
-论文给出的形式化表达非常关键。它把 VWM 写成一个条件概率模型：给定历史视觉上下文和交互条件，预测未来世界状态分布。
+论文给出的形式化表达非常关键。它把 VWM 写成一个条件概率模型：给定历史视觉上下文与交互条件，预测未来世界状态的分布：
+
+$$p_\theta\big(S_{t+1:T} \mid E(v_{0:t}),\, c_t\big)$$
+
+这个式子看起来平淡，但它其实是整篇 survey 的判据来源。把三个符号分别追问一次，就能得到区分"世界模型"与"视频生成器"的三个问题：
+
+| 符号 | 含义 | 追问 |
+|---|---|---|
+| $E(v_{0:t})$ | 视觉编码器作用于历史观测 | 编码保留了什么、丢掉了什么？ |
+| $c_t$ | 交互条件 | 条件是真的在控制演化，还是只是风格提示？ |
+| $S_{t+1:T}$ | 未来世界状态 | 输出是像素、latent，还是结构化状态？ |
+
+**关键观察：** 一个纯视频生成模型也能写成这个形式（$c_t$ 取文本、$S$ 取像素）。所以这个式子本身**不能**区分 VWM 与 video generator——真正的分野在于 $c_t$ 对 $S_{t+1:T}$ 的**因果有效性**，以及 $S$ 是否可被下游 planner 消费。这也是为什么综述必须额外引入 Controllable Simulation 与 Task Performance 两个维度。
 
 可以把它读成如下 I/O 数据流：
 
 1. 输入（Input）
-    1. 视觉上下文 `v0:t`：从时刻 0 到 t 的视觉观测
+    1. 视觉上下文 $v_{0:t}$：从时刻 0 到 t 的视觉观测
         
         - 可能是 RGB 图像 / 视频
         - 也可能包含 depth、optical flow、point cloud、BEV、多视角视频等
             
-    2. 交互条件 `ct`：控制未来演化的条件
+    2. 交互条件 $c_t$：控制未来演化的条件
         
         - 动作信号（action）
         - 语言指令（text instruction）
         - 轨迹、控制命令、任务目标等
             
 2. 中间表示（Intermediate Representation）
-    1. 先经过 视觉编码器 `E(v0:t)`，把原始观测变成更适合世界建模的表示；
+    1. 先经过视觉编码器 $E(v_{0:t})$，把原始观测变成更适合世界建模的表示；
     2. 再通过不同范式的世界模型学习机制，建模世界的时空规律、物理规律和因果结构。
 3. 输出（Output）
-    1. 未来世界状态 `S_{t+1:T}`，可能有三种形式：
+    1. 未来世界状态 $S_{t+1:T}$，可能有三种形式：
         
         - Latent states：latent rollout，用于 planning / reasoning；
         - Visual states：图像、视频或 3D/4D 视觉结果；
         - Structured outputs：轨迹、对象属性、空间结构、occupancy、action trajectory 等。
 
-### 3.2 三段式框架
+### 3.2 四大家族其实是这个式子的四种分解方式
+
+把上面那个条件分布按不同方式分解，就直接得到四大家族。这是我认为理解这篇 survey 最快的一条路径：
+
+**Sequential Generation** —— 把 $S$ 离散成 token 序列，按 chain rule 逐 token 分解：
+
+$$p_\theta(S_{t+1:T}\mid \cdot)=\prod_{i} p_\theta\big(s_i \mid s_{<i},\, E(v_{0:t}),\, c_t\big)$$
+
+**Diffusion-based** —— 不做序列分解，而是在连续 latent 上定义一条从噪声到数据的反向过程，条件注入每一步去噪：
+
+$$\mathcal{L}=\mathbb{E}_{z,\epsilon,\tau}\big\|\epsilon-\epsilon_\theta(z_\tau,\tau,E(v_{0:t}),c_t)\big\|_2^2$$
+
+**Embedding Prediction (JEPA)** —— 干脆放弃对 $S$ 建模分布，只预测未来的**表征**，用点估计代替生成：
+
+$$\mathcal{L}=\big\|\,P_\theta(E(v_{0:t}),c_t)-\mathrm{sg}\big[E_{\text{target}}(v_{t+1})\big]\,\big\|$$
+
+**State Transition** —— 引入一个紧凑隐状态 $h_t$ 承载全部历史，把长时程分解成一步步 Markov 转移：
+
+$$h_{t+1}=f_\theta(h_t, z_t, a_t),\qquad z_{t+1}\sim p_\theta(z_{t+1}\mid h_{t+1})$$
+
+四者的根本差别可以压缩成一句话：**对 $S$ 的处理方式不同**——序列生成把它离散化，扩散把它当连续分布，JEPA 放弃它只留表征，状态转移把它压进一个递归状态。后面 §4 给每一族补上具体 pipeline 与损失。
+
+### 3.3 三段式框架
 
 #### A. Vision Encoding
 
@@ -142,7 +176,7 @@
 - 如果模型只能 unconditional 或 weakly conditioned 地生成未来视频，它更像 generative model；
 - 如果模型能稳定响应 action / instruction 并产出可用于 planning 的未来，它才更接近真正的 VWM。
 
-### 3.3 论文中的总图
+### 3.4 论文中的总图
 
 下面两张图基本就是这篇综述最值得保存的视觉材料：
 
