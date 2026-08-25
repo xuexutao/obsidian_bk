@@ -405,11 +405,11 @@ $$
 
 其中 $\text{lson}$ 和 $\text{rson}$ 分别代表 $x$ 节点的左孩子和右孩子。初看可能会感觉条件判断有点复杂，我们来一条条看，$f_{\text{lson}}\ \&\&\ f_{\text{rson}}$ 说明左子树和右子树均包含 $p$ 节点或 $q$ 节点，如果左子树包含的是 $p$ 节点，那么右子树只能包含 $q$ 节点，反之亦然，因为 $p$ 节点和 $q$ 节点都是不同且唯一的节点，因此如果满足这个判断条件即可说明 $x$ 就是我们要找的最近公共祖先。再来看第二条判断条件，这个判断条件即是考虑了 $x$ 恰好是 $p$ 节点或 $q$ 节点且它的左子树或右子树有一个包含了另一个节点的情况，因此如果满足这个判断条件亦可说明 $x$ 就是我们要找的最近公共祖先。
 
-你可能会疑惑这样找出来的公共祖先深度是否是最大的。其实是最大的，因为我们是自底向上从叶子节点开始更新的，所以在所有满足条件的公共祖先中一定是深度最大的祖先先被访问到，且由于 $f_x$ 本身的定义很巧妙，在找到最近公共祖先 $x$ 以后，$f_x$ 按定义被设置为 `true` ，即假定了这个子树中只有一个 $p$ 节点或 $q$ 节点，因此其他公共祖先不会再被判断为符合条件。
+你可能会疑惑这样找出来的公共祖先深度是否是最大的。其实是最大的，<span style="color: red">因为我们是自底向上从叶子节点开始更新的</span>，所以在所有满足条件的公共祖先中一定是深度最大的祖先先被访问到，且由于 $f_x$ 本身的定义很巧妙，在找到最近公共祖先 $x$ 以后，$f_x$ 按定义被设置为 `true` ，即假定了这个子树中只有一个 $p$ 节点或 $q$ 节点，因此其他公共祖先不会再被判断为符合条件。
 
 下图展示了一个示例，搜索树中两个节点 `9` 和 `11` 的最近公共祖先。
 
-<![fig1](https://assets.leetcode.cn/solution-static/236/1.PNG),![fig2](https://assets.leetcode.cn/solution-static/236/2.PNG),![fig3](https://assets.leetcode.cn/solution-static/236/3.PNG),![fig4](https://assets.leetcode.cn/solution-static/236/4.PNG),![fig5](https://assets.leetcode.cn/solution-static/236/5.PNG),![fig6](https://assets.leetcode.cn/solution-static/236/6.PNG),![fig7](https://assets.leetcode.cn/solution-static/236/7.PNG),![fig8](https://assets.leetcode.cn/solution-static/236/8.PNG),![fig9](https://assets.leetcode.cn/solution-static/236/9.PNG),![fig10](https://assets.leetcode.cn/solution-static/236/10.PNG),![fig11](https://assets.leetcode.cn/solution-static/236/11.PNG)>
+![fig2|455](https://assets.leetcode.cn/solution-static/236/2.PNG)![fig3|457](https://assets.leetcode.cn/solution-static/236/3.PNG)![fig4|457](https://assets.leetcode.cn/solution-static/236/4.PNG)![fig5|457](https://assets.leetcode.cn/solution-static/236/5.PNG)![fig6|452](https://assets.leetcode.cn/solution-static/236/6.PNG)![fig7|455](https://assets.leetcode.cn/solution-static/236/7.PNG)![fig8|458](https://assets.leetcode.cn/solution-static/236/8.PNG)![fig9|456](https://assets.leetcode.cn/solution-static/236/9.PNG)![fig10|458](https://assets.leetcode.cn/solution-static/236/10.PNG)![fig11|460](https://assets.leetcode.cn/solution-static/236/11.PNG)
 
 ```cpp
 class Solution {
