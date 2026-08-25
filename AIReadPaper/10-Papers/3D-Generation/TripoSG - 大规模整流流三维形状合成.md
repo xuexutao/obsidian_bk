@@ -112,7 +112,7 @@ $$
 
 **为什么不用文本 caption？** 论文明确反对：渲染图像的 caption 受光照、阴影、纹理干扰；用 GPT-4V 给 3D 写 caption 又会引入语义噪声。CLIP+DINOv2 双特征直接来自图像本身，**收敛更快、细粒度对齐更好**。
 
-![TripoSG 整流流架构 + 块内结构 + MoE 细节](assets/figures/03-architecture.png)
+![TripoSG 整流流架构 + 块内结构 + MoE 细节](assets/TripoSG%20-%20大规模整流流三维形状合成/figures/03-architecture.png)
 
 *图 3（左：整流 backbone + MoE 块；中：每个块的内部组件，含 self-attn + 双 cross-attn；右：MoE 内部，含 1 shared expert + N 普通 expert + Router）。来源：TripoSG 论文 Fig.3 (p5)。*
 
@@ -162,13 +162,13 @@ $$
 - **多分辨率共享权重**：训练时用 $M \in \{512, 2048\}$ token 两种长度，**权重共享**；推理时直接外推到 4096 token（论文验证过无损），避免重训。
 - **8 层 encoder + 16 层 decoder**：decoder 更深，把几何解码能力做厚，**不增加 flow 阶段的推理成本**（decoder 只训一次）。
 
-![TripoSG VAE 编码器-解码器 + 表面法向引导](assets/figures/04-vae-architecture.png)
+![TripoSG VAE 编码器-解码器 + 表面法向引导](assets/TripoSG%20-%20大规模整流流三维形状合成/figures/04-vae-architecture.png)
 
 *图 4（上：encoder 用 downsample 后的表面点做 cross-attn；下：decoder 用 query point 跨注意力读 latent，再用 Marching Cubes 抽面；中间红框：表面法向 + Eikonal 的梯度域监督）。来源：TripoSG 论文 Fig.4 (p7)。*
 
 ### 3.4 Occupancy vs SDF 的可视化对比
 
-![Occupancy 与 SDF 重建质量对比](assets/figures/05-occupancy-vs-sdf.png)
+![Occupancy 与 SDF 重建质量对比](assets/TripoSG%20-%20大规模整流流三维形状合成/figures/05-occupancy-vs-sdf.png)
 
 *图 5（同一组输入，occupancy 重建 vs SDF 重建：occupancy 在边缘、平面、纹理合成上都有可见 aliasing 与 floaters；SDF 重建无 aliasing，且为后续多视图纹理生成提供更稳的几何）。来源：TripoSG 论文 Fig.5 (p7)。*
 
@@ -188,7 +188,7 @@ $$
 
 Objaverse(-XL) 的 10M 模型大多是「互联网野生数据」，质量参差不齐。TripoSG 设计了四阶段清洗管线：
 
-![TripoSG 数据构建系统四阶段管线](assets/figures/06-data-building-system.png)
+![TripoSG 数据构建系统四阶段管线](assets/TripoSG%20-%20大规模整流流三维形状合成/figures/06-data-building-system.png)
 
 *图 6（I 评分：从渲染 normal map 预测 1-5 分；II 过滤：剔除大平面底座 / 多物体 / 动画错误；III 修复 + 增强：角色朝前归位、无纹理模型用 ControlNet++ 上色；IV 场数据生成：UDF 512³ grid + Marching Cubes 抽 watertight + PySDF 采样 SDF 监督）。来源：TripoSG 论文 Fig.6 (p9)。*
 
@@ -269,7 +269,7 @@ SDF + 法向 + Eikonal 组合小幅但稳定提升；Occ baseline 在细节处�
 
 ### 4.4 定性对比
 
-![TripoSG 与同期 SOTA 对比（normal map 渲染）](assets/figures/07-comparison-sota.png)
+![TripoSG 与同期 SOTA 对比（normal map 渲染）](assets/TripoSG%20-%20大规模整流流三维形状合成/figures/07-comparison-sota.png)
 
 *图 7（输入图 vs 6 个 baseline：MeshFormer / MeshLRM / CRM / TripoSR / InstantMesh / CraftsMan-1.5 vs TripoSG；TripoSG 在细节、几何一致性、复杂结构生成上全面领先）。来源：TripoSG 论文 Fig.7 (p11)。*
 
@@ -314,7 +314,8 @@ TripoSG 是 3DShape2VecSet 范式（latent set + DiT）走向 **「大数据 + �
 
 ## 6. 参考资源
 
-- **论文 PDF**：[assets/sources/paper.pdf](assets/sources/paper.pdf)（22 页，11.5 MB）
+- **论文 PDF**：[assets/sources/paper.pdf](assets/TripoSG%20-%20大规模整流流三维形状合成/sources/paper.pdf)（22 页，11.5 MB）
+- **溯源表**：[assets/sources/sources.md](assets/TripoSG%20-%20大规模整流流三维形状合成/sources/sources.md)
 - **项目页**：[https://www.tripo3d.ai/work/triposg](https://www.tripo3d.ai/work/triposg)
 - **关键参考**（论文中引用的核心工作）：
   - 3DShape2VecSet（[2301.11445](https://arxiv.org/abs/2301.11445)）—— Latent Set 范式源头

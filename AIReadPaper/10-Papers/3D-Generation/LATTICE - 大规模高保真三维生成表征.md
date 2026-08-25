@@ -97,7 +97,7 @@ LATTICE 的核心判断是：**3D 生成的「表征-位置编码-scaling」三�
 
 ### 3.2 VoxSet 表征
 
-![VecSet / Sparse Voxel / VoxSet 三种 latent 表征 + 三种 query 类型](assets/figures/04-representations.png)
+![VecSet / Sparse Voxel / VoxSet 三种 latent 表征 + 三种 query 类型](assets/LATTICE%20-%20大规模高保真三维生成表征/figures/04-representations.png)
 
 *图 4（上：VecSet = 无序点集；Sparse Voxel = 锚定在 active voxel；VoxSet = 锚定在「表面相交的体素中心」，介于两者之间；下：三种 query 类型 — Learnable Embedding 全局 / Surface Point 局部但位置未知 / Voxel Center 局部且位置可获取）。来源：LATTICE 论文 Fig.4 (p4)。*
 
@@ -120,7 +120,7 @@ LATTICE 的核心判断是：**3D 生成的「表征-位置编码-scaling」三�
 
 ### 3.4 两阶段 Coarse-to-Fine 管线
 
-![LATTICE 整体管线 + VoxSet VAE + VoxSet DiT 架构](assets/figures/05-architecture.png)
+![LATTICE 整体管线 + VoxSet VAE + VoxSet DiT 架构](assets/LATTICE%20-%20大规模高保真三维生成表征/figures/05-architecture.png)
 
 *图 5（左：两阶段管线，Structure Generation Model 出粗网格 → Voxelize → Detailed Geometry Generation Model 出精细网格；中：VoxSet VAE，8 层 Cross Attention + 16 层 Self Attention，用 Voxel Queries 编码；右：VoxSet DiT，叠加 RoPE + DINOv2 图像条件，做 N 步去噪）。来源：LATTICE 论文 Fig.5 (p5)。*
 
@@ -273,7 +273,8 @@ LATTICE 在所有 12 个对比组中均显著胜出，**Scene 类胜率最高（
 
 ## 6. 参考资源
 
-- **论文 PDF**：[assets/sources/paper.pdf](assets/sources/paper.pdf)（14 页，22.7 MB）
+- **论文 PDF**：[assets/sources/paper.pdf](assets/LATTICE%20-%20大规模高保真三维生成表征/sources/paper.pdf)（14 页，22.7 MB）
+- **溯源表**：[assets/sources/sources.md](assets/LATTICE%20-%20大规模高保真三维生成表征/sources/sources.md)
 - **项目页**：[https://lattice3d.github.io](https://lattice3d.github.io)
 - **关键参考**（论文中引用的核心工作）：
   - 3DShape2VecSet（[2301.11445](https://arxiv.org/abs/2301.11445)）—— Latent Set 范式源头
