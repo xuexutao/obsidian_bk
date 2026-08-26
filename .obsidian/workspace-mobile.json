@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AIReadPaper/20-Surveys/3D-Generation/三维网格生成表征演进 - Survey.md",
+                "file": "AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "三维网格生成表征演进 - Survey"
+              "title": "Dyna-2 - 世界动作模型百万小时缩放定律"
             }
           }
         ]
@@ -148,7 +148,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "AIReadPaper/20-Surveys/3D-Generation/三维网格生成表征演进 - Survey.md",
+            "file": "AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -176,6 +176,18 @@
   },
   "active": "009edc11b5740f76",
   "lastOpenFiles": [
+    "AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md",
+    "AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+    "AIReadPaper/20-Surveys/3D-Generation/三维网格生成表征演进 - Survey.md",
+    "AIReadPaper/20-Surveys/VLM/assets/多模态大模型架构与训练全流程 - Survey/figures/01-transformer.png",
+    "AIReadPaper/20-Surveys/VLM/assets/多模态大模型架构与训练全流程 - Survey/figures/04-distributed-parallelism.png",
+    "AIReadPaper/20-Surveys/VLM/assets/多模态大模型架构与训练全流程 - Survey/figures/05-rlhf-pipeline.png",
+    "AIReadPaper/20-Surveys/VLM/assets/多模态大模型架构与训练全流程 - Survey/figures/02-training-pipeline.png",
+    "AIReadPaper/20-Surveys/VLM/assets/多模态大模型架构与训练全流程 - Survey/figures/06-rl-frameworks.png",
+    "AIReadPaper/20-Surveys/VLM/assets/多模态大模型架构与训练全流程 - Survey/figures/03-vlm-architecture.png",
+    "AIReadPaper/20-Surveys/VLM/assets/多模态大模型架构与训练全流程 - Survey/figures",
+    "AIReadPaper/20-Surveys/VLM/assets/多模态大模型架构与训练全流程 - Survey",
+    "AIReadPaper/20-Surveys/VLM/多模态大模型架构与训练全流程 - Survey.md",
     "Ours/Leetcode/LeetCode-Hot100.md",
     "Ours/Leetcode/Recording.md",
     "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/sources/paper.pdf",
@@ -183,11 +195,6 @@
     "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures/_test_p2.png",
     "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures/fig5_training_strategies.png",
     "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures/fig3_architecture.png",
-    "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures/_test_p5.png",
-    "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures/_test_p4.png",
-    "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures/_test_p6.png",
-    "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures/fig2_param_manifold.png",
-    "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures/fig1_method_landscape.png",
     "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/sources",
     "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成/figures",
     "AIReadPaper/10-Papers/Foundations/assets/Mapping Networks - 低维流形权重生成",
@@ -195,13 +202,10 @@
     "AIReadPaper/10-Papers/3D-Generation/FACE - 基于面的自回归网格生成.md",
     "AIReadPaper/10-Papers/3D-Generation/assets/LATO - 拓扑保持潜变量的网格流匹配/sources/sources.md",
     "AIReadPaper/10-Papers/3D-Generation/assets/LATO - 拓扑保持潜变量的网格流匹配/sources/paper.pdf",
-    "AIReadPaper/10-Papers/3D-Generation/assets/LATO - 拓扑保持潜变量的网格流匹配/figures/05-topology.png",
     "AIReadPaper/10-Papers/3D-Generation/assets/LATO - 拓扑保持潜变量的网格流匹配/sources",
     "AIReadPaper/10-Papers/3D-Generation/assets/LATO - 拓扑保持潜变量的网格流匹配/figures",
     "AIReadPaper/10-Papers/3D-Generation/assets/LATO - 拓扑保持潜变量的网格流匹配",
     "AIReadPaper/10-Papers/3D-Generation/assets/TripoSG - 大规模整流流三维形状合成/sources/sources.md",
-    "AIReadPaper/10-Papers/3D-Generation/assets/TripoSG - 大规模整流流三维形状合成/sources/paper.pdf",
-    "AIReadPaper/10-Papers/3D-Generation/assets/TripoSG - 大规模整流流三维形状合成/sources",
     "AIReadPaper/10-Papers/3D-Generation/assets/LATTICE - 大规模高保真三维生成表征/sources/sources.md",
     "AIReadPaper/10-Papers/3D-Generation/assets/FACE - 基于面的自回归网格生成/sources/sources.md",
     "AIReadPaper/10-Papers/3D-Generation/assets/MeshGPT - 三角网格自回归生成/sources/sources.md",
@@ -213,14 +217,10 @@
     "AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md",
     "AIReadPaper/20-Surveys/Foundations/assets/自编码器与变分自编码器家族 - Survey/sources.md",
     "AIReadPaper/20-Surveys/Foundations/自编码器与变分自编码器家族 - Survey.md",
-    "AIReadPaper/20-Surveys/3D-Generation/三维网格生成表征演进 - Survey.md",
     "AIReadPaper/20-Surveys/World-Models/assets/世界模型演化 - Survey/sources.md",
-    "AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md",
     "AIReadPaper/10-Papers/VLA/assets/DreamZero - 视频世界动作模型的零样本机器人策略/sources.md",
     "AIReadPaper/10-Papers/Foundations/assets/PARTICULATE - 前馈式三维可动部件与关节估计/sources.md",
     "AIReadPaper/10-Papers/Foundations/assets/Pixel-Space T2I - 潜空间到像素空间的文生图训练/sources.md",
-    "AIReadPaper/10-Papers/3D-Generation/assets/TRELLIS.2 - 原生几何与材质的紧凑三维潜变量生成/sources.md",
-    "AIReadPaper/90-Archive/Drafts/PixelDiT - 像素空间扩散Transformer图像生成（重复旧稿）.md",
-    "AIReadPaper/90-Archive/Empty/未命名.md"
+    "AIReadPaper/10-Papers/3D-Generation/assets/TRELLIS.2 - 原生几何与材质的紧凑三维潜变量生成/sources.md"
   ]
 }
