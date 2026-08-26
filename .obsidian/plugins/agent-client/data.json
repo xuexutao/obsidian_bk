@@ -110,12 +110,20 @@
   },
   "savedSessions": [
     {
+      "sessionId": "dec20c33-94e5-4d4f-8742-919628c789f1",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "这个论文在做数据集在采集之后会做后处理，比如Depth fusion这类方法。而这些后处理有时...",
+      "createdAt": "2026-08-26T15:17:59.951Z",
+      "updatedAt": "2026-08-26T15:17:59.952Z"
+    },
+    {
       "sessionId": "2ff863bf-bb68-45bc-87cf-3be5ce027c07",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
       "title": "现在多个文档的图片都显示有问题，你看看是怎么回事",
       "createdAt": "2026-08-26T03:41:28.597Z",
-      "updatedAt": "2026-08-26T03:41:28.598Z"
+      "updatedAt": "2026-08-26T15:21:44.639Z"
     },
     {
       "sessionId": "d2b0aef0-2f8e-42bc-a41d-a97dc880eff1",
@@ -123,7 +131,7 @@
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
       "title": "为什么不除以之后，softmax会落到饱和区呢？梯度为什么趋于0",
       "createdAt": "2026-08-25T12:53:37.803Z",
-      "updatedAt": "2026-08-26T03:58:19.993Z"
+      "updatedAt": "2026-08-26T15:26:19.117Z"
     },
     {
       "sessionId": "b1d6288f-a637-491e-9198-5f7c86f13068",

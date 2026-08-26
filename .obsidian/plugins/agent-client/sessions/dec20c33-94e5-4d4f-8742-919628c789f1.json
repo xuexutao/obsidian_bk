@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "sessionId": "dec20c33-94e5-4d4f-8742-919628c789f1",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "这个论文在做数据集在采集之后会做后处理，比如Depth fusion这类方法。而这些后处理有时...",
+  "createdAt": "2026-08-26T15:17:59.951Z",
+  "updatedAt": "2026-08-26T15:17:59.951Z",
+  "messages": [
+    {
+      "id": "8a22cce6-0c8f-41e8-a640-b868c1fd2d13",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "这个论文在做数据集在采集之后会做后处理，比如Depth fusion这类方法。而这些后处理有时会引入错误，例如把某个物体的深度错误地融合到其他区域。这个depth fusion 是什么意思呢",
+          "autoMentionContext": {
+            "noteName": "VGGT-Ω - 可扩展前馈式静动态三维重建",
+            "notePath": "AIReadPaper/10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:16:39.766Z"
+    },
+    {
+      "id": "b501e005-871d-47e4-8e10-303949021602",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_hE9XbUCmmG9L2TTQtx8jOh",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "## Depth fusion 是什么\n\n一句话：**把多帧各自带噪声的深度观测，在一个统一的 3D 表示里加权平均成一个全局曲面，再从这个曲面反渲染出\"干净\"的深度图当作 GT。**\n\n它属于数据集制作流程里的\"后处理\"环节，而不是模型的一部分。\n\n### 为什么数据集要做这一步\n\nRGB-D 传感器（Kinect / RealSense）或 LiDAR 的**单帧**深度非常脏：\n\n- 高频噪声，深度值逐帧抖动\n- 大片空洞（黑色吸光材质、玻璃、远处超量程、双目视差失配）\n- 遮挡边界上的\"飞点\"（flying pixels）\n- LiDAR 是稀疏的，只有几万个点，不是稠密深度图\n\n直接拿这种深度当监督，训练信号会被噪声主导。所以 ScanNet、7-Scenes、NRGBD、ETH3D 这类数据集的标准做法是：先融合成 mesh，再渲染回来。\n\n### 最经典的实现：TSDF Fusion\n\nTSDF = Truncated Signed Distance Function（截断有符号距离场），源自 KinectFusion / BundleFusion。\n\n1. 把空间划分成体素网格，每个体素 $\\mathbf{x}$ 存两个量：到最近曲面的有符号距离 $D(\\mathbf{x})$ 和置信权重 $W(\\mathbf{x})$。\n2. 对第 $t$ 帧，用已知位姿把体素投影到该帧深度图上，得到这一帧对该体素的距离观测 $d_t(\\mathbf{x})$，并截断到 $[-\\mu, \\mu]$。\n3. 加权累积：\n\n$$D_t(\\mathbf{x}) = \\frac{W_{t-1}(\\mathbf{x})\\,D_{t-1}(\\mathbf{x}) + w_t(\\mathbf{x})\\,d_t(\\mathbf{x})}{W_{t-1}(\\mathbf{x}) + w_t(\\mathbf{x})}$$\n\n4. 全部帧融合完，用 Marching Cubes 从 $D = 0$ 的零等值面提取三角网格。\n5. **关键的最后一步**：把这个 mesh 按每一帧的 GT 位姿重新光栅化（render），得到该帧\"完整、平滑、无空洞\"的深度图，作为发布出去的 GT depth。\n\n这一步平均掉了随机噪声、填上了空洞——代价是引入了**系统性**误差。\n\n### 常见的 fusion 变体\n\n| 变体 | 输入 | 典型数据集 |\n|---|---|---|\n| TSDF / volumetric fusion | RGB-D 序列 + 位姿 | ScanNet, 7-Scenes, NRGBD, Replica |\n| MVS depth-map fusion | 多视角 MVS 深度图 | ETH3D, Tanks & Temples, BlendedMVS |\n| Poisson surface reconstruction | 带法向的点云 | 激光扫描类数据集 |\n| LiDAR 点云累积 + 投影 | 多帧 LiDAR + 位姿 | KITTI Depth, Waymo |\n\n### 它引入的错误 —— 尤其是你问的\"深度糊到其他区域\"\n\n这些不是随机噪声，而是**空间上连贯、看起来很\"合理\"**的错误，所以对训练特别有害：\n\n**1. 截断距离 $\\mu$ 过大 → 物体被\"焊接\"在一起**\n\nTSDF 的截断半径通常是几个体素宽（比如 4 cm）。两个真实间距小于 $\\mu$ 的表面，它们的距离场会互相污染、抵消，零等值面被拉到两者之间。结果是：靠墙的椅子和墙融成一坨、桌上的杯子长出一圈\"裙边\"、栏杆和背景连成一片实心板。渲染回去时，本该是背景的像素拿到了前景物体的深度——这就是典型的\"某个物体的深度被错误融合到其他区域\"。\n\n**2. 薄结构被抹平或膨胀**\n\n椅子腿、灯杆、树枝的厚度小于体素分辨率 + 截断半径，要么在融合中直接消失（渲染出后面墙的深度），要么被膨胀成粗柱子。\n\n**3. 位姿 / 标定误差 → 双层表面与\"厚墙\"**\n\n融合依赖 SLAM 或 BA 给出的位姿。位姿有 1–2 cm 漂移时，同一面墙在不同帧里错位，加权平均后得到一个偏厚、偏移、甚至分裂成两层的曲面。轨迹回环处最明显。\n\n**4. 动态物体留下\"鬼影\"（ghosting）**\n\n这是 fusion 最致命的假设——它假设场景是刚性静态的。一个走过画面的人，会在体素网格里沿路径留下半透明的残影，并被烙印在静态背景上。之后渲染任意一帧，即使那一帧里人不在那个位置，背景像素也会拿到人的深度。这正是 [[VGGT-Ω - 可扩展前馈式静动态三维重建]] 要做动态数据管线时必须绕开传统 fusion 标注的原因之一。\n\n**5. 反渲染的\"过度补全\"**\n\nmesh 是全局的，但渲染是单帧的。渲染器不知道\"这一帧的相机其实看不到这里\"：\n\n- 被前景遮挡的区域，mesh 上有面片 → 渲染出深度，但对该帧是错的（遮挡关系错乱）\n- 传感器从未测到、由邻近帧补上的区域 → 该帧凭空多出深度\n- 反过来，mesh 有洞的地方 → 渲染出无穷远/无效值，模型会以为\"这里真的是空的\"\n\n**6. 遮挡边界的 depth bleeding / webbing**\n\nMarching Cubes 会在前景和背景之间插值出连接面片（像一层\"蹼\"）。渲染后边缘像素得到一个介于前景和背景之间、物理上不存在的中间深度值。\n\n**7. 材质失效被\"洗白\"**\n\n玻璃、镜面、金属的传感器深度本身就是错的（测到反射像或直接失效）。fusion 把多帧的同一个错误平均成一个一致、平滑、看起来很可信的曲面——比单帧的明显噪声更难被自动过滤器发现。\n\n### 这对论文的方法设计意味着什么\n\n理解了这点，就能看懂 [[VGGT-Ω - 可扩展前馈式静动态三维重建]] 里几个设计的动机：\n\n- **跨视图一致性校验 + XGBoost 监督过滤器**（正文第 87 节的标注管线）：本质是在自动识别并剔除这类 fusion 伪影，而不是盲信数据集发布的 GT。\n- **深度损失里的自适应不确定性权重**：让模型对标签本身可疑的像素降权，避免硬拟合到\"焊接在一起的椅子和墙\"这种系统性错误上。若强行 L1 拟合，模型会学到把物体边界糊掉的先验。\n- **动态掩码（Grounding DINO）**：在标注阶段就把可能产生 ghosting 的区域排除。\n\n同样的问题在 [[DA3 - 任意视角恢复视觉空间]] 和 [[VGGT - 前馈式通用三维重建]] 里也存在——静态基准（7-Scenes / NRGBD）上的评测数字本身就带有 fusion GT 的偏差，所以在这些数据集上超过某个精度后，提升更多是在拟合标注管线的特性，而非真实几何。\n\n---\n\n要搜索延伸阅读的话，关键词是：*TSDF fusion*、*KinectFusion*、*BundleFusion*、*volumetric depth map fusion (Curless & Levoy 1996)*、*Merrell et al. depth map fusion*、*Poisson surface reconstruction*。\n\n需要我把这段整理成一个\"数据集 GT 的来源与噪声\"的小节补进这篇笔记，或者单独建一篇概念笔记（比如 `Depth Fusion 与 GT 深度的噪声来源`）并从这篇链接过去吗？"
+        }
+      ],
+      "timestamp": "2026-08-26T15:16:43.917Z"
+    }
+  ],
+  "savedAt": "2026-08-26T15:17:59.953Z"
+}

@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
   "title": "现在多个文档的图片都显示有问题，你看看是怎么回事",
   "createdAt": "2026-08-26T03:41:28.597Z",
-  "updatedAt": "2026-08-26T03:41:28.597Z",
+  "updatedAt": "2026-08-26T15:01:15.685Z",
   "messages": [
     {
       "id": "af4aa4d4-8f77-4442-9358-c218d1a0d003",
@@ -179,7 +179,791 @@
         }
       ],
       "timestamp": "2026-08-26T03:41:07.721Z"
+    },
+    {
+      "id": "217de77e-80a6-42f4-b01c-77bd48d61f36",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "这个是什么意思呢",
+          "autoMentionContext": {
+            "noteName": "VGGT - 前馈式通用三维重建",
+            "notePath": "AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "selection": {
+              "fromLine": 68,
+              "toLine": 68
+            }
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:00:27.561Z"
+    },
+    {
+      "id": "79dac197-d766-4638-a333-6c6498bc47a7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_iElprwjYLsebhXMFhnaHFC",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md (40 - 99)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 40
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "offset": 40,
+            "limit": 60
+          }
+        },
+        {
+          "type": "text",
+          "text": "这一行讲的是 VGGT 三个输出头里负责**逐像素几何**的那个。拆成三部分看：\n\n## 1. \"dense head\"：dense 是相对 sparse 说的\n\n`camera head` 每帧只吐一组数（旋转 + 平移 + 焦距），是**稀疏**输出。`dense head` 要为**每一个像素**都吐一个值 —— 输入 518px 的图，输出就是一张同分辨率的图。这就是\"密集预测（dense prediction）\"。\n\n## 2. \"DPT\"：怎么把 Transformer token 还原成一张全分辨率图\n\nDPT = **Dense Prediction Transformer**（Ranftl et al., ICCV 2021，就是 MiDaS 深度估计那条线的工作）。它解决的是一个结构性矛盾：\n\n- 主干输出的是 token —— 一张 518px 图按 14×14 patch 切开，只有约 37×37 个 token，空间分辨率极低；\n- 但你要的输出是 518×518 的逐像素深度图。\n\nDPT 的做法是 **reassemble + 多尺度融合**：\n\n1. 不只取最后一层，而是从主干的**多个不同深度的层**各抽一份 token（浅层含细节纹理，深层含语义/全局结构）；\n2. 把每层的 token 序列按原始空间位置摆回二维网格，还原成特征图；\n3. 各层还原成**不同尺度**的特征图，再用一个卷积解码器自底向上逐级上采样融合（类似 FPN / U-Net 的 skip 结构），最后卷到全分辨率。\n\n所以\"类 DPT 的密集预测头\"= 借用这套「多层 token → 多尺度特征图 → 卷积上采样」的解码器结构，把低分辨率 token 翻译回逐像素输出。\n\n## 3. \"aleatoric uncertainty\"：模型顺带预测「这个像素我有多不确定」\n\n这是不确定性的一种分类（Kendall & Gal 2017）：\n\n- **aleatoric（偶然/数据不确定性）**：来自观测本身的固有噪声 —— 无纹理白墙、镜面反射、过曝、被遮挡的区域。这类不确定性**给再多训练数据也消不掉**，因为信息本来就不在图里。\n- **epistemic（认知/模型不确定性）**：来自模型没见够这种数据。加数据、加参数可以降低。\n\nVGGT 预测的是前者：dense head 除了输出深度 $\\hat D$ 和点图，还**并行输出一张同尺寸的 $\\Sigma$ 图**，逐像素给出置信度。\n\n关键在于它不是训练完额外加的后处理，而是**直接进了损失函数**，形式上是异方差回归（heteroscedastic regression）—— 概念上长这样：\n\n$$\nL_{\\text{depth}} = \\sum \\left\\lVert \\Sigma^D \\odot (\\hat D - D) \\right\\rVert + \\left\\lVert \\Sigma^D \\odot (\\nabla \\hat D - \\nabla D) \\right\\rVert - \\alpha \\log \\Sigma^D\n$$\n\n第一项是误差被 $\\Sigma$ 加权（第二项是梯度域，管边缘锐度），最后是正则项。这个组合造出一个自洽的博弈：模型可以对某个像素声明「我不确定」来减轻该处的误差惩罚，但 $-\\alpha\\log\\Sigma$ 会因此罚它 —— 于是它只在**真的**没法确定的地方才降低置信度。\n\n**实际收益**：\n\n- 训练时，无纹理区、反光面这些本质模糊的像素不会用巨大的残差污染梯度，模型不必去硬拟合噪声；\n- 推理时，$\\Sigma$ 是可直接用的置信图 —— 你在下游（点云融合、BA、mesh 化）可以据此过滤或加权，而不是把所有像素当同等可信。\n\n这也解释了 2.5 节 `$L_{\\text{camera}}$` 那行为什么写「用 aleatoric uncertainty 加权」—— 同一套机制也用在相机损失上。\n\n> 上游参考：DPT 是 [[前馈式三维重建与生成式补全 - Survey]] 里那条「前馈密集预测」脉络的解码器标配；uncertainty 加权这套则是从 DUSt3R 的 confidence-aware 损失一路继承下来的。\n\n如果想让笔记本身更自洽，我可以在这张表下面补一小段脚注解释 DPT 和 aleatoric —— 现在这两个术语是裸着用的，过几个月回看可能要重新查。要加吗？"
+        }
+      ],
+      "timestamp": "2026-08-26T15:00:32.450Z"
+    },
+    {
+      "id": "cae35726-7173-41c4-9a93-921741c3b35c",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "把这个加进去，且拉去一下DPT的论文，详细讲一下 DPT，后面可以加一个DPT论文发展的路径",
+          "autoMentionContext": {
+            "noteName": "VGGT - 前馈式通用三维重建",
+            "notePath": "AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:11:25.299Z"
+    },
+    {
+      "id": "ce9928df-791a-4d5e-a8ab-b4c16a73e440",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_8RGS0GA393XFAP0qMqAW7c",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "我来先把 DPT 论文拉下来精读，同时看一下 vault 里的相关笔记和资产惯例。"
+        }
+      ],
+      "timestamp": "2026-08-26T15:11:35.371Z"
+    },
+    {
+      "id": "077b71b7-cb05-4249-a447-868e374dfd5d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_d1Gz6GY5UvGWCU8NkDSSr3",
+          "title": "Fetch https://arxiv.org/abs/2103.13413",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "url": "https://arxiv.org/abs/2103.13413",
+            "prompt": "Extract: full title, authors, affiliation, venue/year, abstract verbatim. Then summarize the architecture in detail: how tokens are read out (Read/Reassemble operations), the three readout variants (ignore/add/project), which layers are tapped for which backbone variants (ViT-Base, ViT-Large, ViT-Hybrid), the RefineNet-based fusion decoder, what s values (spatial resolution ratios) are used, output head. Also list the key quantitative results (MiDaS relative improvement %, ADE20K mIoU, NYUv2, KITTI)."
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:11:47.327Z"
+    },
+    {
+      "id": "20846d10-3abc-407a-8ee0-17747e746a5b",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_OHQk9SQTwouiQVvp2gKA4w",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; ls \"10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/\"; echo \"=== sources ===\"; ls -R \"10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/\" | head -40; echo \"=== grep DPT across vault ===\"; grep -rln \"DPT\" --include=\"*.md\" . | head -20",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; ls \"10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/\"; echo \"=== sources ===\"; ls -R \"10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/\" | head -40; echo \"=== grep DPT across vault ===\"; grep -rln \"DPT\" --include=\"*.md\" . | head -20"
+          }
+        },
+        {
+          "type": "text",
+          "text": "The abstract page lacks architecture details. Let me get the full text and check vault conventions."
+        }
+      ],
+      "timestamp": "2026-08-26T15:11:50.318Z"
+    },
+    {
+      "id": "709df126-c67d-4eec-a385-515fce8e5c7b",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_jWXyOcW65uW4gDFcBQHrrW",
+          "title": "Fetch https://ar5iv.labs.arxiv.org/html/2103.13413",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Extract in detail from Section 3 (Architecture): (1) the Read operation and its three variants (ignore/add/project) with formulas; (2) the Reassemble operation — how tokens are concatenated into image-like representation and resampled, the s values used; (3) which transformer layers are tapped for ViT-Base, ViT-Large, and ViT-Hybrid, and the output feature dimensions D; (4) the Fusion blocks based on RefineNet and how they progressively upsample; (5) the monocular depth head and segmentation head specifics; (6) DPT-Hybrid vs DPT-Large. Also give the exact numbers from the tables: MiDaS zero-shot comparison relative improvement, ADE20K mIoU for DPT-Hybrid, NYUv2 delta1/rmse, KITTI numbers.",
+            "url": "https://ar5iv.labs.arxiv.org/html/2103.13413"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:12:11.818Z"
+    },
+    {
+      "id": "7c07ff7b-c47a-42c4-bb2b-6fd9bb2973bb",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_xYFFRYFflgl8ZuPoXnv3W9",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; grep -n -B2 -A4 \"DPT\" \"20-Surveys/Foundations/视觉基础模块综述 - Survey.md\" | head -60; echo \"########## DA3\"; grep -n -B2 -A4 \"DPT\" \"10-Papers/3D-Reconstruction/DA3 - 任意视角恢复视觉空间.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; grep -n -B2 -A4 \"DPT\" \"20-Surveys/Foundations/视觉基础模块综述 - Survey.md\" | head -60; echo \"########## DA3\"; grep -n -B2 -A4 \"DPT\" \"10-Papers/3D-Reconstruction/DA3 - 任意视角恢复视觉空间.md\" | head -40"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Let me verify the exact loss formula from the VGGT paper itself, and check vault conventions."
+        }
+      ],
+      "timestamp": "2026-08-26T15:12:17.536Z"
+    },
+    {
+      "id": "a7a91f9e-c35c-4858-9e85-dcc3c7eb2131",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_b1V4d13ymCet9qVrwI7AnE",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 -c \"\nimport subprocess,sys\ntry:\n    import pypdf; print('pypdf ok')\nexcept: print('no pypdf')\n\" ; which pdftotext mutool 2>/dev/null; ls",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 -c \"\nimport subprocess,sys\ntry:\n    import pypdf; print('pypdf ok')\nexcept: print('no pypdf')\n\" ; which pdftotext mutool 2>/dev/null; ls"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:12:40.059Z"
+    },
+    {
+      "id": "53aa9571-fb91-4e1c-9b54-c4c59b415dde",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_15ZYwg4jUvcKYRHiXQ2ufV",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf, re\nr = pypdf.PdfReader('paper.pdf')\ntxt = \"\\n\".join(p.extract_text() for p in r.pages[:8])\n# find sections about loss / uncertainty / DPT\nfor kw in ['aleatoric','Sigma','Σ','DPT','uncertainty']:\n    for m in re.finditer(kw, txt):\n        s=max(0,m.start()-450); print('---',kw,'---'); print(txt[s:m.start()+450].replace('\\n',' ')); print()\n        break\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf, re\nr = pypdf.PdfReader('paper.pdf')\ntxt = \"\\n\".join(p.extract_text() for p in r.pages[:8])\n# find sections about loss / uncertainty / DPT\nfor kw in ['aleatoric','Sigma','Σ','DPT','uncertainty']:\n    for m in re.finditer(kw, txt):\n        s=max(0,m.start()-450); print('---',kw,'---'); print(txt[s:m.start()+450].replace('\\n',' ')); print()\n        break\nEOF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:12:54.035Z"
+    },
+    {
+      "id": "2160bbc2-3fc4-499e-9679-a83d209a4373",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_lLGQJ6uKla7mx60RYkO5T6",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf, re\nr = pypdf.PdfReader('paper.pdf')\ntxt = \"\\n\".join(p.extract_text() for p in r.pages[:8])\ni = txt.find('3.4')\nj = txt.find('Ldepth')\nk = txt.find('Training Losses')\nprint(\"idx\",i,j,k)\nstart = k if k>0 else j\nprint(txt[start-200:start+2600])\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf, re\nr = pypdf.PdfReader('paper.pdf')\ntxt = \"\\n\".join(p.extract_text() for p in r.pages[:8])\ni = txt.find('3.4')\nj = txt.find('Ldepth')\nk = txt.find('Training Losses')\nprint(\"idx\",i,j,k)\nstart = k if k>0 else j\nprint(txt[start-200:start+2600])\nEOF"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Found something important. Let me verify a detail and check the vault's sources convention."
+        }
+      ],
+      "timestamp": "2026-08-26T15:13:05.968Z"
+    },
+    {
+      "id": "20bff11a-c6ff-4bc8-8217-403f60232dc4",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_fKYrURutXWjd8NzlgWAyoK",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction\"; cat \"assets/VGGT - 前馈式通用三维重建/sources.md\"; echo \"########### Paper-Index DPT ctx\"; grep -n \"DPT\\|MiDaS\\|Depth Anything\" ../../Paper-Index.md | head -20",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction\"; cat \"assets/VGGT - 前馈式通用三维重建/sources.md\"; echo \"########### Paper-Index DPT ctx\"; grep -n \"DPT\\|MiDaS\\|Depth Anything\" ../../Paper-Index.md | head -20"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Let me verify a few more details before writing."
+        }
+      ],
+      "timestamp": "2026-08-26T15:13:20.631Z"
+    },
+    {
+      "id": "c7764b31-11df-4245-8440-ba5882a94427",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_aZfZYsPGPWxdiwVhJuJRjt",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf, re\nr = pypdf.PdfReader('paper.pdf')\ntxt = \"\\n\".join(p.extract_text() for p in r.pages)\nfor kw in ['Implementation Details','patch','518','Tracks','2D correspond']:\n    i=txt.find(kw)\n    if i>0:\n        print('==========',kw); print(txt[i-100:i+1100].replace('\\n',' ')); print()\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf, re\nr = pypdf.PdfReader('paper.pdf')\ntxt = \"\\n\".join(p.extract_text() for p in r.pages)\nfor kw in ['Implementation Details','patch','518','Tracks','2D correspond']:\n    i=txt.find(kw)\n    if i>0:\n        print('==========',kw); print(txt[i-100:i+1100].replace('\\n',' ')); print()\nEOF"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Let me pull the DPT paper itself for accurate details."
+        }
+      ],
+      "timestamp": "2026-08-26T15:13:35.919Z"
+    },
+    {
+      "id": "db109f9b-acc8-4691-a2a2-e274bf309fa3",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_hEKA4fAGx4zGBIvFsfTqB9",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; curl -sL -o dpt_2103.13413.pdf \"https://arxiv.org/pdf/2103.13413\" && ls -la dpt_2103.13413.pdf && python3 - <<'EOF'\nimport pypdf, re\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\ni=txt.find('Read')\nfor kw in ['Transformer encoder','Convolutional decoder','Reassemble','Handling of varying image sizes','ignore','Rs']:\n    j=txt.find(kw)\n    print('=========',kw,j)\n    if j>0: print(txt[j-300:j+1500].replace('\\n',' ')[:1800]); print()\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; curl -sL -o dpt_2103.13413.pdf \"https://arxiv.org/pdf/2103.13413\" && ls -la dpt_2103.13413.pdf && python3 - <<'EOF'\nimport pypdf, re\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\ni=txt.find('Read')\nfor kw in ['Transformer encoder','Convolutional decoder','Reassemble','Handling of varying image sizes','ignore','Rs']:\n    j=txt.find(kw)\n    print('=========',kw,j)\n    if j>0: print(txt[j-300:j+1500].replace('\\n',' ')[:1800]); print()\nEOF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:13:55.638Z"
+    },
+    {
+      "id": "9c873e21-64ac-4fa1-9dc2-2f8b5e10dcd0",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_X7yBOLtTrHcSPUqPXS05WN",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf, re\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\ni=txt.find('reassemble features at four different stages')\nprint(txt[i:i+2600].replace('\\n',' '))\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf, re\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\ni=txt.find('reassemble features at four different stages')\nprint(txt[i:i+2600].replace('\\n',' '))\nEOF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:14:23.093Z"
+    },
+    {
+      "id": "7c969b3e-1b9a-40fa-a534-70d7af2bbe74",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_gWvIGyU77SKHIDsstXOMa0",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\ni=txt.find('assemble features from deeper lay')\nprint(txt[i:i+3000].replace('\\n',' '))\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\ni=txt.find('assemble features from deeper lay')\nprint(txt[i:i+3000].replace('\\n',' '))\nEOF"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Let me grab the ablation numbers and the DPT Figure 1 image."
+        }
+      ],
+      "timestamp": "2026-08-26T15:14:37.301Z"
+    },
+    {
+      "id": "63852223-1907-4bb1-9c08-1bdc59099f76",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_SXJ9cIW5UFGPeoniSEn7dV",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\nfor kw in ['Ablations','Readout token','Skip connections','Inference resolution','Table 8','Table 9']:\n    i=txt.find(kw)\n    print('=======',kw,i)\n    if i>0: print(txt[i:i+1400].replace('\\n',' ')); print()\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\nfor kw in ['Ablations','Readout token','Skip connections','Inference resolution','Table 8','Table 9']:\n    i=txt.find(kw)\n    print('=======',kw,i)\n    if i>0: print(txt[i:i+1400].replace('\\n',' ')); print()\nEOF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:14:50.169Z"
+    },
+    {
+      "id": "7dfbc30d-407d-45b7-9fde-430d37ade738",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_DQnPFr0X6Qqq98ltCNNxN4",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\nfor kw in ['Table 9.','Table 1.','Table 2.','Table 3.']:\n    i=txt.find(kw)\n    print('=======',kw)\n    print(txt[max(0,i-1800):i+400].replace('\\n',' ')); print()\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport pypdf\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\ntxt=\"\\n\".join(p.extract_text() for p in r.pages)\nfor kw in ['Table 9.','Table 1.','Table 2.','Table 3.']:\n    i=txt.find(kw)\n    print('=======',kw)\n    print(txt[max(0,i-1800):i+400].replace('\\n',' ')); print()\nEOF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:15:01.853Z"
+    },
+    {
+      "id": "078fd27f-3cbd-490b-be34-5bf80327656e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_NRAly3L0hMps1HQellLu31",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 -c \"\ntry:\n  import fitz; print('pymupdf', fitz.__doc__)\nexcept Exception as e: print('no pymupdf', e)\ntry:\n  import pdf2image; print('pdf2image ok')\nexcept Exception as e: print('no pdf2image')\n\"; python3 - <<'EOF'\nimport pypdf\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\nfor i,p in enumerate(r.pages[:5]):\n    t=p.extract_text()\n    if 'Figure 1' in t: print('Figure 1 on page index',i)\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 -c \"\ntry:\n  import fitz; print('pymupdf', fitz.__doc__)\nexcept Exception as e: print('no pymupdf', e)\ntry:\n  import pdf2image; print('pdf2image ok')\nexcept Exception as e: print('no pdf2image')\n\"; python3 - <<'EOF'\nimport pypdf\nr=pypdf.PdfReader('dpt_2103.13413.pdf')\nfor i,p in enumerate(r.pages[:5]):\n    t=p.extract_text()\n    if 'Figure 1' in t: print('Figure 1 on page index',i)\nEOF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:15:17.916Z"
+    },
+    {
+      "id": "67168b5e-6444-4056-b44b-f12e6b395dfb",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_12jJsToVfEywo37BeP9Gth",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport fitz\nd=fitz.open('dpt_2103.13413.pdf')\nfor i in range(4):\n    p=d[i]\n    print('page',i,'rect',p.rect)\n    for b in p.get_text('blocks'):\n        if 'Figure 1' in b[4]:\n            print('  Figure1 caption block bbox', [round(x,1) for x in b[:4]], repr(b[4][:90]))\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 - <<'EOF'\nimport fitz\nd=fitz.open('dpt_2103.13413.pdf')\nfor i in range(4):\n    p=d[i]\n    print('page',i,'rect',p.rect)\n    for b in p.get_text('blocks'):\n        if 'Figure 1' in b[4]:\n            print('  Figure1 caption block bbox', [round(x,1) for x in b[:4]], repr(b[4][:90]))\nEOF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:15:33.410Z"
+    },
+    {
+      "id": "abb192a6-8b85-4c77-a33b-d0dce4ade1a5",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_c4WnU3RLngaoidAhUGfHLt",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建\"; python3 - <<'EOF'\nimport fitz\nd=fitz.open('sources/dpt_2103.13413.pdf')\np=d[2]\n# figure region: above caption at y=229.5, spanning full width\nclip=fitz.Rect(48, 66, 548, 228)\npix=p.get_pixmap(clip=clip, dpi=400)\npix.save('figures/dpt_fig1_architecture.png')\nprint(pix.width, pix.height)\nEOF\nls -la figures/",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建\"; python3 - <<'EOF'\nimport fitz\nd=fitz.open('sources/dpt_2103.13413.pdf')\np=d[2]\n# figure region: above caption at y=229.5, spanning full width\nclip=fitz.Rect(48, 66, 548, 228)\npix=p.get_pixmap(clip=clip, dpi=400)\npix.save('figures/dpt_fig1_architecture.png')\nprint(pix.width, pix.height)\nEOF\nls -la figures/"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:15:44.490Z"
+    },
+    {
+      "id": "5a0ca460-dd4c-4c09-8a85-59b16663a8ba",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_oHkwyHMCCljkyQ1FBN8Pez",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/figures/dpt_fig1_architecture.png",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/figures/dpt_fig1_architecture.png",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/figures/dpt_fig1_architecture.png"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Figure cropped cleanly — all three panels (architecture / Reassemble / Fusion) are there. Now let me check the vault for linkable notes on the DPT lineage."
+        }
+      ],
+      "timestamp": "2026-08-26T15:15:55.214Z"
+    },
+    {
+      "id": "afc906cd-08fc-4d57-996b-31b4bf8f74b4",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_sz4T5fauzL3LxpoePUL6I7",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; ls 10-Papers/3D-Reconstruction/*.md; echo \"=== surveys ===\"; ls 20-Surveys/*/*.md",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; ls 10-Papers/3D-Reconstruction/*.md; echo \"=== surveys ===\"; ls 20-Surveys/*/*.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:16:02.266Z"
+    },
+    {
+      "id": "cd3a14c9-2f0d-453b-8822-b7de6bdf13ff",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_xjFper7B0F0hHjulfSKsoW",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; grep -n \"confidence\\|DPT\\|置信\" \"10-Papers/3D-Reconstruction/DUSt3R - 前馈式几何重建奠基.md\" | head; echo \"==== VGGT-Omega\"; grep -n \"DPT\" \"10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建.md\" \"10-Papers/3D-Reconstruction/π³ - 置换等变视觉几何学习.md\" | head",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; grep -n \"confidence\\|DPT\\|置信\" \"10-Papers/3D-Reconstruction/DUSt3R - 前馈式几何重建奠基.md\" | head; echo \"==== VGGT-Omega\"; grep -n \"DPT\" \"10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建.md\" \"10-Papers/3D-Reconstruction/π³ - 置换等变视觉几何学习.md\" | head"
+          }
+        },
+        {
+          "type": "text",
+          "text": "I have everything I need — the DPT paper is downloaded and read, Figure 1 is cropped and verified. Now writing."
+        }
+      ],
+      "timestamp": "2026-08-26T15:16:06.973Z"
+    },
+    {
+      "id": "143ee6c2-aefb-430e-a9dd-8df8e444c8c3",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_YXLGpyyqjyudgBGQojarZm",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "newText": "\n关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。\n\n### 2.4.1 dense head 展开：DPT 是什么、为什么需要它\n\n**先看矛盾在哪。** 主干吐出来的是 token：518px 的图按 14×14 patch 切开，一帧只有约 37×37 ≈ 1400 个 patch token；而 dense head 要输出的是 518×518 的逐像素深度图 / 点图。中间差了 14 倍的空间分辨率，且 token 是一维序列、显式的二维排布已经被抹掉。**DPT 就是补这个落差的解码器。**\n\nDPT = **Dense Prediction Transformer**，出自 Ranftl, Bochkovskiy, Koltun 的《Vision Transformers for Dense Prediction》（ICCV 2021，arXiv:2103.13413）——也就是 MiDaS 团队（Intel Labs）把自家单目深度主干从 ResNeXt 换成 ViT 的那一篇。它的核心主张是：\n\n> ViT 全程维持**恒定且相对高**的空间分辨率（token 数从头到尾不变），且**每一层都有全局感受野**——这两个性质正好是密集预测想要的；缺的只是一个把 token 还原成图的解码器。\n\n这句话是对着卷积网络说的。FCN 系要靠逐级 downsample 才能把感受野撑大，代价是分辨率一路掉，细节在 bottleneck 处不可逆地丢失；ViT 没有这个 tradeoff。\n\n#### Reassemble：三步把 token 摆回二维\n\nDPT 的核心算子是 **Reassemble**，把任意一层的 token 序列还原成一张特征图：\n\n$$\\text{Reassemble}^{\\hat D}_s(t) = \\left(\\text{Resample}_s \\circ \\text{Concatenate} \\circ \\text{Read}\\right)(t)$$\n\n其中 $s$ 是输出图相对输入图像的**尺寸比**（得到 $1/s$ 分辨率），$\\hat D$ 是输出通道数。三步各自的职责：\n\n| 步骤 | 作用 | 形状变化 |\n| --- | --- | --- |\n| **Read** | 处理掉那个不对应任何 patch 的 readout token | $\\mathbb{R}^{(N_p+1)\\times D} \\to \\mathbb{R}^{N_p\\times D}$ |\n| **Concatenate** | 按 patch 在原图中的位置，把 token 摆回二维网格 | $\\mathbb{R}^{N_p\\times D} \\to \\mathbb{R}^{\\frac{H}{p}\\times\\frac{W}{p}\\times D}$ |\n| **Resample** | 重采样到目标分辨率与通道数 | $\\to \\mathbb{R}^{\\frac{H}{s}\\times\\frac{W}{s}\\times\\hat D}$ |\n\n**Read 的三个变体**（readout token 即 ViT 的 class token，它对密集预测没有明确用途，但可能承载有用的全局信息）：\n\n$$\\text{Read}_{\\text{ignore}}(t) = \\{t_1,\\dots,t_{N_p}\\}$$\n$$\\text{Read}_{\\text{add}}(t) = \\{t_1 + t_0,\\dots,t_{N_p} + t_0\\}$$\n$$\\text{Read}_{\\text{proj}}(t) = \\{\\text{mlp}(\\text{cat}(t_1,t_0)),\\dots,\\text{mlp}(\\text{cat}(t_{N_p},t_0))\\}$$\n\n消融（论文 Table 7，三数据集平均相对误差，越低越好）：`project` 0.0819 < `ignore` 0.0822 < `add` 0.0831。三者差距很小，但有个反直觉的细节值得记：**直接相加比干脆扔掉更差**——粗暴地把全局向量广播加到每个位置会污染局部特征，不如先 concat 再用 MLP+GELU 学一个投影。DPT 默认取 `project`。\n\n**Resample 的实现**：先用 1×1 卷积把通道投到 $\\hat D$，再根据方向选算子——$s \\ge p$ 时用 strided 3×3 卷积下采样，$s < p$ 时用 strided 3×3 转置卷积上采样。\n\n#### 四层抽取 + RefineNet Fusion\n\n关键设计不是「取最后一层」，而是**从主干四个不同深度各抽一份，且深层配低分辨率、浅层配高分辨率**：\n\n| 主干 | 抽取位置 | 说明 |\n| --- | --- | --- |\n| ViT-Base | 第 $\\{3,6,9,12\\}$ 层 | $D=768$ |\n| ViT-Large | 第 $\\{5,12,18,24\\}$ 层 | $D=1024$ |\n| ViT-Hybrid | ResNet50 的前两个 stage（R0, R1）+ 第 $\\{9,12\\}$ 层 | 低层细节直接来自卷积 embedding |\n\n四个尺度对应 $\\text{Reassemble}_4 / _8 / _{16} / _{32}$，统一输出 $\\hat D = 256$ 通道。\n\n消融（Table 6）证实「浅 + 深混搭」是必要的：ViT-Base 用 $\\{3,6,9,12\\}$ 平均误差 0.0822，换成集中在深层的 $\\{6,8,10,12\\}$ 是 0.0831、$\\{9,10,11,12\\}$ 是 0.0828。**只从深层抽会丢掉低层细节**——这与卷积 U-Net 需要 skip connection 是同一个道理，只是这里「该在哪里接 skip」不再由 downsample 位置天然决定（transformer 全程同分辨率），得靠实验选。\n\n四张不同尺度的特征图之后进 **RefineNet 式的 Fusion block**（两个 residual conv unit + 逐级 2× 上采样），自低分辨率向高分辨率逐级融合——结构上就是 FPN / U-Net 的 skip-and-upsample，只不过 skip 的来源不是卷积 stage 而是 transformer layer。最终输出是输入图的 **1/2 分辨率**，再挂一个任务专用 head（深度 head：3 层卷积逐级减半通道，最后 bilinear 上采到全分辨率）。\n\n![DPT 架构](assets/VGGT%20-%20前馈式通用三维重建/figures/dpt_fig1_architecture.png)\n\n*图：DPT 论文 Figure 1（arXiv:2103.13413，Page 3）。**左**：整体架构——图像 embed 成 token（橙）后过多个 transformer stage，从四个不同深度 reassemble 成四种分辨率的特征图（绿），Fusion 模块（紫）逐级融合上采样，最后接 Head。**中**：$\\text{Reassemble}_s$ 的三步展开（Read → Concatenate → Project/Resample）。**右**：Fusion block 内部——两个 residual conv unit + $\\text{Resample}_{0.5}$（此处指 2× 上采样）+ project。*\n\n#### 附带的好处：对输入尺寸鲁棒\n\nDPT 只要求边长能被 patch size $p$ 整除、并对齐解码器 stride（32px），换分辨率时线性插值 position embedding 即可。论文 Figure 4 显示，把推理分辨率从训练的 384 一路推到 640，DPT-Hybrid 的性能衰减明显小于 ResNet-50 / ResNeXt-101——因为卷积网靠近输入的层是局部的、感受野被训练分辨率绑死，而 ViT 每层都全局。\n\n**这一点正好是 VGGT 敢在训练时把 aspect ratio 在 0.33–1.0 之间随机化、并支持任意分辨率输入的前提。**\n\n#### VGGT 里的 DPT 具体长什么样\n\n回到 VGGT。论文 §3.3 的原文口径是：主干输出的图像 token $\\hat t^I_i$ **先经一个 DPT 层转成稠密特征图** $F_i \\in \\mathbb{R}^{C''\\times H\\times W}$，然后：\n\n- $F_i$ 各过一个 **3×3 卷积**，分别得到深度图 $D_i$ 与点图 $P_i$；\n- 同一个 DPT head 还**额外吐一路稠密特征** $T_i \\in \\mathbb{R}^{C\\times H\\times W}$，作为 tracking head（CoTracker2）的输入；\n- 同时预测两张不确定性图 $\\Sigma^D_i,\\ \\Sigma^P_i \\in \\mathbb{R}_+^{H\\times W}$。\n\n所以上表里写的「dense head」，实质是**一个 DPT 主体 + 若干轻量输出分支**：深度、点图、tracking 特征、两张不确定性图，全部共享同一套 reassemble + fusion 解码器。这是 VGGT「共享表征」哲学在解码端的延续——连解码器都不给每个任务单独配一套。\n\n顺带一个容易被忽略的结构含义：tracking head 的输入是 DPT 出来的稠密特征、而不是主干 token，这意味着**点跟踪的梯度会回传进 DPT 解码器**，反过来约束深度 / 点图分支的特征质量。§3.4 消融里「多任务联合训练有益」的一部分收益就来自这条通路。\n\n> DPT 从 2021 年一路被继承到今天几乎所有前馈几何模型（DUSt3R、MASt3R、Depth Anything、VGGT、DA3……），谱系与演化见文末 [第 5 节](#5-附dpt-的谱系与发展路径)。\n\n### 2.4.2 aleatoric uncertainty：让模型说出「这个像素我不确定」\n\ndense head 除了深度和点图，还并行输出一张同尺寸的不确定性图。这里的 **aleatoric（偶然性）** 是不确定性二分法里的一支（Kendall & Gal, 2017）：\n\n| 类型 | 来源 | 能否靠更多数据消除 |\n| --- | --- | --- |\n| **aleatoric**（偶然 / 数据） | 观测本身的固有噪声：无纹理白墙、镜面与透明物体、过曝、遮挡边界 | **不能**——信息本来就不在图里 |\n| **epistemic**（认知 / 模型） | 模型没见够这类数据 | 能——加数据、加参数即可降低 |\n\nVGGT 预测的是前者。关键在于它**不是训练完额外加的后处理，而是直接写进损失函数**（论文 §3.4）：\n\n$$L_{\\text{depth}} = \\sum_{i=1}^{N} \\left\\lVert \\Sigma^D_i \\odot (\\hat D_i - D_i) \\right\\rVert + \\left\\lVert \\Sigma^D_i \\odot (\\nabla \\hat D_i - \\nabla D_i) \\right\\rVert - \\alpha \\log \\Sigma^D_i$$\n\n三项各司其职：\n\n1. **误差项**被 $\\Sigma$ 逐像素加权（$\\odot$ 是沿通道广播的逐元素乘）；\n2. **梯度项**：同样加权的深度梯度差，管边缘锐度——这是 VGGT 相对 DUSt3R 的一处增补，沿用单目深度界的常规做法；\n3. **正则项** $-\\alpha\\log\\Sigma$。\n\n**这里有一个容易读反的方向。** 论文管 $\\Sigma$ 叫 \"uncertainty map\"，但它在损失里是**乘**在误差上、并被 $-\\alpha\\log\\Sigma$ 往高处拉——所以 $\\Sigma$ 越大代表越**自信**（数学上它扮演的是精度 precision $\\approx 1/\\sigma$，而非方差）。论文自己的措辞也是：训练后 $\\Sigma$ \"proportional to the model's confidence in the predictions\"。这套形式完全继承自 [[DUSt3R - 前馈式几何重建奠基]] 的置信度加权回归损失（那里直接叫 $C$），只是换了个名字。\n\n**三项凑出一个自洽的博弈**：对某个像素声明「我不确定」（压低 $\\Sigma$）可以减轻该处的误差惩罚，但 $-\\alpha\\log\\Sigma$ 会因此罚它。于是模型只在**真的**没法确定的地方才降低置信度，不能靠全域摆烂来刷低 loss。\n\n两处实际收益：\n\n- **训练时**：无纹理区、反光面这些本质模糊的像素不会用巨大的残差污染梯度，模型不必硬拟合噪声。这一点对 VGGT 尤其重要——它的训练数据里有相当一部分 3D 标注来自 SfM 重建（见 §2.5 数据表），GT 本身在这些区域就是错的。\n- **推理时**：$\\Sigma$ 是可直接用的置信图。下游做点云融合、BA 精化、mesh 化时可以据此过滤或加权，而不是把所有像素当同等可信。§3.1 中「前馈 + BA」那一栏的提升，很大程度依赖这张图来筛可信的对应点。\n\n点图损失 $L_{\\text{pmap}}$ 结构完全相同，只是把 $\\Sigma^D$ 换成 $\\Sigma^P$。\n\n### 2.5 训练目标与配置\n\n**多任务损失**（各损失项加权求和）：",
+              "oldText": "\n关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。\n\n### 2.5 训练目标与配置\n\n**多任务损失**（各损失项加权求和）："
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 74
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "old_string": "关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。\n\n### 2.5 训练目标与配置",
+            "new_string": "关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。\n\n### 2.4.1 dense head 展开：DPT 是什么、为什么需要它\n\n**先看矛盾在哪。** 主干吐出来的是 token：518px 的图按 14×14 patch 切开，一帧只有约 37×37 ≈ 1400 个 patch token；而 dense head 要输出的是 518×518 的逐像素深度图 / 点图。中间差了 14 倍的空间分辨率，且 token 是一维序列、显式的二维排布已经被抹掉。**DPT 就是补这个落差的解码器。**\n\nDPT = **Dense Prediction Transformer**，出自 Ranftl, Bochkovskiy, Koltun 的《Vision Transformers for Dense Prediction》（ICCV 2021，arXiv:2103.13413）——也就是 MiDaS 团队（Intel Labs）把自家单目深度主干从 ResNeXt 换成 ViT 的那一篇。它的核心主张是：\n\n> ViT 全程维持**恒定且相对高**的空间分辨率（token 数从头到尾不变），且**每一层都有全局感受野**——这两个性质正好是密集预测想要的；缺的只是一个把 token 还原成图的解码器。\n\n这句话是对着卷积网络说的。FCN 系要靠逐级 downsample 才能把感受野撑大，代价是分辨率一路掉，细节在 bottleneck 处不可逆地丢失；ViT 没有这个 tradeoff。\n\n#### Reassemble：三步把 token 摆回二维\n\nDPT 的核心算子是 **Reassemble**，把任意一层的 token 序列还原成一张特征图：\n\n$$\\text{Reassemble}^{\\hat D}_s(t) = \\left(\\text{Resample}_s \\circ \\text{Concatenate} \\circ \\text{Read}\\right)(t)$$\n\n其中 $s$ 是输出图相对输入图像的**尺寸比**（得到 $1/s$ 分辨率），$\\hat D$ 是输出通道数。三步各自的职责：\n\n| 步骤 | 作用 | 形状变化 |\n| --- | --- | --- |\n| **Read** | 处理掉那个不对应任何 patch 的 readout token | $\\mathbb{R}^{(N_p+1)\\times D} \\to \\mathbb{R}^{N_p\\times D}$ |\n| **Concatenate** | 按 patch 在原图中的位置，把 token 摆回二维网格 | $\\mathbb{R}^{N_p\\times D} \\to \\mathbb{R}^{\\frac{H}{p}\\times\\frac{W}{p}\\times D}$ |\n| **Resample** | 重采样到目标分辨率与通道数 | $\\to \\mathbb{R}^{\\frac{H}{s}\\times\\frac{W}{s}\\times\\hat D}$ |\n\n**Read 的三个变体**（readout token 即 ViT 的 class token，它对密集预测没有明确用途，但可能承载有用的全局信息）：\n\n$$\\text{Read}_{\\text{ignore}}(t) = \\{t_1,\\dots,t_{N_p}\\}$$\n$$\\text{Read}_{\\text{add}}(t) = \\{t_1 + t_0,\\dots,t_{N_p} + t_0\\}$$\n$$\\text{Read}_{\\text{proj}}(t) = \\{\\text{mlp}(\\text{cat}(t_1,t_0)),\\dots,\\text{mlp}(\\text{cat}(t_{N_p},t_0))\\}$$\n\n消融（论文 Table 7，三数据集平均相对误差，越低越好）：`project` 0.0819 < `ignore` 0.0822 < `add` 0.0831。三者差距很小，但有个反直觉的细节值得记：**直接相加比干脆扔掉更差**——粗暴地把全局向量广播加到每个位置会污染局部特征，不如先 concat 再用 MLP+GELU 学一个投影。DPT 默认取 `project`。\n\n**Resample 的实现**：先用 1×1 卷积把通道投到 $\\hat D$，再根据方向选算子——$s \\ge p$ 时用 strided 3×3 卷积下采样，$s < p$ 时用 strided 3×3 转置卷积上采样。\n\n#### 四层抽取 + RefineNet Fusion\n\n关键设计不是「取最后一层」，而是**从主干四个不同深度各抽一份，且深层配低分辨率、浅层配高分辨率**：\n\n| 主干 | 抽取位置 | 说明 |\n| --- | --- | --- |\n| ViT-Base | 第 $\\{3,6,9,12\\}$ 层 | $D=768$ |\n| ViT-Large | 第 $\\{5,12,18,24\\}$ 层 | $D=1024$ |\n| ViT-Hybrid | ResNet50 的前两个 stage（R0, R1）+ 第 $\\{9,12\\}$ 层 | 低层细节直接来自卷积 embedding |\n\n四个尺度对应 $\\text{Reassemble}_4 / _8 / _{16} / _{32}$，统一输出 $\\hat D = 256$ 通道。\n\n消融（Table 6）证实「浅 + 深混搭」是必要的：ViT-Base 用 $\\{3,6,9,12\\}$ 平均误差 0.0822，换成集中在深层的 $\\{6,8,10,12\\}$ 是 0.0831、$\\{9,10,11,12\\}$ 是 0.0828。**只从深层抽会丢掉低层细节**——这与卷积 U-Net 需要 skip connection 是同一个道理，只是这里「该在哪里接 skip」不再由 downsample 位置天然决定（transformer 全程同分辨率），得靠实验选。\n\n四张不同尺度的特征图之后进 **RefineNet 式的 Fusion block**（两个 residual conv unit + 逐级 2× 上采样），自低分辨率向高分辨率逐级融合——结构上就是 FPN / U-Net 的 skip-and-upsample，只不过 skip 的来源不是卷积 stage 而是 transformer layer。最终输出是输入图的 **1/2 分辨率**，再挂一个任务专用 head（深度 head：3 层卷积逐级减半通道，最后 bilinear 上采到全分辨率）。\n\n![DPT 架构](assets/VGGT%20-%20前馈式通用三维重建/figures/dpt_fig1_architecture.png)\n\n*图：DPT 论文 Figure 1（arXiv:2103.13413，Page 3）。**左**：整体架构——图像 embed 成 token（橙）后过多个 transformer stage，从四个不同深度 reassemble 成四种分辨率的特征图（绿），Fusion 模块（紫）逐级融合上采样，最后接 Head。**中**：$\\text{Reassemble}_s$ 的三步展开（Read → Concatenate → Project/Resample）。**右**：Fusion block 内部——两个 residual conv unit + $\\text{Resample}_{0.5}$（此处指 2× 上采样）+ project。*\n\n#### 附带的好处：对输入尺寸鲁棒\n\nDPT 只要求边长能被 patch size $p$ 整除、并对齐解码器 stride（32px），换分辨率时线性插值 position embedding 即可。论文 Figure 4 显示，把推理分辨率从训练的 384 一路推到 640，DPT-Hybrid 的性能衰减明显小于 ResNet-50 / ResNeXt-101——因为卷积网靠近输入的层是局部的、感受野被训练分辨率绑死，而 ViT 每层都全局。\n\n**这一点正好是 VGGT 敢在训练时把 aspect ratio 在 0.33–1.0 之间随机化、并支持任意分辨率输入的前提。**\n\n#### VGGT 里的 DPT 具体长什么样\n\n回到 VGGT。论文 §3.3 的原文口径是：主干输出的图像 token $\\hat t^I_i$ **先经一个 DPT 层转成稠密特征图** $F_i \\in \\mathbb{R}^{C''\\times H\\times W}$，然后：\n\n- $F_i$ 各过一个 **3×3 卷积**，分别得到深度图 $D_i$ 与点图 $P_i$；\n- 同一个 DPT head 还**额外吐一路稠密特征** $T_i \\in \\mathbb{R}^{C\\times H\\times W}$，作为 tracking head（CoTracker2）的输入；\n- 同时预测两张不确定性图 $\\Sigma^D_i,\\ \\Sigma^P_i \\in \\mathbb{R}_+^{H\\times W}$。\n\n所以上表里写的「dense head」，实质是**一个 DPT 主体 + 若干轻量输出分支**：深度、点图、tracking 特征、两张不确定性图，全部共享同一套 reassemble + fusion 解码器。这是 VGGT「共享表征」哲学在解码端的延续——连解码器都不给每个任务单独配一套。\n\n顺带一个容易被忽略的结构含义：tracking head 的输入是 DPT 出来的稠密特征、而不是主干 token，这意味着**点跟踪的梯度会回传进 DPT 解码器**，反过来约束深度 / 点图分支的特征质量。§3.4 消融里「多任务联合训练有益」的一部分收益就来自这条通路。\n\n> DPT 从 2021 年一路被继承到今天几乎所有前馈几何模型（DUSt3R、MASt3R、Depth Anything、VGGT、DA3……），谱系与演化见文末 [第 5 节](#5-附dpt-的谱系与发展路径)。\n\n### 2.4.2 aleatoric uncertainty：让模型说出「这个像素我不确定」\n\ndense head 除了深度和点图，还并行输出一张同尺寸的不确定性图。这里的 **aleatoric（偶然性）** 是不确定性二分法里的一支（Kendall & Gal, 2017）：\n\n| 类型 | 来源 | 能否靠更多数据消除 |\n| --- | --- | --- |\n| **aleatoric**（偶然 / 数据） | 观测本身的固有噪声：无纹理白墙、镜面与透明物体、过曝、遮挡边界 | **不能**——信息本来就不在图里 |\n| **epistemic**（认知 / 模型） | 模型没见够这类数据 | 能——加数据、加参数即可降低 |\n\nVGGT 预测的是前者。关键在于它**不是训练完额外加的后处理，而是直接写进损失函数**（论文 §3.4）：\n\n$$L_{\\text{depth}} = \\sum_{i=1}^{N} \\left\\lVert \\Sigma^D_i \\odot (\\hat D_i - D_i) \\right\\rVert + \\left\\lVert \\Sigma^D_i \\odot (\\nabla \\hat D_i - \\nabla D_i) \\right\\rVert - \\alpha \\log \\Sigma^D_i$$\n\n三项各司其职：\n\n1. **误差项**被 $\\Sigma$ 逐像素加权（$\\odot$ 是沿通道广播的逐元素乘）；\n2. **梯度项**：同样加权的深度梯度差，管边缘锐度——这是 VGGT 相对 DUSt3R 的一处增补，沿用单目深度界的常规做法；\n3. **正则项** $-\\alpha\\log\\Sigma$。\n\n**这里有一个容易读反的方向。** 论文管 $\\Sigma$ 叫 \"uncertainty map\"，但它在损失里是**乘**在误差上、并被 $-\\alpha\\log\\Sigma$ 往高处拉——所以 $\\Sigma$ 越大代表越**自信**（数学上它扮演的是精度 precision $\\approx 1/\\sigma$，而非方差）。论文自己的措辞也是：训练后 $\\Sigma$ \"proportional to the model's confidence in the predictions\"。这套形式完全继承自 [[DUSt3R - 前馈式几何重建奠基]] 的置信度加权回归损失（那里直接叫 $C$），只是换了个名字。\n\n**三项凑出一个自洽的博弈**：对某个像素声明「我不确定」（压低 $\\Sigma$）可以减轻该处的误差惩罚，但 $-\\alpha\\log\\Sigma$ 会因此罚它。于是模型只在**真的**没法确定的地方才降低置信度，不能靠全域摆烂来刷低 loss。\n\n两处实际收益：\n\n- **训练时**：无纹理区、反光面这些本质模糊的像素不会用巨大的残差污染梯度，模型不必硬拟合噪声。这一点对 VGGT 尤其重要——它的训练数据里有相当一部分 3D 标注来自 SfM 重建（见 §2.5 数据表），GT 本身在这些区域就是错的。\n- **推理时**：$\\Sigma$ 是可直接用的置信图。下游做点云融合、BA 精化、mesh 化时可以据此过滤或加权，而不是把所有像素当同等可信。§3.1 中「前馈 + BA」那一栏的提升，很大程度依赖这张图来筛可信的对应点。\n\n点图损失 $L_{\\text{pmap}}$ 结构完全相同，只是把 $\\Sigma^D$ 换成 $\\Sigma^P$。\n\n### 2.5 训练目标与配置"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Now let me fix an inaccuracy I found in §2.5 while reading the paper, and add the lineage section."
+        }
+      ],
+      "timestamp": "2026-08-26T15:17:47.782Z"
+    },
+    {
+      "id": "f44bb311-00d1-451a-857a-c45851d63762",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_cgqrr1JsZcTCvlfWTrmHCs",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "newText": "L = L_{\\text{camera}} + L_{\\text{depth}} + L_{\\text{pmap}} + 0.05 \\cdot L_{\\text{track}}\n$$\n\n- $L_{\\text{camera}}$：相机损失，用 **Huber 损失**直接比较预测相机参数 $\\hat g_i$ 与真值 $g_i$，即 $L_{\\text{camera}} = \\sum_{i=1}^{N}\\lVert \\hat g_i - g_i\\rVert_\\epsilon$。（注意：**它不带 uncertainty 加权**——uncertainty 只用在 depth 与 pmap 两项上。）\n- $L_{\\text{depth}}$：深度损失，uncertainty 加权 + 梯度项，展开见 [§2.4.2](#242-aleatoric-uncertainty让模型说出这个像素我不确定)。\n- $L_{\\text{pmap}}$：点图损失，结构同上，换用 $\\Sigma^P$。\n- $L_{\\text{track}}$：点跟踪损失 $\\sum_j\\sum_i \\lVert y_{j,i} - \\hat y_{j,i}\\rVert$，权重 $\\lambda = 0.05$；另按 CoTracker2 加一项可见性损失（二元交叉熵）。\n\n论文特别说明：camera / depth / pmap 三项的数值范围本就相近，**不需要互相加权**，只有 tracking 需要降权到 0.05。\n\n**GT 坐标归一化**（一个容易漏掉但很关键的设计）：先把所有量转到第一台相机 $g_1$ 的坐标系，再用「点图中所有 3D 点到原点的平均欧氏距离」作为尺度，归一化相机平移、点图与深度。与 DUSt3R 不同的是，**VGGT 不对网络输出做这个归一化**，而是强迫 transformer 从数据里学会输出这个特定的归一化变体。\n\n**训练配置**：\n\n| 配置项  | 细节                              |",
+              "oldText": "L = L_{\\text{camera}} + L_{\\text{depth}} + L_{\\text{pmap}} + 0.05 \\cdot L_{\\text{track}}\n$$\n\n- $L_{\\text{camera}}$：相机损失，基于预测位姿的投影误差，并用 aleatoric uncertainty 加权。\n- $L_{\\text{depth}}$：深度损失（尺度不变的对数深度）。\n- $L_{\\text{pmap}}$：点图损失（归一化的 L1）。\n- $L_{\\text{track}}$：点跟踪损失，权重取 0.05。\n\n**训练配置**：\n\n| 配置项  | 细节                              |"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 186
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "old_string": "- $L_{\\text{camera}}$：相机损失，基于预测位姿的投影误差，并用 aleatoric uncertainty 加权。\n- $L_{\\text{depth}}$：深度损失（尺度不变的对数深度）。\n- $L_{\\text{pmap}}$：点图损失（归一化的 L1）。\n- $L_{\\text{track}}$：点跟踪损失，权重取 0.05。\n",
+            "new_string": "- $L_{\\text{camera}}$：相机损失，用 **Huber 损失**直接比较预测相机参数 $\\hat g_i$ 与真值 $g_i$，即 $L_{\\text{camera}} = \\sum_{i=1}^{N}\\lVert \\hat g_i - g_i\\rVert_\\epsilon$。（注意：**它不带 uncertainty 加权**——uncertainty 只用在 depth 与 pmap 两项上。）\n- $L_{\\text{depth}}$：深度损失，uncertainty 加权 + 梯度项，展开见 [§2.4.2](#242-aleatoric-uncertainty让模型说出这个像素我不确定)。\n- $L_{\\text{pmap}}$：点图损失，结构同上，换用 $\\Sigma^P$。\n- $L_{\\text{track}}$：点跟踪损失 $\\sum_j\\sum_i \\lVert y_{j,i} - \\hat y_{j,i}\\rVert$，权重 $\\lambda = 0.05$；另按 CoTracker2 加一项可见性损失（二元交叉熵）。\n\n论文特别说明：camera / depth / pmap 三项的数值范围本就相近，**不需要互相加权**，只有 tracking 需要降权到 0.05。\n\n**GT 坐标归一化**（一个容易漏掉但很关键的设计）：先把所有量转到第一台相机 $g_1$ 的坐标系，再用「点图中所有 3D 点到原点的平均欧氏距离」作为尺度，归一化相机平移、点图与深度。与 DUSt3R 不同的是，**VGGT 不对网络输出做这个归一化**，而是强迫 transformer 从数据里学会输出这个特定的归一化变体。\n"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Now the DPT lineage section at the end."
+        }
+      ],
+      "timestamp": "2026-08-26T15:18:47.565Z"
+    },
+    {
+      "id": "5b820a5e-4d82-4735-ac85-b8f7965424f3",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_kldw52wu9rd0fjHziFImmB",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "newText": "- **建议关注点**：camera head 的四元数 + 视场角参数化细节、Alternating-Attention 的具体层交替方式、多任务损失的 uncertainty 加权实现，是理解\"为什么能前馈\"的关键。\n\n**最终评价：** VGGT 是前馈式三维重建的奠基性工作，CVPR 2025 Best Paper 实至名归。它最重要的价值是把\"几何重建\"从优化问题改写为回归问题，并证明这条路可 scale。后续所有\"前馈重建\"论文，本质上都在回答 VGGT 留下的问题：能不能更小、更鲁棒、更少归纳偏置、更能处理动态与任意参考系。\n\n---\n\n## 5. 附：DPT 的谱系与发展路径\n\nDPT 是本文 §2.4.1 展开的那个解码器。把它单独拉一条时间线出来，是因为**它可能是整个 3D 视觉里被复用得最彻底、却最少被单独讨论的组件**——从 2021 到今天，几乎每一个前馈几何模型的输出端都是它。\n\n### 5.1 上游：DPT 从哪来\n\nDPT 不是凭空出现的，它是两条线的交汇：\n\n| 上游 | 贡献给 DPT 的东西 |\n| --- | --- |\n| **FCN**（Long et al., 2015） | 「密集预测 = encoder-decoder + 逐级上采样」的基本骨架 |\n| **U-Net / FPN**（2015 / 2017） | skip connection：浅层细节必须绕过 bottleneck 直连解码器 |\n| **RefineNet**（Lin et al., 2017） | DPT 的 Fusion block 直接沿用它的 residual conv unit 设计 |\n| **MiDaS**（Ranftl et al., 2020） | 同一批作者的前作。提供了任务、数据配方（多源混合 + 尺度平移不变损失）与被替换的基线（ResNeXt-101） |\n| **ViT**（Dosovitskiy et al., 2021） | 恒定分辨率 + 全层全局感受野的主干，是 DPT 立论的前提 |\n\n所以 DPT 的定位可以一句话概括：**把 U-Net 的解码思路移植到一个不做 downsample 的主干上**。难点也正在这——ViT 全程同分辨率，「该在哪儿接 skip」失去了天然答案，于是变成一个需要消融决定的超参（论文 Table 6）。\n\n### 5.2 主线：DPT 之后的演化\n\n```\nFCN / U-Net / RefineNet ──┐\n                          ├──> DPT (2021) ──> 成为 ViT 密集预测的默认解码器\nMiDaS (2020) ─────────────┤       │\nViT (2021) ───────────────┘       │\n                                  ├──> 单目深度线：MiDaS v3 / Omnidata → Depth Anything V1/V2 → DA3\n                                  ├──> 多视图几何线：DUSt3R → MASt3R → VGGT → π³ / VGGT-Ω\n                                  └──> 其他密集任务：法向、分割、3DGS 参数、光流……\n```\n\n**分线来看：**\n\n**(1) 单目深度线** —— DPT 的原生战场，主干越换越强，解码器基本不动。\n\n| 年份 | 工作 | 相对 DPT 的变化 |\n| --- | --- | --- |\n| 2021 | **DPT / MiDaS v3** | 原始形态。ViT 主干 + Reassemble + RefineNet Fusion |\n| 2021 | **Omnidata** | 同一套 DPT 架构，换成大规模多任务合成数据训练 |\n| 2024 | **Depth Anything** | 主干换 DINOv2，解码器仍是 DPT；靠 6200 万无标注图伪标签自训练把单目深度推到基础模型规模 |\n| 2024 | **Depth Anything V2** | 同上，改用合成数据 + 更小模型缓解伪标签噪声 |\n| 2025 | **DA3** | **Dual-DPT head**：共享 reassembly + 两套独立 fusion（depth 分支 / ray 分支），一个解码器骨架输出两种几何量 |\n\n这条线的规律很清楚：**主干从 ViT → DINOv2，数据从 140 万 → 6200 万，但解码器七年没换。** DPT 在这个位置上大概是「够好且没有明显瓶颈」。\n\n**(2) 多视图几何线** —— DPT 被搬去输出点图，逐步长出更多分支。\n\n| 年份 | 工作 | DPT 在其中的角色 |\n| --- | --- | --- |\n| 2024 | **[[DUSt3R - 前馈式几何重建奠基]]** | 第一次把 DPT 用于**点图**而非深度：每像素输出 4 维（3D 坐标 + confidence）。**置信度加权损失也在此定型**，VGGT 的 $\\Sigma$ 直接继承 |\n| 2024 | **[[MASt3R - 匹配与重建统一]]** | DPT head 上再加一个 local feature 分支，让同一个解码器同时供给「重建」与「匹配」 |\n| 2025 | **VGGT**（本文） | DPT 成为**唯一**的 dense 解码器：深度 + 点图 + tracking 特征 + 两张 $\\Sigma$，四类输出共享一套 reassemble/fusion |\n| 2025 | **[[π³ - 置换等变视觉几何学习]]** | 沿用 DPT，但去掉 VGGT 的固定参考帧假设 |\n| 2025 | **[[VGGT-Ω - 可扩展前馈式静动态三维重建]]** | 沿用 DPT，向 scaling 与动态场景扩展 |\n\n值得注意的是 **DUSt3R 这一环的分量**：它不只是「用了 DPT」，而是确立了「DPT head 每像素多吐一个 confidence、并把它写进损失」这个范式。VGGT §2.4.2 那套 $\\Sigma$ 机制，血缘在此而不在 DPT 原论文——**DPT 原文没有不确定性输出**，那是 DUSt3R 加的。\n\n**(3) 泛化到任意密集量** —— 这是 DPT 生命力最强的证据。只要输出是「逐像素的某个量」，就可以换个 head 接上去：法向图（Omnidata / Marigold 系）、分割 logits（DPT 原论文 ADE20K 49.02 mIoU）、3DGS 逐像素参数（DA3 的 GS-DPT head，输出不透明度 / 四元数 / 尺度 / 颜色）、点跟踪特征（VGGT）。\n\n### 5.3 为什么它能活这么久\n\n三个原因，按重要性排：\n\n1. **它解的是结构性矛盾，不是特定任务。** 「token 分辨率低、输出要逐像素」这个落差，只要主干是 ViT 就一直存在，与你预测深度还是法向无关。\n2. **主干可替换。** DPT 对主干只有一个要求——能按层抽 token。所以 ViT → DeiT → DINOv2 → 自定义交替注意力主干（VGGT），解码器都不用改。这让它能免费搭上主干进步的便车。\n3. **输出可扩展。** 加一个新的预测量只需在 fusion 输出后挂一个 3×3 卷积（VGGT 的做法），边际成本极低。这直接支撑了「多任务共享 backbone」这条路线。\n\n### 5.4 局限与松动的迹象\n\nDPT 也不是没有代价，且已经出现被绕开的信号：\n\n- **输出天生只有 1/2 分辨率**，末端靠 bilinear 上采补齐——细边界（发丝、栏杆）存在结构性上限。\n- **解码器是纯卷积的**，全局一致性完全依赖主干。跨视图一致性这类需求，DPT 自己给不了（VGGT 靠交替注意力在主干里解决）。\n- **四层抽取位置是超参**，换主干就得重新消融，缺乏原则性依据。\n- **有工作开始不用它了**：DA3 论文的一个核心论点是「最小化建模」——它虽然保留 Dual-DPT，但整体方向是削减专用结构。更激进的一支（如部分 3DGS 前馈工作）直接用 token 级预测 + 上采样替代整个卷积解码器。**如果哪天 ViT 的 patch size 降到 4 或更小、或 pixel-level transformer 变得可负担，DPT 存在的前提（分辨率落差）就消失了。**\n\n**判断**：DPT 属于那种「解决了一个过渡期矛盾、因而与该矛盾共存亡」的组件。它会一直用到主干本身能直接输出高分辨率为止。作为读者，理解它的价值不在于记住 Reassemble 的三步，而在于看清**「低分辨率表征 → 高分辨率输出」这个落差在每一代模型里是怎么被填的**——这个视角能直接迁移到视频生成的 latent upsampler、3DGS 的 densification 等一系列看似无关的设计上。\n\n### 5.5 DPT 相关来源\n\n| 材料 | 链接 / 路径 |\n| --- | --- |\n| DPT 论文（ICCV 2021） | [arXiv:2103.13413](https://arxiv.org/abs/2103.13413) |\n| 本地 PDF（本节精读依据） | `assets/VGGT - 前馈式通用三维重建/sources/dpt_2103.13413.pdf` |\n| 官方代码（MiDaS 仓库内） | https://github.com/isl-org/DPT |\n| MiDaS（前作，数据与损失配方） | [arXiv:1907.01341](https://arxiv.org/abs/1907.01341) |\n| RefineNet（Fusion block 来源） | [arXiv:1611.06612](https://arxiv.org/abs/1611.06612) |\n| Kendall & Gal（aleatoric / epistemic 二分） | [arXiv:1703.04977](https://arxiv.org/abs/1703.04977) |\n\nvault 内相关：[[视觉基础模块综述 - Survey]] §3.2 有 MiDaS / DPT 在单目深度谱系中的定位；[[前馈式三维重建与生成式补全 - Survey]] 覆盖多视图这条线的整体版图。",
+              "oldText": "- **建议关注点**：camera head 的四元数 + 视场角参数化细节、Alternating-Attention 的具体层交替方式、多任务损失的 uncertainty 加权实现，是理解\"为什么能前馈\"的关键。\n\n**最终评价：** VGGT 是前馈式三维重建的奠基性工作，CVPR 2025 Best Paper 实至名归。它最重要的价值是把\"几何重建\"从优化问题改写为回归问题，并证明这条路可 scale。后续所有\"前馈重建\"论文，本质上都在回答 VGGT 留下的问题：能不能更小、更鲁棒、更少归纳偏置、更能处理动态与任意参考系。"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 275
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "old_string": "**最终评价：** VGGT 是前馈式三维重建的奠基性工作，CVPR 2025 Best Paper 实至名归。它最重要的价值是把\"几何重建\"从优化问题改写为回归问题，并证明这条路可 scale。后续所有\"前馈重建\"论文，本质上都在回答 VGGT 留下的问题：能不能更小、更鲁棒、更少归纳偏置、更能处理动态与任意参考系。\n",
+            "new_string": "**最终评价：** VGGT 是前馈式三维重建的奠基性工作，CVPR 2025 Best Paper 实至名归。它最重要的价值是把\"几何重建\"从优化问题改写为回归问题，并证明这条路可 scale。后续所有\"前馈重建\"论文，本质上都在回答 VGGT 留下的问题：能不能更小、更鲁棒、更少归纳偏置、更能处理动态与任意参考系。\n\n---\n\n## 5. 附：DPT 的谱系与发展路径\n\nDPT 是本文 §2.4.1 展开的那个解码器。把它单独拉一条时间线出来，是因为**它可能是整个 3D 视觉里被复用得最彻底、却最少被单独讨论的组件**——从 2021 到今天，几乎每一个前馈几何模型的输出端都是它。\n\n### 5.1 上游：DPT 从哪来\n\nDPT 不是凭空出现的，它是两条线的交汇：\n\n| 上游 | 贡献给 DPT 的东西 |\n| --- | --- |\n| **FCN**（Long et al., 2015） | 「密集预测 = encoder-decoder + 逐级上采样」的基本骨架 |\n| **U-Net / FPN**（2015 / 2017） | skip connection：浅层细节必须绕过 bottleneck 直连解码器 |\n| **RefineNet**（Lin et al., 2017） | DPT 的 Fusion block 直接沿用它的 residual conv unit 设计 |\n| **MiDaS**（Ranftl et al., 2020） | 同一批作者的前作。提供了任务、数据配方（多源混合 + 尺度平移不变损失）与被替换的基线（ResNeXt-101） |\n| **ViT**（Dosovitskiy et al., 2021） | 恒定分辨率 + 全层全局感受野的主干，是 DPT 立论的前提 |\n\n所以 DPT 的定位可以一句话概括：**把 U-Net 的解码思路移植到一个不做 downsample 的主干上**。难点也正在这——ViT 全程同分辨率，「该在哪儿接 skip」失去了天然答案，于是变成一个需要消融决定的超参（论文 Table 6）。\n\n### 5.2 主线：DPT 之后的演化\n\n```\nFCN / U-Net / RefineNet ──┐\n                          ├──> DPT (2021) ──> 成为 ViT 密集预测的默认解码器\nMiDaS (2020) ─────────────┤       │\nViT (2021) ───────────────┘       │\n                                  ├──> 单目深度线：MiDaS v3 / Omnidata → Depth Anything V1/V2 → DA3\n                                  ├──> 多视图几何线：DUSt3R → MASt3R → VGGT → π³ / VGGT-Ω\n                                  └──> 其他密集任务：法向、分割、3DGS 参数、光流……\n```\n\n**分线来看：**\n\n**(1) 单目深度线** —— DPT 的原生战场，主干越换越强，解码器基本不动。\n\n| 年份 | 工作 | 相对 DPT 的变化 |\n| --- | --- | --- |\n| 2021 | **DPT / MiDaS v3** | 原始形态。ViT 主干 + Reassemble + RefineNet Fusion |\n| 2021 | **Omnidata** | 同一套 DPT 架构，换成大规模多任务合成数据训练 |\n| 2024 | **Depth Anything** | 主干换 DINOv2，解码器仍是 DPT；靠 6200 万无标注图伪标签自训练把单目深度推到基础模型规模 |\n| 2024 | **Depth Anything V2** | 同上，改用合成数据 + 更小模型缓解伪标签噪声 |\n| 2025 | **DA3** | **Dual-DPT head**：共享 reassembly + 两套独立 fusion（depth 分支 / ray 分支），一个解码器骨架输出两种几何量 |\n\n这条线的规律很清楚：**主干从 ViT → DINOv2，数据从 140 万 → 6200 万，但解码器七年没换。** DPT 在这个位置上大概是「够好且没有明显瓶颈」。\n\n**(2) 多视图几何线** —— DPT 被搬去输出点图，逐步长出更多分支。\n\n| 年份 | 工作 | DPT 在其中的角色 |\n| --- | --- | --- |\n| 2024 | **[[DUSt3R - 前馈式几何重建奠基]]** | 第一次把 DPT 用于**点图**而非深度：每像素输出 4 维（3D 坐标 + confidence）。**置信度加权损失也在此定型**，VGGT 的 $\\Sigma$ 直接继承 |\n| 2024 | **[[MASt3R - 匹配与重建统一]]** | DPT head 上再加一个 local feature 分支，让同一个解码器同时供给「重建」与「匹配」 |\n| 2025 | **VGGT**（本文） | DPT 成为**唯一**的 dense 解码器：深度 + 点图 + tracking 特征 + 两张 $\\Sigma$，四类输出共享一套 reassemble/fusion |\n| 2025 | **[[π³ - 置换等变视觉几何学习]]** | 沿用 DPT，但去掉 VGGT 的固定参考帧假设 |\n| 2025 | **[[VGGT-Ω - 可扩展前馈式静动态三维重建]]** | 沿用 DPT，向 scaling 与动态场景扩展 |\n\n值得注意的是 **DUSt3R 这一环的分量**：它不只是「用了 DPT」，而是确立了「DPT head 每像素多吐一个 confidence、并把它写进损失」这个范式。VGGT §2.4.2 那套 $\\Sigma$ 机制，血缘在此而不在 DPT 原论文——**DPT 原文没有不确定性输出**，那是 DUSt3R 加的。\n\n**(3) 泛化到任意密集量** —— 这是 DPT 生命力最强的证据。只要输出是「逐像素的某个量」，就可以换个 head 接上去：法向图（Omnidata / Marigold 系）、分割 logits（DPT 原论文 ADE20K 49.02 mIoU）、3DGS 逐像素参数（DA3 的 GS-DPT head，输出不透明度 / 四元数 / 尺度 / 颜色）、点跟踪特征（VGGT）。\n\n### 5.3 为什么它能活这么久\n\n三个原因，按重要性排：\n\n1. **它解的是结构性矛盾，不是特定任务。** 「token 分辨率低、输出要逐像素」这个落差，只要主干是 ViT 就一直存在，与你预测深度还是法向无关。\n2. **主干可替换。** DPT 对主干只有一个要求——能按层抽 token。所以 ViT → DeiT → DINOv2 → 自定义交替注意力主干（VGGT），解码器都不用改。这让它能免费搭上主干进步的便车。\n3. **输出可扩展。** 加一个新的预测量只需在 fusion 输出后挂一个 3×3 卷积（VGGT 的做法），边际成本极低。这直接支撑了「多任务共享 backbone」这条路线。\n\n### 5.4 局限与松动的迹象\n\nDPT 也不是没有代价，且已经出现被绕开的信号：\n\n- **输出天生只有 1/2 分辨率**，末端靠 bilinear 上采补齐——细边界（发丝、栏杆）存在结构性上限。\n- **解码器是纯卷积的**，全局一致性完全依赖主干。跨视图一致性这类需求，DPT 自己给不了（VGGT 靠交替注意力在主干里解决）。\n- **四层抽取位置是超参**，换主干就得重新消融，缺乏原则性依据。\n- **有工作开始不用它了**：DA3 论文的一个核心论点是「最小化建模」——它虽然保留 Dual-DPT，但整体方向是削减专用结构。更激进的一支（如部分 3DGS 前馈工作）直接用 token 级预测 + 上采样替代整个卷积解码器。**如果哪天 ViT 的 patch size 降到 4 或更小、或 pixel-level transformer 变得可负担，DPT 存在的前提（分辨率落差）就消失了。**\n\n**判断**：DPT 属于那种「解决了一个过渡期矛盾、因而与该矛盾共存亡」的组件。它会一直用到主干本身能直接输出高分辨率为止。作为读者，理解它的价值不在于记住 Reassemble 的三步，而在于看清**「低分辨率表征 → 高分辨率输出」这个落差在每一代模型里是怎么被填的**——这个视角能直接迁移到视频生成的 latent upsampler、3DGS 的 densification 等一系列看似无关的设计上。\n\n### 5.5 DPT 相关来源\n\n| 材料 | 链接 / 路径 |\n| --- | --- |\n| DPT 论文（ICCV 2021） | [arXiv:2103.13413](https://arxiv.org/abs/2103.13413) |\n| 本地 PDF（本节精读依据） | `assets/VGGT - 前馈式通用三维重建/sources/dpt_2103.13413.pdf` |\n| 官方代码（MiDaS 仓库内） | https://github.com/isl-org/DPT |\n| MiDaS（前作，数据与损失配方） | [arXiv:1907.01341](https://arxiv.org/abs/1907.01341) |\n| RefineNet（Fusion block 来源） | [arXiv:1611.06612](https://arxiv.org/abs/1611.06612) |\n| Kendall & Gal（aleatoric / epistemic 二分） | [arXiv:1703.04977](https://arxiv.org/abs/1703.04977) |\n\nvault 内相关：[[视觉基础模块综述 - Survey]] §3.2 有 MiDaS / DPT 在单目深度谱系中的定位；[[前馈式三维重建与生成式补全 - Survey]] 覆盖多视图这条线的整体版图。\n"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Now update the table row and the sources file."
+        }
+      ],
+      "timestamp": "2026-08-26T15:19:01.600Z"
+    },
+    {
+      "id": "9a25c9be-e80a-4735-99fe-f2714d5d226f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_oJl14Blto0KHJCCm3xJp9j",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "newText": "| 输出头                           | 结构                          | 输出                                                       |\n| ----------------------------- | --------------------------- | -------------------------------------------------------- |\n| **camera head**               | 4 层 self-attention + linear | 对每帧回归相机参数 $g_i = [q, t, f]$：四元数旋转 $q$ + 平移 $t$ + 视场角 $f$ |\n| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图 / tracking 特征，以及深度与点图各自的 aleatoric uncertainty（$\\Sigma^D$、$\\Sigma^P$）。展开见 [§2.4.1](#241-dense-head-展开dpt-是什么为什么需要它) |\n| **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |\n\n![图2](assets/VGGT%20-%20前馈式通用三维重建/figures/fig2_architecture.png)",
+              "oldText": "| 输出头                           | 结构                          | 输出                                                       |\n| ----------------------------- | --------------------------- | -------------------------------------------------------- |\n| **camera head**               | 4 层 self-attention + linear | 对每帧回归相机参数 $g_i = [q, t, f]$：四元数旋转 $q$ + 平移 $t$ + 视场角 $f$ |\n| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图，以及每个像素对应的 aleatoric uncertainty（不确定性）       |\n| **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |\n\n![图2](assets/VGGT%20-%20前馈式通用三维重建/figures/fig2_architecture.png)"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 65
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "old_string": "| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图，以及每个像素对应的 aleatoric uncertainty（不确定性）       |",
+            "new_string": "| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图 / tracking 特征，以及深度与点图各自的 aleatoric uncertainty（$\\Sigma^D$、$\\Sigma^P$）。展开见 [§2.4.1](#241-dense-head-展开dpt-是什么为什么需要它) |"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:20:07.843Z"
+    },
+    {
+      "id": "1936cb00-f868-4fdb-b057-ebefce46d766",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_68dwV9ettGdXSeStyWzH0a",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources.md",
+              "newText": "| 获取日期 | 2026-08-26 |\n| 用途 | 全文精读、关键数据与图源 |\n\n## 延伸精读：DPT\n\n为展开正文 §2.4.1 / 第 5 节（dense head 与 DPT 谱系）而补充精读的论文。\n\n| 材料 | 说明 |\n| --- | --- |\n| `sources/dpt_2103.13413.pdf` | DPT 官方论文 PDF《Vision Transformers for Dense Prediction》（Ranftl, Bochkovskiy, Koltun；ICCV 2021） |\n| 原始 URL | https://arxiv.org/abs/2103.13413 |\n| 获取日期 | 2026-08-26 |\n| 用途 | Reassemble / Read 三变体 / Fusion 结构与消融数据（Table 1–9）的一手依据 |\n\n## 关键图来源\n\n| 图片 | 对应论文图 | 页码 | 用途 |",
+              "oldText": "| 获取日期 | 2026-08-26 |\n| 用途 | 全文精读、关键数据与图源 |\n\n## 关键图来源\n\n| 图片 | 对应论文图 | 页码 | 用途 |"
+            },
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources.md",
+              "newText": "| `figures/fig1_teaser.png` | Figure 1（teaser） | Page 1 | 展示 VGGT 单次前馈同时输出相机/点图/深度/点轨迹的能力 |\n| `figures/fig2_architecture.png` | Figure 2（Architecture Overview） | Page 3 | 展示 DINO patchify → 特殊 token → Alternating-Attention → 多头输出架构 |\n| `figures/fig3_qualitative.png` | Figure 3（定性对比） | Page 4 | 多视图深度与点云重建的定性对比 |\n| `figures/dpt_fig1_architecture.png` | DPT 论文 Figure 1（三联图） | Page 3（DPT PDF） | 展示 DPT 整体架构 + Reassemble 展开 + Fusion block 内部，支撑正文 §2.4.1 |\n\n> VGGT 三张图均由官方 PDF 按图区坐标完整裁剪，非内嵌碎片。DPT 图同样由 DPT 官方 PDF 第 3 页按图区坐标（含 Left/Center/Right 三联）整体裁剪，400 dpi。",
+              "oldText": "| `figures/fig1_teaser.png` | Figure 1（teaser） | Page 1 | 展示 VGGT 单次前馈同时输出相机/点图/深度/点轨迹的能力 |\n| `figures/fig2_architecture.png` | Figure 2（Architecture Overview） | Page 3 | 展示 DINO patchify → 特殊 token → Alternating-Attention → 多头输出架构 |\n| `figures/fig3_qualitative.png` | Figure 3（定性对比） | Page 4 | 多视图深度与点云重建的定性对比 |\n\n> 三张图均由官方 PDF 按图区坐标完整裁剪，非内嵌碎片。"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources.md",
+              "line": 9
+            },
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources.md",
+              "line": 27
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources.md",
+            "old_string": "| 材料 | 说明 |\n| --- | --- |\n| `sources/paper.pdf` | VGGT 官方论文 PDF（arXiv 2503.11651） |\n| 原始 URL | https://arxiv.org/abs/2503.11651 |\n| 获取日期 | 2026-08-26 |\n| 用途 | 全文精读、关键数据与图源 |\n\n## 关键图来源\n\n| 图片 | 对应论文图 | 页码 | 用途 |\n| --- | --- | --- | --- |\n| `figures/fig1_teaser.png` | Figure 1（teaser） | Page 1 | 展示 VGGT 单次前馈同时输出相机/点图/深度/点轨迹的能力 |\n| `figures/fig2_architecture.png` | Figure 2（Architecture Overview） | Page 3 | 展示 DINO patchify → 特殊 token → Alternating-Attention → 多头输出架构 |\n| `figures/fig3_qualitative.png` | Figure 3（定性对比） | Page 4 | 多视图深度与点云重建的定性对比 |\n\n> 三张图均由官方 PDF 按图区坐标完整裁剪，非内嵌碎片。\n",
+            "new_string": "| 材料 | 说明 |\n| --- | --- |\n| `sources/paper.pdf` | VGGT 官方论文 PDF（arXiv 2503.11651） |\n| 原始 URL | https://arxiv.org/abs/2503.11651 |\n| 获取日期 | 2026-08-26 |\n| 用途 | 全文精读、关键数据与图源 |\n\n## 延伸精读：DPT\n\n为展开正文 §2.4.1 / 第 5 节（dense head 与 DPT 谱系）而补充精读的论文。\n\n| 材料 | 说明 |\n| --- | --- |\n| `sources/dpt_2103.13413.pdf` | DPT 官方论文 PDF《Vision Transformers for Dense Prediction》（Ranftl, Bochkovskiy, Koltun；ICCV 2021） |\n| 原始 URL | https://arxiv.org/abs/2103.13413 |\n| 获取日期 | 2026-08-26 |\n| 用途 | Reassemble / Read 三变体 / Fusion 结构与消融数据（Table 1–9）的一手依据 |\n\n## 关键图来源\n\n| 图片 | 对应论文图 | 页码 | 用途 |\n| --- | --- | --- | --- |\n| `figures/fig1_teaser.png` | Figure 1（teaser） | Page 1 | 展示 VGGT 单次前馈同时输出相机/点图/深度/点轨迹的能力 |\n| `figures/fig2_architecture.png` | Figure 2（Architecture Overview） | Page 3 | 展示 DINO patchify → 特殊 token → Alternating-Attention → 多头输出架构 |\n| `figures/fig3_qualitative.png` | Figure 3（定性对比） | Page 4 | 多视图深度与点云重建的定性对比 |\n| `figures/dpt_fig1_architecture.png` | DPT 论文 Figure 1（三联图） | Page 3（DPT PDF） | 展示 DPT 整体架构 + Reassemble 展开 + Fusion block 内部，支撑正文 §2.4.1 |\n\n> VGGT 三张图均由官方 PDF 按图区坐标完整裁剪，非内嵌碎片。DPT 图同样由 DPT 官方 PDF 第 3 页按图区坐标（含 Left/Center/Right 三联）整体裁剪，400 dpi。\n"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Now let me register DPT in Paper-Index and verify everything."
+        }
+      ],
+      "timestamp": "2026-08-26T15:20:15.289Z"
+    },
+    {
+      "id": "0b3a475a-7450-441e-822b-7cc79ee5c825",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_1dsnKfE9svGsH60u2GsPUh",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; sed -n '150,160p' Paper-Index.md",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\"; sed -n '150,160p' Paper-Index.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:20:32.156Z"
+    },
+    {
+      "id": "790a9516-d303-4010-a60b-2ab1b1b6e639",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_cM3GdkN59MIigCZcofDtVI",
+          "title": "Edit AIReadPaper/Paper-Index.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/Paper-Index.md",
+              "newText": "| 2026-08-26 | DINOv2：无监督学习鲁棒视觉特征 | DINOv2: Learning Robust Visual Features without Supervision | 用大规模精选数据 + 蒸馏 + 判别式自监督，产出无需微调即可通用于分类、分割、深度、检索的通用视觉特征，成为 3D/密集预测任务的骨干特征源。★★★★☆ | [arXiv](https://arxiv.org/abs/2304.07193) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | SAM：分割任意物体 | Segment Anything | 用 10 亿掩码的可提示分割训练范式，实现零样本任意物体分割，是视觉基础模型里程碑，其 encoder 与 prompt 机制被广泛复用于 3D/医学/视频分割。★★★★★ | [arXiv](https://arxiv.org/abs/2304.02643) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | MiDaS：稳健单目深度估计 | Towards Robust Monocular Depth Estimation | 用大规模多源数据集混合训练 + 尺度不变损失，学出跨数据集泛化的相对深度，成为相对深度估计的事实标准基线。★★★★☆ | [arXiv](https://arxiv.org/abs/1907.01341) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | DPT：面向密集预测的视觉 Transformer | Vision Transformers for Dense Prediction | MiDaS 团队把主干从 ResNeXt 换成 ViT 的那一篇，解决「ViT token 分辨率低、密集预测要逐像素」这个结构性落差：Reassemble（Read → Concatenate → Resample）把任意层 token 摆回二维特征图，从四个不同深度抽取（ViT-Large 取 $\\{5,12,18,24\\}$ 层）并配不同分辨率，再用 RefineNet 式 Fusion 逐级 2× 上采样融合。消融要点：readout token 用 project 最优（0.0819）、直接 add 反而比 ignore 更差；「浅层 + 深层」混搭抽取显著优于只取深层。零样本单目深度较 MiDaS 最高降 31.2% 误差，ADE20K 49.02 mIoU、NYUv2 RMSE 0.357、KITTI RMSE 2.573；且推理分辨率外推时衰减远小于卷积网。**从 2021 至今几乎是所有前馈几何模型的默认解码器**（DUSt3R/MASt3R/Depth Anything/VGGT/DA3），谱系详见 VGGT 笔记第 5 节。★★★★★ | [arXiv](https://arxiv.org/abs/2103.13413) | [[VGGT - 前馈式通用三维重建]] |\n| 2026-08-26 | ZoeDepth：相对+度量深度零样本迁移 | Zero-shot Transfer by Combining Relative and Metric Depth | 在预训练相对深度模型上接 metric bins 模块微调，实现零样本度量深度估计，是「相对深度预训练 + 度量深度微调」路线的代表。★★★★☆ | [arXiv](https://arxiv.org/abs/2302.12288) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | Depth Anything：大规模无标注数据的深度估计 | Unleashing the Power of Large-Scale Unlabeled Data | 用 6200 万无标注图像做伪标签自训练，把单目深度推到「基础模型」规模，V2 进一步用合成数据提升细粒度与鲁棒性。★★★★★ | [arXiv](https://arxiv.org/abs/2401.10891) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | Depth Anything V2：更强更鲁棒的单目深度 | Depth Anything V2 | 在 V1 基础上用合成数据 + 更小模型，缓解大模型幻觉与伪标签噪声，在细粒度与鲁棒性上进一步超越 V1。★★★★☆ | [arXiv](https://arxiv.org/abs/2407.25331) | [[视觉基础模块综述 - Survey]] |",
+              "oldText": "| 2026-08-26 | DINOv2：无监督学习鲁棒视觉特征 | DINOv2: Learning Robust Visual Features without Supervision | 用大规模精选数据 + 蒸馏 + 判别式自监督，产出无需微调即可通用于分类、分割、深度、检索的通用视觉特征，成为 3D/密集预测任务的骨干特征源。★★★★☆ | [arXiv](https://arxiv.org/abs/2304.07193) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | SAM：分割任意物体 | Segment Anything | 用 10 亿掩码的可提示分割训练范式，实现零样本任意物体分割，是视觉基础模型里程碑，其 encoder 与 prompt 机制被广泛复用于 3D/医学/视频分割。★★★★★ | [arXiv](https://arxiv.org/abs/2304.02643) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | MiDaS：稳健单目深度估计 | Towards Robust Monocular Depth Estimation | 用大规模多源数据集混合训练 + 尺度不变损失，学出跨数据集泛化的相对深度，成为相对深度估计的事实标准基线。★★★★☆ | [arXiv](https://arxiv.org/abs/1907.01341) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | ZoeDepth：相对+度量深度零样本迁移 | Zero-shot Transfer by Combining Relative and Metric Depth | 在预训练相对深度模型上接 metric bins 模块微调，实现零样本度量深度估计，是「相对深度预训练 + 度量深度微调」路线的代表。★★★★☆ | [arXiv](https://arxiv.org/abs/2302.12288) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | Depth Anything：大规模无标注数据的深度估计 | Unleashing the Power of Large-Scale Unlabeled Data | 用 6200 万无标注图像做伪标签自训练，把单目深度推到「基础模型」规模，V2 进一步用合成数据提升细粒度与鲁棒性。★★★★★ | [arXiv](https://arxiv.org/abs/2401.10891) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | Depth Anything V2：更强更鲁棒的单目深度 | Depth Anything V2 | 在 V1 基础上用合成数据 + 更小模型，缓解大模型幻觉与伪标签噪声，在细粒度与鲁棒性上进一步超越 V1。★★★★☆ | [arXiv](https://arxiv.org/abs/2407.25331) | [[视觉基础模块综述 - Survey]] |"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/Paper-Index.md",
+              "line": 154
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/Paper-Index.md",
+            "old_string": "| 2026-08-26 | MiDaS：稳健单目深度估计 | Towards Robust Monocular Depth Estimation | 用大规模多源数据集混合训练 + 尺度不变损失，学出跨数据集泛化的相对深度，成为相对深度估计的事实标准基线。★★★★☆ | [arXiv](https://arxiv.org/abs/1907.01341) | [[视觉基础模块综述 - Survey]] |",
+            "new_string": "| 2026-08-26 | MiDaS：稳健单目深度估计 | Towards Robust Monocular Depth Estimation | 用大规模多源数据集混合训练 + 尺度不变损失，学出跨数据集泛化的相对深度，成为相对深度估计的事实标准基线。★★★★☆ | [arXiv](https://arxiv.org/abs/1907.01341) | [[视觉基础模块综述 - Survey]] |\n| 2026-08-26 | DPT：面向密集预测的视觉 Transformer | Vision Transformers for Dense Prediction | MiDaS 团队把主干从 ResNeXt 换成 ViT 的那一篇，解决「ViT token 分辨率低、密集预测要逐像素」这个结构性落差：Reassemble（Read → Concatenate → Resample）把任意层 token 摆回二维特征图，从四个不同深度抽取（ViT-Large 取 $\\{5,12,18,24\\}$ 层）并配不同分辨率，再用 RefineNet 式 Fusion 逐级 2× 上采样融合。消融要点：readout token 用 project 最优（0.0819）、直接 add 反而比 ignore 更差；「浅层 + 深层」混搭抽取显著优于只取深层。零样本单目深度较 MiDaS 最高降 31.2% 误差，ADE20K 49.02 mIoU、NYUv2 RMSE 0.357、KITTI RMSE 2.573；且推理分辨率外推时衰减远小于卷积网。**从 2021 至今几乎是所有前馈几何模型的默认解码器**（DUSt3R/MASt3R/Depth Anything/VGGT/DA3），谱系详见 VGGT 笔记第 5 节。★★★★★ | [arXiv](https://arxiv.org/abs/2103.13413) | [[VGGT - 前馈式通用三维重建]] |"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:20:38.655Z"
+    },
+    {
+      "id": "d1306e2a-4f2d-4445-9f43-ffaabc6ab19a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_vuI06TaY547PNCAubMIiiD",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\"; python3 - <<'EOF'\nimport re, os, urllib.parse\nf='AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md'\ns=open(f,encoding='utf-8').read()\nd=os.path.dirname(f)\nfor m in re.finditer(r'!\\[[^\\]]*\\]\\(([^)]+)\\)', s):\n    p=m.group(1)\n    print(('OK  ' if os.path.exists(os.path.join(d,urllib.parse.unquote(p))) else 'MISS'), p)\n# wikilinks\nprint('--- wikilinks ---')\nimport glob\nnames={os.path.splitext(os.path.basename(x))[0] for x in glob.glob('**/*.md',recursive=True)}\nfor m in re.finditer(r'\\[\\[([^\\]|#]+)', s):\n    n=m.group(1).strip()\n    print(('OK  ' if n in names else 'MISS'), n)\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\"; python3 - <<'EOF'\nimport re, os, urllib.parse\nf='AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md'\ns=open(f,encoding='utf-8').read()\nd=os.path.dirname(f)\nfor m in re.finditer(r'!\\[[^\\]]*\\]\\(([^)]+)\\)', s):\n    p=m.group(1)\n    print(('OK  ' if os.path.exists(os.path.join(d,urllib.parse.unquote(p))) else 'MISS'), p)\n# wikilinks\nprint('--- wikilinks ---')\nimport glob\nnames={os.path.splitext(os.path.basename(x))[0] for x in glob.glob('**/*.md',recursive=True)}\nfor m in re.finditer(r'\\[\\[([^\\]|#]+)', s):\n    n=m.group(1).strip()\n    print(('OK  ' if n in names else 'MISS'), n)\nEOF"
+          }
+        },
+        {
+          "type": "text",
+          "text": "All images resolve and all 7 wikilinks point to existing notes. Let me verify the rendered structure."
+        }
+      ],
+      "timestamp": "2026-08-26T15:20:57.036Z"
+    },
+    {
+      "id": "fbf5ee5f-344e-4d79-ade8-4484f1b92a45",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_hojTLmtPUtiTRuRTqY1Kwc",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction\"; grep -n \"^#\\+ \" \"VGGT - 前馈式通用三维重建.md\"; echo \"=== blank line before tables check ===\"; python3 - <<'EOF'\nlines=open(\"VGGT - 前馈式通用三维重建.md\",encoding='utf-8').read().split('\\n')\nbad=[]\nfor i,l in enumerate(lines):\n    if l.startswith('|') and i>0 and lines[i-1].strip() and not lines[i-1].startswith('|'):\n        bad.append((i+1,lines[i-1][:50],l[:50]))\nfor b in bad: print('MISSING BLANK LINE at line',b)\nprint('ok' if not bad else f'{len(bad)} issues')\nEOF",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction\"; grep -n \"^#\\+ \" \"VGGT - 前馈式通用三维重建.md\"; echo \"=== blank line before tables check ===\"; python3 - <<'EOF'\nlines=open(\"VGGT - 前馈式通用三维重建.md\",encoding='utf-8').read().split('\\n')\nbad=[]\nfor i,l in enumerate(lines):\n    if l.startswith('|') and i>0 and lines[i-1].strip() and not lines[i-1].startswith('|'):\n        bad.append((i+1,lines[i-1][:50],l[:50]))\nfor b in bad: print('MISSING BLANK LINE at line',b)\nprint('ok' if not bad else f'{len(bad)} issues')\nEOF"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Done. Structure is clean, all tables have their preceding blank lines, all links resolve.\n\n## 加了什么\n\n**§2.4.1 — DPT 详解**（新，约 60 行）。我把 DPT 论文（arXiv:2103.13413）下载到 `sources/dpt_2103.13413.pdf` 做了全文精读，写的都是一手内容：\n\n- **矛盾的量化**：518px 图 → 约 37×37 token，差 14 倍分辨率，且二维排布已被抹掉\n- **Reassemble 公式**与三步分工表（Read / Concatenate / Resample 的形状变化）\n- **Read 三变体**的完整公式 + 消融数据（project 0.0819 < ignore 0.0822 < **add 0.0831**）。这里有个反直觉点值得记：直接相加比干脆扔掉更差\n- **四层抽取表**（ViT-Base `{3,6,9,12}` / Large `{5,12,18,24}` / Hybrid `{R0,R1,9,12}`），配 Table 6 消融证明「浅+深混搭」是必要的\n- **对输入尺寸鲁棒**这一节，解释了为什么 VGGT 敢把 aspect ratio 在 0.33–1.0 随机化\n- **VGGT 里的 DPT 具体形态**：按论文 §3.3 原文口径，$\\hat t^I_i \\to F_i \\in \\mathbb{R}^{C''\\times H\\times W}$，再各过 3×3 卷积\n\n裁了 DPT 论文 Figure 1 的完整三联图（400 dpi，架构 + Reassemble 展开 + Fusion 内部），已看图确认三个 panel 都完整。\n\n**§2.4.2 — aleatoric uncertainty**（新）。aleatoric/epistemic 对照表 + 从论文抄下来的精确损失式（含梯度项）。\n\n**§5 — DPT 谱系**（新，约 80 行）：上游五个来源 → ASCII 分线图 → 单目深度线 / 多视图几何线两张演化表 → 为什么能活这么久 → 局限与松动迹象。\n\n## 两处发现，需要你确认\n\n**1. 修了原文一个错。** §2.5 原来写「$L_{\\text{camera}}$ 基于预测位姿的投影误差，并用 aleatoric uncertainty 加权」。论文原文是：\n\n> `L_camera = Σ‖ĝᵢ − gᵢ‖_ε`, comparing the predicted cameras with the ground truth using the **Huber loss**\n\n所以是**直接比参数的 Huber 损失，不是投影误差，也不带 uncertainty 加权** —— uncertainty 只用在 depth 和 pmap 两项。我改正了并加了显式提示。§4.3「建议关注点」那句「多任务损失的 uncertainty 加权实现」仍然成立，就没动。\n\n**2. 指出了一个术语陷阱。** 论文把 $\\Sigma$ 叫 \"uncertainty map\"，但它在损失里是**乘**在误差上、且被 $-\\alpha\\log\\Sigma$ 往高处拉 —— 所以 $\\Sigma$ 越大代表越**自信**（扮演的是 precision $\\approx 1/\\sigma$，不是方差）。论文自己后文也说训练后它 \"proportional to the model's confidence\"。名字和数学方向是反的，我在笔记里标出来了，免得以后回看读错符号。\n\n顺带补充：这套机制的血缘在 **DUSt3R 而非 DPT** —— DPT 原论文没有不确定性输出，是 DUSt3R 加的（每像素 4 维：3D 坐标 + confidence）。§5.2 表里注明了。\n\n另外在 `Paper-Index.md` 给 DPT 单独登记了一行（挂在 VGGT 笔记下），`sources.md` 补了延伸精读与新图的来源记录。"
+        }
+      ],
+      "timestamp": "2026-08-26T15:21:09.467Z"
     }
   ],
-  "savedAt": "2026-08-26T03:41:28.600Z"
+  "savedAt": "2026-08-26T15:21:44.639Z"
 }

@@ -29,19 +29,19 @@
 
 如果只记五件事，请记这五件：
 
-1. **动作表示是 VLA 架构的灵魂**：从 RT-2 / OpenVLA 的**离散动作 token**（把连续动作量化成 256 个 bin），到 Octo 的**扩散头**、π0 的 **flow matching**，再到 Qwen-VLA / GR00T N1 的 **DiT + flow matching**，连续动作流已成为默认范式——因为它能表达多模态动作分布、支持长时域动作块（action chunking），并能与高频控制解耦。
-2. **骨干正在"收敛"到通用 VLM**：RT-1 的专用 CNN+Transformer → RT-2 的 PaLI-X 55B → OpenVLA 的 Prismatic-7B → π0 的 PaliGemma → Qwen-VLA 的 Qwen3.5-4B。趋势是"视觉语言底座 + 轻量动作解码头"的分离式设计，而非为每个本体重训一个大模型。
-3. **数据从"稀缺遥操作"走向"无限生成/人类视频"**：真实遥操作数据的规模从 RT-1 的 13 万条，涨到 OXE 的 100 万+（22 本体），再到 AgiBot World 的 100 万+（217 任务）；而 2026 年的前沿已把**世界模型前移为数据引擎**（GigaBrain-0）和**人类视频转化为预训练语料**（VITRA / DreamZero）。
-4. **监督粒度正在被重构**：从 task-level（整条轨迹一个奖励/标签）下钻到 **primitive-level**（PrimitiveVLA 的可复用动作原语），这是数据效率与长程泛化突破的关键，而非简单加数据。
-5. **视觉对齐从"显式"走向"隐式"**：早期靠显式 grounding（检测目标框），如今用**目标区域重建**（ReconVLA）、**训练期 3D 前缀**（GaussianDream）、**未来视频预测**（DreamZero）来做隐式对齐，代价更低、泛化更好。
+1. 动作表示是 VLA 架构的灵魂：从 RT-2 / OpenVLA 的离散动作 token（把连续动作量化成 256 个 bin），到 Octo 的扩散头、π0 的 flow matching，再到 Qwen-VLA / GR00T N1 的 DiT + flow matching，连续动作流已成为默认范式——因为它能表达多模态动作分布、支持长时域动作块（action chunking），并能与高频控制解耦。
+2. 骨干正在"收敛"到通用 VLM：RT-1 的专用 CNN+Transformer → RT-2 的 PaLI-X 55B → OpenVLA 的 Prismatic-7B → π0 的 PaliGemma → Qwen-VLA 的 Qwen3.5-4B。趋势是"视觉语言底座 + 轻量动作解码头"的分离式设计，而非为每个本体重训一个大模型。
+3. 数据从"稀缺遥操作"走向"无限生成/人类视频"：真实遥操作数据的规模从 RT-1 的 13 万条，涨到 OXE 的 100 万+（22 本体），再到 AgiBot World 的 100 万+（217 任务）；而 2026 年的前沿已把世界模型前移为数据引擎（GigaBrain-0）和人类视频转化为预训练语料（VITRA / DreamZero）。
+4. 监督粒度正在被重构：从 task-level（整条轨迹一个奖励/标签）下钻到 primitive-level（PrimitiveVLA 的可复用动作原语），这是数据效率与长程泛化突破的关键，而非简单加数据。
+5. 视觉对齐从"显式"走向"隐式"：早期靠显式 grounding（检测目标框），如今用目标区域重建（ReconVLA）、训练期 3D 前缀（GaussianDream）、未来视频预测（DreamZero）来做隐式对齐，代价更低、泛化更好。
 
 ### 2026 下半年的范式修正与新判断
 
 第 1–4 章基于 7 篇精读论文得出的上述 5 个判断，在 2026 下半年遇到了一波集中修正。下文 6、7、8 是必须更新的判断：
 
-6. **动作表示之争还没结束：连续 flow matching 与"离散扩散"是并行 SOTA**。第 2.1 节认为"连续动作流（flow matching / DiT）是默认范式终点"，但 2026 年下半年出现的 **MMaDA-VLA**（arXiv:2603.25406）证明：把动作**重新离散化**，但用"**离散扩散（masked token 去噪）**"而非"自回归"来生成，同样能达到甚至超过连续流的水平（**LIBERO 98.0% / CALVIN 4.78**），且天然支持"未来目标观测 + 动作块"联合生成，无需外挂世界模型。**这是动作表示的"第二次革命"——不是连续替代离散，而是离散扩散与连续流平分秋色。**
-7. **世界模型从"数据引擎"升级为"统一具身底座（WAM = WM + Action）"**。第 3.3 节把世界模型定位为"数据引擎"（GigaBrain-0），但 2025 年底生数科技 + 清华的 **Motus**（arXiv:2512.13030）已经把"视频生成 + 动作生成 + 语言理解"**统一进一个 Mixture-of-Transformers（MoT）架构**，用 UniDiffuser 调度器在同一模型内支持 VLA / World Model / 视频生成 / 逆动力学 / 视频-动作联合预测五种模式，在 RoboTwin 2.0 取得 87.02% 平均成功率（较 π0.5 提升约 45 个百分点），并首次在具身模型中**画出可预测的 scaling law**——这是"具身智能的 GPT-2 时刻"。这意味着世界模型不再只是"辅助模块"或"数据引擎"，而是要**取代 VLM 成为统一的具身底座**。
-8. **空间与记忆建模成为新的主战场**。前文低估了"视觉空间表征"对 VLA 泛化的决定性作用。**CVPR 2026 冠军奖**论文（arXiv:2512.02902，中大 + X-Era AI Lab）证明：VLA 在新视角任务上的失败，**根因不是"不懂物理"，而是"看到的空间变形了"**——只需用 **FTM（4K 参数）或 FLA（4.7M 参数）**轻量校准视觉空间表征，就能把 LIBERO 新视角成功率从 48.5% 拉到 87.1% / 90.8%，且参数效率比 LoRA 高约 99 倍。**AtlasVLA**（arXiv:2608.06729）则从另一个角度解决"单腕相机 + 长程任务"的双遗忘问题：4D 持久世界状态记忆（体素哈希）+ ego 工作状态记忆，驱动 DiT，**仅用单腕相机即在 LIBERO-Long 提升 9.4%、真实长程提升 17.5%**，超过多视角基线。**这标志着 2026 年 VLA 的主战场已从"换骨干 / 加数据"转向"更聪明的空间与记忆"**。
+6. 动作表示之争还没结束：连续 flow matching 与"离散扩散"是并行 SOTA。第 2.1 节认为"连续动作流（flow matching / DiT）是默认范式终点"，但 2026 年下半年出现的 MMaDA-VLA（arXiv:2603.25406）证明：把动作重新离散化，但用"离散扩散（masked token 去噪）"而非"自回归"来生成，同样能达到甚至超过连续流的水平（LIBERO 98.0% / CALVIN 4.78），且天然支持"未来目标观测 + 动作块"联合生成，无需外挂世界模型。这是动作表示的"第二次革命"——不是连续替代离散，而是离散扩散与连续流平分秋色。
+7. 世界模型从"数据引擎"升级为"统一具身底座（WAM = WM + Action）"。第 3.3 节把世界模型定位为"数据引擎"（GigaBrain-0），但 2025 年底生数科技 + 清华的 Motus（arXiv:2512.13030）已经把"视频生成 + 动作生成 + 语言理解"统一进一个 Mixture-of-Transformers（MoT）架构，用 UniDiffuser 调度器在同一模型内支持 VLA / World Model / 视频生成 / 逆动力学 / 视频-动作联合预测五种模式，在 RoboTwin 2.0 取得 87.02% 平均成功率（较 π0.5 提升约 45 个百分点），并首次在具身模型中画出可预测的 scaling law——这是"具身智能的 GPT-2 时刻"。这意味着世界模型不再只是"辅助模块"或"数据引擎"，而是要取代 VLM 成为统一的具身底座。
+8. 空间与记忆建模成为新的主战场。前文低估了"视觉空间表征"对 VLA 泛化的决定性作用。CVPR 2026 冠军奖论文（arXiv:2512.02902，中大 + X-Era AI Lab）证明：VLA 在新视角任务上的失败，根因不是"不懂物理"，而是"看到的空间变形了"——只需用 FTM（4K 参数）或 FLA（4.7M 参数）轻量校准视觉空间表征，就能把 LIBERO 新视角成功率从 48.5% 拉到 87.1% / 90.8%，且参数效率比 LoRA 高约 99 倍。AtlasVLA（arXiv:2608.06729）则从另一个角度解决"单腕相机 + 长程任务"的双遗忘问题：4D 持久世界状态记忆（体素哈希）+ ego 工作状态记忆，驱动 DiT，仅用单腕相机即在 LIBERO-Long 提升 9.4%、真实长程提升 17.5%，超过多视角基线。这标志着 2026 年 VLA 的主战场已从"换骨干 / 加数据"转向"更聪明的空间与记忆"。
 
 ---
 
@@ -386,46 +386,46 @@ MMaDA-VLA 在两个最严苛的机器人操控基准上同步刷新 SOTA：
 
 #### 7.2.2 Motus：首个统一潜动作世界动作模型
 
-**Motus**（arXiv:2512.13030，生数科技 + 清华，2025.12）是这个新范式最具标志性的早期工作。它把"理解（VLM）/ 视频生成（VGM）/ 动作生成（Action Expert）"三个已有高性能基座，**用 Mixture-of-Transformers（MoT）架构** 拼成一个统一模型，再用 **UniDiffuser-style scheduler** 在五种模式间灵活切换：
+Motus（arXiv:2512.13030，生数科技 + 清华，2025.12）是这个新范式最具标志性的早期工作。它把"理解（VLM）/ 视频生成（VGM）/ 动作生成（Action Expert）"三个已有高性能基座，用 Mixture-of-Transformers（MoT）架构 拼成一个统一模型，再用 UniDiffuser-style scheduler 在五种模式间灵活切换：
 
-| 模式 | 作用 | 推理含义 |
-|---|---|---|
-| World Model | 给定历史观测 + 动作，预测未来视频 | "做完会怎样" |
-| Vision-Language-Action (VLA) | 给定当前观测 + 指令，输出动作 | "现在该做什么" |
-| Inverse Dynamics Model (IDM) | 给定前后两帧，推断动作 | "这两帧之间发生了什么" |
-| Video Generation Model (VGM) | 纯视频生成 | "想象可能的未来" |
-| Video-Action Joint Prediction | 同时预测未来视频 + 动作 | "看一步、动一步" |
+| 模式                            | 作用                 | 推理含义         |
+| ----------------------------- | ------------------ | ------------ |
+| World Model                   | 给定历史观测 + 动作，预测未来视频 | "做完会怎样"      |
+| Vision-Language-Action (VLA)  | 给定当前观测 + 指令，输出动作   | "现在该做什么"     |
+| Inverse Dynamics Model (IDM)  | 给定前后两帧，推断动作        | "这两帧之间发生了什么" |
+| Video Generation Model (VGM)  | 纯视频生成              | "想象可能的未来"    |
+| Video-Action Joint Prediction | 同时预测未来视频 + 动作      | "看一步、动一步"    |
 
 架构上有三个关键设计：
 
-1. **Tri-model Joint Attention（中间桥接）**：Transformer 层的中间 50% 层做"视频 + 动作"联合注意力（称为 **H-Bridge**），实现跨模态语义对齐；底部与顶部各 25% 层解耦，分别处理模态内特征。这样既维持了模态内表征能力，又显著降低了密集跨模态注意力的计算开销。
-2. **Latent Action VAE（基于光流的潜动作）**：从无标签互联网视频和人类视频中用光流（DPFlow）提取"潜动作"（latent action）$z_t$，再用 VAE 压缩——这样模型可以在**没有真实动作标签**的互联网视频上预训练"动作先验"，极大扩展了可用数据。
-3. **三阶段训练 + 六层数据金字塔**：
-   - **Stage 1（VGM 训练）**：仅训视频分支，使用 Level 1–3 数据（互联网视频、自我中心视频、合成数据）；
-   - **Stage 2（Motus 预训练）**：冻结视频分支，训动作分支 + 联合注意力，使用 Level 2–5 数据；
-   - **Stage 3（Motus SFT）**：全模型微调，使用 Level 6（目标机器人轨迹）。
+1. Tri-model Joint Attention（中间桥接）：Transformer 层的中间 50% 层做"视频 + 动作"联合注意力（称为 H-Bridge），实现跨模态语义对齐；底部与顶部各 25% 层解耦，分别处理模态内特征。这样既维持了模态内表征能力，又显著降低了密集跨模态注意力的计算开销。
+2. Latent Action VAE（基于光流的潜动作）：从无标签互联网视频和人类视频中用光流（DPFlow）提取"潜动作"（latent action）$z_t$，再用 VAE 压缩——这样模型可以在没有真实动作标签的互联网视频上预训练"动作先验"，极大扩展了可用数据。
+3. 三阶段训练 + 六层数据金字塔：
+   - Stage 1（VGM 训练）：仅训视频分支，使用 Level 1–3 数据（互联网视频、自我中心视频、合成数据）；
+   - Stage 2（Motus 预训练）：冻结视频分支，训动作分支 + 联合注意力，使用 Level 2–5 数据；
+   - Stage 3（Motus SFT）：全模型微调，使用 Level 6（目标机器人轨迹）。
 
 六层数据金字塔从 Level 1（互联网视频）到 Level 6（目标机器人轨迹），任务相关性与数据质量逐级提升。
 
-![Motus 的 MoT 统一架构](assets/VLA%20模型架构与数据演化%20-%20Survey/figures/09-motus-architecture.png)
+![Motus 的 MoT 统一架构|920](assets/VLA%20模型架构与数据演化%20-%20Survey/figures/09-motus-architecture.png)
 
 *图 7.2 · Motus 的三专家 MoT 架构：Video Gen. Model + Action Expert + Und. Expert 通过 Tri-model Joint Attention（中间 H-Bridge 桥接）协作，输出未来视频 + 动作（来源：Motus 论文 Fig.1 Motus Architecture）。*
 
 #### 7.2.3 关键结果与意义
 
-Motus 的实验给出了两个**颠覆性信号**：
+Motus 的实验给出了两个颠覆性信号：
 
-- **RoboTwin 2.0 50 任务平均 87.02%**：单模型在 50 项双臂操作任务上比 π0.5 提升约 **+45 个百分点**，比 X-VLA 提升 +15 个百分点。
-- **首次画出具身模型的 scaling law**：随着训练任务数和数据量增加，平均成功率持续提升，且**扩展趋势显著优于传统 VLA 基线**——这是"具身智能的 GPT-2 时刻"，第一次实证证明具身模型遵循可预测的 scaling law。
+- RoboTwin 2.0 50 任务平均 87.02%：单模型在 50 项双臂操作任务上比 π0.5 提升约 +45 个百分点，比 X-VLA 提升 +15 个百分点。
+- 首次画出具身模型的 scaling law：随着训练任务数和数据量增加，平均成功率持续提升，且扩展趋势显著优于传统 VLA 基线——这是"具身智能的 GPT-2 时刻"，第一次实证证明具身模型遵循可预测的 scaling law。
 
 与之并行的还有几条相关工作（也常被归为 WAM 路线）：
 
-- **MotuBrain**（arXiv:2604.27792，2026.4）：Motus 的后续工业版，在 RoboTwin 2.0 clean 95.8% / randomized 96.1%，配合系统化加速栈实现 **54.4× 端到端加速**（4.90s → 0.09s），推理频率 11 Hz，首次让大规模 WAM 实时具身部署成为可能。
-- **WorldVLA**（阿里）：把 VLA 和世界模型放进单一自回归框架，用 attention mask 缓解误差传播。
-- **Cosmos Policy**（NVIDIA）：基于 Cosmos 世界基础模型的视频扩散 + 动作联合去噪（co-diffusion），用 Latent Frame 把动作注入视频序列。
-- **DreamVLA**、**GEVRM**、**Seer**：把世界模型生成数据与 VLA 联合训练，证明 WAM 路线在 LIBERO / CALVIN 等基准上的有效性。
+- MotuBrain（arXiv:2604.27792，2026.4）：Motus 的后续工业版，在 RoboTwin 2.0 clean 95.8% / randomized 96.1%，配合系统化加速栈实现 54.4× 端到端加速（4.90s → 0.09s），推理频率 11 Hz，首次让大规模 WAM 实时具身部署成为可能。
+- WorldVLA（阿里）：把 VLA 和世界模型放进单一自回归框架，用 attention mask 缓解误差传播。
+- Cosmos Policy（NVIDIA）：基于 Cosmos 世界基础模型的视频扩散 + 动作联合去噪（co-diffusion），用 Latent Frame 把动作注入视频序列。
+- DreamVLA、GEVRM、Seer：把世界模型生成数据与 VLA 联合训练，证明 WAM 路线在 LIBERO / CALVIN 等基准上的有效性。
 
-**与第 3.3 节结论的对话**：前文说"世界模型是数据引擎"，这个判断在 2026 年初成立，但到 2026 年下半年已经**被自己升级了**——世界模型现在同时是**数据引擎**（生成训练数据）和**统一底座**（取代 VLM 成为模型主体）。**这是 VLA 范式最深刻的一次重构：从"VLM + 动作头"走向"WAM = 视频 + 动作 + 理解的统一生成模型"。**
+与第 3.3 节结论的对话：前文说"世界模型是数据引擎"，这个判断在 2026 年初成立，但到 2026 年下半年已经被自己升级了——世界模型现在同时是数据引擎（生成训练数据）和统一底座（取代 VLM 成为模型主体）。这是 VLA 范式最深刻的一次重构：从"VLM + 动作头"走向"WAM = 视频 + 动作 + 理解的统一生成模型"。
 
 ### 7.3 空间与记忆建模：被低估的新主战场
 
@@ -456,7 +456,7 @@ Motus 的实验给出了两个**颠覆性信号**：
 2. **ego 工作状态记忆（Ego-Working State Memory）**：跟踪历史 ego 状态与任务进度（"我现在做到哪一步了"），通过 Ego-Working Consolidation + Time Positional Embedding 维护一个 ego memory bank。这解决**进度遗忘**（多步执行中不会忘记前几步做了什么）。
 3. **World-Ego-Guided Action DiT（×L 层）**：把两个记忆 bank 分别通过 Ego-Guided / World-Guided Retrieval 取出上下文，作为 DiT 的 Key-Value 输入，生成动作。
 
-![AtlasVLA 的 4D 持久世界-ego 双记忆架构](assets/VLA%20模型架构与数据演化%20-%20Survey/figures/10-atlasvla-method.png)
+![AtlasVLA 的 4D 持久世界-ego 双记忆架构|1055](assets/VLA%20模型架构与数据演化%20-%20Survey/figures/10-atlasvla-method.png)
 
 *图 7.4 · AtlasVLA 的双记忆驱动 DiT：Persistent Wrist Observation → Instantaneous World State Construction → 4D Persistent World State Memory + Ego-Working State Memory → 驱动 World-Ego-Guided Action DiT 生成动作（来源：AtlasVLA 论文 method 图）。*
 
@@ -602,12 +602,12 @@ N1.7 的「EgoScale」与 VITRA（前文 3.4）殊途同归——都试图把海
 
 这条线横跨多个机构，但沿一条清晰的主轴——**世界模型在 VLA 里的角色不断「升格」**：
 
-| 时间 | 工作 | 世界模型的角色 |
-|---|---|---|
-| 2026 | **GigaBrain-0**（前文 3.3） | **数据引擎**：五种方式为 VLA 生成训练数据 |
-| 2026 | **DreamZero**（前文 3.4） | **动作策略本体**：视频扩散联合预测「未来视频 + 动作」 |
-| 2025.12 | **Motus**（前文 7.2） | **统一具身底座**：MoT 架构统一 VLA / WM / VGM / IDM / 联合预测 |
-| 2026.4 | **MotuBrain** | Motus 的工业版，RoboTwin 2.0 clean 95.8%，54.4× 加速，11 Hz 实时部署 |
+| 时间      | 工作                      | 世界模型的角色                                                 |
+| ------- | ----------------------- | ------------------------------------------------------- |
+| 2026    | **GigaBrain-0**（前文 3.3） | **数据引擎**：五种方式为 VLA 生成训练数据                               |
+| 2026    | **DreamZero**（前文 3.4）   | **动作策略本体**：视频扩散联合预测「未来视频 + 动作」                          |
+| 2025.12 | **Motus**（前文 7.2）       | **统一具身底座**：MoT 架构统一 VLA / WM / VGM / IDM / 联合预测         |
+| 2026.4  | **MotuBrain**           | Motus 的工业版，RoboTwin 2.0 clean 95.8%，54.4× 加速，11 Hz 实时部署 |
 
 GigaBrain-0（数据引擎）→ DreamZero（策略本体）→ Motus（统一底座）→ MotuBrain（工业落地），这四步恰好是**世界模型在 VLA 中「由辅入主」的完整升格路径**。前文第 7.2 节把 Motus 作为孤立的新范式来讲，但放进系列后会发现：它是 WAM 路线从「工具」变「本体」的临界点，而非孤例。
 

@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
   "title": "为什么不除以之后，softmax会落到饱和区呢？梯度为什么趋于0",
   "createdAt": "2026-08-25T12:53:37.803Z",
-  "updatedAt": "2026-08-26T03:22:39.332Z",
+  "updatedAt": "2026-08-26T15:16:35.829Z",
   "messages": [
     {
       "id": "2899771c-0359-4087-a7a4-a8db7a886a6a",
@@ -16996,7 +16996,574 @@
         }
       ],
       "timestamp": "2026-08-26T03:57:35.106Z"
+    },
+    {
+      "id": "c958a573-6172-4d1c-9d01-0d977715a486",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "VGGT的depth head 的结果是什么呢",
+          "autoMentionContext": {
+            "noteName": "VGGT - 前馈式通用三维重建",
+            "notePath": "AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:13:09.443Z"
+    },
+    {
+      "id": "05a8ecfd-b047-4b87-9867-e454a8a3d346",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_3AoSMFOGQ18hcEcXuT1SX1",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "这个笔记里 depth head 的描述比较简略（而且有一处我想核实），本地有 PDF，我直接查原文。"
+        }
+      ],
+      "timestamp": "2026-08-26T15:13:20.154Z"
+    },
+    {
+      "id": "4ea011d8-3c3e-453a-880b-971be71a553c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_iQXw5HsY9DqVgZe1gU1WqC",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction\"; ls -la \"assets/VGGT - 前馈式通用三维重建/sources/\" 2>/dev/null; echo \"---\"; command -v pdftotext",
+          "status": "failed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction\"; ls -la \"assets/VGGT - 前馈式通用三维重建/sources/\" 2>/dev/null; echo \"---\"; command -v pdftotext",
+            "description": "Check for local VGGT PDF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:13:42.618Z"
+    },
+    {
+      "id": "e65f3701-5ab9-4798-a27c-5c7073deaf64",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_NlSVJtxTQn7HkAGYfWmSWT",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 -c \"\nimport zlib,re,sys\nd=open('paper.pdf','rb').read()\nout=[]\nfor m in re.finditer(rb'stream\\r?\\n(.*?)endstream',d,re.S):\n    try: out.append(zlib.decompress(m.group(1)))\n    except Exception: pass\nt=b'\\n'.join(out)\ntxt=re.sub(rb'\\s+',b' ',t)\n# extract text-showing operators\nchunks=re.findall(rb'\\((?:[^()\\\\\\\\]|\\\\\\\\.)*\\)',txt)\ns=b''.join(c[1:-1] for c in chunks)\ns=s.replace(b'\\\\\\\\(',b'(').replace(b'\\\\\\\\)',b')')\nopen('/tmp/vggt.txt','wb').write(s)\nprint('chars:',len(s))\n\" 2>&1 | tail -3",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/assets/VGGT - 前馈式通用三维重建/sources\"; python3 -c \"\nimport zlib,re,sys\nd=open('paper.pdf','rb').read()\nout=[]\nfor m in re.finditer(rb'stream\\r?\\n(.*?)endstream',d,re.S):\n    try: out.append(zlib.decompress(m.group(1)))\n    except Exception: pass\nt=b'\\n'.join(out)\ntxt=re.sub(rb'\\s+',b' ',t)\n# extract text-showing operators\nchunks=re.findall(rb'\\((?:[^()\\\\\\\\]|\\\\\\\\.)*\\)',txt)\ns=b''.join(c[1:-1] for c in chunks)\ns=s.replace(b'\\\\\\\\(',b'(').replace(b'\\\\\\\\)',b')')\nopen('/tmp/vggt.txt','wb').write(s)\nprint('chars:',len(s))\n\" 2>&1 | tail -3",
+            "description": "Extract text from VGGT PDF"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:13:58.177Z"
+    },
+    {
+      "id": "50147da6-162c-4617-a470-2ce9535bfcbb",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_zpDUoEffIFfpKAxunSELXp",
+          "title": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\n# find depth-related discussion\nfor kw in ['depth map','Depth map','DPT','dense prediction']:\n    for m in re.finditer(re.escape(kw), s):\n        seg = s[max(0,m.start()-300):m.start()+400]\n        if 'head' in seg or 'D i' in seg or 'sigma' in seg:\n            print(\"=== \", kw, \" ===\")\n            print(seg.replace('\\r',' '))\n            print()\n            break\nPY",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\n# find depth-related discussion\nfor kw in ['depth map','Depth map','DPT','dense prediction']:\n    for m in re.finditer(re.escape(kw), s):\n        seg = s[max(0,m.start()-300):m.start()+400]\n        if 'head' in seg or 'D i' in seg or 'sigma' in seg:\n            print(\"=== \", kw, \" ===\")\n            print(seg.replace('\\r',' '))\n            print()\n            break\nPY",
+            "description": "Search extracted text for depth head details"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:14:27.719Z"
+    },
+    {
+      "id": "b5942336-d28a-4a8a-a977-ac2a099bec7e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_gLE7I2lVIqafm60e5WR5OQ",
+          "title": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\ni=s.find('3.MethodWeintroduceVGGT')\nseg=s[i:i+4200]\nprint(seg)\nPY",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\ni=s.find('3.MethodWeintroduceVGGT')\nseg=s[i:i+4200]\nprint(seg)\nPY",
+            "description": "Read VGGT method section on outputs"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:14:41.677Z"
+    },
+    {
+      "id": "f39b1813-63c3-4eae-af4f-e33af09fdd50",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_CvrHTWLKHm6GwTzKPoVGvL",
+          "title": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\ni=s.find('3.3.PredictionheadsWe')\nif i<0: i=s.find('Predictionheads')\nprint(s[i:i+3600])\nPY",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\ni=s.find('3.3.PredictionheadsWe')\nif i<0: i=s.find('Predictionheads')\nprint(s[i:i+3600])\nPY",
+            "description": "Read prediction heads section"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:14:57.293Z"
+    },
+    {
+      "id": "22b4bdf2-c15f-4ac9-bbe6-57efb7be69ff",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_pHp5reIuXFu7Qp31j7fI44",
+          "title": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\nfor kw in ['CoordinateFrame','Dense','dense pred','aleatoric','uncertaint']:\n    for m in re.finditer(kw, s):\n        seg=s[m.start()-200:m.start()+1500]\n        if 'depth' in seg.lower():\n            print(\"###\",kw); print(seg); print(\"\\n\"+\"=\"*70+\"\\n\"); break\nPY",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\nfor kw in ['CoordinateFrame','Dense','dense pred','aleatoric','uncertaint']:\n    for m in re.finditer(kw, s):\n        seg=s[m.start()-200:m.start()+1500]\n        if 'depth' in seg.lower():\n            print(\"###\",kw); print(seg); print(\"\\n\"+\"=\"*70+\"\\n\"); break\nPY",
+            "description": "Find dense prediction and uncertainty details"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Found the exact passage. Let me also check the depth loss definition, since the note describes it as \"scale-invariant log depth\" and I want to verify that."
+        }
+      ],
+      "timestamp": "2026-08-26T15:15:12.452Z"
+    },
+    {
+      "id": "ff65c358-315c-4913-8dd7-93135d124693",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_UFp3SCsO2SP2kAQGoUyORh",
+          "title": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\ni=s.find('Ldepth')\nif i<0: i=s.find('depthloss')\nif i<0:\n    m=re.search(r'3\\.4\\.Training', s); i=m.start() if m else 0\nprint(s[i-1500:i+2600])\nPY",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\ni=s.find('Ldepth')\nif i<0: i=s.find('depthloss')\nif i<0:\n    m=re.search(r'3\\.4\\.Training', s); i=m.start() if m else 0\nprint(s[i-1500:i+2600])\nPY",
+            "description": "Read depth loss definition"
+          }
+        },
+        {
+          "type": "text",
+          "text": "找到原文了，有几处和笔记里写的不一样。先直接回答。\n\n## 严格说，VGGT 没有独立的 \"depth head\"\n\n论文只有**两个头**：camera head 和**一个 DPT head 负责所有稠密输出**。原文图 2 说明写得很清楚：\n\n> A camera head makes the final prediction for camera extrinsics and intrinsics, and a **DPT head for any dense output**.\n\n深度只是这个 DPT head 的一路分支。具体链路是：\n\n1. 输出的图像 token $\\hat{t}_{I_i}$ 先经 **DPT 层**转成稠密特征图 $F_i \\in \\mathbb{R}^{C''\\times H\\times W}$；\n2. 每个 $F_i$ 再经**一个 3×3 卷积层**映射成深度图 $D_i$ **和**点图 $P_i$；\n3. 同一个 DPT head 另外输出稠密跟踪特征 $T_i \\in \\mathbb{R}^{C\\times H\\times W}$，喂给 CoTracker2 模块。\n\n## depth head 的输出具体是什么\n\n**两样东西**：\n\n| 输出 | 形状 | 含义 |\n|---|---|---|\n| 深度图 $D_i$ | $\\mathbb{R}^{H\\times W}$ | 每个像素 $y$ 一个深度值 $D_i(y)\\in\\mathbb{R}^+$，**从第 $i$ 个相机观察到的** |\n| 不确定性图 $\\Sigma^D_i$ | $\\mathbb{R}^{H\\times W}_+$ | aleatoric uncertainty，训练时进损失，训练后正比于模型置信度 |\n\n**一个关键区别，笔记里没提**：深度图是**每相机自身视角下**的（$D_i(y)$ 是从相机 $i$ 看过去的深度），而**点图 $P_i$ 是视点不变的**——像 DUSt3R 那样定义在**第一个相机 $g_1$ 的坐标系**里（作为世界参考系）。所以 depth 和 point map 不是同一个量的两种写法，它们的参考系不同。\n\n尺度歧义不是靠\"尺度不变损失\"消除的，而是靠**GT 坐标归一化**：先把所有量表达到 $g_1$ 坐标系，再用点图中所有 3D 点到原点的**平均欧氏距离**去归一化相机平移 $t$、点图 $P$ 和深度图 $D$。而且有个和 DUSt3R 不同的重要选择：\n\n> unlike [DUSt3R], we do **not** apply such normalization to the predictions output by the transformer; instead, we **force it to learn** the normalization we choose from the training data.\n\n## 笔记里有两处需要改\n\n**1. $L_{\\text{depth}}$ 不是\"尺度不变的对数深度\"。** 实际是不确定性加权的 L1 **加上一个梯度项**：\n\n$$L_{\\text{depth}}=\\sum_{i=1}^{N}\\Big\\|\\Sigma^{D}_i\\odot(\\hat D_i - D_i)\\Big\\| + \\Big\\|\\Sigma^{D}_i\\odot(\\nabla\\hat D_i - \\nabla D_i)\\Big\\| - \\alpha\\log\\Sigma^{D}_i$$\n\n$\\odot$ 是通道广播的逐元素乘。论文明说这个损失 follow DUSt3R 的 aleatoric-uncertainty 损失，但**与 DUSt3R 不同的是额外加了梯度项**（单目深度估计里常用的做法）。没有 log 深度，也没有尺度不变项。$L_{\\text{pmap}}$ 形式完全类似，只是换成 $\\Sigma^P_i$。\n\n**2. camera loss 写反了。** 笔记说\"基于预测位姿的投影误差，并用 aleatoric uncertainty 加权\"，但原文是直接在参数上做 **Huber 损失**：\n\n$$L_{\\text{camera}}=\\sum_{i=1}^{N}\\|\\hat g_i - g_i\\|_\\epsilon$$\n\n**不确定性加权只用在 depth 和 pmap 两项上，camera 项没有**。另外论文特别说 camera / depth / pmap 三项量级相近，**不需要互相加权**，只有 track 项降权到 $\\lambda=0.05$（这条笔记是对的）。\n\n---\n\n需要我把这几处（DPT 单头结构、depth 与 point map 的参考系差异、两个损失公式、GT 坐标归一化）改进 [[VGGT - 前馈式通用三维重建]] 的 §2.4 和 §2.5 吗？\n\n另外你如果问的是**数值结果**（DTU 0.382 / ETH3D 0.677 那些），我可以再回原文核一遍那张多视图深度表——笔记里\"ETH3D 0.709(point head) vs 0.677(depth+cam)\"这个对比值得确认一下，因为它恰好说明\"用 depth head + 相机反投影\"比\"直接用 point head\"更准，这是个有意思的点。"
+        }
+      ],
+      "timestamp": "2026-08-26T15:15:34.940Z"
+    },
+    {
+      "id": "5b8ca905-7c13-4540-8e3e-f88af0bccac0",
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "加到笔记里面吧"
+        }
+      ],
+      "timestamp": "2026-08-26T15:21:03.945Z"
+    },
+    {
+      "id": "65162b58-f571-48cc-adb0-45bba375fa16",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_PnWFBZRQ4liesS0PvMlAOm",
+          "title": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\nfor kw in ['ETH3D','DTU','Multi-viewDepth','point map from','unproject']:\n    for m in re.finditer(kw,s):\n        seg=s[max(0,m.start()-700):m.start()+900]\n        if 'Acc' in seg or 'Comp' in seg or 'Overall' in seg or 'unproj' in seg.lower():\n            print(\"###\",kw); print(seg[:1700]); print(\"\\n\"+\"=\"*70+\"\\n\"); break\nPY",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /tmp; python3 - <<'PY'\nimport re\ns=open('vggt.txt','rb').read().decode('latin-1')\nfor kw in ['ETH3D','DTU','Multi-viewDepth','point map from','unproject']:\n    for m in re.finditer(kw,s):\n        seg=s[max(0,m.start()-700):m.start()+900]\n        if 'Acc' in seg or 'Comp' in seg or 'Overall' in seg or 'unproj' in seg.lower():\n            print(\"###\",kw); print(seg[:1700]); print(\"\\n\"+\"=\"*70+\"\\n\"); break\nPY",
+            "description": "Find depth vs point map evaluation details"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Confirmed the ETH3D numbers, including the paper's own explanation for why depth+cam beats the point head. Now editing the note."
+        }
+      ],
+      "timestamp": "2026-08-26T15:21:09.424Z"
+    },
+    {
+      "id": "20a7b627-cd80-4b4b-a7f6-f67359bd5fbc",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_ENRb68TQuDrgRG4m3cEHyr",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "failed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "newText": "### 2.4 多任务输出头\n\n最终做的事情是在聚合后的Token上开出多个输出分支。比如输出Camera参数，包括Rotation、Translation等位姿信息；输出Depth；输出Tracks；以及其他各种几何相关的表征。\n\n需要先澄清一点常见误解：**VGGT 并没有一个独立的 \"depth head\"**。论文只有**两个头**，图 2 的说明写得很明确——\"A camera head makes the final prediction for camera extrinsics and intrinsics, and a **DPT head for any dense output**\"。深度只是这个 DPT head 的一路输出分支：\n\n| 输出头 | 结构 | 输出 |\n| ----------------------------- | --------------------------- | -------------------------------------------------------- |\n| **camera head** | 4 层 self-attention + linear | 对每帧回归相机参数 $g_i = [q, t, f]$：四元数旋转 $q\\in\\mathbb{R}^4$ + 平移 $t\\in\\mathbb{R}^3$ + 视场角 $f\\in\\mathbb{R}^2$（假设主点在图像中心） |\n| **DPT head（唯一的稠密头）** | DPT 层 → 3×3 卷积 | 深度图 $D_i$、点图 $P_i$、各自的 aleatoric uncertainty $\\Sigma^D_i$/$\\Sigma^P_i$，以及跟踪特征 $T_i$ |\n| **tracking head（CoTracker2）** | 基于 CoTracker2，独立模块 | 消费 DPT 输出的 $T_i$，产出跨帧 2D 轨迹 |\n\n**稠密预测的确切链路**（原文 §3.3 DensePredictions）：\n\n1. 输出图像 token $\\hat{t}_{I_i}$ 先经 **DPT 层**转成稠密特征图 $F_i \\in \\mathbb{R}^{C''\\times H\\times W}$；\n2. 每个 $F_i$ 再经**一个 3×3 卷积层**映射成深度图 $D_i$ **与**点图 $P_i$；\n3. 同一个 DPT head 另外输出稠密跟踪特征 $T_i \\in \\mathbb{R}^{C\\times H\\times W}$，作为 tracking 模块的输入。\n\n**depth 分支输出的两样东西：**\n\n| 输出 | 形状 | 含义 |\n|---|---|---|\n| 深度图 $D_i$ | $\\mathbb{R}^{H\\times W}$ | 每像素 $y$ 一个深度值 $D_i(y)\\in\\mathbb{R}^+$，**从第 $i$ 个相机自身观察到的** |\n| 不确定性图 $\\Sigma^D_i$ | $\\mathbb{R}^{H\\times W}_+$ | aleatoric uncertainty；训练时进损失，训练后正比于模型对该像素的置信度 |\n\n**一个关键区别：depth 与 point map 的参考系不同。** 深度图 $D_i$ 是**每相机自身视角下**的量；而点图 $P_i$ 是**视点不变的**——沿用 DUSt3R 的约定，$P_i(y)\\in\\mathbb{R}^3$ 定义在**第一个相机 $g_1$ 的坐标系**里（$g_1$ 被取作世界参考系，故第一帧外参被固定为单位变换：$q_1=[0,0,0,1]$、$t_1=[0,0,0]$）。所以这两者不是同一个量的两种写法。\n\n也正因为如此，论文明确指出这些输出是**过完备（over-complete）**的——彼此并不独立，例如相机参数 $g$ 本可由视点不变的点图 $P$ 通过解 PnP 得到。但冗余预测反而带来收益，见 §3.2 的 ETH3D 对比。\n\n![图2](assets/VGGT%20-%20前馈式通用三维重建/figures/fig2_architecture.png)\n\n*图：Figure 2 — VGGT 架构总览（Architecture Overview）。输入图像经 DINO patchify 后追加 camera token 与 register token，进入 24 层 Alternating-Attention 主干；主干之上挂 camera head 与 DPT head，后者一并产出点图、深度图与跟踪特征，轨迹由独立的 CoTracker2 模块从跟踪特征算出。*\n\n关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。另外注意 register token 的输出 $\\hat{t}_{R_i}$ 在预测时被**丢弃**，只有 $\\hat{t}_{I_i}$ 与 $\\hat{t}_{g_i}$ 参与预测；第一帧的 camera/register token 用的是**另一组可学习参数**，以便 Transformer 识别出参考帧——网络因此对除第一帧外的所有帧是置换等变的。\n\n### 2.5 训练目标与配置\n\n**多任务损失**（各损失项加权求和）：\n\n$$\nL = L_{\\text{camera}} + L_{\\text{depth}} + L_{\\text{pmap}} + 0.05 \\cdot L_{\\text{track}}\n$$\n\n论文特别说明：camera、depth、pmap 三项**量级相近，不需要互相加权**；只有 track 项降权到 $\\lambda=0.05$。\n\n- $L_{\\text{camera}}$：直接在**相机参数**上做 **Huber 损失** $L_{\\text{camera}}=\\sum_{i=1}^{N}\\|\\hat g_i - g_i\\|_\\epsilon$。注意它**不带**不确定性加权——加权只用在 depth 与 pmap 两项上。\n- $L_{\\text{depth}}$：沿用 DUSt3R 的 aleatoric-uncertainty 损失，用预测的不确定性图 $\\Sigma^D_i$ 给残差加权，**但与 DUSt3R 不同的是额外加了一个梯度项**（单目深度估计里的常用做法）：\n\n$$\nL_{\\text{depth}}=\\sum_{i=1}^{N}\\Big\\|\\Sigma^{D}_i\\odot(\\hat D_i - D_i)\\Big\\| + \\Big\\|\\Sigma^{D}_i\\odot(\\nabla\\hat D_i - \\nabla D_i)\\Big\\| - \\alpha\\log\\Sigma^{D}_i\n$$\n\n其中 $\\odot$ 是通道广播的逐元素乘。**这里没有对数深度、也没有尺度不变项**——尺度歧义是靠下面的 GT 坐标归一化消除的，不是靠损失形式。\n\n- $L_{\\text{pmap}}$：形式与 $L_{\\text{depth}}$ 完全类似，只是换用点图的不确定性 $\\Sigma^P_i$。\n- $L_{\\text{track}}$：$L_{\\text{track}}=\\sum_{j}\\sum_{i}\\|y_{j,i}-\\hat y_{j,i}\\|$，权重 0.05；另外沿用 CoTracker2 加了一个可见性损失（二元交叉熵），判断某点在某帧是否可见。\n\n**GT 坐标归一化（尺度歧义在这里被消除）**：缩放场景或改变全局参考系都不影响图像，因此是重建的合法歧义。做法是先把所有量表达到第一个相机 $g_1$ 的坐标系，再计算点图 $P$ 中所有 3D 点到原点的**平均欧氏距离**，用这个尺度去归一化相机平移 $t$、点图 $P$ 与深度图 $D$。\n\n这里有一个与 DUSt3R 不同的重要选择，原文写得很直白：\n\n> unlike [DUSt3R], we do **not** apply such normalization to the predictions output by the transformer; instead, we **force it to learn** the normalization we choose from the training data.\n\n即**不对网络输出做归一化后处理，而是逼网络自己从数据里学会这个归一化**。\n\n**训练配置**：\n\n| 配置项  | 细节                              |\n| ---- | ------------------------------- |\n| 参数规模 | 约 **1.2B**（1215M）               |\n| 训练数据 | 大规模 3D 标注数据混合（含 SfM 重建数据、合成数据等） |\n| 帧数   | 每次随机采 2–24 帧                     |\n| 分辨率  | 518px                           |\n| 优化器  | AdamW，峰值 lr 2e-4，cosine 调度，8K 步 warmup |\n| 层数   | $L=24$ 层 global + frame-wise 交替 |\n| 训练规模 | 160K iterations，64×A100，约 9 天   |",
+              "oldText": "### 2.4 多任务输出头\n\n最终做的事情是在聚合后的Token上开出多个输出分支。比如输出Camera参数，包括Rotation、Translation等位姿信息；输出Depth；输出Tracks；以及其他各种几何相关的表征。\n\n主干之上并行挂三个输出头，共享同一个 backbone 表征：\n\n| 输出头                           | 结构                          | 输出                                                       |\n| ----------------------------- | --------------------------- | -------------------------------------------------------- |\n| **camera head**               | 4 层 self-attention + linear | 对每帧回归相机参数 $g_i = [q, t, f]$：四元数旋转 $q$ + 平移 $t$ + 视场角 $f$ |\n| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图，以及每个像素对应的 aleatoric uncertainty（不确定性）       |\n| **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |\n\n![图2](assets/VGGT%20-%20前馈式通用三维重建/figures/fig2_architecture.png)\n\n*图：Figure 2 — VGGT 架构总览（Architecture Overview）。输入图像经 DINO patchify 后追加 camera token 与 register token，进入 24 层 Alternating-Attention 主干；主干之上并行挂 camera head、dense head 与 tracking head，分别预测相机、点图/深度与点轨迹。*\n\n关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。\n\n### 2.5 训练目标与配置\n\n**多任务损失**（各损失项加权求和）：\n\n$$\nL = L_{\\text{camera}} + L_{\\text{depth}} + L_{\\text{pmap}} + 0.05 \\cdot L_{\\text{track}}\n$$\n\n- $L_{\\text{camera}}$：相机损失，基于预测位姿的投影误差，并用 aleatoric uncertainty 加权。\n- $L_{\\text{depth}}$：深度损失（尺度不变的对数深度）。\n- $L_{\\text{pmap}}$：点图损失（归一化的 L1）。\n- $L_{\\text{track}}$：点跟踪损失，权重取 0.05。\n\n**训练配置**：\n\n| 配置项  | 细节                              |\n| ---- | ------------------------------- |\n| 参数规模 | 约 **1.2B**（1215M）               |\n| 训练数据 | 大规模 3D 标注数据混合（含 SfM 重建数据、合成数据等） |\n| 帧数   | 每次 2–24 帧                       |\n| 分辨率  | 518px                           |\n| 优化器  | AdamW                           |\n| 训练规模 | 160K iterations，64×A100，约 9 天   |"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md"
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "old_string": "### 2.4 多任务输出头\n\n最终做的事情是在聚合后的Token上开出多个输出分支。比如输出Camera参数，包括Rotation、Translation等位姿信息；输出Depth；输出Tracks；以及其他各种几何相关的表征。\n\n主干之上并行挂三个输出头，共享同一个 backbone 表征：\n\n| 输出头                           | 结构                          | 输出                                                       |\n| ----------------------------- | --------------------------- | -------------------------------------------------------- |\n| **camera head**               | 4 层 self-attention + linear | 对每帧回归相机参数 $g_i = [q, t, f]$：四元数旋转 $q$ + 平移 $t$ + 视场角 $f$ |\n| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图，以及每个像素对应的 aleatoric uncertainty（不确定性）       |\n| **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |\n\n![图2](assets/VGGT%20-%20前馈式通用三维重建/figures/fig2_architecture.png)\n\n*图：Figure 2 — VGGT 架构总览（Architecture Overview）。输入图像经 DINO patchify 后追加 camera token 与 register token，进入 24 层 Alternating-Attention 主干；主干之上并行挂 camera head、dense head 与 tracking head，分别预测相机、点图/深度与点轨迹。*\n\n关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。\n\n### 2.5 训练目标与配置\n\n**多任务损失**（各损失项加权求和）：\n\n$$\nL = L_{\\text{camera}} + L_{\\text{depth}} + L_{\\text{pmap}} + 0.05 \\cdot L_{\\text{track}}\n$$\n\n- $L_{\\text{camera}}$：相机损失，基于预测位姿的投影误差，并用 aleatoric uncertainty 加权。\n- $L_{\\text{depth}}$：深度损失（尺度不变的对数深度）。\n- $L_{\\text{pmap}}$：点图损失（归一化的 L1）。\n- $L_{\\text{track}}$：点跟踪损失，权重取 0.05。\n\n**训练配置**：\n\n| 配置项  | 细节                              |\n| ---- | ------------------------------- |\n| 参数规模 | 约 **1.2B**（1215M）               |\n| 训练数据 | 大规模 3D 标注数据混合（含 SfM 重建数据、合成数据等） |\n| 帧数   | 每次 2–24 帧                       |\n| 分辨率  | 518px                           |\n| 优化器  | AdamW                           |\n| 训练规模 | 160K iterations，64×A100，约 9 天   |",
+            "new_string": "### 2.4 多任务输出头\n\n最终做的事情是在聚合后的Token上开出多个输出分支。比如输出Camera参数，包括Rotation、Translation等位姿信息；输出Depth；输出Tracks；以及其他各种几何相关的表征。\n\n需要先澄清一点常见误解：**VGGT 并没有一个独立的 \"depth head\"**。论文只有**两个头**，图 2 的说明写得很明确——\"A camera head makes the final prediction for camera extrinsics and intrinsics, and a **DPT head for any dense output**\"。深度只是这个 DPT head 的一路输出分支：\n\n| 输出头 | 结构 | 输出 |\n| ----------------------------- | --------------------------- | -------------------------------------------------------- |\n| **camera head** | 4 层 self-attention + linear | 对每帧回归相机参数 $g_i = [q, t, f]$：四元数旋转 $q\\in\\mathbb{R}^4$ + 平移 $t\\in\\mathbb{R}^3$ + 视场角 $f\\in\\mathbb{R}^2$（假设主点在图像中心） |\n| **DPT head（唯一的稠密头）** | DPT 层 → 3×3 卷积 | 深度图 $D_i$、点图 $P_i$、各自的 aleatoric uncertainty $\\Sigma^D_i$/$\\Sigma^P_i$，以及跟踪特征 $T_i$ |\n| **tracking head（CoTracker2）** | 基于 CoTracker2，独立模块 | 消费 DPT 输出的 $T_i$，产出跨帧 2D 轨迹 |\n\n**稠密预测的确切链路**（原文 §3.3 DensePredictions）：\n\n1. 输出图像 token $\\hat{t}_{I_i}$ 先经 **DPT 层**转成稠密特征图 $F_i \\in \\mathbb{R}^{C''\\times H\\times W}$；\n2. 每个 $F_i$ 再经**一个 3×3 卷积层**映射成深度图 $D_i$ **与**点图 $P_i$；\n3. 同一个 DPT head 另外输出稠密跟踪特征 $T_i \\in \\mathbb{R}^{C\\times H\\times W}$，作为 tracking 模块的输入。\n\n**depth 分支输出的两样东西：**\n\n| 输出 | 形状 | 含义 |\n|---|---|---|\n| 深度图 $D_i$ | $\\mathbb{R}^{H\\times W}$ | 每像素 $y$ 一个深度值 $D_i(y)\\in\\mathbb{R}^+$，**从第 $i$ 个相机自身观察到的** |\n| 不确定性图 $\\Sigma^D_i$ | $\\mathbb{R}^{H\\times W}_+$ | aleatoric uncertainty；训练时进损失，训练后正比于模型对该像素的置信度 |\n\n**一个关键区别：depth 与 point map 的参考系不同。** 深度图 $D_i$ 是**每相机自身视角下**的量；而点图 $P_i$ 是**视点不变的**——沿用 DUSt3R 的约定，$P_i(y)\\in\\mathbb{R}^3$ 定义在**第一个相机 $g_1$ 的坐标系**里（$g_1$ 被取作世界参考系，故第一帧外参被固定为单位变换：$q_1=[0,0,0,1]$、$t_1=[0,0,0]$）。所以这两者不是同一个量的两种写法。\n\n也正因为如此，论文明确指出这些输出是**过完备（over-complete）**的——彼此并不独立，例如相机参数 $g$ 本可由视点不变的点图 $P$ 通过解 PnP 得到。但冗余预测反而带来收益，见 §3.2 的 ETH3D 对比。\n\n![图2](assets/VGGT%20-%20前馈式通用三维重建/figures/fig2_architecture.png)\n\n*图：Figure 2 — VGGT 架构总览（Architecture Overview）。输入图像经 DINO patchify 后追加 camera token 与 register token，进入 24 层 Alternating-Attention 主干；主干之上挂 camera head 与 DPT head，后者一并产出点图、深度图与跟踪特征，轨迹由独立的 CoTracker2 模块从跟踪特征算出。*\n\n关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。另外注意 register token 的输出 $\\hat{t}_{R_i}$ 在预测时被**丢弃**，只有 $\\hat{t}_{I_i}$ 与 $\\hat{t}_{g_i}$ 参与预测；第一帧的 camera/register token 用的是**另一组可学习参数**，以便 Transformer 识别出参考帧——网络因此对除第一帧外的所有帧是置换等变的。\n\n### 2.5 训练目标与配置\n\n**多任务损失**（各损失项加权求和）：\n\n$$\nL = L_{\\text{camera}} + L_{\\text{depth}} + L_{\\text{pmap}} + 0.05 \\cdot L_{\\text{track}}\n$$\n\n论文特别说明：camera、depth、pmap 三项**量级相近，不需要互相加权**；只有 track 项降权到 $\\lambda=0.05$。\n\n- $L_{\\text{camera}}$：直接在**相机参数**上做 **Huber 损失** $L_{\\text{camera}}=\\sum_{i=1}^{N}\\|\\hat g_i - g_i\\|_\\epsilon$。注意它**不带**不确定性加权——加权只用在 depth 与 pmap 两项上。\n- $L_{\\text{depth}}$：沿用 DUSt3R 的 aleatoric-uncertainty 损失，用预测的不确定性图 $\\Sigma^D_i$ 给残差加权，**但与 DUSt3R 不同的是额外加了一个梯度项**（单目深度估计里的常用做法）：\n\n$$\nL_{\\text{depth}}=\\sum_{i=1}^{N}\\Big\\|\\Sigma^{D}_i\\odot(\\hat D_i - D_i)\\Big\\| + \\Big\\|\\Sigma^{D}_i\\odot(\\nabla\\hat D_i - \\nabla D_i)\\Big\\| - \\alpha\\log\\Sigma^{D}_i\n$$\n\n其中 $\\odot$ 是通道广播的逐元素乘。**这里没有对数深度、也没有尺度不变项**——尺度歧义是靠下面的 GT 坐标归一化消除的，不是靠损失形式。\n\n- $L_{\\text{pmap}}$：形式与 $L_{\\text{depth}}$ 完全类似，只是换用点图的不确定性 $\\Sigma^P_i$。\n- $L_{\\text{track}}$：$L_{\\text{track}}=\\sum_{j}\\sum_{i}\\|y_{j,i}-\\hat y_{j,i}\\|$，权重 0.05；另外沿用 CoTracker2 加了一个可见性损失（二元交叉熵），判断某点在某帧是否可见。\n\n**GT 坐标归一化（尺度歧义在这里被消除）**：缩放场景或改变全局参考系都不影响图像，因此是重建的合法歧义。做法是先把所有量表达到第一个相机 $g_1$ 的坐标系，再计算点图 $P$ 中所有 3D 点到原点的**平均欧氏距离**，用这个尺度去归一化相机平移 $t$、点图 $P$ 与深度图 $D$。\n\n这里有一个与 DUSt3R 不同的重要选择，原文写得很直白：\n\n> unlike [DUSt3R], we do **not** apply such normalization to the predictions output by the transformer; instead, we **force it to learn** the normalization we choose from the training data.\n\n即**不对网络输出做归一化后处理，而是逼网络自己从数据里学会这个归一化**。\n\n**训练配置**：\n\n| 配置项  | 细节                              |\n| ---- | ------------------------------- |\n| 参数规模 | 约 **1.2B**（1215M）               |\n| 训练数据 | 大规模 3D 标注数据混合（含 SfM 重建数据、合成数据等） |\n| 帧数   | 每次随机采 2–24 帧                     |\n| 分辨率  | 518px                           |\n| 优化器  | AdamW，峰值 lr 2e-4，cosine 调度，8K 步 warmup |\n| 层数   | $L=24$ 层 global + frame-wise 交替 |\n| 训练规模 | 160K iterations，64×A100，约 9 天   |"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:21:27.241Z"
+    },
+    {
+      "id": "3ec8cf08-9c8c-43d2-b037-0845d0348b8f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_JfKgusClQ660HSdMGLgtBH",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md (58 - 107)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 58
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "offset": 58,
+            "limit": 50
+          }
+        },
+        {
+          "type": "text",
+          "text": "The note has grown a detailed §2.4.1 on DPT since I read it. Let me see the rest before editing so my changes fit."
+        }
+      ],
+      "timestamp": "2026-08-26T15:22:21.458Z"
+    },
+    {
+      "id": "066a64c6-d85f-400d-a173-2294541d2cee",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_tckKf8zOmjUvTwZLub73hR",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md (108 - 182)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 108
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "limit": 75,
+            "offset": 108
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:22:29.562Z"
+    },
+    {
+      "id": "d52d46c9-e498-410e-87db-c8bbcae9dcf3",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_qqUQusyQhCORIwTyNgMs8z",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md (181 - 240)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 181
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "limit": 60,
+            "offset": 181
+          }
+        },
+        {
+          "type": "text",
+          "text": "笔记已经比我上次读到的版本扩充了很多——§2.4.1（DPT）、§2.4.2（不确定性）、以及 §2.5 的两个损失公式和 GT 归一化都已经在里面了。所以我只补仍然缺失的部分，不重复。\n\nstill 缺的核心是**参考系差异**，以及 §3.2 那个 ETH3D 对比的原文解释。"
+        }
+      ],
+      "timestamp": "2026-08-26T15:22:40.334Z"
+    },
+    {
+      "id": "2038ef20-df28-4ffa-94e2-b115aa456ceb",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_noK83IPoBAqDmBz3VjoR7U",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "newText": "| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图 / tracking 特征，以及深度与点图各自的 aleatoric uncertainty（$\\Sigma^D$、$\\Sigma^P$）。展开见 [§2.4.1](#241-dense-head-展开dpt-是什么为什么需要它) |\n| **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |\n\n> **口径提示**：论文原文只承认**两个 head**——图 2 的说明是 \"A camera head makes the final prediction for camera extrinsics and intrinsics, and **a DPT head for any dense output**\"。也就是说**并不存在独立的 \"depth head\"**，深度只是 DPT head 的一路输出分支；tracking 则是一个吃 DPT 特征的**独立模块** $\\mathcal{T}$，而非挂在主干上的第三个头。上表按「功能」分三行便于对照，但引用架构时应以「camera head + DPT head」为准。\n\n**depth 分支到底输出什么。** 两样东西，都是逐像素的：\n\n| 输出 | 形状 | 含义 |\n| --- | --- | --- |\n| 深度图 $D_i$ | $\\mathbb{R}^{H\\times W}$ | 每个像素位置 $y\\in\\mathcal{I}(I_i)$ 一个深度值 $D_i(y)\\in\\mathbb{R}^+$，**从第 $i$ 台相机自身观察到的** |\n| 不确定性图 $\\Sigma^D_i$ | $\\mathbb{R}_+^{H\\times W}$ | aleatoric uncertainty，写进损失，训练后正比于模型置信度。见 [§2.4.2](#242-aleatoric-uncertainty让模型说出这个像素我不确定) |\n\n**关键区别：depth 与 point map 的参考系不同。** 这一点极易混淆，但决定了两者不是同一个量的两种写法：\n\n- **深度图 $D_i$ 是每相机自身视角下的**——$D_i(y)$ 是从相机 $i$ 看过去的距离；\n- **点图 $P_i$ 是视点不变（viewpoint invariant）的**——沿用 DUSt3R 的约定，$P_i(y)\\in\\mathbb{R}^3$ 定义在**第一台相机 $g_1$ 的坐标系**里，$g_1$ 被取作世界参考系。\n\n因此第一帧的外参被固定为单位变换：$q_1=[0,0,0,1]$、$t_1=[0,0,0]$。为让 Transformer 能识别出「哪一帧是参考帧」，第一帧的 camera / register token 用的是**另一组可学习参数** $\\bar t_g,\\bar t_R$（其余帧共享 $t_g,t_R$）。**于是网络对除第一帧以外的所有帧是置换等变的**——这正是后续 π³ 要挑战的那个「固定参考帧」假设（见 §4.2）。\n\n**过完备预测（over-complete predictions）。** 论文明确指出这些输出**彼此并不独立**：例如相机参数 $g$ 本可以由视点不变的点图 $P$ 通过解 PnP 问题得到。既然冗余，为什么还要都预测？§3.2 的 ETH3D 对比给出了答案——**冗余反而更准**。\n\n另外注意 register token 的输出 $\\hat t^R_i$ 在预测阶段被**丢弃**，只有图像 token $\\hat t^I_i$ 与 camera token $\\hat t^g_i$ 参与预测。\n\n![图2](assets/VGGT%20-%20前馈式通用三维重建/figures/fig2_architecture.png)\n\n*图：Figure 2 — VGGT 架构总览（Architecture Overview）。输入图像经 DINO patchify 后追加 camera token 与 register token，进入 24 层 Alternating-Attention 主干；主干之上并行挂 camera head、dense head 与 tracking head，分别预测相机、点图/深度与点轨迹。*",
+              "oldText": "| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图 / tracking 特征，以及深度与点图各自的 aleatoric uncertainty（$\\Sigma^D$、$\\Sigma^P$）。展开见 [§2.4.1](#241-dense-head-展开dpt-是什么为什么需要它) |\n| **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |\n\n![图2](assets/VGGT%20-%20前馈式通用三维重建/figures/fig2_architecture.png)\n\n*图：Figure 2 — VGGT 架构总览（Architecture Overview）。输入图像经 DINO patchify 后追加 camera token 与 register token，进入 24 层 Alternating-Attention 主干；主干之上并行挂 camera head、dense head 与 tracking head，分别预测相机、点图/深度与点轨迹。*"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 68
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "old_string": "主干之上并行挂三个输出头，共享同一个 backbone 表征：\n\n| 输出头                           | 结构                          | 输出                                                       |\n| ----------------------------- | --------------------------- | -------------------------------------------------------- |\n| **camera head**               | 4 层 self-attention + linear | 对每帧回归相机参数 $g_i = [q, t, f]$：四元数旋转 $q$ + 平移 $t$ + 视场角 $f$ |\n| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图 / tracking 特征，以及深度与点图各自的 aleatoric uncertainty（$\\Sigma^D$、$\\Sigma^P$）。展开见 [§2.4.1](#241-dense-head-展开dpt-是什么为什么需要它) |\n| **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |",
+            "new_string": "主干之上并行挂三个输出头，共享同一个 backbone 表征：\n\n| 输出头                           | 结构                          | 输出                                                       |\n| ----------------------------- | --------------------------- | -------------------------------------------------------- |\n| **camera head**               | 4 层 self-attention + linear | 对每帧回归相机参数 $g_i = [q, t, f]$：四元数旋转 $q$ + 平移 $t$ + 视场角 $f$ |\n| **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图 / tracking 特征，以及深度与点图各自的 aleatoric uncertainty（$\\Sigma^D$、$\\Sigma^P$）。展开见 [§2.4.1](#241-dense-head-展开dpt-是什么为什么需要它) |\n| **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |\n\n> **口径提示**：论文原文只承认**两个 head**——图 2 的说明是 \"A camera head makes the final prediction for camera extrinsics and intrinsics, and **a DPT head for any dense output**\"。也就是说**并不存在独立的 \"depth head\"**，深度只是 DPT head 的一路输出分支；tracking 则是一个吃 DPT 特征的**独立模块** $\\mathcal{T}$，而非挂在主干上的第三个头。上表按「功能」分三行便于对照，但引用架构时应以「camera head + DPT head」为准。\n\n**depth 分支到底输出什么。** 两样东西，都是逐像素的：\n\n| 输出 | 形状 | 含义 |\n| --- | --- | --- |\n| 深度图 $D_i$ | $\\mathbb{R}^{H\\times W}$ | 每个像素位置 $y\\in\\mathcal{I}(I_i)$ 一个深度值 $D_i(y)\\in\\mathbb{R}^+$，**从第 $i$ 台相机自身观察到的** |\n| 不确定性图 $\\Sigma^D_i$ | $\\mathbb{R}_+^{H\\times W}$ | aleatoric uncertainty，写进损失，训练后正比于模型置信度。见 [§2.4.2](#242-aleatoric-uncertainty让模型说出这个像素我不确定) |\n\n**关键区别：depth 与 point map 的参考系不同。** 这一点极易混淆，但决定了两者不是同一个量的两种写法：\n\n- **深度图 $D_i$ 是每相机自身视角下的**——$D_i(y)$ 是从相机 $i$ 看过去的距离；\n- **点图 $P_i$ 是视点不变（viewpoint invariant）的**——沿用 DUSt3R 的约定，$P_i(y)\\in\\mathbb{R}^3$ 定义在**第一台相机 $g_1$ 的坐标系**里，$g_1$ 被取作世界参考系。\n\n因此第一帧的外参被固定为单位变换：$q_1=[0,0,0,1]$、$t_1=[0,0,0]$。为让 Transformer 能识别出「哪一帧是参考帧」，第一帧的 camera / register token 用的是**另一组可学习参数** $\\bar t_g,\\bar t_R$（其余帧共享 $t_g,t_R$）。**于是网络对除第一帧以外的所有帧是置换等变的**——这正是后续 π³ 要挑战的那个「固定参考帧」假设（见 §4.2）。\n\n**过完备预测（over-complete predictions）。** 论文明确指出这些输出**彼此并不独立**：例如相机参数 $g$ 本可以由视点不变的点图 $P$ 通过解 PnP 问题得到。既然冗余，为什么还要都预测？§3.2 的 ETH3D 对比给出了答案——**冗余反而更准**。\n\n另外注意 register token 的输出 $\\hat t^R_i$ 在预测阶段被**丢弃**，只有图像 token $\\hat t^I_i$ 与 camera token $\\hat t^g_i$ 参与预测。"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Now the §3.2 ETH3D comparison, with the paper's own explanation."
+        }
+      ],
+      "timestamp": "2026-08-26T15:22:59.200Z"
+    },
+    {
+      "id": "7a3cbf8b-8fe2-4126-b33b-9fe813d600e6",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_vYy7c7zwzhlP6f4QTEbVJc",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md (240 - 267)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 240
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "limit": 28,
+            "offset": 240
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:23:29.788Z"
+    },
+    {
+      "id": "593c9cae-e654-4856-bb26-7dfdbccfed05",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_hsN2RPgQgsUW1LWMVUv1Hk",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "newText": "\n### 3.2 深度与稠密点云重建\n\n**DTU 稠密 MVS（Table 2，越低越好）**——注意 VGGT 属于「不知道 GT 相机」的下半张表：\n\n| 方法 | 是否已知 GT 相机 | Acc.↓ | Comp.↓ | Overall↓ |\n| --- | --- | --- | --- | --- |\n| MASt3R | ✓ | 0.403 | 0.344 | 0.374 |\n| GeoMVSNet | ✗ | 0.331 | 0.259 | 0.295 |\n| DUSt3R | ✗ | 2.677 | 0.805 | 1.741 |\n| **VGGT** | ✗ | 0.389 | 0.374 | **0.382** |\n\n**ETH3D 点图估计（Table 3，每场景随机 10 帧，Umeyama 对齐后按官方 mask 过滤）**——这张表是本节最有信息量的：\n\n| 方法 | Acc.↓ | Comp.↓ | Overall↓ | 时间 |\n| --- | --- | --- | --- | --- |\n| DUSt3R（含全局对齐） | 1.167 | 0.842 | 1.005 | ~7 s |\n| MASt3R（含全局对齐） | 0.968 | 0.684 | 0.826 | ~9 s |\n| VGGT（Point，直接用点图头） | 0.901 | 0.518 | 0.709 | **~0.2 s** |\n| **VGGT（Depth + Cam，深度反投影）** | **0.873** | **0.482** | **0.677** | **~0.2 s** |\n\n两个结论：\n\n**其一，前馈就打赢了带全局对齐的方法，且快 35–45 倍。** DUSt3R / MASt3R 每个场景要做约 10 秒的全局对齐优化，VGGT 一次前向 0.2 秒。\n\n**其二——也是更有意思的一点——「深度头 + 相机头反投影」比「直接用点图头」更准**（0.677 vs 0.709）。论文自己给出的解释是：\n\n> we found that the predictions from our depth and camera heads (i.e., **unprojecting** the predicted depth maps to 3D using the predicted camera parameters) yield higher accuracy. We attribute this to the benefits of **decomposing a complex task (point map estimation) into simpler subproblems (depth map and camera prediction)**, even though camera, depth maps, and point maps are jointly supervised during training.\n\n换句话说：**把一个复杂任务拆成两个更简单的子问题（预测深度 + 预测相机），再用几何关系组合起来，比让网络直接端到端回归复合量更准**——即使三者在训练中是联合监督的。这正是 §2.4 里「过完备预测」的价值所在：冗余不是浪费，它给了推理时选择更优组合路径的自由度。这也是实际用 VGGT 时的一条工程建议——**要点云优先走 depth + camera 反投影，而不是直接取 point map**。\n\n**ScanNet-1500 两视图匹配（Table 4）**：AUC@5 / @10 / @20 = **33.9 / 55.2 / 73.4**，超过专门做两视图匹配的 SOTA 方法 Roma（31.8 / 53.4 / 70.9）——而 VGGT 的 tracking head 并非为两视图场景特化设计。\n\n在点云重建（point map）这一前馈方法的\"主战场\"上，VGGT 明显超越 DUSt3R / MASt3R 等两帧方法，且不需要 pairwise 融合。\n\n![图3](assets/VGGT%20-%20前馈式通用三维重建/figures/fig3_qualitative.png)",
+              "oldText": "\n### 3.2 深度与稠密点云重建\n\n| 数据集 | 指标 | 结果 |\n| --- | --- | --- |\n| DTU | Overall（越低越好） | 0.382 |\n| ETH3D | Overall（point head） | 0.709 |\n| ETH3D | Overall（depth + cam） | 0.677 |\n| ScanNet-1500 | AUC@5 / @10 / @20 | 33.9 / 55.2 / 73.4 |\n\n在点云重建（point map）这一前馈方法的\"主战场\"上，VGGT 明显超越 DUSt3R / MASt3R 等两帧方法，且不需要 pairwise 融合。\n\n![图3](assets/VGGT%20-%20前馈式通用三维重建/figures/fig3_qualitative.png)"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 239
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "old_string": "### 3.2 深度与稠密点云重建\n\n| 数据集 | 指标 | 结果 |\n| --- | --- | --- |\n| DTU | Overall（越低越好） | 0.382 |\n| ETH3D | Overall（point head） | 0.709 |\n| ETH3D | Overall（depth + cam） | 0.677 |\n| ScanNet-1500 | AUC@5 / @10 / @20 | 33.9 / 55.2 / 73.4 |\n\n在点云重建（point map）这一前馈方法的\"主战场\"上，VGGT 明显超越 DUSt3R / MASt3R 等两帧方法，且不需要 pairwise 融合。",
+            "new_string": "### 3.2 深度与稠密点云重建\n\n**DTU 稠密 MVS（Table 2，越低越好）**——注意 VGGT 属于「不知道 GT 相机」的下半张表：\n\n| 方法 | 是否已知 GT 相机 | Acc.↓ | Comp.↓ | Overall↓ |\n| --- | --- | --- | --- | --- |\n| MASt3R | ✓ | 0.403 | 0.344 | 0.374 |\n| GeoMVSNet | ✗ | 0.331 | 0.259 | 0.295 |\n| DUSt3R | ✗ | 2.677 | 0.805 | 1.741 |\n| **VGGT** | ✗ | 0.389 | 0.374 | **0.382** |\n\n**ETH3D 点图估计（Table 3，每场景随机 10 帧，Umeyama 对齐后按官方 mask 过滤）**——这张表是本节最有信息量的：\n\n| 方法 | Acc.↓ | Comp.↓ | Overall↓ | 时间 |\n| --- | --- | --- | --- | --- |\n| DUSt3R（含全局对齐） | 1.167 | 0.842 | 1.005 | ~7 s |\n| MASt3R（含全局对齐） | 0.968 | 0.684 | 0.826 | ~9 s |\n| VGGT（Point，直接用点图头） | 0.901 | 0.518 | 0.709 | **~0.2 s** |\n| **VGGT（Depth + Cam，深度反投影）** | **0.873** | **0.482** | **0.677** | **~0.2 s** |\n\n两个结论：\n\n**其一，前馈就打赢了带全局对齐的方法，且快 35–45 倍。** DUSt3R / MASt3R 每个场景要做约 10 秒的全局对齐优化，VGGT 一次前向 0.2 秒。\n\n**其二——也是更有意思的一点——「深度头 + 相机头反投影」比「直接用点图头」更准**（0.677 vs 0.709）。论文自己给出的解释是：\n\n> we found that the predictions from our depth and camera heads (i.e., **unprojecting** the predicted depth maps to 3D using the predicted camera parameters) yield higher accuracy. We attribute this to the benefits of **decomposing a complex task (point map estimation) into simpler subproblems (depth map and camera prediction)**, even though camera, depth maps, and point maps are jointly supervised during training.\n\n换句话说：**把一个复杂任务拆成两个更简单的子问题（预测深度 + 预测相机），再用几何关系组合起来，比让网络直接端到端回归复合量更准**——即使三者在训练中是联合监督的。这正是 §2.4 里「过完备预测」的价值所在：冗余不是浪费，它给了推理时选择更优组合路径的自由度。这也是实际用 VGGT 时的一条工程建议——**要点云优先走 depth + camera 反投影，而不是直接取 point map**。\n\n**ScanNet-1500 两视图匹配（Table 4）**：AUC@5 / @10 / @20 = **33.9 / 55.2 / 73.4**，超过专门做两视图匹配的 SOTA 方法 Roma（31.8 / 53.4 / 70.9）——而 VGGT 的 tracking head 并非为两视图场景特化设计。\n\n在点云重建（point map）这一前馈方法的\"主战场\"上，VGGT 明显超越 DUSt3R / MASt3R 等两帧方法，且不需要 pairwise 融合。"
+          }
+        },
+        {
+          "type": "text",
+          "text": "The ablation section quotes ETH3D numbers too — let me make them consistent with the table I just added."
+        }
+      ],
+      "timestamp": "2026-08-26T15:23:36.703Z"
+    },
+    {
+      "id": "10a012f5-2510-47be-adf2-c783e56940b0",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_39mMO664OQlAPm1ofuWNXL",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\"; f=\"AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md\"; grep -n '消融\\|Alternating-Attention 优于\\|1.061\\|0.827' \"$f\" | head -20",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\"; f=\"AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md\"; grep -n '消融\\|Alternating-Attention 优于\\|1.061\\|0.827' \"$f\" | head -20",
+            "description": "Locate ablation section"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:24:02.574Z"
+    },
+    {
+      "id": "3bdc156c-3b3b-4a3a-b07e-72984374dc21",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_SIO2aSzDgrUpDj1cqjdwit",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md (287 - 296)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 287
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "limit": 10,
+            "offset": 287
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:24:18.462Z"
+    },
+    {
+      "id": "765ae6d5-a1c5-4deb-84f1-15de0f122db2",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_AOpuCHjizPjlB8U352a9HU",
+          "title": "Edit AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "newText": "\n### 3.4 消融\n\n**主干注意力设计（Table 5，ETH3D，越低越好）**——这是全文最干净的一个消融：\n\n| 主干变体 | Acc.↓ | Comp.↓ | Overall↓ |\n| --- | --- | --- | --- |\n| Cross-Attention | 1.287 | 0.835 | 1.061 |\n| Global Self-Attention Only | 1.032 | 0.621 | 0.827 |\n| **Alternating-Attention** | **0.901** | **0.518** | **0.709** |\n\n交替注意力显著优于「纯 global self-attention」（0.709 vs 0.827）与「cross-attention」（1.061）。注意纯 global 变体的算力其实并不更省——**它输的不是效率而是精度**，说明「先在单帧内部整理局部结构、再跨帧建立对应」这个交替归纳偏置本身是有价值的，不只是显存妥协。\n\n- 多任务联合训练有益：相机、深度、点图、跟踪四个损失联合训练，比单独训练某几个任务效果更好——验证了\"共享 backbone + 联合监督\"的设计。（一条容易忽略的通路见 §2.4.1 末尾：tracking 的梯度经 DPT 解码器回传，反过来约束深度/点图分支的特征质量。）\n\n### 3.5 效率\n\n- 200 帧输入：推理约 8.75s，显存约 40.63GB（单卡）。",
+              "oldText": "\n### 3.4 消融\n\n- Alternating-Attention 优于纯 cross-attention 或纯 global-only：交替设计在精度与算力之间取得最佳平衡，是架构上的关键选择。\n- 多任务联合训练有益：相机、深度、点图、跟踪四个损失联合训练，比单独训练某几个任务效果更好——验证了\"共享 backbone + 联合监督\"的设计。\n\n### 3.5 效率\n\n- 200 帧输入：推理约 8.75s，显存约 40.63GB（单卡）。"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 286
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "old_string": "### 3.4 消融\n\n- Alternating-Attention 优于纯 cross-attention 或纯 global-only：交替设计在精度与算力之间取得最佳平衡，是架构上的关键选择。\n- 多任务联合训练有益：相机、深度、点图、跟踪四个损失联合训练，比单独训练某几个任务效果更好——验证了\"共享 backbone + 联合监督\"的设计。",
+            "new_string": "### 3.4 消融\n\n**主干注意力设计（Table 5，ETH3D，越低越好）**——这是全文最干净的一个消融：\n\n| 主干变体 | Acc.↓ | Comp.↓ | Overall↓ |\n| --- | --- | --- | --- |\n| Cross-Attention | 1.287 | 0.835 | 1.061 |\n| Global Self-Attention Only | 1.032 | 0.621 | 0.827 |\n| **Alternating-Attention** | **0.901** | **0.518** | **0.709** |\n\n交替注意力显著优于「纯 global self-attention」（0.709 vs 0.827）与「cross-attention」（1.061）。注意纯 global 变体的算力其实并不更省——**它输的不是效率而是精度**，说明「先在单帧内部整理局部结构、再跨帧建立对应」这个交替归纳偏置本身是有价值的，不只是显存妥协。\n\n- 多任务联合训练有益：相机、深度、点图、跟踪四个损失联合训练，比单独训练某几个任务效果更好——验证了\"共享 backbone + 联合监督\"的设计。（一条容易忽略的通路见 §2.4.1 末尾：tracking 的梯度经 DPT 解码器回传，反过来约束深度/点图分支的特征质量。）"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:24:24.196Z"
+    },
+    {
+      "id": "114939f9-4557-4ded-85a4-2af148b69017",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_XXAtvHXmIsLMfjIp129RvZ",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\"; f=\"AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md\"; echo \"=== lines: $(grep -c '' \"$f\") ===\"; python3 - <<'PY'\np=\"AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md\"\nL=open(p,encoding=\"utf-8\").read().split(\"\\n\")\nbad=[(i+1,repr(L[i-1][:50])) for i,l in enumerate(L) if l.startswith(\"|\") and i>0 and not L[i-1].startswith(\"|\") and L[i-1].strip()!=\"\"]\nprint(\"tables lacking blank line before:\",len(bad))\nfor b in bad: print(\"  \",b)\nPY\necho; echo \"=== wrong-provider math delimiters: $(grep -c '\\\\\\\\(\\|\\\\\\\\\\[' \"$f\") ===\"; echo \"=== new tables present ===\"; grep -c '^| --- ' \"$f\"",
+          "status": "failed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\"; f=\"AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md\"; echo \"=== lines: $(grep -c '' \"$f\") ===\"; python3 - <<'PY'\np=\"AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md\"\nL=open(p,encoding=\"utf-8\").read().split(\"\\n\")\nbad=[(i+1,repr(L[i-1][:50])) for i,l in enumerate(L) if l.startswith(\"|\") and i>0 and not L[i-1].startswith(\"|\") and L[i-1].strip()!=\"\"]\nprint(\"tables lacking blank line before:\",len(bad))\nfor b in bad: print(\"  \",b)\nPY\necho; echo \"=== wrong-provider math delimiters: $(grep -c '\\\\\\\\(\\|\\\\\\\\\\[' \"$f\") ===\"; echo \"=== new tables present ===\"; grep -c '^| --- ' \"$f\"",
+            "description": "Verify formatting of edits"
+          }
+        }
+      ],
+      "timestamp": "2026-08-26T15:24:37.231Z"
+    },
+    {
+      "id": "7143d8d4-112b-4443-b801-703fc961cc2b",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_3poXF6YzSgoaDBKuSm78gT",
+          "title": "Read AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md (240 - 271)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+              "line": 240
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建.md",
+            "limit": 32,
+            "offset": 240
+          }
+        },
+        {
+          "type": "text",
+          "text": "格式正确，表格前都有空行。加完了。\n\n## 直接回答：VGGT 的 depth 分支输出什么\n\n**两样东西**，都是逐像素的：\n\n| 输出 | 形状 | 含义 |\n|---|---|---|\n| 深度图 $D_i$ | $\\mathbb{R}^{H\\times W}$ | 每像素一个深度值 $D_i(y)\\in\\mathbb{R}^+$，**从第 $i$ 台相机自身观察到的** |\n| 不确定性图 $\\Sigma^D_i$ | $\\mathbb{R}_+^{H\\times W}$ | aleatoric uncertainty，写进损失，训练后正比于置信度 |\n\n## 加进笔记的三处\n\n**§2.4 口径提示 + 参考系差异**（这是原来最缺的一块）：论文只承认**两个 head**，`depth head` 严格说不存在——深度是 DPT head 的一路分支，tracking 是吃 DPT 特征的独立模块。更关键的是**深度图是每相机自身视角下的，而点图是视点不变的**（定义在 $g_1$ 坐标系）——两者不是同一个量的两种写法。顺带补了第一帧外参固定为单位变换、以及\"为什么网络只对除第一帧外的帧置换等变\"，这条直接接上你 §4.2 提到的 π³ 挑战点。\n\n**§3.2 补齐三张原文表格**，并解释了那个你笔记里已列但没展开的对比：\n\n**「深度头 + 相机头反投影」（0.677）比「直接用点图头」（0.709）更准**，论文的解释是**把复杂任务拆成更简单的子问题**——即使三者联合监督。我把原文引了进去，并补了一条工程建议：**实际要点云时优先走 depth + camera 反投影，而不是直接取 point map**。这也正好解释了 §2.4 说的\"过完备预测\"为什么不是浪费。\n\n**§3.4 补上主干消融表**：Alternating 0.709 < Global-only 0.827 < Cross-attention 1.061。这里我修正了一个偏差——你原来写\"在精度与算力之间取得最佳平衡\"，但纯 global 变体算力并不更省，**它输的是精度**，所以交替设计是个有价值的归纳偏置，不只是显存妥协。\n\n## 没有重复劳动\n\n笔记在我们上次对话后已经扩充了 §2.4.1（DPT 的 Reassemble / 四层抽取 / RefineNet）和 §2.4.2（aleatoric uncertainty 的三项博弈、$\\Sigma$ 方向易读反那点），损失公式和 GT 坐标归一化也都写进 §2.5 了 —— 这些我都没动。上一轮我提的两处错误（$L_{\\text{depth}}$ 不是尺度不变对数深度、camera loss 是 Huber 且不带 uncertainty 加权）现在文中已经是正确的。\n\n数字全部来自本地 PDF（`assets/.../sources/paper.pdf`）的 Table 2/3/4/5 与 §3.3 正文，非二手。"
+        }
+      ],
+      "timestamp": "2026-08-26T15:25:56.363Z"
     }
   ],
-  "savedAt": "2026-08-26T03:58:19.994Z"
+  "savedAt": "2026-08-26T15:26:19.118Z"
 }
