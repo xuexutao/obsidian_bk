@@ -82,7 +82,7 @@ PlaNet 在 DMControl 的 6 个连续控制任务上，用 **远少于 model-free
 
 下图是 PlaNet 的 RSSM 结构示意，确定性/随机两条路径的分工是理解后续所有工作的起点：
 
-![PlaNet RSSM 架构](assets/世界模型演化 - Survey/figures/01-planet-rssm-architecture.png)
+![PlaNet RSSM 架构](assets/世界模型演化%20-%20Survey/figures/01-planet-rssm-architecture.png)
 
 *（图：PlaNet 的 RSSM 结构，确定性路径 $h$ 与随机路径 $s$ 分工。来源：arXiv:1811.04551 论文配图）*
 
@@ -105,7 +105,7 @@ MBPO 把 model-based RL 的误差拆成两部分，并给出一个有上界的�
 
 下图是 MBPO 的经典示意：模型误差随 rollout 长度增长，而策略性能在某个「最优 rollout 长度」处见顶——太短浪费样本，太长被误差反噬。
 
-![MBPO 模型误差与 rollout 长度](assets/世界模型演化 - Survey/figures/02-mbpo-model-error.png)
+![MBPO 模型误差与 rollout 长度](assets/世界模型演化%20-%20Survey/figures/02-mbpo-model-error.png)
 
 *（图：模型误差随 rollout 长度增长、策略回报在某中间长度见顶的示意。来源：arXiv:1906.08253 论文配图）*
 
@@ -145,7 +145,7 @@ MBPO 在 Hopper、Walker2d、HalfCheetah、Ant、Humanoid 等 MuJoCo 连续控�
 
 下图是 objective mismatch 的核心示意：训练目标（拟合下一帧）与使用目标（最大化回报）指向不同的方向，中间的「mismatch」就是误差的来源。
 
-![Objective Mismatch 示意](assets/世界模型演化 - Survey/figures/03-obj-mismatch-illustration.png)
+![Objective Mismatch 示意](assets/世界模型演化%20-%20Survey/figures/03-obj-mismatch-illustration.png)
 
 *（图：objective mismatch 的概念示意——训练目标与使用目标不一致。来源：arXiv:2002.04523 论文配图）*
 
@@ -167,7 +167,7 @@ Plan2Explore 回答的是一个不同的问题：**在没有奖励信号时，�
 
 下图是 Plan2Explore 的范式总览：一次无奖励的探索，得到一个 global 世界模型，再零样本/少样本适配到多个下游任务。
 
-![Plan2Explore 范式](assets/世界模型演化 - Survey/figures/04-plan2explore-paradigm.png)
+![Plan2Explore 范式](assets/世界模型演化%20-%20Survey/figures/04-plan2explore-paradigm.png)
 
 *（图：Plan2Explore 的「探索 → 通用世界模型 → 下游适配」范式。来源：arXiv:2005.05960 论文配图）*
 
@@ -197,7 +197,7 @@ TD-MPC 的一个标志性设计是：把潜动力学、价值函数、策略、�
 
 下图是 TD-MPC 的方法总览，展示潜状态、价值函数与 MPC 规划如何协同：
 
-![TD-MPC 方法总览](assets/世界模型演化 - Survey/figures/05-tdmpc-overview.png)
+![TD-MPC 方法总览](assets/世界模型演化%20-%20Survey/figures/05-tdmpc-overview.png)
 
 *（图：TD-MPC 的 task-oriented 潜动力学 + 价值函数 + MPC 协同示意。来源：arXiv:2203.04955 论文配图）*
 
@@ -227,7 +227,7 @@ IRIS 用一个**离散自编码器（VQ-VAE 风格）** 把图像压缩成一串
 
 下图是 IRIS 的「想象中训练」示意：世界模型（Transformer）生成 latent 轨迹，policy 在其上学习。
 
-![IRIS 想象中训练](assets/世界模型演化 - Survey/figures/06-iris-imagination.png)
+![IRIS 想象中训练](assets/世界模型演化%20-%20Survey/figures/06-iris-imagination.png)
 
 *（图：IRIS 的「世界模型在 latent 空间想象 + policy 在想象中学习」示意。来源：arXiv:2209.00588 论文配图）*
 
@@ -252,7 +252,7 @@ LINGO-2 是首个在**公开道路上测试的闭环 vision-language-action 驾�
 
 下图是 LINGO-2 的架构示意：视觉 token 输入，语言模型同时输出轨迹与解释。
 
-![LINGO-2 架构](assets/世界模型演化 - Survey/figures/08-lingo2-architecture.png)
+![LINGO-2 架构](assets/世界模型演化%20-%20Survey/figures/08-lingo2-architecture.png)
 
 *（图：LINGO-2 的视觉 token → 自回归语言模型 → 轨迹 + 语言解释。来源：Wayve LINGO-2 官方博客）*
 
@@ -271,7 +271,7 @@ GAIA-2 是 GAIA-1 之后的第二代**视频生成世界模型**。它用「视�
 
 下图是 GAIA-2 的封面/效果示意，展示多摄像头一致的可控驾驶视频生成。
 
-![GAIA-2 封面](assets/世界模型演化 - Survey/figures/09-gaia2-cover.png)
+![GAIA-2 封面](assets/世界模型演化%20-%20Survey/figures/09-gaia2-cover.png)
 
 *（图：GAIA-2 多摄像头时空一致的可控驾驶视频生成示意。来源：Wayve GAIA-2 官方博客）*
 
@@ -296,7 +296,7 @@ Cosmos 同时提供两类世界基础模型（WFM）：
 
 下图是 Cosmos WFM 的视频生成结果示意，展示其在具身场景下的可生成能力：
 
-![Cosmos WFM 结果](assets/世界模型演化 - Survey/figures/07-cosmos-wfm-results.png)
+![Cosmos WFM 结果](assets/世界模型演化%20-%20Survey/figures/07-cosmos-wfm-results.png)
 
 *（图：Cosmos 世界基础模型的视频生成结果示意。来源：arXiv:2501.03575 论文配图）*
 

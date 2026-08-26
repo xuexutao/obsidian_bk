@@ -1,29 +1,29 @@
 **一句话结论：** D4RT 把动态 4D 场景重建统一成“对全局场景表示做查询”这一个接口：给定源帧点 $(u,v)$、源时刻、目标时刻和参考相机坐标系，就能直接解码出该点的 3D 位置。它同时打通了深度、点云、3D 点轨迹和相机参数估计，并在精度和速度上都做到当前最强一档。
 
-|   |   |
-|---|---|
-|论文名称|**Efficiently Reconstructing Dynamic Scenes One D4RT at a Time**|
-|归档领域|**三维重建**|
-|重要性评估|**★★★★★（5/5）**。理由：统一接口、极强工程效率、覆盖动态重建 + 跟踪 + 相机估计三类核心任务，并且官方项目页标注为 **CVPR 2026 Best Paper**。|
-|原始线索|[知乎专栏解读](https://zhuanlan.zhihu.com/p/1982152380603712066?share_code=1k9Vwc6h4yl45&utm_psn=2046581540344292113)|
-|官方出处|[官方 PDF](https://storage.googleapis.com/d4rt_assets/D4RT_paper.pdf)；[arXiv](https://arxiv.org/abs/2512.08924)；[官方项目页](https://d4rt-paper.github.io/)|
-|作者 / 机构|Chuhan Zhang, Guillaume Le Moing, Skanda Koppula, Ignacio Rocco, Liliane Momeni, Junyu Xie, Shuyang Sun, Rahul Sukthankar, Joëlle K. Barral, Raia Hadsell, Zoubin Ghahramani, Andrew Zisserman, Junlin Zhang, Mehdi S. M. Sajjadi；Google DeepMind / UCL / Oxford|
+|         |                                                                                                                                                                                                                                                                  |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 论文名称    | **Efficiently Reconstructing Dynamic Scenes One D4RT at a Time**                                                                                                                                                                                                 |
+| 归档领域    | **三维重建**                                                                                                                                                                                                                                                         |
+| 重要性评估   | **★★★★★（5/5）**。理由：统一接口、极强工程效率、覆盖动态重建 + 跟踪 + 相机估计三类核心任务，并且官方项目页标注为 **CVPR 2026 Best Paper**。                                                                                                                                                                      |
+| 原始线索    | [知乎专栏解读](https://zhuanlan.zhihu.com/p/1982152380603712066?share_code=1k9Vwc6h4yl45&utm_psn=2046581540344292113)                                                                                                                                                  |
+| 官方出处    | [官方 PDF](https://storage.googleapis.com/d4rt_assets/D4RT_paper.pdf)；[arXiv](https://arxiv.org/abs/2512.08924)；[官方项目页](https://d4rt-paper.github.io/)                                                                                                             |
+| 作者 / 机构 | Chuhan Zhang, Guillaume Le Moing, Skanda Koppula, Ignacio Rocco, Liliane Momeni, Junyu Xie, Shuyang Sun, Rahul Sukthankar, Joëlle K. Barral, Raia Hadsell, Zoubin Ghahramani, Andrew Zisserman, Junlin Zhang, Mehdi S. M. Sajjadi；Google DeepMind / UCL / Oxford |
 
 ---
 
 ## 1. 背景
 
-这篇工作要解决的是**单段视频中的动态 4D 场景重建**：不仅要恢复每一帧的深度或点云，还要理解物体随时间的运动、跨帧对应关系，以及相机内外参数。
+这篇工作要解决的是单段视频中的动态 4D 场景重建：不仅要恢复每一帧的深度或点云，还要理解物体随时间的运动、跨帧对应关系，以及相机内外参数。
 
 传统路线通常把任务拆成多个子模块：深度、相机位姿、动态区域、点跟踪分别估计，再靠后处理或优化拼起来。这样做的问题有三类：
 
-1. **系统复杂**：多模型串联，训练和推理链条长。
-2. **信息割裂**：不同模块之间缺少统一表示，容易出现几何不一致。
-3. **动态场景不完整**：很多方法能做静态重建，但对动态区域的对应关系、轨迹和完整重建能力不足。
+1. 系统复杂：多模型串联，训练和推理链条长。
+2. 信息割裂：不同模块之间缺少统一表示，容易出现几何不一致。
+3. 动态场景不完整：很多方法能做静态重建，但对动态区域的对应关系、轨迹和完整重建能力不足。
 
-D4RT 的核心判断是：与其“逐帧密集解码所有内容”，不如先把整个视频编码成一个**全局场景表示**，再通过统一查询接口按需解码任意点在任意时刻、任意参考坐标系下的 3D 位置。这个转变把问题从“全量生成”改成了“统一表示 + 精确查询”。
+D4RT 的核心判断是：与其“逐帧密集解码所有内容”，不如先把整个视频编码成一个全局场景表示，再通过统一查询接口按需解码任意点在任意时刻、任意参考坐标系下的 3D 位置。这个转变把问题从“全量生成”改成了“统一表示 + 精确查询”。
 
-这也是这篇论文最值得关注的地方：它不是简单换 backbone，而是在**任务接口层**重构了动态重建范式。
+这也是这篇论文最值得关注的地方：它不是简单换 backbone，而是在任务接口层重构了动态重建范式。
 
 ## 2. 文章主线 / 论文线索
 

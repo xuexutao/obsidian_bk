@@ -346,3 +346,5 @@ TRELLIS.2 的 O-Voxel 把材质纳入表征，是朝「可用资产」迈出的�
 ---
 
 *本报告基于七篇论文全文（含附录）的细读整理，定量数字均取自原论文表格。文中插图裁剪自各论文原文，并已在本库对应单篇笔记的 `sources.md` 中留存溯源。*
+
+*姊妹篇：[[三维多模态大语言模型架构 - Survey]] 覆盖「网格/点云如何被 LLM 消费」——mesh-as-text（LLaMA-Mesh / MeshLLM / MeshCoder）与 tokenizer 效率竞赛（MeshAnything V2 / BPT / EdgeRunner / TreeMeshGPT / Mesh-Silksong / MeshWeaver，压缩比 1.00 → 0.18）两条线，与本文的生成侧表征之争互补。*

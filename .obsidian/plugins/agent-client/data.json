@@ -110,12 +110,20 @@
   },
   "savedSessions": [
     {
+      "sessionId": "2ff863bf-bb68-45bc-87cf-3be5ce027c07",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "现在多个文档的图片都显示有问题，你看看是怎么回事",
+      "createdAt": "2026-08-26T03:41:28.597Z",
+      "updatedAt": "2026-08-26T03:41:28.598Z"
+    },
+    {
       "sessionId": "d2b0aef0-2f8e-42bc-a41d-a97dc880eff1",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
       "title": "为什么不除以之后，softmax会落到饱和区呢？梯度为什么趋于0",
       "createdAt": "2026-08-25T12:53:37.803Z",
-      "updatedAt": "2026-08-25T14:14:54.249Z"
+      "updatedAt": "2026-08-26T03:58:19.993Z"
     },
     {
       "sessionId": "b1d6288f-a637-491e-9198-5f7c86f13068",
