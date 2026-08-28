@@ -110,6 +110,22 @@
   },
   "savedSessions": [
     {
+      "sessionId": "d3110849-208c-4eb0-87c2-def8b77b2dca",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "现在的视频生成模型的两条路，自回归和双向Dit 都有哪些代表论文呢",
+      "createdAt": "2026-08-28T09:54:59.500Z",
+      "updatedAt": "2026-08-28T09:54:59.502Z"
+    },
+    {
+      "sessionId": "f04697ed-a8c2-494c-9cb5-a4b32875c412",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "现在视频世界模型有哪些控制条件呢",
+      "createdAt": "2026-08-28T08:20:12.484Z",
+      "updatedAt": "2026-08-28T09:44:13.685Z"
+    },
+    {
       "sessionId": "dec20c33-94e5-4d4f-8742-919628c789f1",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",

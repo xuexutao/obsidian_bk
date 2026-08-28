@@ -1,0 +1,773 @@
+{
+  "version": 1,
+  "sessionId": "d3110849-208c-4eb0-87c2-def8b77b2dca",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "现在的视频生成模型的两条路，自回归和双向Dit 都有哪些代表论文呢",
+  "createdAt": "2026-08-28T09:54:59.500Z",
+  "updatedAt": "2026-08-28T09:54:59.500Z",
+  "messages": [
+    {
+      "id": "d08acd40-bd58-46f7-98bf-4744b14612a5",
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "现在的视频生成模型的两条路，自回归和双向Dit 都有哪些代表论文呢"
+        }
+      ],
+      "timestamp": "2026-08-28T09:45:26.701Z"
+    },
+    {
+      "id": "eff07f19-ab12-41cb-8088-a7ecdfeba6e4",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "我先查一下 2026 年上半年的新进展，免得漏掉最新的代表工作。"
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:10.003Z"
+    },
+    {
+      "id": "8b575a08-f695-493b-a3ca-78523c3b0923",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01Nw5A4c8ndtTVWFxuKh62TC",
+          "title": "\"autoregressive video generation vs bidirectional diffusion transformer 2026 survey\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "autoregressive video generation vs bidirectional diffusion transformer 2026 survey"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:11.037Z"
+    },
+    {
+      "id": "3a80b9d0-d6c5-4f56-b38e-370aa9f26076",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01PutqC5HbPDTXb2sFCcx7BH",
+          "title": "\"causal autoregressive video diffusion 2026 self-forcing streaming long video paper\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "causal autoregressive video diffusion 2026 self-forcing streaming long video paper"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:11.703Z"
+    },
+    {
+      "id": "2c0c7005-3212-4df9-8257-b5cfc4426076",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01MMTZ6DbniSMsnSMFRi5Gre",
+          "title": "ls && echo \"---\" && grep -ril \"DiT\\|自回归\\|video generation\" --include=\"*.md\" . 2>/dev/null | grep -v \".obsidian\" | head -30",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "ls && echo \"---\" && grep -ril \"DiT\\|自回归\\|video generation\" --include=\"*.md\" . 2>/dev/null | grep -v \".obsidian\" | head -30",
+            "description": "List vault and find related notes"
+          }
+        },
+        {
+          "type": "text",
+          "text": "这个 vault 里已经有一篇视频生成的 survey，我先读一下再补充最新的。"
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:11.936Z"
+    },
+    {
+      "id": "5facf8f0-014f-45d7-afd7-80355ea1d33e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_015Rxr8P1UgVYoJyJCeSr32G",
+          "title": "wc -l \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\" && ls AIReadPaper/10-Papers/ && ls AIReadPaper/10-Papers/Video-Generation/ 2>/dev/null | head -50",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "wc -l \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\" && ls AIReadPaper/10-Papers/ && ls AIReadPaper/10-Papers/Video-Generation/ 2>/dev/null | head -50",
+            "description": "Check survey size and paper notes"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:29.320Z"
+    },
+    {
+      "id": "b9c75e92-7bb0-40d2-ae25-99fa04c007a8",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01Vc66nfyGcLQRH3V7egffuA",
+          "title": "Find video gen notes in vault",
+          "status": "completed",
+          "kind": "think",
+          "content": [],
+          "rawInput": {
+            "subagent_type": "Explore",
+            "description": "Find video gen notes in vault",
+            "prompt": "In the Obsidian vault at /Users/eilonxtxue/Documents/obsidian/obsidian_bk, find all notes related to video generation models, specifically about: (1) autoregressive video generation (AR, next-token / next-frame prediction, causal attention, CausVid, Self-Forcing, MAGI, NOVA, Emu3, VideoPoet, diffusion forcing, etc.) and (2) bidirectional DiT / full-attention diffusion transformer video models (Sora, DiT, Latte, Open-Sora, HunyuanVideo, Wan, CogVideoX, Stable Video Diffusion, Movie Gen, Veo, Seedance, etc.).\n\nFor each relevant note report: exact file path, the note title, and which specific papers/models it covers (just names). Be thorough — check AIReadPaper/10-Papers/, AIReadPaper/20-Surveys/, Tencent/, Ours/. Do not dump file contents, just the mapping of path -> papers covered. Note breadth: very thorough.",
+            "run_in_background": false
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:31.336Z"
+    },
+    {
+      "id": "e45e05a3-d2c9-42fc-8cf3-afe0ecab65b6",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01Fz8MRw5xsPMhAxzLPAdkXN",
+          "title": "ls /Users/eilonxtxue/Documents/obsidian/obsidian_bk/",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "ls /Users/eilonxtxue/Documents/obsidian/obsidian_bk/",
+            "description": "List vault root"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:47.319Z"
+    },
+    {
+      "id": "1158cc57-5037-48dd-ab95-065c773bf1de",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01PEbVtwEAFP6gqS4B3GjSSq",
+          "title": "find /Users/eilonxtxue/Documents/obsidian/obsidian_bk -maxdepth 2 -type d -not -path '*/.git*' | head -100",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "find /Users/eilonxtxue/Documents/obsidian/obsidian_bk -maxdepth 2 -type d -not -path '*/.git*' | head -100",
+            "description": "List directories two levels deep"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:47.319Z"
+    },
+    {
+      "id": "0214412d-86b7-49c3-9449-97f41b63b6e8",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01JD2vsmcjFd4Kg7hu3S8pcx",
+          "title": "find /Users/eilonxtxue/Documents/obsidian/obsidian_bk -name '*.md' -not -path '*/.git/*' -not -path '*/.obsidian/*' | sort",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "find /Users/eilonxtxue/Documents/obsidian/obsidian_bk -name '*.md' -not -path '*/.git/*' -not -path '*/.obsidian/*' | sort",
+            "description": "List all markdown files"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:46:53.736Z"
+    },
+    {
+      "id": "2a25126a-fe1b-43c8-bf91-823e4f93dde4",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_018cG4iikXZCH14554n9Pq4x",
+          "title": "grep -rilE 'CausVid|Self-Forcing|Self Forcing|MAGI-1|NOVA|Emu3|VideoPoet|Diffusion Forcing|自回归视频|next-frame|next frame prediction|因果注意力|causal attention' --include='*.md' . | grep -v '^./.git' | sort",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -rilE 'CausVid|Self-Forcing|Self Forcing|MAGI-1|NOVA|Emu3|VideoPoet|Diffusion Forcing|自回归视频|next-frame|next frame prediction|因果注意力|causal attention' --include='*.md' . | grep -v '^./.git' | sort",
+            "description": "Grep for AR video generation keywords"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:47:02.586Z"
+    },
+    {
+      "id": "2adaaf5c-03a7-44ed-b976-671453cefe62",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_013adPK9aqbUNdp7Jer8YTgM",
+          "title": "grep -rilE 'Sora|Latte|Open-Sora|OpenSora|HunyuanVideo|Wan2|CogVideoX|Stable Video Diffusion|Movie Gen|Veo ?[0-9]|Seedance|双向注意力|full attention|全注意力|DiT' --include='*.md' . | grep -v '^./.git' | sort",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -rilE 'Sora|Latte|Open-Sora|OpenSora|HunyuanVideo|Wan2|CogVideoX|Stable Video Diffusion|Movie Gen|Veo ?[0-9]|Seedance|双向注意力|full attention|全注意力|DiT' --include='*.md' . | grep -v '^./.git' | sort",
+            "description": "Grep for bidirectional DiT video model keywords"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:47:02.586Z"
+    },
+    {
+      "id": "cb7d577c-4ea8-473f-8127-b75ebdeca067",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_015nU2CeBayH5yZJh24pG7Y4",
+          "title": "for f in $(find . -name '*.md' -not -path './.git/*' -not -path './.obsidian/*'); do n=$(grep -oicE 'CausVid|Self-Forcing|MAGI-1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|HunyuanVideo|Wan2|CogVideoX|Stable Video Diffusion|Movie Gen|Veo ?[0-9]|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-Video|Kling|Vidu|Goku|Allegro|Mochi|Genie ?[0-9]|Cosmos|Make-A-Video|Imagen Video|Video LDM|Gen-2|Gen-3|Phenaki|CogVideo|MAGVIT|Loong|Pandora|ART-V|Vista|GameNGen|Oasis|Matrix-Game|Yume|Owl-1|Video ?Diffusion|视频生成|视频扩散' \"$f\" | wc -l); if [ \"$n\" -gt 0 ]; then echo \"$n $f\"; fi; done | sort -rn",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "for f in $(find . -name '*.md' -not -path './.git/*' -not -path './.obsidian/*'); do n=$(grep -oicE 'CausVid|Self-Forcing|MAGI-1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|HunyuanVideo|Wan2|CogVideoX|Stable Video Diffusion|Movie Gen|Veo ?[0-9]|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-Video|Kling|Vidu|Goku|Allegro|Mochi|Genie ?[0-9]|Cosmos|Make-A-Video|Imagen Video|Video LDM|Gen-2|Gen-3|Phenaki|CogVideo|MAGVIT|Loong|Pandora|ART-V|Vista|GameNGen|Oasis|Matrix-Game|Yume|Owl-1|Video ?Diffusion|视频生成|视频扩散' \"$f\" | wc -l); if [ \"$n\" -gt 0 ]; then echo \"$n $f\"; fi; done | sort -rn",
+            "description": "Score files by video-gen keyword hit counts"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:47:15.902Z"
+    },
+    {
+      "id": "a27bbdac-93a0-4943-b258-56bb8bf0887f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_018mBm6ECauY93Pqz8pj7T2J",
+          "title": "grep -rcoiE 'CausVid|Self-Forcing|MAGI|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|HunyuanVideo|Wan2|CogVideo|Stable Video Diffusion|Movie Gen|Veo|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-Video|Kling|Vidu|Goku|Mochi|Genie|Cosmos|Make-A-Video|Imagen Video|Phenaki|MAGVIT|GameNGen|Oasis|Matrix-Game|Yume|视频生成|视频扩散|自回归视频' --include='*.md' . 2>/dev/null | grep -v ':0$' | sort -t: -k2 -rn",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -rcoiE 'CausVid|Self-Forcing|MAGI|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|HunyuanVideo|Wan2|CogVideo|Stable Video Diffusion|Movie Gen|Veo|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-Video|Kling|Vidu|Goku|Mochi|Genie|Cosmos|Make-A-Video|Imagen Video|Phenaki|MAGVIT|GameNGen|Oasis|Matrix-Game|Yume|视频生成|视频扩散|自回归视频' --include='*.md' . 2>/dev/null | grep -v ':0$' | sort -t: -k2 -rn",
+            "description": "Count video-gen keyword hits per file"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:47:32.618Z"
+    },
+    {
+      "id": "d3498af9-a839-4e0e-8cd9-056da31efaab",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01XJ73JaXqCRBRt2T34up8ht",
+          "title": "echo \"=== VIDEO GEN SURVEY headings ===\" && grep -nE '^#{1,4} ' \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\" && echo \"=== front matter ===\" && head -30 \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "echo \"=== VIDEO GEN SURVEY headings ===\" && grep -nE '^#{1,4} ' \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\" && echo \"=== front matter ===\" && head -30 \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\"",
+            "description": "Read video gen survey structure"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:47:48.119Z"
+    },
+    {
+      "id": "2c3298cc-8e8b-45d8-a020-0199566bead8",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01Kif5co2AvcwSdgpCdmNewA",
+          "title": "echo \"=== world_model.md headings ===\" && grep -nE '^#{1,4} ' \"Tencent/red/world_model.md\" && echo \"=== 视觉世界模型 headings ===\" && grep -nE '^#{1,4} ' \"AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "echo \"=== world_model.md headings ===\" && grep -nE '^#{1,4} ' \"Tencent/red/world_model.md\" && echo \"=== 视觉世界模型 headings ===\" && grep -nE '^#{1,4} ' \"AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md\"",
+            "description": "Read world model note structures"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:47:48.119Z"
+    },
+    {
+      "id": "46f0c827-fb07-44cc-bf90-a4f6990ef411",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01Veua4AymH5Dp8RHuLGw4y2",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/Video-Generation\" && sed -n '457,500p' \"视频生成模型发展与架构演进 - Survey.md\" && echo \"=== 4.2 + 7.3 ===\" && sed -n '253,266p;399,411p' \"视频生成模型发展与架构演进 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/Video-Generation\" && sed -n '457,500p' \"视频生成模型发展与架构演进 - Survey.md\" && echo \"=== 4.2 + 7.3 ===\" && sed -n '253,266p;399,411p' \"视频生成模型发展与架构演进 - Survey.md\"",
+            "description": "Read video survey reference index"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:48:04.986Z"
+    },
+    {
+      "id": "12c90977-a7b9-4dfc-be28-c44a02a24840",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01Pdd7yza5e7UJR5mf88GtDA",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red\" && sed -n '588,700p' world_model.md",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red\" && sed -n '588,700p' world_model.md",
+            "description": "Read world_model.md sections 3.4-3.5"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:48:04.986Z"
+    },
+    {
+      "id": "d9639572-2139-40b1-ab49-7fd1dde4d406",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01WPsiXHnGYREEmbYLFkHeBy",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red\" && grep -oiE 'CausVid|Self[- ]Forcing|Causal Forcing|MAGI-?1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|Open-?Sora|HunyuanVideo|Wan ?2\\.?[0-9]|Wan2\\.[0-9]|CogVideoX|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-?Video|Kling|Vidu|Genie ?[0-9]?|Cosmos[A-Za-z0-9.\\-]*|GAIA-?[0-9]?|Matrix[- ]Game[ 0-9.]*|WorldPlay|Yume|Oasis|GameNGen|TeleWorld|LingBot-World|Happy Oyster|MultiWorld|Solaris|X-World|Dreamer ?V?[0-9]|iVideoGPT|OccWorld|V-JEPA ?[0-9]?|DINO-WM|Marble|Owl-1|APT2?|Rolling Forcing|Long ?Live[- 0-9.]*|Self-?Speculative|VideoGPT|Phenaki|Hunyuan[A-Za-z0-9]*|Ruyi|MineWorld|Genie-?Envisioner' world_model.md | sort -u | tr '\\n' ' '",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red\" && grep -oiE 'CausVid|Self[- ]Forcing|Causal Forcing|MAGI-?1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|Open-?Sora|HunyuanVideo|Wan ?2\\.?[0-9]|Wan2\\.[0-9]|CogVideoX|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-?Video|Kling|Vidu|Genie ?[0-9]?|Cosmos[A-Za-z0-9.\\-]*|GAIA-?[0-9]?|Matrix[- ]Game[ 0-9.]*|WorldPlay|Yume|Oasis|GameNGen|TeleWorld|LingBot-World|Happy Oyster|MultiWorld|Solaris|X-World|Dreamer ?V?[0-9]|iVideoGPT|OccWorld|V-JEPA ?[0-9]?|DINO-WM|Marble|Owl-1|APT2?|Rolling Forcing|Long ?Live[- 0-9.]*|Self-?Speculative|VideoGPT|Phenaki|Hunyuan[A-Za-z0-9]*|Ruyi|MineWorld|Genie-?Envisioner' world_model.md | sort -u | tr '\\n' ' '",
+            "description": "Extract model names from world_model.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:48:24.119Z"
+    },
+    {
+      "id": "ae80e423-6bfd-4ec7-bfeb-23726c3fdfbf",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_019g8gEGNgnvinno6jM4GMWu",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\" && for f in \"10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\" \"10-Papers/Video-Generation/Stable Video Diffusion - 大规模潜视频扩散模型.md\" \"10-Papers/Video-Generation/Wan2.1 - 开源大规模视频生成基础模型.md\"; do echo \"########## $f\"; grep -oiE 'CausVid|Self[- ]Forcing|MAGI-?1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|Open-?Sora|HunyuanVideo|Wan ?2\\.?[0-9]|CogVideoX?|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-?Video|Kling|Vidu|Genie ?[0-9]?|Cosmos|GAIA-?[0-9]?|LongLive[- 0-9.]*|Rolling Forcing|Self-?Forcing\\+*|VideoGPT|Phenaki|DiT|VideoLDM|AnimateDiff|Make-A-Video|Imagen Video|SVD|Rectified Flow|Flow Matching|APT2?|Magi|StreamDiT|Skyworks?' \"$f\" | sort -u | tr '\\n' ' '; echo; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\" && for f in \"10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\" \"10-Papers/Video-Generation/Stable Video Diffusion - 大规模潜视频扩散模型.md\" \"10-Papers/Video-Generation/Wan2.1 - 开源大规模视频生成基础模型.md\"; do echo \"########## $f\"; grep -oiE 'CausVid|Self[- ]Forcing|MAGI-?1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|Open-?Sora|HunyuanVideo|Wan ?2\\.?[0-9]|CogVideoX?|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-?Video|Kling|Vidu|Genie ?[0-9]?|Cosmos|GAIA-?[0-9]?|LongLive[- 0-9.]*|Rolling Forcing|Self-?Forcing\\+*|VideoGPT|Phenaki|DiT|VideoLDM|AnimateDiff|Make-A-Video|Imagen Video|SVD|Rectified Flow|Flow Matching|APT2?|Magi|StreamDiT|Skyworks?' \"$f\" | sort -u | tr '\\n' ' '; echo; done",
+            "description": "Extract models from Video-Generation paper notes"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:48:24.137Z"
+    },
+    {
+      "id": "74733171-0e1b-4496-9294-cf2b0c7d7b53",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01BaAGcM62VKroHUXWNkeGuo",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\" && for f in \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" \"20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" \"20-Surveys/World-Models/世界模型演化 - Survey.md\" \"Paper-Index.md\"; do echo \"########## $f\"; grep -oiE 'CausVid|Self[- ]Forcing|MAGI-?1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|Open-?Sora|HunyuanVideo|Wan ?2\\.?[0-9]|CogVideoX?|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-?Video|Kling|Vidu|Genie ?[0-9]?|Cosmos[A-Za-z0-9.\\-]*|GAIA-?[0-9]?|LongLive[- 0-9.]*|Rolling Forcing|VideoGPT|iVideoGPT|Phenaki|VideoLDM|AnimateDiff|Make-A-Video|Imagen Video|SVD|WorldMem|VMem|Geometry Forcing|Matrix[- ]Game[ 0-9.]*|WorldPlay|Yume|Oasis|GameNGen|DIAMOND|OccWorld|Dreamer ?V?[0-9]|V-JEPA ?[0-9]?|DINO-WM|Owl-1|StreamDiT|Pandora|Vista|ART-V|MAGVIT|Loong|NUWA|Emu ?[0-9]|Lumiere|WALT|Allegro|Mochi|Goku|Hunyuan[A-Za-z]*|Step-?Video|Seaweed|Ray[0-9]?|Luma|Runway|Gen-?[23]' \"$f\" | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '; echo; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper\" && for f in \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" \"20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" \"20-Surveys/World-Models/世界模型演化 - Survey.md\" \"Paper-Index.md\"; do echo \"########## $f\"; grep -oiE 'CausVid|Self[- ]Forcing|MAGI-?1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|Open-?Sora|HunyuanVideo|Wan ?2\\.?[0-9]|CogVideoX?|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|SkyReels|Pyramid Flow|StreamingT2V|FramePack|LTX-?Video|Kling|Vidu|Genie ?[0-9]?|Cosmos[A-Za-z0-9.\\-]*|GAIA-?[0-9]?|LongLive[- 0-9.]*|Rolling Forcing|VideoGPT|iVideoGPT|Phenaki|VideoLDM|AnimateDiff|Make-A-Video|Imagen Video|SVD|WorldMem|VMem|Geometry Forcing|Matrix[- ]Game[ 0-9.]*|WorldPlay|Yume|Oasis|GameNGen|DIAMOND|OccWorld|Dreamer ?V?[0-9]|V-JEPA ?[0-9]?|DINO-WM|Owl-1|StreamDiT|Pandora|Vista|ART-V|MAGVIT|Loong|NUWA|Emu ?[0-9]|Lumiere|WALT|Allegro|Mochi|Goku|Hunyuan[A-Za-z]*|Step-?Video|Seaweed|Ray[0-9]?|Luma|Runway|Gen-?[23]' \"$f\" | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '; echo; done",
+            "description": "Extract models from world-model surveys and index"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:48:44.669Z"
+    },
+    {
+      "id": "c1f14beb-4367-4fa6-8905-3238a0fd4aef",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01NbxtDBh6EfQrq8bw2WaEwf",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && for f in \"AIReadPaper/10-Papers/World-Models/UniPi - 文本引导视频生成的通用策略.md\" \"AIReadPaper/10-Papers/World-Models/Fast-WAM - 无测试时未来想象的世界动作模型.md\" \"AIReadPaper/10-Papers/VLA/DreamZero - 视频世界动作模型的零样本机器人策略.md\" \"AIReadPaper/10-Papers/World-Models/VPP - 预测性视觉表征的通用机器人策略.md\" \"AIReadPaper/10-Papers/World-Models/Ctrl-World - 可控多视角世界模型.md\" \"AIReadPaper/10-Papers/VLA/mimic-video - 超越VLA的视频动作模型.md\" \"AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md\" \"AIReadPaper/10-Papers/World-Models/Large Video Planner - 大规模开源视频规划模型.md\" \"AIReadPaper/10-Papers/World-Models/Interactive World Simulator - 一致性模型实时交互世界模拟器.md\" \"AIReadPaper/10-Papers/World-Models/Robotic World Model - 神经动力学四足运动世界模型.md\"; do echo \"##### $f\"; grep -oiE 'CausVid|Self[- ]Forcing|MAGI-?1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|Open-?Sora|HunyuanVideo|Wan ?2\\.?[0-9]|CogVideoX?|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|SkyReels|LTX-?Video|Kling|Genie ?[0-9]?|Cosmos[A-Za-z0-9.\\-]*|GAIA-?[0-9]?|LongLive[- 0-9.]*|VideoGPT|iVideoGPT|Phenaki|VideoLDM|AnimateDiff|Make-A-Video|Imagen Video|SVD|DiT|causal attention|因果注意|双向注意|full attention|全注意力|自回归' \"$f\" | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '; echo; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && for f in \"AIReadPaper/10-Papers/World-Models/UniPi - 文本引导视频生成的通用策略.md\" \"AIReadPaper/10-Papers/World-Models/Fast-WAM - 无测试时未来想象的世界动作模型.md\" \"AIReadPaper/10-Papers/VLA/DreamZero - 视频世界动作模型的零样本机器人策略.md\" \"AIReadPaper/10-Papers/World-Models/VPP - 预测性视觉表征的通用机器人策略.md\" \"AIReadPaper/10-Papers/World-Models/Ctrl-World - 可控多视角世界模型.md\" \"AIReadPaper/10-Papers/VLA/mimic-video - 超越VLA的视频动作模型.md\" \"AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md\" \"AIReadPaper/10-Papers/World-Models/Large Video Planner - 大规模开源视频规划模型.md\" \"AIReadPaper/10-Papers/World-Models/Interactive World Simulator - 一致性模型实时交互世界模拟器.md\" \"AIReadPaper/10-Papers/World-Models/Robotic World Model - 神经动力学四足运动世界模型.md\"; do echo \"##### $f\"; grep -oiE 'CausVid|Self[- ]Forcing|MAGI-?1|NOVA|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|Open-?Sora|HunyuanVideo|Wan ?2\\.?[0-9]|CogVideoX?|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|SkyReels|LTX-?Video|Kling|Genie ?[0-9]?|Cosmos[A-Za-z0-9.\\-]*|GAIA-?[0-9]?|LongLive[- 0-9.]*|VideoGPT|iVideoGPT|Phenaki|VideoLDM|AnimateDiff|Make-A-Video|Imagen Video|SVD|DiT|causal attention|因果注意|双向注意|full attention|全注意力|自回归' \"$f\" | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '; echo; done",
+            "description": "Extract models from mid-tier world model notes"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:49:09.935Z"
+    },
+    {
+      "id": "f8c3914a-f848-4c6b-b5aa-ded45d2c4df7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01HrDBeMVWxh8nEgLc8ed4RX",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && for f in \"Tencent/red/生成模型的顺序.md\" \"Ours/paper/kuosan.md\" \"Ours/Graduate/literatureReview.md\" \"AIReadPaper/10-Papers/Foundations/PixelDiT - 像素空间扩散Transformer图像生成.md\" \"AIReadPaper/10-Papers/Foundations/Bagel - 统一多模态理解与生成预训练.md\" \"AIReadPaper/20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" \"AIReadPaper/20-Surveys/3D-Reconstruction/前馈式三维重建与生成式补全 - Survey.md\" \"AIReadPaper/10-Papers/VLA/BagelVLA - 交错式视觉语言动作生成.md\" \"AIReadPaper/20-Surveys/Foundations/视觉基础模块综述 - Survey.md\" \"AIReadPaper/20-Surveys/Video-Generation/assets/视频生成模型发展与架构演进 - Survey/sources.md\"; do echo \"##### $f\"; grep -oiE 'CausVid|Self[- ]Forcing|MAGI-?1|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|HunyuanVideo|Wan ?2\\.?[0-9]|CogVideoX?|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|Genie ?[0-9]?|Cosmos|GAIA-?[0-9]?|LongLive[- 0-9.]*|VideoGPT|Phenaki|VideoLDM|AnimateDiff|Make-A-Video|Imagen Video|SVD|\\bDiT\\b|视频生成' \"$f\" | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '; echo; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && for f in \"Tencent/red/生成模型的顺序.md\" \"Ours/paper/kuosan.md\" \"Ours/Graduate/literatureReview.md\" \"AIReadPaper/10-Papers/Foundations/PixelDiT - 像素空间扩散Transformer图像生成.md\" \"AIReadPaper/10-Papers/Foundations/Bagel - 统一多模态理解与生成预训练.md\" \"AIReadPaper/20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" \"AIReadPaper/20-Surveys/3D-Reconstruction/前馈式三维重建与生成式补全 - Survey.md\" \"AIReadPaper/10-Papers/VLA/BagelVLA - 交错式视觉语言动作生成.md\" \"AIReadPaper/20-Surveys/Foundations/视觉基础模块综述 - Survey.md\" \"AIReadPaper/20-Surveys/Video-Generation/assets/视频生成模型发展与架构演进 - Survey/sources.md\"; do echo \"##### $f\"; grep -oiE 'CausVid|Self[- ]Forcing|MAGI-?1|Emu3|VideoPoet|Diffusion Forcing|Sora|Latte|HunyuanVideo|Wan ?2\\.?[0-9]|CogVideoX?|Stable Video Diffusion|Movie ?Gen|Veo ?[0-9]|Seedance|Genie ?[0-9]?|Cosmos|GAIA-?[0-9]?|LongLive[- 0-9.]*|VideoGPT|Phenaki|VideoLDM|AnimateDiff|Make-A-Video|Imagen Video|SVD|\\bDiT\\b|视频生成' \"$f\" | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '; echo; done",
+            "description": "Extract models from remaining candidate notes"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:49:09.952Z"
+    },
+    {
+      "id": "4e573ef5-d8e5-43df-ac25-23c6afee2282",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_019H9GGxrEoEQmktzEcXXe4r",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== Paper-Index Video sections ===\" && grep -nE 'Video-Generation|视频|LongLive|Wan2.1|Stable Video' AIReadPaper/Paper-Index.md | head -40 && echo && echo \"=== Inbox queue ===\" && grep -oiE 'CausVid|Self-Forcing|MAGI|NOVA|Emu3|VideoPoet|Sora|Latte|HunyuanVideo|Wan2|CogVideoX|Seedance|Veo|视频生成|自回归' \"AIReadPaper/10-Papers/Inbox/论文推荐 - 阅读队列.md\" | sort -u | tr '\\n' ' '",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== Paper-Index Video sections ===\" && grep -nE 'Video-Generation|视频|LongLive|Wan2.1|Stable Video' AIReadPaper/Paper-Index.md | head -40 && echo && echo \"=== Inbox queue ===\" && grep -oiE 'CausVid|Self-Forcing|MAGI|NOVA|Emu3|VideoPoet|Sora|Latte|HunyuanVideo|Wan2|CogVideoX|Seedance|Veo|视频生成|自回归' \"AIReadPaper/10-Papers/Inbox/论文推荐 - 阅读队列.md\" | sort -u | tr '\\n' ' '",
+            "description": "Check Paper-Index and Inbox"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:49:30.669Z"
+    },
+    {
+      "id": "b53a0714-0033-43ab-85e1-97834b10b9ab",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_019JzCZc6xtishCavjjQqajT",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && grep -rlniE '流式视频|streaming video|chunk-wise|KV cache|自回归扩散|AR 扩散|逐帧生成' --include='*.md' . 2>/dev/null | sort && echo \"---- LongLive2 headings ----\" && grep -nE '^#{1,3} ' \"AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && grep -rlniE '流式视频|streaming video|chunk-wise|KV cache|自回归扩散|AR 扩散|逐帧生成' --include='*.md' . 2>/dev/null | sort && echo \"---- LongLive2 headings ----\" && grep -nE '^#{1,3} ' \"AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\"",
+            "description": "Find streaming/AR notes and LongLive headings"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:49:30.669Z"
+    },
+    {
+      "id": "1b1a52a5-26be-4ebb-aab1-7355cc52a16d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01TUBJeGoj6bf4ntzmyWmMtc",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== MEMORY SURVEY headings ===\" && grep -nE '^#{1,3} ' \"AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" && echo \"=== full model list ===\" && grep -oiE 'RELIC|TTT-Video|TTT|SSM|Mamba|LSTM|VMem|Spmem|HyDRA|Infinite-World|Genie ?[0-9]|Long-Context|LoopNav|MIND|FramePack|Self-Forcing|Diffusion Forcing|Teacher Forcing|CausVid|Rolling|History Guidance|WorldMem|Matrix-Game[ 0-9.]*|WorldPlay|Oasis|Phenaki|NUWA|Cosmos|GAIA-?[0-9]|Stable Video Diffusion|Wan[0-9. ]*|Hunyuan[A-Za-z]*|Sora|Veo ?[0-9]?' \"AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== MEMORY SURVEY headings ===\" && grep -nE '^#{1,3} ' \"AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" && echo \"=== full model list ===\" && grep -oiE 'RELIC|TTT-Video|TTT|SSM|Mamba|LSTM|VMem|Spmem|HyDRA|Infinite-World|Genie ?[0-9]|Long-Context|LoopNav|MIND|FramePack|Self-Forcing|Diffusion Forcing|Teacher Forcing|CausVid|Rolling|History Guidance|WorldMem|Matrix-Game[ 0-9.]*|WorldPlay|Oasis|Phenaki|NUWA|Cosmos|GAIA-?[0-9]|Stable Video Diffusion|Wan[0-9. ]*|Hunyuan[A-Za-z]*|Sora|Veo ?[0-9]?' \"AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '",
+            "description": "Read memory survey structure and models"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:49:47.502Z"
+    },
+    {
+      "id": "cb61608e-55c4-4ec1-a2b9-2f09c621e863",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_0165v6E5Rh9zoNi5GPcNwy22",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== 生成模型的顺序 ===\" && head -60 \"Tencent/red/生成模型的顺序.md\" && echo \"=== LongLive relation sect ===\" && sed -n '382,400p' \"AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== 生成模型的顺序 ===\" && head -60 \"Tencent/red/生成模型的顺序.md\" && echo \"=== LongLive relation sect ===\" && sed -n '382,400p' \"AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\"",
+            "description": "Read 生成模型的顺序 and LongLive relation"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:49:47.502Z"
+    },
+    {
+      "id": "abcbdfd9-1b0a-4657-839b-37f61774ddf4",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_018gV6u7i4DAWzqfH5jY9rYN",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== literatureReview Latte ctx ===\" && grep -niE -B2 -A2 'Latte|视频生成' \"Ours/Graduate/literatureReview.md\" | head -20 && echo && echo \"=== 多模态survey ===\" && grep -niE -A1 'Sora|视频生成|Emu3|Diffusion Forcing' \"AIReadPaper/20-Surveys/VLM/多模态大模型架构与训练全流程 - Survey.md\" | head -20 && echo && echo \"=== world_model 1.1 ===\" && sed -n '39,60p' Tencent/red/world_model.md",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== literatureReview Latte ctx ===\" && grep -niE -B2 -A2 'Latte|视频生成' \"Ours/Graduate/literatureReview.md\" | head -20 && echo && echo \"=== 多模态survey ===\" && grep -niE -A1 'Sora|视频生成|Emu3|Diffusion Forcing' \"AIReadPaper/20-Surveys/VLM/多模态大模型架构与训练全流程 - Survey.md\" | head -20 && echo && echo \"=== world_model 1.1 ===\" && sed -n '39,60p' Tencent/red/world_model.md",
+            "description": "Check peripheral notes context"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:50:30.818Z"
+    },
+    {
+      "id": "0c4766ad-8be1-4655-b3eb-2cda1594d7f3",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01S9kVL1z1kcqXVVZafsJd8A",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== Bagel Emu3/DiffForcing ===\" && grep -niE 'Emu3|Diffusion Forcing|视频生成' \"AIReadPaper/10-Papers/Foundations/Bagel - 统一多模态理解与生成预训练.md\" | head && echo && echo \"=== 前馈3D Survey ===\" && grep -niE 'Self-Forcing|Diffusion Forcing|Wan ?2\\.1|DiT' \"AIReadPaper/20-Surveys/3D-Reconstruction/前馈式三维重建与生成式补全 - Survey.md\" | head -20 && echo \"=== 视觉世界模型 Latte ===\" && grep -niE 'Latte|Vista|iVideoGPT|Cosmos.*自回归|自回归 WFM' \"AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head -20",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== Bagel Emu3/DiffForcing ===\" && grep -niE 'Emu3|Diffusion Forcing|视频生成' \"AIReadPaper/10-Papers/Foundations/Bagel - 统一多模态理解与生成预训练.md\" | head && echo && echo \"=== 前馈3D Survey ===\" && grep -niE 'Self-Forcing|Diffusion Forcing|Wan ?2\\.1|DiT' \"AIReadPaper/20-Surveys/3D-Reconstruction/前馈式三维重建与生成式补全 - Survey.md\" | head -20 && echo \"=== 视觉世界模型 Latte ===\" && grep -niE 'Latte|Vista|iVideoGPT|Cosmos.*自回归|自回归 WFM' \"AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head -20",
+            "description": "Check Bagel, 3D survey, VWM survey contexts"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:50:30.818Z"
+    },
+    {
+      "id": "6dca52a3-585c-4f8e-94fa-452e4adb705f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01P3DUkPNpDJZMJ3aGPScCQz",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== Latte in VWM survey ===\" && grep -niE 'Latte' \"AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md\" \"Ours/Graduate/literatureReview.md\" && echo \"=== 世界模型演化 headings ===\" && grep -nE '^#{1,3} ' \"AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== Latte in VWM survey ===\" && grep -niE 'Latte' \"AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md\" \"Ours/Graduate/literatureReview.md\" && echo \"=== 世界模型演化 headings ===\" && grep -nE '^#{1,3} ' \"AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md\"",
+            "description": "Check Latte mentions and 世界模型演化 structure"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:50:39.536Z"
+    },
+    {
+      "id": "fa9a70f6-f7b7-458c-9473-c791b599c29a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_016EiNejCtN97U4WuxbdokoG",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== 世界模型演化 9.2 ===\" && sed -n '290,303p' \"AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md\" && echo \"=== Robotic World Model self-forcing ===\" && grep -niE -A2 'self-forcing|自回归' \"AIReadPaper/10-Papers/World-Models/Robotic World Model - 神经动力学四足运动世界模型.md\" | head -10 && echo \"=== Interactive World Simulator ===\" && grep -nE '^#{1,3} |一句话|基本信息' -A3 \"AIReadPaper/10-Papers/World-Models/Interactive World Simulator - 一致性模型实时交互世界模拟器.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== 世界模型演化 9.2 ===\" && sed -n '290,303p' \"AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md\" && echo \"=== Robotic World Model self-forcing ===\" && grep -niE -A2 'self-forcing|自回归' \"AIReadPaper/10-Papers/World-Models/Robotic World Model - 神经动力学四足运动世界模型.md\" | head -10 && echo \"=== Interactive World Simulator ===\" && grep -nE '^#{1,3} |一句话|基本信息' -A3 \"AIReadPaper/10-Papers/World-Models/Interactive World Simulator - 一致性模型实时交互世界模拟器.md\" | head -40",
+            "description": "Verify final details"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:50:53.652Z"
+    },
+    {
+      "id": "9c94d51e-c156-45a7-b8c7-ce1b4ca2de12",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_015Z4GwMqn1SrC6nzLbGibV1",
+          "title": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== 生成模型的顺序 models ===\" && grep -oiE 'Diffusion Forcing|Rolling Diffusion|MAR|MaskGIT|LlamaGen|VAR|AR-Diffusion|SEDD|MDLM|LLaDA|Dream|xar|PAR|Show-o|Transfusion|Emu3|NOVA|FlowAR|CausVid|Self-Forcing|视频' \"Tencent/red/生成模型的顺序.md\" | tr 'A-Z' 'a-z' | sort | uniq -c | sort -rn | head -20 && echo \"=== world_model.md 2.1/2.2 tables model names ===\" && sed -n '116,280p' Tencent/red/world_model.md | grep -oiE 'CausVid|Self[- ]Forcing|Causal Forcing|Sora|Wan ?2\\.[0-9]|HunyuanVideo|Cosmos[A-Za-z0-9.\\-]*|GAIA-?[0-9]|Genie ?[0-9]|Matrix[- ]Game[ 0-9.]*|WorldPlay|Yume|Marble|Seedance|Kling|Veo ?[0-9]|X-World|TeleWorld|LingBot|Happy Oyster|MultiWorld|Solaris|LPM|Owl|Video[A-Za-z]*' | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd \"/Users/eilonxtxue/Documents/obsidian/obsidian_bk\" && echo \"=== 生成模型的顺序 models ===\" && grep -oiE 'Diffusion Forcing|Rolling Diffusion|MAR|MaskGIT|LlamaGen|VAR|AR-Diffusion|SEDD|MDLM|LLaDA|Dream|xar|PAR|Show-o|Transfusion|Emu3|NOVA|FlowAR|CausVid|Self-Forcing|视频' \"Tencent/red/生成模型的顺序.md\" | tr 'A-Z' 'a-z' | sort | uniq -c | sort -rn | head -20 && echo \"=== world_model.md 2.1/2.2 tables model names ===\" && sed -n '116,280p' Tencent/red/world_model.md | grep -oiE 'CausVid|Self[- ]Forcing|Causal Forcing|Sora|Wan ?2\\.[0-9]|HunyuanVideo|Cosmos[A-Za-z0-9.\\-]*|GAIA-?[0-9]|Genie ?[0-9]|Matrix[- ]Game[ 0-9.]*|WorldPlay|Yume|Marble|Seedance|Kling|Veo ?[0-9]|X-World|TeleWorld|LingBot|Happy Oyster|MultiWorld|Solaris|LPM|Owl|Video[A-Za-z]*' | tr 'A-Z' 'a-z' | sort -u | tr '\\n' ' '",
+            "description": "Final detail checks"
+          }
+        },
+        {
+          "type": "text",
+          "text": "让我读一下现有的两篇核心笔记，保证术语和链接对得上。"
+        }
+      ],
+      "timestamp": "2026-08-28T09:51:12.686Z"
+    },
+    {
+      "id": "60445d7c-1437-4be1-9791-47a57af5c544",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_013vWKujNtBPtaPSSQwr7qUG",
+          "title": "grep -n \"^#\\{1,4\\} \" \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\" && echo \"=====WORLD MODEL=====\" && grep -n \"^#\\{1,4\\} \" \"Tencent/red/world_model.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n \"^#\\{1,4\\} \" \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\" && echo \"=====WORLD MODEL=====\" && grep -n \"^#\\{1,4\\} \" \"Tencent/red/world_model.md\"",
+            "description": "Show outlines of two key notes"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:52:38.156Z"
+    },
+    {
+      "id": "d324794a-46e2-49aa-95da-7765105f1729",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01RyQBSUcvjcW5HCZeiQfyFm",
+          "title": "\"MAGI-1 CausVid Self-Forcing NOVA autoregressive video generation representative papers 代表工作\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "MAGI-1 CausVid Self-Forcing NOVA autoregressive video generation representative papers 代表工作"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:52:39.672Z"
+    },
+    {
+      "id": "1f8358cc-a0cd-4b13-81c4-18ca8585c91d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01DK49WaLDapNehsyoD7PMcf",
+          "title": "Read AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md (220 - 289)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md",
+              "line": 220
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md",
+            "offset": 220,
+            "limit": 70
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:52:55.321Z"
+    },
+    {
+      "id": "e7630d6a-c024-45d6-bc2d-b70e3bec9744",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_017m6dg1X4qRQkCBNr5HiV4f",
+          "title": "Read Tencent/red/world_model.md (588 - 777)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/world_model.md",
+              "line": 588
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/world_model.md",
+            "offset": 588,
+            "limit": 190
+          }
+        },
+        {
+          "type": "text",
+          "text": "让我确认一下 LongLive-2.0 笔记里那条自回归谱系，还有几篇 2026 新工作。"
+        }
+      ],
+      "timestamp": "2026-08-28T09:52:57.972Z"
+    },
+    {
+      "id": "55c860bd-baa6-4009-bf35-dcca45366b54",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01SEntArygQN23zWZR1p8ne4",
+          "title": "grep -n \"^#\\{1,4\\} \" \"AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n \"^#\\{1,4\\} \" \"AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\"",
+            "description": "Outline of LongLive-2.0 note"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:53:05.005Z"
+    },
+    {
+      "id": "f66bcfb7-6b12-4094-99a9-295d6a6668e8",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01Qs6eKpsuADSAs9fxbzRigX",
+          "title": "Fetch https://arxiv.org/abs/2607.20368",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "url": "https://arxiv.org/abs/2607.20368",
+            "prompt": "What is this paper's title, authors, and abstract? What method does it propose and what does it compare against?"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:53:07.555Z"
+    },
+    {
+      "id": "f2cefc93-6069-48c5-ba94-5dafb1284959",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01UqtTnUC8RYKHkSudZbE9yL",
+          "title": "Read AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md (382 - 411)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md",
+              "line": 382
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md",
+            "offset": 382,
+            "limit": 30
+          }
+        },
+        {
+          "type": "text",
+          "text": "视频生成的这两条路，本质区别不在「用不用扩散」，而在 **attention mask 的形状 + 加噪调度的粒度**。你 vault 里 [[视频生成模型发展与架构演进 - Survey]] 的 §4.2 已经埋了这个分叉，[[world_model]] 的 §3.4 / §3.5 是这两条路在世界模型场景下的对照。我把谱系补全一下。\n\n## 先把「自回归」这个词拆开\n\n「自回归视频生成」在文献里指两件完全不同的事，混谈会很乱：\n\n| | A. 离散 token AR | B. 因果扩散 AR |\n|---|---|---|\n| 损失 | 交叉熵（next-token） | 扩散 / 流匹配损失 |\n| 单元 | 单个 VQ token | 一个 chunk（若干帧的 latent） |\n| 类比 | GPT | 双向 DiT 剪成 block-causal |\n| 代表 | VideoGPT、VideoPoet、Emu3 | Diffusion Forcing、CausVid、MAGI-1 |\n\n2025 年之后说的「自回归视频」几乎全是 B。A 那条线基本被并进了统一多模态模型（你笔记里 [[Bagel - 统一多模态理解与生成预训练]] 讨论的就是这个转折）。所以真正的两条路对峙是：**全序列双向 DiT ↔ chunk-wise 因果扩散**。\n\n## 路线一：双向全序列 DiT\n\n一次性把整段视频当成时空 token 序列，全注意力去噪，推理时所有帧同噪声等级、同步出结果。\n\n**骨干奠基**\n\n- **DiT** — *Scalable Diffusion Models with Transformers*（[arXiv 2212.09748](https://arxiv.org/abs/2212.09748), ICCV 2023）。证明 Transformer 可完全替代 U-Net，并给出 GFlops–FID 的单调 scaling 曲线。adaLN-Zero 至今是视频 DiT 的默认条件注入。\n- **Latte** — *Latent Diffusion Transformer for Video Generation*（2024）。第一批系统消融「时空分解注意力 vs 全注意力」的工作，结论偏向分解；后来被 Sora 路线反转。\n\n**范式确立**\n\n- **Sora** — *Video generation models as world simulators*（OpenAI, 2024.02，无论文）。spacetime patches 把「表示」彻底统一，此后视频和图像在 DiT 里没有区别。原生变分辨率 / 变时长也来自这里。\n- **CogVideoX**（ICLR 2025）— 第一个开源复现 Sora 配方：3D Causal VAE + Expert Transformer，$(T+1)\\times 8\\times 8$ 压缩。\n- **HunyuanVideo**（2024.12）— 13B，完整工业化管线（数据过滤、progressive training、双流转单流），开源侧质量分水岭。\n- **Movie Gen**（Meta, 2024.10）— 30B，流匹配 + 视频/音频/编辑多任务统一。\n- **Wan 2.1 / 2.2**（阿里, 2025）— 见 [[Wan2.1 - 开源大规模视频生成基础模型]]。当下事实上的开源基座，后面几乎所有 AR 工作都拿它当教师。\n\n**过渡形态（2D U-Net + 时间层，非纯 DiT 但同属双向）**\n\n- **VideoLDM**（CVPR 2023）、**AnimateDiff**（ICLR 2024 spotlight）、**Stable Video Diffusion**（2023.11，见 [[Stable Video Diffusion - 大规模潜视频扩散模型]]）。这条线的后继者全部转向了 DiT。\n\n**闭源 / 平台级**\n\nVeo 3、Kling、Seedance 1.0、Cosmos-Predict2.5、GAIA-2 —— 后两个在 [[视觉世界模型 - Survey]] 里有架构层面的辨析（其中 Cosmos 的 DiT 是**全时空注意力**而非分解，GAIA-2 才是真正分解的，这点很多二手资料写错了）。\n\n## 路线二：chunk-wise 因果扩散（AR）\n\n改成 block-causal mask，只看当下和过去，KV cache 维持历史，逐 chunk 吐帧。换来的是**流式、可实时交互、长度原则上无上限**；代价是误差累积。\n\n**机制奠基**\n\n- **Diffusion Forcing** — *Next-token Prediction Meets Full-Sequence Diffusion*（NeurIPS 2024）。这条路的理论起点：每帧独立噪声等级 + block-causal mask，把 AR 和扩散在同一个目标里统一。\n- **Rolling Diffusion**（ICML 2024）— 滑动窗口内噪声等级随时间递增，另一种「异步去噪」表述。\n- **FIFO-Diffusion**（NeurIPS 2024）— training-free 的对角去噪队列，证明现成双向模型也能被改造成流式。\n\n这三者的共同内核是「**去噪顺序**」这个设计轴，你 vault 里 [[生成模型的顺序]] 那篇正是这个框架的通用化。\n\n**蒸馏加速（把双向教师压成因果学生）—— 这条路真正起飞的地方**\n\n- **CausVid** — *From Slow Bidirectional to Fast Causal Video Generators*（CVPR 2025）。用 DMD 把双向教师蒸馏成 few-step 因果学生，首次做到亚秒级首帧 + 流式。\n- **Self-Forcing** — *Bridging the Train-Test Gap in Autoregressive Video Diffusion*（[arXiv 2506.08009](https://arxiv.org/abs/2506.08009)）。关键洞察：训练时喂真实历史、推理时喂自己生成的历史，这个 exposure bias 才是漂移主因。改成在自己 rollout 的历史上训练，单卡实时。**这篇是当前 AR 视频的事实基线。**\n- **AAPT** — *Autoregressive Adversarial Post-Training*（2025）。对抗式后训练路线，one-step-per-frame 实时。\n- **MAGI-1**（Sand.ai, [arXiv 2505.13211](https://arxiv.org/abs/2505.13211)）。24B，chunk-by-chunk 去噪，是**原生大规模训练**的 AR 模型而非蒸馏产物 —— 目前这条路上最重要的「非蒸馏」证据点。\n- **SkyReels-V2**（2025）— Diffusion Forcing 路线做无限时长。\n- **FramePack**（2025）— 按时间距离压缩历史 context，让每步计算量恒定，直面「KV cache 随历史线性膨胀」。\n\n**Forcing 家族的持续演进**\n\n[[LongLive-2.0 - NVFP4长视频生成训练与推理系统]] 的 §6 把这条线列得最全：Self-Forcing++、LongLive、Rolling Forcing、Causal Forcing、Context Forcing、HiAR、Diagonal Distillation、Deep Forcing、Relax Forcing、MemRoPE、VideoSSM、Hybrid Forcing 等。2026 年的新增量：\n\n- **Self Gradient Forcing**（[arXiv 2607.20368](https://arxiv.org/abs/2607.20368)）— 指出 Self-Forcing 只对齐了历史*内容*，没优化历史该被*怎么编码*（\"historical context-gradient gap\"）。两趟训练：无梯度 rollout + 并行重建 context 梯度，让未来帧的 loss 反过来监督早期 latent。5 秒窗口训练外推到数分钟。\n- **FreqForcing**（[arXiv 2607.27110](https://arxiv.org/abs/2607.27110)）— 从频域切入 self-rollout 误差累积，针对 color drift / motion stagnation。\n- **Causal Forcing**（THU, 2026）— 主张现有「双向→因果」的蒸馏实现方式本身有缺陷，重做这一步。\n- **StreamDiffusionV2**（MLSys 2026）— training-free 的流式直播系统，系统侧而非算法侧。\n\n**交互式 / 世界模型分支**\n\nGenie 3、Matrix-Game 2.0/3.0、WorldPlay、Oasis、GameNGen —— 全部落在这条路上，因为「接受实时键鼠输入」逻辑上必须因果。[[world_model]] §3.5 和 [[世界模型记忆机制架构演进 - Survey]] 把控制信号注入方式（adaLN / cross-attn / 帧 concat）和记忆机制做了对照。\n\n## 一句话概括当前格局\n\n两条路已经不是竞争关系，而是**级联**关系：\n\n$$\\text{双向 DiT 大规模预训练} \\xrightarrow{\\ \\text{DMD / 对抗蒸馏}\\ } \\text{因果 AR 学生} \\xrightarrow{\\ \\text{Self-Forcing 类训练对齐}\\ } \\text{实时流式}$$\n\n双向那头负责「把世界知识灌进参数」（scaling 友好、质量上限高），因果那头负责「把它变成可交互产品」。**MAGI-1 是目前唯一有分量的反例** —— 它主张 AR 可以原生大规模训练，不必当双向模型的下游。这个问题没有定论，是这条线上最值得盯的分叉。\n\n另外提一句你 vault 的空白：Sora、DiT、CausVid、Self-Forcing、Diffusion Forcing、MAGI-1、NOVA 这些都只在 survey 和 related-work 里出现过，没有独立笔记。按你现在的关注点（[[world_model]] 明显在做流式方向），**Self-Forcing 和 Diffusion Forcing 这两篇最值得先补精读笔记** —— 前者是基线，后者是理论起点，后面所有 Forcing 变体都在改它们。要我起个笔记草稿吗？\n\nSources:\n- [MAGI-1: Autoregressive Video Generation at Scale](https://arxiv.org/abs/2505.13211)\n- [Self Gradient Forcing: Native Long Video Extrapolation](https://arxiv.org/abs/2607.20368)\n- [FreqForcing: Autoregressive Long Video Generation](https://arxiv.org/abs/2607.27110)\n- [CausVid & Self-Forcing 解读](https://zhuanlan.zhihu.com/p/1991874660934129630)\n- [Causal Forcing: Autoregressive Diffusion Distillation Done Right](https://blog.csdn.net/wl1780852311/article/details/159392337)\n- [StreamDiffusionV2 (MLSys 2026)](https://baijiahao.baidu.com/s?id=1859544613280620250)"
+        }
+      ],
+      "timestamp": "2026-08-28T09:53:26.586Z"
+    }
+  ],
+  "savedAt": "2026-08-28T09:54:59.509Z"
+}

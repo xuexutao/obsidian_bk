@@ -1,0 +1,1943 @@
+{
+  "version": 1,
+  "sessionId": "f04697ed-a8c2-494c-9cb5-a4b32875c412",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "现在视频世界模型有哪些控制条件呢",
+  "createdAt": "2026-08-28T08:20:12.484Z",
+  "updatedAt": "2026-08-28T08:20:12.500Z",
+  "messages": [
+    {
+      "id": "ef886526-d445-4df4-ac0c-2687e2fbf005",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "现在视频世界模型有哪些控制条件呢",
+          "autoMentionContext": {
+            "noteName": "视觉世界模型 - Survey",
+            "notePath": "AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:08:58.383Z"
+    },
+    {
+      "id": "f589a612-c2c8-443e-b49c-5fbfba4e9f8f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_T4Ch5IgduL67EWmga5hlVo",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:02.688Z"
+    },
+    {
+      "id": "6de225f0-c6e6-4a06-86dc-d223a364ce89",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_gdYki2Em9mbe24866eeVbY",
+          "title": "ls /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/ 2>/dev/null; echo \"---\"; ls /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/ 2>/dev/null",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "ls /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/ 2>/dev/null; echo \"---\"; ls /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/ 2>/dev/null",
+            "description": "List world-model notes in vault"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:15.153Z"
+    },
+    {
+      "id": "baf6646b-6477-4496-8f0c-2d1e24b8c72c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_S7xoa17WxotB2qPeuPvto5",
+          "title": "grep -rl -E \"动作条件|action condition|latent action|可控|条件注入\" --include=\"*.md\" . | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -rl -E \"动作条件|action condition|latent action|可控|条件注入\" --include=\"*.md\" . | head -40",
+            "description": "Find notes mentioning action conditioning"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:17.053Z"
+    },
+    {
+      "id": "8a182e12-9fe7-4e82-8821-4eaa20393869",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_PaziBeo3wdiZTx2P7TRTJp",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/ && grep -n -E \"控制条件|条件|action|轨迹|相机|camera|pose|姿态|深度|语言|指令\" \"世界模型演化 - Survey.md\" | head -60",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/ && grep -n -E \"控制条件|条件|action|轨迹|相机|camera|pose|姿态|深度|语言|指令\" \"世界模型演化 - Survey.md\" | head -60",
+            "description": "Search evolution survey for conditioning terms"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:26.972Z"
+    },
+    {
+      "id": "9f4b227e-bbd0-48fb-b32b-ef2fb7770a7e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_ePYvfouRooGUu59wnMU62I",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/ && grep -n -E \"控制|条件注入|camera|相机|轨迹\" \"Video-Generation/视频生成模型发展与架构演进 - Survey.md\" | head -60",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/ && grep -n -E \"控制|条件注入|camera|相机|轨迹\" \"Video-Generation/视频生成模型发展与架构演进 - Survey.md\" | head -60",
+            "description": "Search video generation survey for control terms"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:28.835Z"
+    },
+    {
+      "id": "3d66602c-f047-417b-91db-9b1dd369db23",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_bOmc1o0YhsMJYK94ffGqdO",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk && ls AIReadPaper/10-Papers/ && echo \"=== World-Models papers ===\" && ls AIReadPaper/10-Papers/World-Model* AIReadPaper/10-Papers/VLA 2>/dev/null",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk && ls AIReadPaper/10-Papers/ && echo \"=== World-Models papers ===\" && ls AIReadPaper/10-Papers/World-Model* AIReadPaper/10-Papers/VLA 2>/dev/null",
+            "description": "List paper note directories"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:37.755Z"
+    },
+    {
+      "id": "48f1e18e-a466-4345-9386-5fda34e38345",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_pm2n00awipMPJTfKgirWMX",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk && cat MEMORY.md 2>/dev/null; ls .claude/projects 2>/dev/null; cat /Users/eilonxtxue/.claude/projects/-Users-eilonxtxue-Documents-obsidian-obsidian-bk/memory/MEMORY.md 2>/dev/null",
+          "status": "failed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk && cat MEMORY.md 2>/dev/null; ls .claude/projects 2>/dev/null; cat /Users/eilonxtxue/.claude/projects/-Users-eilonxtxue-Documents-obsidian-obsidian-bk/memory/MEMORY.md 2>/dev/null",
+            "description": "Read memory index"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:40.036Z"
+    },
+    {
+      "id": "594468bd-6be6-4492-961c-534e98ddbc05",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_ouHb7VMekDAm2RC2bvkbp3",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models && grep -n -E \"条件|control|相机|camera|轨迹|动作|语言|指令|深度|布局|mask|草图|音频\" \"Ctrl-World - 可控多视角世界模型.md\" | head -50",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models && grep -n -E \"条件|control|相机|camera|轨迹|动作|语言|指令|深度|布局|mask|草图|音频\" \"Ctrl-World - 可控多视角世界模型.md\" | head -50",
+            "description": "Scan Ctrl-World note for conditions"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:48.072Z"
+    },
+    {
+      "id": "2d4bc593-5525-490c-988b-5449d13f48c1",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_POpkVoaLzxd3g2Mb1kuZF6",
+          "title": "Sweep vault for control conditions",
+          "status": "completed",
+          "kind": "think",
+          "content": [],
+          "rawInput": {
+            "description": "Sweep vault for control conditions",
+            "subagent_type": "Explore",
+            "prompt": "In the Obsidian vault at /Users/eilonxtxue/Documents/obsidian/obsidian_bk, focus on AIReadPaper/ (10-Papers and 20-Surveys). I need a very thorough inventory of **what kinds of control/conditioning signals video world models accept**, as documented in these notes.\n\nFor each distinct control condition type, report:\n1. The condition type (e.g. text instruction, low-level robot action vector, latent/discrete action, ego trajectory, camera pose, 3D bounding boxes / layout, depth/segmentation/edge maps, keyboard+mouse input, goal image, audio, physical parameters, memory/history frames, etc.)\n2. Which specific model/paper names in the notes use it (with arXiv ids if present)\n3. The **injection mechanism** where noted (AdaLN/AdaGN, cross-attention, channel concat, token in sequence, added to timestep embedding, ControlNet, etc.)\n4. The exact note file path + line numbers so I can cite them\n\nKey files to read carefully: AIReadPaper/20-Surveys/World-Models/*.md (三篇), AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md, AIReadPaper/10-Papers/World-Models/*.md (especially Ctrl-World, Interactive World Simulator, DreamDojo, Dyna-2, Fast-WAM, DreamZero, PointWorld, Large Video Planner, UniPi), AIReadPaper/10-Papers/VLA/*.md as relevant.\n\nReturn a structured markdown inventory grouped by condition type. Be exhaustive — I want every condition type mentioned anywhere. Do not write any files."
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:09:50.403Z"
+    },
+    {
+      "id": "22a0eb00-aacc-4776-a0d4-d20510f2eed0",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_tC6UTnC9qO8OoirpBqhfcI",
+          "title": "find /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper -type f -name \"*.md\" | sort",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "find /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper -type f -name \"*.md\" | sort",
+            "description": "List all markdown files in AIReadPaper"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:06.319Z"
+    },
+    {
+      "id": "c6218dfe-0130-4348-8b9f-30c39cced504",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_2cpklE4yc6VLK8TMgPr1Os",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && ls -la 10-Papers 20-Surveys 2>/dev/null",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && ls -la 10-Papers 20-Surveys 2>/dev/null",
+            "description": "List top-level dirs"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:06.319Z"
+    },
+    {
+      "id": "bae7009e-f063-4d6b-a4f4-34499b097f00",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_NPQaKIxKeIwTw4T38t815r",
+          "title": "ls -la /Users/eilonxtxue/.claude/projects/-Users-eilonxtxue-Documents-obsidian-obsidian-bk/memory/ 2>/dev/null",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "ls -la /Users/eilonxtxue/.claude/projects/-Users-eilonxtxue-Documents-obsidian-obsidian-bk/memory/ 2>/dev/null",
+            "description": "Check memory directory"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:07.272Z"
+    },
+    {
+      "id": "987c89d2-6870-4cf3-b03f-90977804ae62",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_iouY75o5tvGMwErvUzgF4N",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && wc -l 20-Surveys/World-Models/*.md 20-Surveys/Video-Generation/*.md 10-Papers/World-Models/*.md 10-Papers/VLA/*.md 10-Papers/Video-Generation/*.md 2>/dev/null",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && wc -l 20-Surveys/World-Models/*.md 20-Surveys/Video-Generation/*.md 10-Papers/World-Models/*.md 10-Papers/VLA/*.md 10-Papers/Video-Generation/*.md 2>/dev/null",
+            "description": "Count lines in key files"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:10.786Z"
+    },
+    {
+      "id": "91c76dc9-1667-46c5-9c0f-8685196d84ce",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_dd8ApwwM1UEhWR5vIzQzj3",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:15.186Z"
+    },
+    {
+      "id": "8b745a84-1372-457f-a76e-effd73808876",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_W5MnpM9jDVwRWIwNfdcdTG",
+          "title": "Read AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:15.186Z"
+    },
+    {
+      "id": "b3d1ceb3-4554-4041-a435-99af290fdfbb",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_edb0pfjnVv3MHdQYcaBSGg",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:21.836Z"
+    },
+    {
+      "id": "d52967ad-0d8a-4539-846f-78d025be78fd",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_kFM7Hhsgoey0LujjS1NRiV",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:21.854Z"
+    },
+    {
+      "id": "d0d251ca-7ffc-4524-85d6-bb0b01af564e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_omWYat80dv6H9JSn5FaAjQ",
+          "title": "Read AIReadPaper/10-Papers/World-Models/Ctrl-World - 可控多视角世界模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Ctrl-World - 可控多视角世界模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Ctrl-World - 可控多视角世界模型.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:28.686Z"
+    },
+    {
+      "id": "49485d9a-b3e6-463f-b752-d4c700210178",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_Z3QQWqMCOmy8lBl55pAx16",
+          "title": "Read AIReadPaper/10-Papers/World-Models/Interactive World Simulator - 一致性模型实时交互世界模拟器.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Interactive World Simulator - 一致性模型实时交互世界模拟器.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Interactive World Simulator - 一致性模型实时交互世界模拟器.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:28.686Z"
+    },
+    {
+      "id": "71c8cd00-eff2-45c7-bc62-fcc219c72813",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_JIUsuQFNE0v2c3Bg25AvnX",
+          "title": "Read AIReadPaper/10-Papers/World-Models/DreamDojo - 基于大规模人类视频的通用机器人世界模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/DreamDojo - 基于大规模人类视频的通用机器人世界模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/DreamDojo - 基于大规模人类视频的通用机器人世界模型.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:35.236Z"
+    },
+    {
+      "id": "69b68ae1-7728-418d-9321-364a93fe6f95",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_bnKJj4RBJGj6LLQ5eWsCUS",
+          "title": "Read AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "我先读了这篇 survey 笔记，并派了一个 agent 去把 vault 里所有相关论文笔记的控制条件扫一遍。等它回来的同时，我先看几篇你已有的深读笔记。"
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:35.253Z"
+    },
+    {
+      "id": "6f40455c-790e-4423-ad0e-0b55b3c1408b",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_eCL1pQlKV7afzc102WN8AA",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"键鼠|keyboard|mouse|相机位姿|camera pose|Plücker|camera trajectory|轨迹条件|bounding box|HD map|布局条件\" --include=\"*.md\" . | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"键鼠|keyboard|mouse|相机位姿|camera pose|Plücker|camera trajectory|轨迹条件|bounding box|HD map|布局条件\" --include=\"*.md\" . | head -40",
+            "description": "Grep for camera and layout conditions"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:39.821Z"
+    },
+    {
+      "id": "416cb819-d39f-41a2-acce-4a5293060ef4",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_uXZ1FaPCyEQnBqPucZwpew",
+          "title": "Read AIReadPaper/10-Papers/World-Models/Fast-WAM - 无测试时未来想象的世界动作模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Fast-WAM - 无测试时未来想象的世界动作模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Fast-WAM - 无测试时未来想象的世界动作模型.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:42.119Z"
+    },
+    {
+      "id": "25b739a6-f8ba-4260-85be-2ae75b28e9cf",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_AElfiPEwGzjj6aDlQYvC8c",
+          "title": "Read AIReadPaper/10-Papers/World-Models/PointWorld - 可扩展3D世界模型用于野外机器人操控.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/PointWorld - 可扩展3D世界模型用于野外机器人操控.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/PointWorld - 可扩展3D世界模型用于野外机器人操控.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:42.138Z"
+    },
+    {
+      "id": "ed2f3b65-0974-4664-9aa2-e7b6d1f4dfc9",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_LkLH8wM8HovnarCtmggdjz",
+          "title": "Read AIReadPaper/10-Papers/World-Models/Large Video Planner - 大规模开源视频规划模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Large Video Planner - 大规模开源视频规划模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Large Video Planner - 大规模开源视频规划模型.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:42.138Z"
+    },
+    {
+      "id": "8a77f3e9-83d8-405c-930d-c873b471044f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_yBNMdAQHgF8C4iWEOEeh6L",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models && grep -n -E \"键鼠|WASD|鼠标|action|动作条件|控制信号|条件\" \"世界模型记忆机制架构演进 - Survey.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models && grep -n -E \"键鼠|WASD|鼠标|action|动作条件|控制信号|条件\" \"世界模型记忆机制架构演进 - Survey.md\" | head -40",
+            "description": "Scan memory survey for action conditions"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:47.636Z"
+    },
+    {
+      "id": "49c41b56-ce84-4781-97db-e9a9096d6d4c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_AbNwMfnLckuZNdrDt0zJES",
+          "title": "Read AIReadPaper/10-Papers/World-Models/UniPi - 文本引导视频生成的通用策略.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/UniPi - 文本引导视频生成的通用策略.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/UniPi - 文本引导视频生成的通用策略.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:48.070Z"
+    },
+    {
+      "id": "b62bf3eb-b32b-49ef-9af8-254e4cedfd8e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_v4lqHqY3I0QDkiHy73FtJp",
+          "title": "Read AIReadPaper/10-Papers/VLA/DreamZero - 视频世界动作模型的零样本机器人策略.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/DreamZero - 视频世界动作模型的零样本机器人策略.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/DreamZero - 视频世界动作模型的零样本机器人策略.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:48.070Z"
+    },
+    {
+      "id": "4c7f4944-3f12-4886-a8df-260d60e1cfd3",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_oljemL2TobJ7v5DuwRPIYi",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md (40 - 99)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md",
+              "line": 40
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md",
+            "offset": 40,
+            "limit": 60
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:55.485Z"
+    },
+    {
+      "id": "cfbe0601-3b4a-4ed3-9807-259bbaa5946b",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_xpE3UJBs9nvnIREK5kvip4",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"AdaLN|adaLN|AdaGN|Adaptive GroupNorm|cross-attention|cross attention|通道拼接|拼通道|沿通道|ControlNet|timestep embedding|时间步嵌入|加到 timestep|token 维拼接|channel concat\" --include=\"*.md\" 10-Papers 20-Surveys | grep -v \"^20-Surveys/World-Models/视觉世界模型\" | head -100",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"AdaLN|adaLN|AdaGN|Adaptive GroupNorm|cross-attention|cross attention|通道拼接|拼通道|沿通道|ControlNet|timestep embedding|时间步嵌入|加到 timestep|token 维拼接|channel concat\" --include=\"*.md\" 10-Papers 20-Surveys | grep -v \"^20-Surveys/World-Models/视觉世界模型\" | head -100",
+            "description": "Grep injection mechanism keywords"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:10:57.304Z"
+    },
+    {
+      "id": "69533055-0f66-41a7-aa13-94763067b16a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_ktU0iDAtffJqoXASzGgR9G",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models && grep -n -E \"键盘|鼠标|动作|条件|control|action space\" \"Interactive World Simulator - 一致性模型实时交互世界模拟器.md\" | head -30",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models && grep -n -E \"键盘|鼠标|动作|条件|control|action space\" \"Interactive World Simulator - 一致性模型实时交互世界模拟器.md\" | head -30",
+            "description": "Scan interactive world simulator note"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:00.871Z"
+    },
+    {
+      "id": "1f0aec36-e481-445f-b147-278d470ca962",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_n3Nhy8Ipl7tFegYWFLc1Nj",
+          "title": "Read AIReadPaper/10-Papers/World-Models/Robotic World Model - 神经动力学四足运动世界模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Robotic World Model - 神经动力学四足运动世界模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Robotic World Model - 神经动力学四足运动世界模型.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:05.470Z"
+    },
+    {
+      "id": "c7609f65-37e7-42ce-8e1f-61ae7f2806b2",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_eHfQJORUm59dAK0YjMo8ja",
+          "title": "Read AIReadPaper/10-Papers/Video-Generation/Stable Video Diffusion - 大规模潜视频扩散模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/Video-Generation/Stable Video Diffusion - 大规模潜视频扩散模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/Video-Generation/Stable Video Diffusion - 大规模潜视频扩散模型.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:05.487Z"
+    },
+    {
+      "id": "52f16bee-a577-4b4b-9048-f2852572f526",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_3YscPrUAogEVheij8yQ1qC",
+          "title": "\"video world model control conditions action conditioning camera pose keyboard mouse 2026 survey\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "video world model control conditions action conditioning camera pose keyboard mouse 2026 survey"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:10.303Z"
+    },
+    {
+      "id": "ef8737d8-17aa-4b89-8bd9-28b638cae581",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_m08D6Uf4nIV8tAmRUV9flj",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"PointWorld|point track|点轨迹|3D 点|拖拽|drag\" --include=\"*.md\" 10-Papers/World-Models/ | head -20",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"PointWorld|point track|点轨迹|3D 点|拖拽|drag\" --include=\"*.md\" 10-Papers/World-Models/ | head -20",
+            "description": "Check PointWorld conditioning"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:12.570Z"
+    },
+    {
+      "id": "55430f44-dcfa-422f-860f-42426e6503a6",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_41twz2WSlX4IaUU3lqirLy",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"相机(位姿|轨迹|参数)|camera (pose|pos|traj)|Plücker|键盘|鼠标|keyboard|mouse|摇杆|3D 框|3D bounding|bounding box|布局|layout|深度图|segmentation|分割图|边缘图|edge map|音频|audio|物理参数|goal image|目标图像|轨迹条件|ego (action|traj)|自车|天气|光照|红绿灯\" --include=\"*.md\" 10-Papers 20-Surveys | head -80",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"相机(位姿|轨迹|参数)|camera (pose|pos|traj)|Plücker|键盘|鼠标|keyboard|mouse|摇杆|3D 框|3D bounding|bounding box|布局|layout|深度图|segmentation|分割图|边缘图|edge map|音频|audio|物理参数|goal image|目标图像|轨迹条件|ego (action|traj)|自车|天气|光照|红绿灯\" --include=\"*.md\" 10-Papers 20-Surveys | head -80",
+            "description": "Grep other condition types"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:16.169Z"
+    },
+    {
+      "id": "c8533de1-ac12-4041-a9ae-876e7691c6d2",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_xPdukuimOqZxTcC60EKFLJ",
+          "title": "Read AIReadPaper/10-Papers/VLA/GigaBrain-0 - 世界模型驱动的VLA数据引擎.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/GigaBrain-0 - 世界模型驱动的VLA数据引擎.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/GigaBrain-0 - 世界模型驱动的VLA数据引擎.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:23.954Z"
+    },
+    {
+      "id": "4b102be2-7657-42bc-ac67-a3943f704b72",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_0P07Blm5ZGzEbu1JcRCf6Y",
+          "title": "Read AIReadPaper/10-Papers/World-Models/VPP - 预测性视觉表征的通用机器人策略.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/VPP - 预测性视觉表征的通用机器人策略.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/VPP - 预测性视觉表征的通用机器人策略.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:23.954Z"
+    },
+    {
+      "id": "b2d5ccc1-e50d-4827-aa03-7b49519d297a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_kQ96JyeTCzcP1Nk7cNrsGX",
+          "title": "Fetch https://www.emergentmind.com/topics/action-conditioned-video-world-models",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "url": "https://www.emergentmind.com/topics/action-conditioned-video-world-models",
+            "prompt": "List all the types of action/control conditioning signals used in video world models (e.g. discrete keyboard actions, continuous robot action vectors, camera pose/trajectory, latent actions, text, etc.) and the injection mechanisms (cross-attention, AdaLN, channel concat, token concat). Include model names."
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:24.106Z"
+    },
+    {
+      "id": "4cf8bcb0-919a-4445-a202-2630ed7816ef",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_Y6AGkkRDTpu0Qs4tBO8gS0",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"动作|action|条件|condition\" \"10-Papers/World-Models/LeWorldModel - 像素端到端稳定JEPA世界模型.md\" | head -50",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"动作|action|条件|condition\" \"10-Papers/World-Models/LeWorldModel - 像素端到端稳定JEPA世界模型.md\" | head -50",
+            "description": "Grep action conditioning in LeWorldModel"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:34.986Z"
+    },
+    {
+      "id": "e326d185-0b00-4ceb-b6b4-fabc51f8e9cc",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_XixFeemVDwmwHJUov63shw",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"动作条件|action condition|注入|条件\" \"10-Papers/World-Models/JEPA - 联合嵌入预测架构.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"动作条件|action condition|注入|条件\" \"10-Papers/World-Models/JEPA - 联合嵌入预测架构.md\" | head -40",
+            "description": "Grep conditioning in JEPA note"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:35.005Z"
+    },
+    {
+      "id": "244d9088-ecbf-4449-92bd-b3b88997588e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_9QPVrv7FXSUhFEz1kFYwtp",
+          "title": "Fetch https://www.arxivdaily.com/industry-trends/2026-08-04/2608.02603",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What control/interaction conditions does WorldExam evaluate in controllable video and world models? List the categories of interactions/control signals tested (e.g. physical intervention, action, camera, language). Also which 20 models were tested.",
+            "url": "https://www.arxivdaily.com/industry-trends/2026-08-04/2608.02603"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:41.437Z"
+    },
+    {
+      "id": "f6e10f34-7e48-4b83-b1fc-0f971635b4f7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_95b9VZFLREGjmKVQVIgY2M",
+          "title": "Read AIReadPaper/10-Papers/VLA/mimic-video - 超越VLA的视频动作模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/mimic-video - 超越VLA的视频动作模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/mimic-video - 超越VLA的视频动作模型.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:44.236Z"
+    },
+    {
+      "id": "e81bc649-7e47-48c3-a977-0ae00dbde7a7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_BgB6dPNa4mIOrYsvaCFjye",
+          "title": "Read AIReadPaper/10-Papers/VLA/PAD - 联合去噪过程的视觉策略学习.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/PAD - 联合去噪过程的视觉策略学习.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/PAD - 联合去噪过程的视觉策略学习.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:44.254Z"
+    },
+    {
+      "id": "77910616-0f05-4c65-8d33-5b32ac4992d0",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_9UuSOHbFsgSDd46ZXySYLT",
+          "title": "Read AIReadPaper/10-Papers/VLA/UP-VLA - 统一理解与预测的具身模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/UP-VLA - 统一理解与预测的具身模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/UP-VLA - 统一理解与预测的具身模型.md"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:44.254Z"
+    },
+    {
+      "id": "ef1659ab-8a49-450b-b29b-de5c8ca7b34b",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_B31tL387guqORuR5kwOBhS",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"条件|注入|prompt|交互|切换|动作\" \"10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\" | head -40; echo \"=== WAN ===\"; cat \"10-Papers/Video-Generation/Wan2.1 - 开源大规模视频生成基础模型.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"条件|注入|prompt|交互|切换|动作\" \"10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\" | head -40; echo \"=== WAN ===\"; cat \"10-Papers/Video-Generation/Wan2.1 - 开源大规模视频生成基础模型.md\"",
+            "description": "Check LongLive-2.0 and Wan2.1"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:52.069Z"
+    },
+    {
+      "id": "c9edbaab-ba90-465e-bf40-39582827f976",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_AWxNQtPh0w2CCBVLPsAB1n",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md (228 - 277)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md",
+              "line": 228
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md",
+            "offset": 228,
+            "limit": 50
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:57.269Z"
+    },
+    {
+      "id": "71d194bf-cb01-4985-9c4e-294f883e79d7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_vOGQDBklD1huwVX1f0wZOx",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && sed -n '60,90p;190,230p' \"10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && sed -n '60,90p;190,230p' \"10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统.md\"",
+            "description": "Read LongLive-2.0 IO and conditioning sections"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:11:59.553Z"
+    },
+    {
+      "id": "4aabe1a5-e26e-4c67-90ef-a911dac359ab",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_2ZEySstMTs6ELqg87gA2fa",
+          "title": "Fetch https://arxiv.org/abs/2508.13009",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What are the control/action interfaces and condition types used by Matrix-Game 2.0 and Genie 3? Specifically keyboard/mouse actions, camera trajectory, text prompt events.",
+            "url": "https://arxiv.org/abs/2508.13009"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:05.369Z"
+    },
+    {
+      "id": "2e3590f4-dd64-4c89-8236-9608bd300f01",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_smWaGhpqKi4FunScSt59Vn",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"latent action|隐式动作|latent 动作|动作原语|action primitive\" --include=\"*.md\" 10-Papers 20-Surveys | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"latent action|隐式动作|latent 动作|动作原语|action primitive\" --include=\"*.md\" 10-Papers 20-Surveys | head -40",
+            "description": "Grep latent action mentions"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:10.736Z"
+    },
+    {
+      "id": "cf98904b-155c-44bc-b8c9-3af889709134",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_eVAVkW7Eq3WRMJ84lltbGt",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"条件|注入|goal|目标图|action|动作\" \"10-Papers/VLA/GaussianDream - 机器人操控的前馈三维高斯世界模型.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"条件|注入|goal|目标图|action|动作\" \"10-Papers/VLA/GaussianDream - 机器人操控的前馈三维高斯世界模型.md\" | head -40",
+            "description": "Grep GaussianDream conditioning"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:10.736Z"
+    },
+    {
+      "id": "f3eb14c9-8359-47db-b627-1204a0300e20",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_knJRAzteITK9euy4OUTsmi",
+          "title": "grep -rn -E \"隐式动作|latent action|IDM|inverse dynamics|逆动力学\" --include=\"*.md\" 10-Papers/ 20-Surveys/ | head -25",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -rn -E \"隐式动作|latent action|IDM|inverse dynamics|逆动力学\" --include=\"*.md\" 10-Papers/ 20-Surveys/ | head -25",
+            "description": "Grep latent action / IDM mentions"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:18.122Z"
+    },
+    {
+      "id": "850d5416-1e4b-4897-86c5-96c8e6be74cb",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_9cv3u84uoKPRtY3pPCtklk",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && sed -n '240,270p' \"10-Papers/VLA/π0 - 视觉语言动作流模型与系列演进.md\"; echo \"=== BagelVLA ===\"; grep -n -E \"goal|目标图|keyframe|关键帧|条件|RFG|注入\" \"10-Papers/VLA/BagelVLA - 交错式视觉语言动作生成.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && sed -n '240,270p' \"10-Papers/VLA/π0 - 视觉语言动作流模型与系列演进.md\"; echo \"=== BagelVLA ===\"; grep -n -E \"goal|目标图|keyframe|关键帧|条件|RFG|注入\" \"10-Papers/VLA/BagelVLA - 交错式视觉语言动作生成.md\" | head -40",
+            "description": "Read pi0.7 conditioning and BagelVLA"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:19.487Z"
+    },
+    {
+      "id": "bf4adc72-746e-4e19-b3cf-ab3f8425ced9",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_0y9zM6S88uyNLU5mvaOCan",
+          "title": "\"可控视频世界模型 控制信号 分类 键鼠 相机轨迹 动作向量 深度 语言 2026\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "可控视频世界模型 控制信号 分类 键鼠 相机轨迹 动作向量 深度 语言 2026"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:26.321Z"
+    },
+    {
+      "id": "d0f6de6f-5ef1-44d5-8344-98a772e6d86a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_q5NpVBJjwYT7TWbWpHKIgA",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"ControlNet|条件注入|AdaLN|adaLN|cross-attention|通道拼接|controlnet\" \"20-Surveys/Foundations/视觉基础模块综述 - Survey.md\" \"20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"ControlNet|条件注入|AdaLN|adaLN|cross-attention|通道拼接|controlnet\" \"20-Surveys/Foundations/视觉基础模块综述 - Survey.md\" \"20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" | head -40",
+            "description": "Grep injection mechanisms in foundation and VLA surveys"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:28.336Z"
+    },
+    {
+      "id": "2b5d3fac-7c69-42f2-b6a1-09c71655b997",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_HvaQBBUThnSluOmXQAdyo2",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"世界模型|world model|视频|条件\" \"20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"世界模型|world model|视频|条件\" \"20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" | head -40",
+            "description": "Grep VLA survey for world model conditioning"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:33.620Z"
+    },
+    {
+      "id": "ce35ded5-23d1-46bd-8e27-7bc004f41aa7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_wx9GzwNuVuLQLEoVYNyxs2",
+          "title": "Fetch https://www.pchao.org/blog/2026/07/26/cvpr-three-minutes-2607-21580/",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What is the control condition GraphVid proposes for controllable video generation? How does the interaction graph work as a control signal, and what does it replace (trajectories)? How is it injected into the model?",
+            "url": "https://www.pchao.org/blog/2026/07/26/cvpr-three-minutes-2607-21580/"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:39.337Z"
+    },
+    {
+      "id": "9ea6725f-3e72-4423-9cf7-d00a0c6149de",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_QKmvLJSvYyAAiYUizmBfzv",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"Motus|MMaDA|世界模型|条件|模式|WAM|UniDiffuser|空间记忆|memory\" \"20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" | sed -n '40,120p'",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"Motus|MMaDA|世界模型|条件|模式|WAM|UniDiffuser|空间记忆|memory\" \"20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" | sed -n '40,120p'",
+            "description": "Grep chapter 7 of VLA survey"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:40.620Z"
+    },
+    {
+      "id": "e517df76-4efe-409d-9356-44716aa24119",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_dSJMrS5LmPZcQbtluEWfwn",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && sed -n '340,470p' \"20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && sed -n '340,470p' \"20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\"",
+            "description": "Read VLA survey chapter 7"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:47.036Z"
+    },
+    {
+      "id": "f7cefc2c-9c9c-4752-ae7a-67172062d679",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_roue2NFH58ECe0WBoHMAfm",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"FiLM|film\" --include=\"*.md\" 10-Papers 20-Surveys | head -20; echo \"=== INBOX ===\"; grep -n -E \"世界模型|world model|条件|action\" \"10-Papers/Inbox/论文推荐 - 阅读队列.md\" | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"FiLM|film\" --include=\"*.md\" 10-Papers 20-Surveys | head -20; echo \"=== INBOX ===\"; grep -n -E \"世界模型|world model|条件|action\" \"10-Papers/Inbox/论文推荐 - 阅读队列.md\" | head -40",
+            "description": "Grep FiLM and inbox"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:56.670Z"
+    },
+    {
+      "id": "d0f6280e-9ba2-4187-8a96-1bf68fed5796",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_wVcUIqH3ly4n6eRThwbJ7R",
+          "title": "Fetch https://arxiv.org/abs/2608.02603",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Describe WorldExam benchmark: what control interfaces / condition types are tested for world models (camera, action, language, etc.), the 8 tasks, and the four evaluation layers. List model names evaluated.",
+            "url": "https://arxiv.org/abs/2608.02603"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:12:57.155Z"
+    },
+    {
+      "id": "03f4356e-3b77-4f21-9089-1816c095d9a4",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_8QdSYTtxOmkIDEy4EpCePM",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"键盘|摇杆|相机轨迹|文本提示|参考图像|分镜|Camera Control|prompt 事件|可 prompt\" \"20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" \"20-Surveys/World-Models/世界模型演化 - Survey.md\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"键盘|摇杆|相机轨迹|文本提示|参考图像|分镜|Camera Control|prompt 事件|可 prompt\" \"20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" \"20-Surveys/World-Models/世界模型演化 - Survey.md\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\"",
+            "description": "Grep specific interaction inputs in surveys"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:07.553Z"
+    },
+    {
+      "id": "b87059d8-d136-4009-ab72-60c67d854a9e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_ZW9ntlZdnelt34926tjb62",
+          "title": "\"interactive video world model taxonomy of control signals keyboard mouse camera trajectory action vector text drag sketch audio 2026 arxiv\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "interactive video world model taxonomy of control signals keyboard mouse camera trajectory action vector text drag sketch audio 2026 arxiv"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:13.685Z"
+    },
+    {
+      "id": "1df4373f-11fc-4ed9-890c-2ae02ee076e7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_ERXywtcWaQCESIRSoDg0Q4",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"音频|audio|Video-to-Audio|物理参数|质量/摩擦|摩擦|弹性\" --include=\"*.md\" 10-Papers 20-Surveys | head -20",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -rn -E \"音频|audio|Video-to-Audio|物理参数|质量/摩擦|摩擦|弹性\" --include=\"*.md\" 10-Papers 20-Surveys | head -20",
+            "description": "Grep audio and physical parameters"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:18.370Z"
+    },
+    {
+      "id": "32bfc998-268e-4caa-9750-b1469ab7e1d5",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_HfigthyakA0FRJYuXP4ogs",
+          "title": "Fetch https://world-model-roadmap.github.io/",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Extract the taxonomy of control/conditioning signals for world models from this roadmap survey. What condition types are enumerated (text, image, camera pose, action, keyboard/mouse, trajectory, depth, layout, audio, etc.)? Also describe the four generations taxonomy.",
+            "url": "https://world-model-roadmap.github.io/"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:23.602Z"
+    },
+    {
+      "id": "9b494a70-8306-41d6-8e8f-0aca05c1f0dd",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_jKPtUPlusCUhBz0Jn0jHV8",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"Video-to-Audio|相机运动|Camera Motion|帧率|micro-conditioning|FPS\" \"20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\" \"10-Papers/Video-Generation/Stable Video Diffusion - 大规模潜视频扩散模型.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"Video-to-Audio|相机运动|Camera Motion|帧率|micro-conditioning|FPS\" \"20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey.md\" \"10-Papers/Video-Generation/Stable Video Diffusion - 大规模潜视频扩散模型.md\"",
+            "description": "Grep audio and camera conditioning line numbers"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:28.320Z"
+    },
+    {
+      "id": "95d9c620-f7da-49e3-aa97-13ea9b07aaa9",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_wJyZfklEDUFzI6MmslNPgt",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"Cosmos-Transfer|Cosmos transfer|模态迁移|Transfer\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head; echo \"---\"; grep -n -E \"GAIA-2|3D 框|元数据|cross-attention\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head -20",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"Cosmos-Transfer|Cosmos transfer|模态迁移|Transfer\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head; echo \"---\"; grep -n -E \"GAIA-2|3D 框|元数据|cross-attention\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head -20",
+            "description": "Verify line numbers for GAIA-2 and Cosmos-Transfer"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:39.119Z"
+    },
+    {
+      "id": "496a8ef2-9e0b-4497-a9a0-c78f758f5efe",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_5ltj6yluheYzzG9aHKRH4O",
+          "title": "\"Matrix-Game 3.5 multimodal control world model keyboard mouse camera trajectory sketch depth\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "Matrix-Game 3.5 multimodal control world model keyboard mouse camera trajectory sketch depth"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:42.023Z"
+    },
+    {
+      "id": "9a38637d-0521-4f1c-bb82-2a0b45562f77",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_tw79Uws8mTGxcGeeTbFs7N",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"条件|注入|LayerNorm|归一化|attention\" \"20-Surveys/Foundations/视觉基础模块综述 - Survey.md\" | head -30",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"条件|注入|LayerNorm|归一化|attention\" \"20-Surveys/Foundations/视觉基础模块综述 - Survey.md\" | head -30",
+            "description": "Grep foundations survey conditioning"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:46.820Z"
+    },
+    {
+      "id": "4d24f5bd-97b8-4ec8-a257-e10028f12996",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_kTf7lhQbiuv1fRoTYzgKpH",
+          "title": "Fetch https://arxiv.org/html/2506.18701v1",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What control conditions does Matrix-Game support? Detail the keyboard action space (which keys), the mouse/camera movement space, and how these are injected into the diffusion model (GameFactory-style action module? cross-attention? concat?). Also what is the image condition.",
+            "url": "https://arxiv.org/html/2506.18701v1"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:50.920Z"
+    },
+    {
+      "id": "7ebf8983-8c69-40ff-9502-2758d76b1979",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_rgnrgbTZrSW78KkkTOe21i",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"本体感觉|proprio|机器人状态|state encoder|embodiment prompt|本体 prompt\" --include=\"*.md\" -r 10-Papers 20-Surveys | head -25",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"本体感觉|proprio|机器人状态|state encoder|embodiment prompt|本体 prompt\" --include=\"*.md\" -r 10-Papers 20-Surveys | head -25",
+            "description": "Grep proprioception conditioning"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:13:54.419Z"
+    },
+    {
+      "id": "6ad2d823-ec57-4f44-8fb5-94843ea73a5c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_gvAehF8yJyyunHFAkqwAnC",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"光流|optical flow|DPFlow\" --include=\"*.md\" -r 10-Papers 20-Surveys | grep -v \"SVD\\|Stable Video\" | head -15; echo \"=== occupancy input ===\"; grep -n \"occupancy\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"光流|optical flow|DPFlow\" --include=\"*.md\" -r 10-Papers 20-Surveys | grep -v \"SVD\\|Stable Video\" | head -15; echo \"=== occupancy input ===\"; grep -n \"occupancy\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head",
+            "description": "Grep optical flow and occupancy"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:14:05.469Z"
+    },
+    {
+      "id": "67e1ced7-ed98-4be8-bab3-14d87774306d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_VQfIjWp3HSGX7l7J3z0XSX",
+          "title": "Fetch https://arxiv.org/abs/2501.08325",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What is GameFactory's ablation on action control module: why are discrete keyboard actions injected via cross-attention while continuous mouse signals are injected via concatenation? Give the exact reasoning and results.",
+            "url": "https://arxiv.org/abs/2501.08325"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:14:06.772Z"
+    },
+    {
+      "id": "d5917667-b3f5-482d-a9e8-94f04a23a41c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_jVRqSw5eEL1Vhh2TSDQaYd",
+          "title": "Fetch https://matrix-game-v3-5.github.io/",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What control conditions does Matrix-Game 3.5 support? Camera control, keyboard actions, memory. What are its condition interfaces and metrics?",
+            "url": "https://matrix-game-v3-5.github.io/"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:14:09.620Z"
+    },
+    {
+      "id": "c4a85f44-44a4-49a3-9a8c-b3d48ca0575c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_idKI2prEeoWOZLy4xlq18P",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"610|每个时刻交错|动作不做离散化|2 个标量|speed、curvature\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head; echo \"---574---\"; sed -n '574,578p;590,594p' \"20-Surveys/World-Models/视觉世界模型 - Survey.md\"; echo \"---763---\"; sed -n '762,772p' \"20-Surveys/World-Models/视觉世界模型 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper && grep -n -E \"610|每个时刻交错|动作不做离散化|2 个标量|speed、curvature\" \"20-Surveys/World-Models/视觉世界模型 - Survey.md\" | head; echo \"---574---\"; sed -n '574,578p;590,594p' \"20-Surveys/World-Models/视觉世界模型 - Survey.md\"; echo \"---763---\"; sed -n '762,772p' \"20-Surveys/World-Models/视觉世界模型 - Survey.md\"",
+            "description": "Verify specific line numbers"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:14:19.604Z"
+    },
+    {
+      "id": "d63afeae-9a83-4cba-8335-41c45272ee53",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_sVdz3c50S1Ft3nsAJcDfgg",
+          "title": "Fetch https://arxiv.org/html/2501.08325v2",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Find the action control module section and its ablation. Why do discrete keyboard actions use cross-attention while continuous mouse signals use concatenation? Quote the reasoning about sparsity/density of control signals and the results table.",
+            "url": "https://arxiv.org/html/2501.08325v2"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:14:29.469Z"
+    },
+    {
+      "id": "70e14b6a-5883-4c8f-a5b6-581389975b90",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_rEVLMjI7jCJsYgHmMHHN9O",
+          "title": "Fetch https://deepmind.google/discover/blog/genie-3-a-new-frontier-for-world-models/",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What control interfaces does Genie 3 support? Detail navigation/action control and \"promptable world events\" (text-based). What resolution, framerate, consistency duration?",
+            "url": "https://deepmind.google/discover/blog/genie-3-a-new-frontier-for-world-models/"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:14:44.723Z"
+    },
+    {
+      "id": "f897c5dc-f120-4e4a-9d03-255e88b5ed65",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_Ty9VEBdF4BqpC47garDkJw",
+          "title": "\"world model conditioning physical parameters mass friction PIN-WM PhysWorld physics parameter conditioned video generation\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "world model conditioning physical parameters mass friction PIN-WM PhysWorld physics parameter conditioned video generation"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:14:47.237Z"
+    },
+    {
+      "id": "939d0966-6a38-473d-b1cd-d508fb326db3",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_soVpcQEa849FCVaJX60Ffx",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md (258 - 287)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md",
+              "line": 258
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md",
+            "offset": 258,
+            "limit": 30
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:15:05.452Z"
+    },
+    {
+      "id": "041d9d7f-7181-4430-9d6c-88d7b6e5d833",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_fZIoCIsh84GnyINSoZCG8U",
+          "title": "Fetch https://arxiv.org/html/2503.20523v1",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "List ALL conditioning signals GAIA-2 accepts: ego action, agent 3D bounding boxes, camera parameters/geometry, scenario metadata (weather, time of day, country, region), speed, curvature, CLIP/text embedding, etc. For each, state how it is injected (AdaLN, cross-attention, concat). Also list the generation modes (from scratch, video-to-video, inpainting, prediction/action-conditioned rollout).",
+            "url": "https://arxiv.org/html/2503.20523v1"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:15:13.002Z"
+    },
+    {
+      "id": "191f5f22-979d-4f49-b37a-435d83e0a4ac",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_1vEy8A03KuNHRf4DWeBX3s",
+          "title": "Fetch https://arxiv.org/abs/2503.14492",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What control input modalities does Cosmos-Transfer1 accept (segmentation, depth, edge, blur/vis, LiDAR, HD map)? How are they injected (ControlNet branches, adaptive multimodal control with spatiotemporal weights)?",
+            "url": "https://arxiv.org/abs/2503.14492"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:15:31.821Z"
+    },
+    {
+      "id": "87ebe03b-69cd-4436-a594-809c2179bf14",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_2LijNxr2vxXH6qKEJJs6Lg",
+          "title": "\"world model audio condition speech driven interactive video model 2026 audio conditioned world model\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "world model audio condition speech driven interactive video model 2026 audio conditioned world model"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:15:33.704Z"
+    },
+    {
+      "id": "940c1d6d-3344-4f96-aae2-d6c9540852a2",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_sEyh8Qv7tQrYQ47sfiGkv2",
+          "title": "Fetch https://github.com/EasonTuT/Awesome-Interactive-World-Model",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "This repo organizes interactive world model papers by research challenge. List the categories/challenges, and especially anything about control signals / action space / controllability. Enumerate the control condition types mentioned (keyboard, mouse, camera pose, action vector, text, trajectory, drag, etc.) with model names.",
+            "url": "https://github.com/EasonTuT/Awesome-Interactive-World-Model"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:15:45.890Z"
+    },
+    {
+      "id": "f2c8a626-9907-4f06-9aba-4457d1f2f8f0",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_2C2sU3lVVRip5NOI76J0fL",
+          "title": "Fetch https://arxiv.org/abs/2506.17201",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What is Hunyuan-GameCraft's action control representation? How does it unify keyboard and mouse into a shared camera representation space, and what is the \"action velocity/speed\" control? How is the action injected?",
+            "url": "https://arxiv.org/abs/2506.17201"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:16:05.258Z"
+    },
+    {
+      "id": "b2529337-1259-4c71-ab35-770cf5593af4",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_L7a4zLAoHLvIEW38FysFM1",
+          "title": "Fetch https://arxiv.org/html/2506.17201v1",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Explain the unified continuous camera representation for keyboard+mouse action control. How are discrete keys (W/A/S/D) mapped to camera translation and mouse to rotation? What is the light-weight action encoder and how is it injected? What is the \"action velocity\" / speed control?",
+            "url": "https://arxiv.org/html/2506.17201v1"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:16:17.778Z"
+    },
+    {
+      "id": "d6412abe-744e-4013-a4c1-a56691bbe9c2",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_kOcZVNWsHyUdFlP0dN0X2B",
+          "title": "Fetch https://arxiv.org/abs/2411.19722",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What is the control condition in this work: does it use point trajectories / drag as control for world models? Summarize the action conditioning representation used for cross-embodiment transfer.",
+            "url": "https://arxiv.org/abs/2411.19722"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:16:36.512Z"
+    },
+    {
+      "id": "3bbe670b-9bf1-4696-9c17-d427247fccae",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_tXYAGglBII7aouBBiM7EhS",
+          "title": "\"AdaWorld latent action pretraining world model action conditioned transfer arxiv 2503\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "AdaWorld latent action pretraining world model action conditioned transfer arxiv 2503"
+          }
+        },
+        {
+          "type": "text",
+          "text": "我已经收集了不少材料，等 vault 扫描 agent 的结果。同时再补两个条件类型的确认。"
+        }
+      ],
+      "timestamp": "2026-08-28T08:16:38.392Z"
+    },
+    {
+      "id": "8f58c11a-b5a8-442d-957b-23a0665c1d86",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_Tu2JRGLZh5N0o3Urkpd20h",
+          "title": "Fetch https://adaptable-world-model.github.io/",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What are the latent actions in AdaWorld? How are continuous latent actions extracted from videos and how are they used as the conditioning signal for the world model? How is the latent action injected into the diffusion model?",
+            "url": "https://adaptable-world-model.github.io/"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:16:57.592Z"
+    },
+    {
+      "id": "10737bf8-2b9a-4b5f-8ce7-201e693833b1",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_1osQ2OvGHQviEJXWTPKFWT",
+          "title": "\"\"world model\" conditioning goal image subgoal image condition video prediction navigation NWM Navigation World Model camera trajectory conditioned\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "\"world model\" conditioning goal image subgoal image condition video prediction navigation NWM Navigation World Model camera trajectory conditioned"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:16:59.042Z"
+    },
+    {
+      "id": "b9f9d3c3-2c2b-4beb-9921-603ce17f5a61",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_7qs0tjwB1ztVW69g4JxUme",
+          "title": "Fetch https://arxiv.org/abs/2412.03572",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "What is the conditioning signal in Navigation World Models (NWM)? What are navigation actions (translation/rotation), how are they encoded, and what is the CDiT architecture's conditioning mechanism? Does it support unknown trajectories / trajectory as condition?",
+            "url": "https://arxiv.org/abs/2412.03572"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T08:17:14.976Z"
+    },
+    {
+      "id": "bfc9d805-0b66-4723-af05-6991483d14a2",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_r1lqBGZvkvYqXt5t0lX2t8",
+          "title": "Fetch https://arxiv.org/html/2412.03572v1",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "How are navigation actions encoded in NWM? Give the action definition (translation, yaw rotation, time shift), and how CDiT injects the state/action condition (cross-attention to past frame tokens, AdaLN with action+time embedding?).",
+            "url": "https://arxiv.org/html/2412.03572v1"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:44:12.808Z"
+    },
+    {
+      "id": "d85ceb5e-8beb-4e93-ab8b-2a16892984fd",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_RiHxjJbKVwd4ql6EUfjg5c",
+          "title": "\"Cosmos-Transfer1 ControlNet multimodal control branch segmentation depth edge blur LiDAR HD map spatiotemporal control weight\"",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "query": "Cosmos-Transfer1 ControlNet multimodal control branch segmentation depth edge blur LiDAR HD map spatiotemporal control weight"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:44:12.808Z"
+    },
+    {
+      "id": "fceb9a4a-aedb-4b6d-bf8d-a14c3979bd9c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_TSin6g6e51Z13t3yVGGdyv",
+          "title": "Fetch https://arxiv.org/html/2503.14492",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "List all control modalities in Cosmos-Transfer1 (Vis/blur, Edge/Canny, Depth, Segmentation, and for driving: LiDAR, HD map). How is each injected — separate ControlNet branch per modality, and what is the adaptive spatiotemporal control map weighting formula? Also mention Cosmos-Transfer1-7B-Sample-AV.",
+            "url": "https://arxiv.org/html/2503.14492"
+          }
+        }
+      ],
+      "timestamp": "2026-08-28T09:44:12.808Z"
+    },
+    {
+      "id": "45727aa9-53b5-4603-9e89-172b019f4184",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "tooluse_52c6454bKsHLLVREnXDHBi",
+          "title": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers && grep -n -E \"条件|动作|指令|本体|proprio\" \"World-Models/DreamDojo - 基于大规模人类视频的通用机器人世界模型.md\" | head -20; echo \"=== Dyna2 ===\"; grep -n -E \"条件|动作空间|隐式动作\" \"World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md\" | head -15",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers && grep -n -E \"条件|动作|指令|本体|proprio\" \"World-Models/DreamDojo - 基于大规模人类视频的通用机器人世界模型.md\" | head -20; echo \"=== Dyna2 ===\"; grep -n -E \"条件|动作空间|隐式动作\" \"World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md\" | head -15",
+            "description": "Check DreamDojo and Dyna-2 conditions"
+          }
+        },
+        {
+          "type": "text",
+          "text": "扫完了 vault 里 `AIReadPaper/` 的全部相关笔记（三篇 world model survey + 视频生成 survey + 20 多篇论文精读），再补了几篇 vault 里没有的（GAIA-2 原文、GameFactory、Hunyuan-GameCraft、Cosmos-Transfer1、Matrix-Game、NWM、Genie 3、WorldExam）。\n\n先说结论：**\"控制条件\"现在已经分化成 12 类左右，但真正值得记的不是清单，而是一条判据——注入方式必须匹配条件信号的结构。** 这条判据你打开的这篇 survey 在 §4.3.5（L417–435）已经给出了雏形，而 GameFactory 的消融把它做成了可量化的对照。\n\n---\n\n## 一、总览：$c_t$ 到底能装什么\n\n[[视觉世界模型 - Survey]] 的形式化 $p_\\theta(S_{t+1:T} \\mid E(v_{0:t}),\\, c_t)$（L75）里，$c_t$ 原文只列了「动作 / 语言 / 轨迹 / 控制命令 / 任务目标」五项（L95–99）。实际语料里已经长到这样：\n\n| # | 条件类型 | 代表模型 | 注入机制 |\n|---|---|---|---|\n| 1 | 文本指令 / 事件 prompt | GAIA-1、Cosmos、Genie 3、LongLive-2.0 | 序列内 token / cross-attn / adaLN-Zero |\n| 2 | 低层动作向量（真实标注） | GAIA-2、DIAMOND、Vista、Ctrl-World、Dyna-2 | AdaLN / AdaGN / cross-attn / 加到 timestep emb |\n| 3 | 隐式动作（latent action） | Genie、AdaWorld、DreamDojo、GR00T N1、Motus | 与真实动作同一条通路 |\n| 4 | 键鼠 / 摇杆 / VR 手柄 | Matrix-Game、Hunyuan-GameCraft、Oasis、Genie | 离散走 cross-attn，连续走 concat |\n| 5 | 相机位姿 / 轨迹 | WorldMem、VMem、Matrix-Game 3.5、NWM、SVD | Plücker 射线 / PRoPE / 加性位置编码 / LoRA |\n| 6 | 自车动作 / ego 轨迹 | GAIA-2、OccWorld、Vista、LINGO-2 | AdaLN / ego token / 五种异质格式走 attn |\n| 7 | 目标图 / 子目标图 / 关键帧 | V-JEPA 2-AC、DINO-WM、π0.7、BagelVLA | latent 空间能量项 / KV-cache |\n| 8 | 首帧 + 历史帧（记忆） | UniPi、SVD、Ctrl-World、Diffusion Forcing、DFoT | 通道拼接 / 逐帧噪声等级 / KV-cache |\n| 9 | 3D 框 / 布局 / 场景属性 | GAIA-2、GigaBrain-0、GraphVid | cross-attn / 可学习轨迹 token / GNN+LoRA |\n| 10 | 稠密模态图（深度/分割/边缘/LiDAR/HD map） | Cosmos-Transfer1、GigaBrain-0 | **唯一的 ControlNet 路线**（每模态一支） |\n| 11 | 本体感觉 / 机器人状态 | Ctrl-World、GR00T N1、Dyna-2 | 独立 state encoder |\n| 12 | 本体身份 / 元数据 / 风格旋钮 | Qwen-VLA、π0.7、SVD | prompt / micro-conditioning |\n\n---\n\n## 二、几类值得单独说的\n\n### 2.1 键鼠：一个把判据讲透的消融\n\nGameFactory 的 Table 2 做了 2×2 交叉：\n\n- 离散键盘动作 → **cross-attention** 更好（Cam 误差 0.0439 vs concat 0.0853）\n- 连续鼠标位移 → **concat** 更好（0.0685 vs cross-attn 0.1021）\n\n理由极其干净：cross-attention 的相似度计算**会削弱控制信号的幅值信息**，而离散类别恰好不依赖幅值、依赖类别相似性。Matrix-Game 直接沿用了这套分工。\n\nHunyuan-GameCraft 走了另一条路——**把键鼠统一成连续相机参数空间** $\\mathcal{A}=\\{(\\mathbf{d}_{trans}, \\mathbf{d}_{rot}, \\alpha, \\beta)\\}$，W/A/S/D 映射到 2-球面上的平移方向，鼠标映射到旋转方向，$\\alpha/\\beta$ 是速度标量。这样离散/连续的区分消失了，代价是键盘的\"离散语义\"（jump、attack）塞不进去。注入用 **token 相加**，消融里胜过 concat。\n\n### 2.2 相机位姿：三种编码分野\n\n- **Plücker 射线** $\\mathbf{l}_{uv}=(\\mathbf{c}\\times\\mathbf{d}_{uv},\\mathbf{d}_{uv})\\in\\mathbb{R}^6$ —— WorldMem 用它，且**状态只加到 Q/K、不加到 V**（[[视觉世界模型 - Survey]] L766）\n- **PRoPE** —— Matrix-Game 3.5 把相机投影几何注入位置编码，**零可学习参数**\n- **加性位置编码** —— GAIA-2 把内参/外参/畸变系数一起编码进去，从而支持不同相机 rig\n\n值得注意的是 VMem 那条反直觉的结论：用 **surfel 作可见性索引**（而非重建）做检索，同时打败了「相机距离检索」和「FOV 重叠检索」——因为前两者都忽略遮挡，而光栅化天然处理遮挡。\n\n### 2.3 稠密模态图：唯一的 ControlNet 阵地\n\n这是一个我认为很少被点明的事实：[[视觉世界模型 - Survey]] L435 明确指出，**被调研的论文里没有一篇用 ControlNet 式方案做动作条件**。ControlNet 只出现在 Cosmos-Transfer1，而且是做**模态迁移**：\n\n- 通用四路：Vis（双边模糊）、Edge（Canny）、Depth（DepthAnything2）、Segmentation（GroundingDINO+SAM2）\n- 驾驶两路：HD map（车道线/停止线/杆/斑马线/红绿灯/标志）、LiDAR（时序插值后投影到相机帧）\n\n每模态一个独立 ControlNet 分支，推理时用**时空控制图** $\\mathbf{w}_i \\cdot \\mathbf{h}_i^j$（$\\mathbf{w}_i \\in \\mathbb{R}^{X\\times Y\\times T}$）逐位置加权融合。这个\"逐时空位置分配不同模态权重\"是它区别于普通多条件 ControlNet 的地方。\n\n### 2.4 GAIA-2：单个模型里的八条条件通路\n\nGAIA-2 原文（vault 笔记只覆盖了其中两条）实际有八条，而且**注入方式按信号结构严格分工**：\n\n| 条件 | 注入 |\n|---|---|\n| ego 动作（speed、curvature，symlog 变换） | **AdaLN** |\n| 动态主体 3D 框（位置/朝向/尺寸/类别） | **cross-attn** |\n| 相机内参外参畸变 | **加性位置编码** |\n| 场景元数据（国家/天气/时段/限速/车道类型/斑马线/红绿灯/路口类型） | **cross-attn** |\n| 时间戳 / 视频频率（20/25/30 Hz） | **加性位置编码** |\n| CLIP 图像或文本嵌入 | **cross-attn** |\n| 场景嵌入（内部驾驶模型产出） | **cross-attn** |\n| flow matching 时间 | **AdaLN** |\n\n这是最干净的一个例证：**全局标量走 AdaLN，结构化集合走 cross-attn，几何走位置编码。** 同一个模型内部就完成了对照。\n\n---\n\n## 三、核心判据（这是最值得带走的）\n\n[[视觉世界模型 - Survey]] L429–435 的那段推理，配上 GameFactory 的数字，可以压成一条规则：\n\n> **注入方式应当匹配条件信号的结构，而不存在\"哪种注入更好\"。**\n\n- **全局标量、影响每个 token** → AdaLN / AdaGN（GAIA-2 的 speed+curvature、DIAMOND 的 AdaGN）\n- **异质、可变长、结构化集合** → cross-attention（Vista 要复用命令/轨迹/速度/角度/目标五种格式；GAIA-2 的 3D 框）\n- **稠密逐像素、与输出空间对齐** → 通道拼接（DIAMOND 的历史帧、UniPi 的 tiling、SVD 的 I2V）\n- **离散类别** → cross-attention（GameFactory 键盘）\n- **连续幅值敏感** → concat（GameFactory 鼠标）\n- **需要保留空间对齐的稠密指导** → ControlNet（Cosmos-Transfer1）\n\n三家（DIAMOND / GAIA-2 / Vista）做了同一个消融、得出方向相反的结论，全都站得住脚——原因就在这里。\n\n---\n\n## 四、两个还没填的洞\n\n**音频。** vault 里唯一相关的是 Movie Gen 的 video-to-audio，那是**输出**不是条件。业界侧 Seedance 2.0 声称支持音频输入，但没有一篇论文把音频当作视频世界模型的控制信号来做机制设计。这是真空档。\n\n**物理参数（质量/摩擦/弹性）。** 只作为**评测目标**存在，从不作为输入条件：Physion++ 要求推断这些潜在属性，人类准确率掉到 60%，最好的模型-人类相关只有 $r=0.12$，而且**多数模型根本没用上属性推断阶段**（L877）。最接近\"物理参数当显式生成条件\"的是 PhysX-Omni——把密度 ρ、杨氏模量 E、泊松比 ν 当作 **VLM 词表里的文本 token** 生成出来写进 URDF，但那是 3D 资产而非视频。\n\n---\n\n## 五、两个约束提醒\n\n1. **一致性 vs 动作响应性是一对真实矛盾。** [[世界模型记忆机制架构演进 - Survey]] L65：历史喂得越多越连贯，但会**稀释当前动作的影响**——Astra 这类工作甚至要**主动往条件帧里加噪声**，逼模型多听当前动作的话。SVD 的做法是 CFG scale **沿帧轴线性递增**；GAIA-1 是 guidance 帧内随 token 线性递减、随未来帧数 cosine 衰减。\n\n2. **有条件 ≠ 条件在起作用。** 这篇 survey 最关键的判断在 L85：一个纯视频生成器也能写成同一个式子（$c_t$ 取文本），所以式子本身**不能**区分 VWM 与 video generator，分野在于 $c_t$ 对 $S_{t+1:T}$ 的**因果有效性**。Genie 的 $\\Delta_t\\text{PSNR}$（用推断动作 vs 随机动作的 PSNR 差）是少见的干净可控性度量；新出的 WorldExam 把评测分成视觉质量 → 控制遵循 → 空间一致 → **世界反应性**四层，结论是相机驱动模型环境不响应、动作驱动模型环境呆滞、语言驱动模型控制指令跟不准——三类各有短板。\n\n---\n\n要我把这份整理写成一篇 `控制条件分类 - Survey` 笔记挂进 vault 吗？或者你更想我在现有这篇 survey 里补一节 §4.3.8「条件类型全谱与注入判据」——因为 §4.3.5 那张表其实只覆盖了动作一类，扩成全谱后正好接上 §4.7 的「交互层」讨论。\n\nSources:\n- [Action-Conditioned Video World Models](https://www.emergentmind.com/topics/action-conditioned-video-world-models)\n- [GAIA-2 (arXiv:2503.20523)](https://arxiv.org/html/2503.20523v1)\n- [GameFactory (arXiv:2501.08325)](https://arxiv.org/html/2501.08325v2)\n- [Matrix-Game (arXiv:2506.18701)](https://arxiv.org/html/2506.18701v1)\n- [Matrix-Game 3.5](https://matrix-game-v3-5.github.io/)\n- [Hunyuan-GameCraft (arXiv:2506.17201)](https://arxiv.org/html/2506.17201v1)\n- [Cosmos-Transfer1 (arXiv:2503.14492)](https://arxiv.org/html/2503.14492)\n- [Navigation World Models (arXiv:2412.03572)](https://arxiv.org/html/2412.03572v1)\n- [Genie 3 — Google DeepMind](https://deepmind.google/discover/blog/genie-3-a-new-frontier-for-world-models/)\n- [AdaWorld](https://adaptable-world-model.github.io/)\n- [WorldExam (arXiv:2608.02603)](https://arxiv.org/abs/2608.02603)\n- [GraphVid 解读](https://www.pchao.org/blog/2026/07/26/cvpr-three-minutes-2607-21580/)\n- [Simulating the Visual World with AI — Roadmap](https://world-model-roadmap.github.io/)\n- [Awesome-Interactive-World-Model](https://github.com/EasonTuT/Awesome-Interactive-World-Model)"
+        }
+      ],
+      "timestamp": "2026-08-28T09:44:12.808Z"
+    }
+  ],
+  "savedAt": "2026-08-28T09:44:13.686Z"
+}
