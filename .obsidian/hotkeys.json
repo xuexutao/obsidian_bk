@@ -7,14 +7,6 @@
       "key": "M"
     }
   ],
-  "editor:table-col-align-center": [
-    {
-      "modifiers": [
-        "Mod"
-      ],
-      "key": "E"
-    }
-  ],
   "editor:table-row-up": [
     {
       "modifiers": [
@@ -53,6 +45,15 @@
         "Mod"
       ],
       "key": "E"
+    }
+  ],
+  "markdown:toggle-preview": [],
+  "live-pdf-preview:open-preview": [
+    {
+      "modifiers": [
+        "Alt"
+      ],
+      "key": "P"
     }
   ]
 }
