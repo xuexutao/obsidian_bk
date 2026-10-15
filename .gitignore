@@ -2,3 +2,5 @@
 .obsidian/workspace-mobile.json
 .DS_Store
 
+# 原始论文与参考材料 PDF 仅保留本地，不纳入 Git
+*.[pP][dD][fF]
