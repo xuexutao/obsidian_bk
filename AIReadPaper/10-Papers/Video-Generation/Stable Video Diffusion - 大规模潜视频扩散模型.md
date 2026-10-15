@@ -9,7 +9,7 @@ source: https://arxiv.org/abs/2311.15127
 project: https://github.com/Stability-AI/generative-models
 tags: [Video-Generation, Latent-Diffusion, Image-to-Video, Video-Diffusion, EDM]
 created: 2026-08-27
-updated: 2026-08-27
+updated: 2026-10-15
 ---
 
 # Stable Video Diffusion：大规模潜视频扩散模型
@@ -216,7 +216,21 @@ LVD（Large Video Dataset）的构建是全文的方法论核心，完整流程�
 - **vs Make-A-Video / Imagen Video**：这些工作混用图像+视频数据训练，导致无法分离图像与视频数据的各自贡献；SVD 用严格分阶段训练把贡献拆开；
 - **vs 闭源 GEN-2 / PikaLabs**：SVD 以开源姿态在人类偏好上追平甚至反超，成为当时开源视频生成的天花板；
 - **vs Zero123 / SyncDreamer 等 3D 方法**：SVD 用同一个视频先验，以远低算力在 GSO 多视图指标上超越这些专用新视角合成模型，率先点明「视频扩散模型是强 3D 先验」；
-- **后续影响（世界模型线）**：SVD 1.5B 开源后成为机器人世界动作模型的标准初始化——VPP 把它微调成预测性视觉表征、Ctrl-World 用它做闭环世界模型、DreamZero 用它做物理世界先验。理解 SVD 是进入「视频模型作世界模型」这条线的必经入口。
+- **后续影响（世界模型线）**：SVD 1.5B 开源后成为机器人世界动作模型的标准初始化——VPP 把它微调成预测性视觉表征、Ctrl-World 用它做闭环世界模型。理解 SVD 是进入「视频模型作世界模型」这条线的必经入口。
+
+### 6.1 作为 GEN3C 原始视频骨干的精确接口
+
+GEN3C 最初使用 SVD 作为 image-to-video backbone，但它并没有把 SVD 改造成一个显式三维网络。SVD 的 VAE 仍然只在空间上压缩：输入视频 $x\in\mathbb{R}^{L\times3\times H\times W}$ 被编码为 $z\in\mathbb{R}^{L\times4\times H/8\times W/8}$，时间维保留。因此 GEN3C 可以为每个目标帧准备一张与 latent 时间位置一一对应的几何条件。
+
+具体来说，GEN3C 先用 Depth Anything V2 等深度前端把 seed/history frame 反投影成彩色 3D cache，再从用户目标相机轨迹渲染 RGB、深度和 disocclusion mask。渲染 RGB 经 SVD VAE 编码后与噪声 latent 在通道维拼接，mask 告诉网络哪些区域来自可靠几何、哪些区域必须依靠 SVD 的生成先验补全。于是二者的职责是：
+
+- **SVD** 提供开放域外观、运动和遮挡补全能力；
+- **GEN3C** 提供目标相机下的显式三维结构条件；
+- **3D cache** 并非 SVD 内部状态，而是外置、可更新的几何记忆。
+
+论文还把同一条件构造迁移到 Cosmos-1.0-Diffusion-7B-Video2World：几何渲染帧改用 Cosmos tokenizer 编码，核心 3D cache 逻辑不变。Cosmos 版本在大视角变化时更稳，说明 GEN3C 的上限会随视频基础模型提升；SVD 是首个验证载体，而不是方法必须绑定的唯一骨干。
+
+从技术史看，SVD 代表“空间 VAE + U-Net/Video LDM + 短片段 I2V”的一代；Wan2.1 则转向 causal video VAE + full-attention DiT + flow matching。Lyra 2.0 选择 Wan 而非继续使用 SVD，主要因为它需要更强的开放域生成容量、latent 时间压缩和 DiT attention 接口，以容纳 FramePack、空间 slots 与稠密 correspondence 注入。
 
 ---
 
@@ -256,7 +270,7 @@ LVD（Large Video Dataset）的构建是全文的方法论核心，完整流程�
 
 ## 10. 材料来源
 
-### Sources
+### 10.1 Sources
 
 | 本地文件 | 材料类型 | 原始来源 | 论文位置 | 获取日期 | 用途 |
 |---|---|---|---|---|---|

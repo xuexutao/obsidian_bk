@@ -1,0 +1,496 @@
+\begin{thebibliography}{92}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Alonso et~al.(2024)Alonso, Jelley, Micheli, Kanervisto, Storkey, Pearce, and Fleuret]{alonso2024diffusion}
+Eloi Alonso, Adam Jelley, Vincent Micheli, Anssi Kanervisto, Amos~J Storkey, Tim Pearce, and Fran{\c{c}}ois Fleuret.
+\newblock Diffusion for world modeling: Visual details matter in atari.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 58757--58791, 2024.
+
+\bibitem[Authors(2024)]{authorsgenesis}
+Genesis Authors.
+\newblock Genesis: A universal and generative physics engine for robotics and beyond.
+\newblock \emph{URL https://github. com/Genesis-Embodied-AI/Genesis}, 2024.
+
+\bibitem[Baddeley(2013)]{baddeley2013essentials}
+Alan Baddeley.
+\newblock \emph{Essentials of human memory}.
+\newblock Psychology Press, 2013.
+
+\bibitem[Bahmani et~al.(2025{\natexlab{a}})Bahmani, Skorokhodov, Qian, Siarohin, Menapace, Tagliasacchi, Lindell, and Tulyakov]{bahmani2025ac3d}
+Sherwin Bahmani, Ivan Skorokhodov, Guocheng Qian, Aliaksandr Siarohin, Willi Menapace, Andrea Tagliasacchi, David~B. Lindell, and Sergey Tulyakov.
+\newblock Ac3d: Analyzing and improving 3d camera control in video diffusion transformers.
+\newblock \emph{Proc. CVPR}, 2025{\natexlab{a}}.
+
+\bibitem[Bahmani et~al.(2025{\natexlab{b}})Bahmani, Skorokhodov, Siarohin, Menapace, Qian, Vasilkovsky, Lee, Wang, Zou, Tagliasacchi, Lindell, and Tulyakov]{bahmani2025vd3d}
+Sherwin Bahmani, Ivan Skorokhodov, Aliaksandr Siarohin, Willi Menapace, Guocheng Qian, Michael Vasilkovsky, Hsin-Ying Lee, Chaoyang Wang, Jiaxu Zou, Andrea Tagliasacchi, David~B. Lindell, and Sergey Tulyakov.
+\newblock {VD}3d: Taming large video diffusion transformers for 3d camera control.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations}, 2025{\natexlab{b}}.
+\newblock URL \url{https://openreview.net/forum?id=0n4bS0R5MM}.
+
+\bibitem[Bai et~al.(2025{\natexlab{a}})Bai, Xia, Fu, Wang, Mu, Cao, Liu, Hu, Bai, Wan, and Zhang]{bai2025recammaster}
+Jianhong Bai, Menghan Xia, Xiao Fu, Xintao Wang, Lianrui Mu, Jinwen Cao, Zuozhu Liu, Haoji Hu, Xiang Bai, Pengfei Wan, and Di~Zhang.
+\newblock Recammaster: Camera-controlled generative rendering from a single video, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2503.11647}.
+
+\bibitem[Bai et~al.(2025{\natexlab{b}})Bai, Xia, Wang, Yuan, Liu, Hu, Wan, and ZHANG]{bai2025syncammaster}
+Jianhong Bai, Menghan Xia, Xintao Wang, Ziyang Yuan, Zuozhu Liu, Haoji Hu, Pengfei Wan, and Di~ZHANG.
+\newblock Syncammaster: Synchronizing multi-camera video generation from diverse viewpoints.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations}, 2025{\natexlab{b}}.
+\newblock URL \url{https://openreview.net/forum?id=m8Rk3HLGFx}.
+
+\bibitem[Blattmann et~al.(2023{\natexlab{a}})Blattmann, Dockhorn, Kulal, Mendelevitch, Kilian, and Lorenz]{Blattmann2023StableVD}
+A.~Blattmann, Tim Dockhorn, Sumith Kulal, Daniel Mendelevitch, Maciej Kilian, and Dominik Lorenz.
+\newblock Stable video diffusion: Scaling latent video diffusion models to large datasets.
+\newblock \emph{ArXiv}, abs/2311.15127, 2023{\natexlab{a}}.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:265312551}.
+
+\bibitem[Blattmann et~al.(2023{\natexlab{b}})Blattmann, Dockhorn, Kulal, Mendelevitch, Kilian, Lorenz, Levi, English, Voleti, Letts, et~al.]{blattmann2023stable}
+Andreas Blattmann, Tim Dockhorn, Sumith Kulal, Daniel Mendelevitch, Maciej Kilian, Dominik Lorenz, Yam Levi, Zion English, Vikram Voleti, Adam Letts, et~al.
+\newblock Stable video diffusion: Scaling latent video diffusion models to large datasets.
+\newblock \emph{arXiv preprint arXiv:2311.15127}, 2023{\natexlab{b}}.
+
+\bibitem[Brooks et~al.(2024{\natexlab{a}})Brooks, Peebles, Holmes, DePue, Guo, Jing, Schnurr, Taylor, Luhman, Luhman, Ng, Wang, and Ramesh]{videoworldsimulators2024}
+Tim Brooks, Bill Peebles, Connor Holmes, Will DePue, Yufei Guo, Li~Jing, David Schnurr, Joe Taylor, Troy Luhman, Eric Luhman, Clarence Ng, Ricky Wang, and Aditya Ramesh.
+\newblock Video generation models as world simulators.
+\newblock 2024{\natexlab{a}}.
+\newblock URL \url{https://openai.com/research/video-generation-models-as-world-simulators}.
+
+\bibitem[Brooks et~al.(2024{\natexlab{b}})Brooks, Peebles, Holmes, DePue, Guo, Jing, Schnurr, Taylor, Luhman, Luhman, et~al.]{brooks2024video}
+Tim Brooks, Bill Peebles, Connor Holmes, Will DePue, Yufei Guo, Li~Jing, David Schnurr, Joe Taylor, Troy Luhman, Eric Luhman, et~al.
+\newblock Video generation models as world simulators.
+\newblock \emph{OpenAI Blog}, 1:\penalty0 8, 2024{\natexlab{b}}.
+
+\bibitem[Che et~al.(2024)Che, He, Liu, Jin, and Chen]{che2024gamegen}
+Haoxuan Che, Xuanhua He, Quande Liu, Cheng Jin, and Hao Chen.
+\newblock Gamegen-x: Interactive open-world game video generation.
+\newblock \emph{arXiv preprint arXiv:2411.00769}, 2024.
+
+\bibitem[Chen et~al.(2024)Chen, Mart{\'\i}~Mons{\'o}, Du, Simchowitz, Tedrake, and Sitzmann]{chen2024diffusion}
+Boyuan Chen, Diego Mart{\'\i}~Mons{\'o}, Yilun Du, Max Simchowitz, Russ Tedrake, and Vincent Sitzmann.
+\newblock Diffusion forcing: Next-token prediction meets full-sequence diffusion.
+\newblock In \emph{NeurIPS}, 2024.
+
+\bibitem[Chen et~al.(2025{\natexlab{a}})Chen, Lin, Yang, Lin, Zhu, Fan, Zhang, Chen, Chen, Ma, Xiong, Wang, Pang, Kang, Xu, Jin, Liang, Song, Zhao, Xu, Qiu, Li, Fei, Li, and Zhou]{Chen2025SkyReelsV2IF}
+Guibin Chen, Dixuan Lin, Jiangping Yang, Chunze Lin, Juncheng Zhu, Mingyuan Fan, Hao Zhang, Sheng Chen, Zheng Chen, Chengchen Ma, Weiming Xiong, Wei Wang, Nuo Pang, Kang Kang, Zhi-Xin Xu, Yuzhe Jin, Yupeng Liang, Yu-Ning Song, Peng Zhao, Bo~Xu, Di~Qiu, Debang Li, Zhengcong Fei, Yang Li, and Yahui Zhou.
+\newblock Skyreels-v2: Infinite-length film generative model.
+\newblock 2025{\natexlab{a}}.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:277856899}.
+
+\bibitem[Chen et~al.(2025{\natexlab{b}})Chen, Zhou, Zhao, Wang, Zhang, Huang, Sun, Wen, and Li]{chen2025flexworld}
+Luxi Chen, Zihan Zhou, Min Zhao, Yikai Wang, Ge~Zhang, Wenhao Huang, Hao Sun, Ji-Rong Wen, and Chongxuan Li.
+\newblock Flexworld: Progressively expanding 3d scenes for flexiable-view synthesis.
+\newblock \emph{arXiv preprint arXiv:2503.13265}, 2025{\natexlab{b}}.
+
+\bibitem[Chen et~al.(2023)Chen, Wang, Zhang, Zhuang, Ma, Yu, Wang, Lin, Qiao, and Liu]{chen2023seine}
+Xinyuan Chen, Yaohui Wang, Lingjun Zhang, Shaobin Zhuang, Xin Ma, Jiashuo Yu, Yali Wang, Dahua Lin, Yu~Qiao, and Ziwei Liu.
+\newblock Seine: Short-to-long video diffusion model for generative transition and prediction.
+\newblock In \emph{ICLR}, 2023.
+
+\bibitem[Decart et~al.(2024{\natexlab{a}})Decart, McIntyre, Campbell, Chen, and Wachen]{decart2024oasis}
+Etched Decart, Q~McIntyre, S~Campbell, Xinlei Chen, and R~Wachen.
+\newblock Oasis: A universe in a transformer.
+\newblock \emph{URL: https://oasis-model. github. io}, 2024{\natexlab{a}}.
+
+\bibitem[Decart et~al.(2024{\natexlab{b}})Decart, Quevedo, McIntyre, Campbell, Chen, and Wachen]{oasis2024}
+Julian Decart, Quinn Quevedo, Spruce McIntyre, Xinlei Campbell, Robert Chen, and Wachen.
+\newblock Oasis: A universe in a transformer.
+\newblock 2024{\natexlab{b}}.
+\newblock URL \url{https://oasis-model.github.io/}.
+
+\bibitem[Dhariwal and Nichol(2021)]{Dhariwal2021DiffusionMB}
+Prafulla Dhariwal and Alex Nichol.
+\newblock Diffusion models beat gans on image synthesis.
+\newblock \emph{ArXiv}, abs/2105.05233, 2021.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:234357997}.
+
+\bibitem[Fei et~al.(2025)Fei, Li, Qiu, Wang, Dou, Wang, Xu, Fan, Chen, Li, and Zhou]{Fei2025SkyReelsA2CA}
+Zhengcong Fei, Debang Li, Di~Qiu, Jiahua Wang, Yikun Dou, Rui Wang, Jingtao Xu, Mingyuan Fan, Guibin Chen, Yang Li, and Yahui Zhou.
+\newblock Skyreels-a2: Compose anything in video diffusion transformers.
+\newblock 2025.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:277509893}.
+
+\bibitem[Feng et~al.(2024)Feng, Zhang, Yang, Xiao, Shu, Liu, Zheng, Huang, Liu, and Zhang]{feng2024matrix}
+Ruili Feng, Han Zhang, Zhantao Yang, Jie Xiao, Zhilei Shu, Zhiheng Liu, Andy Zheng, Yukun Huang, Yu~Liu, and Hongyang Zhang.
+\newblock The matrix: Infinite-horizon world generation with real-time moving control.
+\newblock \emph{arXiv preprint arXiv:2412.03568}, 2024.
+
+\bibitem[Gao et~al.(2024{\natexlab{a}})Gao, Shi, Zhang, Wang, and Xiao]{gao2024vid}
+Kaifeng Gao, Jiaxin Shi, Hanwang Zhang, Chunping Wang, and Jun Xiao.
+\newblock Vid-gpt: Introducing gpt-style autoregressive generation in video diffusion models.
+\newblock \emph{arXiv preprint arXiv:2406.10981}, 2024{\natexlab{a}}.
+
+\bibitem[Gao et~al.(2024{\natexlab{b}})Gao, Shi, Zhang, Wang, Xiao, and Chen]{gao2024ca2}
+Kaifeng Gao, Jiaxin Shi, Hanwang Zhang, Chunping Wang, Jun Xiao, and Long Chen.
+\newblock Ca2-vdm: Efficient autoregressive video diffusion model with causal generation and cache sharing.
+\newblock \emph{arXiv preprint arXiv:2411.16375}, 2024{\natexlab{b}}.
+
+\bibitem[Gu et~al.(2025{\natexlab{a}})Gu, Mao, and Shou]{Gu2025LongContextAV}
+Yuchao Gu, Weijia Mao, and Mike~Zheng Shou.
+\newblock Long-context autoregressive video modeling with next-frame prediction.
+\newblock \emph{ArXiv}, abs/2503.19325, 2025{\natexlab{a}}.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:277313237}.
+
+\bibitem[Gu et~al.(2025{\natexlab{b}})Gu, Yan, Lu, Li, Dou, Si, Dong, Liu, Lin, Liu, Wang, and Liu]{gu2025das}
+Zekai Gu, Rui Yan, Jiahao Lu, Peng Li, Zhiyang Dou, Chenyang Si, Zhen Dong, Qifeng Liu, Cheng Lin, Ziwei Liu, Wenping Wang, and Yuan Liu.
+\newblock Diffusion as shader: 3d-aware video diffusion for versatile video generation control.
+\newblock \emph{arXiv preprint arXiv:2501.03847}, 2025{\natexlab{b}}.
+
+\bibitem[Gupta et~al.(2024)Gupta, Yu, Sohn, Gu, Hahn, Li, Essa, Jiang, and Lezama]{gupta2024photorealistic}
+Agrim Gupta, Lijun Yu, Kihyuk Sohn, Xiuye Gu, Meera Hahn, Fei-Fei Li, Irfan Essa, Lu~Jiang, and Jos{\'e} Lezama.
+\newblock Photorealistic video generation with diffusion models.
+\newblock In \emph{ECCV}, 2024.
+
+\bibitem[Ha and Schmidhuber(2018)]{ha2018worldmodels}
+David Ha and J{\"u}rgen Schmidhuber.
+\newblock Recurrent world models facilitate policy evolution.
+\newblock In \emph{Advances in Neural Information Processing Systems 31}, pages 2451--2463. Curran Associates, Inc., 2018.
+\newblock URL \url{https://papers.nips.cc/paper/7512-recurrent-world-models-facilitate-policy-evolution}.
+\newblock \url{https://worldmodels.github.io}.
+
+\bibitem[HaCohen et~al.(2024)HaCohen, Chiprut, Brazowski, Shalem, Moshe, Richardson, Levin, Shiran, Zabari, Gordon, et~al.]{hacohen2024ltx}
+Yoav HaCohen, Nisan Chiprut, Benny Brazowski, Daniel Shalem, Dudu Moshe, Eitan Richardson, Eran Levin, Guy Shiran, Nir Zabari, Ori Gordon, et~al.
+\newblock Ltx-video: Realtime video latent diffusion.
+\newblock \emph{arXiv preprint arXiv:2501.00103}, 2024.
+
+\bibitem[Hafner et~al.(2019)Hafner, Lillicrap, Ba, and Norouzi]{hafner2019dream}
+Danijar Hafner, Timothy Lillicrap, Jimmy Ba, and Mohammad Norouzi.
+\newblock Dream to control: Learning behaviors by latent imagination.
+\newblock \emph{arXiv preprint arXiv:1912.01603}, 2019.
+
+\bibitem[He et~al.(2025{\natexlab{a}})He, Xu, Guo, Wetzstein, Dai, Li, and Yang]{he2025cameractrl}
+Hao He, Yinghao Xu, Yuwei Guo, Gordon Wetzstein, Bo~Dai, Hongsheng Li, and Ceyuan Yang.
+\newblock Cameractrl: Enabling camera control for video diffusion models.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations}, 2025{\natexlab{a}}.
+\newblock URL \url{https://openreview.net/forum?id=Z4evOUYrk7}.
+
+\bibitem[He et~al.(2025{\natexlab{b}})He, Yang, Lin, Xu, Wei, Gui, Zhao, Wetzstein, Jiang, and Li]{he2025cameractrl2}
+Hao He, Ceyuan Yang, Shanchuan Lin, Yinghao Xu, Meng Wei, Liangke Gui, Qi~Zhao, Gordon Wetzstein, Lu~Jiang, and Hongsheng Li.
+\newblock Cameractrl ii: Dynamic scene exploration via camera-controlled video diffusion models.
+\newblock \emph{arXiv preprint arXiv:2503.10592}, 2025{\natexlab{b}}.
+
+\bibitem[He et~al.(2022)He, Yang, Zhang, Shan, and Chen]{he2022latent}
+Yingqing He, Tianyu Yang, Yong Zhang, Ying Shan, and Qifeng Chen.
+\newblock Latent video diffusion models for high-fidelity long video generation.
+\newblock \emph{arXiv preprint arXiv:2211.13221}, 2022.
+
+\bibitem[Henschel et~al.(2024)Henschel, Khachatryan, Hayrapetyan, Poghosyan, Tadevosyan, Wang, Navasardyan, and Shi]{streamingt2v}
+Roberto Henschel, Levon Khachatryan, Daniil Hayrapetyan, Hayk Poghosyan, Vahram Tadevosyan, Zhangyang Wang, Shant Navasardyan, and Humphrey Shi.
+\newblock Streamingt2v: Consistent, dynamic, and extendable long video generation from text.
+\newblock \emph{arXiv preprint arXiv:2403.14773}, 2024.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020denoising}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock In \emph{NeurIPS}, 2020.
+
+\bibitem[Ho et~al.(2022)Ho, Salimans, Gritsenko, Chan, Norouzi, and Fleet]{ho2022video}
+Jonathan Ho, Tim Salimans, Alexey Gritsenko, William Chan, Mohammad Norouzi, and David~J Fleet.
+\newblock Video diffusion models.
+\newblock In \emph{NeurIPS}, 2022.
+
+\bibitem[Huang et~al.(2024)Huang, He, Yu, Zhang, Si, Jiang, Zhang, Wu, Jin, Chanpaisit, et~al.]{huang2024vbench}
+Ziqi Huang, Yinan He, Jiashuo Yu, Fan Zhang, Chenyang Si, Yuming Jiang, Yuanhan Zhang, Tianxing Wu, Qingyang Jin, Nattapol Chanpaisit, et~al.
+\newblock Vbench: Comprehensive benchmark suite for video generative models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 21807--21818, 2024.
+
+\bibitem[Jin et~al.(2024)Jin, Sun, Li, Xu, Jiang, Nan, Huang, Song, Mu, and Lin]{Jin2024PyramidalFM}
+Yang Jin, Zhicheng Sun, Ningyuan Li, Kun Xu, Hao Jiang, Zhuang Nan, Quzhe Huang, Yang Song, Yadong Mu, and Zhouchen Lin.
+\newblock Pyramidal flow matching for efficient video generative modeling.
+\newblock \emph{ArXiv}, abs/2410.05954, 2024.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:273228937}.
+
+\bibitem[Jin et~al.(2025)Jin, Sun, Li, Xu, Jiang, Zhuang, Huang, Song, Mu, and Lin]{jin2024pyramidal}
+Yang Jin, Zhicheng Sun, Ningyuan Li, Kun Xu, Hao Jiang, Nan Zhuang, Quzhe Huang, Yang Song, Yadong Mu, and Zhouchen Lin.
+\newblock Pyramidal flow matching for efficient video generative modeling.
+\newblock In \emph{ICLR}, 2025.
+
+\bibitem[Ju et~al.(2024)Ju, Gao, Zhang, Yuan, Wang, Zeng, Xiong, Xu, and Shan]{ju2024miradata}
+Xuan Ju, Yiming Gao, Zhaoyang Zhang, Ziyang Yuan, Xintao Wang, Ailing Zeng, Yu~Xiong, Qiang Xu, and Ying Shan.
+\newblock Miradata: A large-scale video dataset with long durations and structured captions, 2024.
+\newblock URL \url{https://arxiv.org/abs/2407.06358}.
+
+\bibitem[Kondratyuk et~al.(2024)Kondratyuk, Yu, Gu, Lezama, Huang, Schindler, Hornung, Birodkar, Yan, Chiu, et~al.]{kondratyuk2024videopoet}
+Dan Kondratyuk, Lijun Yu, Xiuye Gu, Jose Lezama, Jonathan Huang, Grant Schindler, Rachel Hornung, Vighnesh Birodkar, Jimmy Yan, Ming-Chang Chiu, et~al.
+\newblock Videopoet: A large language model for zero-shot video generation.
+\newblock In \emph{ICML}, 2024.
+
+\bibitem[Kong et~al.(2024)Kong, Tian, Zhang, Min, Dai, Zhou, Xiong, Li, Wu, Zhang, et~al.]{kong2024hunyuanvideo}
+Weijie Kong, Qi~Tian, Zijian Zhang, Rox Min, Zuozhuo Dai, Jin Zhou, Jiangfeng Xiong, Xin Li, Bo~Wu, Jianwei Zhang, et~al.
+\newblock Hunyuanvideo: A systematic framework for large video generative models.
+\newblock \emph{arXiv preprint arXiv:2412.03603}, 2024.
+
+\bibitem[Lee et~al.(2018)Lee, Zhang, Ebert, Abbeel, Finn, and Levine]{Lee2018StochasticAV}
+Alex~X. Lee, Richard Zhang, Frederik Ebert, P.~Abbeel, Chelsea Finn, and Sergey Levine.
+\newblock Stochastic adversarial video prediction.
+\newblock \emph{ArXiv}, abs/1804.01523, 2018.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:4591836}.
+
+\bibitem[Li et~al.(2022)Li, Lin, Meng, Ermon, Han, and Zhu]{li2022efficient}
+Muyang Li, Ji~Lin, Chenlin Meng, Stefano Ermon, Song Han, and Jun-Yan Zhu.
+\newblock Efficient spatially sparse inference for conditional gans and diffusion models.
+\newblock \emph{Advances in neural information processing systems}, 35:\penalty0 28858--28873, 2022.
+
+\bibitem[Li et~al.(2025)Li, Tucker, Cole, Wang, Jin, Ye, Kanazawa, Holynski, and Snavely]{li2024megasam}
+Zhengqi Li, Richard Tucker, Forrester Cole, Qianqian Wang, Linyi Jin, Vickie Ye, Angjoo Kanazawa, Aleksander Holynski, and Noah Snavely.
+\newblock Megasam: Accurate, fast and robust structure and motion from casual dynamic videos.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 2025.
+
+\bibitem[Lin et~al.(2024)Lin, Ge, Cheng, Li, Zhu, Wang, He, Ye, Yuan, Chen, Jia, Zhang, Tang, Pang, She, Yan, Hu, wen Dong, Chen, Pan, Zhou, Dong, Tian, and Yuan]{Lin2024OpenSoraPO}
+Bin Lin, Yunyang Ge, Xinhua Cheng, Zongjian Li, Bin Zhu, Shaodong Wang, Xianyi He, Yang Ye, Shenghai Yuan, Liuhan Chen, Tanghui Jia, Junwu Zhang, Zhenyu Tang, Yatian Pang, Bin She, Cen Yan, Zhiheng Hu, Xiao wen Dong, Lin Chen, Zhang Pan, Xing Zhou, Shaoling Dong, Yonghong Tian, and Li~Yuan.
+\newblock Open-sora plan: Open-source large video generation model.
+\newblock \emph{ArXiv}, abs/2412.00131, 2024.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:274436278}.
+
+\bibitem[Lipman et~al.(2022)Lipman, Chen, Ben-Hamu, Nickel, and Le]{Lipman2022FlowMF}
+Yaron Lipman, Ricky T.~Q. Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le.
+\newblock Flow matching for generative modeling.
+\newblock \emph{ArXiv}, abs/2210.02747, 2022.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:252734897}.
+
+\bibitem[Liu et~al.(2024)Liu, Yu, Tan, and Wang]{Liu2024LinFusion1G}
+Songhua Liu, Weihao Yu, Zhenxiong Tan, and Xinchao Wang.
+\newblock Linfusion: 1 gpu, 1 minute, 16k image.
+\newblock \emph{ArXiv}, abs/2409.02097, 2024.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:272366893}.
+
+\bibitem[Mathieu et~al.(2015)Mathieu, Couprie, and LeCun]{Mathieu2015DeepMV}
+Micha{\"e}l Mathieu, Camille Couprie, and Yann LeCun.
+\newblock Deep multi-scale video prediction beyond mean square error.
+\newblock \emph{CoRR}, abs/1511.05440, 2015.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:205514}.
+
+\bibitem[Oshima et~al.(2024)Oshima, Taniguchi, Suzuki, and Matsuo]{oshima2024ssm}
+Yuta Oshima, Shohei Taniguchi, Masahiro Suzuki, and Yutaka Matsuo.
+\newblock Ssm meets video diffusion models: Efficient long-term video generation with structured state spaces.
+\newblock \emph{arXiv preprint arXiv:2403.07711}, 2024.
+
+\bibitem[Parker-Holder et~al.(2024{\natexlab{a}})Parker-Holder, Ball, Bruce, Dasagi, Holsheimer, Kaplanis, Moufarek, Scully, Shar, Shi, et~al.]{parker2024genie}
+J~Parker-Holder, P~Ball, J~Bruce, V~Dasagi, K~Holsheimer, C~Kaplanis, A~Moufarek, G~Scully, J~Shar, J~Shi, et~al.
+\newblock Genie 2: A large-scale foundation world model.
+\newblock \emph{URL: https://deepmind. google/discover/blog/genie-2-a-large-scale-foundation-world-model}, 2024{\natexlab{a}}.
+
+\bibitem[Parker-Holder et~al.(2024{\natexlab{b}})Parker-Holder, Ball, Bruce, Dasagi, Holsheimer, Kaplanis, Moufarek, Scully, Shar, Shi, Spencer, Yung, Dennis, Kenjeyev, Long, Mnih, Chan, Gazeau, Li, Pardo, Wang, Zhang, Besse, Harley, Mitenkova, Wang, Clune, Hassabis, Hadsell, Bolton, Singh, and Rockt{\"a}schel]{parkerholder2024genie2}
+Jack Parker-Holder, Philip Ball, Jake Bruce, Vibhavari Dasagi, Kristian Holsheimer, Christos Kaplanis, Alexandre Moufarek, Guy Scully, Jeremy Shar, Jimmy Shi, Stephen Spencer, Jessica Yung, Michael Dennis, Sultan Kenjeyev, Shangbang Long, Vlad Mnih, Harris Chan, Maxime Gazeau, Bonnie Li, Fabio Pardo, Luyu Wang, Lei Zhang, Frederic Besse, Tim Harley, Anna Mitenkova, Jane Wang, Jeff Clune, Demis Hassabis, Raia Hadsell, Adrian Bolton, Satinder Singh, and Tim Rockt{\"a}schel.
+\newblock Genie 2: A large-scale foundation world model.
+\newblock 2024{\natexlab{b}}.
+\newblock URL \url{https://deepmind.google/discover/blog/genie-2-a-large-scale-foundation-world-model/}.
+
+\bibitem[Po et~al.(2024)Po, Yifan, Golyanik, Aberman, Barron, Bermano, Chan, Dekel, Holynski, Kanazawa, et~al.]{po2024state}
+Ryan Po, Wang Yifan, Vladislav Golyanik, Kfir Aberman, Jonathan~T Barron, Amit Bermano, Eric Chan, Tali Dekel, Aleksander Holynski, Angjoo Kanazawa, et~al.
+\newblock State of the art on diffusion models for visual computing.
+\newblock \emph{Computer Graphics Forum}, 43\penalty0 (2):\penalty0 e15063, 2024.
+
+\bibitem[Qiu et~al.(2025)Qiu, Fei, Wang, Bai, Yu, Fan, Chen, and Wen]{Qiu2025SkyReelsA1EP}
+Di~Qiu, Zhengcong Fei, Rui Wang, Jialin Bai, Changqian Yu, Mingyuan Fan, Guibin Chen, and Xiang Wen.
+\newblock Skyreels-a1: Expressive portrait animation in video diffusion transformers.
+\newblock abs/2502.10841, 2025.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:276409428}.
+
+\bibitem[Ren et~al.(2025)Ren, Shen, Huang, Ling, Lu, Nimier-David, Müller, Keller, Fidler, and Gao]{ren2025gen3c}
+Xuanchi Ren, Tianchang Shen, Jiahui Huang, Huan Ling, Yifan Lu, Merlin Nimier-David, Thomas Müller, Alexander Keller, Sanja Fidler, and Jun Gao.
+\newblock Gen3c: 3d-informed world-consistent video generation with precise camera control.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 2025.
+
+\bibitem[Sch\"{o}nberger and Frahm(2016)]{schoenberger2016sfm}
+Johannes~Lutz Sch\"{o}nberger and Jan-Michael Frahm.
+\newblock Structure-from-motion revisited.
+\newblock In \emph{Conference on Computer Vision and Pattern Recognition (CVPR)}, 2016.
+
+\bibitem[Singer et~al.(2023)Singer, Polyak, Hayes, Yin, An, Zhang, Hu, Yang, Ashual, Gafni, et~al.]{singer2022make}
+Uriel Singer, Adam Polyak, Thomas Hayes, Xi~Yin, Jie An, Songyang Zhang, Qiyuan Hu, Harry Yang, Oron Ashual, Oran Gafni, et~al.
+\newblock Make-a-video: Text-to-video generation without text-video data.
+\newblock In \emph{ICLR}, 2023.
+
+\bibitem[Sohl-Dickstein et~al.(2015)Sohl-Dickstein, Weiss, Maheswaranathan, and Ganguli]{sohl2015deep}
+Jascha Sohl-Dickstein, Eric Weiss, Niru Maheswaranathan, and Surya Ganguli.
+\newblock Deep unsupervised learning using nonequilibrium thermodynamics.
+\newblock 2015.
+
+\bibitem[Song et~al.(2025)Song, Chen, Simchowitz, Du, Tedrake, and Sitzmann]{song2025history}
+Kiwhan Song, Boyuan Chen, Max Simchowitz, Yilun Du, Russ Tedrake, and Vincent Sitzmann.
+\newblock History-guided video diffusion.
+\newblock \emph{arXiv preprint arXiv:2502.06764}, 2025.
+
+\bibitem[Song et~al.(2021)Song, Sohl-Dickstein, Kingma, Kumar, Ermon, and Poole]{song2021score}
+Yang Song, Jascha Sohl-Dickstein, Diederik~P Kingma, Abhishek Kumar, Stefano Ermon, and Ben Poole.
+\newblock Score-based generative modeling through stochastic differential equations.
+\newblock In \emph{ICLR}, 2021.
+
+\bibitem[Sun et~al.(2024)Sun, Jiang, Chen, Zhang, Peng, Luo, and Yuan]{sun2024autoregressive}
+Peize Sun, Yi~Jiang, Shoufa Chen, Shilong Zhang, Bingyue Peng, Ping Luo, and Zehuan Yuan.
+\newblock Autoregressive model beats diffusion: Llama for scalable image generation.
+\newblock \emph{arXiv preprint arXiv:2406.06525}, 2024.
+
+\bibitem[Tang et~al.(2024)Tang, He, Guo, Cheng, Song, and Bian]{Tang2024VidTokAV}
+Anni Tang, Tianyu He, Junliang Guo, Xinle Cheng, Li~Song, and Jiang Bian.
+\newblock Vidtok: A versatile and open-source video tokenizer.
+\newblock \emph{ArXiv}, abs/2412.13061, 2024.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:274788955}.
+
+\bibitem[Tulyakov et~al.(2017)Tulyakov, Liu, Yang, and Kautz]{Tulyakov2017MoCoGANDM}
+S.~Tulyakov, Ming-Yu Liu, Xiaodong Yang, and Jan Kautz.
+\newblock Mocogan: Decomposing motion and content for video generation.
+\newblock \emph{2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 1526--1535, 2017.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:4475365}.
+
+\bibitem[Valevski et~al.(2024)Valevski, Leviathan, Arar, and Fruchter]{valevski2024diffusion}
+Dani Valevski, Yaniv Leviathan, Moab Arar, and Shlomi Fruchter.
+\newblock Diffusion models are real-time game engines.
+\newblock \emph{arXiv preprint arXiv:2408.14837}, 2024.
+
+\bibitem[Villegas et~al.(2023)Villegas, Moraldo, Castro, Babaeizadeh, Zhang, Kunze, Kindermans, Saffar, and Erhan]{villegas2023phenaki}
+R~Villegas, H~Moraldo, S~Castro, M~Babaeizadeh, H~Zhang, J~Kunze, PJ~Kindermans, MT~Saffar, and D~Erhan.
+\newblock Phenaki: Variable length video generation from open domain textual descriptions.
+\newblock In \emph{ICLR}, 2023.
+
+\bibitem[Vondrick and Torralba(2017)]{Vondrick2017GeneratingTF}
+Carl Vondrick and Antonio Torralba.
+\newblock Generating the future with adversarial transformers.
+\newblock \emph{2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}, pages 2992--3000, 2017.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:8234308}.
+
+\bibitem[Wan et~al.(2025)Wan, Wang, Ai, Wen, Mao, Xie, Chen, Yu, Zhao, Yang, et~al.]{wan2025wan}
+Team Wan, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di~Chen, Feiwu Yu, Haiming Zhao, Jianxiao Yang, et~al.
+\newblock Wan: Open and advanced large-scale video generative models.
+\newblock \emph{arXiv preprint arXiv:2503.20314}, 2025.
+
+\bibitem[Wang et~al.(2024{\natexlab{a}})Wang, Ma, Liu, Hou, Xu, Wang, Juefei-Xu, Luo, Zhang, Hou, Vajda, Jha, and Dai]{Wang2024LinGenTH}
+Hongjie Wang, Chih-Yao Ma, Yen-Cheng Liu, Ji~Hou, Tao Xu, Jialiang Wang, Felix Juefei-Xu, Yaqiao Luo, Peizhao Zhang, Tingbo Hou, Peter Vajda, Niraj~Kumar Jha, and Xiaoliang Dai.
+\newblock Lingen: Towards high-resolution minute-length text-to-video generation with linear computational complexity.
+\newblock \emph{ArXiv}, abs/2412.09856, 2024{\natexlab{a}}.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:274763003}.
+
+\bibitem[Wang et~al.(2025)Wang, Chen, Karaev, Vedaldi, Rupprecht, and Novotny]{wang2025vggt}
+Jianyuan Wang, Minghao Chen, Nikita Karaev, Andrea Vedaldi, Christian Rupprecht, and David Novotny.
+\newblock Vggt: Visual geometry grounded transformer.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 2025.
+
+\bibitem[Wang* et~al.(2025)Wang*, Zhang*, Holynski, Efros, and Kanazawa]{wang2025cut3r}
+Qianqian Wang*, Yifei Zhang*, Aleksander Holynski, Alexei~A. Efros, and Angjoo Kanazawa.
+\newblock Continuous 3d perception model with persistent state.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2025.
+
+\bibitem[Wang et~al.(2024{\natexlab{b}})Wang, Leroy, Cabon, Chidlovskii, and Revaud]{wang2024dust3r}
+Shuzhe Wang, Vincent Leroy, Yohann Cabon, Boris Chidlovskii, and Jerome Revaud.
+\newblock Dust3r: Geometric 3d vision made easy.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, pages 20697--20709, June 2024{\natexlab{b}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{c}})Wang, Xiong, Zhou, Lin, Zhao, Kang, Feng, and Liu]{wang2024loong}
+Yuqing Wang, Tianwei Xiong, Daquan Zhou, Zhijie Lin, Yang Zhao, Bingyi Kang, Jiashi Feng, and Xihui Liu.
+\newblock Loong: Generating minute-level long videos with autoregressive language models.
+\newblock \emph{arXiv preprint arXiv:2410.02757}, 2024{\natexlab{c}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{d}})Wang, Yuan, Wang, Li, Chen, Xia, Luo, and Shan]{wang2024motionctrl}
+Zhouxia Wang, Ziyang Yuan, Xintao Wang, Yaowei Li, Tianshui Chen, Menghan Xia, Ping Luo, and Ying Shan.
+\newblock Motionctrl: A unified and flexible motion controller for video generation.
+\newblock In \emph{ACM SIGGRAPH 2024 Conference Papers}, pages 1--11, 2024{\natexlab{d}}.
+
+\bibitem[Weng et~al.(2024)Weng, Feng, Wang, Dai, Wang, Yin, Zhao, Qiu, Bao, Yuan, et~al.]{weng2024art}
+Wenming Weng, Ruoyu Feng, Yanhui Wang, Qi~Dai, Chunyu Wang, Dacheng Yin, Zhiyuan Zhao, Kai Qiu, Jianmin Bao, Yuhui Yuan, et~al.
+\newblock Art-v: Auto-regressive text-to-video generation with diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 7395--7405, 2024.
+
+\bibitem[Wu et~al.(2023)Wu, Escontrela, Hafner, Abbeel, and Goldberg]{wu2023daydreamer}
+Philipp Wu, Alejandro Escontrela, Danijar Hafner, Pieter Abbeel, and Ken Goldberg.
+\newblock Daydreamer: World models for physical robot learning.
+\newblock In \emph{Conference on robot learning}, pages 2226--2240. PMLR, 2023.
+
+\bibitem[Xie et~al.(2024)Xie, Chen, Chen, Cai, Tang, Lin, Zhang, Li, Zhu, Lu, and Han]{Xie2024SANAEH}
+Enze Xie, Junsong Chen, Junyu Chen, Han Cai, Haotian Tang, Yujun Lin, Zhekai Zhang, Muyang Li, Ligeng Zhu, Yao Lu, and Song Han.
+\newblock Sana: Efficient high-resolution image synthesis with linear diffusion transformers.
+\newblock \emph{ArXiv}, abs/2410.10629, 2024.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:273346094}.
+
+\bibitem[Yan et~al.(2021)Yan, Zhang, Abbeel, and Srinivas]{yan2021videogpt}
+Wilson Yan, Yunzhi Zhang, Pieter Abbeel, and Aravind Srinivas.
+\newblock Videogpt: Video generation using vq-vae and transformers.
+\newblock \emph{arXiv preprint arXiv:2104.10157}, 2021.
+
+\bibitem[Yang et~al.(2024{\natexlab{a}})Yang, Yang, Zhang, Hui, Zheng, Yu, Li, Liu, Huang, Wei, et~al.]{yang2024qwen2}
+An~Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo~Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu, Fei Huang, Haoran Wei, et~al.
+\newblock Qwen2. 5 technical report.
+\newblock \emph{arXiv preprint arXiv:2412.15115}, 2024{\natexlab{a}}.
+
+\bibitem[Yang et~al.(2024{\natexlab{b}})Yang, Teng, Zheng, Ding, Huang, Xu, Yang, Hong, Zhang, Feng, Yin, Gu, Zhang, Wang, Cheng, Liu, Xu, Dong, and Tang]{Yang2024CogVideoXTD}
+Zhuoyi Yang, Jiayan Teng, Wendi Zheng, Ming Ding, Shiyu Huang, Jiazheng Xu, Yuanming Yang, Wenyi Hong, Xiaohan Zhang, Guanyu Feng, Da~Yin, Xiaotao Gu, Yuxuan Zhang, Weihan Wang, Yean Cheng, Ting Liu, Bin Xu, Yuxiao Dong, and Jie Tang.
+\newblock Cogvideox: Text-to-video diffusion models with an expert transformer.
+\newblock \emph{ArXiv}, abs/2408.06072, 2024{\natexlab{b}}.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:271855655}.
+
+\bibitem[Yang et~al.(2024{\natexlab{c}})Yang, Teng, Zheng, Ding, Huang, Xu, Yang, Hong, Zhang, Feng, et~al.]{yang2024cogvideox}
+Zhuoyi Yang, Jiayan Teng, Wendi Zheng, Ming Ding, Shiyu Huang, Jiazheng Xu, Yuanming Yang, Wenyi Hong, Xiaohan Zhang, Guanyu Feng, et~al.
+\newblock Cogvideox: Text-to-video diffusion models with an expert transformer.
+\newblock \emph{arXiv preprint arXiv:2408.06072}, 2024{\natexlab{c}}.
+
+\bibitem[Yin et~al.(2025)Yin, Zhang, Zhang, Freeman, Durand, Shechtman, and Huang]{yin2024causvid}
+Tianwei Yin, Qiang Zhang, Richard Zhang, William~T Freeman, Fredo Durand, Eli Shechtman, and Xun Huang.
+\newblock From slow bidirectional to fast autoregressive video diffusion models.
+\newblock In \emph{CVPR}, 2025.
+
+\bibitem[Yu et~al.(2025)Yu, Qin, Wang, Wan, Zhang, and Liu]{yu2025gamefactory}
+Jiwen Yu, Yiran Qin, Xintao Wang, Pengfei Wan, Di~Zhang, and Xihui Liu.
+\newblock Gamefactory: Creating new games with generative interactive videos.
+\newblock \emph{arXiv preprint arXiv:2501.08325}, 2025.
+
+\bibitem[YU et~al.(2025)YU, Hu, Xing, and Shan]{yu2025trajectorycrafter}
+Mark YU, Wenbo Hu, Jinbo Xing, and Ying Shan.
+\newblock Trajectorycrafter: Redirecting camera trajectory for monocular videos via diffusion models.
+\newblock \emph{arXiv preprint arXiv:2503.05638}, 2025.
+
+\bibitem[Yu et~al.(2024)Yu, Xing, Yuan, Hu, Li, Huang, Gao, Wong, Shan, and Tian]{yu2024viewcrafter}
+Wangbo Yu, Jinbo Xing, Li~Yuan, Wenbo Hu, Xiaoyu Li, Zhipeng Huang, Xiangjun Gao, Tien-Tsin Wong, Ying Shan, and Yonghong Tian.
+\newblock Viewcrafter: Taming video diffusion models for high-fidelity novel view synthesis.
+\newblock \emph{arXiv preprint arXiv:2409.02048}, 2024.
+
+\bibitem[Zeng et~al.(2017)Zeng, Song, Nie{\ss}ner, Fisher, Xiao, and Funkhouser]{zeng20163dmatch}
+Andy Zeng, Shuran Song, Matthias Nie{\ss}ner, Matthew Fisher, Jianxiong Xiao, and Thomas Funkhouser.
+\newblock 3dmatch: Learning local geometric descriptors from rgb-d reconstructions.
+\newblock In \emph{CVPR}, 2017.
+
+\bibitem[Zhang et~al.(2024{\natexlab{a}})Zhang, Paiss, Zada, Karnad, Jacobs, Pritch, Mosseri, Shou, Wadhwa, and Ruiz]{zhang2024recapture}
+David~Junhao Zhang, Roni Paiss, Shiran Zada, Nikhil Karnad, David~E Jacobs, Yael Pritch, Inbar Mosseri, Mike~Zheng Shou, Neal Wadhwa, and Nataniel Ruiz.
+\newblock Recapture: Generative video camera controls for user-provided videos using masked video fine-tuning.
+\newblock \emph{arXiv preprint arXiv:2411.05003}, 2024{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Herrmann, Hur, Jampani, Darrell, Cole, Sun, and Yang]{zhang2025monstr}
+Junyi Zhang, Charles Herrmann, Junhwa Hur, Varun Jampani, Trevor Darrell, Forrester Cole, Deqing Sun, and Ming-Hsuan Yang.
+\newblock Mon{ST}3r: A simple approach for estimating geometry in the presence of motion.
+\newblock In \emph{The Thirteenth International Conference on Learning Representations}, 2025{\natexlab{a}}.
+\newblock URL \url{https://openreview.net/forum?id=lJpqxFgWCM}.
+
+\bibitem[Zhang and Agrawala(2025)]{Zhang2025PackingIF}
+Lvmin Zhang and Maneesh Agrawala.
+\newblock Packing input frame context in next-frame prediction models for video generation.
+\newblock \emph{arXiv preprint arXiv:2504.12626}, 2025.
+
+\bibitem[Zhang et~al.(2023)Zhang, Rao, and Agrawala]{zhang2023controlnet}
+Lvmin Zhang, Anyi Rao, and Maneesh Agrawala.
+\newblock Adding conditional control to text-to-image diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on computer vision}, pages 3836--3847, 2023.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Wang, Xu, Xue, Rupprecht, Zhou, Shen, and Wetzstein]{zhang2025flare}
+Shangzhan Zhang, Jianyuan Wang, Yinghao Xu, Nan Xue, Christian Rupprecht, Xiaowei Zhou, Yujun Shen, and Gordon Wetzstein.
+\newblock Flare: Feed-forward geometry, appearance and camera estimation from uncalibrated sparse views.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 2025{\natexlab{b}}.
+
+\bibitem[Zhang et~al.(2024{\natexlab{b}})Zhang, Hu, Cheng, Paudel, and Yang]{zhang2024extdm}
+Zhicheng Zhang, Junyao Hu, Wentao Cheng, Danda Paudel, and Jufeng Yang.
+\newblock Extdm: Distribution extrapolation diffusion model for video prediction.
+\newblock In \emph{CVPR}, 2024{\natexlab{b}}.
+
+\bibitem[Zheng et~al.(2024)Zheng, Peng, Yang, Shen, Li, Liu, Zhou, Li, and You]{Zheng2024OpenSoraDE}
+Zangwei Zheng, Xiangyu Peng, Tianji Yang, Chenhui Shen, Shenggui Li, Hongxin Liu, Yukun Zhou, Tianyi Li, and Yang You.
+\newblock Open-sora: Democratizing efficient video production for all.
+\newblock \emph{ArXiv}, abs/2412.20404, 2024.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:275133398}.
+
+\bibitem[Zhu et~al.(2024)Zhu, Wang, Zhao, Min, Deng, Dou, Wang, Shi, Wang, Zhang, et~al.]{zhu2024sora}
+Zheng Zhu, Xiaofeng Wang, Wangbo Zhao, Chen Min, Nianchen Deng, Min Dou, Yuqi Wang, Botian Shi, Kai Wang, Chi Zhang, et~al.
+\newblock Is sora a world simulator? a comprehensive survey on general world models and beyond.
+\newblock \emph{arXiv preprint arXiv:2405.03520}, 2024.
+
+\end{thebibliography}

@@ -1,0 +1,60 @@
+\begin{table*}[t]
+\centering
+\renewcommand{\arraystretch}{1.02}
+\renewcommand{\tabcolsep}{1.5pt}
+\resizebox{0.85\textwidth}{!}{
+\begin{tabular}{@{}llcc>{\centering\arraybackslash}p{1.5cm}>{\centering\arraybackslash}p{1.5cm}|>{\centering\arraybackslash}p{1.5cm}>{\centering\arraybackslash}p{1.5cm}|>{\centering\arraybackslash}p{1.5cm}>{\centering\arraybackslash}p{1.5cm}|>{\centering\arraybackslash}p{1.2cm}@{}}
+\toprule
+ &  &  &  & \multicolumn{2}{c}{\textbf{Sintel}} & \multicolumn{2}{c}{\textbf{BONN}} & \multicolumn{2}{c}{\textbf{KITTI}} & \\ 
+\cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10}
+\textbf{Alignment} & \textbf{Method} & \textbf{Optim.} & \textbf{Onl.\ } & {Abs Rel $\downarrow$} & {$\delta$\textless $1.25\uparrow$} & {Abs Rel $\downarrow$} & {$\delta$\textless $1.25\uparrow$} & {Abs Rel $\downarrow$} & {$\delta$ \textless $1.25\uparrow$} & \textbf{FPS} \\ 
+\midrule
+
+\multirow{6}{*}{\begin{minipage}{3cm}Per-sequence scale\end{minipage}} & DUSt3R-GA~\cite{wang2024dust3r} &  \checkmark & & 0.656 & {45.2} & {0.155} & {83.3} & \underline{0.144} & \underline{81.3} & 0.76 \\
+& MASt3R-GA~\cite{leroy2024mast3r} &   \checkmark & & 0.641 & {43.9} & {0.252} & {70.1} & {0.183} & {74.5} & 0.31 \\
+
+& MonST3R-GA~\cite{zhang2024monst3r} &  \checkmark &  & \textbf{0.378} & \textbf{55.8} & \textbf{0.067} & \textbf{96.3} & {0.168} & {74.4} & 0.35 \\
+& Spann3R~\cite{spann3r} &  & \checkmark & 0.622 & {42.6} & {0.144} & {81.3} & {0.198} & {73.7} &13.55 \\
+
+& \ourmethod &  & \checkmark & \underline{0.421}  & \underline{47.9} & \underline{0.078} & \underline{93.7} & \textbf{0.118} & \textbf{88.1} &  16.58 \\
+
+\midrule
+ \multirow{2}{*}{\begin{minipage}{3cm}Metric scale\end{minipage}} & MASt3R-GA~\cite{leroy2024mast3r} & \checkmark &  & \textbf{1.022}  & 14.3 & 0.272 & 70.6 & 0.467 & 15.2  & 0.31 \\  
+& \ourmethod &  & \checkmark & {1.029} & \textbf{23.8} & \textbf{0.103} & \textbf{88.5}& \textbf{0.122} & \textbf{85.5}  &  16.58 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-.05in}
+\caption{\small{
+\textbf{Video Depth Evaluation}. We report scale-invariant depth and metric depth accuracy on Sintel, Bonn, and KITTI datasets. Methods requiring global alignment are marked ``GA'', while ``Optim.'' and ``Onl.'' indicate optimization-based and online methods, respectively. We also report the FPS on KITTI dataset using 512$\times$ 144 image resolution for all methods on an A100 GPU, except \spanner{} which only supports 224$\times$224 inputs.
+We present a subset of baselines here; please refer to the supplementary material for full comparisons. 
+}
+}
+\label{tab:video_depth}
+\end{table*}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

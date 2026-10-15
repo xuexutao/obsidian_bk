@@ -1,0 +1,10 @@
+\begin{figure*}[h]
+\centering
+\includegraphics[width=0.95\textwidth,clip,trim=0 0.4cm 0 0cm]{imgs/surfel_demo.pdf}
+\caption{\textbf{Surfel-based memory index.}
+Each surfel stores indices of views that observed it.
+We color-code each surfel by contributing view indices.
+This spatial index enables retrieval of relevant past views: when generating a novel view, we identify visible surfels from the target viewpoint and retrieve views that previously observed those same regions, naturally accounting for occlusion.
+}%
+\label{fig:surfel_demo}
+\end{figure*}

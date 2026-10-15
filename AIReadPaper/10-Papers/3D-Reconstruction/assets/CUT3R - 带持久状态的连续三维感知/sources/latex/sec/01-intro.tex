@@ -1,0 +1,40 @@
+\section{Introduction}
+
+Humans are online visual learners. We continuously process streams of visual input, building on what we have learned in the past while learning in the present. Our prior knowledge enables us to interpret the world from minimal information; \textit{e.g.}, upon entering a new restaurant, it only takes a glance to start inferring its layout and atmosphere. But it doesn't stop there---as we accumulate more observations, we continuously refine our mental model of the 3D environment. This ability to reconcile our prior knowledge of the world with a continuous stream of new observations is crucial for functioning effectively in an ever-changing visual world.
+
+Building on these insights, we introduce an online 3D perception framework that unifies three key capabilities: 1) reconstructing 3D scenes from few observations, 2) continuously refining the reconstruction with more observations, and 3) inferring 3D properties of unobserved scene regions. We achieve these capabilities by integrating data-driven priors with a recurrent update mechanism. The learned prior enables our method to address challenges encountered by traditional methods (e.g., dynamic objects, sparse observations, degenerate camera motion), while the ability to continuously update allows it to process new observations online, and improve the reconstruction continuously over time.
+
+Specifically, given an image stream, our recurrent model maintains and incrementally updates a persistent internal state that encodes the scene content. With each new observation, the model simultaneously updates this state and reads from it to predict the current view’s 3D properties, including an estimate of that view's dense 3D geometry (as a pointmap; a 3D point per-pixel in a world coordinate frame) and camera parameters (both intrinsics and extrinsics). Accumulating these pointmaps enables online dense scene reconstruction, as illustrated in Fig. \ref{fig:teaser}. Additionally, our framework supports inferring unobserved parts of the scene: by querying the internal state with a virtual (unseen) view, parameterized as a raymap, we can extract the corresponding pointmap and color for the query view, as depicted in Fig. \ref{fig:tiny-raymap}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{figs/fig2_4.pdf}
+    \caption{\small \textbf{Querying Unseen Regions.} In addition to reconstructing a scene from images, our method can also infer structure for \emph{unseen} parts of the scene, given a virtual camera query (shown in blue).
+    }
+    \label{fig:tiny-raymap}
+    \vspace{-1.5em}
+\end{figure}
+
+Our framework is designed to be general and flexible, making it well-suited for training on an extensive collection of datasets and adaptable to diverse inference scenarios. During training, we leverage a wide variety of 3D data, including single images, videos, and photo collections with partial or full 3D annotations. These datasets span a broad spectrum of scene types and contexts—static and dynamic, indoor and outdoor, real and synthetic—enabling the model to acquire robust and generalizable priors. During inference,  our recurrent framework naturally accepts varying numbers of images, and supports a wide range of input data settings: from streaming video to unstructured image collections, including wide-baseline or even non-overlapping images. Beyond static scenes, it seamlessly handles videos of dynamic scenes, estimating accurate camera parameters and dense point clouds for moving parts of the scene. 
+
+We evaluate our method on various 3D tasks: monocular and consistent video depth estimation, camera pose estimation, and 3D reconstruction, achieving competitive or state-of-the-art performance in each. We also show that our method can infer previously unseen structures and continuously refine the reconstruction as new observations arrive.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

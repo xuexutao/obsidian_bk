@@ -1,0 +1,44 @@
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+
+\definecolor{iccvblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=iccvblue]{hyperref}
+
+%
+\newif\ifappendix
+\appendixfalse %
+
+%
+\newcommand{\enableappendix}{\appendixtrue}
+
+%
+\newcommand{\acref}[1]{%
+  \ifappendix
+    \cref{#1}%
+  \else
+    the supplementary material%
+  \fi
+}
+
+\newcommand{\mname}{VMem}%
+\newcommand{\mnamel}{Surfel-Indexed View Memory}%
+\newcommand{\gain}[1]{\textcolor{Green}{+{#1}}}%
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\todo}[1]{\textbf{\color{red}[TODO\@: #1]}}
+\newcommand{\TODO}[1]{\textbf{\color{red}[TODO\@: #1]}}
+\newcommand{\tom}[1]{\textbf{\color{violet}[tom\@: #1]}}
+
+\newenvironment{scratch}{\color{gray}}{}
+
+\makeatletter
+\renewcommand{\paragraph}{%
+  \@startsection{paragraph}{4}%
+  {\z@}{-0.5em}{-0.5em}%
+  {\normalfont\normalsize\bfseries}%
+}
+\makeatother
+
+\def\paperID{3609}
+\def\confName{ICCV}
+\def\confYear{2025}

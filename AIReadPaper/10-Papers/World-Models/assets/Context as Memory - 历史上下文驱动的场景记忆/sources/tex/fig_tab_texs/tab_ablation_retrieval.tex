@@ -1,0 +1,47 @@
+% \begin{table}[t]
+% % \footnotesize
+
+% \vspace{-0.2cm}
+% \tabcolsep=0.09cm
+% \center
+% \begin{tabular}{c | c c c c c}
+% \toprule
+%   Scene Number  & PSNR$\uparrow$ & LPIPS$\downarrow$ & CLIP$\uparrow$ & FID$\downarrow$ & FVD$\downarrow$ \\
+%   \hline
+%   \hline
+%    1 & & & & &  \\
+%    4 & & & & & \\
+%    8 & & & & & \\ 
+%    12 & & & & & \\
+% \bottomrule
+
+% \end{tabular}
+% \caption{}
+% \vspace{-0.2cm}
+% \label{table:ablation_data}
+% \end{table}
+
+\begin{table}[t]
+% \footnotesize
+
+% \vspace{-0.2cm}
+\tabcolsep=0.09cm
+\center
+\begin{tabular}{c | c c | c c }
+\toprule
+& \multicolumn{2}{c}{GT Comp.} & \multicolumn{2}{c}{HC Comp.}\\
+  Strategy  & PSNR$\uparrow$ & LPIPS$\downarrow$ & PSNR$\uparrow$ & LPIPS$\downarrow$   \\
+  \hline
+  \hline
+Random & 17.70 & 0.4847 & 17.07 & 0.3985 \\
+  FOV+Random & 19.17 & 0.3825 & 17.47 & 0.3896 \\
+  FOV+Non-adj & 20.11 & 0.3075 & \textbf{18.19} & 0.3571 \\
+  FOV+Non-adj+Far-space-time & \textbf{20.22} & \textbf{0.3003} & 18.11 & \textbf{0.3414} \\
+
+\bottomrule
+
+\end{tabular}
+\caption{\textbf{Ablation of Memory Retrieval Strategy.} The filtering methods of "FOV" and "Non-adj" (where only one frame from continuous frame sequences is selected as a candidate) effectively filter out useless and redundant information, leading to significant improvements in memory capability.}
+\vspace{-0.6cm}
+\label{table:ablation_retrieval}
+\end{table}

@@ -1,0 +1,86 @@
+\section{Method}
+\label{sec:method}
+As discussed in Section \ref{sec:intro}, we propose that historical context frames can serve as memory for scene-consistent interactive long video generation. This section will detail how we implement this approach. Specifically:
+Sec.~\ref{subsec:preliminary} introduces preliminaries.
+Sec.~\ref{subsec:inject_context} describes how to inject context frames as conditions for video generation.
+Sec.~\ref{subsec:acc} presents our Memory Retrieval method, which selects most relevant context frames to guide the generation of new frames. This section includes alternative approaches and our proposed search method based on camera trajectories.
+Sec.~\ref{subsec:data} introduces our long video dataset collected using Unreal Engine 5, which features precise camera pose annotations, diverse scenes, and caption annotations.
+
+\subsection{Preliminaries}
+\label{subsec:preliminary}
+\input{fig_tab_texs/fig_context_dit}
+\input{fig_tab_texs/framework}
+\paragraph{Full-Sequence Text-to-Video Base Model.} Our work is based on a full-sequence text-to-video model, specifically, a latent video diffusion model consisting of a causal 3D VAE~\cite{vae} and a Diffusion Transformer (DiT)~\cite{dit}. Each DiT block sequentially consists of spatial (2D) attention, spatial-temporal (3D) attention, cross-attention, and FFN modules.
+Let $\mathbf{x}$ represent a sequence of video frames, the Encoder of 3D VAE compresses it temporally and spatially to obtain the latent representation $\mathbf{z}=Encoder(\mathbf{x})$.
+With a temporal compression factor of $r$, the original $1+nr$ frames of $\mathbf{x}=\{x^0,x^1,...x^{nr}\}$ are compressed into $1+n$ latents of $\mathbf{z}=\{z^0,z^1,...,z^{n}\}$.
+During training, random Gaussian noise $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\mathbf{I})$ is added to the clean latent $\mathbf{z}_0$ to obtain noisy latent $\mathbf{z}_t$ at timestep $t$. The network $\epsilon_{\phi}(\cdot)$ is trained to predict the added noise, with the following loss function:
+\begin{equation}
+    \mathcal{L}(\phi)=\mathbb{E}[||\boldsymbol{\epsilon}_{\phi}(\mathbf{z}_t,\mathbf{p},t)-\boldsymbol{\epsilon}||],
+\end{equation}
+where $\phi$ represents the parameters and $\mathbf{p}$ is the given text prompt.
+Then we can use the predicted noise $\boldsymbol{\epsilon}_{\phi}$ to denoise the noisy latent.
+During inference, a clean latent $\mathbf{z}$ can be sampled from a randomly sampled Gaussian noise, then the Decoder of 3D VAE decodes it into video sequence $\mathbf{x}=Decoder(\mathbf{z})$.
+
+\paragraph{Camera-Conditioned Video Generation.} In our work, we incorporate camera control mechanisms~\cite{motionctrl,recammaster} into the video generation model to implement interactive video generation. 
+By providing camera trajectories as conditioning for video generation, we can know the camera poses of each context frame in advance. 
+Let $\mathbf{cam}$ represent the camera poses, where $f$ denotes the total number of frames. Following the mechanism proposed in ReCamMaster~\cite{recammaster}, in order to inject $\mathbf{cam}=[R,t]\in\mathbb{R}^{f\times(3\times4)}$, we first map it to the same dimension as the model's feature channels through a camera encoder $\mathcal{E}_{c}(\cdot)$, followed by adding them together:
+\begin{equation}
+    \mathbf{F}_i = \mathbf{F}_o + \mathcal{E}_{c}(\mathbf{cam}),
+\end{equation}
+where $\mathbf{F}_o$ is the output of spatial attention module, $\mathbf{F}_i$ is the input of 3D attention module and $\mathcal{E}_c(\cdot)$ is one layer of MLP with $\phi_{MLP}$ as learnable parameters. During the training of camera control, we use the original diffusion loss as follows:
+\begin{equation}
+    \mathcal{L}_{\mathbf{cam}}(\phi,\phi_{MLP})=\mathbb{E}[||\boldsymbol{\epsilon}_{\phi,\phi_{MLP}}(\mathbf{z}_t,\mathbf{p},\mathbf{cam},t)-\boldsymbol{\epsilon}||].
+\end{equation}
+
+
+\subsection{Context Frames Learning Mechanism for Memory}
+\label{subsec:inject_context}
+Suppose the latent of context that needs to be conditioned is $\mathbf{z}^{c}$, and we need to learn the conditional denoiser $p(\mathbf{z}_{t-1}|\mathbf{z}_t,\mathbf{z}^{c})$.
+Considering that the context grows continuously during the generation process (i.e., the context is variable-length), methods designed for single-frame or fixed-length frame conditions, such as Adapter~\cite{controlnet,t2iadapter} and channel-wise concatenation~\cite{dynamicrafter}, are not applicable. Similar to ReCamMaster~\cite{recammaster}, we propose to inject context through concatenation along the frame dimension (shown in Fig.~\ref{fig:arch}), which can flexibly support variable-length context conditions. Specifically, the clean context latents $\mathbf{z}^c$ participate equally with the noisy predicted latents $\mathbf{z}_t$ in the attention computation within DiT Blocks. During output, we only update the noisy latents $\mathbf{z}_t$ using the predicted noise $\boldsymbol{\epsilon}_{\phi}(\{\mathbf{z}_t,\mathbf{z}^c\},\mathbf{p},t)$ while keeping the clean context latents $\mathbf{z}^c$ unchanged.
+
+Another challenge is how to handle positional encoding along the frame dimension in video diffusion models after context frame expansion. Since our method is based on a pre-trained full-sequence text-to-video model, to preserve the original model's generation capability and facilitate easier adaptation to the context-conditioned generation setting, we maintain the same positional encoding for predicted latents $\mathbf{z}_t$ as in the pre-training phase, while assigning new positional encodings to the newly conditioned context latents $\mathbf{z}^c$. Our base model employs RoPE~\cite{rope}, which can conveniently adapt to variable-length position encodings.
+
+\subsection{Memory Retrieval}
+\label{subsec:acc}
+As analyzed in Sec.~\ref{sec:intro}, including all context frames in computation is impractical due to computational overhead and may introduce irrelevant information that causes interference. A reasonable approach is to filter out valuable frames from the context, specifically frames that share overlapping visible regions with the frames to be generated. To this end, we propose \textbf{Memory Retrieval} to accomplish this task as shown in Fig.~\ref{fig:framework} (a). Below, we first introduce several alternative implementation methods, followed by our solution.
+
+\paragraph{Alternative method \#1: random selection.} 
+A baseline randomly selects frames from context. This works well in early generation when context size is small, as adjacent frames' natural redundancy reduces the risk of missing important information. However, with hundreds of context frames, random selection fails to identify valuable frames.
+
+\paragraph{Alternative method \#2: neighbor frames within a window.} 
+% Another approach is to only use frames adjacent to the current frame being generated, specifically selecting the most recent frames within a window. While this strategy is commonly adopted by many current long video generation methods~\cite{dfot,oasis,gamefactory}, it has several limitations. First, due to the inherent redundancy between adjacent frames, conditioning on several consecutive recent frames provides little additional information beyond what is contained in the most recent frame. In fact, from the perspective of maintaining temporal continuity, conditioning on only the most recent frame would suffice, which is equivalent to an image-to-video task~\cite{dynamicrafter}. Furthermore, this setting forces the model to disregard content from temporally distant frames, ultimately resulting in a model that continuously generates new scenes, producing long videos that lack scene consistency.
+Another approach selects consecutive recent frames within a window near the current predicted frames. While common in existing methods~\cite{dfot,oasis,gamefactory}, this has key limitations. First, adjacent frames' redundancy means multiple consecutive frames add little new information beyond the most recent frame. Second, ignoring temporally distant frames prevents awareness of previously seen scenes, leading to continuous generation of new scenes and ultimately breaking scene consistency.
+
+
+\paragraph{Alternative method \#3: hierarchical compression.} FramePack~\cite{framepack} proposes a hierarchical compression method for context frames into a minimal set (e.g., 2-3 frames). For two-frame compression, it allocates space proportionally: the most recent frame gets one full frame, the second most recent gets half, the third gets a quarter, and so on, totaling two frames. While achieving high compression, this exponential decay significantly loses historical information. Though the authors suggest manually preserving certain key frames uncompressed, they don't specify the selection criteria.
+
+\paragraph{Our method: camera-trajectory-based search.}
+The fundamental limitation of these methods lies in their inability to identify truly valuable frames from the large number of context frames. They either introduce many redundant frames or lose too much useful information, especially from the old frames that are temporally distant.
+We leverage the known camera trajectory of the context to search for valuable frames, specifically those that share high-overlap visible regions with predicted frame as shown in Fig.~\ref{fig:framework} (b).
+
+The first question is how to obtain the camera trajectory of the context video. Since we have introduced camera control into our video generation model in Sec.~\ref{subsec:preliminary}, these context frames are generated with user-provided camera poses. These conditioning camera poses can serve as camera annotations for the generated context, eliminating the need for an additional camera pose estimator.
+
+\input{fig_tab_texs/fig_fov}
+The second question is how to determine co-visibility between two frames given their camera poses. We attempt to determine this by checking if there is an overlapping region between the fan-shaped areas corresponding to the Fields of View (FOV) of the two cameras. Specifically, since we restrict camera movement to the XY plane, we only need to consider the left and right rays shooting from each camera's origin. By checking the intersection of these four rays from two cameras, we can quickly determine the FOV overlap as shown in Fig.~\ref{fig:fov}. Additionally, we calculate the distance between the predicted frame's camera and the calculated intersection points to eliminate cases where the cameras are too far apart (which typically indicates no actual overlap or very small overlap). This FOV overlap detection is not perfect, as it may fail in cases with occlusions. However, this method effectively reduces the number of candidate context frames.
+
+The final question is: after FOV co-visibility filtering, if the number of filtered frames still exceeds the context condition limit, how should we further filter them? A baseline approach would be random selection, but we also provide some more insightful strategies:
+(1) Considering the redundancy between adjacent frames, we randomly select only one frame from each group of consecutive frames in the filtered context. This design is highly effective, significantly reducing the number of candidate frames while preserving most of the valuable information.
+(2) Building upon the first strategy, we can additionally select a few context frames that are furthest apart either spatially or temporally. This helps to supplement potentially missing long-term information (both spatial and temporal). However, in most cases, this additional selection may not be necessary.
+
+
+
+\paragraph{Implementation details in training and inference.} Assume the maximum number of retrieved context frames is $k$. 
+During training, we read a long ground truth video (containing thousands of frames) and randomly select a segment as the sequence to be predicted. We then apply our Memory Retrieval method to select $k-1$ context frames from the remaining frames. The overlapping relationships between frames have been pre-computed, eliminating the need for repeated calculations. The first frame of the prediction sequence is also included as an additional context frame to ensure video continuity. Additionally, there is a $10\%$ probability during training that only the recent context frame is used, simulating the beginning of long video generation where no context frames are available. 
+During inference, for each video segment to be predicted, we search $k-1$ context frames from the previously generated frames using FOV-based Memory Retrieval and add the most recently generated frame to the context.
+The training and inference procedures are outlined in Algorithm \ref{alg:training} and \ref{alg:inference}, respectively.
+
+% \subsection{Future Research for Memory in Long Video Generation}
+% \label{subsec:discuss}
+% In this work, our core idea is "context as memory". To make this concept more practical, we believe Adaptive Context Compression (ACC) is essential. While we implemented ACC using rule-based search methods, it's possible to develop self-supervised learning approaches using attention mechanisms for compression. However, search and learning should not be viewed as conflicting approaches; rather, they represent two important methodologies for utilizing massive amounts of computation in AI research~\cite{bitterlesson}: Search relies on human knowledge and can effectively reduce model learning complexity, computational requirements, and training data needs, though designed rules may not cover all possible scenarios. Learning, on the other hand, eliminates the need for complex specific rules by allowing models to learn intricate patterns end-to-end from training data, but requires larger datasets and computational resources. Looking forward in long video generation, we believe memory research will evolve along both search and learning paths, or potentially through their combination.
+
+\input{fig_tab_texs/algorithms}
+
+\subsection{Data Collection}
+\label{subsec:data}
+To validate our method, we require long video datasets with camera pose annotations. However, currently available datasets with camera pose information typically consist of short video clips~\cite{realestate, recammaster}. To obtain long-duration data with precise camera annotations, we utilized a simulation environment, specifically Unreal Engine 5. We generated randomized camera trajectories navigating through different scenes and rendered corresponding long videos. Our dataset comprises 100 videos of 7,601 frames each, featuring 12 distinct scene styles, with captions annotated by a multimodal LLM~\cite{minicpm} every 77 frames. To simplify the problem while still effectively validating our method, we constrained the camera trajectory's position changes to a 2D plane and limited rotation to only around the z-axis, which still presents sufficient complexity for camera trajectory control.
+Additional details about the dataset are provided in the supplementary materials.

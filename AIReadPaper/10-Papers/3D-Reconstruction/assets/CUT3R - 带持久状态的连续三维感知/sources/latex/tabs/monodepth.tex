@@ -1,0 +1,31 @@
+
+
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{0.95}
+\renewcommand{\tabcolsep}{2.pt}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{@{}lcc|cc|cc|cc@{}}
+\toprule
+  & \multicolumn{2}{c}{\textbf{Sintel}} & \multicolumn{2}{c}{\textbf{Bonn}} & \multicolumn{2}{c}{\textbf{KITTI}} & \multicolumn{2}{c}{\textbf{NYU-v2}} \\ 
+
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+ {\textbf{Method}} & {\footnotesize Abs Rel $\downarrow$} & {\footnotesize $\delta$\textless{}$1.25\uparrow$} & {\footnotesize Abs Rel $\downarrow$} & {\footnotesize $\delta$\textless{}$1.25\uparrow$} & {\footnotesize Abs Rel $\downarrow$} & {\footnotesize $\delta$\textless{}$1.25\uparrow$} & {\footnotesize Abs Rel $\downarrow$} & {\footnotesize $\delta$\textless{}$1.25\uparrow$} \\ 
+\midrule
+DUSt3R & 0.424 & \underline{58.7} & 0.141 & 82.5 & 0.112 & 86.3 & \textbf{0.080} & \underline{90.7} \\ 
+MASt3R & \textbf{0.340} & \textbf{60.4} & {0.142} & {82.0} & \textbf{0.079} & \textbf{94.7} & {0.129} & 84.9 \\ 
+MonST3R & \underline{0.358} & 54.8 & \underline{0.076} & \underline{93.9} & {0.100} & {89.3} & 0.102 & 88.0 \\ 
+Spann3R & {0.470} & 53.9 & {0.118} & {85.9} & {0.128} & {84.6} & 0.122 & 84.9 \\ 
+\ourmethod{} & {0.428} & {55.4} & \textbf{0.063} & \bf{96.2} & \underline{0.092} & \underline{91.3} & \underline{0.086} & \textbf{90.9} \\ 
+\bottomrule
+\end{tabular}
+}
+\caption{\small \textbf{Single-frame Depth Evaluation.} We report the performance on Sintel, Bonn, KITTI, and NYU-v2 (static) datasets. }
+\label{tab:single_frame_depth}
+\vspace{-.1in}
+
+\end{table}
+
+
+ 

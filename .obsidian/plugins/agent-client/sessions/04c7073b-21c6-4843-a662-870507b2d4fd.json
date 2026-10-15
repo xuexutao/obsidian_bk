@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "sessionId": "04c7073b-21c6-4843-a662-870507b2d4fd",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "这几篇文章都算作 video generation 的论文吗？",
+  "createdAt": "2026-10-15T10:10:16.401Z",
+  "updatedAt": "2026-10-15T10:10:16.401Z",
+  "messages": [
+    {
+      "id": "a9bf8a4f-eaf8-49c6-8924-d55f3a0755c9",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "这几篇文章都算作 video generation 的论文吗？",
+          "autoMentionContext": {
+            "noteName": "AR扩散与因果视频生成：五篇方法对比 - Survey",
+            "notePath": "AIReadPaper/20-Surveys/Video-Generation/AR扩散与因果视频生成：五篇方法对比 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-10-15T10:09:54.607Z"
+    },
+    {
+      "id": "63431b0d-bd7d-47e1-a6df-5df94bef30a0",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I'll read the note to see which papers are covered."
+        }
+      ],
+      "timestamp": "2026-10-15T10:09:58.177Z"
+    },
+    {
+      "id": "a1b53281-5cad-4beb-a732-697948ee7327",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01AtTW277kmTt5vn2Tjc4Y3T",
+          "title": "Read AIReadPaper/20-Surveys/Video-Generation/AR扩散与因果视频生成：五篇方法对比 - Survey.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/Video-Generation/AR扩散与因果视频生成：五篇方法对比 - Survey.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/Video-Generation/AR扩散与因果视频生成：五篇方法对比 - Survey.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "**Warning:** We're changing auto mode to no longer charge for classifier requests in Claude Code. However, this session isn't eligible because your requests go through 127.0.0.1:15721, which isn't compatible with this update. Nothing breaks: auto mode keeps working, and its classifier requests are billed as before. To fix it and access the new version of auto mode, ask your gateway to implement: https://code.claude.com/docs/en/auto-mode-classifier-billing不全是。按\"论文自身的实验与定位\"来分，这五篇可以分成三档：\n\n**1. 确定是视频生成论文（3 篇）**\n\n- [[CausVid - 从慢双向到快自回归视频扩散蒸馏]]\n- [[Self-Forcing - 弥合自回归视频扩散的训练推理鸿沟]]\n- [[Causal Forcing - 正确的自回归扩散蒸馏]]\n\n这三篇的目标函数、baseline、评测（VBench、FPS、首块延迟）全都是文生视频/流式视频，属于同一条\"把双向视频扩散蒸馏成少步因果学生\"的工程脉络，作者也有重叠。\n\n**2. 算\"序列生成范式\"，视频只是其中一个验证场景（1 篇）**\n\n- [[Diffusion Forcing - 下一Token预测与全序列扩散]]\n\n它的 claim 是通用序列扩散（视频、规划、机器人、时间序列、世界模型都在实验里），视频部分只是 64×64 / 128×128 的游戏环境，骨干还是卷积 RNN。说它是\"视频生成论文\"会过度缩小它，说它\"不是\"又忽略了它确实做了视频 rollout——归类为**可用于视频的统一建模范式**更准确。\n\n**3. 不是视频生成论文（1 篇）**\n\n- [[CausalFusion - 因果扩散Transformer生成建模]]\n\n这篇是 ImageNet 图像生成 + 图文联合建模，最强结果还是 $S_{eval}=1$（等价于标准 DiT），没有任何视频流式生成的证据。笔记第 1.2 节和 10.5 节已经把这点单独标出来了。它和视频路线的唯一连接点是\"组内 diffusion、组间 causal\"这个结构直觉。\n\n**一句话**：严格意义上只有 3 篇是 video generation 论文；Diffusion Forcing 是跨域的序列扩散范式；CausalFusion 放进这个 survey 是作为**建模范式的参照**，不是作为视频工作。\n\n如果你是在考虑这篇 survey 的归档位置或 `domain` 字段，倒是有个值得注意的点：现在 frontmatter 写的是 `domain: Video-Generation`，而内容实际覆盖了 Foundations（CausalFusion 的精读就存在 `10-Papers/Foundations/` 下）。要不要我把标题或开头的\"覆盖工作\"一行改得更准确一些，比如明确写成\"三篇视频蒸馏 + 两篇建模范式\"？"
+        },
+        {
+          "type": "agent_thought",
+          "text": "Looking back, not all five papers truly fit \"video generation\" — three clearly do, Diffusion Forcing is more general sequence modeling applied to video, and CausalFusion isn't a video generation paper at all. I'll lay this out clearly, maybe with a short table."
+        }
+      ],
+      "timestamp": "2026-10-15T10:09:59.195Z"
+    }
+  ],
+  "savedAt": "2026-10-15T10:10:16.404Z"
+}

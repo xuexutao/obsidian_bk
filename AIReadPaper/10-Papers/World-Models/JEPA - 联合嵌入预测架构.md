@@ -1,6 +1,6 @@
 ---
 type: paper-note
-status: draft
+status: complete
 domain: World-Models
 paper: Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture
 year: 2023

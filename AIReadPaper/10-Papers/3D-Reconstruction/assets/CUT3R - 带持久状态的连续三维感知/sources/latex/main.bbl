@@ -1,0 +1,669 @@
+\begin{thebibliography}{133}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Agarwal et~al.(2010)Agarwal, Snavely, Seitz, and Szeliski]{agarwal2010bundle}
+Sameer Agarwal, Noah Snavely, Steven~M Seitz, and Richard Szeliski.
+\newblock Bundle adjustment in the large.
+\newblock In \emph{Computer Vision--ECCV 2010: 11th European Conference on Computer Vision, Heraklion, Crete, Greece, September 5-11, 2010, Proceedings, Part II 11}, pages 29--42. Springer, 2010.
+
+\bibitem[Agarwal et~al.(2011)Agarwal, Furukawa, Snavely, Simon, Curless, Seitz, and Szeliski]{agarwal2011building}
+Sameer Agarwal, Yasutaka Furukawa, Noah Snavely, Ian Simon, Brian Curless, Steven~M Seitz, and Richard Szeliski.
+\newblock Building rome in a day.
+\newblock \emph{Communications of the ACM}, 54\penalty0 (10):\penalty0 105--112, 2011.
+
+\bibitem[Arnold et~al.(2022)Arnold, Wynn, Vicente, Garcia-Hernando, Monszpart, Prisacariu, Turmukhambetov, and Brachmann]{arnold2022mapfree}
+Eduardo Arnold, Jamie Wynn, Sara Vicente, Guillermo Garcia-Hernando, {\'{A}}ron Monszpart, Victor~Adrian Prisacariu, Daniyar Turmukhambetov, and Eric Brachmann.
+\newblock Map-free visual relocalization: Metric pose relative to a single image.
+\newblock In \emph{ECCV}, 2022.
+
+\bibitem[Azinovi{\'c} et~al.(2022)Azinovi{\'c}, Martin-Brualla, Goldman, Nie{\ss}ner, and Thies]{azinovic2022neural}
+Dejan Azinovi{\'c}, Ricardo Martin-Brualla, Dan~B Goldman, Matthias Nie{\ss}ner, and Justus Thies.
+\newblock Neural rgb-d surface reconstruction.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 6290--6301, 2022.
+
+\bibitem[Baruch et~al.(2021)Baruch, Chen, Dehghan, Dimry, Feigin, Fu, Gebauer, Joffe, Kurz, Schwartz, and Shulman]{dehghan2021arkitscenes}
+Gilad Baruch, Zhuoyuan Chen, Afshin Dehghan, Tal Dimry, Yuri Feigin, Peter Fu, Thomas Gebauer, Brandon Joffe, Daniel Kurz, Arik Schwartz, and Elad Shulman.
+\newblock {ARK}itscenes - a diverse real-world dataset for 3d indoor scene understanding using mobile {RGB}-d data.
+\newblock In \emph{Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 1)}, 2021.
+
+\bibitem[Bauer et~al.(2019)Bauer, Gomez-Donoso, Cruz, Orts-Escolano, and Cazorla]{bauer2019uasol}
+Zuria Bauer, Francisco Gomez-Donoso, Edmanuel Cruz, Sergio Orts-Escolano, and Miguel Cazorla.
+\newblock Uasol, a large-scale high-resolution outdoor stereo dataset.
+\newblock \emph{Scientific data}, 6\penalty0 (1):\penalty0 162, 2019.
+
+\bibitem[Bay et~al.(2008)Bay, Ess, Tuytelaars, and Van~Gool]{bay2008speeded}
+Herbert Bay, Andreas Ess, Tinne Tuytelaars, and Luc Van~Gool.
+\newblock Speeded-up robust features (surf).
+\newblock \emph{Computer vision and image understanding}, 110\penalty0 (3):\penalty0 346--359, 2008.
+
+\bibitem[Bhat et~al.(2023)Bhat, Birkl, Wofk, Wonka, and M{\"u}ller]{bhat2023zoedepth}
+Shariq~Farooq Bhat, Reiner Birkl, Diana Wofk, Peter Wonka, and Matthias M{\"u}ller.
+\newblock Zoedepth: Zero-shot transfer by combining relative and metric depth.
+\newblock \emph{arXiv preprint arXiv:2302.12288}, 2023.
+
+\bibitem[Black et~al.(2023)Black, Patel, Tesch, and Yang]{black2023bedlam}
+Michael~J Black, Priyanka Patel, Joachim Tesch, and Jinlong Yang.
+\newblock Bedlam: A synthetic dataset of bodies exhibiting detailed lifelike animated motion.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 8726--8737, 2023.
+
+\bibitem[Bochkovskii et~al.(2024)Bochkovskii, Delaunoy, Germain, Santos, Zhou, Richter, and Koltun]{depthpro}
+Aleksei Bochkovskii, Ama\"{e}l Delaunoy, Hugo Germain, Marcel Santos, Yichao Zhou, Stephan~R. Richter, and Vladlen Koltun.
+\newblock Depth pro: Sharp monocular metric depth in less than a second.
+\newblock \emph{arXiv}, 2024.
+
+\bibitem[Bozic et~al.(2021)Bozic, Palafox, Thies, Dai, and Nie{\ss}ner]{bozic2021transformerfusion}
+Aljaz Bozic, Pablo Palafox, Justus Thies, Angela Dai, and Matthias Nie{\ss}ner.
+\newblock Transformerfusion: Monocular rgb scene reconstruction using transformers.
+\newblock \emph{Advances in Neural Information Processing Systems}, 34:\penalty0 1403--1414, 2021.
+
+\bibitem[Butler et~al.(2012)Butler, Wulff, Stanley, and Black]{sintel}
+D.~J. Butler, J. Wulff, G.~B. Stanley, and M.~J. Black.
+\newblock A naturalistic open source movie for optical flow evaluation.
+\newblock In \emph{European Conf. on Computer Vision (ECCV)}, pages 611--625. Springer-Verlag, 2012.
+
+\bibitem[Cabon et~al.(2020)Cabon, Murray, and Humenberger]{cabon2020vkitti2}
+Yohann Cabon, Naila Murray, and Martin Humenberger.
+\newblock Virtual kitti 2, 2020.
+
+\bibitem[Cadena et~al.(2016)Cadena, Carlone, Carrillo, Latif, Scaramuzza, Neira, Reid, and Leonard]{cadena2016past}
+Cesar Cadena, Luca Carlone, Henry Carrillo, Yasir Latif, Davide Scaramuzza, Jos{\'e} Neira, Ian Reid, and John~J Leonard.
+\newblock Past, present, and future of simultaneous localization and mapping: Toward the robust-perception age.
+\newblock \emph{IEEE Transactions on robotics}, 32\penalty0 (6):\penalty0 1309--1332, 2016.
+
+\bibitem[Chang et~al.(2017)Chang, Dai, Funkhouser, Halber, Niessner, Savva, Song, Zeng, and Zhang]{chang2017matterport3d}
+Angel Chang, Angela Dai, Thomas Funkhouser, Maciej Halber, Matthias Niessner, Manolis Savva, Shuran Song, Andy Zeng, and Yinda Zhang.
+\newblock Matterport3d: Learning from rgb-d data in indoor environments.
+\newblock \emph{arXiv preprint arXiv:1709.06158}, 2017.
+
+\bibitem[Chen et~al.(2022)Chen, Xu, Geiger, Yu, and Su]{chen2022tensorf}
+Anpei Chen, Zexiang Xu, Andreas Geiger, Jingyi Yu, and Hao Su.
+\newblock Tensorf: Tensorial radiance fields.
+\newblock In \emph{European conference on computer vision}, pages 333--350. Springer, 2022.
+
+\bibitem[Chen et~al.(2024)Chen, Chen, Wang, and Pollefeys]{chen2024leap}
+Weirong Chen, Le Chen, Rui Wang, and Marc Pollefeys.
+\newblock Leap-vo: Long-term effective any point tracking for visual odometry.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 19844--19853, 2024.
+
+\bibitem[Choy et~al.(2016)Choy, Xu, Gwak, Chen, and Savarese]{choy20163d}
+Christopher~B Choy, Danfei Xu, JunYoung Gwak, Kevin Chen, and Silvio Savarese.
+\newblock 3d-r2n2: A unified approach for single and multi-view 3d object reconstruction.
+\newblock In \emph{Computer Vision--ECCV 2016: 14th European Conference, Amsterdam, The Netherlands, October 11-14, 2016, Proceedings, Part VIII 14}, pages 628--644. Springer, 2016.
+
+\bibitem[Dai et~al.(2017)Dai, Chang, Savva, Halber, Funkhouser, and Nie{\ss}ner]{dai2017scannet}
+Angela Dai, Angel~X. Chang, Manolis Savva, Maciej Halber, Thomas Funkhouser, and Matthias Nie{\ss}ner.
+\newblock Scannet: Richly-annotated 3d reconstructions of indoor scenes.
+\newblock In \emph{Proc. Computer Vision and Pattern Recognition (CVPR), IEEE}, 2017.
+
+\bibitem[Davison et~al.(2007)Davison, Reid, Molton, and Stasse]{davison2007monoslam}
+Andrew~J Davison, Ian~D Reid, Nicholas~D Molton, and Olivier Stasse.
+\newblock Monoslam: Real-time single camera slam.
+\newblock \emph{IEEE transactions on pattern analysis and machine intelligence}, 29\penalty0 (6):\penalty0 1052--1067, 2007.
+
+\bibitem[DeTone et~al.(2018)DeTone, Malisiewicz, and Rabinovich]{detone2018superpoint}
+Daniel DeTone, Tomasz Malisiewicz, and Andrew Rabinovich.
+\newblock Superpoint: Self-supervised interest point detection and description.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition workshops}, pages 224--236, 2018.
+
+\bibitem[Dosovitskiy(2020)]{dosovitskiy2020image}
+Alexey Dosovitskiy.
+\newblock An image is worth 16x16 words: Transformers for image recognition at scale.
+\newblock \emph{arXiv preprint arXiv:2010.11929}, 2020.
+
+\bibitem[Durrant-Whyte and Bailey(2006)]{durrant2006simultaneous}
+Hugh Durrant-Whyte and Tim Bailey.
+\newblock Simultaneous localization and mapping: part i.
+\newblock \emph{IEEE robotics \& automation magazine}, 13\penalty0 (2):\penalty0 99--110, 2006.
+
+\bibitem[Dusmanu et~al.(2019)Dusmanu, Rocco, Pajdla, Pollefeys, Sivic, Torii, and Sattler]{dusmanu2019d2}
+Mihai Dusmanu, Ignacio Rocco, Tomas Pajdla, Marc Pollefeys, Josef Sivic, Akihiko Torii, and Torsten Sattler.
+\newblock D2-net: A trainable cnn for joint description and detection of local features.
+\newblock In \emph{Proceedings of the ieee/cvf conference on computer vision and pattern recognition}, pages 8092--8101, 2019.
+
+\bibitem[Elman(1990)]{elman1990finding}
+Jeffrey~L Elman.
+\newblock Finding structure in time.
+\newblock \emph{Cognitive science}, 14\penalty0 (2):\penalty0 179--211, 1990.
+
+\bibitem[Engel et~al.(2014)Engel, Sch{\"o}ps, and Cremers]{engel2014lsd}
+Jakob Engel, Thomas Sch{\"o}ps, and Daniel Cremers.
+\newblock Lsd-slam: Large-scale direct monocular slam.
+\newblock In \emph{European conference on computer vision}, pages 834--849. Springer, 2014.
+
+\bibitem[Forster et~al.(2016)Forster, Zhang, Gassner, Werlberger, and Scaramuzza]{forster2016svo}
+Christian Forster, Zichao Zhang, Michael Gassner, Manuel Werlberger, and Davide Scaramuzza.
+\newblock Svo: Semidirect visual odometry for monocular and multicamera systems.
+\newblock \emph{IEEE Transactions on Robotics}, 33\penalty0 (2):\penalty0 249--265, 2016.
+
+\bibitem[Fridovich-Keil et~al.(2022)Fridovich-Keil, Yu, Tancik, Chen, Recht, and Kanazawa]{fridovich2022plenoxels}
+Sara Fridovich-Keil, Alex Yu, Matthew Tancik, Qinhong Chen, Benjamin Recht, and Angjoo Kanazawa.
+\newblock Plenoxels: Radiance fields without neural networks.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 5501--5510, 2022.
+
+\bibitem[Gao* et~al.(2024)Gao*, Holynski*, Henzler, Brussee, Martin-Brualla, Srinivasan, Barron, and Poole*]{gao2024cat3d}
+Ruiqi Gao*, Aleksander Holynski*, Philipp Henzler, Arthur Brussee, Ricardo Martin-Brualla, Pratul Srinivasan, Jonathan~T Barron, and Ben Poole*.
+\newblock Cat3d: Create anything in 3d with multi-view diffusion models.
+\newblock \emph{arXiv preprint arXiv:2405.10314}, 2024.
+
+\bibitem[Geiger et~al.(2013)Geiger, Lenz, Stiller, and Urtasun]{kitti}
+Andreas Geiger, Philip Lenz, Christoph Stiller, and Raquel Urtasun.
+\newblock Vision meets robotics: The kitti dataset.
+\newblock \emph{The International Journal of Robotics Research}, 32\penalty0 (11):\penalty0 1231--1237, 2013.
+
+\bibitem[Godard et~al.(2019)Godard, Mac~Aodha, Firman, and Brostow]{godard2019digging}
+Cl{\'e}ment Godard, Oisin Mac~Aodha, Michael Firman, and Gabriel~J Brostow.
+\newblock Digging into self-supervised monocular depth estimation.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on computer vision}, pages 3828--3838, 2019.
+
+\bibitem[Gómez et~al.(2023)Gómez, Silva, Seoane, Borrás, Noriega, Ros, Iglesias-Guitian, and López]{gómez2023urbansyn}
+Jose~L. Gómez, Manuel Silva, Antonio Seoane, Agnès Borrás, Mario Noriega, Germán Ros, Jose~A. Iglesias-Guitian, and Antonio~M. López.
+\newblock All for one, and one for all: Urbansyn dataset, the third musketeer of synthetic driving scenes, 2023.
+
+\bibitem[Hartley and Zisserman(2003)]{hartley2003multiple}
+Richard Hartley and Andrew Zisserman.
+\newblock \emph{Multiple view geometry in computer vision}.
+\newblock Cambridge university press, 2003.
+
+\bibitem[He et~al.(2016)He, Zhang, Ren, and Sun]{he2016deep}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+\newblock Deep residual learning for image recognition.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, pages 770--778, 2016.
+
+\bibitem[He et~al.(2022)He, Chen, Xie, Li, Doll{\'a}r, and Girshick]{he2022masked}
+Kaiming He, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Doll{\'a}r, and Ross Girshick.
+\newblock Masked autoencoders are scalable vision learners.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 16000--16009, 2022.
+
+\bibitem[Hochreiter(1997)]{hochreiter1997long}
+S Hochreiter.
+\newblock Long short-term memory.
+\newblock \emph{Neural Computation MIT-Press}, 1997.
+
+\bibitem[Hong et~al.(2023)Hong, Zhang, Gu, Bi, Zhou, Liu, Liu, Sunkavalli, Bui, and Tan]{hong2023lrm}
+Yicong Hong, Kai Zhang, Jiuxiang Gu, Sai Bi, Yang Zhou, Difan Liu, Feng Liu, Kalyan Sunkavalli, Trung Bui, and Hao Tan.
+\newblock Lrm: Large reconstruction model for single image to 3d.
+\newblock \emph{arXiv preprint arXiv:2311.04400}, 2023.
+
+\bibitem[Hu et~al.(2024{\natexlab{a}})Hu, Yin, Zhang, Cai, Long, Chen, Wang, Yu, Shen, and Shen]{hu2024metric3d}
+Mu Hu, Wei Yin, Chi Zhang, Zhipeng Cai, Xiaoxiao Long, Hao Chen, Kaixuan Wang, Gang Yu, Chunhua Shen, and Shaojie Shen.
+\newblock Metric3d v2: A versatile monocular geometric foundation model for zero-shot metric depth and surface normal estimation.
+\newblock \emph{arXiv preprint arXiv:2404.15506}, 2024{\natexlab{a}}.
+
+\bibitem[Hu et~al.(2024{\natexlab{b}})Hu, Gao, Li, Zhao, Cun, Zhang, Quan, and Shan]{hu2024-DepthCrafter}
+Wenbo Hu, Xiangjun Gao, Xiaoyu Li, Sijie Zhao, Xiaodong Cun, Yong Zhang, Long Quan, and Ying Shan.
+\newblock Depthcrafter: Generating consistent long depth sequences for open-world videos.
+\newblock \emph{arXiv preprint arXiv:2409.02095}, 2024{\natexlab{b}}.
+
+\bibitem[Huang et~al.(2018)Huang, Matzen, Kopf, Ahuja, and Huang]{DeepMVS}
+Po-Han Huang, Kevin Matzen, Johannes Kopf, Narendra Ahuja, and Jia-Bin Huang.
+\newblock Deepmvs: Learning multi-view stereopsis.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}, 2018.
+
+\bibitem[Jaegle et~al.(2021)Jaegle, Gimeno, Brock, Vinyals, Zisserman, and Carreira]{jaegle2021perceiver}
+Andrew Jaegle, Felix Gimeno, Andy Brock, Oriol Vinyals, Andrew Zisserman, and Joao Carreira.
+\newblock Perceiver: General perception with iterative attention.
+\newblock In \emph{International conference on machine learning}, pages 4651--4664. PMLR, 2021.
+
+\bibitem[Kar et~al.(2017)Kar, H{\"a}ne, and Malik]{kar2017learning}
+Abhishek Kar, Christian H{\"a}ne, and Jitendra Malik.
+\newblock Learning a multi-view stereo machine.
+\newblock \emph{Advances in neural information processing systems}, 30, 2017.
+
+\bibitem[Karaev et~al.(2023)Karaev, Rocco, Graham, Neverova, Vedaldi, and Rupprecht]{karaev2023dynamicstereo}
+Nikita Karaev, Ignacio Rocco, Benjamin Graham, Natalia Neverova, Andrea Vedaldi, and Christian Rupprecht.
+\newblock Dynamicstereo: Consistent dynamic depth from stereo videos.
+\newblock \emph{CVPR}, 2023.
+
+\bibitem[Ke et~al.(2024)Ke, Obukhov, Huang, Metzger, Daudt, and Schindler]{marigold}
+Bingxin Ke, Anton Obukhov, Shengyu Huang, Nando Metzger, Rodrigo~Caye Daudt, and Konrad Schindler.
+\newblock Repurposing diffusion-based image generators for monocular depth estimation.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2024.
+
+\bibitem[Kerbl et~al.(2023)Kerbl, Kopanas, Leimk{\"u}hler, and Drettakis]{kerbl20233d}
+Bernhard Kerbl, Georgios Kopanas, Thomas Leimk{\"u}hler, and George Drettakis.
+\newblock 3d gaussian splatting for real-time radiance field rendering.
+\newblock \emph{ACM Trans. Graph.}, 42\penalty0 (4):\penalty0 139--1, 2023.
+
+\bibitem[Klein and Murray(2007)]{klein2007parallel}
+Georg Klein and David Murray.
+\newblock Parallel tracking and mapping for small ar workspaces.
+\newblock In \emph{2007 6th IEEE and ACM international symposium on mixed and augmented reality}, pages 225--234. IEEE, 2007.
+
+\bibitem[Kopf et~al.(2021)Kopf, Rong, and Huang]{robustcvd}
+Johannes Kopf, Xuejian Rong, and Jia-Bin Huang.
+\newblock Robust consistent video depth estimation.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 1611--1621, 2021.
+
+\bibitem[Kornilova et~al.(2022)Kornilova, Faizullin, Pakulev, Sadkov, Kukushkin, Akhmetyanov, Akhtyamov, Taherinejad, and Ferrer]{kornilova2022smartportraits}
+Anastasiia Kornilova, Marsel Faizullin, Konstantin Pakulev, Andrey Sadkov, Denis Kukushkin, Azat Akhmetyanov, Timur Akhtyamov, Hekmat Taherinejad, and Gonzalo Ferrer.
+\newblock Smartportraits: Depth powered handheld smartphone dataset of human portraits for state estimation, reconstruction and synthesis.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 21318--21329, 2022.
+
+\bibitem[Lai et~al.(2021)Lai, Liu, Efros, and Wang]{lai2021video}
+Zihang Lai, Sifei Liu, Alexei~A Efros, and Xiaolong Wang.
+\newblock Video autoencoder: self-supervised disentanglement of static 3d structure and motion.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 9730--9740, 2021.
+
+\bibitem[Le et~al.(2021)Le, Mensink, Das, Karaoglu, and Gevers]{le2021eden}
+Hoang-An Le, Thomas Mensink, Partha Das, Sezer Karaoglu, and Theo Gevers.
+\newblock Eden: Multimodal synthetic dataset of enclosed garden scenes.
+\newblock In \emph{Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision}, pages 1579--1589, 2021.
+
+\bibitem[Leroy et~al.(2024)Leroy, Cabon, and Revaud]{leroy2024mast3r}
+Vincent Leroy, Yohann Cabon, and J{\'e}r{\^o}me Revaud.
+\newblock Grounding image matching in 3d with mast3r.
+\newblock \emph{arXiv preprint arXiv:2406.09756}, 2024.
+
+\bibitem[Li and Snavely(2018{\natexlab{a}})]{MDLi18}
+Zhengqi Li and Noah Snavely.
+\newblock Megadepth: Learning single-view depth prediction from internet photos.
+\newblock In \emph{Computer Vision and Pattern Recognition (CVPR)}, 2018{\natexlab{a}}.
+
+\bibitem[Li and Snavely(2018{\natexlab{b}})]{li2018megadepth}
+Zhengqi Li and Noah Snavely.
+\newblock Megadepth: Learning single-view depth prediction from internet photos.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, pages 2041--2050, 2018{\natexlab{b}}.
+
+\bibitem[Li et~al.(2024)Li, Tucker, Cole, Wang, Jin, Ye, Kanazawa, Holynski, and Snavely]{li2024megasam}
+Zhengqi Li, Richard Tucker, Forrester Cole, Qianqian Wang, Linyi Jin, Vickie Ye, Angjoo Kanazawa, Aleksander Holynski, and Noah Snavely.
+\newblock Megasam: Accurate, fast, and robust structure and motion from casual dynamic videos.
+\newblock \emph{arXiv preprint arXiv:2412.04463}, 2024.
+
+\bibitem[Ling et~al.(2024)Ling, Sheng, Tu, Zhao, Xin, Wan, Yu, Guo, Yu, Lu, et~al.]{ling2024dl3dv}
+Lu Ling, Yichen Sheng, Zhi Tu, Wentian Zhao, Cheng Xin, Kun Wan, Lantao Yu, Qianyu Guo, Zixun Yu, Yawen Lu, et~al.
+\newblock Dl3dv-10k: A large-scale scene dataset for deep learning-based 3d vision.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 22160--22169, 2024.
+
+\bibitem[Liu et~al.(2023)Liu, Wu, Hoorick, Tokmakov, Zakharov, and Vondrick]{liu2023zero1to3}
+Ruoshi Liu, Rundi Wu, Basile~Van Hoorick, Pavel Tokmakov, Sergey Zakharov, and Carl Vondrick.
+\newblock Zero-1-to-3: Zero-shot one image to 3d object, 2023.
+
+\bibitem[Liu et~al.(2022)Liu, Liu, Jiang, Lyu, Wan, Shen, Liang, Fu, Wang, and Yi]{liu2022hoi4d}
+Yunze Liu, Yun Liu, Che Jiang, Kangbo Lyu, Weikang Wan, Hao Shen, Boqiang Liang, Zhoujie Fu, He Wang, and Li Yi.
+\newblock Hoi4d: A 4d egocentric dataset for category-level human-object interaction.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 21013--21022, 2022.
+
+\bibitem[Loshchilov(2017)]{loshchilov2017decoupled}
+I Loshchilov.
+\newblock Decoupled weight decay regularization.
+\newblock \emph{arXiv preprint arXiv:1711.05101}, 2017.
+
+\bibitem[Lowe(2004)]{lowe2004distinctive}
+David~G Lowe.
+\newblock Distinctive image features from scale-invariant keypoints.
+\newblock \emph{International journal of computer vision}, 60:\penalty0 91--110, 2004.
+
+\bibitem[Mehl et~al.(2023)Mehl, Schmalfuss, Jahedi, Nalivayko, and Bruhn]{mehl2023spring}
+Lukas Mehl, Jenny Schmalfuss, Azin Jahedi, Yaroslava Nalivayko, and Andr{\'e}s Bruhn.
+\newblock Spring: A high-resolution high-detail dataset and benchmark for scene flow, optical flow and stereo.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 4981--4991, 2023.
+
+\bibitem[Melas-Kyriazi et~al.(2023)Melas-Kyriazi, Rupprecht, Laina, and Vedaldi]{melaskyriazi2023realfusion}
+Luke Melas-Kyriazi, Christian Rupprecht, Iro Laina, and Andrea Vedaldi.
+\newblock Realfusion: 360 reconstruction of any object from a single image.
+\newblock In \emph{CVPR}, 2023.
+
+\bibitem[Mildenhall et~al.(2021)Mildenhall, Srinivasan, Tancik, Barron, Ramamoorthi, and Ng]{mildenhall2021nerf}
+Ben Mildenhall, Pratul~P Srinivasan, Matthew Tancik, Jonathan~T Barron, Ravi Ramamoorthi, and Ren Ng.
+\newblock Nerf: Representing scenes as neural radiance fields for view synthesis.
+\newblock \emph{Communications of the ACM}, 65\penalty0 (1):\penalty0 99--106, 2021.
+
+\bibitem[M{\"u}ller et~al.(2022)M{\"u}ller, Evans, Schied, and Keller]{muller2022instant}
+Thomas M{\"u}ller, Alex Evans, Christoph Schied, and Alexander Keller.
+\newblock Instant neural graphics primitives with a multiresolution hash encoding.
+\newblock \emph{ACM transactions on graphics (TOG)}, 41\penalty0 (4):\penalty0 1--15, 2022.
+
+\bibitem[Mur-Artal et~al.(2015)Mur-Artal, Montiel, and Tardos]{mur2015orb}
+Raul Mur-Artal, Jose Maria~Martinez Montiel, and Juan~D Tardos.
+\newblock Orb-slam: a versatile and accurate monocular slam system.
+\newblock \emph{IEEE transactions on robotics}, 31\penalty0 (5):\penalty0 1147--1163, 2015.
+
+\bibitem[Nathan~Silberman and Fergus(2012)]{nyuv2}
+Pushmeet~Kohli Nathan~Silberman, Derek~Hoiem and Rob Fergus.
+\newblock Indoor segmentation and support inference from rgbd images.
+\newblock In \emph{ECCV}, 2012.
+
+\bibitem[Newcombe et~al.(2011)Newcombe, Lovegrove, and Davison]{newcombe2011dtam}
+Richard~A Newcombe, Steven~J Lovegrove, and Andrew~J Davison.
+\newblock Dtam: Dense tracking and mapping in real-time.
+\newblock In \emph{2011 international conference on computer vision}, pages 2320--2327. IEEE, 2011.
+
+\bibitem[Niklaus et~al.(2019)Niklaus, Mai, Yang, and Liu]{3dkb}
+Simon Niklaus, Long Mai, Jimei Yang, and Feng Liu.
+\newblock 3d ken burns effect from a single image.
+\newblock \emph{ACM Transactions on Graphics}, 38\penalty0 (6):\penalty0 184:1--184:15, 2019.
+
+\bibitem[Palazzolo et~al.(2019)Palazzolo, Behley, Lottes, Gigu\`ere, and Stachniss]{bonn}
+E. Palazzolo, J. Behley, P. Lottes, P. Gigu\`ere, and C. Stachniss.
+\newblock {ReFusion: 3D Reconstruction in Dynamic Environments for RGB-D Cameras Exploiting Residuals}.
+\newblock 2019.
+
+\bibitem[Piccinelli et~al.(2024)Piccinelli, Yang, Sakaridis, Segu, Li, Van~Gool, and Yu]{piccinelli2024unidepth}
+Luigi Piccinelli, Yung-Hsu Yang, Christos Sakaridis, Mattia Segu, Siyuan Li, Luc Van~Gool, and Fisher Yu.
+\newblock Unidepth: Universal monocular metric depth estimation.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 10106--10116, 2024.
+
+\bibitem[Poole et~al.(2022)Poole, Jain, Barron, and Mildenhall]{poole2022dreamfusion}
+Ben Poole, Ajay Jain, Jonathan~T Barron, and Ben Mildenhall.
+\newblock Dreamfusion: Text-to-3d using 2d diffusion.
+\newblock \emph{arXiv preprint arXiv:2209.14988}, 2022.
+
+\bibitem[Ramesh et~al.(2021)Ramesh, Pavlov, Goh, Gray, Voss, Radford, Chen, and Sutskever]{ramesh2021zero}
+Aditya Ramesh, Mikhail Pavlov, Gabriel Goh, Scott Gray, Chelsea Voss, Alec Radford, Mark Chen, and Ilya Sutskever.
+\newblock Zero-shot text-to-image generation.
+\newblock In \emph{International conference on machine learning}, pages 8821--8831. Pmlr, 2021.
+
+\bibitem[Ranftl et~al.(2021)Ranftl, Bochkovskiy, and Koltun]{Ranftl2021}
+Ren\'{e} Ranftl, Alexey Bochkovskiy, and Vladlen Koltun.
+\newblock Vision transformers for dense prediction.
+\newblock \emph{ICCV}, 2021.
+
+\bibitem[Ranftl et~al.(2022)Ranftl, Lasinger, Hafner, Schindler, and Koltun]{Ranftl2022}
+Ren\'{e} Ranftl, Katrin Lasinger, David Hafner, Konrad Schindler, and Vladlen Koltun.
+\newblock Towards robust monocular depth estimation: Mixing datasets for zero-shot cross-dataset transfer.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine Intelligence}, 44\penalty0 (3), 2022.
+
+\bibitem[Reizenstein et~al.(2021)Reizenstein, Shapovalov, Henzler, Sbordone, Labatut, and Novotny]{reizenstein21co3d}
+Jeremy Reizenstein, Roman Shapovalov, Philipp Henzler, Luca Sbordone, Patrick Labatut, and David Novotny.
+\newblock Common objects in 3d: Large-scale learning and evaluation of real-life 3d category reconstruction.
+\newblock In \emph{International Conference on Computer Vision}, 2021.
+
+\bibitem[Roberts et~al.(2021)Roberts, Ramapuram, Ranjan, Kumar, Bautista, Paczan, Webb, and Susskind]{hypersim}
+Mike Roberts, Jason Ramapuram, Anurag Ranjan, Atulit Kumar, Miguel~Angel Bautista, Nathan Paczan, Russ Webb, and Joshua~M. Susskind.
+\newblock {Hypersim}: {A} photorealistic synthetic dataset for holistic indoor scene understanding.
+\newblock In \emph{International Conference on Computer Vision (ICCV) 2021}, 2021.
+
+\bibitem[Rombach et~al.(2022)Rombach, Blattmann, Lorenz, Esser, and Ommer]{rombach2022high}
+Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Bj{\"o}rn Ommer.
+\newblock High-resolution image synthesis with latent diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 10684--10695, 2022.
+
+\bibitem[Saharia et~al.(2022)Saharia, Chan, Saxena, Li, Whang, Denton, Ghasemipour, Gontijo~Lopes, Karagol~Ayan, Salimans, et~al.]{saharia2022photorealistic}
+Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily~L Denton, Kamyar Ghasemipour, Raphael Gontijo~Lopes, Burcu Karagol~Ayan, Tim Salimans, et~al.
+\newblock Photorealistic text-to-image diffusion models with deep language understanding.
+\newblock \emph{Advances in neural information processing systems}, 35:\penalty0 36479--36494, 2022.
+
+\bibitem[Sarlin et~al.(2020)Sarlin, DeTone, Malisiewicz, and Rabinovich]{sarlin20superglue}
+Paul-Edouard Sarlin, Daniel DeTone, Tomasz Malisiewicz, and Andrew Rabinovich.
+\newblock {SuperGlue}: Learning feature matching with graph neural networks.
+\newblock In \emph{CVPR}, 2020.
+
+\bibitem[Sayed et~al.(2022)Sayed, Gibson, Watson, Prisacariu, Firman, and Godard]{sayed2022simplerecon}
+Mohamed Sayed, John Gibson, Jamie Watson, Victor Prisacariu, Michael Firman, and Cl{\'e}ment Godard.
+\newblock Simplerecon: 3d reconstruction without 3d convolutions.
+\newblock In \emph{European Conference on Computer Vision}, pages 1--19. Springer, 2022.
+
+\bibitem[Sch\"{o}nberger and Frahm(2016)]{schoenberger2016sfm}
+Johannes~Lutz Sch\"{o}nberger and Jan-Michael Frahm.
+\newblock Structure-from-motion revisited.
+\newblock In \emph{Conference on Computer Vision and Pattern Recognition (CVPR)}, 2016.
+
+\bibitem[Seitz et~al.(2006)Seitz, Curless, Diebel, Scharstein, and Szeliski]{seitz2006comparison}
+Steven~M Seitz, Brian Curless, James Diebel, Daniel Scharstein, and Richard Szeliski.
+\newblock A comparison and evaluation of multi-view stereo reconstruction algorithms.
+\newblock In \emph{2006 IEEE computer society conference on computer vision and pattern recognition (CVPR'06)}, pages 519--528. IEEE, 2006.
+
+\bibitem[Shao et~al.(2024)Shao, Yang, Zhou, Zhang, Shen, Poggi, and Liao]{shao2024learning}
+Jiahao Shao, Yuanbo Yang, Hongyu Zhou, Youmin Zhang, Yujun Shen, Matteo Poggi, and Yiyi Liao.
+\newblock Learning temporally consistent video depth from video diffusion priors.
+\newblock \emph{arXiv preprint arXiv:2406.01493}, 2024.
+
+\bibitem[Shotton et~al.(2013)Shotton, Glocker, Zach, Izadi, Criminisi, and Fitzgibbon]{shotton2013scene}
+Jamie Shotton, Ben Glocker, Christopher Zach, Shahram Izadi, Antonio Criminisi, and Andrew Fitzgibbon.
+\newblock Scene coordinate regression forests for camera relocalization in rgb-d images.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, pages 2930--2937, 2013.
+
+\bibitem[Sinha et~al.(2023)Sinha, Shapovalov, Reizenstein, Rocco, Neverova, Vedaldi, and Novotny]{sinha2023cop3d}
+Samarth Sinha, Roman Shapovalov, Jeremy Reizenstein, Ignacio Rocco, Natalia Neverova, Andrea Vedaldi, and David Novotny.
+\newblock Common pets in 3d: Dynamic new-view synthesis of real-life deformable categories.
+\newblock \emph{CVPR}, 2023.
+
+\bibitem[Sitzmann et~al.(2019)Sitzmann, Zollh{\"o}fer, and Wetzstein]{sitzmann2019scene}
+Vincent Sitzmann, Michael Zollh{\"o}fer, and Gordon Wetzstein.
+\newblock Scene representation networks: Continuous 3d-structure-aware neural scene representations.
+\newblock \emph{Advances in Neural Information Processing Systems}, 32, 2019.
+
+\bibitem[Sitzmann et~al.(2021)Sitzmann, Rezchikov, Freeman, Tenenbaum, and Durand]{sitzmann2021light}
+Vincent Sitzmann, Semon Rezchikov, Bill Freeman, Josh Tenenbaum, and Fredo Durand.
+\newblock Light field networks: Neural scene representations with single-evaluation rendering.
+\newblock \emph{Advances in Neural Information Processing Systems}, 34:\penalty0 19313--19325, 2021.
+
+\bibitem[Snavely et~al.(2006)Snavely, Seitz, and Szeliski]{snavely2006photo}
+Noah Snavely, Steven~M Seitz, and Richard Szeliski.
+\newblock Photo tourism: exploring photo collections in 3d.
+\newblock In \emph{ACM siggraph 2006 papers}, pages 835--846. 2006.
+
+\bibitem[Snavely et~al.(2008)Snavely, Seitz, and Szeliski]{snavely2008modeling}
+Noah Snavely, Steven~M Seitz, and Richard Szeliski.
+\newblock Modeling the world from internet photo collections.
+\newblock \emph{International journal of computer vision}, 80:\penalty0 189--210, 2008.
+
+\bibitem[Sturm et~al.(2012)Sturm, Engelhard, Endres, Burgard, and Cremers]{tum-dynamics}
+J{\"u}rgen Sturm, Nikolas Engelhard, Felix Endres, Wolfram Burgard, and Daniel Cremers.
+\newblock A benchmark for the evaluation of rgb-d slam systems.
+\newblock In \emph{2012 IEEE/RSJ international conference on intelligent robots and systems}, pages 573--580. IEEE, 2012.
+
+\bibitem[Su et~al.(2024)Su, Ahmed, Lu, Pan, Bo, and Liu]{su2024roformer}
+Jianlin Su, Murtadha Ahmed, Yu Lu, Shengfeng Pan, Wen Bo, and Yunfeng Liu.
+\newblock Roformer: Enhanced transformer with rotary position embedding.
+\newblock \emph{Neurocomputing}, 568:\penalty0 127063, 2024.
+
+\bibitem[Sun et~al.(2021{\natexlab{a}})Sun, Shen, Wang, Bao, and Zhou]{sun2021loftr}
+Jiaming Sun, Zehong Shen, Yuang Wang, Hujun Bao, and Xiaowei Zhou.
+\newblock Loftr: Detector-free local feature matching with transformers.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 8922--8931, 2021{\natexlab{a}}.
+
+\bibitem[Sun et~al.(2021{\natexlab{b}})Sun, Xie, Chen, Zhou, and Bao]{sun2021neuralrecon}
+Jiaming Sun, Yiming Xie, Linghao Chen, Xiaowei Zhou, and Hujun Bao.
+\newblock Neuralrecon: Real-time coherent 3d reconstruction from monocular video.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 15598--15607, 2021{\natexlab{b}}.
+
+\bibitem[Sun et~al.(2020)Sun, Kretzschmar, Dotiwalla, Chouard, Patnaik, Tsui, Guo, Zhou, Chai, Caine, Vasudevan, Han, Ngiam, Zhao, Timofeev, Ettinger, Krivokon, Gao, Joshi, Zhang, Shlens, Chen, and Anguelov]{Sun_2020_CVPR}
+Pei Sun, Henrik Kretzschmar, Xerxes Dotiwalla, Aurelien Chouard, Vijaysai Patnaik, Paul Tsui, James Guo, Yin Zhou, Yuning Chai, Benjamin Caine, Vijay Vasudevan, Wei Han, Jiquan Ngiam, Hang Zhao, Aleksei Timofeev, Scott Ettinger, Maxim Krivokon, Amy Gao, Aditya Joshi, Yu Zhang, Jonathon Shlens, Zhifeng Chen, and Dragomir Anguelov.
+\newblock Scalability in perception for autonomous driving: Waymo open dataset.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2020.
+
+\bibitem[Tang and Tan(2018)]{tang2018ba}
+Chengzhou Tang and Ping Tan.
+\newblock Ba-net: Dense bundle adjustment network.
+\newblock \emph{arXiv preprint arXiv:1806.04807}, 2018.
+
+\bibitem[Tateno et~al.(2017)Tateno, Tombari, Laina, and Navab]{tateno2017cnn}
+Keisuke Tateno, Federico Tombari, Iro Laina, and Nassir Navab.
+\newblock Cnn-slam: Real-time dense monocular slam with learned depth prediction.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, pages 6243--6252, 2017.
+
+\bibitem[Teed and Deng(2021)]{teed2021droid}
+Zachary Teed and Jia Deng.
+\newblock Droid-slam: Deep visual slam for monocular, stereo, and rgb-d cameras.
+\newblock \emph{Advances in neural information processing systems}, 34:\penalty0 16558--16569, 2021.
+
+\bibitem[Teed et~al.(2023)Teed, Lipson, and Deng]{teed2023deep}
+Zachary Teed, Lahav Lipson, and Jia Deng.
+\newblock Deep patch visual odometry.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Teed et~al.(2024)Teed, Lipson, and Deng]{teed2024deep}
+Zachary Teed, Lahav Lipson, and Jia Deng.
+\newblock Deep patch visual odometry.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024.
+
+\bibitem[Tosi et~al.(2021)Tosi, Liao, Schmitt, and Geiger]{tosi2021smd}
+Fabio Tosi, Yiyi Liao, Carolin Schmitt, and Andreas Geiger.
+\newblock Smd-nets: Stereo mixture density networks.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 8942--8952, 2021.
+
+\bibitem[Triggs et~al.(2000)Triggs, McLauchlan, Hartley, and Fitzgibbon]{triggs2000bundle}
+Bill Triggs, Philip~F McLauchlan, Richard~I Hartley, and Andrew~W Fitzgibbon.
+\newblock Bundle adjustment—a modern synthesis.
+\newblock In \emph{Vision Algorithms: Theory and Practice: International Workshop on Vision Algorithms Corfu, Greece, September 21--22, 1999 Proceedings}, pages 298--372. Springer, 2000.
+
+\bibitem[Wang and Agapito(2024)]{spann3r}
+Hengyi Wang and Lourdes Agapito.
+\newblock 3d reconstruction with spatial memory.
+\newblock \emph{arXiv preprint arXiv:2408.16061}, 2024.
+
+\bibitem[Wang et~al.(2023{\natexlab{a}})Wang, Wang, and Agapito]{wang2023co}
+Hengyi Wang, Jingwen Wang, and Lourdes Agapito.
+\newblock Co-slam: Joint coordinate and sparse parametric encodings for neural real-time slam.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 13293--13302, 2023{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{a}})Wang, Karaev, Rupprecht, and Novotny]{wang2024vggsfm}
+Jianyuan Wang, Nikita Karaev, Christian Rupprecht, and David Novotny.
+\newblock Vggsfm: Visual geometry grounded deep structure from motion.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 21686--21697, 2024{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2021{\natexlab{a}})Wang, Liu, Liu, Theobalt, Komura, and Wang]{wang2021neus}
+Peng Wang, Lingjie Liu, Yuan Liu, Christian Theobalt, Taku Komura, and Wenping Wang.
+\newblock Neus: Learning neural implicit surfaces by volume rendering for multi-view reconstruction.
+\newblock \emph{arXiv preprint arXiv:2106.10689}, 2021{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2021{\natexlab{b}})Wang, Zheng, Yan, Deng, Zhao, and Chu]{wang2021irs}
+Qiang Wang, Shizhen Zheng, Qingsong Yan, Fei Deng, Kaiyong Zhao, and Xiaowen Chu.
+\newblock Irs: A large naturalistic indoor robotics stereo dataset to train deep models for disparity and surface normal estimation.
+\newblock In \emph{2021 IEEE International Conference on Multimedia and Expo (ICME)}, pages 1--6. IEEE, 2021{\natexlab{b}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{b}})Wang, Xu, Dai, Xiang, Deng, Tong, and Yang]{wang2024moge}
+Ruicheng Wang, Sicheng Xu, Cassie Dai, Jianfeng Xiang, Yu Deng, Xin Tong, and Jiaolong Yang.
+\newblock Moge: Unlocking accurate monocular geometry estimation for open-domain images with optimal training supervision, 2024{\natexlab{b}}.
+
+\bibitem[Wang et~al.(2024{\natexlab{c}})Wang, Leroy, Cabon, Chidlovskii, and Revaud]{wang2024dust3r}
+Shuzhe Wang, Vincent Leroy, Yohann Cabon, Boris Chidlovskii, and Jerome Revaud.
+\newblock Dust3r: Geometric 3d vision made easy.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 20697--20709, 2024{\natexlab{c}}.
+
+\bibitem[Wang et~al.(2020)Wang, Zhu, Wang, Hu, Qiu, Wang, Hu, Kapoor, and Scherer]{tartanair2020iros}
+Wenshan Wang, Delong Zhu, Xiangwei Wang, Yaoyu Hu, Yuheng Qiu, Chen Wang, Yafei Hu, Ashish Kapoor, and Sebastian Scherer.
+\newblock Tartanair: A dataset to push the limits of visual slam.
+\newblock 2020.
+
+\bibitem[Wang et~al.(2023{\natexlab{b}})Wang, Shi, Li, Huang, Cao, Zhang, Xian, and Lin]{NVDS}
+Yiran Wang, Min Shi, Jiaqi Li, Zihao Huang, Zhiguo Cao, Jianming Zhang, Ke Xian, and Guosheng Lin.
+\newblock Neural video depth stabilizer.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, pages 9466--9476, 2023{\natexlab{b}}.
+
+\bibitem[Weinzaepfel et~al.(2022)Weinzaepfel, Leroy, Lucas, Br{\'e}gier, Cabon, Arora, Antsfeld, Chidlovskii, Csurka, and Revaud]{weinzaepfel2022croco}
+Philippe Weinzaepfel, Vincent Leroy, Thomas Lucas, Romain Br{\'e}gier, Yohann Cabon, Vaibhav Arora, Leonid Antsfeld, Boris Chidlovskii, Gabriela Csurka, and J{\'e}r{\^o}me Revaud.
+\newblock Croco: Self-supervised pre-training for 3d vision tasks by cross-view completion.
+\newblock \emph{Advances in Neural Information Processing Systems}, 35:\penalty0 3502--3516, 2022.
+
+\bibitem[Wrenninge and Unger(2018)]{wrenninge2018synscapes}
+Magnus Wrenninge and Jonas Unger.
+\newblock Synscapes: A photorealistic synthetic dataset for street scene parsing.
+\newblock \emph{arXiv preprint arXiv:1810.08705}, 2018.
+
+\bibitem[Wu et~al.(2024{\natexlab{a}})Wu, Gao, Poole, Trevithick, Zheng, Barron, and Holynski]{wu2024cat4d}
+Rundi Wu, Ruiqi Gao, Ben Poole, Alex Trevithick, Changxi Zheng, Jonathan~T Barron, and Aleksander Holynski.
+\newblock Cat4d: Create anything in 4d with multi-view video diffusion models.
+\newblock \emph{arXiv preprint arXiv:2411.18613}, 2024{\natexlab{a}}.
+
+\bibitem[Wu et~al.(2024{\natexlab{b}})Wu, Mildenhall, Henzler, Park, Gao, Watson, Srinivasan, Verbin, Barron, Poole, et~al.]{wu2024reconfusion}
+Rundi Wu, Ben Mildenhall, Philipp Henzler, Keunhong Park, Ruiqi Gao, Daniel Watson, Pratul~P Srinivasan, Dor Verbin, Jonathan~T Barron, Ben Poole, et~al.
+\newblock Reconfusion: 3d reconstruction with diffusion priors.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 21551--21561, 2024{\natexlab{b}}.
+
+\bibitem[Wu et~al.(2023)Wu, Zhang, Fu, Wang, Jiawei~Ren, Wu, Yang, Wang, Qian, Lin, and Liu]{wu2023omniobject3d}
+Tong Wu, Jiarui Zhang, Xiao Fu, Yuxin Wang, Liang~Pan Jiawei~Ren, Wayne Wu, Lei Yang, Jiaqi Wang, Chen Qian, Dahua Lin, and Ziwei Liu.
+\newblock Omniobject3d: Large-vocabulary 3d object dataset for realistic perception, reconstruction and generation.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2023.
+
+\bibitem[Xia et~al.(2024)Xia, Fu, Liu, and Wang]{xia2024wildrgbd}
+Hongchi Xia, Yang Fu, Sifei Liu, and Xiaolong Wang.
+\newblock Rgbd objects in the wild: Scaling real-world 3d object learning from rgb-d videos.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 22378--22389, 2024.
+
+\bibitem[Yang et~al.(2024{\natexlab{a}})Yang, Kang, Huang, Xu, Feng, and Zhao]{yang2024depth}
+Lihe Yang, Bingyi Kang, Zilong Huang, Xiaogang Xu, Jiashi Feng, and Hengshuang Zhao.
+\newblock Depth anything: Unleashing the power of large-scale unlabeled data.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 10371--10381, 2024{\natexlab{a}}.
+
+\bibitem[Yang et~al.(2024{\natexlab{b}})Yang, Kang, Huang, Zhao, Xu, Feng, and Zhao]{depth_anything_v2}
+Lihe Yang, Bingyi Kang, Zilong Huang, Zhen Zhao, Xiaogang Xu, Jiashi Feng, and Hengshuang Zhao.
+\newblock Depth anything v2.
+\newblock \emph{arXiv:2406.09414}, 2024{\natexlab{b}}.
+
+\bibitem[Yang et~al.(2020)Yang, Stumberg, Wang, and Cremers]{yang2020d3vo}
+Nan Yang, Lukas~von Stumberg, Rui Wang, and Daniel Cremers.
+\newblock D3vo: Deep depth, deep pose and deep uncertainty for monocular visual odometry.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 1281--1292, 2020.
+
+\bibitem[Yao et~al.(2018)Yao, Luo, Li, Fang, and Quan]{yao2018mvsnet}
+Yao Yao, Zixin Luo, Shiwei Li, Tian Fang, and Long Quan.
+\newblock Mvsnet: Depth inference for unstructured multi-view stereo.
+\newblock In \emph{Proceedings of the European conference on computer vision (ECCV)}, pages 767--783, 2018.
+
+\bibitem[Yao et~al.(2020)Yao, Luo, Li, Zhang, Ren, Zhou, Fang, and Quan]{yao2020blendedmvs}
+Yao Yao, Zixin Luo, Shiwei Li, Jingyang Zhang, Yufan Ren, Lei Zhou, Tian Fang, and Long Quan.
+\newblock Blendedmvs: A large-scale dataset for generalized multi-view stereo networks.
+\newblock \emph{Computer Vision and Pattern Recognition (CVPR)}, 2020.
+
+\bibitem[Yeshwanth et~al.(2023)Yeshwanth, Liu, Nie{\ss}ner, and Dai]{yeshwanth2023scannet++}
+Chandan Yeshwanth, Yueh-Cheng Liu, Matthias Nie{\ss}ner, and Angela Dai.
+\newblock Scannet++: A high-fidelity dataset of 3d indoor scenes.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 12--22, 2023.
+
+\bibitem[Yu et~al.(2021)Yu, Ye, Tancik, and Kanazawa]{yu2021pixelnerf}
+Alex Yu, Vickie Ye, Matthew Tancik, and Angjoo Kanazawa.
+\newblock pixelnerf: Neural radiance fields from one or few images.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 4578--4587, 2021.
+
+\bibitem[Yu et~al.(2023)Yu, Xu, Zhang, Liu, Ye, Wu, Yan, Zhu, Xiong, Liang, et~al.]{yu2023mvimgnet}
+Xianggang Yu, Mutian Xu, Yidan Zhang, Haolin Liu, Chongjie Ye, Yushuang Wu, Zizheng Yan, Chenming Zhu, Zhangyang Xiong, Tianyou Liang, et~al.
+\newblock Mvimgnet: A large-scale dataset of multi-view images.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 9150--9161, 2023.
+
+\bibitem[Yu et~al.(2024)Yu, Chen, Huang, Sattler, and Geiger]{yu2024mip}
+Zehao Yu, Anpei Chen, Binbin Huang, Torsten Sattler, and Andreas Geiger.
+\newblock Mip-splatting: Alias-free 3d gaussian splatting.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 19447--19456, 2024.
+
+\bibitem[Zhang et~al.(2024{\natexlab{a}})Zhang, Herrmann, Hur, Jampani, Darrell, Cole, Sun, and Yang]{zhang2024monst3r}
+Junyi Zhang, Charles Herrmann, Junhwa Hur, Varun Jampani, Trevor Darrell, Forrester Cole, Deqing Sun, and Ming-Hsuan Yang.
+\newblock Monst3r: A simple approach for estimating geometry in the presence of motion.
+\newblock \emph{arXiv preprint arxiv:2410.03825}, 2024{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2024{\natexlab{b}})Zhang, Lin, Kumar, Yang, Ramanan, and Tulsiani]{zhang2024raydiffusion}
+Jason~Y Zhang, Amy Lin, Moneish Kumar, Tzu-Hsuan Yang, Deva Ramanan, and Shubham Tulsiani.
+\newblock Cameras as rays: Pose estimation via ray diffusion.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2024{\natexlab{b}}.
+
+\bibitem[Zhang et~al.(2022{\natexlab{a}})Zhang, Bi, Sunkavalli, Su, and Xu]{zhang2022nerfusion}
+Xiaoshuai Zhang, Sai Bi, Kalyan Sunkavalli, Hao Su, and Zexiang Xu.
+\newblock Nerfusion: Fusing radiance fields for large-scale scene reconstruction.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 5449--5458, 2022{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2022{\natexlab{b}})Zhang, Cole, Li, Rubinstein, Snavely, and Freeman]{casualsam}
+Zhoutong Zhang, Forrester Cole, Zhengqi Li, Michael Rubinstein, Noah Snavely, and William~T Freeman.
+\newblock Structure and motion from casual videos.
+\newblock In \emph{European Conference on Computer Vision}, pages 20--37. Springer, 2022{\natexlab{b}}.
+
+\bibitem[Zhao et~al.(2022)Zhao, Liu, Guo, Wang, and Liu]{zhao2022particlesfm}
+Wang Zhao, Shaohui Liu, Hengkai Guo, Wenping Wang, and Yong-Jin Liu.
+\newblock Particlesfm: Exploiting dense point trajectories for localizing moving cameras in the wild.
+\newblock In \emph{European Conference on Computer Vision}, pages 523--542. Springer, 2022.
+
+\bibitem[Zheng et~al.(2023)Zheng, Harley, Shen, Wetzstein, and Guibas]{zheng2023pointodyssey}
+Yang Zheng, Adam~W Harley, Bokui Shen, Gordon Wetzstein, and Leonidas~J Guibas.
+\newblock Pointodyssey: A large-scale synthetic dataset for long-term point tracking.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 19855--19865, 2023.
+
+\bibitem[Zhou et~al.(2018)Zhou, Tucker, Flynn, Fyffe, and Snavely]{realestate10k}
+Tinghui Zhou, Richard Tucker, John Flynn, Graham Fyffe, and Noah Snavely.
+\newblock Stereo magnification: Learning view synthesis using multiplane images.
+\newblock \emph{ACM Trans. Graph. (Proc. SIGGRAPH)}, 37, 2018.
+
+\bibitem[Zhu et~al.(2022)Zhu, Peng, Larsson, Xu, Bao, Cui, Oswald, and Pollefeys]{zhu2022nice}
+Zihan Zhu, Songyou Peng, Viktor Larsson, Weiwei Xu, Hujun Bao, Zhaopeng Cui, Martin~R Oswald, and Marc Pollefeys.
+\newblock Nice-slam: Neural implicit scalable encoding for slam.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}, pages 12786--12796, 2022.
+
+\bibitem[Zhu et~al.(2024)Zhu, Peng, Larsson, Cui, Oswald, Geiger, and Pollefeys]{zhu2024nicer}
+Zihan Zhu, Songyou Peng, Viktor Larsson, Zhaopeng Cui, Martin~R Oswald, Andreas Geiger, and Marc Pollefeys.
+\newblock Nicer-slam: Neural implicit scene encoding for rgb slam.
+\newblock In \emph{2024 International Conference on 3D Vision (3DV)}, pages 42--52. IEEE, 2024.
+
+\end{thebibliography}

@@ -1,0 +1,11 @@
+\begin{figure*}[t!]
+\centering
+\includegraphics[width=0.98\textwidth]{imgs/vmem_spatial_memory.pdf}
+\caption{\textbf{\mnamel. }
+\emph{Reading} procedure renders surfels $\mathcal{S}^{(s)}$ with their attributes, containing past view indices as frame indices.  
+We then select the $K$ most frequent frame indices in the rendered image to retrieve relevant past views from $\mathcal{V}^{(s)}$.  
+\emph{Writing} procedure estimates geometry of newly generated views $\{\mathbf{x}_{T+m}\}_{m=1}^M$ as surfels and merges them with existing surfels.  
+Frame indices $\{T+m\}_{m=1}^M$ are appended to surfels in these views, and novel views are stored, updating $\mathcal{V}^{(s)} \rightarrow \mathcal{V}^{(s+1)}$ and $\mathcal{S}^{(s)} \rightarrow \mathcal{S}^{(s+1)}$. 
+}%
+\label{fig:spatial_memory}
+\end{figure*}

@@ -1,0 +1,12 @@
+\section{Discussion}
+
+Inspired by the mechanisms of human memory, we introduce a geometry-grounded long-term spatial memory mechanism for video world models. This mechanism improves quality, spatial consistency, and context length compared to relevant baselines. 
+
+\paragraph{Limitations and Future Work.} The TSDF-Fusion algorithm we use for storing newly generated information into the spatial memory is far from perfect. Specifically, artifacts are introduced when looking at previously generated content from camera poses that are very different from those of the previous observations, as illustrated in Figure~\ref{fig:failure}. Our memory mechanism is primarily designed to enable \emph{spatial consistency} whereas frame packing strategies for extending the temporal context window size~\cite{Zhang2025PackingIF} primarily focus on \emph{character consistency}. Future work may combine these mechanisms to achieve both types of consistency. The forgetting problem we tackle is just one of several challenges of video world models. Drift, or image quality degradation due to error accumulation over time, is another challenge that we do not address.
+
+\paragraph{Societal Impacts.} Video generation models provide significant benefits for content creation but could be adapted for DeepFake generation. Such applications pose significant societal risks and we strongly oppose the use of our work to create deceptive content intended to mislead or spread misinformation.
+
+\paragraph{Conclusion.} Video world models play a crucial role for content creation or creating training data for agents or robots. Enabling long-term consistency through memory mechanisms like ours makes these models more effective.
+
+\section{Acknowledgment}
+We thank Google for their support. Ryan Po is supported by a Stanford Graduate Fellowship.

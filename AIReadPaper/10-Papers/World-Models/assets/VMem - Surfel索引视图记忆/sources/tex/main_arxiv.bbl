@@ -1,0 +1,363 @@
+\begin{thebibliography}{47}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Boss et~al.(2024)Boss, Huang, Vasishta, and Jampani]{boss2024sf3d}
+Mark Boss, Zixuan Huang, Aaryaman Vasishta, and Varun Jampani.
+\newblock {SF3D}: Stable fast {3D} mesh reconstruction with uv-unwrapping and
+  illumination disentanglement.
+\newblock \emph{arXiv preprint arXiv:2408.00653}, 2024.
+
+\bibitem[Bruce et~al.(2024)Bruce, Dennis, Edwards, Parker-Holder, Shi, Hughes,
+  Lai, Mavalankar, Steigerwald, Apps, et~al.]{bruce2024genie}
+Jake Bruce, Michael~D Dennis, Ashley Edwards, Jack Parker-Holder, Yuge Shi,
+  Edward Hughes, Matthew Lai, Aditi Mavalankar, Richie Steigerwald, Chris Apps,
+  et~al.
+\newblock Genie: Generative interactive environments.
+\newblock In \emph{Forty-first International Conference on Machine Learning},
+  2024.
+
+\bibitem[Chen et~al.(2021)Chen, Xu, Zhao, Zhang, Xiang, Yu, and
+  Su]{chen2021mvsnerf}
+Anpei Chen, Zexiang Xu, Fuqiang Zhao, Xiaoshuai Zhang, Fanbo Xiang, Jingyi Yu,
+  and Hao Su.
+\newblock Mvsnerf: Fast generalizable radiance field reconstruction from
+  multi-view stereo.
+\newblock In \emph{Proceedings of the IEEE/CVF international conference on
+  computer vision}, pages 14124--14133, 2021.
+
+\bibitem[Chen et~al.(2023)Chen, Gu, Chen, Tian, Tu, Liu, and
+  Su]{chen_single-stage_2023}
+Hansheng Chen, Jiatao Gu, Anpei Chen, Wei Tian, Zhuowen Tu, Lingjie Liu, and
+  Hao Su.
+\newblock Single-{Stage} {Diffusion} {NeRF}: {A} {Unified} {Approach} to {3D}
+  {Generation} and {Reconstruction}, 2023.
+\newblock arXiv:2304.06714 [cs].
+
+\bibitem[Chen et~al.(2024{\natexlab{a}})Chen, Xu, Zheng, Zhuang, Pollefeys,
+  Geiger, Cham, and Cai]{chen2024mvsplat}
+Yuedong Chen, Haofei Xu, Chuanxia Zheng, Bohan Zhuang, Marc Pollefeys, Andreas
+  Geiger, Tat-Jen Cham, and Jianfei Cai.
+\newblock Mvsplat: Efficient 3d gaussian splatting from sparse multi-view
+  images.
+\newblock \emph{arXiv preprint arXiv:2403.14627}, 2024{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2024{\natexlab{b}})Chen, Zheng, Xu, Zhuang, Vedaldi, Cham,
+  and Cai]{chen2024mvsplat360}
+Yuedong Chen, Chuanxia Zheng, Haofei Xu, Bohan Zhuang, Andrea Vedaldi, Tat-Jen
+  Cham, and Jianfei Cai.
+\newblock Mvsplat360: Feed-forward 360 scene synthesis from sparse views.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2024{\natexlab{b}}.
+
+\bibitem[Fridman et~al.(2023)Fridman, Abecasis, Kasten, and Dekel]{SceneScape}
+Rafail Fridman, Amit Abecasis, Yoni Kasten, and Tali Dekel.
+\newblock Scenescape: Text-driven consistent scene generation.
+\newblock \emph{arXiv preprint arXiv:2302.01133}, 2023.
+
+\bibitem[Gao* et~al.(2024)Gao*, Holynski*, Henzler, Brussee, Martin-Brualla,
+  Srinivasan, Barron, and Poole*]{gao2024cat3d}
+Ruiqi Gao*, Aleksander Holynski*, Philipp Henzler, Arthur Brussee, Ricardo
+  Martin-Brualla, Pratul~P. Srinivasan, Jonathan~T. Barron, and Ben Poole*.
+\newblock Cat3d: Create anything in 3d with multi-view diffusion models.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2024.
+
+\bibitem[He et~al.(2024)He, Xu, Guo, Wetzstein, Dai, Li, and
+  Yang]{he2024cameractrl}
+Hao He, Yinghao Xu, Yuwei Guo, Gordon Wetzstein, Bo Dai, Hongsheng Li, and
+  Ceyuan Yang.
+\newblock Cameractrl: Enabling camera control for text-to-video generation.
+\newblock \emph{arXiv preprint arXiv:2404.02101}, 2024.
+
+\bibitem[Heusel et~al.(2017)Heusel, Ramsauer, Unterthiner, Nessler, and
+  Hochreiter]{fid}
+Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp
+  Hochreiter.
+\newblock Gans trained by a two time-scale update rule converge to a local nash
+  equilibrium.
+\newblock \emph{Advances in neural information processing systems}, 30, 2017.
+
+\bibitem[H\"ollein et~al.(2023)H\"ollein, Cao, Owens, Johnson, and
+  Nie{\ss}ner]{hoellein2023text2room}
+Lukas H\"ollein, Ang Cao, Andrew Owens, Justin Johnson, and Matthias
+  Nie{\ss}ner.
+\newblock Text2room: Extracting textured 3d meshes from 2d text-to-image
+  models.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision (ICCV)}, pages 7909--7920, 2023.
+
+\bibitem[Hong et~al.(2024)Hong, Zhang, Gu, Bi, Zhou, Liu, Liu, Sunkavalli, Bui,
+  and Tan]{hong24lrm:}
+Yicong Hong, Kai Zhang, Jiuxiang Gu, Sai Bi, Yang Zhou, Difan Liu, Feng Liu,
+  Kalyan Sunkavalli, Trung Bui, and Hao Tan.
+\newblock {LRM}: Large reconstruction model for single image to {3D}.
+\newblock In \emph{Proc. {ICLR}}, 2024.
+
+\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen{-}Zhu, Li, Wang, Wang, and
+  Chen]{hu22lora:}
+Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen{-}Zhu, Yuanzhi Li,
+  Shean Wang, Lu Wang, and Weizhu Chen.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock In \emph{Proc. {ICLR}}, 2022.
+
+\bibitem[Knapitsch et~al.(2017)Knapitsch, Park, Zhou, and
+  Koltun]{knapitsch2017tanks}
+Arno Knapitsch, Jaesik Park, Qian-Yi Zhou, and Vladlen Koltun.
+\newblock Tanks and temples: Benchmarking large-scale scene reconstruction.
+\newblock \emph{ACM Transactions on Graphics (ToG)}, 36\penalty0 (4):\penalty0
+  1--13, 2017.
+
+\bibitem[Koh et~al.(2023)Koh, Agrawal, Batra, Tucker, Waters, Lee, Yang,
+  Baldridge, and Anderson]{koh2023simple}
+Jing~Yu Koh, Harsh Agrawal, Dhruv Batra, Richard Tucker, Austin Waters, Honglak
+  Lee, Yinfei Yang, Jason Baldridge, and Peter Anderson.
+\newblock Simple and effective synthesis of indoor 3d scenes.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, pages 1169--1178, 2023.
+
+\bibitem[Liu et~al.(2021)Liu, Tucker, Jampani, Makadia, Snavely, and
+  Kanazawa]{liu2021infinite}
+Andrew Liu, Richard Tucker, Varun Jampani, Ameesh Makadia, Noah Snavely, and
+  Angjoo Kanazawa.
+\newblock Infinite nature: Perpetual view generation of natural scenes from a
+  single image.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision}, pages 14458--14467, 2021.
+
+\bibitem[Melas{-}Kyriazi et~al.(2023)Melas{-}Kyriazi, Rupprecht, Laina, and
+  Vedaldi]{melas-kyriazi23realfusion}
+Luke Melas{-}Kyriazi, Christian Rupprecht, Iro Laina, and Andrea Vedaldi.
+\newblock {RealFusion}: 360 reconstruction of any object from a single image.
+\newblock In \emph{Proceedings of the {IEEE} Conference on Computer Vision and
+  Pattern Recognition ({CVPR})}, 2023.
+
+\bibitem[M{\"u}ller et~al.(2024)M{\"u}ller, Schwarz, R{\"o}ssle, Porzi,
+  Bul{\`o}, Nie{\ss}ner, and Kontschieder]{muller2024multidiff}
+Norman M{\"u}ller, Katja Schwarz, Barbara R{\"o}ssle, Lorenzo Porzi,
+  Samuel~Rota Bul{\`o}, Matthias Nie{\ss}ner, and Peter Kontschieder.
+\newblock Multidiff: Consistent novel view synthesis from a single image.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pages 10258--10268, 2024.
+
+\bibitem[Niemeyer et~al.(2022)Niemeyer, Barron, Mildenhall, Sajjadi, Geiger,
+  and Radwan]{niemeyer2022regnerf}
+Michael Niemeyer, Jonathan~T Barron, Ben Mildenhall, Mehdi~SM Sajjadi, Andreas
+  Geiger, and Noha Radwan.
+\newblock Regnerf: Regularizing neural radiance fields for view synthesis from
+  sparse inputs.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision
+  and pattern recognition}, pages 5480--5490, 2022.
+
+\bibitem[Parker-Holder et~al.(2024)Parker-Holder, Ball, Bruce, Dasagi,
+  Holsheimer, Kaplanis, Moufarek, Scully, Shar, Shi, Spencer, Yung, Dennis,
+  Kenjeyev, Long, Mnih, Chan, Gazeau, Li, Pardo, Wang, Zhang, Besse, Harley,
+  Mitenkova, Wang, Clune, Hassabis, Hadsell, Bolton, Singh, and
+  Rockt{\"a}schel]{parker-holder24genie}
+Jack Parker-Holder, Philip Ball, Jake Bruce, Vibhavari Dasagi, Kristian
+  Holsheimer, Christos Kaplanis, Alexandre Moufarek, Guy Scully, Jeremy Shar,
+  Jimmy Shi, Stephen Spencer, Jessica Yung, Michael Dennis, Sultan Kenjeyev,
+  Shangbang Long, Vlad Mnih, Harris Chan, Maxime Gazeau, Bonnie Li, Fabio
+  Pardo, Luyu Wang, Lei Zhang, Frederic Besse, Tim Harley, Anna Mitenkova, Jane
+  Wang, Jeff Clune, Demis Hassabis, Raia Hadsell, Adrian Bolton, Satinder
+  Singh, and Tim Rockt{\"a}schel.
+\newblock Genie 2: A large-scale foundation world model, 2024.
+
+\bibitem[Popov et~al.(2025)Popov, Raj, Krainin, Li, Freeman, and
+  Rubinstein]{popov24camctrl3d}
+Stefan Popov, Amit Raj, Michael Krainin, Yuanzhen Li, William~T. Freeman, and
+  Michael Rubinstein.
+\newblock Camctrl3d: Single-image scene exploration with precise 3d camera
+  control, 2025.
+
+\bibitem[Ren and Wang(2022)]{ren2022look}
+Xuanchi Ren and Xiaolong Wang.
+\newblock Look outside the room: Synthesizing a consistent long-term 3d scene
+  video from a single image.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pages 3563--3573, 2022.
+
+\bibitem[Ren et~al.(2025)Ren, Shen, Huang, Ling, Lu, Nimier-David, Müller,
+  Keller, Fidler, and Gao]{ren2025gen3c}
+Xuanchi Ren, Tianchang Shen, Jiahui Huang, Huan Ling, Yifan Lu, Merlin
+  Nimier-David, Thomas Müller, Alexander Keller, Sanja Fidler, and Jun Gao.
+\newblock Gen3c: 3d-informed world-consistent video generation with precise
+  camera control.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, 2025.
+
+\bibitem[Rockwell et~al.(2021)Rockwell, Fouhey, and
+  Johnson]{rockwell2021pixelsynth}
+Chris Rockwell, David~F Fouhey, and Justin Johnson.
+\newblock Pixelsynth: Generating a 3d-consistent experience from a single
+  image.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision}, pages 14104--14113, 2021.
+
+\bibitem[Rombach et~al.(2021)Rombach, Esser, and Ommer]{geogpt}
+Robin Rombach, Patrick Esser, and Bj\"orn Ommer.
+\newblock Geometry-free view synthesis: Transformers and no 3d priors.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision (ICCV)}, pages 14356--14366, 2021.
+
+\bibitem[Seo et~al.(2024)Seo, Fukuda, Shibuya, Narihira, Murata, Hu, Lai, Kim,
+  and Mitsufuji]{seo2024genwarp}
+Junyoung Seo, Kazumi Fukuda, Takashi Shibuya, Takuya Narihira, Naoki Murata,
+  Shoukang Hu, Chieh-Hsin Lai, Seungryong Kim, and Yuki Mitsufuji.
+\newblock Genwarp: Single image to novel views with semantic-preserving
+  generative warping.
+\newblock \emph{arXiv preprint arXiv:2405.17251}, 2024.
+
+\bibitem[Shi et~al.(2023)Shi, Chen, Zhang, Liu, Xu, Wei, Chen, Zeng, and
+  Su]{shi23zero123:}
+Ruoxi Shi, Hansheng Chen, Zhuoyang Zhang, Minghua Liu, Chao Xu, Xinyue Wei,
+  Linghao Chen, Chong Zeng, and Hao Su.
+\newblock {Zero123++}: a single image to consistent multi-view diffusion base
+  model.
+\newblock \emph{arXiv.cs}, abs/2310.15110, 2023.
+
+\bibitem[Szymanowicz et~al.(2024{\natexlab{a}})Szymanowicz, Insafutdinov,
+  Zheng, Campbell, Henriques, Rupprecht, and Vedaldi]{szymanowicz2024flash3d}
+Stanislaw Szymanowicz, Eldar Insafutdinov, Chuanxia Zheng, Dylan Campbell, Joao
+  Henriques, Christian Rupprecht, and Andrea Vedaldi.
+\newblock Flash3d: Feed-forward generalisable 3d scene reconstruction from a
+  single image.
+\newblock \emph{arxiv}, 2024{\natexlab{a}}.
+
+\bibitem[Szymanowicz et~al.(2024{\natexlab{b}})Szymanowicz, Rupprecht, and
+  Vedaldi]{szymanowicz24splatter}
+Stanislaw Szymanowicz, Christian Rupprecht, and Andrea Vedaldi.
+\newblock {Splatter Image}: Ultra-fast single-view {3D} reconstruction.
+\newblock In \emph{Proceedings of the {IEEE} Conference on Computer Vision and
+  Pattern Recognition ({CVPR})}, 2024{\natexlab{b}}.
+
+\bibitem[Truong et~al.(2023)Truong, Rakotosaona, Manhardt, and
+  Tombari]{truong2023sparf}
+Prune Truong, Marie-Julie Rakotosaona, Fabian Manhardt, and Federico Tombari.
+\newblock Sparf: Neural radiance fields from sparse and noisy poses.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pages 4190--4200, 2023.
+
+\bibitem[Tseng et~al.(2023)Tseng, Li, Kim, Alsisan, Huang, and
+  Kopf]{tseng2023consistent}
+Hung-Yu Tseng, Qinbo Li, Changil Kim, Suhib Alsisan, Jia-Bin Huang, and
+  Johannes Kopf.
+\newblock Consistent view synthesis with pose-guided diffusion models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pages 16773--16783, 2023.
+
+\bibitem[Wang* et~al.(2025)Wang*, Zhang*, Holynski, Efros, and Kanazawa]{cut3r}
+Qianqian Wang*, Yifei Zhang*, Aleksander Holynski, Alexei~A. Efros, and Angjoo
+  Kanazawa.
+\newblock Continuous 3d perception model with persistent state.
+\newblock In \emph{CVPR}, 2025.
+
+\bibitem[Wang et~al.(2024)Wang, Leroy, Cabon, Chidlovskii, and
+  Revaud]{dust3r_cvpr24}
+Shuzhe Wang, Vincent Leroy, Yohann Cabon, Boris Chidlovskii, and Jerome Revaud.
+\newblock Dust3r: Geometric 3d vision made easy.
+\newblock In \emph{CVPR}, 2024.
+
+\bibitem[Wang et~al.(2004)Wang, Bovik, Sheikh, and Simoncelli]{ssim}
+Zhou Wang, Alan~C Bovik, Hamid~R Sheikh, and Eero~P Simoncelli.
+\newblock Image quality assessment: from error visibility to structural
+  similarity.
+\newblock \emph{IEEE transactions on image processing}, 13\penalty0
+  (4):\penalty0 600--612, 2004.
+
+\bibitem[Wang et~al.(2023)Wang, Yuan, Wang, Li, Chen, Xia, Luo, and
+  Shan]{wang2024motionctrl}
+Zhouxia Wang, Ziyang Yuan, Xintao Wang, Yaowei Li, Tianshui Chen, Menghan Xia,
+  Ping Luo, and Ying Shan.
+\newblock Motionctrl: A unified and flexible motion controller for video
+  generation.
+\newblock \emph{ACM SIGGRAPH 2024 Conference Papers}, 2023.
+
+\bibitem[Wiles et~al.(2020)Wiles, Gkioxari, Szeliski, and
+  Johnson]{wiles2020synsin}
+Olivia Wiles, Georgia Gkioxari, Richard Szeliski, and Justin Johnson.
+\newblock {SynSin}: {E}nd-to-end view synthesis from a single image.
+\newblock In \emph{CVPR}, 2020.
+
+\bibitem[Wu et~al.(2024)Wu, Mildenhall, Henzler, Park, Gao, Watson, Srinivasan,
+  Verbin, Barron, Poole, et~al.]{wu2024reconfusion}
+Rundi Wu, Ben Mildenhall, Philipp Henzler, Keunhong Park, Ruiqi Gao, Daniel
+  Watson, Pratul~P Srinivasan, Dor Verbin, Jonathan~T Barron, Ben Poole, et~al.
+\newblock Reconfusion: 3d reconstruction with diffusion priors.
+\newblock In \emph{Proceedings of the IEEE/CVF conference on computer vision
+  and pattern recognition}, pages 21551--21561, 2024.
+
+\bibitem[Xiang et~al.(2024)Xiang, Lv, Xu, Deng, Wang, Zhang, Chen, Tong, and
+  Yang]{xiang2024structured}
+Jianfeng Xiang, Zelong Lv, Sicheng Xu, Yu Deng, Ruicheng Wang, Bowen Zhang,
+  Dong Chen, Xin Tong, and Jiaolong Yang.
+\newblock Structured 3d latents for scalable and versatile 3d generation.
+\newblock \emph{arXiv preprint arXiv:2412.01506}, 2024.
+
+\bibitem[Xiao et~al.(2025)Xiao, Lan, Zhou, Ouyang, Yang, Zeng, and
+  Pan]{xiao2025worldmemlongtermconsistentworld}
+Zeqi Xiao, Yushi Lan, Yifan Zhou, Wenqi Ouyang, Shuai Yang, Yanhong Zeng, and
+  Xingang Pan.
+\newblock Worldmem: Long-term consistent world simulation with memory, 2025.
+
+\bibitem[Yu et~al.(2023{\natexlab{a}})Yu, Duan, Hur, Sargent, Rubinstein,
+  Freeman, Cole, Sun, Snavely, Wu, and Herrmann]{yu23wonderjourney:}
+Hong{-}Xing Yu, Haoyi Duan, Junhwa Hur, Kyle Sargent, Michael Rubinstein,
+  William~T. Freeman, Forrester Cole, Deqing Sun, Noah Snavely, Jiajun Wu, and
+  Charles Herrmann.
+\newblock Wonderjourney: Going from anywhere to everywhere.
+\newblock \emph{arXiv.cs}, abs/2312.03884, 2023{\natexlab{a}}.
+
+\bibitem[Yu et~al.(2025)Yu, Duan, Herrmann, Freeman, and Wu]{yu25wonderworld:}
+Hong-Xing Yu, Haoyi Duan, Charles Herrmann, William~T. Freeman, and Jiajun Wu.
+\newblock {WonderWorld:} interactive {3D} scene generation from a single image.
+\newblock \emph{arXiv}, 2406.09394, 2025.
+
+\bibitem[Yu et~al.(2023{\natexlab{b}})Yu, Forghani, Derpanis, and
+  Brubaker]{photometricnvs}
+Jason~J Yu, Fereshteh Forghani, Konstantinos~G Derpanis, and Marcus~A Brubaker.
+\newblock Long-term photometric consistent novel view synthesis with diffusion
+  models.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision}, pages 7094--7104, 2023{\natexlab{b}}.
+
+\bibitem[Yu et~al.(2024)Yu, Xing, Yuan, Hu, Li, Huang, Gao, Wong, Shan, and
+  Tian]{yu2024viewcrafter}
+Wangbo Yu, Jinbo Xing, Li Yuan, Wenbo Hu, Xiaoyu Li, Zhipeng Huang, Xiangjun
+  Gao, Tien-Tsin Wong, Ying Shan, and Yonghong Tian.
+\newblock Viewcrafter: Taming video diffusion models for high-fidelity novel
+  view synthesis.
+\newblock \emph{arXiv preprint arXiv:2409.02048}, 2024.
+
+\bibitem[Zhai et~al.(2025)Zhai, Ye, Liu, Xie, Hu, Peng, Xue, Chen, Wang, Yang,
+  Wang, Liu, and Zhang]{zhai2025stargen}
+Shangjin Zhai, Zhichao Ye, Jialin Liu, Weijian Xie, Jiaqi Hu, Zhen Peng, Hua
+  Xue, Danpeng Chen, Xiaomeng Wang, Lei Yang, Nan Wang, Haomin Liu, and Guofeng
+  Zhang.
+\newblock Stargen: A spatiotemporal autoregression framework with video
+  diffusion model for scalable and controllable scene generation, 2025.
+
+\bibitem[Zhang et~al.(2018)Zhang, Isola, Efros, Shechtman, and Wang]{lpips}
+Richard Zhang, Phillip Isola, Alexei~A Efros, Eli Shechtman, and Oliver Wang.
+\newblock The unreasonable effectiveness of deep features as a perceptual
+  metric.
+\newblock In \emph{Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 586--595, 2018.
+
+\bibitem[Zhou et~al.(2025)Zhou, Gao, Voleti, Vasishta, Yao, Boss, Torr,
+  Rupprecht, and Jampani]{seva}
+Jensen~(Jinghao) Zhou, Hang Gao, Vikram Voleti, Aaryaman Vasishta, Chun-Han
+  Yao, Mark Boss, Philip Torr, Christian Rupprecht, and Varun Jampani.
+\newblock Stable virtual camera: Generative view synthesis with diffusion
+  models.
+\newblock \emph{arXiv preprint arXiv:2503.14489}, 2025.
+
+\bibitem[Zhou et~al.(2018)Zhou, Tucker, Flynn, Fyffe, and Snavely]{realestate}
+Tinghui Zhou, Richard Tucker, John Flynn, Graham Fyffe, and Noah Snavely.
+\newblock Stereo magnification: Learning view synthesis using multiplane
+  images.
+\newblock \emph{arXiv preprint arXiv:1805.09817}, 2018.
+
+\end{thebibliography}

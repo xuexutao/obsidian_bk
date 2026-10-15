@@ -1,0 +1,39 @@
+\begin{table}[t]
+    \centering
+    \setlength{\tabcolsep}{5pt}
+    \scalebox{0.76}{
+    \begin{tabular}{lccccc}
+    \toprule
+    \textbf{Method} & \textbf{LPIPS}~$\downarrow$ & \textbf{PSNR}~$\uparrow$ & \textbf{SSIM}~$\uparrow$  & $R_{\text{dist}}$ $\downarrow$ & $T_{\text{dist}}$ $\downarrow$ \\
+    \midrule
+   %
+   %
+   Look-out~\cite{ren2022look}
+    &  0.792&   8.52&  0.008&  \textbf{0.727}&  1.499\\
+   %
+   %
+   GenWarp~\cite{seo2024genwarp}
+    &  0.521&   10.27&  \textbf{0.129}& 0.785&  1.982\\
+
+   MotionCtrl~\cite{wang2024motionctrl}
+    &  0.692&   8.21&  0.082& 0.842& \textbf{0.129}\\
+
+   ViewCrafter~\cite{yu2024viewcrafter}
+       &0.494& 13.62 & \textbf{0.129}  &1.643 & 0.492 \\
+
+    \midrule
+
+   \mname~($K=4$)
+    & \textbf{0.472} & \textbf{14.11} & 0.121 & 1.204 &0.387 \\
+
+    \bottomrule
+    \end{tabular}
+    }
+    \caption{\textbf{Results on cycle trajectories from Tanks and Temples.} 
+    %
+    }%
+    \label{tab:tank}
+    \vspace{0mm}
+\end{table}
+
+

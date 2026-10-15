@@ -1,0 +1,51 @@
+\section{Experiments}
+\input{fig_tab_texs/fig_camparison}
+\input{fig_tab_texs/tab_comp}
+\subsection{Experiment Settings}
+\paragraph{Implementation Details.}
+Our method is implemented on an internal 1B-parameter pre-trained text-to-video Diffusion Transformer, developed for research purposes. The resolution of generated videos is $640\times 352$. The model supports generation of $77$-frame videos, with a temporal compression ratio of $4$ in the causal 3D VAE, resulting in $20$-frame video latents generation. We set the context size to $20$, meaning $20$ RGB frames are selected as context. Since these frames lack temporal continuity, they are individually compressed using the causal 3D VAE, also resulting in $20$ frames of video latents. The model was trained on our collected dataset for over $10,000$ iterations with a batch size of $64$ on $8$ NVIDIA A100 GPUs. During sampling, we employ Classifier-Free Guidance~\cite{cfg} for text prompts, with $50$ sampling steps.
+
+\paragraph{Evaluation Methods.}
+To evaluate our method, we held out $5\%$ of the dataset containing diverse scenes for testing. Our evaluation metrics include: 
+(1) \textbf{FID and FVD} for video quality assessment; 
+% (2) \textbf{CLIP score}~\cite{clip} for measuring text-video alignment in CLIP embedding space; 
+(2) \textbf{PSNR and LPIPS} for quantifying memory capability through pixel-wise differences between frames. 
+Given the lack of memory evaluation methods, we propose two approaches: (1) \textbf{Ground truth comparison}: evaluating whether predicted frames match ground truth based on context selected from ground truth frames; (2) \textbf{History context comparison}: comparing newly generated frames with previously generated ones in long video sequences. This second approach provides stronger evidence of memory capability as it evaluates consistency in newly generated content. In our implementation, we test on simple trajectories where the camera rotates n degrees and returns, allowing easy identification of corresponding frames for PSNR/LPIPS calculation.
+
+\subsection{Comparison Results}
+In this section, we evaluate video generation memory capabilities across baseline methods, SOTA approaches, and our Context-as-Memory. The compared methods include:
+(1) Single-frame context using the first frame;
+(2) Multi-frame context using the first frame plus random historical frames;
+(3) Diffusion Forcing Transformer (DFoT)~\cite{dfot}, using a fixed-size window of most recent frames;
+(4) FramePack~\cite{framepack}, which hierarchically compresses previous context into two frames, with each frame's height or width halved compared to its predecessor. While theoretically supporting all historical frames, compression becomes impractical after several frames as latent size reduces to $1\times 1$.
+For fair comparison, all methods were implemented on our base model and dataset with identical training configurations and iterations.
+Results are presented in Table~\ref{table:comp} and Figure~\ref{fig:comparison}.
+
+% From the PSNR and LPIPS metrics, we can clearly see the advantages of our Memory-as-Context method compared to other approaches. It can obtain sufficient useful information from retrieved context to assist generation, while other methods have very limited context. Among the other methods, random context selection performs better than DFoT and FramePack, possibly because although random selection cannot guarantee selecting useful context, on average it still performs better than DFoT and FramePack which can only see the most recently generated frames.
+% Regarding the performance of DFoT and FramePack, it can be explained by the information redundancy between adjacent video frames. Although they can condition on the most recent dozens of frames, these frames inherently contain significant redundancy, resulting in limited effective information actually being used by these methods. Furthermore, FramePack's exponential decay rate of context information leads to even weaker memory capabilities compared to DFoT.
+
+PSNR and LPIPS metrics demonstrate our Memory-as-Context's advantages over other approaches. It effectively retrieves and utilizes useful context information, while other methods have limited context access. Random context selection outperforms DFoT and FramePack, possibly because although it cannot guarantee selecting useful context, it still performs better on average than methods limited to only recent frames.
+DFoT and FramePack's performance limitations stem from adjacent frame redundancy. Despite accessing dozens of recent frames, the inherent redundancy limits effective information utilization. FramePack's exponential information decay further weakens its memory capabilities compared to DFoT.
+
+% Moreover, from video generation quality metrics like FID and FVD, we can see that among all methods, our Context-as-Memory achieves the best generation quality. This indicates that sufficient context conditioning not only benefits video generation memory capabilities but also improves video generation quality to some extent, alleviating the error accumulation problem in long video generation. This phenomenon can be explained by the fact that the conditioned context effectively reduces the uncertainty in new video generation, equivalent to providing stronger conditional guidance, thus improving the quality of generated videos. Additionally, since the historical frames used were generated earlier, they contain less accumulated errors over time. Using historical frames with fewer errors as conditions can effectively reduce the error accumulation problem in newly generated video frames.
+Moreover, FID and FVD show our Context-as-Memory achieves the best generation quality among all methods. Sufficient context conditioning not only enhances memory but also improves generation quality by reducing error accumulation in long videos. This improvement stems from two factors: (1) context provides stronger conditional guidance by reducing generation uncertainty, and (2) earlier generated frames used as context contain fewer accumulated errors, helping minimize error propagation in new frames.
+
+Additionally, History Context Comparison proves more challenging than Ground Truth Comparison. Even with simple "rotate forward and rotate backward" trajectories, the performance gaps between methods are significant. DFoT and FramePack can only utilize the most recent context, causing them to continuously generate new content. Only by having access to global context and extracting useful relevant information from it can memory-aware new video generation be achieved.
+
+\subsection{Ablation Study}
+\input{fig_tab_texs/tab_ablation_context}
+\paragraph{Ablation of Context Size.} 
+% We ablated the impact of different context sizes on memory capability. Theoretically, larger context sizes should contain more useful information, thus providing better support for memory capability, which is confirmed by the results in Tab.~\ref{table:ablation_context}. However, larger context sizes also lead to increased computational overhead, slowing down the generation speed. Therefore, bigger context sizes are not always better. As shown in Tab.~\ref{table:ablation_context}, when context size equals $30$, there is a significant speed reduction compared to when context size equals $1$. Considering both performance and speed, a good trade-off is to choose a context size of $20$. Furthermore, with better context compression techniques, there is potential to further reduce the optimal context size.
+We studied how context size affects memory capability. Larger contexts theoretically provide more useful information, improving memory performance as shown in Tab.~\ref{table:ablation_context}. However, this comes with increased computational cost and slower generation speed. When context size reaches $30$, there's a notable speed drop compared to size $1$. Balancing performance and speed, a context size of $20$ offers a good trade-off. Future improvements in context compression techniques may help reduce the optimal context size further.
+
+
+\input{fig_tab_texs/tab_ablation_retrieval}
+\paragraph{Ablation of Memory Retrieval Strategy.} We ablated different memory retrieval strategies to analyze their effects. "Random" refers to randomly selecting context; "FOV+Random" means first filtering using the FOV-based method, then randomly selecting from the remaining candidates; "Non-adj" means only one frame from continuous frame sequences will be selected as a candidate; "far-space-time" means frames that are more distant in time or space are more likely to be selected. The results in Tab.~\ref{table:ablation_retrieval} demonstrate the effectiveness of "FOV" and "Non-adj" methods in removing useless and redundant information, which significantly increases the probability of selecting useful context and thereby enhances memory capability. The impact of "Far-space-time" is relatively minor.
+
+
+\subsection{Open-Domain Results}
+\input{fig_tab_texs/fig_open_domain}
+Due to our diverse training dataset and the various visual priors learned by our base model during pre-training, our method has the potential to generalize to open-domain scenarios not present in the training set. We selected images of different styles from the internet and used them as the first frame to generate long videos. We validated using the trajectory of "rotate away and rotate back," which is suitable for verifying memory consistency in generated content. Results in Fig.~\ref{fig:open-domain} demonstrate that our method indeed possesses good memory capability in open-domain scenarios.
+
+% \subsection{Limitation}
+

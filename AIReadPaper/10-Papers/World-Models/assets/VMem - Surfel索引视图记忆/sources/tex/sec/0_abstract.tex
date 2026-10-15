@@ -1,0 +1,8 @@
+\begin{abstract}
+We propose a novel memory module for building video generators capable of interactively exploring environments.
+Previous approaches have achieved similar results either by out-painting 2D views of a scene while incrementally reconstructing its 3D geometry---which quickly accumulates errors---or by using video generators with a short context window, which struggle to maintain scene coherence over the long term.
+To address these limitations, we introduce \textit{\mnamel} (\textit{\mname}), a memory module that remembers past views by indexing them geometrically based on the 3D surface elements (surfels) they have observed.
+\mname{} enables efficient retrieval of the most relevant past views when generating new ones.
+By focusing only on these relevant views, our method produces consistent explorations of imagined environments at a fraction of the computational cost required to use all past views as context.
+We evaluate our approach on challenging long-term scene synthesis benchmarks and demonstrate superior performance compared to existing methods in maintaining scene coherence and camera control.
+\end{abstract}

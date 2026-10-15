@@ -1,0 +1,48 @@
+\begin{table*}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c c c c c}
+\toprule
+\textbf{Dataset Name} & \textbf{Scene Type} & \textbf{Metric?} & \textbf{Real?}  & \textbf{Dynamic?} & \textbf{Camera only?} & \textbf{Single View?} \\
+\midrule
+ARKitScenes~\cite{dehghan2021arkitscenes} & Indoor & Yes & Real & Static & No & No \\
+ARKitScenes-HighRes~\cite{dehghan2021arkitscenes} & Indoor & Yes & Real & Static & No & No \\
+ScanNet~\cite{dai2017scannet} & Indoor & Yes & Real & Static & No & No \\
+ScanNet++~\cite{yeshwanth2023scannet++} & Indoor & Yes & Real & Static & No & No \\
+TartanAir~\cite{tartanair2020iros} & Mixed & Yes & Synthetic & Dynamic & No & No \\
+Waymo~\cite{Sun_2020_CVPR} & Outdoor & Yes & Real & Dynamic & No & No \\
+MapFree~\cite{arnold2022mapfree} & Outdoor & Yes & Real & Static & No & No \\
+BlendedMVS~\cite{yao2020blendedmvs} & Mixed & No & Synthetic & Static & No & No \\
+HyperSim~\cite{hypersim} & Indoor & Yes & Synthetic & Static & No & No \\
+MegaDepth~\cite{li2018megadepth} & Outdoor & No & Real & Static & No & No \\
+Unreal4K~\cite{tosi2021smd} & Mixed & Yes & Synthetic & Static & No & No \\
+DL3DV~\cite{ling2024dl3dv} & Mixed & No & Real & Static & No & No \\
+CO3Dv2~\cite{reizenstein21co3d} & Object-Centric & No & Real & Static & No & No \\
+WildRGBD~\cite{xia2024wildrgbd} & Object-Centric & Yes & Real & Static & No & No \\
+VirtualKITTI2~\cite{cabon2020vkitti2} & Outdoor & Yes & Synthetic & Dynamic & No & No \\
+Matterport3D~\cite{chang2017matterport3d} & Indoor & Yes & Real & Static& No & No \\
+BEDLAM~\cite{black2023bedlam} & Mixed & Yes & Synthetic & Dynamic & No & No \\
+Dynamic Replica~\cite{karaev2023dynamicstereo} & Indoor & Yes & Synthetic & Dynamic & No & No \\
+PointOdyssey~\cite{zheng2023pointodyssey} & Mixed & Yes & Synthetic & Dynamic & No & No \\
+Spring~\cite{mehl2023spring} & Mixed & Yes & Synthetic & Dynamic & No & No \\
+MVS-Synth~\cite{DeepMVS} & Outdoor & Yes & Synthetic & Dynamic & No & No \\
+UASOL~\cite{bauer2019uasol} & Outdoor & Yes & Real & Static & No & No \\
+OmniObject3D~\cite{wu2023omniobject3d} & Object-Centric & Yes & Synthetic & Static & No & No \\
+RealEstate10K~\cite{realestate10k} & Indoor & No & Real & Static & Yes & No \\
+MVImgNet~\cite{yu2023mvimgnet} & Object-Centric & No & Real & Static & Yes & No \\
+CoP3D~\cite{sinha2023cop3d} & Object-Centric & No & Real & Dynamic & Yes & No \\
+EDEN~\cite{le2021eden} & Outdoor & Yes & Synthetic & Static & No & Yes \\
+IRS~\cite{wang2021irs} & Indoor & Yes & Synthetic & Static & No & Yes \\
+Synscapes~\cite{wrenninge2018synscapes} & Outdoor & Yes & Synthetic & Dynamic & No & Yes \\
+3D Ken Burns~\cite{3dkb} & Mixed & No & Synthetic & Static & No & Yes \\
+SmartPortraits~\cite{kornilova2022smartportraits} & Indoor & Yes & Real & Dynamic & No & Yes \\
+UrbanSyn~\cite{gómez2023urbansyn} & Outdoor & Yes & Synthetic & Dynamic & No & Yes \\
+HOI4D~\cite{liu2022hoi4d} & Indoor & Yes & Real & Dynamic & No & Yes \\
+\bottomrule
+\end{tabular}%
+}
+\caption{\textbf{Training Datasets.} We provide more details of our training datasets. We classify a dataset as dynamic if annotations exist for moving objects like humans. If there is only camera parameters (intrinsics and extrinsics) available, we mark them as ``camera only''. If the dataset only contains depth and intrinsics for single views, we mark them as ``single view''.}
+\label{tab:dataset_info}
+\end{table*}
+
+

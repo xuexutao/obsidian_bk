@@ -1,0 +1,986 @@
+===== PAGE 1 =====
+Joint Embedding Predictive Architectures Focus on
+Slow Features
+Vlad Sobal1
+Jyothir S V1
+Siddhartha Jalagam1
+Nicolas Carion2
+Kyunghyun Cho1, 3, 4
+Yann LeCun 1, 2
+1New York University
+2Meta AI
+3Prescient Design, Genentech
+4CIFAR Fellow
+{us441, jyothir, scj9994, carion.nicolas, kyunghyun.cho}@nyu.edu
+yann@cs.nyu.edu
+Abstract
+Many common methods for learning a world model for pixel-based environments
+use generative architectures trained with pixel-level reconstruction objectives. Re-
+cently proposed Joint Embedding Predictive Architectures (JEPA) [20] offer a
+reconstruction-free alternative. In this work, we analyze performance of JEPA
+trained with VICReg and SimCLR objectives in the fully ofﬂine setting without
+access to rewards, and compare the results to the performance of the generative
+architecture. We test the methods in a simple environment with a moving dot with
+various background distractors, and probe learned representations for the dot’s
+location. We ﬁnd that JEPA methods perform on par or better than reconstruction
+when distractor noise changes every time step, but fail when the noise is ﬁxed.
+Furthermore, we provide a theoretical explanation for the poor performance of
+JEPA-based methods with ﬁxed noise, highlighting an important limitation.
+1
+Introduction
+Currently, the most common approach to learning world models is to use reconstruction objectives
+[11, 13, 12, 23]. However, reconstruction objectives suffer from object-vanishing, as the objectives
+by design do not distinguish important objects in the scene [24]. The framework of Joint Embedding
+Predictive Architectures presented in [20] may offer a possible alternative to reconstruction-based
+objectives, as has been shown in [30, 29, 24]. In this paper, we implement1 JEPA for learning from
+image and action sequences with VICReg [3] and SimCLR [5] objectives (section 2 and code). We
+then test JEPA, reconstruction-based, and inverse dynamics modeling methods by training on image
+sequences of one moving dot and probing the learned representations for dot location in the presence
+of various noise distractors (section 3). We observe that JEPA methods can learn to ignore distractor
+noise that changes every time step, but fail when distractor noise is static.
+2
+Method
+We focus on learning a world model from a ﬁxed set of state-action sequences. We consider a Markov
+Decision Process (MDP) M = (O, A, P, R). O is a set of possible observations (in our case these
+are images), A represents the set of possible actions, P = Pr(ot|ot−1, at−1) represents transition
+probabilities, and R : O × A →R is the reward function. In the ofﬂine setting we focus on, we do
+not have access to the MDP directly, we only have a pre-recorded set of sequences of observations
+ot ∈O and actions at ∈A. Our goal is to use these ofﬂine sequences to learn an encoder that
+converts observations ot to D-dimensional representations st, gφ(ot) = st, gφ : O →RD, and the
+1Code is available at https://github.com/vladisai/JEPA_SSL_NeurIPS_2022
+36th Conference on Neural Information Processing Systems (NeurIPS 2022).
+arXiv:2211.10831v1  [cs.LG]  20 Nov 2022
+
+
+===== PAGE 2 =====
+Encoder
+Predictor
+VC loss
+Predictor
+Encoder
+VC loss
+L2 loss
+Encoder
+VC loss
+L2 loss
+(a) VICReg-based architecture
+Encoder
+Predictor
+Predictor
+Encoder
+InfoNCE
+loss
+Encoder
+InfoNCE
+loss
+(b) SimCLR-based architecture
+Figure 1: JEPA-based methods’ training diagrams. (a) JEPA with VICReg loss. VC here denotes
+variance and covariance losses from [3]. (b) JEPA with InfoNCE loss.
+forward model fθ(st, at) = ˜st+1, fθ : RD × A →RD. During pre-training we do not have access to
+the evaluation task, therefore we aim to learn representations that capture in D-dimensional vectors
+as much information about the environment and its dynamics as possible.
+During both training and evaluation, given the initial observation o1 and a sequence of actions
+of length T, a1 . . . aT , we encode the ﬁrst observation ˜s1 = gφ(o1), then auto-regressively apply
+the forward model ˜st = fθ(˜st−1, at−1), obtaining representations for a sequence of length T + 1:
+˜s1 . . . ˜sT +1. During testing, we probe the representations using a single linear layer that is trained,
+with frozen encoder and predictor, to recover some known properties of states q(˜st) : RD →RQ,
+where Q is the dimension of the target value. This protocol is related to the one used in [1], but we
+probe not only the encoder output, but also the predictor output. Fore more details on probing, see
+appendix A.4. We compare multiple ways of training the encoder and predictor. In all the approaches,
+the gradients are propagated through time, and no image augmentations are used. Encoder and
+predictor architectures are ﬁxed (see appendix A.7). We test the following methods:
+VICReg (ﬁgure 1a) We take inspiration from [20], and adopt VICReg [3] objective for training a
+Joint Embedding Predictive Architecture (JEPA). We apply variance and covariance losses described
+in [3] to representations separately at each step, and apply the prediction loss to make the forward
+model output ˜st close to encoder output st. For a more detailed description, see appendix A.3.1.
+SimCLR (ﬁgure 1b) In this case, we train JEPA, but instead of VICReg we utilize SimCLR objective
+[5]. We apply InfoNCE loss [25], with the forward model output and the encoder output for the same
+time step as positive pairs. For a more detailed description, see appendix A.3.2.
+Reconstruction Reconstruction approach introduces a decoder dξ(˜st) = ˜ot, and utilizes a recon-
+struction objective L = 1
+T
+PT
+t=1 ∥ot −˜ot∥2
+2 to train the encoder and predictor. See appendix A.3.4
+for more details.
+Inverse Dynamics Modeling (IDM) We add a linear layer that, given the encoder’s outputs at two
+consecutive steps gφ(ot), gφ(ot+1), predicts at. The forward model is trained by predicting the
+encoder’s output at the next time step. For more details, see appendix A.3.3.
+Supervised All components are trained end-to-end by propagating the error from the probing function
+to both the encoder and decoder. This should give us the lower bound on probing error.
+Random In this case, the probing is run with ﬁxed random weights of the encoder and predictor.
+2.1
+Spurious correlation
+VICReg and SimCLR JEPA methods may fall prey to a spurious correlation issue: the loss can be
+easily minimized by paying attention to noise that does not change with time, making the system
+ignore all other information. Intuitively, the objectives make the model focus on ‘slow features’ [37].
+When the slowest features in the input belong to ﬁxed background noise, the representation will only
+contain the noise. To demonstrate that, we show a trivial but plausible solution. In the presence of
+normally distributed distractor noise that does not change with time, the model can extract features
+by directly copying the values of the noise from the input : gφ(ot) = s ∼N(0, σ2I), s ∈RD. Since
+2
+
+
+===== PAGE 3 =====
+uniform
+=0
+=1
+=2
+=3
+structured
+(a) Different noise levels
+changing structured
+t=0
+t=4
+t=8
+t=12
+fixed structured
+(b) Changing and ﬁxed structured noise (α = 1)
+Figure 2: Dataset examples. (a) We introduce distractors to our moving dot dataset by adding either
+uniform or structured noise with different brightness coefﬁcient α. (b) Temporally, the noise either
+changes every frame (top row), or remains ﬁxed throughout the video (bottom row). In the ﬁxed case,
+the noise is still re-sampled for each new sequence.
+the noise is persistent through time, gφ(ot) = gφ(ot+1) = s. We assume that the forward model has
+converged to identity: fθ(s, a) = s. We denote a batch of encoded representations at step t with a
+matrix St ∈RN×D where N is batch size; and batches of actions and observations with At and Ot
+respectively. Then the VICReg losses are:
+Lprediction =
+1
+TN
+T
+X
+t=1
+N
+X
+i=1
+∥fθ(St,i, At,i) −gφ(Ot+1,i)∥2
+2
+=
+1
+TN
+T
+X
+t=1
+N
+X
+i=1
+∥St,i −St+1,i∥2
+2 =
+1
+TN
+T +1
+X
+t=2
+N
+X
+i=1
+∥St,i −St,i∥2
+2 = 0
+(1)
+Var(st) =
+1
+N −1
+N
+X
+i=1
+(si −¯s)2 = σ2
+As s ∼N(0, σ2I)
+(2)
+Lvariance =
+1
+(T + 1)D
+T +1
+X
+t=1
+D
+X
+j=1
+max
+
+0, γ −
+q
+Var(St,:,j) + ϵ
+
+= 0
+(3)
+Lcovariance =
+1
+(T + 1)(N −1)
+T +1
+X
+t=1
+D
+X
+i=1
+D
+X
+j=i+1
+(StS⊤
+t )i,j = 0
+(4)
+Equation 3 holds for large enough σ, 4 holds because the noise variables are independent across
+episodes. The total sum of the loss components is then 0 for the described trivial solution.
+In SimCLR case, as shown by Wang and Isola [36] in their theorem 1, the InfoNCE loss is minimized
+in the inﬁnite limit of negative samples if the positive pairs are perfectly aligned and the encoder
+output is perfectly uniform on the unit sphere. Both conditions are satisﬁed for the trivial solution
+described above, therefore SimCLR objective is also susceptible to ﬁxed distractor noise problem.
+3
+Experiments
+In order to verify whether the proposed JEPA-based methods indeed focus on ﬁxed background noise,
+we introduce a simple moving dot dataset. The sequences of images contain a single dot on a square
+with sides of length 1, and the action denotes the delta in the dot’s coordinates from the previous time
+step. We ﬁx the length of the episode to 17 time steps (16 actions). After pre-training, we probe the
+representation by training a linear layer to recover the dot’s position for all time steps. For pre-training,
+we use 1 million sequences; for training the prober we use 300,000 sequences; for evaluation, we
+use 10,000 sequences. We introduce two types of distractor noise to the background: structured and
+uniform. We generate structured noise by overlaying CIFAR-10 [19] images. Temporally, the noise
+can be changing, i.e., each time step the background is resampled; or ﬁxed, i.e., the background
+does not change with time, but still changes between sequences. For examples, see ﬁgure 2. The
+coefﬁcient α controls noise brightness relative to the dot. We tune hyperparameters of all methods
+separately for each noise level and type. For more details about the dataset, see appendix A.2.
+3
+
+
+===== PAGE 4 =====
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Noise level 
+0.0
+0.1
+0.2
+0.3
+RMSE
+Changing uniform noise
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Noise level 
+0.0
+0.1
+0.2
+0.3
+RMSE
+Changing structured noise
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Noise level 
+0.0
+0.1
+0.2
+0.3
+RMSE
+Fixed uniform noise
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Noise level 
+0.0
+0.1
+0.2
+0.3
+RMSE
+Fixed structured noise
+Supervised
+VICReg
+SimCLR
+IDM
+Reconstruction
+Random
+Center
+Figure 3: Performance of the compared methods with different types and levels of noise. We
+tune hyperparameters individually for each model, noise level, and type. We show results without
+tuning in ﬁgure 5 in the appendix. The dots represent the mean RMSE across 17 time steps.
+The shaded area represents the standard deviation calculated by running 3 random seeds for each
+experiment.
+3.1
+Results
+We compare the approaches described in section 2 with different types of noise described above.
+We also add a baseline called ‘Center’, which corresponds to always predicting the dot’s location
+to be in the center. ‘Center’ and ‘Supervised’ baselines should be upper and lower bounds on the
+error. The results are shown in ﬁgure 3. All methods perform well when there are no distractors.
+Reconstruction performs well in all settings with α ≤1.5, while JEPA-based methods fail in the
+presence of ﬁxed noise, both structured and uniform. We hypothesize that, as described in section
+2, these methods focus on background noise and ignore the dot. We observe a similar drop in
+performance when an extra static dot is introduced instead of distractor noise (see appendix A.6.2 for
+more details). All methods work well when the noise is changing every frame. Additionally, we ﬁnd
+that JEPA-based methods do not require hyperparameter tuning to adapt to higher levels of changing
+noise, while reconstruction performs much worse with untuned hyperparameters (see appendix A.5).
+Inverse dynamics modeling has great performance in all cases, but this method may be unsuitable
+for pre-training as it only learns representations that capture the agent, and fail if there is additional
+useful information to be captured, as we demonstrate with additional experiments with 3 dots in
+appendix A.6.
+4
+Conclusion
+We demonstrate that JEPA-based methods offer a possible way forward for reconstruction-free
+forward model learning and are capable of ignoring unpredictable noise well even without additional
+hyperparameter tuning. However, these methods fail when slow features are present, even with a
+large pre-training dataset and hyperparameter tuning. We only demonstrate this with a toy dataset,
+but we hypothesize that this may happen in more complex problems. For example, when pre-training
+a forward-model for self-driving with JEPA on dash-cam videos, the model may focus on cloud
+patterns that are easily predictable, rather than trying to learn the trafﬁc participants’ behavior. This
+drawback of JEPA may be addressed by using image differences or optical ﬂow as input to the model,
+although these input modalities will ignore potentially useful background and may still contain ﬁxed
+noise. We believe that the way to learn representations that capture both fast and slow features is by
+4
+
+
+===== PAGE 5 =====
+adding hierarchy to the architecture (see HJEPA in [20]) or by changing the objective to impose an
+additional constraint that prevents the representations from being constant across time.
+References
+[1] A. Anand, E. Racah, S. Ozair, Y. Bengio, M.-A. Côté, and R. D. Hjelm.
+Unsupervised
+state representation learning in atari. arXiv:1906.08226 [cs, stat], Nov 2020. URL http:
+//arxiv.org/abs/1906.08226. arXiv: 1906.08226.
+[2] K. Arulkumaran. Planet. https://github.com/Kaixhin/PlaNet/, 2021.
+[3] A. Bardes, J. Ponce, and Y. LeCun. Vicreg: Variance-invariance-covariance regularization for
+self-supervised learning. arXiv:2105.04906 [cs], May 2021. URL http://arxiv.org/abs/
+2105.04906. arXiv: 2105.04906.
+[4] M. Caron, I. Misra, J. Mairal, P. Goyal, P. Bojanowski, and A. Joulin. Unsupervised learning
+of visual features by contrasting cluster assignments. arXiv:2006.09882 [cs], Jan 2021. URL
+http://arxiv.org/abs/2006.09882. arXiv: 2006.09882.
+[5] T. Chen, S. Kornblith, M. Norouzi, and G. Hinton. A simple framework for contrastive learning
+of visual representations. In International conference on machine learning, pages 1597–1607.
+PMLR, 2020.
+[6] T. Chen, C. Luo, and L. Li. Intriguing properties of contrastive losses. (arXiv:2011.02803),
+Oct 2021. doi: 10.48550/arXiv.2011.02803. URL http://arxiv.org/abs/2011.02803.
+arXiv:2011.02803 [cs, stat].
+[7] X. Chen and K. He. Exploring simple siamese representation learning. (arXiv:2011.10566),
+Nov 2020. URL http://arxiv.org/abs/2011.10566. arXiv:2011.10566 [cs].
+[8] K. Cho, B. van Merrienboer, D. Bahdanau, and Y. Bengio.
+On the properties of neural
+machine translation: Encoder-decoder approaches. (arXiv:1409.1259), Oct 2014. URL http:
+//arxiv.org/abs/1409.1259. arXiv:1409.1259 [cs, stat].
+[9] D. Gordon, K. Ehsani, D. Fox, and A. Farhadi. Watching the world go by: Representation
+learning from unlabeled videos. (arXiv:2003.07990), May 2020. URL http://arxiv.org/
+abs/2003.07990. arXiv:2003.07990 [cs].
+[10] J.-B. Grill, F. Strub, F. Altché, C. Tallec, P. H. Richemond, E. Buchatskaya, C. Doersch, B. A.
+Pires, Z. D. Guo, M. G. Azar, B. Piot, K. Kavukcuoglu, R. Munos, and M. Valko. Bootstrap
+your own latent: A new approach to self-supervised learning. arXiv:2006.07733 [cs, stat], Sep
+2020. URL http://arxiv.org/abs/2006.07733. arXiv: 2006.07733.
+[11] D. Hafner, T. Lillicrap, J. Ba, and M. Norouzi. Dream to control: Learning behaviors by latent
+imagination. arXiv, Dec 2019. URL http://arxiv.org/abs/1912.01603.
+[12] D. Hafner, T. Lillicrap, I. Fischer, R. Villegas, D. Ha, H. Lee, and J. Davidson. Learning latent
+dynamics for planning from pixels. (arXiv:1811.04551), Jun 2019. URL http://arxiv.org/
+abs/1811.04551. arXiv:1811.04551 [cs, stat].
+[13] D. Hafner, T. Lillicrap, M. Norouzi, and J. Ba. Mastering atari with discrete world models.
+2020.
+[14] T. Han, W. Xie, and A. Zisserman.
+Video representation learning by dense predictive
+coding.
+(arXiv:1909.04656), Sep 2019.
+URL http://arxiv.org/abs/1909.04656.
+arXiv:1909.04656 [cs].
+[15] K. He, H. Fan, Y. Wu, S. Xie, and R. Girshick. Momentum contrast for unsupervised visual
+representation learning. arXiv:1911.05722 [cs], Mar 2020. URL http://arxiv.org/abs/
+1911.05722. arXiv: 1911.05722.
+[16] R. D. Hjelm and P. Bachman.
+Representation learning with video deep info-
+max.
+(arXiv:2007.13278), Jul 2020.
+URL http://arxiv.org/abs/2007.13278.
+arXiv:2007.13278 [cs].
+[17] R. D. Hjelm, A. Fedorov, S. Lavoie-Marchildon, K. Grewal, P. Bachman, A. Trischler,
+and Y. Bengio. Learning deep representations by mutual information estimation and max-
+imization.
+(arXiv:1808.06670), Feb 2019.
+URL http://arxiv.org/abs/1808.06670.
+arXiv:1808.06670 [cs, stat].
+5
+
+
+===== PAGE 6 =====
+[18] L. Jing, P. Vincent, Y. LeCun, and Y. Tian. Understanding dimensional collapse in contrastive
+self-supervised learning. arXiv:2110.09348 [cs], Oct 2021. URL http://arxiv.org/abs/
+2110.09348. arXiv: 2110.09348.
+[19] A. Krizhevsky, V. Nair, and G. Hinton. Cifar-10 (canadian institute for advanced research).
+URL http://www.cs.toronto.edu/~kriz/cifar.html.
+[20] Y. LeCun. A path towards autonomous machine intelligence version 0.9. 2, 2022-06-27. 2022.
+[21] G. LORRE, J. RABARISOA, A. ORCESI, S. AINOUZ, and S. CANU. Temporal contrastive
+pretraining for video action recognition. In 2020 IEEE Winter Conference on Applications of
+Computer Vision (WACV), page 651–659, Mar 2020. doi: 10.1109/WACV45572.2020.9093278.
+[22] C. Lu, P. J. Ball, T. G. J. Rudner, J. Parker-Holder, M. A. Osborne, and Y. W. Teh. Challenges and
+opportunities in ofﬂine reinforcement learning from visual observations. (arXiv:2206.04779),
+Jun 2022. URL http://arxiv.org/abs/2206.04779. arXiv:2206.04779 [cs, stat].
+[23] J. Oh, X. Guo, H. Lee, R. Lewis, and S. Singh. Action-conditional video prediction using deep
+networks in atari games. arXiv:1507.08750 [cs], Dec 2015. URL http://arxiv.org/abs/
+1507.08750. arXiv: 1507.08750.
+[24] M. Okada and T. Taniguchi. Dreaming: Model-based Reinforcement Learning by Latent
+Imagination without Reconstruction.
+[25] A. v. d. Oord, Y. Li, and O. Vinyals.
+Representation learning with contrastive predic-
+tive coding. (arXiv:1807.03748), Jan 2019. URL http://arxiv.org/abs/1807.03748.
+arXiv:1807.03748 [cs, stat].
+[26] T. Pan, Y. Song, T. Yang, W. Jiang, and W. Liu. Videomoco: Contrastive video representation
+learning with temporally adversarial examples. (arXiv:2103.05905), Mar 2021. URL http:
+//arxiv.org/abs/2103.05905. arXiv:2103.05905 [cs].
+[27] R. Qian, T. Meng, B. Gong, M.-H. Yang, H. Wang, S. Belongie, and Y. Cui. Spatiotemporal
+contrastive video representation learning. (arXiv:2008.03800), Apr 2021. URL http://arxiv.
+org/abs/2008.03800. arXiv:2008.03800 [cs].
+[28] J. Robinson, L. Sun, K. Yu, K. Batmanghelich, S. Jegelka, and S. Sra. Can contrastive learning
+avoid shortcut solutions? (arXiv:2106.11230), Dec 2021. URL http://arxiv.org/abs/
+2106.11230. arXiv:2106.11230 [cs].
+[29] M. Schwarzer, A. Anand, R. Goel, R. D. Hjelm, A. Courville, and P. Bachman. Data-efﬁcient
+reinforcement learning with self-predictive representations. arXiv:2007.05929 [cs, stat], May
+2021. URL http://arxiv.org/abs/2007.05929. arXiv: 2007.05929.
+[30] M. Schwarzer, N. Rajkumar, M. Noukhovitch, A. Anand, L. Charlin, D. Hjelm, P. Bach-
+man, and A. Courville. Pretraining representations for data-efﬁcient reinforcement learn-
+ing. arXiv:2106.04799 [cs], Jun 2021. URL http://arxiv.org/abs/2106.04799. arXiv:
+2106.04799.
+[31] P. Sermanet, C. Lynch, Y. Chebotar, J. Hsu, E. Jang, S. Schaal, and S. Levine. Time-contrastive
+networks: Self-supervised learning from video. (arXiv:1704.06888), Mar 2018. URL http:
+//arxiv.org/abs/1704.06888. arXiv:1704.06888 [cs].
+[32] T. Silva. Pytorch simclr: A simple framework for contrastive learning of visual representations.
+https://github.com/sthalles/SimCLR, 2021.
+[33] A. Srinivas, M. Laskin, and P. Abbeel. Curl: Contrastive unsupervised representations for
+reinforcement learning. arXiv:2004.04136 [cs, stat], Sep 2020. URL http://arxiv.org/
+abs/2004.04136. arXiv: 2004.04136.
+[34] A. Stooke, K. Lee, P. Abbeel, and M. Laskin.
+Decoupling representation learning from
+reinforcement learning. arXiv:2009.08319 [cs, stat], May 2021. URL http://arxiv.org/
+abs/2009.08319. arXiv: 2009.08319.
+[35] Y. Tian, C. Sun, B. Poole, D. Krishnan, C. Schmid, and P. Isola. What makes for good views for
+contrastive learning? (arXiv:2005.10243), Dec 2020. URL http://arxiv.org/abs/2005.
+10243. arXiv:2005.10243 [cs].
+[36] T. Wang and P. Isola. Understanding contrastive representation learning through alignment and
+uniformity on the hypersphere. (arXiv:2005.10242), Aug 2022. URL http://arxiv.org/
+abs/2005.10242. arXiv:2005.10242 [cs, stat].
+6
+
+
+===== PAGE 7 =====
+[37] L. Wiskott and T. J. Sejnowski. Slow feature analysis: Unsupervised learning of invariances.
+Neural Computation, 14(4):715–770, Apr 2002. ISSN 0899-7667, 1530-888X. doi: 10.1162/
+089976602317318938.
+[38] J. Zbontar, L. Jing, I. Misra, Y. LeCun, and S. Deny. Barlow twins: Self-supervised learning via
+redundancy reduction. (arXiv:2103.03230), Jun 2021. URL http://arxiv.org/abs/2103.
+03230. arXiv:2103.03230 [cs, q-bio].
+[39] A. Zhang, R. McAllister, R. Calandra, Y. Gal, and S. Levine. Learning invariant representations
+for reinforcement learning without reconstruction. (arXiv:2006.10742), Apr 2021. URL
+http://arxiv.org/abs/2006.10742. arXiv:2006.10742 [cs, stat].
+[40] W. Zhang, A. GX-Chen, V. Sobal, Y. LeCun, and N. Carion. Light-weight probing of unsu-
+pervised representations for reinforcement learning. (arXiv:2208.12345), Aug 2022. URL
+http://arxiv.org/abs/2208.12345. arXiv:2208.12345 [cs].
+Checklist
+1. For all authors...
+(a) Do the main claims made in the abstract and introduction accurately reﬂect the paper’s
+contributions and scope? [Yes]
+(b) Did you describe the limitations of your work? [Yes] See appendix A.8.
+(c) Did you discuss any potential negative societal impacts of your work? [N/A]
+(d) Have you read the ethics review guidelines and ensured that your paper conforms to
+them? [Yes]
+2. If you are including theoretical results...
+(a) Did you state the full set of assumptions of all theoretical results? [N/A]
+(b) Did you include complete proofs of all theoretical results? [N/A]
+3. If you ran experiments...
+(a) Did you include the code, data, and instructions needed to reproduce the main experi-
+mental results (either in the supplemental material or as a URL)? [Yes]
+(b) Did you specify all the training details (e.g., data splits, hyperparameters, how they
+were chosen)? [Yes]
+(c) Did you report error bars (e.g., with respect to the random seed after running experi-
+ments multiple times)? [Yes]
+(d) Did you include the total amount of compute and the type of resources used (e.g., type
+of GPUs, internal cluster, or cloud provider)? [Yes] See appendix A.9
+4. If you are using existing assets (e.g., code, data, models) or curating/releasing new assets...
+(a) If your work uses existing assets, did you cite the creators? [Yes] See appendix A.10
+(b) Did you mention the license of the assets? [Yes] See appendix A.10
+(c) Did you include any new assets either in the supplemental material or as a URL? [Yes]
+(d) Did you discuss whether and how consent was obtained from people whose data you’re
+using/curating? [N/A]
+(e) Did you discuss whether the data you are using/curating contains personally identiﬁable
+information or offensive content? [N/A]
+5. If you used crowdsourcing or conducted research with human subjects...
+(a) Did you include the full text of instructions given to participants and screenshots, if
+applicable? [N/A]
+(b) Did you describe any potential participant risks, with links to Institutional Review
+Board (IRB) approvals, if applicable? [N/A]
+(c) Did you include the estimated hourly wage paid to participants and the total amount
+spent on participant compensation? [N/A]
+7
+
+
+===== PAGE 8 =====
+A
+Appendix
+A.1
+Related work
+Joint Embedding methods
+In recent years, multiple new joint-embedding methods for pre-training
+image classiﬁcation systems were introduced [10, 38, 3, 5, 4, 15, 17, 7]. These methods heavily rely
+on well-designed image augmentations to prevent collapse [35, 18]. Very closely related works of
+[6, 28] also investigate the tendency of contrastive losses to focus on easy features, although they do
+not study the application to videos.
+Representation learning from video
+Many of the ideas from self-supervised pre-training for
+classiﬁcation have also been applied to learning from video: [27] applies InfoNCE loss [25] to learn
+encodings of video segments, while [21] modify CPC architecture [25] and include samples from the
+same video clip as negative examples. [14] also propose a modiﬁcation of CPC [25] for training from
+video and use predicted representations and encoder outputs as positive pair, and construct negative
+examples using both different videos and different fragments of the same video. [9] also use videos
+as an alternative to image augmentations. [31] use a triplet loss with single negative example instead
+of InfoNCE. [16] adopt Deep InfoMax objective [17] for videos, while [26] use MoCo [15].
+Forward model learning
+Many methods using reconstruction objectives as main training signal
+have been proposed [23, 11, 13, 12]. [24] proposes a reconstruction-free version of Dreamer [11, 13]
+using contrastive learning. [39] proposes a method to learn representations using bisimulation objec-
+tive, pushing states that lead to same rewards with same trajectories to have the same representations.
+In contrast, we focus on the setting where the reward is unknown during pretraining. Notably, [39]
+also explores the performance of reconstruction and CPC [25] objectives in the presence of distractor
+noise, but the noise is not ﬁxed in time. [22] explore various aspects of model-based and model-free
+ofﬂine RL, and test reconstruction-based RSSM [12] with various perturbations, concluding that it
+performs quite well even with noisy data, which we conﬁrm in our experiments as well.
+Self-supervised learning for reinforcement learning
+Objectives used in self-supervised learning
+for images have been actively used in reinforcement learning from pixels to improve sample com-
+plexity of training [29, 33], or for pre-training the encoder [30, 34, 1, 40]. These methods focus on
+pre-training the encoder, and do not evaluate the trained forward model, even if it is present in the
+system [30].
+A.2
+Dataset
+We consider the problem of capturing the location of an object in a video sequence. To this end, we
+introduce a simple environment with just one dot inside a square. The dot cannot leave the square,
+and is always visible on the screen. We denote dot’s coordinates at time t as ct = (cx
+t , cy
+t ). We
+assume the square size is 1 by 1, therefore cx
+t , cy
+t ∈[0, 1]. At each step, the dot takes an action
+at = (ax
+t , ay
+t ), at ∈R2. The norm of at is restricted to be less than or equal to a maximum step size
+D: ∥at∥2 ≤D. In our experiments D = 0.14.
+The dot moves continuously around the square by moving by a vector speciﬁed by the action at with
+clipping to prevent the dot from going outside the square, i.e. ct+1 = max(0, min(ct + at, 1)).
+In order to generate one dataset example, we randomly generate a starting location c1, and a sequence
+of actions a1...T , where T is the sequence length. In our experiments T = 16. The actions in a
+sequence at are generated by ﬁrst sampling vector directions using a Von Mises distribution with
+a randomly chosen direction ω ∼Uniform(0, 2π), (ux
+t , uy
+t ) = ut ∼VonMises(ω, 1.3). This
+prevents the dot from staying in one place in expectation, as would be the case with uniform random
+sampling. Then we multiply direction vectors with uniformly sampled step size dt ∼Uniform(0, D):
+at = dtut. We then generate locations by adding the action vectors to the initial location. The length
+of the action sequence a0...T −1 is then T, while the generated locations sequence is of length T + 1
+(in our case it is 17). A diagram of the process is shown in ﬁgure 4.
+Once the actions and locations are generated, we obtain images ot by rendering the dots at the
+generated locations ct applying a Gaussian blur with σ = 0.05 to the image with the value set to 1 at
+the location ct. In our experiments, the resolution of ot is 28 × 28.
+8
+
+
+===== PAGE 9 =====
++
+render
++
++
++
+render
+render
+render
+render
+Figure 4: Diagram of data generation process. Initial position c1 and action sequence a1 . . . aT
+are ﬁrst generated. Then, the actions are sequentially added to the initial location. The resulting
+coordinates c1 . . . cT +1 are then rendered.
+We introduce distractors to the dataset by overlaying noise onto the dot images. We consider two noise
+types: random and structured; and two temporal settings: ﬁxed and changing. Random noise images
+Z are images of the same dimension as ot where each pixel sampled from a uniform distribution,
+while structured noise images are loaded from CIFAR-10 dataset.
+In all cases, we add noise Z with a coefﬁcient β: ˆot = ot + αZt. Both noise image and dot image
+have values between 0 and 1, so the coefﬁcient represents how many times stronger the brightest
+pixel in the noise is compared to the brightest pixel in the dot image.
+A.3
+Training methods details
+We denote the batch of training video sequences as a tuple of observation and action sequences
+(O, A), O = (O1 . . . OT +1), Ot ∈RN×H×W ; A = (A1 . . . AT ), Ai ∈RN×M. Here, T is the
+episode length, H × W is the resolution of observation image, N is batch size, M is the dimension
+of the action. For all algorithms we test, the observations are processed using an encoder to obtain
+representations for each time step Si = gφ(Oi), Si ∈RN×d, and the forward model is unfolded from
+the ﬁrst observation with the given actions: ˜St = fθ( ˜St−1, At−1); ˜S1 = S1. We use S, ˜S to denote
+encodings and predictions for all time steps: S = (S1, . . . , ST +1), ˜S = ( ˜S1, . . . , ˜ST +1).
+A.3.1
+VICReg
+VICReg objective was originally used for image classiﬁcation [3]. We follow ideas described in
+[20] and adopt the objective to learning from video. We consider representations at each time step
+separately for calculating variance and covariance losses, while the representation loss becomes the
+9
+
+
+===== PAGE 10 =====
+prediction error between forward model and encoder outputs. Total loss and its components are:
+LVICReg = αLprediction + βLvariance + Lcovariance
+(5)
+Lprediction =
+1
+NT
+T
+X
+t=1
+N
+X
+i=1
+∥fθ(St,i, At,i) −gφ(Ot+1,i)∥2
+2 =
+1
+NT
+T +1
+X
+t=2
+N
+X
+i=1
+∥˜St,i −St,i∥2
+2
+(6)
+Var(v) =
+1
+N −1
+N
+X
+i=1
+(vi −¯v)2
+(7)
+Lvariance =
+1
+T + 1
+T +1
+X
+t=1
+1
+D
+D
+X
+j=1
+max
+
+0, γ −
+q
+Var(St,:,j) + ϵ
+
+(8)
+Lcovariance =
+1
+T + 1
+T +1
+X
+t=1
+1
+N −1
+D
+X
+i=1
+D
+X
+j=i+1
+(StS⊤
+t )i,j
+(9)
+A.3.2
+SimCLR
+In case of SimCLR adaptation to JEPA, again, we use the same strategy as with VICReg, and treat
+each time step prediction separately. We apply SimCLR’s InfoNCE loss [5] as follows:
+expsim(u, v) = exp
+
+u⊤v
+τ∥u∥∥v∥
+
+(10)
+InfoNCE(St, ˜St) = −1
+N
+N
+X
+i=1
+log
+expsim(St,i, ˜St,i)
+PN
+k=1 expsim(St,i, ˜St,i)) + 1k̸=iexpsim(St,i, St,k)
+(11)
+LSimCLR = 1
+2T
+T +1
+X
+t=2
+InfoNCE(St, ˜St) + InfoNCE( ˜St, St)
+(12)
+A.3.3
+Inverse Dynamics Modeling (IDM)
+We add a linear layer that, given the encoder’s outputs at two consecutive steps gφ(ot), gφ(ot+1),
+predicts at. This should make the encoder pay attention to the parts of the observation that are
+affected by the action. The predictor is trained by predicting encoder output. We denote inverse
+dynamics model with hξ(st, st+1) = ˜at. The loss components are then:
+L = Lprediction + LIDM
+(13)
+Lprediction =
+1
+TN
+T
+X
+t=1
+N
+X
+i=1
+∥fθ(St,i, At,i) −gφ(Ot+1,i)∥2
+2
+(14)
+LIDM =
+1
+TN
+T
+X
+t=1
+N
+X
+i=1
+∥hξ(St,i, St+1,i) −At,i∥
+(15)
+A.3.4
+Reconstruction
+Reconstruction approach introduces a decoder dξ(˜st) = ˜ot, and utilizes a reconstruction objective
+L = 1
+T
+PT
+t=1 ∥ot −˜ot∥2
+2 to train the encoder and predictor. The decoder mimics the architecture of
+the encoder, and uses up-sampling followed by convolutional layers to match strided convolutional
+layers in the encoder. The total loss is:
+Lreconstruction = 1
+T
+T +1
+X
+t=2
+∥dξ(˜st) −ot∥2
+2
+(16)
+(17)
+10
+
+
+===== PAGE 11 =====
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Noise level 
+0.0
+0.1
+0.2
+0.3
+RMSE
+Changing uniform noise
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Noise level 
+0.0
+0.1
+0.2
+0.3
+RMSE
+Changing structured noise
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Noise level 
+0.0
+0.1
+0.2
+0.3
+RMSE
+Fixed uniform noise
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+Noise level 
+0.0
+0.1
+0.2
+0.3
+RMSE
+Fixed structured noise
+Supervised
+VICReg
+SimCLR
+IDM
+Reconstruction
+Random
+Center
+Figure 5: Performance of compared methods with different types and levels of noise. Hyperpa-
+rameters for each model are chosen for no-noise setting and, in contrast to ﬁgure 3 are not re-tuned
+for each type or level of noise. The dots represent the mean RMSE across 17 time steps. The shaded
+area shows standard deviation calculated by running 3 random seeds for each experiment.
+A.4
+Probing details
+In order to test whether representations contain the desired information, we train a probing function
+q(s) : RD →RQ which we represent with one linear layer. D is the representation size, Q is
+the target value dimension. In our case, the target value is the dot’s location, so Q = 2. When
+training the prober, we follow a similar protocol to the pre-training. Given the initial observation
+o1 and a sequence of actions of length T, a1 . . . aT , we encode the ﬁrst observation ˜s1 = gφ(o1),
+then auto-regressively apply the forward model ˜st = fθ(˜st−1, at−1), obtaining representations for a
+sequence of length T + 1: ˜s1 . . . ˜sT +1. We denote the location of the dot in the i-th batch element at
+time step t as Ct,i. Then, the loss function we apply to train q is:
+Lprobing =
+1
+TN
+T
+X
+t=1
+N
+X
+i=1
+∥q( ˜St,i) −Ct,i∥2
+2
+(18)
+A.5
+Additional results
+In ﬁgure 5 we show results for the same experiments as in ﬁgure 3, with one difference that we
+do not tune hyperparameters for each model and noise setting. We pick the best hyperparameters
+for noise-free setting, and ﬁx them for all levels of noise. We see that SimCLR and VICReg JEPA
+methods, compared to tuned performance, fail with lower levels of noise, while reconstruction fails
+with changing uniform noise without tuning.
+A.6
+3 dots dataset
+A.6.1
+Environment
+In this dataset, there are three dots on the three channels of the image: action-controlled dot,
+uncontrollable dot, and stationary dot. The ﬁrst dot is action controlled similar to the single dot
+environment without any noise. The second dot is similar to the ﬁrst dot, but the actions are unknown,
+making it impossible to predict its movements. The third dot is stationary across all the frames of
+the episode, but is at different positions in different episodes. To generate a sample of the three dot
+dataset, we concatenate these dots along different channels of image. These ﬁxed channels ensure
+that our model can distinguish between the dots. We show an example sequence in ﬁgure 6. The goal
+is to learn a representation that captures the locations of the action-controlled and stationary dots,
+while ignoring the random dot.
+11
+
+
+===== PAGE 12 =====
+t=0
+t=1
+t=2
+t=3
+t=4
+Figure 6: Example sequence of 3 dots dataset. Red, the ﬁrst channel, corresponds to the action con-
+trolled dot. Green corresponds to the randomly moving dot with unknown actions. Blue corresponds
+to the stationary dot.
+Table 1: Results for 3-dots dataset. All numbers denote RMSE across 17 steps. We run 3 seeds for
+each experiment to obtain standard deviations. Cells are colored according to the values, with higher
+values shown in red, and lower values shown in blue.
+Method
+Average
+Action
+Random
+Stationary
+VICReg
+0.229±0.031
+0.277±0.041
+0.273±0.044
+0.066±0.026
+SimCLR
+0.158±0.001
+0.193±0.001
+0.193±0.002
+0.025±0.001
+IDM
+0.234±0.001
+0.035±0.000
+0.298±0.002
+0.272±0.000
+Supervised
+0.104±0.000
+0.010±0.001
+0.180±0.001
+0.005±0.000
+Reconstruction
+0.107±0.000
+0.021±0.001
+0.182±0.000
+0.026±0.002
+Random
+0.260±0.001
+0.235±0.002
+0.278±0.002
+0.265±0.004
+Center
+0.299±0.000
+0.304±0.000
+0.304±0.000
+0.289±0.000
+A.6.2
+Results
+We show performance of the compared methods on 3-dots dataset in table A.6.2. Hypeparameters
+were tuned for each model to obtain the best average RMSE. VICReg and SimCLR based methods
+focus only on the stationary dot, and fail to capture the other two dots. Again, we hypothesize
+that JEPA methods capture ‘slow features’ [37], and with the stationary dot containing the slowest
+features, the other dots are ignored. IDM manages to capture the action-controlled dot, but ignores
+the stationary dot, as it is irrelevant to inverse dynamics. Reconstruction-based approach captures
+both the stationary and action-controlled dots.
+A.7
+Model architectures
+The encoder consists of 3 convolutional layers with ReLU and BatchNorm after each layer, and
+average pooling with kernel size of 2 by 2 and stride of 2 at the end. The ﬁrst convolution layer has
+kernel size 5, stride 2, padding 2, and output dimension of 32. The second layer is the same as the
+ﬁrst, except the output dimension is 64. The ﬁnal layer has kernel size 3, stride 1, padding 1, and
+output dimension of 64. After average pooling, a linear layer is applied, with output dimension of
+512.
+The predictor is represented by a single-layer GRU [8] with hidden representation size of 512, and
+input size of 2. Hidden representation is initialized at the ﬁrst step of predictions with encoder output
+gφ(o1). The inputs at each time step are actions.
+Reconstruction introduces a decoder represented by a model symmetric to the encoder, with convo-
+lutions in reverse order and upsampling. We do not use a latent variable in our implementation.
+A.8
+Limitations
+The limitation of the current experiments is the use of the simple toy dataset. It is unclear that the
+same will hold for more complicated video datasets and bigger models. Another limitation is that we
+only check VICReg and SimCLR losses for JEPA methods, while there are many more objectives,
+e.g., [10, 38].
+12
+
+
+===== PAGE 13 =====
+A.9
+Computational resources
+All experiments were run using AMD MI50 or Nvidia RTX 8000 GPUs. For each noise type and
+level, 100 random hyperparameters were run, and the best one was run for 3 seeds. Each individual
+experiment takes less than one hour of GPU time.
+A.10
+Code license
+To implement reconstruction-based approach, we used parts of the implementation of [2] distributed
+under MIT license. Implementing InfoNCE loss, we used the code from [32], which is also distributed
+under MIT license.
+A.11
+Acknowledgements
+This material is based upon work supported by the National Science Foundation under NSF Award
+1922658.
+13

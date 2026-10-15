@@ -1,3 +1,24 @@
+---
+type: paper-note
+status: complete
+domain: 3D-Reconstruction
+paper: "Depth Anything 3: Recovering the Visual Space from Any Views"
+year: 2025
+arxiv: "2511.10647"
+source: https://arxiv.org/abs/2511.10647
+project: https://depth-anything-3.github.io/
+code: https://github.com/ByteDance-Seed/depth-anything-3
+tags:
+  - feed-forward-3D
+  - multi-view-geometry
+  - depth-ray
+  - geometric-foundation-model
+created: 2026-08-26
+updated: 2026-10-15
+---
+
+# 3. Depth Anything 3：从任意视图恢复视觉空间
+
 **一句话结论：** Depth Anything 3（DA3）用"一个 vanilla DINOv2 骨干 + 一个 depth-ray 预测目标"这套**最小化建模**，把从单图、多视图到视频的任意数量视觉输入统一到"恢复视觉空间"这一个目标下，且在相机位姿、几何重建、视觉渲染三个维度全面超越前 SOTA VGGT（位姿精度平均 +35.7%、几何精度平均 +23.6%），同时单目深度还反超 Depth Anything 2。最有冲击力的一点是：DA3-Large 仅约 **0.30B** 参数，比 VGGT 的 1.19B 小 3 倍，却在 20 个评测 setting 中拿下 18 个 SOTA、其中一半以小打大反超 VGGT——它用"做减法"证明前馈重建不需要复杂架构和冗余多任务。
 
 |         |                                                                                                                                                                                                                                                      |
@@ -15,7 +36,7 @@
 
 ### 1.1 从"任务专用"到"最小建模"
 
-单目深度估计、SfM、多视图立体（MVS）、SLAM 这些 3D 视觉任务，概念上高度重叠——常常只差"输入视角数量"这一个因素，但业界长期为每个任务训练专用模型。DUSt3R 是转折点：它用 Transformer 在两视图间直接回归点图，纯前馈地同时算出深度和相对位姿。后续方法（含 VGGT）沿此扩展，但普遍依赖复杂定制的架构 + 多任务联合训练 + 从头训练，**难以利用大规模预训练模型。
+单目深度估计、SfM、多视图立体（MVS）、SLAM 这些 3D 视觉任务，概念上高度重叠——常常只差"输入视角数量"这一个因素，但业界长期为每个任务训练专用模型。DUSt3R 是转折点：它用 Transformer 在两视图间直接回归点图，纯前馈地同时算出深度和相对位姿。后续方法（含 VGGT）沿此扩展，但普遍依赖复杂定制的架构 + 多任务联合训练 + 从头训练，**难以利用大规模预训练模型**。
 
 DA3 的立场是"往后退一步"：回到人类空间智能的根本目标——**从任意视觉输入恢复 3D 结构**，并用"最小化建模"回答两个问题：
 
@@ -140,7 +161,33 @@ DA3 同时贡献了一套**视觉几何评测基准**：覆盖 5 个数据集、
 
 两个关键发现：① 微调几何基座做 NVS，显著优于高度专用的任务模型；② **几何重建能力越强，FF-NVS 越好**——直接印证"DA3 是最优 NVS 骨干"。
 
-### 3.5 消融（关键结论）
+### 3.5 在 Lyra 2.0 中的真实角色：复用 FF-3DGS 支线，而非照搬完整 DA3
+
+这里必须区分**DA3 原论文能力**与**Lyra 2.0 的二次适配**。
+
+- **DA3 原论文主线**是通用视觉几何：任意数量、已知或未知相机的图像输入，经 DINOv2 + Dual-DPT 输出 depth、ray/camera 与全局一致 3D；其 FF-3DGS 只是验证几何 backbone 可迁移性的下游支线，通过 GS-DPT head 让每个输出位置预测 Gaussian 的 opacity、rotation、scale、color 等属性。
+- **Lyra 2.0 的生成主线**仍是 Wan2.1-14B 长视频模型。DA3 在生成过程中只作为逐帧深度估计器，服务空间检索、对应和最近帧 depth warp；它不负责扩散生成，也没有把 DA3 的完整 depth-ray/camera-recovery pipeline 直接嵌进 Wan。
+- **Lyra 2.0 的资产化阶段**才真正复用 DA3 的前馈 per-pixel 3DGS pipeline / GS-DPT head：把已生成的长视频与已知相机轨迹一次前馈转换为 Gaussians，再进一步提取 mesh。这里需要的是“从视频像素解码 Gaussian”的能力，而不是再次求解一套未知相机下的任意视图几何。
+
+Lyra 2.0 又做了两项原论文之外的定向改造：
+
+1. **$k=2$ 空间降采样**：GS-DPT 不再按全分辨率每像素产生一个 Gaussian，而在每个空间维度下采样 2 倍，使 Gaussian 数量降为原来的 $1/4$，直接控制长视频资产的显存、存储和渲染成本。
+2. **生成域微调**：真实多视图训练出来的 DA3 对生成视频中的轻微跨视图不一致、纹理漂移和局部伪影并不天然鲁棒。Lyra 2.0 从 DL3DV 图像/轨迹出发，自回归生成 **3,000 段约一分钟视频**，再对该 3DGS pipeline 微调 10K iterations（lr $5\times10^{-5}$，batch size 8），让重建器适应它实际要消费的“模型生成域”。
+
+因此，准确口径不是“Lyra 2.0 使用完整 DA3 重建世界”，而是：**Lyra 2.0 把 DA3 当作几何工具箱——在线阶段取其单帧深度，离线/末端资产化阶段取其 FF-3DGS + GS-DPT，并针对长生成视频重新设计输出密度与训练分布。**
+
+### 3.6 与 VGGT、FantasyWorld 的关系
+
+| 系统 | 几何在系统中的位置 | 与 DA3 的关系 |
+|---|---|---|
+| **VGGT** | 独立前馈几何基础模型；多任务头联合预测 camera、depth、point map、track | DA3 的直接基线与反题。VGGT 依赖过完备多任务输出和约 1.19B 参数；DA3 用 depth-ray 最小目标与约 0.30B Large 证明更小、更简的几何 backbone 也能更强。|
+| **DA3 原论文** | 先训练通用几何 backbone，再把它微调成 FF-NVS / per-pixel 3DGS | 证明“几何 backbone 排名可迁移为 NVS 排名”，并提供 Lyra 2.0 后续改造的 GS-DPT 起点。|
+| **FantasyWorld** | 在冻结 Wan 视频主干旁加入 **VGGT-style geometry branch**，通过双向 cross-attention 联合生成视频与 depth/point/camera | 它不是 DA3 的下游：目标是把几何监督内生到固定长度视频生成；3DGS 评测仍需后处理，且以 VGGT 初始化最好。路线是 **generation–geometry joint modeling**。|
+| **Lyra 2.0** | 长视频先生成，几何用于在线路由；最后用生成域适配的 DA3 FF-3DGS 资产化 | 路线是 **generation–reconstruction decoupling**。它没有复制 DA3 全部任务，而是选择 depth 与 GS-DPT 两个接口，并为长视频做 $k=2$ 与 3,000 段生成数据微调。|
+
+这四者形成两条不同主线：VGGT → DA3 讨论“怎样做更好的通用前馈几何”；FantasyWorld 与 Lyra 2.0 讨论“几何怎样进入生成系统”。前者把 VGGT-style 几何分支放进视频模型共同训练，后者让几何退出像素生成主循环、只做路由，并在末端用 DA3-derived GS-DPT 落成可渲染资产。
+
+### 3.7 消融（关键结论）
 
 - **depth-ray 是最小充分目标**（Tab 6）：优于 point map 或更复杂的多目标组合，既捕捉场景结构又捕捉相机运动，且避免冗余目标引入的"纠缠"。
 - **Ls:Lg = 2:1 最优**（Tab 7）：单图内注意力与跨视图注意力的配比存在最优平衡。
@@ -170,3 +217,67 @@ DA3 的贡献在"做减法"：它证明前馈重建**不需要** VGGT 式的多�
 - **建议关注点**：ray map 的不归一化方向 $d$ 的数值稳定性、DLT 反解相机在极端位姿下的退化、Dual-DPT 的共享 reassembly 设计，是理解这套"最小建模"的关键。
 
 **最终评价：** DA3 是"前馈重建"路线上一篇承上启下的高价值工作。它用最小化建模反超 VGGT，重新校准了这条路线的发展方向——从"堆架构、堆多任务"转向"找最小充分表示 + 用好预训练"。读它，等于读到这条主线从"能不能前馈"走向"怎么更优雅地前馈"的关键一步。
+
+---
+
+## 5. 更完整的定量结果
+
+### 5.1 相机位姿
+
+DA3-Giant 在 HiRoom、ETH3D、DTU、7Scenes、ScanNet++ 的 AUC3/AUC30 分别达到 80.3/95.9、48.4/91.2、94.1/99.4、28.5/86.8、85.0/98.1。除 DTU AUC30 以 0.4 个百分点低于 VGGT 外，其余主要 setting 领先。摘要报告相对 VGGT 平均位姿精度提升 35.7%；项目早期材料曾出现 44.3% 的另一统计口径，引用时应以论文当前版本为准。
+
+### 5.2 Pose-free 几何
+
+| 数据集 | VGGT | DA3-Giant |
+|---|---:|---:|
+| HiRoom F1↑ | 56.7 | **85.1** |
+| ETH3D F1↑ | 57.2 | **79.0** |
+| DTU CD/mm↓ | 2.05 | **1.85** |
+| 7Scenes F1↑ | 47.9 | **53.5** |
+| ScanNet++ F1↑ | 66.4 | **77.0** |
+
+五项全部胜出。已知姿态时 DA3-Giant 在四项领先，但 DTU 上 DA3-Large 的 1.23 mm 反而优于 Giant 1.85 mm，说明参数规模与几何精度并非所有域都单调。
+
+### 5.3 单目与 metric depth
+
+DA3 主模型的单目相对深度并非逐数据集都超过 DA2：NYU 97.4 vs 97.9、Sintel 75.5 vs 77.2；但专门的 mono-student 在 KITTI/NYU/Sintel/ETH3D/DIODE 达 97.1/98.0/82.3/98.8/96.5，全面超过 DA2。Metric student 在 ETH3D $\delta_1=0.917$、AbsRel=0.104，明显强于 UniDepth v2 的 0.863；但 NYUv2/KITTI 仍不如最强专用 metric 方法。
+
+### 5.4 FF-NVS
+
+用同样 12 个 context views、270×480 分辨率，DA3 backbone + GS-DPT 在 DL3DV 达 PSNR 21.33/SSIM 0.711/LPIPS 0.241；Tanks and Temples 为 18.10/0.578/0.311；MegaDepth 为 17.89/0.561/0.351，三组均优于 DepthSplat 和 VGGT backbone。这里最重要的不是又一个 NVS SOTA，而是**几何 backbone 排名与 NVS 排名一致**，支持“更强几何基础模型可直接抬高下游上限”。
+
+---
+
+## 6. 关键消融的反直觉细节
+
+### 6.1 Depth-ray 不是每项都绝对最好
+
+`depth + ray` 在 HiRoom/ETH3D 等总体最稳；加入轻量 camera head 后 DTU 指标更好，但 HiRoom/ETH3D 可能下降。这说明 camera head 的首要作用是工程便利，而不是核心几何能力。论文“最小目标”应理解为 depth-ray 承担主要监督，相机直接回归可保留为低成本辅助输出。
+
+### 6.2 Teacher 监督存在指标—视觉质量权衡
+
+去掉 teacher 后，DTU 数值从 CD 3.82 改善到 3.29，但 HiRoom、7Scenes、ScanNet++ 明显变差；metric depth 中也有“无 teacher 标准指标略好，但边界更糊”的现象。Teacher 的收益更多落在细结构、边缘和跨域泛化，不保证每个传统平均误差都改善。
+
+### 6.3 Pose conditioning 不是全域单调
+
+已知姿态输入在 HiRoom、ETH3D、DTU、ScanNet++ 改善，但 7Scenes F1 从 58.4 降到 46.0。更准确的结论是“多数数据集有益”，不能写成“所有指标一致提升”。
+
+---
+
+## 7. 训练与复现成本
+
+- DA3-Giant：128×H100，200K steps，约 10 天；
+- 基础分辨率 504²，并混合 504×378、896×504 等多种宽高比；
+- 每步 2–18 视图，动态调 batch 保持 token 量；
+- 120K steps 后从原始 GT depth 切换到 teacher 标签；
+- pose conditioning 以 0.2 概率启用；
+- 推理时 A100 80GB、32 图、504×336：Giant 约 37.6 FPS/图，Large 78.37，Base 126.5，Small 160.5；最大图像数约 1K/1.6K/2.2K/4.1K。
+
+训练复现成本极高，但官方 Small/Base/Large 更适合做下游几何 backbone。实际使用时，应优先验证相机模型、视图数、分辨率和显存上限，而不是只看模型参数量。
+
+---
+
+## 8. 材料来源
+
+见 [sources.md](assets/DA3%20-%20任意视角恢复视觉空间/sources.md)。
+

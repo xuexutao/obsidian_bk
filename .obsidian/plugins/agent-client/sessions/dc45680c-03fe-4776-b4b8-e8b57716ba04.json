@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "sessionId": "dc45680c-03fe-4776-b4b8-e8b57716ba04",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "这是什么意思呢",
+  "createdAt": "2026-10-10T07:39:07.280Z",
+  "updatedAt": "2026-10-10T07:39:07.280Z",
+  "messages": [
+    {
+      "id": "184b4f36-5e94-4937-b0b5-8c3bb6968438",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "这是什么意思呢",
+          "autoMentionContext": {
+            "noteName": "First",
+            "notePath": "AIReadPaper/24-MyArtical/First.md",
+            "selection": {
+              "fromLine": 81,
+              "toLine": 81
+            }
+          }
+        }
+      ],
+      "timestamp": "2026-10-10T07:38:38.923Z"
+    },
+    {
+      "id": "e33ffacb-9685-47a9-a919-8fb50a2c69f3",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "The user is asking what line 81 means, so I need to look at that part of the file for context."
+        }
+      ],
+      "timestamp": "2026-10-10T07:38:43.088Z"
+    },
+    {
+      "id": "29294b39-3e93-48c4-bfed-be48b693e32d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01HzpxicuAN4PA1ES2Po8wP4",
+          "title": "Read AIReadPaper/24-MyArtical/First.md (70 - 89)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/24-MyArtical/First.md",
+              "line": 70
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/24-MyArtical/First.md",
+            "offset": 70,
+            "limit": 20
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I need to explain what the selected line about SNR dropping below half means — in Wan 2.2, the switch point between high-noise and low-noise expert models is determined by a signal-to-noise ratio threshold, so I should clarify that concept using math notation rather than editing any files."
+        },
+        {
+          "type": "text",
+          "text": "这句话讲的是 **Wan 2.2 把 MoE（混合专家）用在了扩散模型上，但切分维度跟 LLM 不一样**。拆开说：\n\n## 1. 背景：扩散去噪是个「分阶段」的过程\n\n视频扩散从纯噪声开始，一步步去噪成清晰视频。关键观察是：**不同阶段干的活性质完全不同**。\n\n- **早期（高噪声）**：画面还是一团糊，这时模型决定的是「构图怎么摆、人往哪走、镜头怎么运动」——属于**低频、全局、语义级**的决策。\n- **后期（低噪声）**：大结构已经定了，剩下的是「毛发纹理、布料褶皱、边缘锐度」——属于**高频、局部、细节级**的活。\n\n传统做法是**一个模型包办全程**，等于让同一套权重既当导演又当修图师。\n\n## 2. MoE 化：按噪声水平派活\n\nWan 2.2 的做法是训两个专家网络：\n\n| 专家 | 负责阶段 | 负责内容 |\n|---|---|---|\n| 高噪专家 | 去噪前半段 | 布局、运动规划（全局语义） |\n| 低噪专家 | 去噪后半段 | 细节精修（高频纹理） |\n\n**切换点由 SNR 决定。** 信噪比 $\\mathrm{SNR} = \\sigma_{\\text{signal}}^2 / \\sigma_{\\text{noise}}^2$ 衡量当前 latent 里「真实信号 vs 噪声」的比例。去噪过程中 SNR 单调上升（噪声越去越少）。原文说的「降到一半以下」是指按归一化的噪声强度设了个阈值：越过这个临界点，就从高噪专家交棒给低噪专家。实际是一个确定性的硬切换，不是 LLM MoE 里那种学出来的 router 打分。\n\n## 3. 「容量翻倍而单步算力不变」\n\n这是 MoE 的核心卖点：\n\n- **总参数 27B**：两个 14B 专家（共享部分权重）加起来的存储量。\n- **每步激活 14B**：任意一个去噪步，只有一个专家在跑。\n\n所以**显存/存储成本翻倍，但每步 FLOPs 跟 14B 密集模型一模一样**。你用 14B 的推理速度，拿到了接近 27B 的模型容量。\n\n## 4. 最关键的一句：「时间步维度」vs「token 维度」\n\n这是整段的点睛之笔，对比如下：\n\n| | LLM 的 MoE | Wan 2.2 的 MoE |\n|---|---|---|\n| 切分维度 | token 维度 | 时间步（去噪阶段）维度 |\n| 路由方式 | 学出来的 gating network，每个 token 动态选 top-k 专家 | 按 SNR 阈值硬切换，无需学习 |\n| 同一次前向 | 不同 token 走不同专家 | 所有 token 走同一个专家 |\n| 专家分工语义 | 隐式涌现，不可解释 | 显式的「粗构图 / 细修饰」 |\n\n**所以「视频扩散特有的 MoE 形态」这句的含义是**：LLM 只有一次前向，没有「阶段」可切，只能在 token 上做文章；而扩散模型天然有几十步的迭代轨迹，这条轨迹本身就提供了一个免费的、语义清晰的切分轴。这个轴在 LLM 里根本不存在，所以这是扩散模型独有的 MoE 用法。\n\n---\n\n顺带一提，这正好和 [[First]] 里**分岔二**（HunyuanVideo 1.5 用 8.3B 小模型 + SSTA 稀疏注意力）形成对照：分岔一是「堆容量但控激活」，分岔二是「砍容量但优化系统」，两条路都在绕开「单步算力」这个真正的瓶颈。"
+        }
+      ],
+      "timestamp": "2026-10-10T07:38:43.171Z"
+    }
+  ],
+  "savedAt": "2026-10-10T07:39:07.284Z"
+}

@@ -1,7 +1,7 @@
 {
-  "cssTheme": "Blue Topaz",
+  "cssTheme": "AnuPpuccin",
   "monospaceFontFamily": "",
-  "baseFontSize": 16,
+  "baseFontSize": 13,
   "translucency": true,
   "enabledCssSnippets": [
     "custom-icons-differing-files-and-folders",
@@ -14,8 +14,8 @@
     "colored-text",
     "center-images"
   ],
-  "accentColor": "",
-  "textFontFamily": "Times New Roman,Arial",
+  "accentColor": "#b9cedf",
+  "textFontFamily": "PingFang TC,Times New Roman,Arial",
   "baseFontSizeAction": true,
-  "interfaceFontFamily": "Arial,Times New Roman"
+  "interfaceFontFamily": "PingFang TC,Times New Roman,Arial"
 }

@@ -1,0 +1,97 @@
+\input{tables/long-term-benchmark}
+\input{tables/cycle_result}
+\input{tables/tank_results}
+
+\section{Experiments}%
+\label{sec:experiments}
+
+We evaluate our method on established benchmarks for camera-conditioned autoregressive view generation from a single image, comparing our models to previous open-source approaches (\cref{exp:short-term}).
+These benchmarks, however, have a critical limitation: camera trajectories rarely revisit previously observed regions, unlike real-world behavior where humans or robots often return to or look at previously explored areas.
+To address this limitation, we propose a cycle-trajectory evaluation protocol that extends these benchmarks by making the camera return to the starting position along the same path in reverse order (\cref{exp:cycle}).
+Additionally, we collect a small dataset with trajectories that revisit observed regions for qualitative evaluation in~\cref{fig:more_demo}.
+Finally, we conduct an ablation study in \cref{exp:ablation}.
+
+\subsection{Experimental setup}%
+\label{sec:experimental_setup}
+
+\paragraph{Implementation details.}%
+We use pre-trained SEVA~\cite{seva} as the generator $\psi$.
+SEVA uses a fixed total number of reference and target frames ($K+M=21$).
+For our experiments, we use $M=4$ target views, which leaves $K=17$ context views.
+However, this configuration demands substantial computational resources that may be prohibitive for many applications.
+To address this limitation, we fine-tune a more efficient version with LoRA~\cite{hu22lora:} on the RealEstate10K training split~\cite{realestate} that works with a reduced number of reference frames ($K=4$) and target views ($M=4$), and use this efficient version for our main experiments.
+We demonstrate (\cref{exp:cycle,exp:ablation}) that this fine-tuned version, when combined with~\mname, achieves comparable performance to the original SEVA while delivering approximately $12\times$ speedup at inference time.
+We provide more technical details in~\acref{appen:implementation}.
+
+\paragraph{Datasets.}%
+\label{sec:datasets}
+We consider two real-world datasets for novel view generation evaluation: RealEstate10K~\cite{realestate}, comprising indoor scene video clips, and Tanks-and-Temples~\cite{knapitsch2017tanks}, including indoor and outdoor scenes with larger camera motions.
+For qualitative evaluation, we use in-the-wild images collected from the internet or captured with phone cameras as input views (see \cref{fig:more_demo}).
+
+\paragraph{Evaluation metrics.}%
+\label{sec:metrics}
+We evaluate generated novel view quality based on three factors:
+(1) overall quality of generated novel views, comparing generated novel view distributions to test set distributions using Fréchet Image Distance (FID)~\cite{fid};
+(2) the ability of the model to preserve image details across views, measuring peak signal-to-noise ratio (PSNR) for pixel differences, along with LPIPS~\cite{lpips} and SSIM~\cite{ssim}, as in~\cite{ren2022look}; and
+(3) alignment between generated camera poses and ground truth, following~\cite{he2024cameractrl}, where we express estimated camera poses relative to the first frame and normalize translation by the furthest frame.
+We use DUSt3R~\cite{dust3r_cvpr24} to extract poses from generated views.
+We calculate rotation distance $R_{\text{dist}}$ by comparing ground truth and extracted rotation matrices of each generated sequence:
+\[
+R_{\text{dist}} = \arccos\left(0.5\left(\text{tr}(\mathbf{R}_{\text{gen}} \mathbf{R}^{T}_{\text{gt}}) - 1\right)\right),
+\]
+where $\mathbf{R}$ denotes a rotation matrix.
+We compute translation distance $t_{\text{dist}}$ as:
+\[
+t_{\text{dist}} = \left \| \mathbf{t}_{\text{gt}} - \mathbf{t}_{\text{gen}} \right \|_2.
+\]
+
+\input{figures/long-term_qualitative}
+
+\subsection{Short- and long-term view generation}%
+\label{exp:short-term}
+
+We first evaluate \mname~on the benchmark from~\cite{ren2022look, photometricnvs}, which defines two scenarios: \emph{short-term} and \emph{long-term} novel view generation.
+Beginning from the first frame of each ground-truth test sequence, the model autoregressively generates images along the ground truth camera trajectories with 10-frame intervals.
+The \emph{short-term} scenario evaluates the fifth generated image (50 frames from the initial view), while the \emph{long-term} scenario evaluates the final image ($\geq$200 frames from the initial view).
+Following the protocol, we only consider samples with more than 200 frames for the \emph{long-term} scenario and more than 50 frames for the \emph{short-term} scenario.
+We report results in \cref{tab:long-term}.
+\mname~substantially outperforms all baselines on the key metrics, demonstrating superior scene extrapolation.
+However, the benchmark trajectories rarely revisit observed regions, limiting evaluation of long-term scene consistency.
+
+\input{tables/ablation}
+
+\subsection{Long-term view generation with revisitations}%
+\label{exp:cycle}
+
+To evaluate long-term scene consistency when revisiting observed regions—a scenario that rarely occurs in existing benchmarks—we propose a cycle-trajectory evaluation protocol as a proxy for real revisitation scenarios in human and robotic exploration.
+In this protocol, the model generates frames following trajectories from initial to final poses, then returns along the same path to the starting position.
+We evaluate metrics every 10 frames on the return trajectories, using all test sequences.
+Following this protocol, we report quantitative results in \cref{tab:cycle} and qualitative comparisons in \cref{fig:longqualitative_comparison}.
+\mname~outperforms all baselines across all metrics, demonstrating superior visual consistency when generating previously observed regions.
+
+To validate generalization, we evaluate on Tanks-and-Temples containing indoor and outdoor scenes with more dynamic camera trajectories.
+We use all six advanced scenes and apply the same \emph{cycle-trajectory} protocol using the first 50 frames, evaluating every frame without temporal subsampling.
+Results are in \cref{tab:tank}.
+\mname~consistently outperforms all baselines across in-domain (\cref{tab:cycle}) and out-of-domain (\cref{tab:tank}) evaluations on the majority of metrics.
+
+We also qualitatively evaluate \mname~across diverse in-the-wild scenes in \cref{fig:more_demo}, demonstrating generation of diverse, consistent, high-quality long videos.
+
+\subsection{Ablation study}%
+\label{exp:ablation}
+
+
+We ablate our surfel-based memory indexing for context view retrieval in \mname.
+We evaluate our approach in the cycle-trajectory setting against three alternative retrieval strategies:
+(1) temporal-based retrieval, selecting the most recent $K$ views from memory,
+(2) camera distance-based retrieval, selecting top $K$ views with cameras closest to the target view camera—also used by SEVA~\cite{seva}, our backbone generator, and
+(3) field-of-view-based retrieval, selecting top $K$ views with highest field-of-view overlap with the target view.
+We also evaluate performance trade-offs between our lightweight, fine-tuned generator using $K=4$ context views versus original SEVA with $K=17$ context views.
+We report results in \cref{tab:ablation}.
+
+Our findings show \mname~consistently improves generator performance across both numbers of context views.
+Improvement is most pronounced with fewer context views ($K=4$), highlighting the effectiveness of our surfel-based memory index.
+
+\paragraph{Computational efficiency.}
+A key practical advantage of our approach is its computational efficiency.
+\mname~with only $K=4$ views achieves $12\times$ speed improvement over the original SEVA while recovering most of the performance achieved with $K=17$ views.
+On an RTX 4090 GPU, our method generates frames in 4.2 seconds compared to 50 seconds for SEVA, representing a step towards real-time interactive scene exploration.

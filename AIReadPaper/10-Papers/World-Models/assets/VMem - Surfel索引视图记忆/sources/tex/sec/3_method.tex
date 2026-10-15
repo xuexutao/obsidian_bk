@@ -1,0 +1,109 @@
+\section{Method}%
+\label{sec:method}
+
+Let $\mathbf{x}_1 \in \mathbb{R}^{H\times W\times 3}$ be an RGB image of a scene that we wish to explore, and let $\{\mathbf{c}_t\}_{t=1}^T$ be a sequence of camera parameters specifying a path through the scene.
+Our goal is to generate a corresponding video, \ie, a sequence of images $\{\mathbf{x}_t\}_{t=1}^T$, where $\mathbf{x}_1$ is the given input image, and each subsequent frame $\mathbf{x}_t$ is consistent with the previous ones and reflects the specified cameras $\{\mathbf{c}_t\}_{t=1}^T$.
+Moreover, we aim to do so autoregressively, generating $M$ novel views at a time for the given cameras (with $M$ kept small to ensure interactivity) while ensuring consistency with previously generated views.
+This enables interactive scene exploration, where the user can specify the next camera positions at each step.
+
+Specifically, we work with a sequence of \textit{views}, where each view $v_t = (\mathbf{x}_t, \mathbf{c}_t)$ consists of an image $\mathbf{x}_t$ and its corresponding camera $\mathbf{c}_t$ at timestep $t$.
+At generation step $s$ ($s\geq 0$), we have generated $T = sM$ frames so far.
+The goal is to generate $M$ new RGB images $\{\mathbf{x}_{T+m}\}_{m=1}^M$ for the next target camera parameters $\{\mathbf{c}_{T+m}\}_{m=1}^M$, given the previously generated views $\mathcal{V}^{(s)} = \{v_1, v_2, \dots, v_T\}$.
+After generation, we update $T \leftarrow T + M$.
+
+A challenge with this approach is that the context $\mathcal{V}^{(s)}$ grows unbounded over time.
+Video generators addressing this problem~\cite{geogpt, photometricnvs, ren2022look, wang2024motionctrl} typically consider a fixed-length subset of $\mathcal{V}^{(s)}$, conditioning their generation only on the most recent $L$ views $\{v_{T-L+1}, \dots, v_T\}$.
+This limitation results in severe inconsistencies when the generated sequence extends beyond the (small) context window.
+
+We solve this problem by dynamically retrieving the most relevant subset of past views, denoted as $\mathcal{V}^* \subseteq \mathcal{V}^{(s)}$.
+To achieve this, we introduce an efficient data structure, the \mnamel, that stores and retrieves past views based on their approximate 3D geometry.
+We first describe the \mnamel~(\cref{sec:spatial_mem}) and then introduce the novel view generator~(\cref{sec:generator}).
+An overview of the method is provided in \cref{fig:method}.
+
+\subsection{Surfel-indexed view memory}%
+\label{sec:spatial_mem}
+
+Consider the problem of generating the next views $\{\mathbf{x}_{T+m}\}_{m=1}^M$ of the scene as seen from the cameras $\{\mathbf{c}_{T+m}\}_{m=1}^M$.
+The generator must consider the previously generated views and ensure $\{\mathbf{x}_{T+m}\}_{m=1}^M$ are consistent with those, while generating new content as needed.
+However, not all past views are equally relevant to the novel views $\{\mathbf{x}_{T+m}\}_{m=1}^M$.
+We prioritize past views that have likely observed the largest portion of the scene currently being generated.
+For example, if the current locale is surrounded by walls, parts of the scene behind those walls are likely less relevant for generating a new view of that locale.
+Conversely, views that share a similar visible region with the target view can provide more useful information for generating its content.
+
+This principle drives our design for a view memory module.
+We maintain a coarse model of the scene geometry using surfels (visualized in~\cref{fig:surfel_demo}), simple surface primitives that account for occlusion.
+Each surfel stores the indices of the past views that observed it.
+To generate a new view, the surfels visible from the new viewpoint are retrieved, using the associated indices to vote for which views to consider for generation.
+This process is illustrated in \cref{fig:spatial_memory}.
+
+Specifically, we define a \emph{surfel} as the tuple
+\[
+\mathbf{s}_k = \left(\mathbf{p}_k,\, \mathbf{n}_k,\, r_k,\, \mathcal{I}_k\right),
+\]
+where \(\mathbf{p}_k \in \mathbb{R}^3\) denotes the surfel's 3D position, \(\mathbf{n}_k \in \mathbb{R}^3\) is its surface normal, \(r_k \in \mathbb{R}\) is the surfel radius, and \(\mathcal{I}_k \subseteq \{1, 2, \ldots, T\} \) is a subset of past view indices that observed the surfel.
+The surfel-based memory indexing of past views $\mathcal{V}^{(s)}$, encapsulating the scene, is represented as a set of surfels $\mathcal{S}^{(s)} = \{\mathbf{s}_k\}_{k=1}^{N^{(s)}}$, where $N^{(s)}$ is the number of surfels at generation step $s$.
+We also maintain an octree to quickly retrieve surfels based on their geometry.
+Next, we describe how to read from and write to this memory.
+
+\input{figures/spatial_memory}
+
+\paragraph{Reading from the memory.}
+To retrieve the most relevant past views from the memory $\mathcal{V}^{(s)}$ for the novel cameras $\{\mathbf{c}_{T+m}\}_{m=1}^M$, we first compute their average pose $\bar{\mathbf{c}}_s \in \mathrm{SE}(3)$ as a reference (refer to~\acref{appen:average_camera}).
+Then we render the surfels $\mathcal{S}^{(s)}$ from the averaged camera pose $\bar{\mathbf{c}}_s$.
+Each surfel is rendered as a splat with its attributes, accounting for relative depth and occlusions, and contributing to the image based on its coverage.
+The rendered attributes correspond to the indices of the past views.
+The core intuition is that views observing the largest portion of the scene from the perspective of the novel camera are most relevant for novel view synthesis.
+To identify these views, we rank past view indices based on their frequency across all rendered pixels.
+
+We then select the top-$K$ most frequently represented indices $\mathcal{I}^*$ and use them to retrieve the corresponding past views, $\mathcal{V}^* = \{v_t\}_{t \in \mathcal{I}^*}$, from the memory $\mathcal{V}^{(s)}$.
+This subset of views serves as the context for the new view generator, as described in \cref{sec:generator}.
+
+To avoid oversampling repeatedly visited regions, we apply a non-maximum suppression algorithm that reduces redundancy in memory and promotes broader scene coverage among the top-$K$ views.
+During retrieval, we retain only the most frequently referenced view among those with similar poses.
+During writing to the memory, we merge surfels by comparing their associated camera poses—if two poses are highly similar, we discard the older one.
+
+\paragraph{Writing to the memory.}
+After generating the new views $\{v_{T+m}=(\mathbf{x}_{T+m},\mathbf{c}_{T+m})\}_{m=1}^M$, we add them to the memory $\mathcal{V}^{(s)}$ and update the surfel-based memory index $\mathcal{S}^{(s)}$.
+We use an off-the-shelf point map estimator $\phi$, such as CUT3R~\cite{cut3r}, to estimate their point maps $\{\mathbf{P}^*_{T+m}\}_{m=1}^M$.
+Specifically, we jointly estimate the point maps for the newly generated views along with the retrieved past views $\mathcal{V}^*$.
+This joint estimation ensures that the new point maps are aligned with the coordinate frame of the existing scene geometry in the surfel-based memory index $\mathcal{S}^{(s)}$.
+
+Next, we convert the estimated point maps to a set of new surfels.
+For each newly generated frame $t \in \{T+1, T+2, \ldots, T+M\}$, we process its point map $\mathbf{P}^*_t$.
+Since our approach only requires coarse geometry, we first downsample the point map $\mathbf{P}^*_t$ by a factor $\sigma$, yielding a smaller point map $\mathbf{P}_t \in \mathbb{R}^{H' \times W' \times 3}$, where $H' = H/\sigma$ and $W' = W/\sigma$.
+For each pixel location $(u,v)$ in the downsampled point map, we have a 3D point $\mathbf{p}_{u,v,t}$, and we create a new surfel $\mathbf{s}_{k'}$ centered on it.
+We compute each surfel's normal using the cross-product of displacement vectors to neighboring pixels.
+For a pixel at 2D location $(u,v)$ in the image grid, we use neighboring pixels to estimate the local surface normal:
+\[
+\mathbf{n}_{k'} = \frac{(\mathbf{p}_{u+1,v,t} - \mathbf{p}_{u-1,v,t}) \times (\mathbf{p}_{u,v+1,t} - \mathbf{p}_{u,v-1,t})}{\left \| (\mathbf{p}_{u+1,v,t} - \mathbf{p}_{u-1,v,t}) \times (\mathbf{p}_{u,v+1,t} - \mathbf{p}_{u,v-1,t}) \right \|},
+\]
+where $\mathbf{p}_{u,v,t}$ represents the 3D point at image coordinates $(u,v)$ in frame $t$.
+To ensure that the surfels reasonably cover the scene, we use a heuristic to compute the surfel's radius, which is proportional to the depth of the surfel and inversely proportional to the focal length and the cosine of the angle between the surfel normal and the viewing direction:
+\[
+r_{k'} = \frac{\frac{1}{2}\mathbf{D}_{u,v,t}/f_t}{\alpha + (1 - \alpha)\left \| \mathbf{n}_{k'} \cdot (\mathbf{p}_{u,v,t} - \mathbf{O}_t) \right \|},
+\]
+where $\mathbf{D}_{u,v,t}$ represents the depth at pixel $(u,v)$ in frame $t$, $\mathbf{O}_t$ is the camera center of frame $t$, $\mathbf{p}_{u,v,t} - \mathbf{O}_t$ is the viewing direction, and $f_t$ is the focal length at time $t$.
+The factor $\alpha$ is used to avoid extreme values when $\left \| \mathbf{n}_{k'} \cdot (\mathbf{p}_{u,v,t} - \mathbf{O}_t) \right \| \approx 0$.
+
+Finally, we check if the index $\mathcal{S}^{(s)}$ already contains a surfel $\mathbf{s}_k$ similar to the new surfel $\mathbf{s}_{k'}$.
+Two surfels match if their centers are within a distance $d$ and the cosine similarity between their normals is above a threshold $\theta$.
+If such a surfel $\mathbf{s}_k$ is found, we add the frame index $t$ to the surfel's set of past view indices: $\mathcal{I}_k \leftarrow \mathcal{I}_k \cup \{t\}$, and discard $\mathbf{s}_{k'}$.
+If not, we set $\mathcal{I}_{k'} = \{t\}$ and add $\mathbf{s}_{k'}$ to the index $\mathcal{S}^{(s+1)}$.
+This process transforms the surfel memory from $\mathcal{S}^{(s)}$ to $\mathcal{S}^{(s+1)}$ with $N^{(s+1)}$ surfels for the next generation step.
+
+\subsection{Novel view generator}%
+\label{sec:generator}
+
+\input{figures/ood_demo}
+
+We use a camera-conditioned image-set generator $\psi$ to generate novel views.
+The generator $\psi$ takes $K$ retrieved reference views $\mathcal{V}^* = \{v_t=(\mathbf{x}_t, \mathbf{c}_t)\}_{t \in \mathcal{I}^*}$ and the target camera poses $\{\mathbf{c}_{T+m}\}_{m=1}^M$ for the $M$ new frames to be generated and samples the novel views:
+\[
+\{\mathbf{x}_{T+m}\}_{m=1}^M \sim \psi\left( \{(\mathbf{x}_t, \mathbf{c}_t)\}_{t \in \mathcal{I}^*}, \{\mathbf{c}_{T+m}\}_{m=1}^M \right),
+\]
+where $\mathcal{I}^* \subseteq \{1, 2, \ldots, T\}$ are the frame indices of the retrieved reference views.
+
+Specifically, we base our generator on the recent SEVA~\cite{seva} model.
+Given the plug-and-play nature of our memory module, \mname~can work with other image-set generators as well.
+We also fine-tune a more efficient version of SEVA that operates with a reduced number of reference frames.
+We provide more details in \cref{sec:experimental_setup}.

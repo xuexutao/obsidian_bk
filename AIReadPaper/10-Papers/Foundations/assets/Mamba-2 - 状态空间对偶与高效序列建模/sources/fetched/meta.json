@@ -1,0 +1,466 @@
+{
+  "url": "https://arxiv.org/abs/2405.21060",
+  "fetch_url": "https://arxiv.org/pdf/2405.21060",
+  "title": "Transformers are SSMs: Generalized Models and Efficient Algorithms Through Structured State Space Duality",
+  "type": "pdf",
+  "arxiv_id": "2405.21060",
+  "n_images": 16,
+  "images": [
+    {
+      "path": "images/img_000_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p9.png",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p15.jpeg",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p20.png",
+      "page": 20,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_018.png",
+      "page": 18,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_019.png",
+      "page": 19,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_020.png",
+      "page": 20,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_021.png",
+      "page": 21,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_022.png",
+      "page": 22,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_023.png",
+      "page": 23,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_024.png",
+      "page": 24,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_025.png",
+      "page": 25,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_026.png",
+      "page": 26,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_027.png",
+      "page": 27,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_028.png",
+      "page": 28,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_029.png",
+      "page": 29,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_030.png",
+      "page": 30,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_031.png",
+      "page": 31,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_032.png",
+      "page": 32,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_033.png",
+      "page": 33,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_034.png",
+      "page": 34,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_035.png",
+      "page": 35,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_036.png",
+      "page": 36,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_037.png",
+      "page": 37,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_038.png",
+      "page": 38,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_039.png",
+      "page": 39,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_040.png",
+      "page": 40,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_041.png",
+      "page": 41,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_042.png",
+      "page": 42,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_043.png",
+      "page": 43,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_044.png",
+      "page": 44,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_045.png",
+      "page": 45,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_046.png",
+      "page": 46,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_047.png",
+      "page": 47,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_048.png",
+      "page": 48,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_049.png",
+      "page": 49,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_050.png",
+      "page": 50,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_051.png",
+      "page": 51,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_052.png",
+      "page": 52,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 52,
+  "n_chars": 177860,
+  "authors": [
+    "Tri Dao",
+    "Albert Gu"
+  ],
+  "abstract": "While Transformers have been the main architecture behind deep learning's success in language modeling, state-space models (SSMs) such as Mamba have recently been shown to match or outperform Transformers at small to medium scale. We show that these families of models are actually quite closely related, and develop a rich framework of theoretical connections between SSMs and variants of attention, connected through various decompositions of a well-studied class of structured semiseparable matrices. Our state space duality (SSD) framework allows us to design a new architecture (Mamba-2) whose core layer is an a refinement of Mamba's selective SSM that is 2-8X faster, while continuing to be competitive with Transformers on language modeling.",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

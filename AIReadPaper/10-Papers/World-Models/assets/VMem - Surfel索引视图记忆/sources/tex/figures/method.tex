@@ -1,0 +1,11 @@
+\begin{figure*}[t!]
+\centering
+\includegraphics[width=\textwidth]{imgs/vmem_method.pdf}
+\caption{\textbf{Method.}
+Given target camera viewpoints $\{\mathbf{c}_{T+m}\}_{m=1}^M$, we query our \mnamel~to retrieve the most relevant $K$ past views $\mathcal{V}^* \subset \mathcal{V}^{(s)}$ where $\mathcal{V}^* = \{v_t\}_{t=1}^K$ as references.
+Retrieved reference images $\mathbf{x}_t$ along with Plücker embeddings of both reference camera poses $\mathbf{c}_t$ and target camera poses $\{\mathbf{c}_{T+m}\}_{m=1}^M$ are fed into generator $\psi$ to synthesize novel views $\{\mathbf{x}_{T+m}\}_{m=1}^M$.
+After generation, the surfel-indexed memory is updated $\mathcal{S}^{(s)} \rightarrow \mathcal{S}^{(s+1)}$ by appending new view indices $\{T+m\}_{m=1}^M$ to existing surfels or creating new surfels based on geometry of the generated views.
+This is repeated autoregressively, enabling long-term consistent generation.
+}
+\label{fig:method}
+\end{figure*}

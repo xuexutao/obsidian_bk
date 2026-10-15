@@ -1,0 +1,43 @@
+\section{Related work}%
+\label{sec:related}
+
+Novel view synthesis (NVS) is a challenging and ill-posed problem that can be categorized into two main categories: view interpolation methods~\cite{niemeyer2022regnerf, chen2021mvsnerf, chen_single-stage_2023, chen2024mvsplat, chen2024mvsplat360, wu2024reconfusion, truong2023sparf, gao2024cat3d}, which generate views close to given inputs, and view extrapolation or autoregressive view generation, where novel views extend significantly beyond the original scene, introducing substantial new content.
+The latter is particularly difficult from single images.
+Between these lie single-view scene reconstruction methods, which succeed mainly for single-object scenes~\cite{melas-kyriazi23realfusion, shi23zero123:, hong24lrm:, szymanowicz24splatter, boss2024sf3d, xiang2024structured} or highly bounded scenes~\cite{szymanowicz2024flash3d}.
+However, their extrapolation capabilities remain limited.
+Most relevant to our work are single-image view extrapolation models, which fall into two categories: those incorporating explicit geometric modeling with inpainting, and those based directly on image or video generation.
+
+\paragraph{Inpainting-based view extrapolation.}
+Inpainting-based methods~\cite{wiles2020synsin, SceneScape, hoellein2023text2room, muller2024multidiff, popov24camctrl3d, yu2024viewcrafter, seo2024genwarp, koh2023simple, liu2021infinite, rockwell2021pixelsynth, yu23wonderjourney:, yu25wonderworld:} use pre-trained 3D reconstruction models to generate 3D representations—such as meshes, point clouds, or Gaussian splats—from images.
+These representations are reprojected into novel views, where 2D inpainting fills missing regions.
+SceneScape~\cite{SceneScape} reconstructs meshes from images using pre-trained depth estimators.
+Diffusion-based inpainting then completes the projected novel view, which is reprojected back to refine and extend the mesh.
+This process is iterated to generate novel views.
+MultiDiff~\cite{muller2024multidiff} uses depth estimators to warp reference images into multiple novel views, training diffusion models to inpaint missing regions simultaneously.
+CamCtrl3D~\cite{popov24camctrl3d} follows a similar approach but adds ray maps to condition diffusion models for view synthesis.
+ViewCrafter~\cite{yu2024viewcrafter} uses pre-trained pointmap estimators to create point clouds and trains video diffusion models for inpainting.
+GenWarp~\cite{seo2024genwarp} warps 2D coordinate representations of reference views into novel views and uses them to condition generation.
+
+While these methods improve geometric consistency, they are susceptible to errors in depth or pointmap estimation, which propagate distortions across generated views.
+Once 3D representations are constructed, inaccuracies from depth or pointmap estimation become difficult to correct.
+Moreover, scaling to large scenes is computationally intensive, as storing and processing high-fidelity 3D representations requires substantial memory.
+
+\input{figures/surfel_demo}
+
+\paragraph{Multi-view-based view extrapolation.}
+Another category~\cite{geogpt, ren2022look, tseng2023consistent, photometricnvs, wang2024motionctrl, gao2024cat3d, seva} avoids explicitly modeling 3D scene geometry.
+Instead, these approaches generate novel views by conditioning on previously rendered or generated views.
+GeoGPT~\cite{geogpt} uses autoregressive likelihood models to synthesize novel views from single images.
+Building on this, LookOut~\cite{ren2022look} improves consistency by generating view sequences along predefined trajectories, conditioning on up to two preceding views.
+Other methods~\cite{tseng2023consistent, photometricnvs} enhance novel view synthesis by employing cross-view attention or enforcing epipolar constraints within diffusion models.
+MotionCtrl~\cite{wang2024motionctrl} leverages geometric priors from pre-trained video diffusion models to synthesize camera-controllable videos.
+These methods are \textit{trajectory-based}, requiring input views to follow continuous spatial paths.
+In contrast, \textit{image-set models} like CAT3D~\cite{gao2024cat3d} and more recently SEVA~\cite{seva} synthesize novel views from sparse and unordered input images, without trajectory constraints.
+However, these methods are computationally expensive, with $O(n^2)$ complexity for attention, limiting conditioning views to small context windows containing only recently generated frames.
+This limitation impacts long-term consistency of generated images.
+
+Several concurrent works explore memory-based approaches for scene generation.
+Genie~\cite{bruce2024genie, parker-holder24genie} maintains memory through recurrent state features.
+Gen3C~\cite{ren2025gen3c} conditions on stored point clouds like ViewCrafter~\cite{yu2024viewcrafter}, inheriting inpainting-based limitations.
+StarGen~\cite{zhai2025stargen} and WorldMem~\cite{xiao2025worldmemlongtermconsistentworld} use distance- and field-of-view-based spatial memory retrieval, which can recover spatially correlated views but lack geometric reasoning for occlusions.
+In contrast, our surfel-based memory explicitly models occlusions and provides more principled view selection.

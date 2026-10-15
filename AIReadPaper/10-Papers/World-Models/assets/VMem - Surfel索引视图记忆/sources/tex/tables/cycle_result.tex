@@ -1,0 +1,41 @@
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{3pt}
+\scalebox{0.76}{
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Method} & \textbf{LPIPS}~$\downarrow$ & \textbf{PSNR}~$\uparrow$  & \textbf{SSIM}~$\uparrow$& \textbf{FID}~$\downarrow$  & $R_{\text{dist}}$ $\downarrow$ & $T_{\text{dist}}$ $\downarrow$ \\
+\midrule
+%
+%
+Look-out~\cite{ren2022look}
+&  0.809&   8.41&  0.069&  38.34&  1.262&0.341\\
+%
+%
+GenWarp~\cite{seo2024genwarp}
+&  0.507&   11.13&  0.134&  32.94&  0.848&0.241\\
+
+MotionCtrl~\cite{wang2024motionctrl}
+& 0.589 & 9.07  &  0.096& 26.86 &  0.871&0.293\\
+
+ViewCrafter~\cite{yu2024viewcrafter}
+&  0.401&   11.82&  0.217& 24.72 & 0.902&  0.492\\
+
+SEVA~\cite{seva} ($K=17$)
+&  0.401&   11.82&  0.217& 24.72 & 0.902&  0.492\\
+
+\midrule
+
+\mname~($K=4$)&  0.397&  15.72&  0.297& 24.97&  \textbf{0.821} & 0.392\\
+
+\mname~($K=17$)&  \textbf{0.304}&  \textbf{18.15}&  \textbf{0.377}& \textbf{24.18}&  0.892& \textbf{0.165}\\
+
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Results on cycle trajectories from RealEstate10K.} 
+%
+%
+}%
+\label{tab:cycle}
+\end{table}

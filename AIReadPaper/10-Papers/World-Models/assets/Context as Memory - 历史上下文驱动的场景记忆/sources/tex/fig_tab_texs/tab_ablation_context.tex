@@ -1,0 +1,24 @@
+\begin{table}[t]
+% \footnotesize
+
+% \vspace{-0.2cm}
+\tabcolsep=0.09cm
+\center
+\begin{tabular}{c | c c | c c | c}
+\toprule
+& \multicolumn{2}{c}{GT Comp.} & \multicolumn{2}{c}{HC Comp.} &\\
+  Context Size  & PSNR$\uparrow$ & LPIPS$\downarrow$ & PSNR$\uparrow$ & LPIPS$\downarrow$  & Speed (fps)$\uparrow$ \\
+  \hline
+  \hline
+   1 & 15.72 & 0.5282 & 14.53 & 0.5456 & 1.60 \\
+   5 & 17.37 & 0.4825 & 15.97 & 0.5063 & 1.40 \\
+   10 & 19.14 & 0.3554 & 17.75 & 0.3985 & 1.20 \\
+   20 & 20.22 & 0.3003 & 18.11 & 0.3414 & 0.97 \\ 
+   30 & 20.31 & 0.3137 & 18.19 & 0.3319 & 0.79 \\
+\bottomrule
+
+\end{tabular}
+\caption{\textbf{Ablation of Context Size.} Larger context sizes contain more useful information and lead to better memory capability, but also incur higher computational overhead, necessitating an optimal trade-off choice.}
+\vspace{-0.6cm}
+\label{table:ablation_context}
+\end{table}

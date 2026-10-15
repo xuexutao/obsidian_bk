@@ -1,0 +1,41 @@
+
+
+
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{0.3em}
+    \begin{tabularx}{\textwidth}{l c c >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >
+    {\centering\arraybackslash}X >{\centering\arraybackslash}X >
+    {\centering\arraybackslash}X >
+    {\centering\arraybackslash}X >{\centering\arraybackslash}X}
+      \toprule
+
+           & &  & \multicolumn{6}{c}{\textbf{7 scenes~\cite{shotton2013scene} }} & \multicolumn{6}{c}{\textbf{NRGBD~\cite{azinovic2022neural}}} & \\
+
+      \cmidrule(lr){4-9} \cmidrule(lr){10-15}
+         & & & \multicolumn{2}{c}{{Acc}$\downarrow$} & \multicolumn{2}{c}{{Comp}$\downarrow$} & \multicolumn{2}{c}{{NC}$\uparrow$} & \multicolumn{2}{c}{{Acc}$\downarrow$} & \multicolumn{2}{c}{{Comp}$\downarrow$} & \multicolumn{2}{c}{{NC}$\uparrow$} & \\
+      \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13} \cmidrule(lr){14-15}
+         \textbf{Method} & \textbf{Optim.} & \textbf{Onl.} & {Mean} & {Med.} & {Mean} & {Med.} & {Mean} & {Med.} & {Mean} & {Med.} & {Mean} & {Med.} & {Mean} & {Med.} & \textbf{FPS} \\
+      \midrule
+      DUSt3R-GA~\cite{wang2024dust3r} &\checkmark &
+        & \underline{0.146}	& \underline{0.077}	& {0.181}	& \underline{0.067}	& \bf 0.736	& \bf 0.839	&  0.144	& \bf{0.019}	& 0.154	& \bf{0.018}	& \bf 0.870	& \bf 0.982	& 0.68 \\
+        MASt3R-GA~\cite{leroy2024mast3r} &\checkmark &
+        & 0.185 & 0.081 & \underline{0.180} & 0.069 & 0.701	& 0.792	& \bf 0.085 & 0.033	& \bf 0.063	& 0.028	& 0.794 & 0.928	& 0.34 \\
+        \monster{}-GA~\cite{leroy2024mast3r} &\checkmark &
+        & 0.248 & 0.185 & 0.266 & 0.167 & 0.672 & 0.759 & 0.272 & 0.114 & 0.287 & 0.110 & 0.758 & 0.843 & 0.39 \\
+      Spann3R~\cite{spann3r} & & \checkmark
+        & 0.298 & 0.226 & 0.205 &  0.112 & {0.650} & {0.730}   & {0.416}  & 0.323  &  {0.417}  & {0.285}  & 0.684  & 0.789  & 12.97 \\
+        \textbf{\ourmethod} & & \checkmark
+       & \bf 0.126 & \bf{0.047} & \bf 0.154 & \bf{0.031} & \underline{0.727} & \underline{0.834} & \underline{0.099} &  \underline{0.031} & \underline{0.076} & \underline{0.026} & \underline{0.837} & \underline{0.971} & 17.00  \\
+      \bottomrule
+    \end{tabularx}%
+    \caption{\textbf{3D reconstruction comparison on 7-Scenes~\cite{shotton2013scene} and NRGBD~\cite{azinovic2022neural} datasets.} While operating online, our method achieves competitive performance, on par with and even surpassing offline methods that employ global alignment.} 
+    \label{tab:3d_recon}
+\end{table*}
+      
+
+
+
+      
+     

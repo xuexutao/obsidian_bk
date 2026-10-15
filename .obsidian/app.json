@@ -16,5 +16,6 @@
   "foldIndent": true,
   "rightToLeft": false,
   "spellcheck": false,
-  "autoPairBrackets": false
+  "autoPairBrackets": false,
+  "tabSize": 4
 }

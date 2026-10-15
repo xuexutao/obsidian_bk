@@ -1,0 +1,59 @@
+\section{Related Work}
+
+\noindent\textbf{\textit{Tabula rasa} 3D Reconstruction.} Many 3D reconstruction pipelines operate as \textit{tabula rasa}\footnote{tabula rasa (lat.) -- blank slate.}, starting from scratch for each new scene, and relying solely on the observations  currently available.
+Notable examples include traditional methods such as Structure from Motion (SfM)~\cite{agarwal2011building,schoenberger2016sfm,snavely2006photo,snavely2008modeling,lowe2004distinctive,hartley2003multiple,triggs2000bundle,agarwal2010bundle,seitz2006comparison} and Simultaneous Localization and Mapping (SLAM)~\cite{cadena2016past,durrant2006simultaneous,davison2007monoslam,mur2015orb,engel2014lsd,klein2007parallel,newcombe2011dtam}, as well as more recent approaches such as Neural Radiance Fields (NeRF)~\cite{mildenhall2021nerf,muller2022instant,chen2022tensorf,fridovich2022plenoxels,wang2021neus} and 3D Gaussian Splatting~\cite{kerbl20233d}. The \textit{tabula rasa} nature of these approaches poses challenges in handling scenarios with sparse observations or ill-posed conditions. In contrast, our method leverages data-driven priors to enable dense 3D reconstruction directly from video sequences or photo collections, eliminating the need for known camera extrinsics or intrinsics.  
+The data-driven nature of our method enables it to address challenging cases of degeneracy, make predictions from as few as a single image, and infer structures that are unobserved in the input.
+
+
+
+\vspace{0.5em}\noindent\textbf{Learning-Based 3D Reconstruction.} 
+Unlike \textit{tabula rasa} reconstruction, many methods integrate data-driven priors into 3D reconstruction. One prominent direction focuses on improving traditional reconstruction pipelines, including replacing hand-crafted components with learning-based alternatives (e.g., substituting conventional feature descriptors~\cite{lowe2004distinctive,bay2008speeded} with learned ones~\cite{sarlin20superglue,detone2018superpoint,sun2021loftr,dusmanu2019d2}), integrating data-driven priors~\cite{teed2021droid,chen2024leap,teed2024deep,yu2024mip,yang2020d3vo,zhu2024nicer,tateno2017cnn} into the systems, or optimizing entire systems end-to-end~\cite{wang2024vggsfm,teed2021droid,tang2018ba,yao2018mvsnet}.
+Another substantial body of work aims to predict dense 3D geometry directly from single or paired images.
+Extensive research~\cite{li2018megadepth,yang2024depth,godard2019digging,bhat2023zoedepth,wang2024moge,piccinelli2024unidepth,Ranftl2022,Ranftl2021} focuses on estimating monocular depth. While depth maps provide valuable 3D information, converting them into 3D point clouds typically requires camera intrinsics~\cite{piccinelli2024unidepth,hu2024metric3d,depthpro}, with camera extrinsics often left unmodeled.
+Notably, DUSt3R~\cite{wang2024dust3r} predicts two pointmaps from an image pair within the same coordinate frame, inherently accounting for both camera intrinsics and extrinsics. However,  DUSt3R is tailored for image pairs and does not inherently support multiple views. While it can be extended to handle multi-view tasks via an additional global alignment process, this process operates offline, is time-consuming, and cannot dynamically update the reconstruction as new observations are added. 
+In contrast, our method flexibly handles a varying number of images, predicting pointmaps for each image in a shared coordinate frame as they are received.
+
+\vspace{0.5em}
+\noindent\textbf{Continuous Reconstruction Methods.} 
+Many traditional and learning-based methods share the ability to continuously predict 3D structure in an online manner. 
+Monocular SLAM pipelines~\cite{teed2021droid,zhu2024nicer,engel2014lsd,forster2016svo} recover ego-motion and 3D point clouds in real-time from video sequences but typically require known camera intrinsics.  Our approach is related to learning based methods~\cite{kar2017learning,choy20163d,zhang2022nerfusion,sun2021neuralrecon}, such as 3D-R2N2~\cite{choy20163d}, which utilize recurrent neural network architectures~\cite{elman1990finding,hochreiter1997long,jaegle2021perceiver} for online 3D reconstruction. However, these methods are either object-centric~\cite{choy20163d,kar2017learning,yu2021pixelnerf} or require posed images as input~\cite{kar2017learning,sun2021neuralrecon,sayed2022simplerecon,bozic2021transformerfusion,zhang2022nerfusion}. Spann3R~\cite{spann3r}, developed concurrently with our work, also demonstrates continuous reconstruction capabilities using a spatial memory mechanism.  However, while Spann3R’s memory serves primarily as a cache for observed scenes, our compressed state representation not only captures observed scene content but also enables inferring unobserved structures. Finally, unlike the methods discussed in this paragraph that only operate on static scenes, our method also seamlessly reconstructs dynamic scenes.
+
+
+
+
+
+
+
+
+
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{figs/state_overview.pdf}
+    \vspace{-.2in}
+    \caption{\small \textbf{Method Overview}. Our method performs online dense 3D reconstruction from a stream of images (video frames or a photo collection) by using a persistent state. Each input image is encoded into visual tokens via a shared-weight ViT encoder. These tokens interact with state tokens, where \emph{state update} integrates the current image into the  state, and \emph{state readout} retrieves the past context stored in the state for predictions. Both processes occur simultaneously through two interconnected ViT decoders. Outputs include pointmaps in world and camera frames (only world pointmaps are shown) and the camera-to-world transformation. On the right, we demonstrate our method's ability to predict unseen views: given a query camera (as a raymap), it reads information from the state to predict its corresponding pointmap, even for unobserved regions. For these readouts, we do not update the state. The hallucinated pointmap is highlighted with a blue border.
+    }
+    \label{fig:overview}
+\end{figure*}
+
+\vspace{0.5em}\noindent\textbf{Reconstructing Dynamic Scenes from Monocular Videos.}
+Recovering camera parameters and consistent dense geometry from monocular videos of dynamic scenes presents significant challenges for traditional SLAM pipelines. Recent approaches address this by leveraging learned depth priors.
+Robust-CVD~\cite{robustcvd} uses deformation splines to align the depth maps, while 
+CasualSAM~\cite{casualsam} finetunes a monocular depth network on a single video. These methods involve time-consuming per-video optimization.
+Concurrent to our work, MonST3R~\cite{zhang2024monst3r} extends DUSt3R to predict pointmaps for dynamic scenes by finetuning it on dynamic datasets. However, it still follows DUSt3R's pairwise formulation and requires global alignment as post-processing. Another concurrent work, MegaSaM~\cite{li2024megasam}, achieves highly accurate and robust estimation of camera poses and scene structure for casually captured dynamic videos. Unlike our approach, MegaSaM is optimization-based (\textit{i.e.}, not feedforward), uses an explicit 3D state and does not make online predictions. 
+
+
+
+\vspace{0.5em}\noindent\textbf{3D Scene Priors.} 
+Predicting 3D content beyond observed views has long been studied, but it has recently gained significant attention due to advancements in generative modeling. Regression-based few-shot novel view synthesis approaches~\cite{sitzmann2019scene,yu2021pixelnerf,sitzmann2021light,lai2021video} typically only generalize across a class of 3D scenes. With rapid advances in image and video generative models~\cite{rombach2022high,ramesh2021zero,saharia2022photorealistic}, much of the current research in 3D generation focuses on transferring priors from images and videos to 3D~\cite{liu2023zero1to3, melaskyriazi2023realfusion, wu2024reconfusion, poole2022dreamfusion}.
+However, most image-based 3D generation methods require camera parameters as input, focus on limited data domains (\textit{e.g.}, object-centric), or require additional 3D distillation processes to extract 3D content. In contrast to these view-centric approaches that generate novel views as a proxy for 3D, our method is geometry-centric:
+It directly generates metric-scale pointmaps for a virtual camera query in a scene reconstructed from a set of images, without requiring their camera intrinsics or poses.
+
+
+
+  
+
+
+
+
+
+

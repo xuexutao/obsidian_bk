@@ -1,0 +1,48 @@
+\section{Introduction}%
+\label{sec:intro}
+
+We consider the problem of generating long videos that explore an imagined space following a camera path specified interactively by the user.
+In this paradigm, the user tells the model which camera path to follow for the next few frames, observes the generated content, and then decides where to explore next based on what they have seen.
+For example, exploring a house may involve visiting the kitchen, the living room, and the bathroom, eventually returning to the kitchen.
+Throughout the video, the scene must remain consistent, ensuring that the kitchen looks the same upon return.
+Generating such videos is essential for immersive applications such as games, where players can navigate generated worlds.
+However, even recent large-scale interactive video generators such as Google's Genie~2~\cite{parker-holder24genie} struggle to achieve this goal.
+
+This problem has so far been addressed by two types of methods.
+First, \emph{outpainting-based} methods~\cite{wiles2020synsin, SceneScape, hoellein2023text2room, muller2024multidiff, popov24camctrl3d, yu2024viewcrafter, seo2024genwarp, koh2023simple, liu2021infinite, rockwell2021pixelsynth} iterate between generating new 2D views of the scene and estimating its 3D geometry.
+They use the estimated geometry to partially render a new viewpoint and then employ an outpainting model to complete the missing parts, thus adding one more image to the collection.
+However, errors in outpainting, 3D reconstruction, and stitching accumulate over time, leading to severe degradation of the generated content after a short while.
+
+Second, \emph{multi-view/video-based} methods~\cite{geogpt, photometricnvs, ren2022look, wang2024motionctrl, parker-holder24genie} condition novel view generation on previous views using a geometry-free approach that does not explicitly estimate the scene geometry.
+While this avoids the accumulation of errors in the reconstructed 3D scene geometry, it comes at a high computational cost, limiting the number of conditioning views to a small context window of recent frames.
+This constraint hurts the long-term consistency of the generated images.
+
+\input{figures/method}
+
+In this work, we revisit the second class of methods and propose conditioning not on the most recently generated views, but on the \emph{most relevant ones} for generating the next image, thereby maintaining a high degree of consistency within a limited computational budget.
+Given a novel viewpoint of the scene, the most relevant past views are those that have already observed the parts of the scene currently being generated.
+This implies that, for each part of the scene, we must remember which views have previously observed it and retrieve them from memory.
+
+To achieve this, we introduce \textit{\mnamel}, abbreviated as \textit{\mname}, a memory module that anchors previous views to the 3D surface elements they observe.
+Given a new viewpoint, we retrieve the past views that best capture the currently observed surfaces and use them to condition novel view generation.
+To create the memory, we estimate the geometry of each new view using an off-the-shelf point map predictor.
+This is similar to outpainting methods but, crucially, we do not use the estimated geometry as the final representation of the scene;
+instead, we use it to construct \mname{}, which is a memory of past views.
+We represent the scene geometry using surfels, which are more robust compared to meshes and can represent occlusions compared to point clouds.
+Each surfel stores in its attributes a set of indices corresponding to past viewpoints that observed it.
+
+To retrieve relevant past viewpoints, we render the surfels with their attributes from the novel viewpoint and splat them onto an image grid.
+Each pixel in the resulting image then corresponds to a set of viewpoint indices.
+We select the top $K$ most frequently represented viewpoint indices and use them to retrieve past views from the database, where each view is represented by an RGB image and its corresponding camera parameters.
+A key advantage of our approach over outpainting-based methods is that it does not require highly accurate scene geometry.
+As long as we successfully retrieve the most relevant past views, our method remains robust.
+
+By leveraging \textit{\mnamel}, we significantly reduce the memory and computational burden of conditioning on a large number of previous views, as required by multi-view/video-based methods, while improving long-term consistency across generated novel views.
+
+Our approach represents a step toward scalable, realistic, and long-term autoregressive scene generation, making the following contributions:
+\begin{enumerate}
+    \item We introduce \mnamel, a \textit{plug-and-play} module to index past views geometrically and use them to condition novel view generation.
+    \item We show that our method can generate long-term coherent videos of scenes and outperforms existing approaches.
+    \item We demonstrate that \mnamel~achieves comparable performance with $4\times$ fewer context views, delivering a $12\times$ speedup.
+    \item We validate our approach on challenging benchmarks, outperforming the current open-source state-of-the-art methods.
+\end{enumerate}

@@ -1,0 +1,38 @@
+\begin{table*}[t]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.}
+\renewcommand{\tabcolsep}{2.5pt}
+\resizebox{0.9\textwidth}{!}{
+\begin{tabular}{@{}clccccc|ccc|ccc@{}}
+\toprule
+& & & & \multicolumn{3}{c}{\textbf{Sintel}} & \multicolumn{3}{c}{\textbf{TUM-dynamics}} & \multicolumn{3}{c}{\textbf{ScanNet}} \\ 
+\cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
+{} & {\textbf{Method}}  &  \textbf{Optim.} & \textbf{Onl.} & {ATE $\downarrow$} & {RPE trans $\downarrow$} & {RPE rot $\downarrow$} & {ATE $\downarrow$} & {RPE trans $\downarrow$} & {RPE rot $\downarrow$} & {ATE $\downarrow$} & {RPE trans $\downarrow$} & {RPE rot $\downarrow$} \\ 
+\midrule
+& Particle-SfM~\cite{zhao2022particlesfm} & \checkmark & & \underline{0.129} & {0.031} & \bf{0.535} & - & - & - & 0.136 & 0.023 & 0.836 \\ 
+& Robust-CVD~\cite{robustcvd} & \checkmark & & 0.360 & 0.154 & 3.443 & 0.153 & 0.026 & 3.528 & 0.227 & 0.064 & 7.374 \\ 
+ & CasualSAM~\cite{casualsam} & \checkmark & & 0.141 & \textbf{0.035} & \underline{0.615} & \underline{0.071} & \textbf{0.010} & 1.712 & 0.158 & 0.034 & 1.618 \\ 
+ & DUSt3R-GA~\cite{wang2024dust3r} & \checkmark & & 0.417 & 0.250 & 5.796 & 0.083 & 0.017 & 3.567 & {0.081} & 0.028 & 0.784 \\  
+{ }& MASt3R-GA~\cite{leroy2024mast3r} & \checkmark & & {{0.185}} & {0.060} & {1.496} & {\bf{0.038}} & {\underline{0.012}} & {\bf{0.448}} & {\underline{0.078}} & {\underline{0.020}} & {\bf {0.475}} \\ 
+& MonST3R-GA~\cite{zhang2024monst3r}  & \checkmark & & \bf {{0.111}} & \underline{0.044} & {0.869} & {{0.098}} & {{0.019}} & {\underline{0.935}} & {\bf{0.077}} & {\bf{0.018}} & {\underline{0.529}} \\ 
+\midrule
+&  \duster{}~\cite{wang2024dust3r} & &\checkmark  & {\underline{0.290}} & {0.132} & {7.869} & {{0.140}} & {{0.106}} & {{3.286}} & {{0.246}} & {{0.108}} & {{8.210}} \\ 
+
+& Spann3R~\cite{spann3r} & &\checkmark  & {{0.329}} & \underline{0.110} & \underline{4.471} & {\underline{0.056}} & {\underline{0.021}} & {\underline{0.591}} & {\bf{0.096}} & {\underline{0.023}} & {\underline{0.661}} \\ 
+
+& Ours &  & \checkmark & \bf 0.213 & \bf 0.066 & \bf 0.621 & \textbf{0.046} & \bf 0.015 & \bf 0.473 & \underline{0.099} & \textbf{0.022} & \textbf{0.600}\\ 
+\bottomrule
+\end{tabular}
+}
+\vspace{-.1in}
+\caption{\textbf{Evaluation on Camera Pose Estimation} on Sintel~\cite{sintel}, TUM-dynamic~\cite{tum-dynamics}, and ScanNet~\cite{dai2017scannet} datasets.
+Our method achieves the best overall performance among all online methods.
+}
+\label{tab:video_pose}
+\end{table*}
+
+
+
+
+

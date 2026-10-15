@@ -1,0 +1,138 @@
+% \documentclass[acmtog,anonymous,review, nonacm]{acmart}
+% \documentclass[acmtog, nonacm]{acmart}
+\documentclass[acmtog, authorversion, nonacm]{acmart}
+
+% \acmSubmissionID{1132}
+
+\usepackage{booktabs} % For formal tables
+
+% TOG prefers author-name bib system with square brackets
+\citestyle{acmauthoryear}
+%\setcitestyle{nosort,square} % nosort to allow for manual chronological ordering
+
+
+
+% \usepackage[ruled]{algorithm2e} % For algorithms
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\renewcommand{\algorithmcfname}{ALGORITHM}
+\SetAlFnt{\small}
+\SetAlCapFnt{\small}
+\SetAlCapNameFnt{\small}
+\SetAlCapHSkip{0pt}
+
+% Metadata Information
+\acmJournal{TOG}
+%\acmVolume{38}
+%\acmNumber{4}
+%\acmArticle{39}
+%\acmYear{2019}
+%\acmMonth{7}
+
+% Copyright
+%\setcopyright{acmcopyright}
+%\setcopyright{acmlicensed}
+%\setcopyright{rightsretained}
+%\setcopyright{usgov}
+%\setcopyright{usgovmixed}
+%\setcopyright{cagov}
+%\setcopyright{cagovmixed}
+\setcopyright{none}
+
+% DOI
+%\acmDOI{0000001.0000001_2}
+
+% Paper history
+%\received{February 2007}
+%\received{March 2009}
+%\received[final version]{June 2009}
+%\received[accepted]{July 2009}
+\newcommand{\xihui}[1]{\textcolor{red}{Xihui: #1}}
+
+\makeatletter
+\renewcommand\footnotetextauthorsaddresses[1]{}
+\renewcommand\@copyrightpermission{}
+\renewcommand\@formatdoi[1]{}
+\makeatother
+
+% Document starts
+\begin{document}
+% Title portion
+\title{Context as Memory: Scene-Consistent Interactive Long Video Generation with Memory Retrieval}
+
+\author{Jiwen Yu}
+\authornote{Work done during an
+internship at Kling Team, Kuaishou Technology}
+\email{yujiwen.hk@connect.hku.hk}
+\affiliation{
+  \institution{The University of Hong Kong}
+  \country{China}
+}
+
+\author{Jianhong Bai}
+\authornotemark[1]
+\email{cpurgicn@gmail.com}
+\affiliation{
+  \institution{Zhejiang University}
+  \country{China}
+}
+
+\author{Yiran Qin}
+\email{yiranqin@link.cuhk.edu.cn}
+\affiliation{
+  \institution{The University of Hong Kong}
+  \country{China}
+}
+
+\author{Quande Liu}
+\authornote{Corresponding authors}
+\email{qdliu0226@gmail.com}
+\author{Xintao Wang}
+\email{xintao.wang@outlook.com}
+\author{Pengfei Wan}
+\email{wanpengfei@kuaishou.com}
+\author{Di Zhang}
+\email{zhangdi08@kuaishou.com}
+\affiliation{
+  \institution{Kling Team, Kuaishou Technology}
+  \country{China}
+}
+
+\author{Xihui Liu}
+\authornotemark[2]
+\email{xihuiliu@eee.hku.hk}
+\affiliation{
+  \institution{The University of Hong Kong}
+  \country{China}
+}
+
+
+
+
+\settopmatter{printacmref=false}
+
+\input{sections/00_abstract}
+
+
+\input{fig_tab_texs/teaser}
+
+\maketitle
+\input{commands}
+\input{sections/00_intro}
+\input{sections/01_related_work}
+\input{sections/02_method}
+\input{sections/03_experiment}
+\input{sections/04_conclusion}
+
+
+% Bibliography
+% \clearpage
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-bibliography}
+
+% Appendix
+% \clearpage
+\appendix
+\input{sections/06_appendix}
+
+
+\end{document}

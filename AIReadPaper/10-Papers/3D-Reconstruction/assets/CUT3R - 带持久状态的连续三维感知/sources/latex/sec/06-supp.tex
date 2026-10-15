@@ -1,0 +1,61 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Training Datasets}
+We trained our model on 32 datasets that covers a diverse range of scene types, including static and dynamic environments, as well as indoor, outdoor, and object-centric scenarios. A complete list of these datasets is provided in Tab.~\ref{tab:dataset_info}. 
+
+\input{tabs/datasets}
+
+The original MapFree~\cite{arnold2022mapfree} and DL3DV~\cite{ling2024dl3dv} datasets do not include dense depth maps. We performed multi-view stereo~(MVS) reconstruction~\cite{schoenberger2016sfm} using the provided camera parameters to generate dense depth maps. This results in complete annotations for these datasets for training. RealEstate10K~\cite{realestate10k}, CoP3D~\cite{sinha2023cop3d}, and MVImgNet~\cite{yu2023mvimgnet} also do not provide dense depth maps. For these three datasets, we only use the provided camera parameters to supervise the camera prediction. For RealEstate10K, we only include a subset of 2325 training scenes for training.
+
+EDEN~\cite{le2021eden}, IRS~\cite{wang2021irs}, Synscapes~\cite{wrenninge2018synscapes}, SmartPortraits~\cite{kornilova2022smartportraits}, and HOI4D~\cite{liu2022hoi4d} are treated as single views. To train on single-view datasets with a specified context length, we construct sequences by stacking independent views to the desired context length, and importantly always reset the state to $\bm{s}_0$ after each view. This allows us to jointly train using both multi-view and single-view data within the same batch. Although both EDEN~\cite{le2021eden} and SmartPortraits~\cite{kornilova2022smartportraits} provide camera poses,  EDEN~\cite{le2021eden} lacks clear documentation of camera conventions, and SmartPortraits~\cite{kornilova2022smartportraits} offers camera poses that are not synchronized with RGBD frames. Therefore, we treat both as single-view datasets.
+
+For PointOdyssey~\cite{zheng2023pointodyssey}, we filter scenes with incorrect depth annotations~(mostly scenes with fogs, like \texttt{cab\_h\_bench\_ego2})
+ and scenes with unrealistic motion and material~(like \texttt{Ani}). For BEDLAM~\cite{black2023bedlam}, we remove scenes with panorama backgrounds. 
+
+\section{More Implementation Details}
+
+\paragraph{Sequence Sampling Details.}
+Our training dataset comprises a combination of video sequences and unordered photo collections. For video sequences, we subsample frames at intervals randomly selected between $1$ and $k$, where $k$ is set for each dataset based on its frame rate and camera motion. Within each sequence, either variable or fixed intervals are used, each accounting for approximately half of the samples.
+For photo collections, we use similar methods as in DUSt3R~\cite{wang2024dust3r} and compute the overlap ratios between images to guide the frame sampling. 
+Additionally, when the scene from a video is largely static, we shuffle the frames and treat them as a photo collection to increase data diversity. When the sequences contain major dynamic objects~(like sequences from  BEDLAM~\cite{black2023bedlam} and PointOdyssey~\cite{zheng2023pointodyssey} datasets), we only treat them as videos and feed frames into the model in temporal order using a fixed interval.
+
+
+When the data is metric scale, frames (excluding the first frame) in a sequence are randomly masked with a 20\% probability and replaced by their corresponding raymap inputs, using ground truth intrinsics and poses. Note that raymap mode is activated only when data are in metric scale, as our model learns metric-scale 3D scene priors. When the 3D annotation is at an unknown scale, raymap querying is disabled to avoid scale inconsistency with the scene content captured in the state.
+
+
+\input{tabs/video_depth_supp}
+\input{tabs/video_pose_supp}
+
+\vspace{0.5em}
+\noindent\textbf{More Architecture Details.} 
+Similar to DUSt3R~\cite{wang2024dust3r}, we reduce training costs by first training the model on $224\times224$ image resolution with linear heads, and then increasing the resolution and setting the longer side of the images to 512 pixels. Specifically, in the first two stages of training, $\headself$ and $\headcross$ are implemented as linear layers. In the final two stages, $\headself$ and $\headcross$ are switched to DPT~\cite{Ranftl2021} architecture. 
+Compared to $\headself$, $\headcross$ incorporates an additional modulation function, which modulates $\fts$ using the pose token $\zts$ within the Layer Normalization layers. This modulation design is inspired by LRM~\cite{hong2023lrm} and aims to integrate pose information to achieve implicit rigid transformations. Specifically, within $\headcross$, we first use two self-attention blocks modulated by the pose token $\zts$ to generate the pose-modulated tokens, which is then fed as input to either the linear or DPT architecture to generate the final pointmap output $\pmcross$. The dimension of $\zts$ is $768$, and $\headpose$ is a 2-layer MLP whose hidden size is $768$. We apply Rotary Positional Embedding~(ROPE)~\cite{su2024roformer} to the query and key feature before each attention operation.
+
+
+\paragraph{More Training Details.}
+In the first stage of training, we use the following datasets: ARKit, ARKit-HighRes, ScanNet, ScanNet++, TartanAir, Waymo, MapFree, BlendedMVS, HyperSim, MegaDepth, Unreal4K, DL3DV, CO3Dv2, WildRGBD, and VirtualKITTI2. In the second stage, we incorporate the rest of datasets. In the final stage (long context training), we exclude single-view datasets (EDEN, IRS, Synscapes, 3D Ken Burns, SmartPortraits, UrbanSyn, and HOI4D) and train only on multi-view datasets, as the goal of the final stage training is to enhance scene-level reasoning within a sequence. Unlike \duster{}, which applies color jittering to each image independently, we perform sequence-level color jittering by applying the same color jitter across all frames in a sequence.
+
+\section{More Comparisons}
+
+\paragraph{Video Depth Estimation.}
+We expand the video depth comparison in the main paper and compare with a wider range of baseline methods, including single-frame depth techniques (Marigold \cite{marigold} and Depth-Anything-V2 \cite{depth_anything_v2}), video depth approaches (NVDS \cite{NVDS}, ChronoDepth \cite{shao2024learning}, and DepthCrafter \cite{hu2024-DepthCrafter}), and joint depth-and-pose methods such as Robust-CVD \cite{robustcvd}, CasualSAM \cite{casualsam}, DUSt3R \cite{wang2024dust3r}, MASt3R \cite{leroy2024mast3r}, MonST3R \cite{zhang2024monst3r}, and Spann3R \cite{spann3r}. The results are shown in Tab.~\ref{tab:video_depth_supp}.
+
+\vspace{0.5em}
+\noindent\textbf{Camera Pose Estimation}
+Similar to video depth estimation, we include a diverse set of baselines for camera pose estimation. Learning-based visual odometry methods, such as DROID-SLAM \cite{teed2021droid}, DPVO \cite{teed2023deep}, and LEAP-VO \cite{chen2024leap}, require ground truth camera intrinsics as input. Optimization-based methods, including Particle-SfM \cite{zhao2022particlesfm}, Robust-CVD \cite{robustcvd}, CasualSAM \cite{casualsam}, DUSt3R-GA \cite{wang2024dust3r}, MASt3R-GA \cite{leroy2024mast3r}, and MonST3R-GA \cite{zhang2024monst3r}, generally operate more slowly compared to online methods like Spann3R \cite{spann3r} and our proposed approach. To assess performance in an online setting, we also evaluate DUSt3R without global alignment. The results are presented in Tab.~\ref{tab:video_pose_supp}.
+
+
+
+
+\end{document}

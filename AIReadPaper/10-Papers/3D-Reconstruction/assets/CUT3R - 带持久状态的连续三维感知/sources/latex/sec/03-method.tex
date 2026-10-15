@@ -1,0 +1,116 @@
+\section{Method}
+
+
+
+
+
+Our approach takes as input a stream of images  without any camera information. The image streams can come from either video or image collections. %
+As a new image comes in through the model, it interacts with the latent state representation, which encodes the understanding of the current 3D scene. 
+Specifically, the image simultaneously updates the state with new information and retrieves information stored in the state.
+Following the state-image interaction, explicit 3D pointmaps and camera poses are extracted for each view.
+The state can also be queried with a virtual view to predict its corresponding pointmap, capturing unseen parts of the scene. See Fig.~\ref{fig:overview} for our method overview.
+
+
+
+\subsection{State-Input Interaction Mechanism}
+\label{sec:state-img}
+
+Our method takes a stream of images as input. For each current image, $\It$, it is first encoded into token representation by a ViT encoder~\cite{dosovitskiy2020image}:
+
+\begin{equation}
+    \ft = \mathrm{Encoder}_i(\It).
+\end{equation}
+We represent the state also as a set of tokens. Prior to seeing any image input, the state tokens are initialized as a set of learnable tokens shared by all scenes. 
+The image tokens interact with the state in two ways: they update the state with information from the current image and read the context from the state, incorporating stored past information.
+We refer to these interactions as \textit{state-update} and \textit{state-readout}, respectively.
+This bidirectional interaction is implemented using two interconnected transformer decoders~\cite{wang2024dust3r,weinzaepfel2022croco}, which jointly operate on both image and state tokens:
+
+\begin{equation}
+    [\zts, \fts], \stcur  = \mathrm{Decoders}([\bm z, \ft], \stpre).
+    \label{eq:state-img}
+\end{equation}
+Here $\stpre$ and $\stcur$ represent the state tokens before and after interaction with the image tokens. $\fts$ denotes the image tokens enriched with state information. $\bm z$ is a learnable ``pose token'' prepended to the image tokens,  whose output $\zts$ captures image-level information related to the scene, such as ego motion. %
+Within the decoders, the outputs from both sides cross-attend to each other at each decoder block to ensure effective information transfer. 
+
+After this interaction, explicit 3D representation can be extracted from  
+$\fts$ and $\zts$. Specifically, we predict two pointmaps with corresponding confidence maps, $(\pmself, \confself)$ and $(\pmcross, \confcross)$. These maps are defined in two coordinate frames: the input image’s own coordinate frame and the world frame, respectively, where the world frame is defined as the coordinate frame of the initial image. Additionally, we
+predict the relative transformations between the two coordinate frames, or, the ego motion, $\pose$: 
+\begin{align}
+    \pmself, \confself &= \headself(\fts) \label{eq:head_self} \\
+    \pmcross, \confcross &= \headcross(\fts, \zts) \\
+    \pose &= \headpose(\zts),
+    \label{eq:head_pose}
+\end{align}
+where $\headself$ and $\headcross$ are implemented as DPT~\cite{Ranftl2021}, and  $\headpose$ is implemented as an MLP network, respectively. Please see the supplement for details. We extract 6-DoF pose $\pose$ from the pose token $\zts$, the rigid transformation from the current frame to the world. All pointmaps and poses are in metric scale~(i.e., meters).
+
+Although predicting $\pmself$, $\pmcross$, and $\pose$ may seem redundant, 
+we found this redundancy simplifies training.  It enables each output to receive direct supervision, and importantly,
+it facilitates training on datasets with partial annotations, such as those containing only pose or single-view depth, thereby broadening the range of usable data.
+
+
+\subsection{Querying the State with Unseen Views}
+
+
+
+Leveraging past 3D experiences, humans can envision parts of a scene beyond what is directly observed. We emulate this ability by extending the state-readout operation to predict unseen portions of the scene from a virtual camera view.
+Specifically, we use a virtual camera as a query to extract information from the state. The virtual camera's intrinsics and extrinsics are represented as a raymap 
+$\raymap$, a 6-channel image encoding the origin and direction of rays at each pixel~\cite{zhang2024raydiffusion, gao2024cat3d, wu2024cat4d}.
+
+
+Given a query raymap~$\raymap$, we first encode it into token representations $\fr$ using a separate transformer %
+$\mathrm{Encoder}_r$:
+\begin{equation}
+    \fr = \mathrm{Encoder}_r(\raymap).
+\end{equation}
+Then, the rest of the process aligns largely with what is described in Sec~\ref{sec:state-img}. Specifically, we have
+$\fr$ interact with the current state through the same decoder module (i.e., shared weights) as in Eq.~\ref{eq:state-img} to read from the state into 
+$\frs$. Note that, unlike in the state-image interaction, the state is not updated here, as the raymap serves solely as a query without introducing new scene content. 
+Finally, we apply the same head networks to parse 
+$\frs$ into explicit representations, as in Eq.~\ref{eq:head_self}-\ref{eq:head_pose}. Additionally, we introduce another head~$\headcolor$ to decode color information: $ \predrgb = \headcolor(\frs)$ which corresponds to the color of each ray in the raymap $\raymap$.
+
+Querying the scene with raymaps has an interesting analogy to Masked Autoencoders~(MAE)~\cite{he2022masked}. In MAE, completion occurs at the patch level, using the global context of the entire image. Here, completion is performed at the image level, leveraging the global context of the 3D scene captured in the state. %
+
+\subsection{Training Objective}
+During training, we provide the model with a sequence of $N$ images (either from a video sequence or an image collection). The raymap mode is enabled only for training data with metric-scale 3D annotations. In these cases, we randomly replace each image with its corresponding raymap at a certain probability, excluding the first view. When the scale of the 3D annotation is unknown, raymap querying is disabled to avoid inconsistencies between the annotation scale and the scene scale represented in the state.  For clarity, we do not differentiate between predictions generated from a raymap or an image in this section to simplify the notation. 
+We denote the pointmap predictions of the current training sequence as $\mathcal{X} = \{\pmselfset, \pmcrossset\}$, where
+$\pmselfset=\{\pmself\}_{t=1}^N$, $\pmcrossset=\{\pmcross\}_{t=1}^N$ and their corresponding confidence scores as $\mathcal{C}$.
+
+\vspace{-0.5em}
+\paragraph{3D regression loss.} Following MASt3R~\cite{leroy2024mast3r}, we apply a confidence-aware regression loss to the pointmaps:
+\begin{equation}
+\small
+    \mathcal{L}_\text{conf} = \sum_{(\hat{\bm x}, c)\in ( \mathcal{\hat{X}}, \mathcal{C})} \left(c\cdot \left\|\frac{\hat{\bm x}}{\hat s} - \frac{\bm x}{s}\right\|_2 - \alpha \log c\right), 
+    \vspace{-.5em}
+\end{equation}
+where $\hat{s}$ and $s$ are scale normalization factors for  $\mathcal{\hat{X}}$ and $\mathcal{X}$, respectively. Similar to MASt3R~\cite{leroy2024mast3r}, when the groundtruth pointmaps are metric, we set $\hat{s}:=s$ to enable the model to learn metric-scale pointmaps. 
+
+\noindent\textbf{Pose loss.} We parameterize the pose $\pose$ as quaternion $\hat{\bm q}_t$ and translation $\hat{\bm \tau}_t$, and minimize the L2 norm between the prediction and groundtruth:
+\begin{equation}
+\small
+    \mathcal{L}_\text{pose} = \sum_{t=1}^N
+    \left( \left\|\hat{\bm q}_t - \bm q_t\right\|_2 + \left\| \frac{\hat{\bm \tau}_t}{\hat{s}} - \frac{{\bm \tau}_t}{s} \right\|_2 \right).
+\end{equation}
+
+\noindent\textbf{RGB loss.} When the input is raymap, besides the 3D regression loss, we also apply an MSE loss to enforce the predicted pixel colors $\predrgb$ to match the groundtruth: $\mathcal{L}_{rgb} = ||\predrgb - \gtrgb||_2^2$.
+
+\subsection{Training Strategy}
+\noindent\textbf{Training Datasets.} We train our method on a diverse set of 32 datasets, covering synthetic and real-world data, static and dynamic scenes, scene-level and object-centric configurations, as well as both indoor and outdoor scenes. Examples of our datasets include CO3Dv2~\cite{reizenstein21co3d}, ARKitScenes~\cite{dehghan2021arkitscenes}, ScanNet++~\cite{yeshwanth2023scannet++}, TartanAir~\cite{tartanair2020iros}, Waymo~\cite{Sun_2020_CVPR}, MegaDepth~\cite{MDLi18}, MapFree~\cite{arnold2022mapfree},
+DL3DV~\cite{ling2024dl3dv}, and DynamicStereo~\cite{karaev2023dynamicstereo}. Our flexible formulation allows training on datasets with partial annotations~(\ie only camera parameters like RealEstate10K~\cite{realestate10k}, or only single views, like Synscapes~\cite{wrenninge2018synscapes}). See the supplement for the full list. %
+
+
+\vspace{.5em}\noindent\textbf{Curriculum Training.}
+Our model is trained with a curriculum. The first stage trains the model on 4-view sequences from mainly static datasets.
+The second stage incorporates dynamic scene datasets, improving the model's ability to handle moving objects such as humans, along with  datasets with partial annotations, further enhancing its generalization. 
+These two stages are trained on 
+224$\times$224 images to reduce computational costs, following \duster{}~\cite{wang2024dust3r}.
+In the third stage, we train with higher resolution, using varied aspect ratios and setting the maximum side to 512 pixels.
+Finally, we freeze the encoder, training only the decoder and heads on longer sequences spanning 4 to 64 views. This stage focuses on enhancing inter-scene reasoning and effectively handling long contexts. %
+
+
+
+\vspace{.5em}\noindent\textbf{Implementation Detail.}
+We use a ViT-Large model~\cite{dosovitskiy2020image} for the image encoder $\mathrm{Encoder}_i$, initialized with \duster{} encoder pretrained weights, and ViT-Base for the decoders. Both the encoder and decoders operate on 16$\times$16 pixel patches. The state consists of 768 tokens, each with a dimensionality of 768. The raymap encoder~ $\mathrm{Encoder}_r$ is a lightweight encoder with 2 blocks. 
+We use Adam-W optimizer~\cite{loshchilov2017decoupled} with an initial learning rate of $1e^{-4}$, applying linear warmup followed by cosine decay. We train our model on eight A100 NVIDIA GPUs each with 80G memory. 
+Please refer to the supplement for more details.
+
+

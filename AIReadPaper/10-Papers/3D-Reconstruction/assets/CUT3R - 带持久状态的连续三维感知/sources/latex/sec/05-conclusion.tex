@@ -1,0 +1,10 @@
+\section{Conclusion}
+In this paper, we propose an online 3D perception model with a continuously updating, persistent state. Given an image stream, our model simultaneously performs state-update (which updates the state) and state-readout (which retrieves information from the state) for each observation. The output at each step includes camera parameters and pointmaps in the world frame, which accumulate into a dense reconstruction of the scene over time. This simple formulation is general yet powerful enough to solve a number of 3D/4D tasks, handling both videos and photo collections, and processing both static and dynamic scenes. 
+The generalized 3D scene priors captured by our method enable the inference of new structures unobserved in the input views by probing the state with a raymap. Experimental results on extensive 3D/4D tasks verify the effectiveness of our method.
+
+\vspace{-1em}
+\paragraph{Limitations.} 
+As with many online methods, our approach may eventually drift over very long sequences due to the absence of global alignment. Extending our work with explicit or implicit global alignment is an interesting future direction. Additionally, since our structure generation is performed via a deterministic rather than a generative approach, it can produce blurry results – especially when extrapolating viewpoints too far from the provided views  – a common issue with regression-based methods.  Incorporating a generative formulation could address this limitation. Finally, training recurrent networks can be time-consuming. We leave these fundamental directions for future work.
+
+\paragraph{Acknowledgements.} We would like to thank Noah Snavely, Haiwen Feng, Chung Min Kim,  Justin Kerr, Songwei Ge, Chenfeng Xu, Letian Fu, and Ren Wang for helpful discussions. We especially thank Noah Snavely for his guidance and support.
+This project is supported in part by DARPA No.~HR001123C0021, IARPA DOI/IBC No.~140D0423C0035, NSF:CNS-2235013, Bakar Fellows, ONR, MURI, TRI and BAIR Sponsors. The views and conclusions contained herein are those of the authors and do not represent the official policies or endorsements of these institutions.

@@ -1,0 +1,113 @@
+\section{Method}
+\label{sec:method}
+
+Our framework includes mechanisms for storing new observations into memory and retrieving information from it. Drawing inspiration from three distinct forms of human memory—\textbf{\textit{spatial, working, and episodic}}—we introduce a memory storage mechanism that models each type using a dedicated representation. In the following section, we describe how each memory type is constructed and maintained (Sec.~\ref{sec:storage}), how it is integrated into the model as a conditional signal (Sec.~\ref{sec:mechanism}), and how we curate the appropriate data to facilitate efficient learning of these mechanisms (Sec.~\ref{sec:dataset}).
+
+\subsection{Preliminaries}
+Diffusion models~\cite{sohl2015deep,ho2020denoising,song2021score} learn to model a data distribution by reversing a forward diffusion process denoted by $x_t = \alpha_t x_0 + \sigma_t \epsilon$, where the positive scalar parameters $\alpha_t$ and $\sigma_t$ determine the signal-to-noise ratio based on a predefined noise schedule, and $\epsilon$ is drawn from a standard Gaussian distribution. The diffusion model then learns to predict the noise added through the following denoising objective:
+\begin{equation}
+    \mathcal{L}(\theta) = \mathbb{E}_{t, x_0, \epsilon}\left\|\epsilon_{\theta}(x_t, t) - \epsilon\right\|_2^2.
+    \label{eq:denoising_loss}
+\end{equation}
+
+Video diffusion models commonly operate in a latent space, following a two-stage process: first, input videos are encoded using a 3D variational autoencoder (VAE)~\cite{villegas2023phenaki,gupta2024photorealistic,videoworldsimulators2024}, and then a diffusion model is trained to model the resulting latent representations. Generation proceeds by sampling within the latent space and decoding the results back to pixel space. Our prototype implementation builds on CogVideoX~\cite{yang2024cogvideox}, which adopts this two-stage framework. Specifically, CogVideoX employs a diffusion transformer with 3D attention blocks to capture the distribution of the latent space. Our model improves upon this architecture with additional control signals for enabling long-term memory.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.\linewidth]{figures/pipeline.pdf}
+    \caption{\textbf{Overview of our system.} A latent video generation model, implemented by a diffusion transformer (DiT), is conditioned on three different memory mechanisms when autoregressively generating new frames. First, recent context frames model a \textit{short-term working memory}. Second, a point cloud representation (left) is autoregressively generated along with the video frames. This \textit{long-term spatial memory} contains the static parts of the world. Third, a set of historical reference frames (lower left) is stored as a \textit{sparse, long-term episodic memory}. Together, these memory mechanisms enable consistent long-term video generation.}
+    \label{fig:method}
+    \vspace{-10pt}
+\end{figure}
+
+\subsection{Spatial Memory Storage}
+\label{sec:storage}
+
+\paragraph{Coherent Static Structure for Spatial Guidance.}
+Human \textbf{\textit{spatial memory}} refers to our ability to encode, store, and retrieve information relating to the physical layout and structure of our environment. To this end, we construct a persistent spatial memory in the form of a long-term static point map that captures high-confidence, temporally consistent 3D structures. To further separate static elements like buildings from dynamic elements like characters and animals, we adopt truncated signed distance function (TSDF) fusion~\cite{zeng20163dmatch}. We denote the TSDF value and associated weight of a voxel $v$ as $D(v)$ and $W(v)$, respectively. Given a new observation from frame $i$, the voxel update rule follows the standard weighted averaging:
+%
+\begin{equation}
+D'(v) = \frac{W(v) \cdot D(v) + w_i \cdot d_i(v)}{W(v) + w_i}, \quad
+W'(v) = W(v) + w_i,
+\end{equation}
+where $d_i(v)$ is the truncated signed distance between voxel $v$ and the observed surface in frame $i$, and $w_i$ is a frame-dependent confidence weight (typically set to 1).
+
+This fusion process inherently filters out dynamic elements in the scene: due to inconsistent depth observations across frames, such voxels accumulate low-confidence, noisy TSDF values and are naturally suppressed in the final fused volume.
+
+During the autoregressive generation process, spatial memory is incrementally updated with newly observed static maps, which are reconstructed in an online recurrent manner by CUT3R~\cite{wang2025cut3r} and filtered by TSDF-Fusion to eliminate the dynamic parts.
+
+\paragraph{Recent Frames for Dynamic Context Guidance.}
+In humans, \textbf{\textit{working memory}} is in charge of temporarily holding information needed for performing reasoning and comprehension tasks. Similarly, our model requires knowledge of nearby previous frames to generate temporally coherent future frames. 
+Drawing on this concept, we incorporate a short-term memory stream based on recent frames, which provides motion continuity atop the static scene structure. We adopt a simple autoregressive generation strategy, where the model generates $N - k$ future frames by conditioning each step on the most recent $k + 1$ latent frames. This procedure can be iteratively applied, enabling open-ended video generation with consistent temporal dynamics.
+
+\paragraph{Representative Historical Slots to Enhance Details.}
+Human \textbf{\textit{episodic memory}} is a type of explicit memory that stores specific important events from the past, allowing us to ``recall'' the relevant experiences when needed. 
+While the fused static point cloud captures stable scene geometry, the fused static point cloud is often too sparse to preserve detailed visual cues from the past. To compensate for this, we maintain a set of representative historical frames as auxiliary references. Specifically, during generation, we monitor the size of newly revealed unknown regions via mask-based visibility checks. When the revealed area exceeds a predefined threshold, the corresponding frame is selected and added to the memory set in an incremental fashion.
+% At inference time, the reference views are selected via a greedy matching strategy~\cite{xiao2025worldmem} that computes similarity between frame pairs based on their FOV.
+
+
+\subsection{Memory-guided Video Generation}
+\label{sec:mechanism}
+
+% \paragraph{Memory guided Generation.}
+% Overall, our video generation model is guided by three memory components: 
+% 1) Static point cloud rendered along the target trajectory provides the structural information
+% recent frames
+% 2) 
+
+% GW: don't use paragraph titles if you only have one paragraph in a subsection
+%\paragraph{Video Generative Model Architecture.}
+
+Different from those video generation models that focus on camera control under the same temporal sequences~\cite{yu2025trajectorycrafter, bai2025syncammaster, bai2025recammaster, yu2024viewcrafter, gu2025das}, we mainly focus on the temporal progression. For example, for a car driving on the road, when the camera moves to the left, the car should complete reasonable dynamic motion in accordance with the hints of the camera language and the input prompt, while maintaining the consistency of the static part to achieve the simulation of the interactive world model. Based on this requirement, we carefully design several key modules to achieve dynamic and static decoupling.
+
+As illustrated in Figure~\ref{fig:method}, first, we introduce static point cloud rendering as an additional conditioning input to our video diffusion model. The condition video is rendered from the current static spatial memory along the input trajectory, with background regions lacking point clouds set to black. We then utilize the pre-trained 3DVAE~\cite{yang2024cogvideox} to encode the static point cloud rendering into condition latents. We follow a similar design as the ControlNET~\cite{zhang2023controlnet} to add the static point clouds rendering to guide the camera movement and keep the static areas consistency. We copy the first 18 pre-trained DiT blocks from CogVideoX as the condition DiT to process the condition latents. In the condition DiT, we process the output feature from each main DiT block through a zero-initialized linear layer before adding it to the corresponding feature map in the main DiT.
+Second, to support the generation of new dynamic elements and the temporal extension of existing ones, we propose to concatenate the last five frames of source video tokens with the target video tokens along the frame dimension for dynamic context guidance. In addition, the target condition tokens are also combined with recent context tokens as mentioned above to ensure frame-level correspondence. 
+Third, for modeling information exchange between memory frames and the frames currently being generated, we select the representative historical slots frames as auxiliary reference frames. This reference frames are also encoded by 3DVAE and patchify them as reference tokens. we add a historical cross attention to guide information exchange between the frames currently being generated and memory frames. Specifically, the video tokens act as queries and the reference tokens serve as keys and values.
+
+% 
+
+
+
+% We build an action- and point cloud-conditioned video generator that retrieves relevant content from the memory.
+% The model synthesizes video conditioned on current actions and localized memory content. This involves repurposing the TrajectoryCrafter architecture, while adapting it to our data distribution and specific captioning or control formats. To guide video generation with memory content, we utilize cross-modal condition fusion mechanisms. The key difference is that our model is not 
+
+% Instead of explicit point rendering or ControlNet-style conditioning, we explore cross-attention mechanisms that allow the model to dynamically retrieve and attend to memory-relevant spatial or semantic features.
+
+
+\subsection{Geometry-grounded Video Dataset Creation}
+\label{sec:dataset}
+
+To train and evaluate our geometry-grounded video generation model, we require a custom dataset as shown in Figure~\ref{fig:dataset} which is described in the following.
+
+%We aim to generate future video frames conditioned on existing spatial memory, in contrast to prior works on dynamic novel view synthesis, where the new camera trajectory observes the scene at the current time step. This task requires completing static environments while synthesizing new, coherent, and contextually consistent dynamic content. It goes beyond a standard inpainting problem and is not supported by existing datasets, motivating the construction of a new dataset.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.\linewidth]{figures/dataset.pdf}
+    \caption{\textbf{Dataset construction pipeline.}
+    We use Mega-SaM~\cite{li2024megasam} to extract camera poses and dynamic point maps from the full video clip. For the source part, \textit{dynamic regions are erased} via TSDF-Fusion, and the point cloud is rendered along the target trajectory to to serve as static geometry guidance for the target part. Qwen~\cite{yang2024qwen2} generates annotations for actions in future target frames.
+    }
+    % \vspace{-10pt}
+    \label{fig:dataset}
+\end{figure}
+
+\paragraph{Dataset Construction.}
+We build our dataset from raw videos collected from MiraData~\cite{ju2024miradata}, segmenting each video into multiple 97-frame clips. For each clip, the first 49 frames serve as the source sequence and the remaining 48 as the target, with a shared transition frame to preserve temporal continuity. To recover scene geometry, we perform 4D reconstruction using Mega-SaM~\cite{li2024megasam}, extracting camera intrinsics, extrinsics, and per-frame depth maps. We apply TSDF-Fusion to the source frames, integrating RGB-D observations into a volumetric grid. This process suppresses inconsistent depth caused by dynamic objects, yielding a clean reconstruction of the static scene.
+
+% I'm not sure what this is supposed to be
+%Compared with 
+
+\paragraph{Paired Training Data.}
+Given the fused geometry, we project the target camera poses to render visibility masks and static-region reconstructions via point-based rendering. The full RGB frames of the target sequence are retained as future supervision, containing dynamic elements beyond the static scene memory. Our final dataset comprises 90K structured video samples, each paired with explicit 3D spatial memory and future observations.
+
+Additional details on memory storage and retrieval mechanisms as well as dataset creation are found in the supplement.
+
+
+% \paragraph{Video Data Filtering and Clipping.}
+% We construct our dataset from 9K videos (~100 seconds each, 30 FPS) collected from MiraData~\cite{ju2024miradata}. Each video is segmented into multiple 97-frame clips. For each clip, the first 49 frames are treated as the source sequence, and the remaining 48 frames as the target. The transition frame between the two halves is shared to ensure temporal continuity.
+
+% \paragraph{Camera Pose and Geometry Extraction.}
+% To recover scene geometry, we perform 4D reconstruction using MegaSAM~\cite{li2024megasam}, obtaining camera intrinsics, extrinsics, and per-frame depth maps. We apply TSDF-fusion to the source sequence (first 49 frames), integrating the RGB-D observations into a volumetric grid. The fusion process naturally filters out inconsistent depth observations caused by moving objects, effectively isolating static components of the scene.
+
+% \paragraph{Data Pair Construction.}
+% On top of the fused geometry, we project the remaining target camera poses to render visibility masks and historical reconstructions of static regions using point-based rendering. The full RGB frames of the target sequence are retained as future ground-truth. In total, our dataset contains 90K structured video samples, each paired with explicit 3D memory representations.

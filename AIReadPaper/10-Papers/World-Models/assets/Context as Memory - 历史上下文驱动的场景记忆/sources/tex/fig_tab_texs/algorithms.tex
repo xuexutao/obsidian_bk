@@ -1,0 +1,30 @@
+\begin{algorithm}[t]
+\caption{Training Process of \textbf{Context-as-Memory}}
+\label{alg:training}
+\KwIn{Video sequence $\mathcal{X}$ and camera annotations $\mathcal{C}$ in training dataset, context size $k$}
+
+\While{not converged}{
+    Randomly select predicted video sequence $\mathbf{x}_0$ from $\mathcal{X}$\;
+    Retrieve $k$ frames as context $\mathbf{x}^{c}$\;
+    Obtain camera poses $\{\mathbf{cam}_0, \mathbf{cam}^c\}$ for $\{\mathbf{x}_0, \mathbf{x}^c\}$ from $\mathcal{C}$\;
+    Obtain latent embeddings $\{\mathbf{z}_0, \mathbf{z}^c\} \gets \text{Encoder}(\{\mathbf{x}_0, \mathbf{x}^c\})$\;
+    Sample $t \sim U(1, T)$ and $\epsilon \sim \mathcal{N}(0, \mathbf{I})$, then corrupt $\mathbf{z}_0$ to $\mathbf{z}_t$\;
+    Train $p(\mathbf{z}_{t-1} \mid \mathbf{z}_t, \mathbf{z}^c, \mathbf{cam}_0, \mathbf{cam}^c, t)$ using diffusion loss\;
+}
+\end{algorithm}
+
+
+\begin{algorithm}[t]
+\caption{Inference Process of \textbf{Context-as-Memory}} \label{alg:inference}
+\KwIn{Initial frame set $\mathcal{X} = \{\mathbf{x}_\text{init}\}$ and camera poses $\mathcal{C} = \{\mathbf{cam}_\text{init}\}$}
+\KwOut{Generated video sequence $\mathcal{X}$}
+
+\While{generation not finished}{
+    User provides next target camera pose $\mathbf{cam}^t$\;
+    Retrieve context frames $\mathbf{x}^c \subset \mathcal{X}$ and $\mathbf{cam}^c \subset \mathcal{C}$ by checking FOV overlap with $\mathbf{cam}^t$\;
+    Compute context latent $\mathbf{z}^c \gets \text{Encoder}(\mathbf{x}^c)$\;
+    Sample noise $\epsilon \sim \mathcal{N}(0, \mathbf{I})$ and infer latent $\mathbf{z}^t \sim p(\mathbf{z}^t \mid \epsilon, \mathbf{z}^c, \mathbf{cam}^t, \mathbf{cam}^c)$\;
+    Decode generated frames $\mathbf{x}^t \gets \text{Decoder}(\mathbf{z}^t)$\;
+    Append $\mathbf{x}^t$ to $\mathcal{X}$ and $\mathbf{cam}^t$ to $\mathcal{C}$\;
+}
+\end{algorithm}

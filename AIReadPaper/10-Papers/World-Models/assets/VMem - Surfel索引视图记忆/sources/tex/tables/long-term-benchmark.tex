@@ -1,0 +1,75 @@
+\begin{table*}[t]
+\centering
+\small
+\renewcommand{\arraystretch}{1.1}
+\scalebox{0.85}{
+\begin{tabular}{lcccccc|cccccc}
+\toprule
+\multicolumn{1}{c}{} &
+\multicolumn{6}{c}{\textbf{Short-term} ($50^{th}\text{frame}$)} &
+\multicolumn{6}{c}{\textbf{Long-term} ($\geq 200^{th}\text{frame}$)}\\
+\cmidrule(lr){2-7}\cmidrule(lr){8-13}
+\multicolumn{1}{c}{} &
+\textbf{LPIPS} $\downarrow$ &
+\textbf{PSNR} $\uparrow$ &
+\textbf{SSIM} $\uparrow$ &
+\textbf{FID} $\downarrow$ &
+$R_{\text{dist}}$ $\downarrow$ &
+$T_{\text{dist}}$ $\downarrow$ &
+\textbf{LPIPS} $\downarrow$ &
+\textbf{PSNR} $\uparrow$ &
+\textbf{SSIM} $\uparrow$ &
+\textbf{FID} $\downarrow$ &
+$R_{\text{dist}}$ $\downarrow$ &
+$T_{\text{dist}}$ $\downarrow$ \\
+\midrule
+   GeoGPT~\cite{geogpt}
+    & 0.444 & 13.35  & --- & 26.72 & ---&---
+    & 0.674 & 9.54  & --- & 41.87 & ---& ---\\
+   Lookout~\cite{ren2022look}
+    & 0.378 & 14.43  & --- &28.86  & 1.241& 0.876
+    & 0.658 & 10.51  & --- &  58.12& 1.142&0.924\\
+   PhotoNVS~\cite{photometricnvs}
+    &  0.333& 15.51  & ---&21.76  & ---& ---
+    & 0.588 &  11.54 & --- & 41.95 &--- &--- \\
+
+
+   GenWarp~\cite{seo2024genwarp}
+    & 0.436 &12.03   & 0.144& 29.69 & 0.564& 0.059 
+    & 0.613 & 9.56  & 0.085 &  36.40& 0.850& \textbf{0.251} \\
+   MotionCtrl~\cite{wang2024motionctrl}
+    & 0.424  & 12.00   & 0.148 & 19.25 & 0.341 & 0.356
+    & 0.605 & 9.13  & 0.083 & 35.45 & \textbf{0.748} & 0.609\\
+
+   ViewCrafter~\cite{yu2024viewcrafter}
+    & 0.377  & 16.97  & 0.262 & 25.39 &1.562 &0.208
+    &  0.592 & 9.74  & 0.148 &  34.12& 2.177& 0.827\\
+
+
+    SEVA~\cite{seva} ($K=17$)
+    &  0.293 & 18.33  & 0.382  & 17.29 & 0.223& 0.118
+    & 0.455 & 13.98  & 0.216 & 23.82 & 1.125 & 0.742\\
+
+    \midrule
+
+    \mname~($K=4$)
+    & \textbf{0.287} & \textbf{18.49}  & \textbf{0.406} &\textbf{17.12}  & \textbf{0.219}& \textbf{0.039}
+    & 0.493 & 13.12 & 0.183 &  27.15& 0.811& 0.499 \\
+
+    \mname~($K=17$)
+    & 0.293& 18.33  & 0.382 & 17.29 &0.223 & 0.118
+    & \textbf{0.452}& \textbf{14.09} &  \textbf{0.227} & \textbf{23.56}  & 0.982 & 0.432 \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Single-view NVS on RealEstate10K.}
+Frames are subsampled with 10-frame intervals.
+$K$ denotes the number of context views.
+In the short-term setting, all past frames fit in the context windows for both SEVA~\cite{seva} and \mname; hence, SEVA~\cite{seva} and \mname~($K=17$) yield identical results since \mname~uses SEVA as the backbone.
+\mname~($K=4$) is fine-tuned on RealEstate10K for this setting, yielding better performance than SEVA~\cite{seva} and \mname~($K=17$) in short-term scenarios.
+\mname~surpasses baselines on most metrics in this benchmark. However, its \textbf{true advantage—spatial consistency—is not fully reflected} because RealEstate10K trajectories rarely revisit previously observed areas.
+We address this limitation in~\cref{exp:cycle}.
+}%
+\label{tab:long-term}
+\vspace{-1mm}
+\end{table*}

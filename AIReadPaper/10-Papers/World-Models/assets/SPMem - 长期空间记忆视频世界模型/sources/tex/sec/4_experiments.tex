@@ -1,0 +1,127 @@
+\section{Experiments}
+\label{sec:exp}
+
+\input{tables/main_metrics}
+
+\input{tables/vbench}
+
+% \input{tables/user_study}
+
+\paragraph{Implementation Details.}
+% \gw{Discuss training and inference separately. The sliding window inference approach needs to be clear here.}
+We implement our conditional video diffusion model based on CogVideoX-5B-I2V~\cite{yang2024cogvideox} architecture, pretrained from DaS~\cite{gu2025das}. During training, we set the video length to 49 frames with a resolution of $480 \times 720$. We trained for 6{,}000 iterations with a learning rate of $2 \times 10^{-5}$, using a mini-batch size of 8 and are conducted on eight NVIDIA-A100 GPUs.
+At inference time, we adopt the latest 5 historical frames from the recent sequence to enable smooth motion prediction. At each auto-regressive iteration, the point map of the newly generated frames are predicted, aligned, and fused into the historical global point clouds, where we create new point rendering sequence given the aimed camera trajectory. 
+
+
+\paragraph{Metrics and Baselines.}
+Our evaluations primarily focus on baseline methods that use point-map-based conditioning. This includes TrajctoryCrafter~\cite{yu2025trajectorycrafter}, DiffusionAsShader (DaS)~\cite{gu2025das}, and also the state-of-the-art video generative model Wan2.1~\cite{wan2025wan}.
+Our test set includes 500 randomly selected video sequences from MiraData, which are not seen during training.
+We evaluate each method on view recall consistency and general video quality on multiple dimensions. 
+Specifically, 
+1) For static spatial information, the view recall consistency is evaluated using image reconstruction metrics (i.e., PSNR, SSIM, and LPIPS) for paired frames at the same camera location within a video sequence generated with forward and reversed camera trajectory. 
+2) For general video quality evaluation, we use six metrics from Vbench~\cite{huang2024vbench} for the visual quality, motion smoothness, and consistency. 
+Moreover, we conduct a user study to further validate the criteria above.
+% Additional comparisons with camera-embedded video generative models and metrics in camera accuracy are provided in the supplementary material.
+
+% Ww We also include roation (RotErr) and translation (TransErr) errors to evaluate the camera accuracy; 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.\linewidth]{figures/qualitative.pdf}
+    \caption{
+    \textbf{Qualitative evaluation.} We compare our approach to relevant baselines in several conditions. Baselines cannot accurately generate significant camera pose changes while maintaining a consistent scene (top). When revisiting a previously seen camera pose, baselines fail to complete sparse point clouds or forget details, resulting in inconsistency (center). The accuracy of prompted actions is often low, and sometimes the character disappears during the generation for the baselines (bottom). Our approach successfully handles these challenging scenarios.
+    }
+    \vspace{-10pt}
+    \label{fig:qualitative}
+\end{figure}
+
+\subsection{Quantitative Evaluation}
+
+\paragraph{Evaluating View Recall Consistency and Camera Accuracy.}
+To verify that our method benefits from the spatial memory mechanism by maintaining high consistency and accurate camera control when revisiting previously generated parts of the world, we conduct experiments on reversed trajectories, where the same camera pose is visited twice, enabling the construction of paired data for reconstruction metrics.
+As shown in Table~\ref{tab:main_metrics}, our method achieves significantly improved scores in terms of PSNR, SSIM, and LPIPS compared to all baselines, owing to our memory mechanisms.
+It is worth noting, however, that even the PSNR of our method is far from perfect, indicating that remembering each and every visual detail of a complex scene is a very challenging task.
+
+\paragraph{Evaluation on Video Quality.}
+We further utilize VBench to evaluate general video quality across multiple dimensions, as shown in Table~\ref{tab:vbench}. Compared with baseline methods, our approach demonstrates better performance in aesthetic quality, reduced temporal flickering, smoother motion, and improved subject consistency. While Wan2.1 surpasses our method in imaging quality due to its advanced backbone, and also achieves a higher score in background consistency, we note that the Wan2.1 inpainting model often fails to follow geometric guidance and tends to generate relatively static scenes, which makes it easier to maintain high background consistency scores.
+
+
+\subsection{Qualitative Evaluation}
+We conduct qualitative comparisons with other geometry-grounded methods, focusing on three key criteria, as illustrated in Figure~\ref{fig:qualitative}.
+First, our method demonstrates superior performance in accurately following camera trajectories, guided by point map rendering. In contrast, the Wan2.1 inpainting model and DaS model often fail, especially under significant camera motion.
+Second, for view recall consistency, we present pairwise comparisons between two frames generated at the same camera pose but at different points in the sequence. Compared with the baselines, our results exhibit significantly higher consistency in static regions during scene revisits, thanks to the static memory mechanism.
+Finally, we evaluate the ability to generate new actions based on instructions while incorporating static memory. We focus on the harmonious integration of static and dynamic elements, as well as how closely the dynamic components follow the instructions. The comparison shows that our method performs well in action prediction, whereas the others either fail to closely follow the instructions or suffer from action drifting, severe deformation, or even character disappearance.
+
+\subsection{User Study}
+We selected 14 representative use cases, including novel-view synthesis of static scenes, novel-view synthesis of dynamic scenes with temporal progression of dynamic subjects in first-person and third-person perspectives, and scene styles covering realistic and game style. We conduct a comprehensive user study,  evaluating baselines and our methods from three perspectives: camera accuracy(Cam-Acc), static consistency(Stat-Cons), and dynamic plausibility (Dyn-Plaus). We invited 20 subjects, each with at least one year of experience in video/3D/4D generation, to rank the results generated by the four methods (TrajectoryCrafter, DaS, Wan2.1-Inpainting, and ours). Following ControlNet, we evaluate the results using the Average Human Ranking (AHR) metric, where participants rated each output on a scale of 1 to 4 (with lower scores indicating poorer quality). The average rankings in Table~\ref{tab:main_metrics} (right) show that our method outperforms the baselines by a large margin in all metrics.
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.\linewidth]{figures/ablation.pdf}
+    \caption{
+    \textbf{Ablation of different memory mechanisms.}
+    We evaluate several variants of our model:
+    %We compare the dynamic part motion prediction reasonableness and novel view synthesis consistency of three variants: 
+    \textbf{w/o short-term working memory}: the full model without recent context frames; \textbf{w/o long-term episodic memory}: the full model without sparse historical keyframes; \textbf{full model} including short-term working and long-term spatial and episodic memory. Unsurprisingly, the working memory is required for smooth and plausible motions of dynamic objects. The episodic memory is crucial in helping remember visual details from the past, including previously seen characters or objects. 
+    }
+    \vspace{-10pt}
+    \label{fig:ablation}
+\end{figure}
+
+\subsection{Ablation Study}
+
+To verify the effectiveness of each memory component in our video generation framework, we conduct comprehensive ablation studies, as shown in Table~\ref{tab:net_abl}. Experimental results on VBench metrics indicate that each component consistently contributes to performance improvements.
+Unsurprisingly, the context frames play a crucial role in enhancing short-term motion coherence. During the autoregressive generation process, the context frames enable smooth transitions in dynamic regions and help produce more plausible motions consistent with the preceding frames.
+The sparse set of historical reference frames enable the model to better retain and utilize temporally distant details. This episodic memory improves long-term consistency for static regions and subjects, and further enhances the plausibility and continuity of motions involving moving entities. The best results are achieved with both of these mechanisms as well as our long-term spatial memory. This is evidenced by both Table~\ref{tab:net_abl} and Figure~\ref{fig:ablation}, showing that each of our memory mechanisms significantly improves the model's quality in terms of motion smoothness, static consistency, and overall visual quality.
+
+
+
+\setlength\intextsep{0pt}
+\begin{wrapfigure}{r}{8cm}
+    \centering
+    \includegraphics[width=\linewidth]{figures/failurecase.pdf}
+    \caption{
+    \textbf{Failure case.} When the distance between consecutive camera poses is too large and the trajectory exhibits overly abrupt angles, the 4D reconstruction may fail, resulting in significant ghosting artifacts between frames. Consequently, TSDF-Fusion will filter out a large portion of point clouds that should belong to static regions, ultimately leading to an extremely sparse spatial memory and loss of critical information. For example, Spiderman swiftly swinging between skyscrapers illustrates how such a challenging camera trajectory can cause omissions in spatial memory storage, resulting in imprecise camera control and inconsistencies.
+        }
+    \label{fig:failure}
+    \vspace{-1em}
+\end{wrapfigure}
+
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=1.\linewidth]{figures/failurecase.pdf}
+%     \caption{
+%     \textbf{Failure case.}Due. 
+%     }
+%     \label{fig:ablation}
+% \end{figure}
+
+
+\input{tables/net_abl}
+
+
+
+% Methods we compare with include: cameractrl, cameractrl2, Motionctrl, AC3D, VD3D, ReCamMaster, SynCamMaster.
+% \todo{Add WorldScore if they opensource}
+% Metrics include:
+% \textbf{Long-term memory consistency}
+%     1. Static consistency by revisiting a seen place (need to make one single trajectory contain same camera pose somewhere, and evaluate the PSNR/LPIPS/ for the static part. Need to design the trajetory so that some part of the scene is not always visible across the whole trajectory.)
+%         1. How do we implement the baselines here? Directly use autoregressive-version trajectorycrafter / DaS without memory update? For cameractrl-II, we can directly compare with.
+        
+% \textbf{New Action generation.}
+%     1. Video quality (Vbench / FVD)
+%     2. Textual alignment (~~~)
+%     3. Video Dynamic Fidelitycameractrl2
+
+% \textbf{Dynamic novel view synthesis (same as trajectorycrafter)}
+%     1. In the wild evaluation(visual quality)
+
+%         * 100 realistic videos + 60 T2v gen-videos on VBench (6 metrics)
+
+%     1. novel trajectory video synthesis
+
+%         * casually-captured video(iphone dataset): PSNR/SSIM/LPIPS

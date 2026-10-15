@@ -1,0 +1,344 @@
+{
+  "url": "https://arxiv.org/abs/2501.12387",
+  "fetch_url": "https://arxiv.org/pdf/2501.12387",
+  "title": "Continuous 3D Perception Model with Persistent State",
+  "type": "pdf",
+  "arxiv_id": "2501.12387",
+  "n_images": 40,
+  "images": [
+    {
+      "path": "images/img_000_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p1.jpeg",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p2.jpeg",
+      "page": 2,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_016_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_017_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_018_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_019_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_020_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_021_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_022_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_023_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_024_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_025_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_026_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_027_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_028_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_029_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_030_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_031_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_032_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_033_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_034_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_035_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_036_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_037_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_038_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_039_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 17,
+  "n_chars": 78737,
+  "authors": [
+    "Qianqian Wang",
+    "Yifei Zhang",
+    "Aleksander Holynski",
+    "Alexei A. Efros",
+    "Angjoo Kanazawa"
+  ],
+  "abstract": "We present a unified framework capable of solving a broad range of 3D tasks. Our approach features a stateful recurrent model that continuously updates its state representation with each new observation. Given a stream of images, this evolving state can be used to generate metric-scale pointmaps (per-pixel 3D points) for each new input in an online fashion. These pointmaps reside within a common coordinate system, and can be accumulated into a coherent, dense scene reconstruction that updates as new images arrive. Our model, called CUT3R (Continuous Updating Transformer for 3D Reconstruction), captures rich priors of real-world scenes: not only can it predict accurate pointmaps from image observations, but it can also infer unseen regions of the scene by probing at virtual, unobserved views. Our method is simple yet highly flexible, naturally accepting varying lengths of images that may be either video streams or unordered photo collections, containing both static and dynamic content. We evaluate our method on various 3D/4D tasks and demonstrate competitive or state-of-the-art performance in each. Project Page: https://cut3r.github.io/",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

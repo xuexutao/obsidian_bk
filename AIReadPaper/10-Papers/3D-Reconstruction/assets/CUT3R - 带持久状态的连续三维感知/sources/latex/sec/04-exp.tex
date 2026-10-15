@@ -1,0 +1,99 @@
+
+\section{Experiments}
+We evaluate our method across a range of 3D tasks, including single and video depth estimation~(Sec.~\ref{sec:exp_depth}), camera pose estimation~(Sec.~\ref{sec:exp_pose}), and 3D reconstruction~(Sec.~\ref{sec:exp_recon}). 
+
+\vspace{0.5em}\noindent\textbf{Baselines.}
+Our primary set of baselines are \duster{}~\cite{wang2024dust3r}, \master{}~\cite{leroy2024mast3r}, \spanner{}~\cite{spann3r}, and \monster{}~\cite{zhang2024monst3r}, where the latter two are concurrent works. \monster{} finetunes \duster{} on dynamic datasets to handle dynamic scenes, while \spanner{} extends \duster{} to support varying number of images via additional spatial memory and operates online, similar to our method. \duster{}, \master{}, and \monster{} can only take a pair of views as input, and require an extra global alignment~(GA) stage to consolidate the pairwise predictions. Both \master{} and our method predict metric pointmaps, whereas others predict relative pointmaps.
+
+
+
+\subsection{Monocular and Video Depth Estimation}
+\label{sec:exp_depth}
+
+\paragraph{Mono-Depth Estimation.} Following MonST3R~\cite{zhang2024monst3r}, 
+we evaluate monocular depth estimation on KITTI~\cite{kitti}, Sintel~\cite{sintel}, Bonn~\cite{bonn} and NYU-v2~\cite{nyuv2} datasets covering dynamic and static, indoor and outdoor scenes. These datasets are excluded from training, enabling zero-shot performance evaluation across domains.
+We use absolute relative error (Abs Rel) and $\delta < 1.25$ (percentage of predicted depths within a $1.25$-factor of true depth) as metrics, with per-frame median scaling per \duster{}~\cite{wang2024dust3r}. Results in Tab.~\ref{tab:single_frame_depth} show our method achieves state-of-the-art or competitive performance, leading on Bonn and and NYU-v2 and ranking second on KITTI.
+\input{tabs/monodepth}
+
+\input{tabs/video_depth}
+\input{tabs/video_pose}
+
+\vspace{0.5em}\noindent\textbf{Video Depth Estimation.}
+Video depth estimation evaluates per-frame depth quality and inter-frame depth consistency by aligning predicted depth maps to ground truth using a per-sequence scale. 
+For metric pointmap methods like ours and \master{}, we also report results without alignment. 
+Comparisons for both methods are presented in Tab.~\ref{tab:video_depth}.
+
+Under per-sequence scale alignment,
+our method consistently outperforms \duster{}~\cite{wang2024dust3r} and \master{}~\cite{leroy2024mast3r}. The global alignment they use assumes that the scene is static, and enforcing multi-view consistency can only improve the reconstruction of static regions but may impair the reconstruction of moving objects. In contrast, our method leverages implicit alignment through the state, making it adaptable to both static and dynamic scenes while remaining fully online. Our method also significantly outperforms the other online method, \spanner{}~\cite{spann3r}, which is based on spatial memory designed with a static scene assumption and trained only on static 3D scenes.
+\monster{}~\cite{zhang2024monst3r} achieves state-of-the-art performance, but it relies on an additional global alignment stage that incorporates extra input like optical flow in its optimization. In comparison, our method performs comparably, or even better on the KITTI dataset, while remaining online and achieving nearly 50$\times$ speedup. 
+In the metric-scale setting, our method also significantly outperforms \master{} for most metrics.
+
+
+
+
+
+\subsection{Camera Pose Estimation}
+\label{sec:exp_pose}
+
+
+
+Following ~\monster{}~\cite{zhang2024monst3r}, we evaluate camera pose estimation accuracy on Sintel~\cite{sintel}, TUM dynamics~\cite{tum-dynamics}, and ScanNet~\cite{dai2017scannet} datasets. Note that both Sintel and TUM-dynamics contain major dynamic objects, making it challenging for traditional SfM and SLAM systems.
+We report Absolute Translation Error (ATE), Relative Translation Error (RPE trans), and Relative Rotation Error (RPE rot) after Sim(3) alignment with the ground truth, as in \cite{chen2024leap,zhao2022particlesfm,zhang2024monst3r}. Unlike most visual odometry methods~\cite{chen2024leap,he2016deep,teed2021droid}, our method does not require any camera calibration. 
+We compare to baselines that share this feature.
+Most prior approaches do so through test-time optimization, as seen in Robust-CVD~\cite{robustcvd} and CasualSAM~\cite{casualsam}, which jointly estimate camera parameters and dense depth maps per sequence. 
+
+The results are presented in Tab.~\ref{tab:video_pose}. We separately highlight the leading approaches for methods that require additional optimization and those that do not (i.e., online). 
+For the online category, we additionally include \duster{}~\cite{wang2024dust3r} where we align all video frames with first frame, without using GA. Although a gap persists between optimization-based and online methods, our approach achieves the best overall performance among online methods, particularly in dynamic scenes. 
+
+
+
+
+\input{figs/qualitative}
+
+\input{tabs/3d_reconstruction}
+
+
+\subsection{3D Reconstruction}
+\label{sec:exp_recon}
+We evaluate scene-level reconstruction on the 7-scenes~\cite{shotton2013scene} and NRGBD~\cite{azinovic2022neural} datasets using accuracy (Acc), completion (Comp), and normal consistency (NC) metrics, as in prior works~\cite{spann3r, azinovic2022neural, zhu2022nice, wang2023co, wang2024dust3r}.
+To assess performance on image collections with minimal or no overlap, we evaluate using sparsely sampled images: 3 to 5 frames per scene for the 7-Scenes dataset and 2 to 4 frames per scene for the NRGBD dataset.
+The results are presented in Tab.~\ref{tab:3d_recon}. Our method significantly outperforms the other online approach \spanner{}~\cite{spann3r}, and achieves comparable or sometimes better results than the top optimization-based method, \duster{}-GA, while operating online at 25$\times$ the speed. This highlights our method’s effectiveness with sparse image collections. 
+
+
+
+
+\vspace{0.5em}
+\noindent\textbf{Qualitative Results.} 
+We compare the reconstruction quality of our method with \spanner{}~\cite{spann3r} and \monster{}~\cite{zhang2024monst3r} on in the wild Internet videos in Fig.~\ref{fig:comparison}. \spanner{}~\cite{spann3r} is neither designed nor trained on dynamic scenes, making it less effective at handling moving objects, such as humans.
+\monster{}~\cite{zhang2024monst3r} is finetuned on dynamic scenes, potentially overfitting and degrading performance on static 3D scenes. %
+In contrast, our method operates online and achieves state-of-the-art performance across both static and dynamic scenes.
+
+\subsection{Analysis}
+\vspace{0.5em}\noindent\textbf{State Update Analysis.}
+Our model continuously updates its state representation as new data arrives, relying solely on past and current observations without knowledge of future inputs. As more observations accumulate, the state should be able to refine its understanding of the 3D world, leading to improved predictions.
+We demonstrate this capability of our method in Tab.~\ref{tab:revisiting}. Using the same experimental setup as in Sec.~\ref{sec:exp_recon}, we introduce an additional version of our approach called ``revisiting'': we first run our method online to obtain the final state that has seen all images, then we freeze this state and use it to process the same set of images again to generate predictions.
+
+This setup differs from the online setup by allowing the state to see the full context of the scene during the first run. As shown in Tab.~\ref{tab:revisiting}, revisiting improves performance compared to the online version, especially for accuracy.
+This verifies that the state representation effectively updates with additional observations. See Fig.~\ref{fig:enter-label} for a qualitative example.
+\input{tabs/revisiting}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figs/revisiting5.pdf}
+    \caption{\small \textbf{State Update Analysis.} Compared to online, revisiting incorporates global context which improves overall reconstruction results, especially in the highlighted regions.}
+    \vspace{-1em}
+    \label{fig:enter-label}
+\end{figure}
+
+\vspace{0.5em}
+\noindent\textbf{Inferring Unseen Regions via State Readout.} 
+To the best of our knowledge, our method is the first to enable the inference of unseen structures in metric scale for general scenes, supporting both single and multiple views, without requiring camera intrinsics or poses for the input images.
+We show qualitative results of the generated structures in Fig.~\ref{fig:structure_generation}. 
+For this experiment, we use the validation set of the MapFree~\cite{arnold2022mapfree} and ARKitScenes datasets, both with metric camera pose annotations. Importantly, these scenes are not seen by our model during training. 
+In each example, we input a single image to our model and then query the state using a raymap of the ground truth image~(unseen by the state). The model is expected to generate pointmaps that align with the ground truth. 
+While the predictions may lack some high-frequency details -- owing to the deterministic nature of our approach -- they accurately follows the
+viewpoint transformation, 
+even with significant viewpoint changes between the input and ground truth. In addition, our method generates new structures beyond what what is observed in the input, such as the bushes in the first example, the ground in the second, the oven in the third, and the stool in the last.  This demonstrates that our method captures generalized 3D scene priors.
+
+
+\input{figs/structure_generation}
+

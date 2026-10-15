@@ -1,3 +1,7 @@
+---
+updated: 2026-10-15
+---
+
 **一句话结论：** VGGT（Visual Geometry Grounded Transformer）把"多视图三维重建"从"神经网络 + 几何后优化（BA）"的混合范式，推进到"一个前馈大 Transformer 一次前向直接输出相机位姿、点图、深度图、点轨迹"的纯网络范式。它没有花哨的 3D 归纳偏置，只靠海量 3D 标注数据 + 标准大 Transformer，就在相机估计、多视图深度、稠密点云、点跟踪四类任务上刷新 SOTA，且推理亚秒级——是 CVPR 2025 Best Paper，也是后续 DA3、π³、VGGT-Ω 一整条"前馈重建"路线的共同起点。
 
 |         |                                                                                                                                                                                                                                                                  |
@@ -283,6 +287,18 @@ VGGT 的预训练表征可以直接赋能下游任务，无需重新训练：
 - 非刚体点跟踪：把 VGGT 特征接进 **CoTracker**，动态场景下的点跟踪可见性指标（$\delta_{\text{vis}}$）显著提升。
 
 这说明 VGGT 学到的表征**可迁移、有通用性**，不只是"会重建"。
+
+### 3.3.1 在 FantasyWorld、Lyra 与 DA3 下游中的实际角色边界
+
+后续论文频繁使用“VGGT-style”或把 VGGT 放进几何实验，容易把**架构影响、评测工具与真正的 backbone 依赖**混为一谈。三类关系应分开：
+
+| 后续工作 | VGGT 的实际角色 | 是否直接以 VGGT 为 backbone / 核心依赖 | 与 DA3 下游角色的区别 |
+|---|---|---|---|
+| **FantasyWorld** | 几何侧采用 **VGGT-style geometry branch**：复用“多层几何特征 + camera head / 3D DPT heads，联合预测 depth、point map、uncertainty 与 pose”的设计语言；但主干仍是冻结的 **Wan2.1 video diffusion**，几何分支从 WanDiT 中间特征分叉并与想象分支双向 cross-attention | **否。**“VGGT-style”表示架构借鉴，不等于加载 VGGT 主干或权重。论文的 3DGS 表格又单独使用外部 **VGGT 预测初始化 3DGS 优化**；这是评测管线中的独立初始化，用于比较有/无 3D branch 的生成视频，不是 FantasyWorld 在线前向的一部分 | FantasyWorld 对 VGGT 主要是“设计范式 + 外部评测初始化”；DA3 式下游则把几何模型本体放进任务管线并在其上接 head / 微调 |
+| **Lyra 系列** | VGGT 主要是前馈几何路线中的相关工作、重建质量参照或可替换 benchmark，而不是生成系统的内部骨干 | **否。** Lyra 1.0 使用视频扩散自蒸馏与自家 3DGS 解码器；Lyra 2.0 的生成核心是 Wan2.1 + FramePack + 空间记忆，几何预处理/导出分别依赖 ViPE 与 **Depth Anything 3（DA3）**，并未把 VGGT 接入核心生成循环 | 在 Lyra 2.0 中，DA3 被实际采用为前馈 3DGS 几何基座：修改 Gaussian DPT head、在自生成视频上微调后参与最终资产导出；这比“拿 VGGT 做相关基准”是更强的工程依赖 |
+| **DA3 自身的下游验证** | VGGT 是被比较和被替代的前代几何 backbone | **不是 VGGT 依赖。** DA3 用 vanilla backbone + depth-ray 目标建立自己的几何基座 | DA3 的 FF-NVS / FF-3DGS 直接在 **DA3 backbone** 上挂 GS-DPT head 并微调，且 Lyra 2.0 也直接消费其几何能力；这是“几何 backbone → 下游任务”的参数与特征复用，而非仅借鉴 VGGT-style 结构 |
+
+因此，VGGT 对生成式世界模型的影响应写成：它确立了**前馈、多视图共享表征、camera + dense geometry 多头预测**这一设计范式，并提供强几何基准；不能据此推断 FantasyWorld 或 Lyra“以 VGGT 为 backbone”。判断是否构成核心依赖，要看 VGGT 的参数/特征是否进入主前向与训练图：FantasyWorld 中没有，Lyra 系列中也没有；反而 DA3 在 Lyra 2.0 的 3DGS 导出和自身 FF-NVS 下游中满足这一标准。
 
 ### 3.4 消融
 

@@ -110,6 +110,30 @@
   },
   "savedSessions": [
     {
+      "sessionId": "04c7073b-21c6-4843-a662-870507b2d4fd",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "这几篇文章都算作 video generation 的论文吗？",
+      "createdAt": "2026-10-15T10:10:16.401Z",
+      "updatedAt": "2026-10-15T10:10:16.402Z"
+    },
+    {
+      "sessionId": "b81d8b3c-3c00-4abc-bfcd-2d25c7c68e81",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "你好",
+      "createdAt": "2026-10-15T08:30:08.805Z",
+      "updatedAt": "2026-10-15T09:34:58.008Z"
+    },
+    {
+      "sessionId": "dc45680c-03fe-4776-b4b8-e8b57716ba04",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "这是什么意思呢",
+      "createdAt": "2026-10-10T07:39:07.280Z",
+      "updatedAt": "2026-10-10T07:39:07.282Z"
+    },
+    {
       "sessionId": "d3110849-208c-4eb0-87c2-def8b77b2dca",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",

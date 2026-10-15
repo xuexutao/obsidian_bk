@@ -1,0 +1,30 @@
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{0.3em}
+    \begin{tabularx}{\linewidth}{
+        l %
+        >{\centering\arraybackslash}X %
+        >{\centering\arraybackslash}X %
+        >{\centering\arraybackslash}X %
+        >{\centering\arraybackslash}X %
+        >{\centering\arraybackslash}X %
+        >{\centering\arraybackslash}X %
+    }
+      \toprule
+       & \multicolumn{3}{c}{\textbf{7-Scenes}} & \multicolumn{3}{c}{\textbf{NRGBD}} \\
+      \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+       \textbf{Method}& {Acc}$\downarrow$ & {Comp}$\downarrow$ & {NC}$\uparrow$ & {Acc}$\downarrow$ & {Comp}$\downarrow$ & {NC}$\uparrow$ \\
+      \midrule
+      DUSt3R-GA~\cite{wang2024dust3r} & {0.146} & {0.181} & \textbf{0.736} & {0.144} & {0.154} & \textbf{0.870} \\
+      \textbf{\ourmethod} & \underline{0.126} & \underline{0.154} & {0.727} & \underline{0.099} & \textbf{0.076} & {0.837} \\
+      \textbf{\ourmethod{} Revisit} & \textbf{0.113} & \textbf{0.107} & \underline{0.732} & \textbf{0.094} & \textbf{0.076} & \underline{0.844} \\
+      \bottomrule
+    \end{tabularx}%
+    \vspace{-5pt}
+    \caption{\small
+    \textbf{State Update Analysis} on 7-Scenes~\cite{shotton2013scene} and NRGBD~\cite{azinovic2022neural} datasets. 
+    }
+    \vspace{-1em}
+    \label{tab:revisiting}
+\end{table}

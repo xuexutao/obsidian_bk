@@ -1,0 +1,13 @@
+\begin{figure}[t]
+  \centering
+%   \vspace{-0.1cm}
+  \includegraphics[width=1\linewidth]{figures/fov.pdf}
+  \vspace{-0.6cm}
+  \caption{
+  \textbf{Examples of FOV Overlap.} 
+  % We abstract the FOV overlap determination into an intersection check of four rays from two camera origins. A useful rule that works in most cases is: the left rays of two cameras intersect while their right rays also intersect (a, b). Meanwhile, we need to exclude cases where intersection points are too close (d) to or too far (c) from the cameras. This determination rule doesn't apply to all situations, and there will always be some corner cases (e, f), but missing some candidates or introducing a few incorrect candidates does not significantly impact the overall performance.
+  We simplify FOV overlap detection to checking intersections between four rays from two camera origins. A practical rule that works for most cases requires: both left and right ray pairs intersect (a, b). However, we must filter out cases where intersection points are either too near (d) or too distant (c) from cameras. While this rule may not cover all scenarios and some corner cases exist (e, f), occasional missed or incorrect candidates don't substantially affect overall performance.
+  }
+  \vspace{-0.2cm}
+\label{fig:fov} 
+\end{figure}

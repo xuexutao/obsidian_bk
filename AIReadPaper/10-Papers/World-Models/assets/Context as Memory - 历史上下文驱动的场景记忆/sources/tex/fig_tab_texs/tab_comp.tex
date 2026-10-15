@@ -1,0 +1,27 @@
+\begin{table*}[t]
+% \footnotesize
+
+% \vspace{-0.2cm}
+\tabcolsep=0.09cm
+\center
+\begin{tabular}{c | c c c c | c c c c }
+\toprule
+& \multicolumn{4}{c}{Ground Truth Comparison} & \multicolumn{4}{c}{History Context Comparison} \\
+  Methods  & PSNR$\uparrow$ & LPIPS$\downarrow$ & FID$\downarrow$ & FVD$\downarrow$ & PSNR$\uparrow$ & LPIPS$\downarrow$ & FID$\downarrow$ & FVD$\downarrow$ \\
+  \hline
+  \hline
+  1st Frame as Context & 15.72 & 0.5282 &  127.55 & 937.51 & 14.53 & 0.5456 &  157.44 & 1029.71 \\
+  1st Frame + Random Context & 17.70 & 0.4847 &  115.94 & 853.13 & 17.07 & 0.3985 &  119.31 & 882.36 \\
+  DFoT~\cite{dfot} & 17.63 & 0.4528 &  112.96 & 897.87 & 15.70 & 0.5102 &  121.18 & 919.75 \\
+  FramePack~\cite{framepack} & 17.20 & 0.4757 &  121.87 & 901.58 & 15.65 & 0.4947 &  131.59 & 974.52 \\
+  \textbf{Context-as-Memory (Ours)} & \textbf{20.22} & \textbf{0.3003} &  \textbf{107.18} & \textbf{821.37} & \textbf{18.11} & \textbf{0.3414} &  \textbf{113.22} & \textbf{859.42} \\
+  
+\bottomrule
+
+\end{tabular}
+\caption{
+\textbf{Quantitative Comparison results.} Due to learning abundant context, Context-as-Memory demonstrates the best memory capabilities and highest quality of generated videos. In contrast, DFoT~\cite{dfot} and FramePack~\cite{framepack}, which can only utilize the most recent contexts, show relatively inferior performance, even worse than random context selection. This is because although random selection cannot guarantee the selection of useful information, on average it tends to obtain more information compared to methods that only learn from the most recent context.
+}
+\vspace{-0.6cm}
+\label{table:comp}
+\end{table*}

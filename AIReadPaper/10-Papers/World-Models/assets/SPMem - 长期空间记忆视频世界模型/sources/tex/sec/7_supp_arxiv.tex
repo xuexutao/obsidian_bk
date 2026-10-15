@@ -1,0 +1,55 @@
+\appendix
+\setcounter{table}{0}
+\setcounter{figure}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand\thefigure{S\arabic{figure}}
+
+% In the supplementary material, we provide additional implementation details in Section~\ref{supp:method}, extended experimental results in Section~\ref{supp:exp}, and further discussions on related approaches in Section~\ref{supp:related}. We also include more video examples in \textbf{video.mp4} to better illustrate the effectiveness and qualitative performance of our method.
+
+\section{Additional Implementation details}
+\label{supp:method}
+\paragraph{Autoregressive point cloud fusion.}
+In autoregressive generation, the length of the generated video increases over time. At each step, a new static points map is produced and updated into our spatial memory. Since Mega-SAM performs reconstruction in the NDC coordinate system, it is impossible to directly merge results from different stages without alignment, and long video inference will also fail due to CUDA memory limitations. Therefore, unlike the precise reconstruction using Mega-SAM during the data construction stage, we employ CUT3R~\cite{wang2025cut3r} for 4D reconstruction during the inference stage. CUT3R is a unified online 3D perception framework featuring a stateful recurrent model that incrementally updates a persistent internal state representation with each new observation. Given an image stream (video or unordered photos), the model simultaneously updates its state and predicts metric-scale pointmaps (per-pixel 3D points in a shared world coordinate system) and camera parameters for each input in an online manner. At each inference step, we save the state dict of the current CUT3R model and the parameters of the pose retriever to serve as initialization for the next inference step, ensuring that the reconstruction results of each step remain within the same coordinate system. Therefore, as shown in Figure~\ref{fig:point_fusion}, after tsdf-fusion, the filtered points cloud of the current step can be directly merged and aligned with the previous spatial static memory to achieve autoregressive point cloud fusion.
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.\linewidth]{figures/point_fusion.pdf}
+    \caption{
+    \textbf{Autoregressive point cloud fusion.} The system continuously updates spatial memory by integrating newly observed static maps. These maps are reconstructed online using CUT3R in a recurrent manner, while TSDF-Fusion filters out dynamic elements to maintain map consistency.
+    }
+    \vspace{-10pt}
+    \label{fig:point_fusion}
+\end{figure}
+
+\paragraph{Details in static point extraction for the dataset.}
+In Mega-SAM, we first resize the input video resolution to 384×672. Based on the initial results, we perform optical flow estimation to refine the estimated camera motion through pixel-level motion cues. Subsequently, a Covariance-based Variable Decomposition strategy is employed to further enhance the robustness and accuracy of the predicted results.
+In TSDF-fusion, we compute the initial grid dimensions based on the current voxel size and the scene bounds. If the maximum dimension exceeds a predefined threshold (1200), we proportionally scale the voxel size to ensure that the grid dimensions remain within the limit. The final adjusted voxel size is returned. The core principle is to control the grid resolution to prevent memory overflow.
+
+% \section{Additional experimental results}
+% \label{supp:exp}
+% \paragraph{Camera accuracy measurement.}
+% We further evaluate camera pose accuracy along the reverse trajectory. Specifically, in our setting, each pose is visited twice during the sequence: once in the forward pass and once in the reverse, where ideally, the estimated camera poses should match. However, the presence of dynamic elements in the scene poses challenges for traditional SfM methods such as COLMAP. Therefore, we employ CUT3R to estimate the camera trajectories.
+% To quantify the accuracy of the reverse trajectory, we compute both the rotation and translation errors between corresponding camera poses using the following metrics:
+
+% \begin{equation}
+% \text{RotErr} = \frac{1}{n} \frac{180}{\pi} \cdot \sum_{i=1}^{n} \arccos\left(\frac{\mathrm{tr}(\mathbf{R}^{i}_{\mathrm{0}} \mathbf{R}^{i \top}_{\mathrm{rev}}) - 1}{2}\right),
+% \end{equation}
+
+% \begin{equation}
+% \text{TransErr} = \frac{1}{n} \sum_{i=1}^{n} \left\| \mathbf{T}^{i}_{\mathrm{0}} - \mathbf{T}^{i}_{\mathrm{rev}} \right\|_2^2,
+% \end{equation}
+% where $\mathbf{R}^{i}_{\mathrm{0}}$ and $\mathbf{R}^{i}_{\mathrm{rev}}$ denote the first-time and revisiting pose for the same position along the trajectory, respectively, and $\mathbf{T}^{i}_{\mathrm{0}}$, $\mathbf{T}^{i}_{\mathrm{rev}}$ are the corresponding translation vectors. The trace operator $\mathrm{tr}(\cdot)$ computes the sum of the diagonal elements of a matrix.
+
+% The quantitative results are summarized in Table~\ref{tab:cam_error}, where our method demonstrates superior performance compared to the baselines. It is worth noting that the trajectories in the MiraData test set typically involve only small rotation angles, which results in generally low RotErr. Additionally, the Wan2.1 inpainting model often tends to generate relatively static videos, leading to limited variation in the estimated camera poses. As a result, despite not being specifically designed for geometry-grounded video generation, it still achieves reasonably good performance.
+
+% Since camera-embedded methods such as CameraCtrl~\cite{he2025cameractrl} and ReCamMaster~\cite{bai2025recammaster} are designed for tasks that are not aligned with ours, they are either focused on text- or image-conditioned camera-controlled video generation, or on dynamic novel view synthesis within a single temporal sequence. In addition, the sequence lengths they support are different from ours, making it infeasible to include them in a direct comparison.
+
+% \input{tables/cam_error}
+
+\section{Additional discussion on related works.}
+\label{supp:related}
+\paragraph{Learning-Based 3D Reconstruction}
+Traditional structure-from-motion (SfM) pipelines such as COLMAP~\cite{schoenberger2016sfm} have long served as the gold standard for image-based 3D reconstruction due to their high accuracy, but they rely on incremental feature matching and bundle adjustment that do not scale well to large-scale or real-time applications. To overcome these limitations, learning-based approaches have emerged: the seminal DUT3R~\cite{wang2024dust3r} method established a new paradigm of dense matching and optimization in an end-to-end deep learning framework, eliminating the need for separate SfM or multi-view stereo modules. Building on this, recent approaches~\cite{zhang2025flare,wang2025vggt} introduce feed-forward architectures that significantly accelerate inference, achieving near real-time reconstruction without iterative optimization. To further process dynamic scenes, more recent advances~\cite{zhang2025monstr,li2024Mega-SAM,wang2025cut3r} further extend learning-based 3D reconstruction to dynamic scenes by incorporating recurrent models or persistent state, which improves efficiency and robustness in handling moving objects and changing environments. Some of these advances make it feasible to perform online estimation of camera poses and point clouds during video capture or generation. 
+
+In this work, we use Mega-SAM during dataset construction to obtain more stable and accurate point cloud and camera pose estimations. However, due to concerns about time efficiency and global alignment, we adopt CUT3R in our iterative video generation process. CUT3R jointly estimates per-frame point clouds while incorporating a dynamic-static disentanglement mechanism to preserve long-term static scene memory. Experimental results indicate that the difference in models does not lead to a significant performance gap.

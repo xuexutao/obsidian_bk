@@ -1,0 +1,120 @@
+\section{Introduction}
+\label{sec:intro}
+
+% paragraph 1: motivate and define world models 
+
+World models are generative systems that learn to predict an environment in response to actions, making them well suited for simulating complex, interactive settings~\cite{ha2018worldmodels, authorsgenesis,hafner2019dream,wu2023daydreamer,zhu2024sora}.
+%
+Video diffusion models~\cite{brooks2024video,ho2022video,kong2024hunyuanvideo,yang2024cogvideox,po2024state} have emerged as a powerful approach to architecting world models, especially when used with autoregressive next-frame prediction~\cite{alonso2024diffusion,che2024gamegen,decart2024oasis,feng2024matrix,jin2024pyramidal,parker2024genie,song2025history,valevski2024diffusion,weng2024art,yu2025gamefactory,streamingt2v}.
+%
+Existing video generation models, however, often struggle with long-horizon consistency due to limited temporal context windows, frequently forgetting previously seen scenes during revisits. 
+%
+This is due to the relatively small number of previously generated context frames that the model can consider when generating new frames---a problem primarily caused by the quadratic growth of computational complexity in the attention module of the underlying diffusion transformers.
+
+% paragraph 3: how it's done today - (i) lots of context frames = not feasible or (ii) decreasing resolution of farther context frames = not grounded. The latter idea is concurrent
+To address this challenge, current world models simply keep the number of context frames low to maintain computational feasibility. Several very recent approaches explore progressive downsampling of temporally more distant frames to increase the temporal context window size~\cite{Gu2025LongContextAV,Zhang2025PackingIF}. Yet, all these approaches rely on image-based representations of the past and lack a persistent 3D understanding of the world, limiting spatial consistency.
+
+% paragraph 4: what we do - high-level idea; inspired by human memory
+Inspired by the mechanisms of human memory~\cite{baddeley2013essentials}, we propose a new framework to enhance the long-term consistency of video world models through long-term spatial memory grounded in geometry. Drawing from cognitive theories, our approach incorporates three distinct forms of memory—\textbf{\textit{spatial, working, and episodic}}—each modeled through a dedicated representation. Similar to existing models, our framework relies on a set of recently generated context frames. We consider this a \emph{short-term working memory} mechanism, making both static and dynamic aspects of the most recent past accessible in the form of pixel data. To help remember long-term spatial relationships, we introduce an additional \emph{long-term spatial memory}. This mechanism primarily relies on an explicit 3D representation of the generated world, augmented by a \textit{sparse episodic memory} in the form of a set of keyframes from the past. We implement the spatial memory using a geometry-grounded point cloud representation. Before storing newly generated information into this memory mechanism, we filter out dynamic parts of the world to primarily remember the static parts of the work in this memory.  
+
+% paragraph 5: what we demonstrate
+The primary contribution of our work is the design of our memory mechanism, combining short-term working memory with long-term spatial and sparse episodic memory, as illustrated in Figure~\ref{fig:teaser}. We develop approaches to store newly generated information into the spatial and episodic memory bank as well as retrieve information from it to effectively condition the generation of new video frames. Moreover, we curate a custom dataset to train and evaluate a proof-of-principle implementation of the proposed mechanisms. Our evaluations show that the quality and 3D consistency of our approach surpasses that of relevant baselines. With this work, we hope to contribute to the growing community effort of unlocking infinite-length, consistent world generation capabilities for computer graphics, robotics, and other interactive applications.
+
+\endinput
+
+\tong{\textbf{An expanded version of this part:}
+The primary contribution of our work lies in the design of a spatial long-term and complementary memory mechanism, detailed as follows:
+First, we iteratively generate new video frames and perform learnable 3D reconstruction to obtain dynamic point maps online. These maps are then filtered to retain only static points, which are fused with sparsely sampled reference frames to construct the spatial memory bank.
+Second, we develop a video generative model conditioned on three key elements: static geometry guidance, recent context frames, and historical reference frames. This enables camera-controllable, memory-aware, and 3D-consistent dynamic video generation guided by text instructions.
+Additionally, we curate a custom dataset derived from MiraData, containing 90K paired samples, to support both training and evaluation of our conditioned video generation framework.
+
+
+}
+
+% The primary contribution of our work is the design of our spatial long-term memory mechanism, which includes specific ways to store newly generated information in the memory bank and ways to retrieve information from it. 
+
+% Moreover, we curate a custom dataset to train and evaluate a proof-of-principle implementation of the proposed mechanisms. 
+
+% We carry out comprehensive evaluation on view 
+
+% Our evaluations show that the quality, context length, and 3D consistency of our approach surpasses that of relevant baselines. With this work, we hope to contribute to the growing community effort of unlocking infinite-length, consistent world generation capabilities for computer graphics, robotics, and other interactive applications.
+% }
+
+\endinput
+
+% Generative world models aim to generate future observations conditioned on control signals such as actions, camera motion, or language.
+% However, existing video generative models often struggle with long-horizon consistency due to limited context windows, frequently forgetting previously seen scenes during revisits. 
+% In contrast, humans rely on structured memory to retain persistent elements across time, including a stable sense of spatial structure, prototypical scene slots, and short-term memory for recent perceptual dynamics.
+
+% \textbf{Paragraph 2: How previous works model long-context memory}
+% \begin{itemize}
+%     \item Po's work
+%     \item Zeqi's work
+%     \item Pointmap-conditioned works
+% \end{itemize}
+% However, they still suffer from limitations in 1) balance static memory and dynamic generation, 2) ???
+
+% Paragraph 3: We have several core designs:
+% \textbf{1) Online explicit memory cache} (need to prove that directly apply cut3r is not good enough, need some technical contribution here to improve the consistency, robustness or reduce the point redundancy)
+% \textbf{2) Hybrid generative rendering} (not sure this word is correct, basically, need to maintain a high fidelity of the seen part and smooth generalization to the unseen part)
+% \textbf{3) Semantic-aware / hierarchical / general action modeling and response} (For this part, I cannot think of any novel techniques currently... we need to find the failure cases that cannot be solved by das, and propose our idea.)
+
+% \textbf{Paragraph 4: Experimental results and Contributions}
+% \begin{itemize}
+%     \item concept of spatial memory; two parts: long-term persistent spatial 3D parts as point cloud and short-term memory with dynamic parts using frame
+%     \item architecture of memory; how to retrieve information / condition model; how to write to it
+%     \item demonstration of some specific benefits
+% \end{itemize}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.95\linewidth]{example-image-a}
+%     \caption{Caption}
+%     \label{fig:enter-label}
+% \end{figure}
+
+% \textbf{Paragraph 1: Introduce world model and the memory issue} 
+% \begin{itemize}
+%     \item define world model and why it's useful
+%     \item motivate the problem of long-context
+%     \item draw connection to humans memory mechanism
+% \end{itemize}
+
+
+
+% baselines:
+% \begin{itemize}
+% \item just short-term memory
+% \item implicit/SSM/latent memory
+% \item video models with point render condition (static \& dynamic parts are not disentangled)
+% \end{itemize}
+
+% questions we'd like to ask and answer:
+% \begin{enumerate}
+% \item how do we set up the memory / architecture?
+% \item implicit/SSM/latent vs. explicit
+% \item 3D (x,y,z) vs. 4D (x,y,z,t)
+% \item how do we retrieve information from spatial memory to condition generation?
+%     \begin{enumerate}
+%         \item point map rendering based conditioning
+%         \item cross-attention style rendering (see interspatial attention paper)
+%  \end{enumerate}
+% \item how and when do we write new information to memory? only write static parts vs. others directly use output of DepthCrafter/cut3r
+% \end{enumerate}
+
+% - base model: cogvideox
+% - dataset: real-estate 10k; genDoP; other dynamic scenes
+% - benchmarks: ???
+
+% limitations:
+% - dynamics are only in short-term memory
+
+% TODO:
+% 1. how cross-attention mechanism work / does that even make sense?
+% 2. what are the exact experiments / benchmarks to demonstrate our claims? ablations / baseline comparison / which
+
