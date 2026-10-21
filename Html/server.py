@@ -5,7 +5,7 @@ Obsidian 知识库本地读写与静态资源服务 (Port 60051)
 支持：
 1. 静态文件与 vault/ 软链接服务（全接口支持 CORS 跨域与 OPTIONS 预检，兼容 file:// 直开、本地端口或远程预览代理）
 2. GET  /api/read?path=<rel_path>  直接读取最新原始 .md 文档
-3. POST /api/save                  将修改后的 .md 内容原子写入 /Users/eilonxtxue/Documents/obsidian/obsidian_bk 对应文件
+3. POST /api/save                  将修改后的 .md 内容原子写入 vault（Html/ 的上一级目录）对应文件
 """
 import os
 import json
@@ -13,8 +13,8 @@ import time
 from urllib.parse import urlparse, parse_qs, unquote
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-WORKSPACE_ROOT = "/Users/eilonxtxue/With/20261020/3qaq"
-VAULT_ROOT = os.environ.get("VAULT_ROOT", "/Users/eilonxtxue/Documents/obsidian/obsidian_bk")
+WORKSPACE_ROOT = os.path.dirname(os.path.abspath(__file__))
+VAULT_ROOT = os.environ.get("VAULT_ROOT", os.path.dirname(WORKSPACE_ROOT))
 PORT = int(os.environ.get("PORT", "60051"))
 
 import sys

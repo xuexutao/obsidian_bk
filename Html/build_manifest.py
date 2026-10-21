@@ -3,9 +3,10 @@ import json
 import re
 from datetime import datetime
 
-VAULT_ROOT = "/Users/eilonxtxue/Documents/obsidian/obsidian_bk"
-OUTPUT_MANIFEST = "/Users/eilonxtxue/With/20261020/3qaq/vault-manifest.js"
-OUTPUT_DOCS = "/Users/eilonxtxue/With/20261020/3qaq/vault-docs.js"
+_HERE = os.path.dirname(os.path.abspath(__file__))
+VAULT_ROOT = os.environ.get("VAULT_ROOT", os.path.dirname(_HERE))  # Html/ 的上一级即 vault 根目录
+OUTPUT_MANIFEST = os.path.join(_HERE, "vault-manifest.js")
+OUTPUT_DOCS = os.path.join(_HERE, "vault-docs.js")
 
 IGNORE_DIRS = {'.git', '.obsidian', '.claude', '.neeko', '__pycache__', 'node_modules'}
 
