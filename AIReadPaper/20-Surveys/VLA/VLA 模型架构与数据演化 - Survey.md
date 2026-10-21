@@ -1,6 +1,6 @@
 # VLA 模型架构与数据演化 - Survey
 
-> 领域综述 · VLA（Vision-Language-Action）· 更新于 2026-08-26
+> 领域综述 · VLA（Vision-Language-Action）· 更新于 2026-10-21
 
 ## 基本信息
 
@@ -21,7 +21,7 @@
     - **AtlasVLA**（arXiv:2608.06729，中科院自动化所）—— 4D 持久世界-自我状态双记忆，单腕相机即可超越多视角基线
     - **"VLA Models Are More Generalizable Than You Think"**（CVPR 2026 Compute Transparency Champion Award，arXiv:2512.02902，中大 + X-Era AI Lab）—— 空间建模与物理建模的可分离性证明
 - **主线判断**：VLA 的进化不是单一维度的"换骨干"，而是**架构（动作表示 / 骨干 / 监督粒度 / 视觉对齐 / 空间记忆）**与**数据（来源 / 形态 / 规模 / 监督信号）**两条线互相塑造、螺旋上升的过程。2026 下半年发生的一次"范式分裂"让这条主线更清晰——纯"VLM 骨干 + 动作头"撞上了**数据墙、泛化墙、物理墙**三堵墙，催生出**离散扩散原生 VLA、统一世界动作模型、空间-记忆建模、具身推理**四条新路线，并直接修正了前文 4 章中"连续 flow matching 是终点""世界模型只是数据引擎"两个早期结论。
-- **系列（lineage）视角**（详见 [[#8 系列脉络：把单篇论文放回它的家族|第 8 章]]）：前七章以"问题"为主线把论文打散重组，但很多单篇论文其实是同一机构/团队**连续迭代系列**的一环——Google 的 **RT → Gemini Robotics** 系列、Physical Intelligence 的 **π0 → π0.7** 系列、NVIDIA 的 **GR00T N1 → N1.7** 系列、开源线的 **OpenVLA → OpenVLA-OFT / Octo**、世界模型的 **GigaBrain-0 → DreamZero → Motus → MotuBrain**、离散扩散的 **MMaDA-VLA → Discrete Diffusion VLA**，以及数据线的 **RT-1 数据 → OXE → DROID → AgiBot World**。**单篇论文是"快照"，系列才是"轨迹"**——读懂系列，才能看清每个团队"为什么在那一刻做出那个选择"。
+- **系列（lineage）视角**（详见 [[#8 系列脉络：把单篇论文放回它的家族|第 8 章]]）：前七章以"问题"为主线把论文打散重组，但很多单篇论文其实是同一机构/团队**连续迭代系列**的一环。现已补齐三份可独立阅读的专题综述：[[Google RT 系列 - Survey]]（RT-1→RT-2→RT-X，并分化出轨迹提示、注意力加速、数据编排与语言动作层级）、[[ByteDance GR 系列 - Survey]]（GR-1→GR-2→GR-3→GR-RL，从视频生成预训练走向VLM基座与真机RL）、[[StarVLA 系列 - Survey]]（基础设施→受控强基线→表示中心继续预训练）。另有 [[PI 系列 VLA 演进 - Survey]]、NVIDIA **GR00T N1→N1.7**、开源 **OpenVLA→OFT/Octo**、世界模型 **GigaBrain-0→DreamZero→Motus→MotuBrain** 等路线。**单篇论文是"快照"，系列才是"轨迹"**。
 
 ---
 

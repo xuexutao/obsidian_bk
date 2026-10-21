@@ -1,0 +1,45 @@
+% LeWM without SIGReg on Push-T: author-reported final result, 2026-10-02.
+% Ledger: ../results/lewm_no_sigreg_pusht_probing_2026_10_02.json.
+% IDM supplemented by the author on 2026-10-04; other values retained.
+% LeWAM (MSE) without SIGReg: author-reported final result, 2026-10-03.
+% Ledger: ../results/lewam_mse_no_sigreg_pusht_probing_2026_10_03.json.
+% IDM supplemented by the author on 2026-10-04; other values retained.
+% IDM source: ../results/pusht_idm_supplement_2026_10_04.json.
+% Author update 2026-10-05: synchronize Push-T to the current main-paper values.
+% Ledger: ../results/pusht_probing_main_table_author_update_2026_10_05.json.
+\begin{table}[t]
+\centering
+\caption{\textbf{Effective Rank and Linear Probing.} Results on \dataset{Push-T}, \dataset{Cube}, \dataset{Scene}, and \dataset{Puzzle}, with the Object, Proprio, and Action columns reporting linear-probe $R^2$. Rows compare models with and without SIGReg; parenthesized values use both $\vz_t$ and $\vz_{t+K}$ for inverse-dynamics probing.}
+\label{tab:physical-probing-appendix}
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{@{}lllcccc@{}}
+\toprule
+Environment & Model & SIGReg & Eff. rank & Object $\uparrow$ & Proprio $\uparrow$ & Action (IDM) $\uparrow$ \\
+\midrule
+\multirow{5}{*}{\dataset{Push-T}} & \multirow{2}{*}{\method{}} & Yes & $42.90$ & $0.90$ & $\mathbf{0.86}$ & $\mathbf{0.40}\,(\mathbf{0.75})$ \\
+ &  & No & $10.94$ & $0.88$ & $0.85$ & $0.38\,(0.73)$ \\
+\cmidrule(l){2-7}
+ & \method{} (MSE) & No & $6.96$ & $0.66$ & $\mathbf{0.86}$ & $0.36\,(0.74)$ \\
+\cmidrule(l){2-7}
+ & \multirow{2}{*}{\methodname{LeWM}} & Yes & $94.20$ & $\mathbf{0.95}$ & $0.80$ & $0.29\,(0.71)$ \\
+ & & No & $16.23$ & $0.00$ & $0.00$ & $0.00\,(0.00)$ \\
+\midrule
+\multirow{3}{*}{\dataset{Cube}} & \multirow{2}{*}{\method{}} & Yes & $46.60$ & $\mathbf{0.99}$ & $0.67$ & $\mathbf{0.37}\,(0.66)$ \\
+ &  & No & $8.00$ & $\mathbf{0.99}$ & $\mathbf{0.70}$ & $\mathbf{0.37}\,(\mathbf{0.68})$ \\
+\cmidrule(l){2-7}
+ & \methodname{LeWM} & Yes & $108.10$ & $\mathbf{0.99}$ & $0.58$ & $0.17\,(0.55)$ \\
+\midrule
+\multirow{3}{*}{\dataset{Scene}} & \multirow{2}{*}{\method{}} & Yes & $48.90$ & $\mathbf{0.48}$ & $\mathbf{0.78}$ & $0.39\,(\mathbf{0.74})$ \\
+ &  & No & $12.50$ & $0.40$ & $0.77$ & $\mathbf{0.43}\,(\mathbf{0.74})$ \\
+\cmidrule(l){2-7}
+ & \methodname{LeWM} & Yes & $111.10$ & $0.40$ & $0.37$ & $0.07\,(0.35)$ \\
+\midrule
+\multirow{3}{*}{\dataset{Puzzle}} & \multirow{2}{*}{\method{}} & Yes & $46.50$ & $0.37$ & $\mathbf{0.70}$ & $\mathbf{0.33}\,(\mathbf{0.69})$ \\
+ &  & No & $5.80$ & $0.22$ & $0.66$ & $0.31\,(0.68)$ \\
+\cmidrule(l){2-7}
+ & \methodname{LeWM} & Yes & $97.40$ & $\mathbf{0.60}$ & $0.42$ & $0.16\,(0.48)$ \\
+\bottomrule
+\end{tabular}
+\end{table}

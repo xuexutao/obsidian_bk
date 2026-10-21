@@ -1,3 +1,7 @@
+## 一句话结论
+
+QuadGPT 看到现有 3D 生成大多输出三角网格或隐式表面，进入游戏、动画和绑定流程后仍需昂贵的人工 retopology，于是把 triangle/quad 统一编码成定长 face-token blocks，用 **Hourglass Transformer** 在超长网格序列上同时建模全局边流与局部面片，再用拓扑质量驱动的 **tDPO** 偏好优化学习专业美术师对连续 edge loops、规整面片和关节变形友好拓扑的选择。论文实验表明，原生 quadrilateral-dominant generation 在四边形占比、边流连续性和复杂区域拓扑稳定性上优于“先生成三角面、再转四边面”的间接路线，使 AI 网格从“能看”更接近可编辑、可绑定的生产资产；但超长序列、严格面数预算和 UV/材质/绑定仍未被完整解决。
+
 以下为论文 Figure 1 的 teaser 图，展示 QuadGPT 基于点云条件生成多样、高质量四边形网格的效果。
 
 ![](assets/QuadGPT%20-%20原生四边形网格自回归生成/teaser.png)

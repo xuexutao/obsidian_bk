@@ -1,0 +1,405 @@
+{
+  "url": "https://arxiv.org/abs/2408.12528",
+  "fetch_url": "https://arxiv.org/pdf/2408.12528",
+  "title": "Show-o: One Single Transformer to Unify Multimodal Understanding and Generation",
+  "type": "pdf",
+  "arxiv_id": "2408.12528",
+  "n_images": 40,
+  "images": [
+    {
+      "path": "images/img_000_p2.jpeg",
+      "page": 2,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p4.png",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_016_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_017_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_018_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_019_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_020_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_021_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_022_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_023_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_024_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_025_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_026_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_027_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_028_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_029_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_030_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_031_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_032_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_033_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_034_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_035_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_036_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_037_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_038_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_039_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_018.png",
+      "page": 18,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_019.png",
+      "page": 19,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_020.png",
+      "page": 20,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_021.png",
+      "page": 21,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_022.png",
+      "page": 22,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_023.png",
+      "page": 23,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_024.png",
+      "page": 24,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_025.png",
+      "page": 25,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 25,
+  "n_chars": 87048,
+  "authors": [
+    "Jinheng Xie",
+    "Weijia Mao",
+    "Zechen Bai",
+    "David Junhao Zhang",
+    "Weihao Wang",
+    "Kevin Qinghong Lin",
+    "Yuchao Gu",
+    "Zhijie Chen",
+    "Zhenheng Yang",
+    "Mike Zheng Shou"
+  ],
+  "abstract": "We present a unified transformer, i.e., Show-o, that unifies multimodal understanding and generation. Unlike fully autoregressive models, Show-o unifies autoregressive and (discrete) diffusion modeling to adaptively handle inputs and outputs of various and mixed modalities. The unified model flexibly supports a wide range of vision-language tasks including visual question-answering, text-to-image generation, text-guided inpainting/extrapolation, and mixed-modality generation. Across various benchmarks, it demonstrates comparable or superior performance to existing individual models with an equivalent or larger number of parameters tailored for understanding or generation. This significantly highlights its potential as a next-generation foundation model. Code and models are released at https://github.com/showlab/Show-o.",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

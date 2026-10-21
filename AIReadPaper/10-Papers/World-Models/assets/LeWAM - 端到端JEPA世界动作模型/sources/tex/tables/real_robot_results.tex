@@ -1,0 +1,29 @@
+% Author-confirmed denominator, September 17: 30 trials per evaluated method/task.
+\begin{table}[H]
+\centering
+\vspace{-1em}
+\caption{Physical robot evaluation. Successful trials out of 30 on Pick and Place T, Push-T, and Tape Stack. GFLOPs count one inference for a full action chunk, including all denoising steps. One full LeWAM action chunk uses 270.2 GFLOPs versus 3603.6 GFLOPs for
+$\pi_{0.5}$. Figure~\ref{fig:headline-results}(d) expresses
+the reciprocal as action chunks per TFLOP, a $13.3\times$ difference in operation-count efficiency.}
+\label{tab:real-robot-results}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}lcccc|c@{}}
+\toprule
+Method & Pick and Place T & Push-T & Tape Stack & Average & GFLOPs \\
+\midrule
+\methodname{Diffusion Policy}~\citep{chi2023diffusionpolicy}
+    & $19/30$ & $16/30$ & \textsc{0/30} & \textsc{38.9\%} & $270.0$ \\
+\methodname{$\pi_{0.5}$}~\citep{physicalintelligence2025pi05}
+    & $14/30$ & \textsc{3/30} & \textsc{9/30} & \textsc{28.9\%} & $3603.6$ \\
+\midrule
+\methodname{\method{} (Frozen V-JEPA 2.1 Encoder)}
+    & $15/30$ & $12/30$ & \textsc{5/30} & \textsc{35.6\%} & $270.2$ \\
+\textbf{\method{}}
+    & $16/30$ & $8/30$ & \textsc{6/30} & \textsc{33.3\%} & $270.2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+% TODO: fill training/post-training wall-clock hours with hardware and task scope;
+% record GPT-6 Astra API spend together with the evaluated tasks and trial counts.

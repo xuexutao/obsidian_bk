@@ -1,0 +1,23 @@
+% Current Diffusion Policy row is DP-C, not the earlier DP-T comparison.
+% Verified 2026-09-25 against RECIPES.md (ToolHang) and Beacon tv evaluation
+% logs (DrawerCleanup, Transport): scene-only ToolHang, three views otherwise.
+\begin{table}[H]
+\centering
+\caption{Task completion. Mean success rates (\%) $\pm$ standard deviation across three evaluation seeds, with 50 episodes per seed. Bold marks the better result.}
+\label{tab:task-completion}
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Method & DrawerCleanup & Transport & ToolHang & Average\\
+\midrule
+\methodname{Diffusion Policy}~\citep{chi2023diffusionpolicy}
+    & $\mathbf{54.7\pm1.2}$ & $45.3\pm9.0$ & $\mathbf{84.7\pm3.1}$ & 61.6 \\
+\method{} & $52.7\pm5.0$ & $\mathbf{61.3\pm9.9}$ & $80.0\pm3.5$ & $\mathbf{64.7}$ \\
+\bottomrule
+\end{tabular}
+\vspace{-1em}
+\end{table}
+% DP-C recipe and evaluation seeds are documented in Appendix B.
+% TODO: record the finalized LeWAM checkpoints and verify matched settings per run.

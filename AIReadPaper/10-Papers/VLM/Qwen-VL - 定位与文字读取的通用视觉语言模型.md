@@ -67,7 +67,7 @@ Qwen-VL 的关键不是简单把视觉编码器接到 Qwen-7B，而是用**带�
 
 ### 2.1 总体架构与数据流
 
-Qwen-VL 由三块组成：OpenCLIP ViT-bigG 初始化的视觉编码器、随机初始化的单层 cross-attention adapter、Qwen-7B 初始化的语言模型。ViT 以 stride 14 切分图像；第一阶段 224×224 产生 256 个 patch token，第二、三阶段 448×448 产生 1024 个 patch token。无论输入多少 patch，adapter 都输出固定 256 个视觉 token。
+Qwen-VL 由三块组成：OpenCLIP ViT-bigG 初始化的视觉编码器、随机初始化的单层 cross-attention adapter、Qwen-7B 初始化的语言模型。ViT 以 stride 14 切分图像；**<span style="color: red">第一阶段 224×224 产生 256 个 patch token，第二、三阶段 448×448 产生 1024 个 patch token</span>**。无论输入多少 patch，adapter 都输出固定 256 个视觉 token。
 
 ![](assets/Qwen-VL%20-%20定位与文字读取的通用视觉语言模型/figures/02-training-pipeline.png)
 
@@ -84,7 +84,9 @@ Qwen-VL 由三块组成：OpenCLIP ViT-bigG 初始化的视觉编码器、随机
 
 ### 2.2 固定 256 query：为何是首代的关键设计
 
-设 ViT 输出为 $V\in\mathbb{R}^{N\times d_v}$，可学习查询为 $Q\in\mathbb{R}^{256\times d_q}$，适配器近似执行 $Z=\mathrm{CrossAttn}(Q,V+P_{2D})$。这里 $P_{2D}$ 把 patch 的二维绝对位置加入交互，$Z$ 的长度恒为 256。
+设 ViT 输出为 $V\in\mathbb{R}^{N\times d_v}$，可学习查询为 $Q\in\mathbb{R}^{256\times d_q}$，适配器近似执行 $Z=\mathrm{CrossAttn}(Q,V+P_{2D})$。<span class="md-comment-hl" data-comment="这里比较想了解 这个 P_2D 的shape是什么，他是如何得到的" title="💬 这里比较想了解 这个 P_2D 的shape是什么，他是如何得到的">这里 $P_{2D}$ 把 patch 的二维绝对位置加入交互，$Z$ 的长度恒为 256。</span>
+
+> 💬 **批注**（针对「这里 $P_{2D}$ 把 patch 的二维绝对位置加入交互，$Z$ 的长度恒为 …」）：这里比较想了解 这个 P_2D 的shape是什么，他是如何得到的
 
 这个设计同时解决两个问题：一是把 448×448 下的 1024 个 patch 压到 LLM 可承受的长度；二是提供类似 BLIP-2 Q-Former 的内容选择机制。但它也是信息瓶颈：无论原图多复杂，LLM 最终都只看到 256 个视觉 token，而且输入还被统一 resize 到固定分辨率。
 

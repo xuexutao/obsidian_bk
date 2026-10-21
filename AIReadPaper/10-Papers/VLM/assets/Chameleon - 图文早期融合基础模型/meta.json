@@ -1,0 +1,330 @@
+{
+  "url": "https://arxiv.org/abs/2405.09818",
+  "fetch_url": "https://arxiv.org/pdf/2405.09818",
+  "title": "Chameleon: Mixed-Modal Early-Fusion Foundation Models",
+  "type": "pdf",
+  "arxiv_id": "2405.09818",
+  "n_images": 24,
+  "images": [
+    {
+      "path": "images/img_000_p2.jpeg",
+      "page": 2,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p2.jpeg",
+      "page": 2,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p3.png",
+      "page": 3,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p3.png",
+      "page": 3,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p3.png",
+      "page": 3,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p4.png",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p4.png",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p5.png",
+      "page": 5,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p5.png",
+      "page": 5,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p10.jpeg",
+      "page": 10,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_016_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_017_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_018_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_019_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_020_p23.png",
+      "page": 23,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_021_p23.png",
+      "page": 23,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_022_p23.png",
+      "page": 23,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_023_p24.jpeg",
+      "page": 24,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_018.png",
+      "page": 18,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_019.png",
+      "page": 19,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_020.png",
+      "page": 20,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_021.png",
+      "page": 21,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_022.png",
+      "page": 22,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_023.png",
+      "page": 23,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_024.png",
+      "page": 24,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_025.png",
+      "page": 25,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_026.png",
+      "page": 26,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_027.png",
+      "page": 27,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 27,
+  "n_chars": 82518,
+  "authors": [
+    "Chameleon Team"
+  ],
+  "abstract": "We present Chameleon, a family of early-fusion token-based mixed-modal models capable of understanding and generating images and text in any arbitrary sequence. We outline a stable training approach from inception, an alignment recipe, and an architectural parameterization tailored for the early-fusion, token-based, mixed-modal setting. The models are evaluated on a comprehensive range of tasks, including visual question answering, image captioning, text generation, image generation, and long-form mixed modal generation. Chameleon demonstrates broad and general capabilities, including state-of-the-art performance in image captioning tasks, outperforms Llama-2 in text-only tasks while being competitive with models such as Mixtral 8x7B and Gemini-Pro, and performs non-trivial image generation, all in a single model. It also matches or exceeds the performance of much larger models, including Gemini Pro and GPT-4V, according to human judgments on a new long-form mixed-modal generation evaluation, where either the prompt or outputs contain mixed sequences of both images and text. Chameleon marks a significant step forward in a unified modeling of full multimodal documents.",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

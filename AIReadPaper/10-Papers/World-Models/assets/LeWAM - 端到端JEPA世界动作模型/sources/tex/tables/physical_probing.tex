@@ -1,0 +1,41 @@
+% Author-reported values, 2026-09-16; show the full method before the ablation.
+% Comparison limited to Push-T and ToolHang; uncertainty estimates were not supplied.
+% LeWM added September 17: Push-T block-angle linear-probe Pearson r = 0.902,
+% from Maes et al., Table 1 and Appendix F.2 (arXiv:2603.19312v2), not R-squared.
+% LeWM planning values reuse current Figure 6; older records are archived locally.
+% These are separate reported probe and planning records, not a paired checkpoint claim.
+% LeWM without SIGReg: author-reported final result, 2026-10-02.
+% Ledger: ../results/lewm_no_sigreg_pusht_probing_2026_10_02.json.
+% IDM supplemented by the author on 2026-10-04; other values retained.
+% LeWAM (MSE) without SIGReg: author-reported final result, 2026-10-03.
+% Ledger: ../results/lewam_mse_no_sigreg_pusht_probing_2026_10_03.json.
+% IDM supplemented by the author on 2026-10-04; other values retained.
+% IDM source: ../results/pusht_idm_supplement_2026_10_04.json.
+% Author update 2026-10-05: the current main-paper values supersede earlier row records.
+% Ledger: ../results/pusht_probing_main_table_author_update_2026_10_05.json.
+\begin{table}[t]
+\centering
+\caption{Linear probing and the role of SIGReg. All linear probes report $R^2$ score using ridge regression. \emph{Object} denotes the average $R^2$ over all object ground truth information and \emph{Proprio} the ground truth proprioceptive state. \emph{Action} predicts the action chunk from latent $\vz_t$; parenthesized IDM scores use both $\vz_t,\vz_{t+K}$ where reported. \emph{Eff. rank} denotes effective rank~\citep{royvetter2007effrank}.}
+\label{tab:physical-probing-main}
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{@{}lllcccc@{}}
+\toprule
+Environment & Model & SIGReg & Eff. rank & Object $\uparrow$ & Proprio $\uparrow$ & Action (IDM) $\uparrow$ \\
+\midrule
+\multirow{5}{*}{\dataset{Push-T}} & \multirow{2}{*}{\method{}} & Yes & $42.90$ & $0.90$ & $\mathbf{0.86}$ & $\mathbf{0.40} (\mathbf{0.75})$ \\
+& & No & $10.94$  & $0.88$ & $0.85$ & $0.38 (0.73)$ \\
+\cmidrule(l){2-7}
+& \method{} (MSE) & No & $6.96$ & $0.66$ & $\mathbf{0.86}$ & $0.36\,(0.74)$ \\
+\cmidrule(l){2-7}
+& \multirow{2}{*}{\methodname{LeWM}} & Yes & $94.20$ & $\mathbf{0.95}$ & $0.80$ & $0.29 (0.71)$ \\
+& & No & $16.23$ & $0.00$ & $0.00$ & $0.00\,(0.00)$ \\
+\bottomrule
+\end{tabular}
+\vspace{-1em}
+\end{table}
+% TODO: record checkpoints, covariance/probe evaluation sets, training/evaluation seeds,
+% uncertainty, and planning settings. Do not substitute these runs for other protocols.
+% TODO: compute LeWM effective rank on both tasks and matched R-squared probes,
+% including ToolHang; keep the published Pearson r distinct until then.

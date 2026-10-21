@@ -2,8 +2,12 @@
 type: paper-note
 status: complete
 domain: Foundations
+series: MoGe
+series_order: 1
+series_hub: "[[MoGe系列 - Survey]]"
 paper: "MoGe: Unlocking Accurate Monocular Geometry Estimation for Open-Domain Images with Optimal Training Supervision"
 year: 2024
+venue: CVPR 2025 Oral
 arxiv: "2410.19115"
 source: https://arxiv.org/abs/2410.19115
 project: https://wangrc.site/MoGePage/
@@ -14,7 +18,7 @@ tags:
   - affine-invariant
   - camera-estimation
 created: 2026-10-15
-updated: 2026-10-15
+updated: 2026-10-21
 ---
 
 # MoGe：开放域单目几何与仿射不变点图
@@ -29,7 +33,9 @@ updated: 2026-10-15
 | 核心 | 仿射不变点图、ROE 最优对齐、多尺度局部几何监督、FOV 恢复 |
 | 重要性 | ★★★★☆：把单目深度提升为直接单目 3D 几何，并把性能焦点从架构转到监督表示 |
 
-> **一句话结论：** MoGe 直接预测逐像素 3D pointmap，不把深度与焦距分开学；更关键的是把输出定义为“全局尺度 + 三维平移不确定”的仿射不变表示，从监督中剔除单图不可辨识的焦距—距离歧义。ROE solver 精确求解训练时的 scale/shift，对局部球形区域再独立对齐，分别约束全局形状与局部表面。
+## 一句话结论
+
+MoGe 发现单目几何的主要瓶颈不只是网络容量，而是监督中混入了单图无法辨识的**焦距—距离、全局尺度和对象间相对距离歧义**；它因此直接预测逐像素 3D point map，并把目标定义为允许统一尺度与光轴平移的 affine-invariant 几何，再用 ROE 对齐器求训练时的鲁棒最优 scale/shift、用三尺度局部球监督与法线损失保住局部表面，同时从投影一致性反求焦距/FOV。当前 v3 在 8 个未见数据集上把 affine point-map 平均 Rel 从此前 UniDepth 的 9.43% 降到 **6.07%**、local point Rel 从 DUSt3R 的 7.97% 降到 **5.50%**，但输出仍无米制尺度、依赖中心主点针孔假设，超细结构与天空/透明区域仍可能失败；它为后续 [[MoGe-2 - 米制尺度与锐利单目几何]] 的尺度解耦和 [[MoGe-3 - 自引导稀疏体积几何细化]] 的三维 refinement 奠定了表示与监督基础。
 
 ---
 
@@ -125,12 +131,12 @@ $$f=\frac{\sum_i a_iu_i+\sum_i b_iv_i}{\sum_i a_i^2+\sum_i b_i^2},\quad a_i=\fra
 
 | 任务 | MoGe Rel↓ | $\delta_1$↑ | 前一最佳 Rel |
 |---|---:|---:|---:|
-| Scale-invariant pointmap | **8.32** | **93.1** | UniDepth 12.9 |
-| Affine-invariant pointmap | **6.43** | **94.4** | UniDepth 9.86 |
-| Local affine pointmap | **5.33** | **95.8** | DUSt3R 7.96 |
-| Scale-invariant depth | **6.17** | 93.9 | Metric3D v2 6.32 |
-| Affine-invariant depth | **4.73** | **95.8** | Marigold 8.41 |
-| Affine-invariant disparity | **5.76** | **95.2** | DA V1 7.36 |
+| Scale-invariant pointmap | **7.91** | **93.3** | UniDepth 12.3 |
+| Affine-invariant pointmap | **6.07** | **94.7** | UniDepth 9.43 |
+| Local affine pointmap | **5.50** | **95.6** | DUSt3R 7.97 |
+| Scale-invariant depth | **6.17** | 93.8 | Metric3D v2 6.33 |
+| Affine-invariant depth | **4.72** | **95.8** | Marigold 8.41 |
+| Affine-invariant disparity | **5.76** | **95.2** | DA V1 7.31 |
 
 FOV 三数据集平均 Mean/Median 误差为 2.91°/2.21°，综合排名第一。
 

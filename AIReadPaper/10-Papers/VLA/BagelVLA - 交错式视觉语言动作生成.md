@@ -88,7 +88,7 @@ $$J = -\left( \mathcal{L}_l + \mathcal{L}_v + \mathcal{L}_a \right) = \max_\thet
 
 ### 3.1 总体框架
 
-BagelVLA 采用 **Mixture-of-Transformers（MoT）** 架构，用三个独立 transformer 分别专责语言、视觉、动作三种模态，经 self-attention 互联。理解专家与生成专家**初始化自 Bagel**（字节的统一 MoT 理解-生成模型），之上再挂一个更小的 action 专家。区别于此前的 MoT-VLA（Villa-X、F1、UniUgp），BagelVLA 的语言与视觉组件都有稳健的预训练初始化，并采用全新的**双流匹配（dual flow-matching）**机制。
+BagelVLA 采用 **Mixture-of-Transformers（MoT）** 架构，用三个独立 transformer 分别专责语言、视觉、动作三种模态，经 self-attention 互联。理解专家与生成专家**初始化自 Bagel**（字节的统一 MoT 理解-生成模型），之上再挂一个更小的 action 专家。区别于此前的 MoT-VLA（Villa-X、F1、UniUgp），BagelVLA 的语言与视觉组件都有稳健的预训练初始化，并采用全新的<span style="color: red">**<span style="color: red">双流匹配</span>**</span>（dual flow-matching）机制。
 
 ![](assets/BagelVLA%20-%20交错式视觉语言动作生成/figures/01-teaser.png)
 

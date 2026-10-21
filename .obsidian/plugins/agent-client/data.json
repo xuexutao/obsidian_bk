@@ -110,6 +110,22 @@
   },
   "savedSessions": [
     {
+      "sessionId": "77a37ec4-9dd2-41f9-99ca-486ed8523d2d",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "那你觉得其他的latent-action 有哪些呢？他们是如何做的呢",
+      "createdAt": "2026-10-20T14:10:17.186Z",
+      "updatedAt": "2026-10-20T14:10:17.187Z"
+    },
+    {
+      "sessionId": "ccbd1022-9911-42ea-bd56-9c3c2abe6557",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+      "title": "这里我有点疑问，implicit memory 和 context memory 有什么区别吗...",
+      "createdAt": "2026-10-20T06:47:25.021Z",
+      "updatedAt": "2026-10-20T06:52:20.049Z"
+    },
+    {
       "sessionId": "04c7073b-21c6-4843-a662-870507b2d4fd",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",

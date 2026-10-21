@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "sessionId": "ccbd1022-9911-42ea-bd56-9c3c2abe6557",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "这里我有点疑问，implicit memory 和 context memory 有什么区别吗...",
+  "createdAt": "2026-10-20T06:47:25.021Z",
+  "updatedAt": "2026-10-20T06:47:25.023Z",
+  "messages": [
+    {
+      "id": "32646b5e-3efa-4e00-8bc3-25809651ca2a",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "这里我有点疑问，implicit memory 和 context memory 有什么区别吗？既然world crafter 是按照目标视角查找的，那岂不是和 context memory 一致呢？",
+          "autoMentionContext": {
+            "noteName": "WorldCrafter - 隐式三维记忆视频世界模型",
+            "notePath": "AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+            "selection": {
+              "fromLine": 56,
+              "toLine": 57
+            }
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T06:46:36.640Z"
+    },
+    {
+      "id": "80952a67-d6fd-444e-82b7-f6c7e3753305",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "Let me check the note to get the details right."
+        }
+      ],
+      "timestamp": "2026-10-20T06:46:42.858Z"
+    },
+    {
+      "id": "b8806b84-e7d4-4554-9fb3-da27e61e6691",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_011u5hvVjydavAQjR44MsoyS",
+          "title": "Read AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "**Warning:** We're changing auto mode to no longer charge for classifier requests in Claude Code. However, this session isn't eligible because your requests go through 127.0.0.1:15721, which isn't compatible with this update. Nothing breaks: auto mode keeps working, and its classifier requests are billed as before. To fix it and access the new version of auto mode, ask your gateway to implement: https://code.claude.com/docs/en/auto-mode-classifier-billing这是个很好的问题，而且恰好是这篇论文最容易被误读的地方。核心答案是：**“按目标视角检索”这一步两者确实一样；真正的区别发生在检索之后。**\n\n## 1. 共同点：检索层确实一致\n\nContext as Memory / WorldPlay 的做法是按 FoV overlap 挑历史帧；WorldCrafter 的 max-coverage retrieval 也是按相机几何挑历史帧（笔记 §4）。所以如果只看\"谁决定读哪些历史\"，两条路线没有本质差异——WorldCrafter 的改进只是把\"逐帧排序\"换成\"集合覆盖最大化\"。\n\n## 2. 关键区别：检索到的东西以什么形态进入 DiT\n\n| | Context memory | WorldCrafter 的 implicit memory |\n|---|---|---|\n| 进入 DiT 的内容 | 检索到的**原始历史 latent frames** | encoder 融合后、readout 压缩出的 **memory tokens** |\n| token 成本 | ∝ 检索帧数（想多覆盖就要多付） | 固定（等价 4 帧），与检索帧数解耦 |\n| 实际可用历史视图数 | 受 DiT 预算限制（消融里是 4 帧） | 9 帧 |\n| 跨视角几何融合 | 没有，DiT 要自己在 attention 里做隐式重投影 | encoder 已带 camera tokens 做过多视角融合 |\n| 目标视角的作用层级 | 只有一级：决定**哪些帧**进来 | 两级：决定哪些帧进来 + 决定帧内**哪些信息**在压缩中存活 |\n\n第二点是关键的工程杠杆：**context memory 的\"覆盖范围\"和\"token 预算\"是同一个量，implicit memory 把它们解耦了。** 所以 WorldCrafter 能在 4 帧 token 的成本下利用 9 帧互补视图的信息。\n\n第三点则是语义上的差异：context memory 给 DiT 的是 9 张（或 4 张）各自处在自己视角下的独立 2D 图像，跨视角对应关系要由 DiT 自己在去噪过程中隐式解；implicit memory 给的是已经在共享相对相机坐标系下对齐、融合过的表示（笔记 §3.1，pose 统一表示为相对最新历史帧）。这才是\"3D-aware\"的含义，它不是显式几何，而是\"跨视角对应已被预先解算\"。\n\n## 3. 论文的消融正好把这两层收益分开了\n\n拿笔记 §11.1 的三行读：\n\n| 方案 | LPIPS ↓ | RotErr ↓ |\n|---|---:|---:|\n| Context memory（4 帧原始 latent） | 0.497 | 26.522 |\n| Pose-free readout（编码+压缩，但不用目标 pose 查询） | 0.333 | 18.307 |\n| Pose-guided readout（完整） | 0.255 | 13.536 |\n\n- `0.497 → 0.333`：**编码/融合本身的收益**。这一行里目标 pose 完全没参与 readout，但依然大幅胜过 context memory——说明优势的主要来源不是\"按视角查找\"，而是\"把多视角证据压成结构化表示\"这件事。\n- `0.333 → 0.255`：**目标 pose 作为 query 的额外收益**，即在固定预算下按即将访问的视角分配容量。\n\n## 4. 一句话总结\n\n> Context memory 是\"**用目标视角挑帧，然后把原帧丢给生成器自己找**\"；WorldCrafter 是\"**用目标视角挑帧，融合成跨视角表示，再用目标视角第二次查询、决定压缩保留什么**\"。\n\n所以笔记 §1.1 那句话里\"不应先把整个世界无差别压缩\"，批评的对象其实不是 context memory，而是 **pose-free 的 implicit memory**（§5.1）；而它相对 context memory 的优势是另一个维度——**覆盖范围与 token 预算解耦**。这两句话在原笔记里压缩成了一句，确实容易混。\n\n要不要我把这段辨析补成笔记的 §12.1 的一个子节（或 §1.1 后的一个小注），把\"两级 pose 查询\"和\"消融的收益分解\"这两点固定下来？"
+        },
+        {
+          "type": "agent_thought",
+          "text": "Both implicit memory and context memory actually retrieve by target view similarly, so that's not where they diverge—the real distinction lies in what gets passed into the DiT: raw history latents versus encoded readout tokens. Context memory works by pulling k frames and concatenating their raw latents directly into the DiT's context, so its token cost scales with how many frames get retrieved.With a limited token budget, context memory can only pull a small number of frames (say 4), leaving cross-view fusion entirely up to the DiT's attention. WorldCrafter decouples this by retrieving a wider set, like 9 frames, which an encoder fuses into a multi-view 3D-aware representation before a pose-guided readout compresses it down to roughly 4-frame-equivalent tokens—so retrieval width and DiT token budget become independent. This gives two levels of pose-querying, coarse retrieval and fine readout, whereas context memory only has the coarse level and leaves the DiT to implicitly reproject frames that remain in their original viewpoints; the fused representation also resolves cross-view geometric correspondence explicitly, unlike the independent 2D frames context memory provides. The ablation table backs this up, showing context memory with a notably worse LPIPS score.I'm looking at how the ablation decomposes into an encoding gain and a separate pose-query gain, and noting that the baseline for the \"context memory\" comparison is simply reusing four history latent frames directly. I'm also thinking through how retrieval granularity differs: context memory retrieves whole discrete frames at the chunk level by FoV overlap, so coverage costs scale with token budget, whereas the implicit memory approach can do sub-frame partial allocation—blending the information from nine frames into four frames' worth of token capacity, weighted by relevance to the target view rather than per-frame.\n\nI want to answer the user's question directly now, then offer to add a clarifying subsection to the note if that would be helpful."
+        }
+      ],
+      "timestamp": "2026-10-20T06:46:42.992Z"
+    },
+    {
+      "id": "2ca5c114-5ed8-4b38-aa31-481e816e1e4c",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "不用一个子节，修改几句话就好，把一句话总结写到合适地方",
+          "autoMentionContext": {
+            "noteName": "WorldCrafter - 隐式三维记忆视频世界模型",
+            "notePath": "AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+            "selection": {
+              "fromLine": 56,
+              "toLine": 57
+            }
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T06:51:34.209Z"
+    },
+    {
+      "id": "494b7c2f-1a50-42eb-a240-b8ccd802bad0",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "I'll make two small edits: clarify line 56 and add a one-liner to §12.1."
+        }
+      ],
+      "timestamp": "2026-10-20T06:51:39.657Z"
+    },
+    {
+      "id": "ed41c21e-15a6-4cb5-99f5-818dab9e8f7a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01UHgRTsbGyqKp5XKiAerjaH",
+          "title": "Edit AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "newText": "| Explicit spatial memory | 深度、点云、surfel、显式 3D warp | 目标视角空间对齐明确 | 依赖几何估计与配准；动态场景脆弱；处理成本高 |\n| Implicit memory | 把历史压成学习到的 latent/tokens | 预算固定、可联合训练 | 压缩后是否保留几何与外观并无保证 |\n\nWorldCrafter 关注的是第三条路线，并进一步提出：**记忆容量有限时，不应先把整个世界无差别压缩，再让生成器自己找；应该由即将访问的目标视角决定当前需要从历史中读取什么。** 注意这句话批评的对象是 pose-free 的隐式压缩（见 4.1），不是 context memory——按目标视角挑历史帧这一步两条路线其实一致，implicit memory 相对 context memory 的真正区别在于把**历史视图覆盖范围与 DiT token 预算解耦**：context memory 想多覆盖就必须多付 token，而 implicit memory 能在固定 4 帧预算下吃进 9 帧互补视图。\n\n![](assets/WorldCrafter%20-%20隐式三维记忆视频世界模型/figures/01-teaser.png)\n",
+              "oldText": "| Explicit spatial memory | 深度、点云、surfel、显式 3D warp | 目标视角空间对齐明确 | 依赖几何估计与配准；动态场景脆弱；处理成本高 |\n| Implicit memory | 把历史压成学习到的 latent/tokens | 预算固定、可联合训练 | 压缩后是否保留几何与外观并无保证 |\n\nWorldCrafter 关注的是第三条路线，并进一步提出：**记忆容量有限时，不应先把整个世界无差别压缩，再让生成器自己找；应该由即将访问的目标视角决定当前需要从历史中读取什么。**\n\n![](assets/WorldCrafter%20-%20隐式三维记忆视频世界模型/figures/01-teaser.png)\n"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "line": 53
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+            "old_string": "WorldCrafter 关注的是第三条路线，并进一步提出：**记忆容量有限时，不应先把整个世界无差别压缩，再让生成器自己找；应该由即将访问的目标视角决定当前需要从历史中读取什么。**",
+            "new_string": "WorldCrafter 关注的是第三条路线，并进一步提出：**记忆容量有限时，不应先把整个世界无差别压缩，再让生成器自己找；应该由即将访问的目标视角决定当前需要从历史中读取什么。** 注意这句话批评的对象是 pose-free 的隐式压缩（见 4.1），不是 context memory——按目标视角挑历史帧这一步两条路线其实一致，implicit memory 相对 context memory 的真正区别在于把**历史视图覆盖范围与 DiT token 预算解耦**：context memory 想多覆盖就必须多付 token，而 implicit memory 能在固定 4 帧预算下吃进 9 帧互补视图。"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I misreferenced the pose-free readout section as 4.1 when it's actually §5.1, so I need to correct that citation. I should also add the one-line summary into §12.1."
+        }
+      ],
+      "timestamp": "2026-10-20T06:51:43.132Z"
+    },
+    {
+      "id": "424f612d-be0b-459a-9155-abdd21042c1c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01UyYExKRdFvV2WBX7XptAdm",
+          "title": "Edit AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "newText": "| Explicit spatial memory | 深度、点云、surfel、显式 3D warp | 目标视角空间对齐明确 | 依赖几何估计与配准；动态场景脆弱；处理成本高 |\n| Implicit memory | 把历史压成学习到的 latent/tokens | 预算固定、可联合训练 | 压缩后是否保留几何与外观并无保证 |\n\nWorldCrafter 关注的是第三条路线，并进一步提出：**记忆容量有限时，不应先把整个世界无差别压缩，再让生成器自己找；应该由即将访问的目标视角决定当前需要从历史中读取什么。** 注意这句话批评的对象是 pose-free 的隐式压缩（见 5.1），不是 context memory——按目标视角挑历史帧这一步两条路线其实一致，implicit memory 相对 context memory 的真正区别在于把**历史视图覆盖范围与 DiT token 预算解耦**：context memory 想多覆盖就必须多付 token，而 implicit memory 能在固定 4 帧预算下吃进 9 帧互补视图。\n\n![](assets/WorldCrafter%20-%20隐式三维记忆视频世界模型/figures/01-teaser.png)\n",
+              "oldText": "| Explicit spatial memory | 深度、点云、surfel、显式 3D warp | 目标视角空间对齐明确 | 依赖几何估计与配准；动态场景脆弱；处理成本高 |\n| Implicit memory | 把历史压成学习到的 latent/tokens | 预算固定、可联合训练 | 压缩后是否保留几何与外观并无保证 |\n\nWorldCrafter 关注的是第三条路线，并进一步提出：**记忆容量有限时，不应先把整个世界无差别压缩，再让生成器自己找；应该由即将访问的目标视角决定当前需要从历史中读取什么。** 注意这句话批评的对象是 pose-free 的隐式压缩（见 4.1），不是 context memory——按目标视角挑历史帧这一步两条路线其实一致，implicit memory 相对 context memory 的真正区别在于把**历史视图覆盖范围与 DiT token 预算解耦**：context memory 想多覆盖就必须多付 token，而 implicit memory 能在固定 4 帧预算下吃进 9 帧互补视图。\n\n![](assets/WorldCrafter%20-%20隐式三维记忆视频世界模型/figures/01-teaser.png)\n"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "line": 53
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+            "old_string": "注意这句话批评的对象是 pose-free 的隐式压缩（见 4.1）",
+            "new_string": "注意这句话批评的对象是 pose-free 的隐式压缩（见 5.1）"
+          }
+        },
+        {
+          "type": "text",
+          "text": "Now the §12.1 comparison — that's where the one-liner belongs:"
+        }
+      ],
+      "timestamp": "2026-10-20T06:51:49.000Z"
+    },
+    {
+      "id": "37ce494b-19b3-41f8-88aa-f85a73911dda",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01NLmEtWTtq8r8e6u4dbyiUj",
+          "title": "Edit AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "newText": "\n[[Context as Memory - 历史上下文驱动的场景记忆]] 和 WorldPlay 按相机重叠检索少量历史帧，外观保真但视图覆盖受限。WorldCrafter 将检索到的多视角证据先编码，再按目标 pose 读取，因此可以在相近 DiT token budget 下利用 9 个互补视图，而不是直接塞入少量原帧。\n\n一句话区分：**context memory 是\"用目标视角挑帧，然后把原帧丢给生成器自己找\"；WorldCrafter 是\"用目标视角挑帧，融合成跨视角表示，再用目标视角第二次查询、决定压缩时保留什么\"。** 目标相机在前者只起一级作用（决定哪些帧进来），在后者起两级作用（还决定帧内哪些信息在固定预算中存活）。另一个常被忽略的差异是跨视角对应的归属：context memory 把 9 张各处于自身视角的独立 2D latent 交给 DiT，重投影关系要由 attention 在去噪中隐式解；implicit memory 的 encoder 已带 camera tokens 在统一相对坐标系下做过融合——这才是\"3D-aware\"的实际含义，即对应关系被预先解算，而非存在显式几何。\n\n### 12.2 与 SPMem / Lyra 2.0 / Matrix-Game 3.5\n\n[[SPMem - 长期空间记忆视频世界模型]] 以及 Lyra 2.0 等显式空间记忆先估计深度或点云，再从目标视角 warp/render。它们空间对齐强，但几何误差会进入生成闭环，动态主体也可能被硬几何错误约束。WorldCrafter 放弃显式可解释 3D，换取动态适应性和较低在线开销。",
+              "oldText": "\n[[Context as Memory - 历史上下文驱动的场景记忆]] 和 WorldPlay 按相机重叠检索少量历史帧，外观保真但视图覆盖受限。WorldCrafter 将检索到的多视角证据先编码，再按目标 pose 读取，因此可以在相近 DiT token budget 下利用 9 个互补视图，而不是直接塞入少量原帧。\n\n### 12.2 与 SPMem / Lyra 2.0 / Matrix-Game 3.5\n\n[[SPMem - 长期空间记忆视频世界模型]] 以及 Lyra 2.0 等显式空间记忆先估计深度或点云，再从目标视角 warp/render。它们空间对齐强，但几何误差会进入生成闭环，动态主体也可能被硬几何错误约束。WorldCrafter 放弃显式可解释 3D，换取动态适应性和较低在线开销。"
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "line": 456
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+            "old_string": "[[Context as Memory - 历史上下文驱动的场景记忆]] 和 WorldPlay 按相机重叠检索少量历史帧，外观保真但视图覆盖受限。WorldCrafter 将检索到的多视角证据先编码，再按目标 pose 读取，因此可以在相近 DiT token budget 下利用 9 个互补视图，而不是直接塞入少量原帧。",
+            "new_string": "[[Context as Memory - 历史上下文驱动的场景记忆]] 和 WorldPlay 按相机重叠检索少量历史帧，外观保真但视图覆盖受限。WorldCrafter 将检索到的多视角证据先编码，再按目标 pose 读取，因此可以在相近 DiT token budget 下利用 9 个互补视图，而不是直接塞入少量原帧。\n\n一句话区分：**context memory 是\"用目标视角挑帧，然后把原帧丢给生成器自己找\"；WorldCrafter 是\"用目标视角挑帧，融合成跨视角表示，再用目标视角第二次查询、决定压缩时保留什么\"。** 目标相机在前者只起一级作用（决定哪些帧进来），在后者起两级作用（还决定帧内哪些信息在固定预算中存活）。另一个常被忽略的差异是跨视角对应的归属：context memory 把 9 张各处于自身视角的独立 2D latent 交给 DiT，重投影关系要由 attention 在去噪中隐式解；implicit memory 的 encoder 已带 camera tokens 在统一相对坐标系下做过融合——这才是\"3D-aware\"的实际含义，即对应关系被预先解算，而非存在显式几何。"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I should also touch §11.1's four conclusions, perhaps briefly noting the ablation decomposition in the first item, since the user just wants a few sentences adjusted, not a full rewrite."
+        },
+        {
+          "type": "text",
+          "text": "Finally one sentence in §11.1 so the ablation reads as a decomposition rather than four flat claims:"
+        }
+      ],
+      "timestamp": "2026-10-20T06:52:01.643Z"
+    },
+    {
+      "id": "35ac0874-e607-4224-9898-3969b3032c97",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_011GaND4TPM3PLaJ2ALmyQ7j",
+          "title": "Edit AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+          "status": "completed",
+          "kind": "edit",
+          "content": [
+            {
+              "type": "diff",
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "newText": "3. 目标 pose 应在压缩之前进入 readout；\n4. 历史候选应优化集合覆盖，而不是逐帧相似度。\n\n其中前三行还可以读成一条收益分解：$0.497\\to0.333$（context memory → pose-free readout）是**编码与跨视角融合本身**的贡献，此时目标 pose 完全没参与 readout；$0.333\\to0.255$ 才是**把目标 pose 当作 query** 的额外收益。可见 implicit memory 的主要优势来自\"压成结构化表示\"，\"按视角读取\"是在此之上的二阶改进。\n\n### 11.2 Memory processing latency\n\n在 $640\\times384$、每 chunk 9 个 latent frames 的口径下：",
+              "oldText": "3. 目标 pose 应在压缩之前进入 readout；\n4. 历史候选应优化集合覆盖，而不是逐帧相似度。\n\n### 11.2 Memory processing latency\n\n在 $640\\times384$、每 chunk 9 个 latent frames 的口径下："
+            }
+          ],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+              "line": 429
+            }
+          ],
+          "rawInput": {
+            "replace_all": false,
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/WorldCrafter - 隐式三维记忆视频世界模型.md",
+            "old_string": "1. 结构化隐式记忆优于直接复用 4 个历史 latent frames；\n2. NVS 表示不能完全冻结，必须与视频 DiT 共适应；\n3. 目标 pose 应在压缩之前进入 readout；\n4. 历史候选应优化集合覆盖，而不是逐帧相似度。",
+            "new_string": "1. 结构化隐式记忆优于直接复用 4 个历史 latent frames；\n2. NVS 表示不能完全冻结，必须与视频 DiT 共适应；\n3. 目标 pose 应在压缩之前进入 readout；\n4. 历史候选应优化集合覆盖，而不是逐帧相似度。\n\n其中前三行还可以读成一条收益分解：$0.497\\to0.333$（context memory → pose-free readout）是**编码与跨视角融合本身**的贡献，此时目标 pose 完全没参与 readout；$0.333\\to0.255$ 才是**把目标 pose 当作 query** 的额外收益。可见 implicit memory 的主要优势来自\"压成结构化表示\"，\"按视角读取\"是在此之上的二阶改进。"
+          }
+        },
+        {
+          "type": "text",
+          "text": "改了三处：\n\n1. **§1.1（你选中的那句）**——原句后面接了一句限定，明确它批评的是 pose-free 隐式压缩而非 context memory，并点出 implicit memory 相对 context memory 的真正差异是「覆盖范围与 token 预算解耦」。\n2. **§12.1**——一句话总结放在这里（与 Context as Memory 对比的位置最合适），同时补了「目标相机的两级作用」和「跨视角对应归属」两点。\n3. **§11.1**——消融后面加一句收益分解，说明 `0.497→0.333` 是融合的功劳、`0.333→0.255` 才是 pose query 的功劳。\n\n第 3 处是顺手加的；如果你觉得 §11.1 不需要这层解读，说一声我撤掉。"
+        }
+      ],
+      "timestamp": "2026-10-20T06:52:12.433Z"
+    }
+  ],
+  "savedAt": "2026-10-20T06:52:20.052Z"
+}

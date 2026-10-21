@@ -1,0 +1,86 @@
+% Canonical paper palette, shared by LaTeX/TikZ and Python figure generators.
+% Diagram colors encode quantities; Method* colors encode compared methods.
+% See figures/PALETTE.md for meanings and reuse instructions.
+%
+% Results use Paper* colors; model diagrams use Diagram* roles; conceptual
+% backgrounds use Surface* colors. Never use bar fills as large-area backgrounds.
+% Keep method identity independent of encoder, predictor, action, and loss colors.
+% Each base hue is defined once; semantic and method names are aliases.
+% Line style, markers, and hatches provide additional distinctions.
+\definecolor{PaperBlue}{HTML}{486B89}
+\definecolor{PaperBlueFill}{HTML}{CBD9E3}
+\definecolor{PaperGray}{HTML}{92989E}
+\definecolor{PaperGrayFill}{HTML}{E2E5E7}
+\definecolor{PaperGrayDark}{HTML}{68717A}
+\definecolor{PaperGrayWash}{HTML}{F6F7F8}
+\colorlet{LeWAMState}{PaperBlue}
+\colorlet{LeWAMStateLight}{PaperBlueFill}
+\definecolor{LeWAMStateEdge}{HTML}{93AABD}
+\definecolor{LeWAMStateWash}{HTML}{F4F7FA}
+\definecolor{LeWAMStatePale}{HTML}{F9FBFC}
+\colorlet{LeWAMAction}{PaperGray}
+\colorlet{LeWAMActionDark}{PaperGrayDark}
+\colorlet{LeWAMActionLight}{PaperGrayFill}
+\colorlet{LeWAMActionWash}{PaperGrayWash}
+\colorlet{LeWAMObjective}{PaperGrayDark}
+\definecolor{FigureInk}{HTML}{202124}
+\definecolor{FigureMuted}{HTML}{6F747A}
+\definecolor{FigureVisible}{HTML}{E9ECEF}
+\definecolor{FigureGrid}{HTML}{A8ADB1}
+\definecolor{FigureBorder}{HTML}{767C82}
+\definecolor{FigureWhite}{HTML}{FFFFFF}
+\definecolor{FigureModuleFill}{HTML}{FAFBFC}
+\colorlet{FigureObjectiveFill}{PaperGrayWash}
+\definecolor{FigureDivider}{HTML}{C5C7CA}
+%
+% Broad surfaces and conceptual comparisons: light enough to support dark text.
+\definecolor{SurfaceNeutral}{HTML}{F7F6F3}
+\definecolor{SurfaceEmphasis}{HTML}{EFF5F1}
+% Stronger paired surfaces distinguish the two prose rows of Figure 2.
+\definecolor{SurfacePrior}{HTML}{F3EBDD}
+\definecolor{SurfaceContribution}{HTML}{E1EEE6}
+\definecolor{SurfaceRule}{HTML}{CDD3CF}
+%
+% Functional colors for the training and planning diagrams, independent of bars.
+\definecolor{DiagramEncoder}{HTML}{7B8388}
+\definecolor{DiagramEncoderFill}{HTML}{F1F3F4}
+\definecolor{DiagramPredictor}{HTML}{4A7595}
+\definecolor{DiagramPredictorFill}{HTML}{E8F0F5}
+\colorlet{DiagramState}{DiagramPredictor}
+\definecolor{DiagramAction}{HTML}{B67850}
+\definecolor{DiagramActionFill}{HTML}{FBF1E9}
+\definecolor{DiagramActionInk}{HTML}{8F5B3B}
+\definecolor{DiagramLoss}{HTML}{5D7D6C}
+\colorlet{DiagramLossFill}{FigureWhite}
+\colorlet{ConceptAccent}{DiagramLoss}
+%
+% Binary attention visibility: distinct from method identity and bar heights.
+\colorlet{DiagramContextFill}{FigureVisible}
+\definecolor{DiagramStateCell}{HTML}{DCE8EF}
+\definecolor{DiagramActionCell}{HTML}{F3E3D8}
+%
+% Compatibility aliases for existing manuscript labels.
+\colorlet{LeWAMNavy}{LeWAMState}
+\colorlet{LeWAMOrange}{LeWAMAction}
+\colorlet{LeWAMGreen}{LeWAMObjective}
+\colorlet{LeWAMGray}{FigureMuted}
+\colorlet{LeWAMTeal}{PaperGray}
+%
+% Method identity in comparison figures.
+% The paper is grayscale-first: LeWAM receives the only strong accent, while
+% baselines share gray and are distinguished by hatches, markers, and line styles.
+\colorlet{MethodLeWAM}{PaperBlue}
+% One rule color for all manuscript tables, including inner and partial rules.
+\colorlet{TableRule}{MethodLeWAM}
+\colorlet{MethodLeWM}{PaperGray}
+\colorlet{MethodDreamZero}{PaperGray}
+\colorlet{MethodDINOWM}{PaperGray}
+\colorlet{MethodPLDM}{PaperGray}
+\colorlet{MethodGCBC}{PaperGray}
+\colorlet{MethodGCIDM}{PaperGray}
+\colorlet{MethodGCIDMScratch}{PaperGray}
+\colorlet{MethodVJEPAAC}{PaperGray}
+\colorlet{MethodSMWM}{PaperGray}
+\colorlet{MethodRandom}{PaperGray}
+\colorlet{MethodDiffusionPolicy}{PaperGray}
+\colorlet{MethodACT}{PaperGray}

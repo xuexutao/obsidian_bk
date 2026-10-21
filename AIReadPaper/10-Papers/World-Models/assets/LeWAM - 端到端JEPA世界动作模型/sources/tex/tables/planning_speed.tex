@@ -1,0 +1,27 @@
+% Author-supplied per-plan times, September 24, 2026. Rates and ratios are
+% computed from the millisecond values, not the parenthetical screenshot text.
+\begin{table}[H]
+\centering
+\caption{\lead{Planning Speed across Four Visual-Goal Tasks.} Each plan is one
+planner call. \methodname{LeWM (CEM)}~\citep{maes2026lewm} uses $300\times30$ CEM;
+\method{} uses five gradient steps. Action dimensions are raw environment
+action dimensions. Throughput is the
+reciprocal of time per plan. The mean row averages per-task throughput, and its
+ratio compares those two means.}
+\label{tab:planning-speed}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcrrrrr@{}}
+\toprule
+& & \multicolumn{2}{c}{LeWM (CEM)} & \multicolumn{2}{c}{LeWAM} & \\
+Task & Action dim. & ms/plan & plans/s & ms/plan & plans/s & Speedup \\
+\midrule
+\dataset{Scene}  & $5$ & $705$ & $1.42$ & $18.8$ & $53.19$ & $37.5\times$ \\
+\dataset{Puzzle} & $5$ & $731$ & $1.37$ & $16.3$ & $61.35$ & $44.8\times$ \\
+\dataset{Cube}   & $5$ & $771$ & $1.30$ & $21.1$ & $47.39$ & $36.5\times$ \\
+\dataset{Push-T} & $2$ & $414$ & $2.42$ & $20.8$ & $48.08$ & $19.9\times$ \\
+\midrule
+Task mean & -- & -- & $1.62$ & -- & $52.50$ & $32.3\times$ \\
+\bottomrule
+\end{tabular*}
+\end{table}

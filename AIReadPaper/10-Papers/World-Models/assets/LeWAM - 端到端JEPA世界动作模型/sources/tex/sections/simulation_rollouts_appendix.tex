@@ -1,0 +1,60 @@
+\subsection{Visual Reconstructions and Open-Loop Rollouts}
+\label{app:simulation-rollouts}
+
+Figures~\ref{fig:simulation-rollouts-pusht-cube}
+and~\ref{fig:simulation-rollouts-scene-puzzle} align recorded frames with
+pixel-decoded representations and latent predictions on
+\dataset{Push-T}, \dataset{Cube}, \dataset{Scene}, and \dataset{Puzzle}.
+Framewise reconstructions encode and decode each recorded observation independently. Open-loop predictions advance in five-step blocks from the initial observation context under fixed recorded actions. Each model receives the initial observed context and the recorded action sequence. We display the 51-frame clips at five-frame intervals and select the lowest-ID episode from the three recorded episodes available for each task.
+
+The pixel decoders are trained post hoc on frozen world models using 150{,}000
+sampled frames for 20 epochs; the displayed episodes are excluded from decoder
+training. These diagnostic clips use 50-epoch LeWAM checkpoints on
+\dataset{Cube}, \dataset{Scene}, and \dataset{Puzzle}, and an epoch-16 checkpoint
+on the full \dataset{Push-T} dataset. LeWM uses our 15-epoch checkpoints from its
+official implementation on the three 3D tasks and its released weights on
+\dataset{Push-T}. Each model uses its own encoder, training schedule, and post-hoc pixel decoder.
+
+On \dataset{Push-T}, both models reproduce pusher motion and block translation and rotation under the recorded actions (Figure~\ref{fig:simulation-rollouts-pusht-cube}). On \dataset{Cube}, \dataset{Scene}, and \dataset{Puzzle}, LeWAM preserves clearer robot-arm, gripper, and object details in its reconstructions and decoded predictions (Figures~\ref{fig:simulation-rollouts-pusht-cube} and~\ref{fig:simulation-rollouts-scene-puzzle}). These sequences visualize the physical-state information available to each model's learned dynamics. LeWAM has approximately 16.9M parameters, and \methodname{LeWM}~\citep{maes2026lewm} has 15M.
+
+\lead{Planning with Learned Dynamics.} We remove \method{}'s action prediction head at evaluation time and use CEM~\citep{rubinstein1999cem} to plan with its action-conditioned latent dynamics. Table~\ref{tab:dynamics-only-cem} reports the resulting goal-reaching success rates alongside \methodname{LeWM}~\citep{maes2026lewm}.
+
+\method{} achieves competitive success on \dataset{Push-T} and exceeds LeWM by $22.2$ percentage points on \dataset{Cube}. Together with the visual reconstructions and recorded-action predictions in Figure~\ref{fig:simulation-rollouts-pusht-cube}, these results show that its learned action-conditioned dynamics support planning, including contact-rich 3D manipulation.
+
+\begin{table}[p]
+    \centering
+    \caption{\lead{CEM Planning with Learned Dynamics.} Goal-reaching success rates (\%), reported as mean $\pm$ standard deviation. LeWAM is evaluated with its action prediction head removed.}
+    \label{tab:dynamics-only-cem}
+    \small
+    \setlength{\tabcolsep}{10pt}
+    \renewcommand{\arraystretch}{1.10}
+    \begin{tabular}{@{}lcc@{}}
+        \toprule
+        Model & \dataset{Push-T} & \dataset{Cube} \\
+        \midrule
+        \methodname{LeWM (CEM)} & $\mathbf{92.4\pm1.2}$ & $63.8\pm2.2$ \\
+        \methodname{LeWAM (CEM)} & $84.0\pm1.3$ & $\mathbf{86.0\pm3.2}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\textwidth]{figures/simulation_rollouts/pusht_cube.pdf}
+    \caption{\lead{Aligned Visual Sequences on \dataset{Push-T} and \dataset{Cube}.}
+    Each task shows recorded ground truth, framewise reconstructions for LeWM
+    and LeWAM, and decoded open-loop predictions for both models. Columns use
+    the same relative frame indices; predictions follow the recorded actions.}
+    \label{fig:simulation-rollouts-pusht-cube}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\textwidth]{figures/simulation_rollouts/scene_puzzle.pdf}
+    \caption{\lead{Aligned Visual Sequences on \dataset{Scene} and \dataset{Puzzle}.}
+    Rows show recorded ground truth, LeWM and LeWAM framewise reconstructions,
+    and their decoded open-loop predictions. Columns use the same relative frame
+    indices and the same recorded action sequence for both prediction rows.}
+    \label{fig:simulation-rollouts-scene-puzzle}
+\end{figure}
+\FloatBarrier

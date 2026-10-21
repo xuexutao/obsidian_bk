@@ -2,6 +2,9 @@
 type: paper-note
 status: complete
 domain: Foundations
+series: Depth Anything
+series_order: 1
+series_hub: "[[从 Depth Anything 到 DA3：前馈深度与三维几何 - Survey]]"
 paper: "Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data"
 year: 2024
 arxiv: "2401.10891"
@@ -18,6 +21,8 @@ updated: 2026-10-15
 ---
 
 # Depth Anything：大规模无标注数据驱动的单目深度
+
+> 系列导航：**Depth Anything 1** → [[Depth Anything V2 - 精确合成监督与真实伪标签桥接]] → [[DA3 - 任意视角恢复视觉空间]] · [[从 Depth Anything 到 DA3：前馈深度与三维几何 - Survey|系列综述]]
 
 ## 基本信息
 

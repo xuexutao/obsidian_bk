@@ -1,0 +1,349 @@
+{
+  "url": "https://arxiv.org/abs/2406.16852",
+  "fetch_url": "https://arxiv.org/pdf/2406.16852",
+  "title": "Long Context Transfer from Language to Vision",
+  "type": "pdf",
+  "arxiv_id": "2406.16852",
+  "n_images": 40,
+  "images": [
+    {
+      "path": "images/img_000_p4.png",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p5.png",
+      "page": 5,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p6.png",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p6.png",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p6.png",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p6.png",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p6.png",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p6.png",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p6.png",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_016_p6.png",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_017_p8.png",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_018_p8.png",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_019_p8.png",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_020_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_021_p9.png",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_022_p9.png",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_023_p9.png",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_024_p9.png",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_025_p9.png",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_026_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_027_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_028_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_029_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_030_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_031_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_032_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_033_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_034_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_035_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_036_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_037_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_038_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_039_p9.png",
+      "page": 9,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 17,
+  "n_chars": 56023,
+  "authors": [
+    "Peiyuan Zhang",
+    "Kaichen Zhang",
+    "Bo Li",
+    "Guangtao Zeng",
+    "Jingkang Yang",
+    "Yuanhan Zhang",
+    "Ziyue Wang",
+    "Haoran Tan",
+    "Chunyuan Li",
+    "Ziwei Liu"
+  ],
+  "abstract": "Video sequences offer valuable temporal information, but existing large multimodal models (LMMs) fall short in understanding extremely long videos. Many works address this by reducing the number of visual tokens using visual resamplers. Alternatively, in this paper, we approach this problem from the perspective of the language model. By simply extrapolating the context length of the language backbone, we enable LMMs to comprehend orders of magnitude more visual tokens without any video training. We call this phenomenon long context transfer and carefully ablate its properties. To effectively measure LMMs' ability to generalize to long contexts in the vision modality, we develop V-NIAH (Visual Needle-In-A-Haystack), a purely synthetic long vision benchmark inspired by the language model's NIAH test. Our proposed Long Video Assistant (LongVA) can process 2000 frames or over 200K visual tokens without additional complexities. With its extended context length, LongVA achieves state-of-the-art performance on Video-MME among 7B-scale models by densely sampling more input frames. Our work is open-sourced at https://github.com/EvolvingLMMs-Lab/LongVA.",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

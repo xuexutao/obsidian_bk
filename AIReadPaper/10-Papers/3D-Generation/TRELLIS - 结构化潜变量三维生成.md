@@ -1,5 +1,9 @@
 本版基于官方原版论文 **Structured 3D Latents for Scalable and Versatile 3D Generation** 覆盖重写，不再沿用早期公众号/README 层面的简化整理。重点补足 SLAT 表示、两阶段生成、Rectified Flow Transformer、编辑能力，以及论文中的实验细节与对比结论。
 
+## 一句话结论
+
+TRELLIS 针对 mesh、NeRF、3DGS 各自绑定专用模型、难以同时兼顾几何、外观、多格式输出和局部编辑的问题，提出 **SLAT**：在稀疏 active voxels 上绑定高容量局部 latent vectors，并用两阶段 Rectified Flow Transformer 先生成空间结构、再只在活跃区域生成细节，最后由多个 decoder 将同一潜空间解码为 mesh、3D Gaussian 或 radiance field。约 50 万高质量资产和最高 20 亿参数的规模化训练使其在文生/图生 3D、重建质量和用户偏好上整体领先既有方法，并自然支持资产变体与局部重采样；其真正优势是把 SLAT 建成统一 3D foundation representation，而不是某个单一格式的生成器，但 PBR 解耦、透明/细薄结构和不同输出格式的生产可用性仍有限。
+
 ## 1. 背景
 
 TRELLIS 试图解决的核心问题，是 3D 生成长期缺乏一个**既能统一几何与外观、又能灵活解码到多种 3D 表示形式**的中间潜空间。

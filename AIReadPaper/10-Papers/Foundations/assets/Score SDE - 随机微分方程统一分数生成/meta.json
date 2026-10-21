@@ -1,0 +1,413 @@
+{
+  "url": "https://arxiv.org/abs/2011.13456",
+  "fetch_url": "https://arxiv.org/pdf/2011.13456",
+  "title": "Score-Based Generative Modeling through Stochastic Differential Equations",
+  "type": "pdf",
+  "arxiv_id": "2011.13456",
+  "n_images": 27,
+  "images": [
+    {
+      "path": "images/img_000_p2.jpeg",
+      "page": 2,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p4.png",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p8.png",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p8.png",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p9.jpeg",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p9.png",
+      "page": 9,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p20.png",
+      "page": 20,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p20.png",
+      "page": 20,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p23.png",
+      "page": 23,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p23.jpeg",
+      "page": 23,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p23.jpeg",
+      "page": 23,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p27.jpeg",
+      "page": 27,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p28.jpeg",
+      "page": 28,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_016_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_017_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_018_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_019_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_020_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_021_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_022_p30.png",
+      "page": 30,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_023_p33.jpeg",
+      "page": 33,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_024_p34.jpeg",
+      "page": 34,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_025_p35.jpeg",
+      "page": 35,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_026_p36.jpeg",
+      "page": 36,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_018.png",
+      "page": 18,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_019.png",
+      "page": 19,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_020.png",
+      "page": 20,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_021.png",
+      "page": 21,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_022.png",
+      "page": 22,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_023.png",
+      "page": 23,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_024.png",
+      "page": 24,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_025.png",
+      "page": 25,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_026.png",
+      "page": 26,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_027.png",
+      "page": 27,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_028.png",
+      "page": 28,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_029.png",
+      "page": 29,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_030.png",
+      "page": 30,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_031.png",
+      "page": 31,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_032.png",
+      "page": 32,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_033.png",
+      "page": 33,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_034.png",
+      "page": 34,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_035.png",
+      "page": 35,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_036.png",
+      "page": 36,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 36,
+  "n_chars": 95104,
+  "authors": [
+    "Yang Song",
+    "Jascha Sohl-Dickstein",
+    "Diederik P. Kingma",
+    "Abhishek Kumar",
+    "Stefano Ermon",
+    "Ben Poole"
+  ],
+  "abstract": "Creating noise from data is easy; creating data from noise is generative modeling. We present a stochastic differential equation (SDE) that smoothly transforms a complex data distribution to a known prior distribution by slowly injecting noise, and a corresponding reverse-time SDE that transforms the prior distribution back into the data distribution by slowly removing the noise. Crucially, the reverse-time SDE depends only on the time-dependent gradient field (\\aka, score) of the perturbed data distribution. By leveraging advances in score-based generative modeling, we can accurately estimate these scores with neural networks, and use numerical SDE solvers to generate samples. We show that this framework encapsulates previous approaches in score-based generative modeling and diffusion probabilistic modeling, allowing for new sampling procedures and new modeling capabilities. In particular, we introduce a predictor-corrector framework to correct errors in the evolution of the discretized reverse-time SDE. We also derive an equivalent neural ODE that samples from the same distribution as the SDE, but additionally enables exact likelihood computation, and improved sampling efficiency. In addition, we provide a new way to solve inverse problems with score-based models, as demonstrated with experiments on class-conditional generation, image inpainting, and colorization. Combined with multiple architectural improvements, we achieve record-breaking performance for unconditional image generation on CIFAR-10 with an Inception score of 9.89 and FID of 2.20, a competitive likelihood of 2.99 bits/dim, and demonstrate high fidelity generation of 1024 x 1024 images for the first time from a score-based generative model.",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

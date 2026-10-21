@@ -654,7 +654,7 @@ CLIP / ALIGN / SigLIP / DINO
 │  ├─ Cambrian: multi-tower SVA
 │  └─ Qwen3-VL: DeepStack
 └─ native multimodal + RL + Agent
-   ├─ Qwen-VL → Qwen2-VL → Qwen2.5-VL → Qwen3-VL
+   ├─ Qwen-VL → Qwen2-VL → Qwen2.5-VL → Qwen3-VL → Qwen3.5（取消 VL 后缀）
    ├─ InternVL3/3.5
    ├─ GLM-4.1V → 4.5V → 4.6V
    └─ Kimi K2.5（K2 language line + MoonViT-3D + PARL）
@@ -668,15 +668,16 @@ CLIP / ALIGN / SigLIP / DINO
 | OneVision | SigLIP + MLP | 单图/多图/视频同量级预算、Qwen2 | 以数据和token策略统一场景 |
 
 OneVision不是全新fusion架构；它仍是简单visual-prefix，主要创新在AnyResMax、每场景token预算和课程迁移。
-### 8.3 Qwen-VL 四代
+### 8.3 Qwen-VL 到 Qwen3.5：从独立 VL 分支到默认原生多模态
 | 代际 | Vision encoder | Connector | Position/time | 核心变化 |
 |---|---|---|---|---|
 | Qwen-VL | OpenCLIP ViT-bigG，固定448 | 256 query cross-attn | adapter二维绝对位置 | OCR/grounding/多图统一接口 |
 | Qwen2-VL | DFN ViT，动态网格 | $2\times2$ merger | ViT 2D-RoPE + LLM M-RoPE | 固定query→变长token；图像视频统一 |
 | Qwen2.5-VL | 从零原生ViT，28 window+4 global | $2\times2$ merger | absolute-time M-RoPE | 文档HTML、动态FPS、真实像素坐标、GUI |
 | Qwen3-VL | SigLIP-2系继续训练 | merger + DeepStack | Interleaved-MRoPE + 文本时间戳 | 256K、Dense/MoE、Thinking/RL/Agent |
+| Qwen3.5 | 复用 Qwen3-VL 系视觉塔；公开配置未启用 DeepStack | $2\times2$ merger，early fusion | Interleaved-MRoPE；原生262K | 取消独立 VL 后缀；Qwen3-Next式3:1 GDN/full-attn + 高稀疏MoE + MTP + 异步RL |
 
-Qwen-VL的“adapter query”与后代“merger”不是同一connector；Qwen2.5绝对时间position与Qwen3文本时间戳也不是简单累加，而是代际替换。
+Qwen-VL的“adapter query”与后代“merger”不是同一connector；Qwen2.5绝对时间position与Qwen3文本时间戳也不是简单累加，而是代际替换。Qwen3.5 的关键又变了：视觉不再是独立产品线，而成为所有 checkpoint 的默认能力；详细见 [[Qwen3.5 - 原生多模态智能体与混合架构]]。
 ### 8.4 InternVL 1 → 3.5
 | 阶段 | 架构 | 主要瓶颈 |
 |---|---|---|
@@ -933,6 +934,7 @@ Molmo-7B-D与OneVision都可用Qwen2，但前者有重叠crop+局部attention po
 | Qwen2-VL | dynamic grid/tube | DFN ViT | merger $1/4$ | unified causal | 2D-RoPE+M-RoPE | Qwen2 NTP |
 | Qwen2.5-VL | dynamic/FPS | native ViT | merger $1/4$ | unified causal | abs-time M-RoPE | Qwen2.5 NTP+DPO |
 | Qwen3-VL | dynamic/timestamp | SigLIP-2系 | merger+DeepStack | unified+残差注入 | interleaved MRoPE | Dense/MoE NTP+RL |
+| Qwen3.5 | dynamic image/video | Qwen3-VL系27层ViT | merger $1/4$；公开配置无DeepStack | early-fusion unified causal | interleaved MRoPE | 3:1 GDN/full-attn + Dense/MoE + MTP + async RL |
 | InternVL3 | AnyRes tile | InternViT | unshuffle 1024→256 | unified causal | V2PE | Qwen2.5 NTP+MPO |
 | InternVL3.5 | tile+ViR | InternViT | 64/256 route | unified causal | 继承V2PE路线 | NTP+MPO+GSPO |
 | DeepSeek-VL2 | 动态tile+global | SigLIP | 196/tile+结构token | unified causal | newline/separator | MoE NTP |
@@ -1059,6 +1061,7 @@ Qwen3 DeepStack、InternVL3 native pretrain、MiniCPM 3D-Resampler、K2.5早期�
 | 2025-09 | MiniCPM-V4.5 | 3D-Resampler+Hybrid RL | 真端侧证据缺失 |
 | 2025-11 | Qwen3-VL | DeepStack+Interleaved-MRoPE+256K | MoE/长上下文服务成本 |
 | 2025-11 | DA3 | vanilla DINOv2+depth-ray | 专用几何与VLM分工 |
+| 2026-02 | Qwen3.5 | 原生视觉默认化+3:1 GDN/full-attn+高稀疏MoE | 无完整技术报告；线性注意力精确回看与集群部署成本 |
 | 2026-02 | Kimi K2.5 | 早期视觉融合+视觉RL+Swarm | 并发公平性/成本透明度 |
 ### 11.3 四次范式转移
 1. **开放语义对齐**：标签空间封闭→语言可索引视觉。
@@ -1255,9 +1258,10 @@ DINOv3证明全局语义提升可与局部关系退化并存。未来VLM视觉�
 | 2025-08 | InternVL3.5 | [[InternVL3.5 - 级联强化学习与视觉压缩]] | ViR、ViCO、DvD |
 | 2025-09 | MiniCPM-V4.5 | [[MiniCPM-V 4.5 - 高效端侧多模态模型配方]] | 3D-Resampler、Hybrid RL |
 | 2025-11 | Qwen3-VL | [[Qwen3-VL - 长上下文视觉推理与智能体]] | DeepStack、Interleaved-MRoPE |
+| 2026-02 | Qwen3.5 | [[Qwen3.5 - 原生多模态智能体与混合架构]] | 默认原生视觉、3:1 GDN/full-attn、高稀疏MoE、MTP、异步RL |
 | 2026-02 | Kimi K2.5 | [[Kimi K2.5 - 视觉智能体与并行智能体强化学习]] | early fusion、PARL、Swarm |
 
-以上共 22 篇，构成本文架构主线的一手材料集。
+以上共 23 篇，构成本文架构主线的一手材料集。
 ### 16.2 视觉基座、工具与能力分支索引
 | 工作 | 类型 | 正确关系 |
 |---|---|---|
@@ -1269,6 +1273,7 @@ DINOv3证明全局语义提升可与局部关系退化并存。未来VLM视觉�
 - Qwen2-VL：arXiv:2409.12191
 - Qwen2.5-VL：arXiv:2502.13923
 - Qwen3-VL：arXiv:2511.21631
+- Qwen3.5：官方技术博客与开放权重（截至 2026-10-20 无独立 arXiv 技术报告），<https://qwen.ai/blog?id=qwen3.5>
 - DeepSeek-VL2：arXiv:2412.10302
 - Kimi-VL：arXiv:2504.07491
 - GLM-V：arXiv:2507.01006

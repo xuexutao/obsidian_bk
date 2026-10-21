@@ -1,0 +1,1124 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2027_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage[hidelinks,hypertexnames=false]{hyperref}
+\usepackage{url,xspace}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{pifont}
+\usepackage{fontawesome5}
+\usepackage{enumitem}
+\usepackage{placeins}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{needspace}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds}
+\usepackage[most]{tcolorbox}
+
+% Keep all top-level item lists flush with the surrounding text margin.
+\setlist[itemize,1]{
+  label=\textbullet,
+  labelindent=0pt,
+  leftmargin=*,
+  labelsep=0.55em,
+  topsep=0.35em,
+  itemsep=0.25em,
+  parsep=0pt,
+  partopsep=0pt
+}
+
+% Numbered procedures use the same margin and spacing as the paper's item lists.
+\setlist[enumerate,1]{
+  label=\arabic*.,
+  labelindent=0pt,
+  leftmargin=*,
+  labelsep=0.55em,
+  topsep=0.35em,
+  itemsep=0.25em,
+  parsep=0pt,
+  partopsep=0pt
+}
+
+% Reserve any unfinished wrap height before returning to full-width prose.
+\newcommand{\finishwrapfigure}{%
+  \par
+  \ifnum\value{WF@wrappedlines}>1
+    \vspace{\dimexpr\value{WF@wrappedlines}\baselineskip-\baselineskip\relax}%
+  \fi
+  \WFclear
+}
+
+\input{figures/method_palette.tex}
+% Apply the same rule color to every main-paper and appendix table.
+\arrayrulecolor{TableRule}
+\input{figures/arrow_style.tex}
+\input{figures/marker_style.tex}
+\newtcolorbox{reviewquestion}{
+  enhanced,
+  colback=gray!4,
+  colframe=gray!35,
+  boxrule=0.35pt,
+  arc=1.5pt,
+  left=6pt,
+  right=6pt,
+  top=5pt,
+  bottom=5pt,
+  before skip=7pt,
+  after skip=5pt
+}
+\hypersetup{
+  colorlinks=true,
+  citecolor=LeWAMGray,
+  linkcolor=black,
+  urlcolor=black,
+  pdfauthor={Minghao Fu, Tavis Siebert, Eryk Halicki, Randall Balestriero},
+  pdftitle={LeWAM: End-to-End World and Action Modeling with JEPAs}
+}
+
+\newcommand{\methodname}[1]{\textup{#1}}
+\newcommand{\dataset}[1]{\texttt{#1}}
+\newcommand{\method}{\methodname{LeWAM}}
+\newcommand{\methodintro}{\textbf{\textup{LeWAM}}}
+\newcommand{\term}[1]{\emph{#1}}
+\newcommand{\keypoint}[1]{\textbf{#1}}
+\newcommand{\lead}[1]{\textbf{#1}}
+\newcommand{\eg}{\textit{e.g.}\xspace}
+\newcommand{\ie}{\textit{i.e.}\xspace}
+\newcommand{\methoddot}[1]{%
+  \tikz[baseline=-0.55ex]
+    \filldraw[fill=#1, draw=black!75, line width=0.25pt]
+      (0,0) circle[radius=0.38ex];%
+}
+\newcommand{\baselineitem}[2]{%
+  \par\noindent\hangindent=0.62em\hangafter=1
+  \makebox[0.62em][l]{\methoddot{#1}}#2\par
+}
+\newenvironment{compactbaselines}{%
+  \par\begingroup\setlength{\parskip}{0pt}%
+}{%
+  \par\endgroup
+}
+\newcommand{\appendixbadge}[1]{%
+  \tikz[baseline=(badge.base)]
+    \node[circle, fill=gray!12, draw=gray!55, line width=0.35pt,
+          text=gray!40!black, minimum size=1.45em,
+          font=\bfseries\sffamily\footnotesize, inner sep=0pt] (badge) {#1};%
+}
+\newcommand{\projectbutton}[3]{%
+  \href{#1}{%
+    \tcbox[on line, colback=LeWAMStateWash, colframe=LeWAMStateWash, coltext=MethodLeWAM,
+           boxrule=0.4pt, arc=4pt, boxsep=2pt,
+           left=4pt, right=4pt, top=2pt, bottom=2pt]{%
+      \sffamily\mdseries\upshape\small #2\enspace #3}}%
+}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+
+\title{LeWAM: End-to-End World and Action \\Modeling with JEPAs}
+
+% arXiv/release version: display authors and omit review line numbers.
+\author{%
+Minghao Fu\thanks{Equal contribution. Correspondence to \href{mailto:m9fu@ucsd.edu}{\texttt{m9fu@ucsd.edu}}.}\kern0.42em$^{1}$\quad
+Tavis Siebert$^{*2}$\quad
+Eryk Halicki$^{3}$\quad
+Randall Balestriero$^{4}$\\[-0.1ex]
+{\normalfont\small
+$^{1}$UC San Diego\quad
+$^{2}$ETH Zurich\quad
+$^{3}$University of British Columbia\quad
+$^{4}$Brown University
+}
+}
+
+\iclrfinalcopy
+\begin{document}
+
+\maketitle
+% arXiv/release version: override the template's conference-review header.
+\lhead{Preprint}
+\vspace{-0.30in}
+{\centering
+\projectbutton{https://le-wam.github.io/}{\faGlobe}{Website}\hspace{0.5em}%
+\projectbutton{https://github.com/MinghaoFu/lewam}{\faGithub}{Code}\par}
+\vspace{3pt}
+
+\begin{abstract}
+Joint-embedding predictive architectures (JEPAs) learn compact latent world models without pixel reconstruction. Existing JEPA pipelines typically train visual representations and action-conditioned dynamics before adding a control policy or solver. We introduce \methodintro{}, an end-to-end JEPA for control with: (1) a joint training objective over next latent state prediction and action flow matching, and (2) an isotropic Gaussian constraint on the latent state, enabling a single model to support direct policy execution and efficient planning by evaluating sampled actions with its learned latent dynamics. Compared with prior JEPAs in visual planning, LeWAM improves success rate from 28.6\% to 89.7\% on contact-rich tasks and from 10.9\% to 46.2\% on long-horizon tasks, and plans $32.3\times$ faster. On behavior cloning tasks in simulation and physical robots, LeWAM is also competitive with established methods. Interpretability analyses show that LeWAM learns control-relevant representations and action distributions effectively guiding test-time planning and control.
+% , and struggle with tasks that require complex behavior.
+% , which makes their visual planning remains confined to short-horizon tasks with limited behavioral complexity.
+% Empirically, we demonstrate that \method{} improves planning performance over prior JEPA world models in simulation while remaining competitive with policy-based approaches across both simulated and physical environments, showing that a shared model can learn both reliable latent dynamics for planning and effective action distributions for control.
+\end{abstract}\vspace{-6.5pt}
+
+\FloatBarrier
+\begin{figure}[H]
+\centering
+% Native Python source: figures/scripts/draw_reference_overview.py in this figure package.
+% Compact 2172 x 724 canvas; show y = 116 to 680, including the lowered SIGReg capsules.
+\includegraphics[width=\linewidth,trim=0 31.68 0 83.52,clip]{figures/lewam_figure1_python_package/figures/lewam_figure1_python.pdf}
+\par\vspace{0pt}
+{\color{LeWAMGray!40}\rule{\linewidth}{0.3pt}}
+\par\vspace{0pt}
+% Equal-weight task averages from the current goal-reaching and horizon figures.
+\includegraphics[width=\linewidth]{figures/lewam_results_overview.pdf}
+\setlength{\abovecaptionskip}{1pt}
+\caption{\lead{LeWAM Training.} A shared encoder encodes observed frames with 
+\methodname{SIGReg}~\citep{balestriero2025lejepa} regularization.
+The Mixture-of-Transformers~\citep{liang2025MoT} learns latent-state prediction
+from clean actions and action flow matching from noisy actions with goal information.
+\lead{Results Overview.} The mean of (a) planning success on contact-rich tasks; (b) planning success on a 100-step goal offset; (c) plans/s versus CEM~\citep{rubinstein1999cem}; (d) action chunks
+per TFLOP versus $\pi_{0.5}$~\citep{physicalintelligence2025pi05}. Full results are in Section~\ref{sec:experiments}.}
+\label{fig:intro}
+\label{fig:headline-results}
+\end{figure}
+
+\clearpage
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{figures/lewam_three_consequences.pdf}
+\vspace{-2em}
+\caption{\lead{Positioning of LeWAM.}
+The columns place \method{} alongside related approaches to world-model training, visual representation learning, world action modeling, and action search. \method{} jointly trains latent dynamics and a policy through a shared encoder, predicts in latent space without reconstruction, and refines learned action proposals through its dynamics. The final column summarizes its evaluation on contact-rich tasks and longer goal horizons.}
+\label{fig:three-consequences}
+\vspace{-1em}
+\end{figure}
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+Visual control requires autonomous agents to complete tasks by selecting actions based on visual observations of the world. World models address this challenge by predicting the consequences of candidate actions, allowing agents to anticipate how the world will evolve before executing them. Joint-embedding predictive architectures (JEPAs)~\citep{lecun2022apath} offer a compact world modeling paradigm where future world states are predicted in latent space rather than by reconstructing pixels. 
+Recent works such as \methodname{DINO-WM}~\citep{zhou2024dinowm} and \methodname{LeWorldModel (LeWM)}~\citep{maes2026lewm} demonstrate the promise of applying action-conditioned latent world models to downstream control. These pipelines obtain visual features from pretrained encoders~\citep{zhou2024dinowm,assran2025vjepa2}, or train representations from scratch with distributional regularizers such as \methodname{SIGReg}~\citep{balestriero2025lejepa,maes2026lewm} to prevent collapse. However, these methods alone do not reliably retain control-relevant information; JEPAs can favor temporally persistent distractors~\citep{sobal2022slowfeatures}, while action-conditioned dynamics may retain extraneous observation information~\citep{brandfonbrener2023inverse}.
+
+Control with these models typically requires an online solver such as the cross-entropy method (CEM)~\citep{rubinstein1999cem} or a separately trained action predictor. When initialized with a broad Gaussian prior over action sequences, CEM demands extensive rollouts to identify viable candidates, particularly as action dimensionality or planning horizon grows~\citep{huang2021cemgd}. Contact transitions also complicate local action optimization because the dynamics can switch between modes~\citep{pang2023contactplanning}. A post-trained action predictor can provide direct control, as in \methodname{GC-IDM}~\citep{nguyen2026gcidm}, or guide action search, as in \methodname{PRISM}~\citep{wang2026prism}. Training these predictors on frozen JEPA embeddings leaves action supervision disconnected from visual representation learning.
+
+We introduce \methodintro{}, an end-to-end JEPA that jointly learns
+representation, action-conditioned dynamics, and a stochastic policy
+in a single training stage (Figure~\ref{fig:intro}). Training combines two ingredients: a joint training objective over next-latent-state prediction and action flow matching, and \methodname{SIGReg}~\citep{balestriero2025lejepa}
+to regularize the latent states. A Mixture-of-Transformers (MoT)~\citep{liang2025MoT} predictor uses clean actions for latent dynamics prediction and noisy actions for policy learning through flow matching, so both objectives train the shared visual representation. Consequently, LeWAM supports both direct policy execution and visual planning by refining action sequences sampled from its learned policy. Our contributions are threefold:
+% We use model-based refinement via policy-initialized gradient planning~\citep{jyothir2023gradient} wherein the learned dynamics acts as a differentiable objective to score candidate sequences based on their likelihood of reaching a goal state. 
+\begin{itemize}
+    \item To our knowledge, the first JEPA that jointly learns representation, action-conditioned latent dynamics, and stochastic policy, using a joint prediction objective, one weight for latent-space regularization, and approximately 17M parameters.
+    % in one simple end-to-end training stage. The architecture achieves remarkable simplicity: only one joint prediction objective, one hyperparameter for regularization, with just 17M parameters.
+    
+    \item A planning procedure that jointly imagines the consequences of actions and how to act in the resulting states, which samples candidate action sequences from the learned action distribution and refines them with gradient descent through learned dynamics.
+
+    \item Across ten heterogeneous simulated environments, \method{} improves goal-reaching success over \methodname{LeWM}~\citep{maes2026lewm}, particularly on contact-rich tasks. Four-task comparisons extend these gains to longer goal horizons and show faster planning. On goal-agnostic task completion in simulation and physical robot execution, \method{} performs competitively with established baselines. Linear probes reveal decodable physical-state and action information, recorded-action rollouts visualize its learned dynamics, and planner ablations measure the gains from its stochastic action proposals.
+\end{itemize}
+
+\section{Related Work}
+\label{sec:related}
+\lead{World Models.} World models~\citep{ha2018worldmodels} learn environment dynamics to enable agents to simulate candidate action outcomes for planning and control. Early approaches like \methodname{PlaNet}~\citep{hafner2019planet} perform planning via latent rollouts, whereas \methodname{TD-MPC}~\citep{hansen2022tdmpc} and \methodname{TD-MPC2}~\citep{hansen2024tdmpc2} ground latent dynamics in reward and value predictions. \methodname{Dreamer}~\citep{hafner2020dreamer,hafner2023dreamerv3} learns generative latent dynamics with pixel reconstruction, while \methodname{VideoGPT}~\citep{yan2021videogpt} and \methodname{IRIS}~\citep{micheli2023iris} model discrete visual tokens. \method{} learns latent dynamics and a policy directly from offline trajectories, without reward supervision or pixel reconstruction.
+
+\lead{Joint-Embedding Predictive Architectures.} JEPAs predict target states in representation space without pixel
+reconstruction, using variance and covariance constraints~\citep{bardes2022vicreg}, momentum
+targets~\citep{assran2023ijepa,bardes2024vjepa}, or distributional
+regularization~\citep{balestriero2025lejepa,wu2026visreg} to prevent collapse.
+For action-conditioned world modeling,
+\methodname{DINO-WM}~\citep{zhou2024dinowm} and \methodname{V-JEPA 2-AC}~\citep{assran2025vjepa2}
+build on pretrained representations, whereas \methodname{LeWM}~\citep{maes2026lewm} leverages
+SIGReg~\citep{balestriero2025lejepa} to learn the encoder and latent dynamics from scratch.
+Additional action prediction objectives attempt to make representations action-aware in \methodname{PLDM}~\citep{sobal2025pldm} or as an anti-collapse signal in
+\methodname{SMWM}~\citep{ivashkov2026smwm}. \method{} jointly trains action-conditioned latent
+dynamics and policy in one predictor, so both consequence prediction and action supervision
+shape the shared representation.
+
+\lead{Control with Latent Dynamics.} Conventional planning in latent world models uses population-based solvers, such as CEM~\citep{rubinstein1999cem}, iCEM~\citep{pinneri2021icem}, MPPI~\citep{williams2017mppi}, or gradient-based methods~\citep{henaff2017discrete,huang2021cemgd}. Population-based search can require many model rollouts as the action dimension or horizon grows~\citep{pinneri2021icem,huang2021cemgd}, and contact mode changes in manipulations also complicate local optimization~\citep{pang2023contactplanning} (more discussion in Appendix~\ref{app:joint-prediction}). \methodname{GC-IDM}~\citep{nguyen2026gcidm} post-trains a goal-conditioned action predictor for direct control, whereas \methodname{PRISM}~\citep{wang2026prism} trains a Gaussian prior head on frozen world-model features; its predicted mean and standard deviation guide MPPI sampling. \method{} jointly trains the latent world model and a flow-based action predictor, using its sampled actions for direct control or gradient-based planning.
+
+\lead{World Action Models.} These models couple world prediction with action prediction
+(Table~\ref{tab:world-action-factorizations}, Appendix~\ref{app:system-simplicity}).
+Built on pretrained video generative models, \methodname{DreamZero}~\citep{ye2026dreamzero} jointly models future video and actions, while \methodname{Fast-WAM}~\citep{yuan2026fastwam} retains video co-training but skips future video generation at inference. \methodname{UVA}~\citep{li2025uva}, \methodname{UWM}~\citep{zhu2025uwm}, and \methodname{Cosmos 3}~\citep{nvidia2026cosmos3} specifically support both forward dynamics modeling (FDM) and policy learning, but optimize only one objective per sample, rather than both jointly on the same pass. \method{} jointly trains its encoder and predictor end-to-end using latent-state prediction and action flow matching, without pixel reconstruction. Each training sample supplies
+clean actions for FDM and noisy actions for stochastic policy modeling. \method{} learns action-conditioned dynamics from expert and non-expert interactions and uses them to evaluate and refine actions at test time.
+\vspace{-1em}
+
+\section{Methodology}
+\label{sec:method}
+
+Given reward-free offline trajectories of pixel observations $\vo_{1:T}$ and actions $\va_{1:T}$, we jointly train a visual encoder and a predictor including action-conditioned dynamics and a flow matching policy, supporting direct control and planning with action-conditioned latent dynamics.
+
+\subsection{End-to-End Training with LeWAM}
+\label{sec:joint-predictor}
+
+\Needspace{20\baselineskip}
+\begin{wrapfigure}{r}{0.40\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/fig1/assets/lewam_attention_grouped.pdf}
+\vspace{-1em}
+\setlength{\abovecaptionskip}{4pt}
+\small
+\caption{\lead{MoT Attention.} Filled cells permit
+attention, while white cells are masked. The state
+query reads history and clean actions, and noisy action tokens read state history and their
+own causal prefix. Small grids show causal attention. Arrows mark the
+state branch and action velocity branch.}
+\label{fig:mot-architecture}
+\vspace{-2em}
+\end{wrapfigure}
+
+\lead{Architecture.} Figure~\ref{fig:intro} summarizes the model at a high level. Let $\vz_t=\enc(\vo_t)$ denote the latent representation of observations $\vo_t$. All time indices refer to raw environment steps, such that action $\va_t$ transitions $\vo_t$ to $\vo_{t+1}$. We use a frameskip of $K$ environment steps, so future observations used as dynamics targets are spaced at $K$-step intervals. In contrast, the policy models a contiguous action chunk $\mA_{t,C} = (\va_t,\dots,\va_{t+C-1})$ with $C\geq K$. For visual planning, we assume access to goal information $\vc_t$ that contains the goal image embedding $\vz_g$ and its normalized remaining horizon from $\vz_t$.
+
+The encoder consists of a ResNet-18 backbone~\citep{he2016resnet}, spatial softmax pooling, and a multilayer perceptron (MLP) with two projection layers. The same encoder processes all the pixel observations: history, future target, and goal image. The predictor is comprised of a state branch $\statebranch$ and an action branch $\actionbranch$. Specifically,
+\begin{equation}
+    \begin{aligned}
+        \hat{\vz}_{t+K}
+        &=\statebranch(\vq^z_{t+K};\vz_{\leq t},\mA_{t,K}),\\
+        \hat{\vv}_{t,C} &=\actionbranch(\mA_{t,C}^{(s)};s,\vz_{\leq t},\vc_t)
+    \end{aligned}
+    \label{eq:lewam-interface}
+\end{equation}
+where $\mA_{t,C}^{(s)}$ is a noisy $C$-action chunk at flow timestep $s\in[0,1]$ (see Equation~\ref{eq:action-flow-path}) and $\vq^z_{t+K}$ is a learned query token specifying the future state to predict. Integrating the predicted velocity field $\hat{\vv}_{t,C}$ yields the predicted action chunk $\hat{\mA}_{t,C}$.
+
+To simultaneously balance latent-prediction and flow-matching objectives while allowing $\statebranch$ and $\actionbranch$ to share information about states and actions, we use the Mixture-of-Transformers (MoT)~\citep{liang2025MoT} architecture. That is, each branch applies independent query, key, value, and feedforward projections for its respective modality (latent states or actions) while sharing one masked self-attention. Figure~\ref{fig:mot-architecture} specifies the information available to each branch during attention. The state query $\vq^z_{t+K}$ reads history latents and clean actions, and noisy action tokens $\mA_{t,C}^{(s)}$ read history latents and their own causal prefix. History latents attend only to themselves, blocking indirect clean-action leakage to $\actionbranch$.
+Goal information conditions the noisy action tokens; the dynamics branch reads history latents and clean actions.
+Appendix~\ref{app:implementation} gives the full token-level mask, layer sizes, and training settings.
+\finishwrapfigure % Restrict Figure 3 wrapping to Joint Predictor.
+
+% \Needspace{10\baselineskip}
+\lead{Training Objective.} For flow matching~\citep{lipman2023flowmatching}, given a recorded action chunk $\mA_{t,C}$,
+sample $s$ uniformly from $[0,1]$ and
+$\vepsilon\sim\mathcal{N}(\vzero,\mI)$, then construct
+\begin{equation}
+    \mA^{(s)}_{t,C}=(1-s)\vepsilon+s\mA_{t,C},
+    \qquad \vv_{t,C}=\frac{\mathrm d\mA^{(s)}_{t,C}}{\mathrm ds}=\mA_{t,C}-\vepsilon
+    \label{eq:action-flow-path}
+\end{equation}
+The action branch regresses the path velocity $\mA_{t,C}-\vepsilon$ from $\mA_{t,C}^{(s)}$.
+The latent dynamics and action flow matching losses use mean squared error (MSE), averaged over the scalar coordinates of each prediction:
+\begin{equation}
+    \begin{aligned}
+    \gL_{\mathrm{dyn}}
+    &=\mathbb{E}_{\mathcal D}\!\left[
+        \operatorname{MSE}\!\left(
+        \hat{\vz}_{t+K},\vz_{t+K}\right)\right], \\
+    \gL_{\mathrm{act}}
+    &=\mathbb{E}_{\mathcal D,s,\vepsilon}\!\left[
+        \operatorname{MSE}\!\left(
+        \hat{\vv}_{t,C},\mA_{t,C}-\vepsilon
+        \right)\right].
+    \end{aligned}
+    \label{eq:prediction-losses}
+\end{equation}
+We use
+\methodname{SIGReg}~\citep{balestriero2025lejepa} to preserve latent diversity
+through an isotropic Gaussian distributional constraint. Let $\mZ$ collect
+the encoded history and target observations in a minibatch. With $M$ random unit
+directions $\vu^{(m)}$ and the univariate Epps--Pulley~\citep{epps1983test}
+test statistic $T$ against $\mathcal N(0,1)$, the regularizer is
+\begin{equation}
+    \gL_{\mathrm{sig}}
+    =\frac{1}{M}\sum_{m=1}^{M}
+    T\!\left(\mZ\vu^{(m)}\right).
+    \label{eq:sigreg-objective}
+\end{equation}
+With regularization weight $\lambda_{\mathrm{sig}}$, the full objective is
+\begin{equation}
+    \gL_{\rm LeWAM}
+    =\gL_{\mathrm{dyn}}+\gL_{\mathrm{act}}
+    +\lambda_{\mathrm{sig}}\gL_{\mathrm{sig}}.
+    \label{eq:joint-objective}
+\end{equation}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth,trim=0 94 0 20,clip]{figures/lewam_planning_python/output/lewam_planning_autoregressive.pdf}
+\vspace{-2em}
+\caption{\lead{Planning with LeWAM.}
+Each MoT predictor stage samples $N$ action chunks from Gaussian noise and uses the first $K$ actions in each chunk, denoted $\mA_{t,K}$,
+to advance the latent dynamics from step $t$ to $t+K$.
+Five-point curves depict action chunks (we use $K=5$), and stacked curves denote $N$ sampled plans of length $L$. Step 1 refines all plans by gradient descent through the frozen LeWAM dynamics using the goal-state cost. Step 2 selects the lowest-cost refined iterate as the final plan, shown as $\mA^\star$. Appendix~\ref{app:planners} gives the full procedure in a pseudo-algorithm.}
+\label{fig:lewam-planning}
+\end{figure}
+
+\Needspace{12\baselineskip}
+\subsection{Efficient Control with LeWAM}
+\label{sec:control-planning}
+
+\method{} supports both direct control through its learned policy and planning through rollouts that alternate action sampling and latent-state prediction.
+
+\lead{Direct Control.} With history and optional goal context fixed, one $C$-action chunk is sampled by integrating along the learned velocity field over the interval $[0,1]$ from Gaussian noise:
+\begin{equation}
+    \frac{\mathrm d\mA_{t,C}^{(s)}}{\mathrm ds}
+    =\actionbranch(\mA_{t,C}^{(s)};s,\vz_{\leq t},\vc_t),
+    \qquad \mA_{t,C}^{(0)}\sim\mathcal{N}(\vzero,\mI),
+    \qquad \hat{\mA}_{t,C}=\mA_{t,C}^{(1)}
+    \label{eq:action-initialization}
+\end{equation}
+The first $K$ actions are executed and resampling begins from the resulting observation.
+
+\lead{Planning.} \method{} uses a gradient-based refinement strategy over a population of action candidates sampled from the learned action distribution (Figure~\ref{fig:lewam-planning}).
+To simplify notation, let $\mA=(\va_t,\dots,\va_{t+L-1})$ denote a plan to reach the goal $\vz_g$ after $L$ raw environment steps from time $t$, where $L$ is a multiple of frameskip $K$.
+
+%\Needspace{6\baselineskip}
+%\noindent\ding{172}\enspace\lead{Predicted Action Distribution Sampling.} 
+Starting from the observed history $\vz_{\leq t}$, one population of $N$ candidate plans is generated from the learned action distribution by alternating action sampling and latent dynamics. Specifically, at each step, Eq.~(\ref{eq:action-initialization}) generates $N$ action chunks from the observation history and goal. The forward dynamics branch uses
+the first $K$ actions of each chunk to predict the $N$ corresponding next states.
+%% Don't need to repeat - takes up space
+%\begin{equation}
+%    \hat{\vz}_{t+k+K}
+%    =\statebranch\!\left(\hat{\vz}_{\leq t+k},\mA_{t+k}\right),
+%    \qquad k=0,K,\ldots,L-K.
+%    \label{eq:dynamics-rollout}
+%\end{equation}
+Each predicted state is appended to the fixed-length history of its candidate, the planning horizon is updated, and the process continues for $L$ total steps. This leaves $N$ action sequence candidates $\{\mA^{(n)}\}_{n=1}^N$. 
+Starting from $\{\mA^{(n)}\}_{n=1}^N$, we refine each candidate by gradient descent through latent dynamics~\citep{henaff2017discrete,jyothir2023gradient} with respect to the latent cost-to-goal
+\begin{equation}
+     \gC(\mA)
+     =\operatorname{MSE}\!\left(\hat{\vz}_{t+L}(\mA),\vz_g\right)
+     \label{eq:lewam-gradient-planning}
+\end{equation}
+With learning rate $\eta$, the goal-cost update takes the gradient-descent form
+\begin{equation}
+    \va_{t+k}\leftarrow\va_{t+k}-\eta\frac{\partial\gC}{\partial\va_{t+k}},
+    \qquad k=0,\ldots,L-1,
+    \label{eq:action-gradient-refinement}
+\end{equation}
+The descent iterate with the lowest $\gC$ across all candidates is chosen. In practice, we add a small proximity penalty to discourage large changes from the sampled plans (Appendix~\ref{app:planners}). We execute the first $K$ actions, observe the resulting state, and repeat sampling and refinement until the goal is reached, as in receding-horizon model predictive control.
+
+
+\section{Experiments}
+\label{sec:what-joint-buys}
+\label{sec:experiments}
+
+Our experiments aim to address the following questions:
+(1)~Can a single LeWAM architecture learn stably from offline data and support visual planning across heterogeneous tasks and settings?
+(2)~Does LeWAM jointly learn informative action-conditioned latent dynamics, control-relevant representations, and multi-modal distributions over actions?
+(3)~Can LeWAM further support behavior cloning in simulated environments and physical-robot control?
+
+% %(3) End2End, joint training action and visual observations, no posttrain-stage or population solvers, 
+% LeWM: pretraining + action solver/posttrain policy
+% LeWAM: joint end2end 
+% DINO-WM/GCBC: using DINOv2 representation
+
+% joint training: it integrates many components, how to show those components can benefit each other:
+
+% what we have: w/o action or action MSE head -> whats the representation
+% GCBC or GC-IDM: how the dynamics joint training help it?
+% action-aware (IDM, expert identifiability) -> action-aware representation
+% physical probing, visualizations -> learned representation diversity
+% Does latent dynamics help your policy???: (0) remove the state head, only the action head; (1) DP (2) planning can help
+
+
+\subsection{Evaluation Protocol}
+\label{sec:worldforge8}
+\lead{Heterogeneous Simulated Environments} We evaluate control across ten simulated navigation and manipulation
+environments (Figure~\ref{fig:worldforge8}). The environments vary in task functionality and temporal horizon, and their
+datasets include expert demonstrations, random-policy interactions, and mixed-quality data. Four environments adapt the benchmarks used in
+\methodname{LeWM}~\citep{maes2026lewm}. The other six add challenging contact-rich manipulation and navigation. Appendix~\ref{app:benchmark-evaluation} details task construction, data, and success criteria. For \dataset{Cube}, success checks both cube and end-effector positions.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/worldforge8_overview.pdf}
+\vspace{-1em}
+\caption{\lead{Simulation Environments.} Symbols beneath each frame denote overlapping task attributes,
+with their meanings shown in the legend to the left.}
+\label{fig:worldforge8}
+\vspace{-1em}
+\end{figure}
+
+\lead{Evaluation Protocols.} We distinguish two separate evaluation settings. Visual planning assumes access to a goal image, and a goal-conditioned policy or planner must reach the depicted state from its current (random) starting position within a fixed step budget. Task completion provides no goal image and evaluates behavior cloning from demonstrations: policies execute actions from start to finish to complete one specific task. Within each setting,
+methods share training and evaluation data, observations, action limits, goal offsets, execution budgets, and success predicates.
+Appendix~\ref{app:splits} details goal construction, evaluation conditions, and success criteria.
+
+\subsection{Visual Planning with LeWAM}
+\label{sec:goal-conditioned-results}
+We compare with four goal-conditioned baselines spanning latent-dynamics
+planning, an inverse-dynamics policy on a frozen world model, and direct policy execution:
+\begin{compactbaselines}
+\input{tables/compared_methods}
+\end{compactbaselines}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/sr_short_horizon.pdf}
+\vspace{-2em}
+\caption{\lead{Visual Planning across Ten Simulated Environments.} Most panels report the success rate under a goal offset of $L=25$ environment steps and permit $2L=50$ actions across 3 seeds. For \dataset{Two-Room}, we use 100/150 action steps following LeWM setting; For LeWM (CEM), we report 10 seeds for stability. Details are present in Appendix~\ref{app:splits}.
+Error bars denote one standard deviation; \endtoendstar{} indicates models with end-to-end training. Linear axes start at 50\% for the first five panels.}
+\label{fig:short-horizon-control}
+\end{figure}
+
+Figure~\ref{fig:short-horizon-control} reports goal-reaching success across ten environments. Across the ten tasks, \method{} averages $93.5\%$ success versus $50.9\%$ for
+\methodname{LeWM (CEM)}~\citep{maes2026lewm}, a $42.7$ percentage-point gap.
+\method{} exceeds that baseline on every task, with particularly large gaps on
+contact-rich \dataset{ToolHang} ($94.7$ versus $35.4$) and
+\dataset{Transport} ($83.3$ versus $2.8$).
+On the logically structured \dataset{Puzzle} task,
+\method{} reaches $80.7\%$ success versus $44.0\%$ for goal-conditioned \methodname{GCBC}~\citep{ghosh2021gcsl}.
+
+\label{sec:long-horizon-planning}
+\lead{Long-Horizon Planning.} Using the same checkpoints, we move the goal farther along each recorded trajectory while keeping its starting frame fixed on \dataset{Push-T}, \dataset{Cube}, \dataset{Scene}, and \dataset{Puzzle}. Unlike navigation, these tasks introduce significantly higher behavioral diversity as the planning horizon grows. At a 100-step goal offset, \method{} achieves $46.2\%$ mean success across these four tasks versus $10.9\%$ for LeWM (Figure~\ref{fig:planning-horizon}).
+
+\begin{figure}[!htbp]
+\centering
+\vspace{-1em}
+\includegraphics[width=\linewidth]{figures/planning_horizon.pdf}
+\vspace{-1em}
+\caption{\lead{Visual Planning Success across Different Horizons.}
+The task panels show mean success rates across 3 seeds. Each sweep starts at the first trajectory frame but with different goal offsets.}
+\label{fig:planning-horizon}
+\vspace{-1em}
+\end{figure}
+
+\label{sec:planning-efficiency}
+\lead{Towards Scalable Planning.} Beyond accuracy gains, \method{} delivers planning acceleration through two core mechanisms: (1) an expressive distribution prior that narrows the search space, and (2) gradient-based optimization that leverages GPU's parallel architectures to unlock scalable test-time search. Across four visual-goal tasks, it averages $52.50\text{ plans/s}$ versus $1.62\text{ plans/s}$ for \methodname{LeWM (CEM)}, a $32.3\times$ speedup (Table~\ref{tab:planning-speed}; Figure~\ref{fig:headline-results}(c)).
+
+\subsection{Understanding LeWAM's Dynamics, Representations, and Actions}
+\label{sec:world-dynamics}
+\label{sec:physical-understanding}
+
+% TODO: C-03. Test train/held-out and alternative-action prediction with SIGReg as the only
+% training change. Treat reduced trajectory overfitting as a hypothesis until the diagnostic
+% supports it. Report task-specific gains, null effects, and losses, including Push-T and ToolHang.
+
+% \input{tables/end_to_end_joint_prediction}
+% \FloatBarrier
+
+% TODO: compare latent-only LeWM and joint LeWAM with SIGReg off in both, matching the encoder,
+% total capacity, data, optimizer, updates, and evaluation. Inspect all training seeds through
+% plateau; neither nonzero marginal variance nor policy success alone establishes useful dynamics.
+
+
+
+\lead{Latent Representation Probing.} To better measure what information is learned by our joint-training objective, we evaluate how well linear probes recover physical states, proprioceptive information, and actions from \method{}'s representations. As highlighted in Table~\ref{tab:physical-probing-main} and Appendix~\ref{app:latent-probing}, training with an action modeling objective noticeably improves LeWAM's linear action and proprioception decodability compared to LeWM, increasing average proprioception, action, and IDM $R^2$ by $+0.21, +0.20, +0.19$ respectively (see Table~\ref{tab:physical-probing-appendix}, Appendix~\ref{app:latent-probing}).
+
+\lead{The Role of SIGReg.} SIGReg~\citep{balestriero2025lejepa,maes2026lewm} constrains the latent distribution to prevent representation collapse. Without it, latent-only LeWM yields $R^2=0.00$ on every reported \dataset{Push-T} probe, while LeWAM with either action head retains decodable state and action information (Table~\ref{tab:physical-probing-main}). This supports action supervision as an \emph{anti-collapse signal}: observed actions anchor the learned representation to targets independent of the encoder.
+%Without SIGReg, latent-only \methodname{LeWM} yields $R^2=0.00$ on all reported \dataset{Push-T} probes, whereas both action heads retain decodable information (Table~\ref{tab:physical-probing-main}), consistent with action supervision discouraging collapse by anchoring representations to observed actions independently of the encoder. 
+However, only constraints from action prediction is not enough, beyond anti-collapse, we find that SIGReg can largely improve planning: on \dataset{Push-T}, the planning gain is 14.7 percentage points with SIGReg, compared to 2.7 without it (Table~\ref{tab:planning-component-ablation}). The probes in Tables~\ref{tab:physical-probing-main} and~\ref{tab:physical-probing-appendix} show that SIGReg improves object-state decodability as well. This is because SIGReg can retain informative latent representation and dynamics which help downstream planning, and make latent distance-to-goal more sensitive to changes in object state.
+\input{tables/physical_probing}
+
+Figure~\ref{fig:model-ablations}(a) compares
+full \method{} with its no-SIGReg ablation. Removing SIGReg lowers planning
+success in the three tasks shown, most strongly on \dataset{Push-T} (25.3 percentage
+points), followed by \dataset{Puzzle} (5.3) and \dataset{Scene} (4.0).
+
+\phantomsection
+\label{sec:action-refines-representation}
+\lead{Why Train the Visual Encoder End-to-End?} Frozen DINOv2~\citep{oquab2023dinov2} features underperform end-to-end features in our setup (Figure~\ref{fig:model-ablations}(b)). Across the four tasks, direct success averages $86.7\%$ with the jointly trained encoder, versus $79.0\%$ with frozen CLS features and $75.8\%$ with frozen patch features. Joint training thus improves the representation used for action selection; the additional gain from planning shows that its learned dynamics also support action refinement.
+Appendix~\ref{app:simulation-rollouts} provides aligned visual reconstructions and
+recorded-action open-loop rollouts for four simulated tasks.
+
+\phantomsection
+\label{sec:ablations}
+\lead{Why Model Stochastic Action Distributions?} 
+With the same latent-dynamics objective, flow matching yields larger planning gains than an MSE head whose point predictions are perturbed with Gaussian noise (Figure~\ref{fig:model-ablations}(c)). Without SIGReg, flow matching also retains more linearly decodable object information ($R^2=0.88$ versus $0.66$), with comparable proprioception scores ($0.85$ versus $0.86$). Deterministic MSE targets the conditional mean $\mathbb{E}[\mA_{t,C}\mid\vz_{\leq t},\vc_t]$, whereas flow matching models the conditional action distribution. It can therefore retain distinctions between states whose action distributions differ despite similar means. Appendix~\ref{app:action-distributions} illustrates this distinction in a two-door navigation experiment, where LeWAM presents a explicit multi-modal action distribution.
+
+\begin{figure}[htbp!]
+\centering
+\includegraphics[width=\linewidth]{figures/model_ablations/model_ablations.pdf}
+\vspace{-2em}
+\caption{
+(a) Planning gain (percentage points) from SIGReg. (b) Direct success and planning gain for visual
+encoders, averaged over four tasks. (c) Planning gain for flow (circles) and
+MSE (squares) action heads.
+(d) Task-completion success for LeWAM and
+\methodname{Diffusion Policy}.}
+\vspace{-1em}
+\label{fig:model-ablations}
+\end{figure}
+
+\paragraph{Isolating Action-Conditioned Dynamics.}
+To examine the dynamics learned under \method{}'s joint objective, we remove its action prediction head at evaluation time and use CEM to plan with only its action-conditioned latent dynamics. Compared with \methodname{LeWM}, which trains action-conditioned dynamics without policy learning, \method{} produces comparable visual predictions and achieves competitive planning success on \dataset{Push-T}. On \dataset{Cube}, a 3D manipulation task, LeWAM has clearer visual predictions, especially in control-relevant feature, \eg, gripper and object, and higher planning success  (Appendix~\ref{app:simulation-rollouts}, Figure~\ref{fig:simulation-rollouts-pusht-cube}, and Table~\ref{tab:dynamics-only-cem}). These results show that joint action learning is compatible with world modeling and even improve the control-relevant parts.
+
+\subsection{Behavior Cloning and Physical Robot Control}
+\label{sec:behavior-cloning-robot-control}
+While visual planning relies on goal images to optimize actions online, goal-agnostic tasks require executing behaviors directly. In this section, the robot must implicitly infer task progress and react to changing object poses and contacts without explicit goal conditioning. We train \method{} without goal context $\vc_t$ while retaining other objectives. At test time, the policy directly samples action chunks from observation history for execution, bypassing the test-time planning.
+
+\phantomsection
+\label{sec:task-completion-results}
+\lead{Task Completion in Simulation.} We benchmark \method{} on three simulated tasks requiring complex manipulation without goal prompts: \dataset{DrawerCleanup}, \dataset{Transport}, and \dataset{ToolHang}. Figure~\ref{fig:model-ablations}(d) compares task-completion success with \methodname{Diffusion Policy}~\citep{chi2023diffusionpolicy}. \method{} achieves competitive performance on two tasks and improves success by 16 percentage points on \dataset{Transport}. These results show that \method{} supports goal-agnostic behavior cloning alongside goal-conditioned planning. Per-task standard deviations appear in Appendix Table~\ref{tab:task-completion}.
+
+\lead{Physical-Robot Control.} Several prior JEPAs, such as \methodname{DINO-WM}~\citep{zhou2024dinowm}, \methodname{PLDM}~\citep{sobal2025pldm}, and \methodname{LeWM}~\citep{maes2026lewm}, evaluate control only in simulation, while \methodname{V-JEPA 2-AC}~\citep{assran2025vjepa2} plans on physical robots over a frozen pretrained encoder. We evaluate LeWAM on a real robotic platform through direct policy execution, testing whether an end-to-end JEPA can handle real-world contact dynamics and visual variation in closed-loop control.
+
+We evaluate both the end-to-end LeWAM and a variant that supplies pretrained
+features from a frozen \methodname{V-JEPA 2.1}~\citep{murlabadia2026vjepa21}
+backbone on \dataset{Pick and Place T}, \dataset{Push-T}, and \dataset{Tape Stack}. The physical-robot
+baselines are \methodname{Diffusion Policy}~\citep{chi2023diffusionpolicy} and $\pi_{0.5}$~\citep{physicalintelligence2025pi05},
+a vision-language-action policy. All methods are trained or finetuned on our collected teleoperation data and directly execute the first half of each predicted
+action chunk during inference. Implementation details appear in Appendix~\ref{app:real-robot}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/task_figure.pdf}
+\setlength{\abovecaptionskip}{3pt}
+\caption{Paired scene and wrist view examples from three physical-robot tasks.}
+\vspace{-1em}
+\label{fig:real-robot-task-suite}
+\end{figure}
+\input{tables/real_robot_results}
+\vspace{-10pt}
+Table~\ref{tab:real-robot-results} shows that LeWAM is competitive with both baselines. With the same demonstrations, its encoder trained from scratch achieves a similar average success rate to the frozen V-JEPA 2.1 variant. Joint prediction of latent states and actions thus supports closed-loop physical control from teleoperation demonstrations.
+
+On held-out episodes, both LeWAM variants reconstruct the manipulated object and coarse robot motion, with less fine detail in decoded rollouts (Appendix Figure~\ref{fig:robot-rollout-scene}).
+
+% Whether the world-modeling objective improves real-world imitation over pure behavior cloning requires broader evaluation, which we leave to future work.
+
+
+\section{Conclusion and Limitations}
+\label{sec:conclusion}
+
+In this work we introduce \method{}, an end-to-end JEPA for joint prediction of future latent states and actions, that supports control through both planning and policy execution. On goal-reaching environments, LeWAM demonstrates improved performance in dynamics-based planning over previous JEPA-based world models. On behavioral cloning from expert demonstrations on both simulated and physical robots, LeWAM is competitive with established policy baselines. 
+% Training spans demonstrations and non-expert interactions, with separate models evaluated for each task and embodiment in simulation and on physical robots.
+
+\Needspace{28\baselineskip}
+\phantomsection
+\label{sec:limitations}
+\lead{Limitations and Future Work.}
+
+\begin{itemize}[leftmargin=*,itemsep=0.25em,topsep=0.25em]
+    \item \textbf{Data Coverage.} Our task suite combines expert demonstrations and non-expert interactions at limited scale. Broader play data and exploration on contact-rich tasks would extend coverage of difficult contact transitions and support training across a wider range of behaviors.
+
+    \item \textbf{Generalization.} Learning action-conditioned dynamics could support broader generalization than policy-only approaches, motivating tests on unfamiliar objects, camera viewpoints, and contact states.
+
+    \item \textbf{Single-Task and Single-Embodiment Learning.} Models are trained or adapted separately for each task and embodiment. Multitask training across robots and language-conditioned tasks would extend the shared dynamics and policy to broader settings.
+
+    \item \textbf{Integration with Hierarchical Planning.} \method{} provides low-level planning and control. A high-level planner could decompose longer tasks into subgoals, each executed through LeWAM's continuous control.
+    \item \textbf{Scalability of Training \& Planning.} The visual-planning model has approximately $17\text{M}$ parameters. Larger models and datasets would extend training scale, while larger candidate populations and more refinement steps would extend test-time search.
+\end{itemize}
+
+\subsection*{Reproducibility statement}
+The experiments in Section~\ref{sec:experiments} use the
+architectures and baseline configurations in Appendix~\ref{app:implementation},
+with datasets and evaluation protocols in Appendix~\ref{app:benchmark-evaluation}.
+The project website and code repository are linked on the first page.
+
+% TODO: add the anonymous artifact URL and its archival identifier before submission.
+
+\subsection*{Ethics statement}
+The experiments collect no new human-subject data.
+Reused environments, datasets, models, and software remain subject to their original
+licenses.
+Physical deployment (Section~\ref{sec:behavior-cloning-robot-control}) requires independent safety mechanisms.
+
+\subsection*{AI use statement}
+LLM-based assistants helped with manuscript polishing and language refinement. The authors designed and conducted the research, reviewed the analyses and manuscript, and take responsibility for its content.
+
+\bibliography{references}
+\bibliographystyle{iclr2027_conference}
+
+\clearpage
+\appendix
+\phantomsection
+\label{app:roadmap}
+
+\begingroup
+\centering
+\vspace*{-0.6em}
+{\LARGE\bfseries\sffamily Appendix\par}
+\vspace{0.35em}
+{\small\itshape\sffamily Supplementary material for
+\textbf{LeWAM: End-to-End World and Action Modeling with JEPAs}\par}
+\vspace{1.0em}
+\endgroup
+
+\noindent\begin{tcolorbox}[
+    enhanced,
+    colback=gray!3,
+    colframe=gray!55,
+    boxrule=0.4pt,
+    arc=2.5pt,
+    left=12pt, right=12pt, top=14pt, bottom=12pt,
+    title={\textsf{\bfseries\;Contents\;}},
+    coltitle=white,
+    colbacktitle=gray!55,
+    fonttitle=\bfseries\sffamily\small,
+    attach boxed title to top center={yshift=-3pt},
+    boxed title style={size=small, sharp corners, boxrule=0pt, arc=2pt},
+]
+\renewcommand{\arraystretch}{1.2}
+\sffamily\small
+\begin{tabular*}{\linewidth}{@{}l@{\hspace{6pt}}l@{\extracolsep{\fill}}r@{}}
+\appendixbadge{A} & \hyperref[app:implementation]{\textbf{Implementation Details}}
+& p.~\pageref{app:implementation} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:planners]{LeWAM Planning}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:planners}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:baseline-implementations]{Baseline Implementations}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:baseline-implementations}} \\[0.3em]
+\appendixbadge{B} & \hyperref[app:benchmark-evaluation]{\textbf{Benchmarks and Evaluation}}
+& p.~\pageref{app:benchmark-evaluation} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:tasks-data]{Tasks and Datasets}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:tasks-data}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:splits]{Goals and Success Criteria}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:splits}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:runtime]{Planning and Timing Protocols}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:runtime}} \\[0.3em]
+\appendixbadge{C} & \hyperref[app:numerical-results]{\textbf{Additional Results}}
+& p.~\pageref{app:numerical-results} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:visual-planning-results]{Visual Planning Results}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:visual-planning-results}} \\
+% & {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:evaluation-seeds]{Sensitivity to Evaluation Seeds}}& {\scriptsize\color{gray!35!black}p.~\pageref{app:evaluation-seeds}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:component-ablations]{Component and Visual-Encoder Ablations}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:component-ablations}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:latent-probing]{Probing Latent Representations}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:latent-probing}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:simulation-rollouts]{Visual Reconstructions and Open-Loop Rollouts}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:simulation-rollouts}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:action-distributions]{Multimodal Action Distributions}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:action-distributions}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:simulation-completion-results]{Simulation Task-Completion Results}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:simulation-completion-results}} \\[0.3em]
+\appendixbadge{D} & \hyperref[app:real-robot]{\textbf{Physical-Robot Setup and Evaluation}}
+& p.~\pageref{app:real-robot} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:robot-data]{Platform and Data Collection}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:robot-data}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:robot-implementation]{Model Implementation}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:robot-implementation}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:bc-physical]{Physical-Robot Baseline Configurations}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:bc-physical}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:robot-evaluation]{Closed-Loop Evaluation}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:robot-evaluation}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:robot-diagnostics]{Representation Diagnostics and Evaluation}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:robot-diagnostics}} \\[0.3em]
+\appendixbadge{E} & \hyperref[app:joint-prediction]{\textbf{Discussion of the Role of Joint Prediction}}
+& p.~\pageref{app:joint-prediction} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:joint-representation]{Representation and Dynamics}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:joint-representation}} \\
+& {\scriptsize\color{gray!35!black}\hspace{1em}\hyperref[app:joint-planning]{Planning with Learned Action Proposals}}
+& {\scriptsize\color{gray!35!black}p.~\pageref{app:joint-planning}} \\[0.3em]
+\appendixbadge{F} & \hyperref[app:author-contributions]{\textbf{Author Contribution Statement}}
+& p.~\pageref{app:author-contributions} \\
+\end{tabular*}
+\end{tcolorbox}
+
+\newpage
+
+\section{Implementation Details}
+\label{app:implementation}
+
+\phantomsection
+\label{app:arch}
+
+\lead{Temporal Sampling.} Given observation-history stride $\Delta$, the predictor in
+Section~\ref{sec:joint-predictor} uses two history latents
+$\vz_{\leq t}=(\vz_{t-\Delta},\vz_t)$, a dynamics stride of $K=5$ raw steps, and an action
+chunk of $C=2K=10$ raw steps. We use a stride of $\Delta=K$ for goal-reaching tasks and $\Delta=1$ for task-completion frames. To predict $\vz_{t+5}$, the dynamics branch receives all five actions $\va_t,\ldots,\va_{t+4}$, and the flow policy models
+all ten actions $\va_t,\ldots,\va_{t+9}$. Only frames are subsampled. During imagined
+rollouts, the history update retains the two most recent latent states.
+
+\lead{Inner Architecture.} The observation encoder is
+a ResNet-18-style network~\citep{he2016resnet} trained from scratch. Its convolutional backbone
+uses GroupNorm with 16 groups. Input images are cropped from $224\times224$ to $202\times202$,
+with random offsets during training and a center crop at evaluation. A $1\times1$ convolution
+produces 32 spatial maps, and a spatial softmax pooling converts these to 32 expected normalized image-coordinate
+pairs. After that, a two-layer projection MLP with BatchNorm maps these 64 features through a hidden width
+of 384 to a 192-dimensional latent state, which is the same as LeWM~\citep{maes2026lewm} in simulations for a fair comparison. The MoT predictor has width 192, 4 blocks, 4 attention heads, and dropout 0.1. Its token sequence contains two history
+latents, one learned state query, five clean action tokens, and ten action flow slots. Learned
+type and positional embeddings distinguish history, state query, clean action, and action flow
+tokens. The state readout uses LayerNorm followed by a linear map to the 192-dimensional latent,
+while the action readout maps each action flow slot to a velocity vector in raw-action space.
+
+Goal information $\vc_t$ is optional and is omitted for goal-free task completion. For goal-conditioned visual planning, $\vc_t$ contains the goal image latent $\vz_g$ and the normalized remaining horizon. The goal latent is supplied as an additional token in the action branch, while only noisy action tokens can attend to it. The horizon $h$ between the current timestep and the goal is normalized into a $[0,1]$ range relative to a maximal value $H_{\mathrm{max}}$ which dictates the longest distance-from-goal seen during training. $h$ modulates the noisy action tokens using AdaLN-Zero~\citep{peebles2023dit} blocks with hidden width 512 and a 128-dimensional sinusoidal embedding.
+
+In total, the model has approximately 16.9M trainable parameters in visual planning. For the simulated experiments, action sampling uses 8 Euler steps to balance speed and quality.
+The reported MSE dynamics configuration uses an online encoder target, no state noise, no state
+flow integration, no momentum target encoder, only SIGReg with 1,024 projections and 17 knots. For the training objective in Equation~\ref{eq:joint-objective}, we set $\lambda_{\mathrm{sig}} = 0.04$.
+
+\lead{Training Recipe in Simulated Environments.} For goal-conditioned visual planning, LeWAM runs use a batch size of 128 and train for 50 epochs, with a base learning rate of $1.5\times10^{-4}$ and five warmup epochs. The goal-free task-completion runs use a batch size of 64 and train for 120 epochs, with a base learning rate of $10^{-4}$ and ten warmup epochs. Both use AdamW with weight decay $10^{-4}$ and a uniform learning rate across the encoder and MoT predictor. The learning rate increases linearly during warmup and then follows an epochwise cosine schedule. Training uses full precision, a gradient-norm clip of 1, and seed 42. We split valid decision points into 90\% training and 10\% validation, then sample training points with replacement within each epoch. After each epoch, we retain the checkpoint with the lowest validation action flow-matching loss, where task success is not used for checkpoint selection.
+
+\lead{Tokens and Conditioning in MoT.} With the optional goal context $\vc_t$ omitted, the MoT sequence is
+\begin{equation}
+    \left[
+    \vz_{t-\Delta},\vz_t,\vq^z_{t+K},
+    \mA_{t,K},\mA_{t,C}^{(s)}
+    \right].
+    \label{eq:mot-tokens}
+\end{equation}
+Here $\mA_{t,K}$ and $\mA_{t,C}^{(s)}$ expand into $K$ clean and $2K$ noisy action tokens, respectively.
+The first three tokens are processed by $\statebranch$, and both action groups by $\actionbranch$. Each MoT branch has separate query, key, value, output, normalization, and
+feedforward parameters, while one global masked self-attention operates over the complete token sequence. Flow timestep
+$s$ modulates only the noisy action slots through AdaLN-Zero.
+
+\Needspace{9\baselineskip}
+\lead{Attention Mask.} Let $\mathcal{V}(x)$ denote the tokens visible to query $x$. The mask below describes the sequence without optional goal context $\vc_t$. When this context is provided, the goal token is additionally visible to the noisy action tokens only.
+Action prefixes begin at the current chunk's start $t$; padded history keys are excluded:
+\begin{equation}
+\begin{aligned}
+\mathcal{V}(\vz_i)
+    &=\{\vz_{t-\Delta},\vz_t\},
+    && i\in\{t-\Delta,t\},\\
+\mathcal{V}(\vq^z_{t+K})
+    &=\{\vz_{t-\Delta},\vz_t,\vq^z_{t+K},\mA_{t,K}\},\\
+\mathcal{V}(\va_j)
+    &=\{\vz_{t-\Delta},\vz_t,\va_{\leq j}\},
+    &&j\in\{t,\ldots,t+K-1\},\\
+\mathcal{V}(\va_j^{(s)})
+    &=\{\vz_{t-\Delta},\vz_t,\va_{\leq j}^{(s)}\},
+    &&j\in\{t,\ldots,t+2K-1\}.
+\end{aligned}
+\label{eq:mot-mask}
+\end{equation}
+Clean action tokens therefore cannot relay target information to history or action flow tokens across layers. A visualization of the attention mask is provided in Figure~\ref{fig:mot-mask-full}.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.90\linewidth]{figures/fig1/assets/lewam_attention_full.pdf}
+\caption{\lead{Token-Level MoT Attention.} Expansion of Figure~\ref{fig:mot-architecture}
+for two history latents, one learned state query, five clean actions, and ten interpolated
+action tokens. Rows are queries; columns are keys. Filled cells permit attention; white cells are masked. Blue and brown mark
+latent state and action velocity prediction queries; gray marks context. Wider gaps
+separate token groups. Optional goal conditioning $\vc_t$ is omitted.
+$\Delta$ is the history stride, and action indices remain at the raw environment
+rate.}
+\label{fig:mot-mask-full}
+\end{figure}
+
+\clearpage
+\subsection{LeWAM Planning}
+\label{app:planners}
+
+\lead{Optimization Details.} The goal cost $\gC$ is defined in
+Eq.~(\ref{eq:lewam-gradient-planning}). During refinement, model parameters
+remain frozen and only the normalized action plans receive gradients. For each
+sampled plan $\mA^{\mathrm{sample}}$, Adam minimizes the goal cost with a
+quadratic proximity penalty:
+\begin{equation}
+    \gJ_{\mathrm{prox}}(\mA;\mA^{\mathrm{sample}})
+    =\gC(\mA)+\lambda_{\mathrm{prox}}
+    \left\|\mA-\mA^{\mathrm{sample}}\right\|_F^2.
+    \label{eq:proximity-penalty-planning}
+\end{equation}
+The penalty affects the updates, while candidate retention and final selection
+use the unpenalized goal cost $\gC$, and we clip normalized actions to
+$[-a_{\max},a_{\max}]$ after each update. This penalty aims at discouraging the huge changes on actions, since the action flow already provide an effective prior.
+
+\begin{algorithm}[H]
+\caption{Candidate refinement and selection for LeWAM planning}
+\label{alg:lewam-gradient-planning}
+\begin{algorithmic}[1]
+\Require $\vz_{\leq t},\vc_t,\vz_g,L,N,J,\eta,\lambda_{\mathrm{prox}},a_{\max}$
+\Statex \textbf{Sample candidates from the learned policy}
+\State $\mA_{1:N}^{\mathrm{sample}} \gets N$ policy rollouts from $(\vz_{\leq t},\vc_t)$ for $L/K$ blocks
+\State $c_{1:N} \gets \gC(\mA_{1:N}^{\mathrm{sample}})$
+\State $\mA^\star_{1:N} \gets \mA_{1:N}^{\mathrm{sample}}$, \quad $\mA_{1:N} \gets \mA_{1:N}^{\mathrm{sample}}$
+\State $c^\star_{1:N} \gets c_{1:N}$
+
+\Statex \textbf{Refine each candidate}
+\For{$j = 0,\ldots,J-1$}
+    \State $\mA_{1:N} \gets
+    \operatorname{AdamStep}\left(
+    \mA_{1:N},
+    \nabla_{\mA_{1:N}}\gJ_{\mathrm{prox}}
+    (\mA_{1:N};\mA_{1:N}^{\mathrm{sample}}),
+    \eta\right)$
+    \State $\mA_{1:N} \gets
+    \operatorname{clip}(\mA_{1:N},-a_{\max},a_{\max})$
+    \State $c_{1:N} \gets \gC(\mA_{1:N})$
+    \State $\mA^\star_n \gets \mA_n,\quad
+    c_n^\star \gets c_n
+    \quad \forall n\text{ such that }c_n<c_n^\star$
+\EndFor
+
+\Statex \textbf{Select the lowest-cost iterate}
+\State $n^\star \gets \argmin_{n=1,\ldots,N} c_n^\star$
+\State \Return $\mA^\star_{n^\star}$
+\end{algorithmic}
+\end{algorithm}
+
+We let the Adam optimizer use a learning rate of $0.05$, gradient-norm
+clipping at $10$, $a_{\max}=3$, and $\lambda_{\mathrm{prox}}=0.01$.
+
+\subsection{Baseline Implementations}
+\label{app:baseline-implementations}
+
+The baselines in Section~\ref{sec:worldforge8} use the released \methodname{stable-worldmodel}
+codebase~\citep{maes2026swm}, retaining its environment wrappers, dataset interface,
+action bounds, and evaluation loop. Unless stated below, each method follows its official
+implementation and hyperparameters.\footnote{Official repositories:
+\href{https://github.com/gaoyuezhou/dino_wm}{DINO-WM},
+\href{https://github.com/galilai-group/stable-worldmodel}{stable-worldmodel}, and
+\href{https://github.com/hdnndh/Latent-Geometry-Beyond-Search-Amortizing-Planning-in-World-Models}{GC-IDM}.}
+These configurations describe goal-conditioned comparisons. Methods share observations, actions,
+start and goal pairs, and success predicates. We list deviations from released configurations.
+
+\baselineitem{MethodGCIDM}{\textbf{\methodname{LeWM (IDM)}.} This is the
+\methodname{GC-IDM}~\citep{nguyen2026gcidm} configuration: a pretrained
+\methodname{LeWM} checkpoint trained by us is frozen, then a goal-conditioned inverse-dynamics model is post-trained.
+We follow its official two-stage implementation.
+Goal reaching samples a remaining horizon uniformly
+from 1 to 50 and clips it to the episode boundary.}
+
+\baselineitem{MethodLeWM}{\textbf{\methodname{LeWM (CEM)}.} We follow the official
+\methodname{LeWM} training and CEM evaluation settings~\citep{maes2026lewm}. We train a checkpoint for each task and use these checkpoints in all quantitative
+experiments with \methodname{LeWM} as a baseline. }
+
+\baselineitem{MethodDINOWM}{\textbf{\methodname{DINO-WM}.} We evaluate the released patch-token
+model and a matched CLS-token variant; tokenization is their only architectural difference. The
+six added tasks use ten training epochs, while the original four retain their four-epoch
+checkpoints.}
+
+\baselineitem{MethodGCBC}{\textbf{\methodname{GCBC}.} We use the goal-conditioned
+behavior-cloning baseline from the released codebase~\citep{maes2026swm}, with its pretrained
+\methodname{DINOv2} encoder frozen and the policy trained for 20 rather than 100 epochs.
+Short-horizon goal reaching samples a uniformly later frame from the same episode.
+At evaluation, the policy executes its predicted five-step action chunks without planning.}
+% TODO: add only verified deviations still omitted: exact CEM population/elite/iteration
+% budgets, task-specific checkpoint choices or action repeats, and hardware or wall-clock
+% details if reported. Do not restate unchanged official hyperparameters.
+
+\Needspace{5\baselineskip}
+\lead{Behavior-Cloning Baseline in Simulation.}
+\label{app:bc-simulation}
+The task-completion comparison in Table~\ref{tab:task-completion} uses a policy
+trained on demonstrations from each task, conditioned on observation history
+without a goal image or goal-horizon input.
+
+\baselineitem{MethodDiffusionPolicy}{\textbf{\methodname{Diffusion Policy}}~\citep{chi2023diffusionpolicy}.
+We use the convolutional variant (DP-C), with a ResNet-18 encoder, GroupNorm, and
+spatial softmax for each camera. The image features condition a one-dimensional
+U-Net with channel widths $(512,1024,2048)$, kernel size five, and diffusion-step
+embedding dimension 128. Training minimizes noise-prediction MSE with a
+100-step squared-cosine diffusion schedule; inference uses 100 DDPM steps.
+The policy takes two consecutive observations, predicts a 16-action sequence,
+and executes eight actions starting at the current timestep before resampling.}
+
+\dataset{ToolHang} uses the scene camera; \dataset{DrawerCleanup} and
+\dataset{Transport} use the scene camera and both wrist cameras. Inputs are
+$224\times224$ RGB images, with random $202\times202$ crops during training and
+center crops at evaluation, normalized to $[-1,1]$. The policy uses visual
+observations only. Training windows advance at the raw frame rate, with boundary
+frames and actions repeated for padding. We randomly split windows into 90\%
+training and 10\% validation using seed 42. Each policy trains for 120 epochs
+with batch size 64 and AdamW, learning rate $10^{-4}$, betas $(0.95,0.999)$, and
+weight decay $10^{-6}$. The learning rate follows cosine decay after 500 warmup
+updates. Actions retain their recorded scale for \dataset{ToolHang} and
+\dataset{Transport}; \dataset{DrawerCleanup} uses min-max scaling to $[-1,1]$.
+We select the checkpoint with the lowest validation denoising loss and evaluate
+its raw weights without exponential moving averaging. Each checkpoint is
+evaluated with seeds 0, 1, and 42, using 50 episodes per seed.
+
+
+
+\section{Benchmarks and Evaluation}
+\label{app:benchmark-evaluation}
+\label{app:datasets}
+\label{app:evaluation}
+
+\subsection{Tasks and Datasets}
+\label{app:tasks-data}
+\label{app:lewm-bench}
+\label{app:wf-data}
+
+\lead{Task Selection.} We retain the four environments used by
+\methodname{LeWM}~\citep{maes2026lewm} for direct comparison, then add six tasks
+that broaden navigation and manipulation to larger mazes, interacting objects,
+coupled button states, precise tool placement, bimanual transfer, and articulated
+drawers (Figure~\ref{fig:worldforge8}). The ten tasks also span different action
+dimensions, observation views, trajectory lengths, and data-collection regimes.
+Together, they test the same model design under varied control and data conditions.
+
+\lead{Data Provenance.}
+We describe each dataset in the environment order of Figure~\ref{fig:worldforge8}.
+\begin{itemize}
+    \item \dataset{Two-Room}. We use the dataset released with
+    \methodname{LeWM}~\citep{maes2026lewm}, collected by a noisy heuristic
+    navigation policy.
+    \item \dataset{Reacher}. We use the dataset released with
+    \methodname{LeWM}~\citep{maes2026lewm}, collected by a random policy with uniform distribution.
+    \item \dataset{Push-T}. We use the non-expert interaction dataset released by
+    \methodname{DINO-WM}~\citep{zhou2024dinowm}, generated by replaying the original
+    expert trajectories with different levels of action noise.
+    \item \dataset{Cube}. We use the dataset released with
+    \methodname{LeWM}~\citep{maes2026lewm} for the single-cube
+    \dataset{OGBench}~\citep{park2025ogbench} environment, collected by a scripted
+    expert that picks and places the cube at sampled target locations. We just change the success criteria.
+    \item \dataset{PointMaze-Large}. We use the official
+   \dataset{OGBench}~\citep{park2025ogbench} \texttt{pointmaze-large-navigate-v0}
+    dataset, collected by a noisy expert that navigates between randomly sampled
+    locations. 
+    \needspace{5\baselineskip}
+    \item \dataset{Scene}. We collect data ourselves using the
+    \methodname{stable-worldmodel}~\citep{maes2026swm} wrapper for
+    \dataset{OGBench}~\citep{park2025ogbench} \dataset{Scene}
+    (\texttt{swm/OGBScene-v0}) and its \texttt{ExpertPolicy}, a noisy, closed-loop
+    scripted oracle. The policy interacts with the cube, drawer, window, and
+    buttons; we record a single camera view.
+    \item \dataset{Puzzle}. We collect data ourselves using the
+    \methodname{stable-worldmodel}~\citep{maes2026swm} wrapper for the
+    $3\times3$ \dataset{OGBench}~\citep{park2025ogbench} \dataset{Puzzle}
+    environment and its scripted \texttt{ExpertPolicy}. The policy presses
+    buttons in sampled sequences; we record a single camera view.
+    \item \dataset{ToolHang}. We use the official human behavior-cloning
+    demonstrations from \dataset{robomimic}~\citep{mandlekar2022robomimic}.
+    \item \dataset{Transport}. We use the official generated behavior-cloning
+    demonstrations from \dataset{DexMimicGen}~\citep{jiang2025dexmimicgen}.
+    \item \dataset{DrawerCleanup}. We use the official generated behavior-cloning
+    demonstrations from \dataset{DexMimicGen}~\citep{jiang2025dexmimicgen}.
+\end{itemize}
+
+The three behavior-cloning datasets broaden the visual-planning comparison to
+complex contact-rich behaviors with higher-dimensional actions, although their
+task-focused demonstrations may limit the diversity of sampled visual goals.
+
+Table~\ref{tab:dataset-scale} summarizes all ten tasks, including observation
+views, raw action dimensions, and dataset scale.
+Recorded lengths describe the data, while Appendix~\ref{app:splits} specifies
+evaluation horizons and execution budgets. Recorded duration uses the native
+sampling rate before temporal subsampling; synchronized views of the same
+trajectories are counted once. \dataset{ToolHang} uses one oblique scene view
+(about $45^\circ$), while \dataset{Transport} and \dataset{DrawerCleanup} use a
+scene view and both wrist views.
+
+\input{tables/dataset_statistics}
+
+
+\subsection{Goals and Success Criteria}
+\label{app:splits}
+
+For the comparisons in Section~\ref{sec:worldforge8}, unless stated otherwise, if not specify, 
+we report mean success and standard deviation over three seeds with 50 episodes per seed.
+Methods within a protocol share observations, action limits, execution budgets, and
+success predicates.
+
+\lead{Goal-Conditioned Visual Planning.} In Section~\ref{sec:goal-conditioned-results},
+the initial state is sampled from an offline trajectory. Except on \dataset{Two-Room}, the frame 25 steps later
+supplies the visual goal, and each controller receives 50 environment actions. On \dataset{Two-Room}, we use a goal offset of 100 environment steps and an execution budget of 150 actions, following \methodname{LeWorldModel}~\citep{maes2026lewm}.
+We report first-hit success for comparison with the released
+\methodname{LeWM} evaluation~\citep{maes2026lewm}; the \dataset{Cube} predicate correction
+is detailed below. \dataset{Scene} and \dataset{Puzzle} follow the same protocol;
+their random-policy and zero-action controls appear alongside those for the other
+environments in Table~\ref{tab:policy-floor-controls}.
+
+\lead{Policy-Floor Controls.} To ensure the benchmarks are reliable in reflecting the model ability, Table~\ref{tab:policy-floor-controls} also reports
+zero-action and random-policy success under the full-trajectory task-completion
+evaluation. These blind controls cover the benchmark environments.
+
+\lead{Cube Success Predicate.} Specifically, we add an end-effector (EEF) check to the \dataset{Cube} success criterion to exclude spurious successes. The original \dataset{Cube} criterion checks whether the
+cube center lies within $0.04$ m of the target, regardless of the gripper pose.
+For 25-step goals, this credits zero action on $42.7\%$ of episodes
+(Table~\ref{tab:policy-floor-controls}). The corrected criterion additionally requires
+the end effector to lie within $0.04$ m of its goal-frame position, reducing this floor
+to $2.7\%$. Figure~\ref{fig:cube-object-only} illustrates the object-only failure case.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\linewidth]{figures/cube_object_only_failure.png}
+\caption{\lead{A Degenerate \dataset{Cube} Success under Goal Reaching.}
+Each row shows a policy rollout (left, frames over time) beside its goal frame (far right,
+after the divider). Throughout the
+execution, the gripper never reaches the goal end-effector pose, yet the cube stays within the
+$0.04$~m object-only threshold of the goal, so object-position-only predicate scores
+the episode a spurious success. Our end-effector term (Table~\ref{tab:policy-floor-controls}) rejects these
+degenerate successes by additionally requiring the gripper to reach the goal pose.}
+\label{fig:cube-object-only}
+\end{figure}
+
+\begin{table}[t]
+    \centering
+    \input{tables/policy_floor_controls}
+    \caption{\lead{Action Dimensions and Policy-Floor Controls.}
+    Rows cover all ten environments in Figure~\ref{fig:worldforge8}, plus a
+    \dataset{Cube} ($+$EEF) row isolating the corrected end-effector predicate.
+    Raw action dimensionality is reported beside zero-action and random-policy success rates (\%)
+    for short-horizon goal reaching and full-trajectory task completion, averaged over three seeds.
+    These blind controls measure baseline success from zero actions and random actions.
+    \dataset{Cube} has the same task-completion values in both rows because the
+    end-effector correction applies only to short-horizon goal reaching.
+    \dataset{DrawerCleanup} exposes 24 raw coordinates; the policy predicts 22 active dimensions
+    after removing two constant joints. }
+    \label{tab:policy-floor-controls}
+\end{table}
+
+\FloatBarrier
+\Needspace{20\baselineskip}
+\subsection{Planning and Timing Protocols}
+\label{app:runtime}
+
+\lead{Goal-Horizon Sweep.} The sweep in Figure~\ref{fig:planning-horizon} and
+Table~\ref{tab:long-horizon-planning} starts from the first frame of each held-out
+trajectory and uses the recorded frames 25, 50, 75, or 100 steps later as goals.
+All tasks use the shared planning and replanning settings in Section~\ref{sec:control-planning}.
+
+\lead{Planner-Sensitivity Protocol.} On \dataset{Push-T}, we vary Adam refinement updates while fixing the candidate count at 32, then vary the number of sampled candidates while fixing refinement at five updates. Goal-reaching success and per-plan latency are measured over three seeds with 50 episodes per seed. The measured curves appear in Figure~\ref{fig:pusht-grad-tradeoff} in Appendix~\ref{app:visual-planning-results}.
+
+\lead{Timing Scope.} Table~\ref{tab:planning-speed} in Appendix~\ref{app:visual-planning-results} reports time per planner call. Figure~\ref{fig:headline-results}(c)
+averages the per-task throughput across its four tasks, using
+$1000/\text{milliseconds per plan}$ to obtain plans/s. The compared settings are
+$300\times30$ CEM for \methodname{LeWM}~\citep{maes2026lewm} and five gradient
+steps for \method{}. All compared neural networks use the same H100 GPU.
+
+
+
+\FloatBarrier
+\Needspace{20\baselineskip}
+\section{Additional Results}
+\label{app:ablations}
+\label{app:numerical-results}
+\label{app:additional-results}
+
+\subsection{Visual Planning Results}
+\label{app:visual-planning-results}
+
+Table~\ref{tab:long-horizon-planning} gives the measured goal-horizon sweeps behind Figure~\ref{fig:planning-horizon}. Table~\ref{tab:planning-speed} gives the per-call timing behind Figure~\ref{fig:headline-results}(c). Appendix~\ref{app:runtime} specifies the evaluation and timing protocols.
+
+\input{tables/long_horizon_planning}
+
+\input{tables/planning_speed}
+
+\lead{Planner Sensitivity.} In the \dataset{Push-T} sweep in
+Figure~\ref{fig:pusht-grad-tradeoff}, success plateaus after five refinement
+updates while latency continues to rise. Increasing the number of sampled
+candidates beyond eight gives no consistent success gain in this sweep.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/pusht_planner_sensitivity.pdf}
+  \caption{\lead{Planner Sensitivity on \dataset{Push-T}.} Goal-reaching success (mean and standard deviation across three seeds, 50 episodes each) and per-plan latency versus (left) Adam refinement updates with 32 candidate plans and (right) sampled candidate plans with five refinement updates.}
+  \label{fig:pusht-grad-tradeoff}
+\end{figure}
+
+% TODO: add matched direct-policy and best-of-N scores here when the run records
+% and evaluation protocol are verified.
+
+
+
+% \input{sections/evaluation_seed_sensitivity}
+\subsection{Component and Visual-Encoder Ablations}
+\label{app:component-ablations}
+
+Table~\ref{tab:planning-component-ablation} records the SIGReg and action-head
+comparisons in Figure~\ref{fig:model-ablations}(a,c). All variants use epoch-30
+checkpoints. Table~\ref{tab:frozen-encoder-ablation} reports the separate encoder comparison
+in Figure~\ref{fig:model-ablations}(b). Direct control executes the goal-conditioned
+policy without search. Planning performs test-time action search through
+the learned dynamics. The encoder panel reports equal-weight averages over
+\dataset{Push-T}, \dataset{Cube}, \dataset{Scene}, and \dataset{Puzzle}.
+
+\input{tables/planning_component_ablation}
+\input{tables/frozen_encoder_ablation}
+\FloatBarrier
+
+\subsection{Probing Latent Representations}
+\label{app:latent-probing}
+Table~\ref{tab:physical-probing-appendix} extends the probing results presented on \dataset{Push-T} in Section~\ref{sec:physical-understanding} to \dataset{Cube, Scene, Puzzle}. All probes report $R^2$ from ridge regression on a $4000/1000$-frame train/test split. \emph{Object} is the mean $R^2$ over object ground-truth variables and \emph{Proprio} over proprioceptive variables. \emph{Action (IDM)} predicts the action chunk from $\vz_t$ (and from $[\vz_t,\vz_{t+K}]$, in parentheses where reported). \emph{Eff.\ rank} is the effective rank measure introduced in~\citep{royvetter2007effrank}.
+
+\input{tables/physical_probing_full}
+\label{tab:latent-probing-full}
+\FloatBarrier
+
+\input{sections/simulation_rollouts_appendix}
+
+\subsection{Multimodal Action Distributions}
+\label{app:action-distributions}
+
+To evaluate multi-route action distribution modeling, we collect expert demonstrations on a two-door navigation task with a fixed start and goal. Half of the expert trajectories pass through the upper door and half through the lower door, providing two valid routes between the same endpoints. We train \method{} using (1) our default flow-matching action head and (2) a deterministic MSE action head on the same data. During closed-loop policy rollouts (Figure~\ref{fig:action-head-trajectories}), the flow head follows both routes, whereas the deterministic MSE head
+concentrates on the lower route and produces some wall collisions. The flow head preserves both route choices present in the demonstrations, illustrating how a stochastic action model can supply distinct proposals when a goal admits multiple routes.
+
+\input{figures/action_head_trajectories/figure}
+\FloatBarrier
+
+\subsection{Simulation Task-Completion Results}
+\label{app:simulation-completion-results}
+Table~\ref{tab:task-completion} reports the per-task results and deviations behind Figure~\ref{fig:model-ablations}(d).
+
+\input{tables/task_completion}
+\FloatBarrier
+
+\input{sections/real_robot_appendix}
+\clearpage
+\input{sections/joint_prediction_appendix}
+\end{document}

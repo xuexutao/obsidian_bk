@@ -1,0 +1,246 @@
+{
+  "url": "https://arxiv.org/abs/2102.09672",
+  "fetch_url": "https://arxiv.org/pdf/2102.09672",
+  "title": "Improved Denoising Diffusion Probabilistic Models",
+  "type": "pdf",
+  "arxiv_id": "2102.09672",
+  "n_images": 21,
+  "images": [
+    {
+      "path": "images/img_000_p4.png",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p7.png",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p12.png",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p12.png",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p13.png",
+      "page": 13,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p15.png",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p15.png",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p15.png",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p15.png",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p15.png",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p15.png",
+      "page": 15,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p16.png",
+      "page": 16,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p16.png",
+      "page": 16,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p16.png",
+      "page": 16,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p16.png",
+      "page": 16,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p16.png",
+      "page": 16,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_016_p16.png",
+      "page": 16,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_017_p17.png",
+      "page": 17,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_018_p17.png",
+      "page": 17,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_019_p17.png",
+      "page": 17,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_020_p17.png",
+      "page": 17,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 17,
+  "n_chars": 54495,
+  "authors": [
+    "Alex Nichol",
+    "Prafulla Dhariwal"
+  ],
+  "abstract": "Denoising diffusion probabilistic models (DDPM) are a class of generative models which have recently been shown to produce excellent samples. We show that with a few simple modifications, DDPMs can also achieve competitive log-likelihoods while maintaining high sample quality. Additionally, we find that learning variances of the reverse diffusion process allows sampling with an order of magnitude fewer forward passes with a negligible difference in sample quality, which is important for the practical deployment of these models. We additionally use precision and recall to compare how well DDPMs and GANs cover the target distribution. Finally, we show that the sample quality and likelihood of these models scale smoothly with model capacity and training compute, making them easily scalable. We release our code at https://github.com/openai/improved-diffusion",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

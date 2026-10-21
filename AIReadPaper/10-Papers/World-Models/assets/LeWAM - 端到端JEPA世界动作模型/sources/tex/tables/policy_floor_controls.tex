@@ -1,0 +1,43 @@
+% Blind zero-action and random-policy controls for two evaluation settings.
+% The former figure source called the full-trajectory controls start-to-end goal reaching;
+% the author classifies them here as task-completion floors.
+% The Cube task-completion values repeat across both rows because the EEF
+% predicate correction applies only to short-horizon goal reaching.
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\setlength{\arrayrulewidth}{0.3pt}
+\renewcommand{\arraystretch}{1.35}
+\newcommand{\policyfloorcell}[3][black]{%
+  \pgfmathsetmacro{\policyfloortint}{min(100,100*#2/45)}%
+  \edef\policyfloorfill{\noexpand\cellcolor{PaperBlueFill!\policyfloortint!white}}%
+  \policyfloorfill
+  \textcolor{#1}{\ensuremath{#2\pm#3}}%
+}
+\begin{tabular}{%
+  >{\raggedright\arraybackslash}m{\dimexpr.23\linewidth-2\tabcolsep-0.9pt\relax}|
+  >{\centering\arraybackslash}m{\dimexpr.15\linewidth-2\tabcolsep\relax}|
+  *{2}{>{\centering\arraybackslash}m{\dimexpr.155\linewidth-2\tabcolsep\relax}}|
+  *{2}{>{\centering\arraybackslash}m{\dimexpr.155\linewidth-2\tabcolsep\relax}}}
+\hline
+\multirow{2}{*}{Environment} & \multirow{2}{*}{\shortstack{Raw action\\dim.}}
+  & \multicolumn{2}{c|}{\rule{0pt}{23pt}\shortstack{25-step goal\\reaching}}
+  & \multicolumn{2}{c}{\rule{0pt}{23pt}\shortstack{Task\\Completion}} \\
+\cline{3-6}
+  & & Zero-action & Random & Zero-action & Random \\
+\hline
+Two-Room & 2 & \policyfloorcell{7.3}{0.9} & \policyfloorcell{25.3}{5.0} & \policyfloorcell{0.0}{0.0} & \policyfloorcell{2.7}{2.5} \\\hline
+Reacher & 2 & \policyfloorcell{3.3}{1.9} & \policyfloorcell{12.0}{1.6} & \policyfloorcell{0.0}{0.0} & \policyfloorcell{12.0}{4.9} \\\hline
+Push-T & 2 & \policyfloorcell{0.0}{0.0} & \policyfloorcell{1.3}{0.9} & \policyfloorcell{0.0}{0.0} & \policyfloorcell{0.0}{0.0} \\\hline
+\textcolor{PaperGrayDark}{Cube} & \textcolor{PaperGrayDark}{5} & \policyfloorcell[PaperGrayDark]{42.7}{6.6} & \policyfloorcell[PaperGrayDark]{44.0}{1.6} & \policyfloorcell[PaperGrayDark]{4.7}{2.5} & \policyfloorcell[PaperGrayDark]{6.0}{1.6} \\\hline
+Cube ($+$EEF) & 5 & \policyfloorcell{2.7}{0.9} & \policyfloorcell{4.7}{0.9} & \policyfloorcell{4.7}{2.5} & \policyfloorcell{6.0}{1.6} \\\hline
+PointMaze-Large & 2 & \policyfloorcell{6.0}{0.0} & \policyfloorcell{9.3}{1.9} & \policyfloorcell{0.7}{0.9} & \policyfloorcell{6.0}{3.3} \\\hline
+Scene & 5 & \policyfloorcell{2.7}{2.3} & \policyfloorcell{2.7}{2.3} & \policyfloorcell{0.0}{0.0} & \policyfloorcell{0.0}{0.0} \\\hline
+Puzzle & 5 & \policyfloorcell{0.7}{1.2} & \policyfloorcell{0.7}{1.2} & \policyfloorcell{0.0}{0.0} & \policyfloorcell{0.0}{0.0} \\\hline
+ToolHang & 7 & \policyfloorcell{22.7}{2.5} & \policyfloorcell{26.0}{1.6} & \policyfloorcell{0.0}{0.0} & \policyfloorcell{0.0}{0.0} \\\hline
+Transport & 14 & \policyfloorcell{3.3}{0.9} & \policyfloorcell{2.7}{0.9} & \policyfloorcell{0.0}{0.0} & \policyfloorcell{0.0}{0.0} \\\hline
+DrawerCleanup & 24 & \policyfloorcell{0.0}{0.0} & \policyfloorcell{6.0}{0.0} & \policyfloorcell{0.0}{0.0} & \policyfloorcell{0.0}{0.0} \\
+\hline
+\end{tabular}
+\par\vspace{3pt}
+{\footnotesize\color{PaperGrayDark}Darker shading indicates a higher control success rate.\par}
+\endgroup

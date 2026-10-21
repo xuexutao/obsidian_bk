@@ -1,4 +1,6 @@
-**一句话结论：** ShapeLLM-Omni 试图把 **3D mesh 直接纳入原生 MLLM 的 token 空间**，在一套自回归框架里同时覆盖 **text-to-3D、image-to-3D、3D captioning、3D editing**。它最值得关注的，不是单项生成分数绝对最强，而是把“3D 理解 + 生成 + 编辑 + 对话”第一次做成了统一范式。
+## 一句话结论
+
+ShapeLLM-Omni 观察到 3D 在现有 MLLM 中仍常是外挂编码器或任务专用生成模块，于是先用 3D VQ-VAE 把 $64^3$ voxel 压成 **1024 个离散 3D tokens**，再基于 Qwen-2.5-VL-7B 和覆盖生成、理解、编辑的 **3D-Alpaca（2.56M 样本/3.46B tokens）**，以统一 next-token prediction 同时支持 text-to-3D、image-to-3D、3D captioning、语言编辑和对话。统一模型在图生 3D 达 CLIP **84.5**、FD **12.2**、KD **0.09**，caption 多项指标领先，生成质量仅次于专用 TRELLIS，同时保留基本语言能力；优势是首次形成完整的原生 3D MLLM 接口，代价则是 48×H100 的高训练成本、voxel 信息瓶颈和统一模型相对专用生成器的性能折中。
 
 **重要性评估：** ★★★★☆（4/5）
 

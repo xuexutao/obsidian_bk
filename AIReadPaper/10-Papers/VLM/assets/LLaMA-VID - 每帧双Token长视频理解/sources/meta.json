@@ -1,0 +1,349 @@
+{
+  "url": "https://arxiv.org/abs/2311.17043",
+  "fetch_url": "https://arxiv.org/pdf/2311.17043",
+  "title": "LLaMA-VID: An Image is Worth 2 Tokens in Large Language Models",
+  "type": "pdf",
+  "arxiv_id": "2311.17043",
+  "n_images": 40,
+  "images": [
+    {
+      "path": "images/img_000_p3.jpeg",
+      "page": 3,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p3.jpeg",
+      "page": 3,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p3.jpeg",
+      "page": 3,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p3.png",
+      "page": 3,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p3.jpeg",
+      "page": 3,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p4.jpeg",
+      "page": 4,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_016_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_017_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_018_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_019_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_020_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_021_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_022_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_023_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_024_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_025_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_026_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_027_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_028_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_029_p11.jpeg",
+      "page": 11,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_030_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_031_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_032_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_033_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_034_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_035_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_036_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_037_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_038_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_039_p12.jpeg",
+      "page": 12,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_018.png",
+      "page": 18,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 18,
+  "n_chars": 86982,
+  "authors": [
+    "Yanwei Li",
+    "Chengyao Wang",
+    "Jiaya Jia"
+  ],
+  "abstract": "In this work, we present a novel method to tackle the token generation challenge in Vision Language Models (VLMs) for video and image understanding, called LLaMA-VID. Current VLMs, while proficient in tasks like image captioning and visual question answering, face computational burdens when processing long videos due to the excessive visual tokens. LLaMA-VID addresses this issue by representing each frame with two distinct tokens, namely context token and content token. The context token encodes the overall image context based on user input, whereas the content token encapsulates visual cues in each frame. This dual-token strategy significantly reduces the overload of long videos while preserving critical information. Generally, LLaMA-VID empowers existing frameworks to support hour-long videos and pushes their upper limit with an extra context token. It is proved to surpass previous methods on most of video- or image-based benchmarks. Code is available  https://github.com/dvlab-research/LLaMA-VID}{https://github.com/dvlab-research/LLaMA-VID",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

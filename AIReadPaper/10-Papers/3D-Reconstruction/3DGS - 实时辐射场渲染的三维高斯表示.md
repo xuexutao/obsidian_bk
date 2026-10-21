@@ -31,7 +31,7 @@ code: "https://github.com/graphdeco-inria/gaussian-splatting"
 
 # 3D Gaussian Splatting：实时辐射场渲染的三维高斯表示
 
-## 1. 基本信息与一句话结论
+## 基本信息
 
 | 项目 | 内容 |
 |---|---|
@@ -44,7 +44,9 @@ code: "https://github.com/graphdeco-inria/gaussian-splatting"
 | 输出 | 每场景优化得到的 1–5M 个各向异性 3D Gaussians |
 | 本地材料 | `assets/3DGS - 实时辐射场渲染的三维高斯表示/sources/paper.pdf`、`arxiv-source.tar` |
 
-> **一句话结论**：3DGS 用可学习的各向异性 3D Gaussian 取代 NeRF 的隐式网络与逐射线随机采样，再以自适应增密和 visibility-aware tile rasterizer 把“连续辐射场的可优化性”与“显式 primitive 的实时光栅化”结合起来，在约 35–45 分钟 per-scene 优化后达到接近或超过当时 SOTA 的质量，并在 1080p 实现百 FPS 级渲染。
+## 一句话结论
+
+3DGS 观察到 NeRF 的连续隐式场虽然质量高，却因逐射线采样和网络查询难以实时，而传统点/mesh rasterization 又难以从稀疏 SfM 观测直接优化出高质量辐射场，于是以可学习的**各向异性 3D Gaussians**显式存储位置、协方差、不透明度和球谐颜色，并通过 gradient-driven clone/split/prune 自适应分配百万级 primitives，再用 visibility-aware tile rasterizer、全局 radix sort 和前向 alpha compositing 实现可微高速渲染。它在约 **35–45 分钟** per-scene 优化后达到接近或超过当时 NeRF SOTA 的质量，并在 1080p 实现约 **134–154 FPS**；代价是数百 MB 存储、弱观测区域与 depth-order popping，以及缺少 mesh 拓扑和可直接用于物理仿真的表面语义。
 
 ![3DGS teaser](assets/3DGS%20-%20实时辐射场渲染的三维高斯表示/figures/fig1_teaser.png)
 

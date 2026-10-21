@@ -77,7 +77,7 @@ MiDaS 用多数据集混合与 scale-shift-invariant loss，把训练目标从�
 
 > 图 1：V1 把深度估计变成“海量无标签真实图 + 伪标签难化学习”的数据工程。来源：Depth Anything Figure 2。
 
-V1 的消融揭示了一个可迁移结论：**伪标签数据只有在 student 被迫解决 teacher 没有直接给出的难题时，才会变成新知识。** 这条原则后来贯穿 V2 和 DA3 的 teacher-student 路线。
+V1 的消融揭示了一个可迁移结论：**<span style="color: red">伪标签数据只有在 student 被迫解决 teacher 没有直接给出的难题时，才会变成新知识</span>。** 这条原则后来贯穿 V2 和 DA3 的 teacher-student 路线。
 
 ### 2.3 瓶颈转移：不是数据不够，而是标签不准
 

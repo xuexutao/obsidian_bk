@@ -2,6 +2,9 @@
 type: paper-note
 status: done
 domain: VLM
+series: BLIP
+series_order: 2
+series_hub: "[[BLIP 系列：从数据自举到统一理解生成 - Survey]]"
 paper: "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models"
 year: 2023
 arxiv: 2301.12597
@@ -19,6 +22,8 @@ updated: 2026-10-15
 ---
 
 # BLIP-2：冻结底座的高效视觉语言桥接
+
+> 系列导航：[[BLIP - 生成式字幕过滤的统一视觉语言预训练]] → **BLIP-2** → [[InstructBLIP - 指令感知视觉特征抽取]] → [[BLIP-3 - 开放大规模多模态模型家族]] → [[BLIP3-o - 全开放统一多模态理解与生成]] · [[BLIP 系列：从数据自举到统一理解生成 - Survey|系列综述]]
 
 ## 基本信息
 

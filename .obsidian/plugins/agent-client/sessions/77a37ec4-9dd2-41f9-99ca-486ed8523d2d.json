@@ -1,0 +1,320 @@
+{
+  "version": 1,
+  "sessionId": "77a37ec4-9dd2-41f9-99ca-486ed8523d2d",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk",
+  "title": "那你觉得其他的latent-action 有哪些呢？他们是如何做的呢",
+  "createdAt": "2026-10-20T14:10:17.186Z",
+  "updatedAt": "2026-10-20T14:10:17.186Z",
+  "messages": [
+    {
+      "id": "41cfdcde-4b2c-4cdc-a4e8-c951bbb77215",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "那你觉得其他的latent-action 有哪些呢？他们是如何做的呢",
+          "autoMentionContext": {
+            "noteName": "VITRA - 基于真实人类活动视频的VLA预训练",
+            "notePath": "AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+            "selection": {
+              "fromLine": 100,
+              "toLine": 101
+            }
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:06:42.398Z"
+    },
+    {
+      "id": "bc817194-d0b5-4517-8232-8dc488431c95",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "The user wants to know about other latent-action approaches and how they work. Let me check the note context around line 100 before answering from what I know of the literature."
+        }
+      ],
+      "timestamp": "2026-10-20T14:06:50.012Z"
+    },
+    {
+      "id": "7595ec8c-b2c5-4820-b5b6-d8c5c11ce6ac",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01YM9uNqHMULZ3dsNemBj9ce",
+          "title": "Read AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md (60 - 129)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+              "line": 60
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md",
+            "offset": 60,
+            "limit": 70
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:06:50.513Z"
+    },
+    {
+      "id": "cb5005bc-4304-4696-a209-023aa29cc914",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01VnYAB2QbQ89VJRRfNxMTnJ",
+          "title": "ls /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "ls /Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/",
+            "description": "List VLA notes"
+          }
+        },
+        {
+          "type": "text",
+          "text": "**Warning:** We're changing auto mode to no longer charge for classifier requests in Claude Code. However, this session isn't eligible because your requests go through 127.0.0.1:15721, which isn't compatible with this update. Nothing breaks: auto mode keeps working, and its classifier requests are billed as before. To fix it and access the new version of auto mode, ask your gateway to implement: https://code.claude.com/docs/en/auto-mode-classifier-billing"
+        },
+        {
+          "type": "agent_thought",
+          "text": "I should check my vault for notes on other latent-action approaches like LAPA, GENIE, Moto, UniVLA, GO-1/AgiBot, DreamZero, OpenWAM, and mimic-video, so let me search for \"latent action\" references while I think through what I already know."
+        }
+      ],
+      "timestamp": "2026-10-20T14:06:50.520Z"
+    },
+    {
+      "id": "12db90f9-0d2b-4151-9a91-98689d3c6db9",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01LEDa5D43rGZ6YPFZuVXkG8",
+          "title": "Find latent-action notes in vault",
+          "status": "completed",
+          "kind": "think",
+          "content": [],
+          "rawInput": {
+            "description": "Find latent-action notes in vault",
+            "subagent_type": "Explore",
+            "prompt": "In the Obsidian vault at /Users/eilonxtxue/Documents/obsidian/obsidian_bk, search (medium-thorough) for any notes mentioning \"latent action\" / \"latent-action\" / \"潜在动作\" / \"LAPA\" / \"Genie\" / \"UniVLA\" / \"Moto\" / \"IGOR\" / \"逆动力学\" / \"inverse dynamics\" / VQ-VAE action tokens. For each hit, report the note file name (exact title for wikilinks) and a 1-2 sentence summary of what it says about latent actions. Do not dump file contents."
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:07:00.930Z"
+    },
+    {
+      "id": "2d8f985b-3b4d-4f57-85aa-1f96062d2f39",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01Dt7JpsFN6hRpVxM8M2RbcL",
+          "title": "grep -ril -E \"latent action|latent-action|潜在动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics|VQ-VAE|action token\" --include=\"*.md\" . | head -60",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -ril -E \"latent action|latent-action|潜在动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics|VQ-VAE|action token\" --include=\"*.md\" . | head -60",
+            "description": "Search for latent action terms"
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:07:15.153Z"
+    },
+    {
+      "id": "0f94a947-ee3d-47bf-9477-737537291617",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01XF4cotfH5696QxiejB9vdz",
+          "title": "grep -ril -E \"Genie|Moto\" --include=\"*.md\" . | head -40",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -ril -E \"Genie|Moto\" --include=\"*.md\" . | head -40",
+            "description": "Search for Genie and Moto"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I can draft the answer from what I already know while waiting for the agent to finish linking notes, then add the wikilinks once it returns."
+        },
+        {
+          "type": "text",
+          "text": "我先让检索跑着，同时整理一下 latent-action 这条路线的脉络。"
+        }
+      ],
+      "timestamp": "2026-10-20T14:07:15.162Z"
+    },
+    {
+      "id": "725eefe0-d709-47c8-944c-7db927aec94d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01V8G7ZghEM23TCizrUTMVrA",
+          "title": "grep -ric -E \"latent action|latent-action|潜在动作|隐动作|隐式动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics\" --include=\"*.md\" . | grep -v \":0$\" | sort -t: -k2 -rn | grep -v \"/assets/\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -ric -E \"latent action|latent-action|潜在动作|隐动作|隐式动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics\" --include=\"*.md\" . | grep -v \":0$\" | sort -t: -k2 -rn | grep -v \"/assets/\"",
+            "description": "Count latent action mentions per note"
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:07:21.370Z"
+    },
+    {
+      "id": "a11ab1aa-145c-4897-b56a-32d8aa09e333",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01LxgKfj2ke1VvLZmxEkCbmQ",
+          "title": "for f in \"AIReadPaper/10-Papers/VLA/GR00T N1 - 通用人形机器人开源基础模型.md\" \"AIReadPaper/10-Papers/World-Models/UniPi - 文本引导视频生成的通用策略.md\" \"AIReadPaper/10-Papers/World-Models/DreamDojo - 基于大规模人类视频的通用机器人世界模型.md\" \"AIReadPaper/10-Papers/VLA/PAD - 联合去噪过程的视觉策略学习.md\" \"AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md\" \"AIReadPaper/20-Surveys/World-Models/Genie 1-3 架构演进 - Survey.md\"; do echo \"=== $f\"; grep -n -i -E \"latent action|latent-action|潜在动作|隐动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics|Moto\" \"$f\" | cut -c1-320 | head -12; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "for f in \"AIReadPaper/10-Papers/VLA/GR00T N1 - 通用人形机器人开源基础模型.md\" \"AIReadPaper/10-Papers/World-Models/UniPi - 文本引导视频生成的通用策略.md\" \"AIReadPaper/10-Papers/World-Models/DreamDojo - 基于大规模人类视频的通用机器人世界模型.md\" \"AIReadPaper/10-Papers/VLA/PAD - 联合去噪过程的视觉策略学习.md\" \"AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md\" \"AIReadPaper/20-Surveys/World-Models/Genie 1-3 架构演进 - Survey.md\"; do echo \"=== $f\"; grep -n -i -E \"latent action|latent-action|潜在动作|隐动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics|Moto\" \"$f\" | cut -c1-320 | head -12; done",
+            "description": "Extract context lines for top notes"
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:07:36.329Z"
+    },
+    {
+      "id": "a721871e-4be4-481a-84f4-ae6f7e194f95",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_013Tak5QL7PxnetkpCEnJSzw",
+          "title": "for f in \"AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md\" \"AIReadPaper/20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" \"AIReadPaper/10-Papers/World-Models/VPP - 预测性视觉表征的通用机器人策略.md\" \"AIReadPaper/10-Papers/VLA/ReconVLA - 目标区域重建驱动的机器人视觉对齐.md\" \"AIReadPaper/10-Papers/World-Models/LeWAM - 端到端JEPA世界动作模型.md\" \"AIReadPaper/Paper-Index.md\" \"Tencent/red/VAE.md\" \"Tencent/red/world_model.md\"; do echo \"=== $f\"; grep -n -i -E \"latent action|latent-action|潜在动作|隐动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics|Moto\" \"$f\" | cut -c1-320 | head -10; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "for f in \"AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md\" \"AIReadPaper/20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md\" \"AIReadPaper/10-Papers/World-Models/VPP - 预测性视觉表征的通用机器人策略.md\" \"AIReadPaper/10-Papers/VLA/ReconVLA - 目标区域重建驱动的机器人视觉对齐.md\" \"AIReadPaper/10-Papers/World-Models/LeWAM - 端到端JEPA世界动作模型.md\" \"AIReadPaper/Paper-Index.md\" \"Tencent/red/VAE.md\" \"Tencent/red/world_model.md\"; do echo \"=== $f\"; grep -n -i -E \"latent action|latent-action|潜在动作|隐动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics|Moto\" \"$f\" | cut -c1-320 | head -10; done",
+            "description": "Extract context lines for surveys"
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:07:36.338Z"
+    },
+    {
+      "id": "ef13e37d-255d-4a24-9a59-7f0a32dda287",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01UPaYM133hWyvej6yGFHtpQ",
+          "title": "for f in \"AIReadPaper/10-Papers/World-Models/Large Video Planner - 大规模开源视频规划模型.md\" \"AIReadPaper/10-Papers/World-Models/DINO-WM - 预训练视觉特征上的零样本规划.md\" \"AIReadPaper/10-Papers/VLA/X-VLA - 软提示跨具身视觉语言动作模型.md\" \"AIReadPaper/10-Papers/VLA/DreamZero - 视频世界动作模型的零样本机器人策略.md\" \"AIReadPaper/24-MyArtical/世界模型不只是会做梦 - 从空间智能到行动闭环.md\" \"AIReadPaper/10-Papers/World-Models/Slow Features - JEPA的慢特征偏置.md\" \"AIReadPaper/10-Papers/World-Models/LeWorldModel - 像素端到端稳定JEPA世界模型.md\" \"AIReadPaper/10-Papers/World-Models/JEPA - 联合嵌入预测架构.md\" \"AIReadPaper/10-Papers/World-Models/Fast-WAM - 无测试时未来想象的世界动作模型.md\" \"AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md\" \"AIReadPaper/10-Papers/VLA/UP-VLA - 统一理解与预测的具身模型.md\" \"AIReadPaper/10-Papers/VLA/OpenWAM - 模块化世界动作模型预训练.md\" \"AIReadPaper/10-Papers/VLA/GigaBrain-0 - 世界模型驱动的VLA数据引擎.md\" \"AIReadPaper/10-Papers/VLA/BagelVLA - 交错式视觉语言动作生成.md\"; do echo \"=== $f\"; grep -n -i -E \"latent action|latent-action|潜在动作|隐动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics\" \"$f\" | cut -c1-260 | head -4; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "for f in \"AIReadPaper/10-Papers/World-Models/Large Video Planner - 大规模开源视频规划模型.md\" \"AIReadPaper/10-Papers/World-Models/DINO-WM - 预训练视觉特征上的零样本规划.md\" \"AIReadPaper/10-Papers/VLA/X-VLA - 软提示跨具身视觉语言动作模型.md\" \"AIReadPaper/10-Papers/VLA/DreamZero - 视频世界动作模型的零样本机器人策略.md\" \"AIReadPaper/24-MyArtical/世界模型不只是会做梦 - 从空间智能到行动闭环.md\" \"AIReadPaper/10-Papers/World-Models/Slow Features - JEPA的慢特征偏置.md\" \"AIReadPaper/10-Papers/World-Models/LeWorldModel - 像素端到端稳定JEPA世界模型.md\" \"AIReadPaper/10-Papers/World-Models/JEPA - 联合嵌入预测架构.md\" \"AIReadPaper/10-Papers/World-Models/Fast-WAM - 无测试时未来想象的世界动作模型.md\" \"AIReadPaper/10-Papers/World-Models/Dyna-2 - 世界动作模型百万小时缩放定律.md\" \"AIReadPaper/10-Papers/VLA/UP-VLA - 统一理解与预测的具身模型.md\" \"AIReadPaper/10-Papers/VLA/OpenWAM - 模块化世界动作模型预训练.md\" \"AIReadPaper/10-Papers/VLA/GigaBrain-0 - 世界模型驱动的VLA数据引擎.md\" \"AIReadPaper/10-Papers/VLA/BagelVLA - 交错式视觉语言动作生成.md\"; do echo \"=== $f\"; grep -n -i -E \"latent action|latent-action|潜在动作|隐动作|LAPA|UniVLA|IGOR|逆动力学|inverse dynamics\" \"$f\" | cut -c1-260 | head -4; done",
+            "description": "Extract remaining hits context"
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:07:59.900Z"
+    },
+    {
+      "id": "04045958-4f90-4bce-bbb0-2a5ec7a32fa5",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_012wCTkFCi5biRbRKuDzo1cR",
+          "title": "grep -rn -i -E \"\\bMoto\\b|Moto-GPT|动作 token|action token|动作令牌\" --include=\"*.md\" . | grep -v \"/assets/\" | cut -c1-240 | head -25",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -rn -i -E \"\\bMoto\\b|Moto-GPT|动作 token|action token|动作令牌\" --include=\"*.md\" . | grep -v \"/assets/\" | cut -c1-240 | head -25",
+            "description": "Search Moto and action token"
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:07:59.911Z"
+    },
+    {
+      "id": "93c4ee17-1f57-4157-b5fe-94bb467cd1ce",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01Ui3MrgmqsotezCEzcr8bfz",
+          "title": "for f in \"AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md\" \"AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型技术谱系与2026现状 - Survey.md\" \"AIReadPaper/10-Papers/World-Models/LingbotWorld - 动作可控交互世界模型.md\" \"AIReadPaper/24-MyArtical/First.md\"; do echo \"=== $f\"; grep -n -i -E \"Genie\" \"$f\" | cut -c1-220 | head -5; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "for f in \"AIReadPaper/20-Surveys/World-Models/世界模型演化 - Survey.md\" \"AIReadPaper/20-Surveys/World-Models/世界模型记忆机制架构演进 - Survey.md\" \"AIReadPaper/20-Surveys/Video-Generation/视频生成模型技术谱系与2026现状 - Survey.md\" \"AIReadPaper/10-Papers/World-Models/LingbotWorld - 动作可控交互世界模型.md\" \"AIReadPaper/24-MyArtical/First.md\"; do echo \"=== $f\"; grep -n -i -E \"Genie\" \"$f\" | cut -c1-220 | head -5; done",
+            "description": "Check Genie-only notes"
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:08:16.704Z"
+    },
+    {
+      "id": "c8601031-0547-458c-9375-79ae6e7917ad",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01RrzyPGff3AFYNC3U6X2g22",
+          "title": "grep -n -i -E \"Genie|latent action|潜在动作\" \"Tencent/red/world_model.md\" | cut -c1-200 | head -30",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n -i -E \"Genie|latent action|潜在动作\" \"Tencent/red/world_model.md\" | cut -c1-200 | head -30",
+            "description": "Check world_model.md Genie lines"
+          }
+        }
+      ],
+      "timestamp": "2026-10-20T14:08:16.713Z"
+    },
+    {
+      "id": "eb3d74eb-cada-440c-a923-7971acea0e0f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01HmQ68CQG6LRLvVFSPCXadx",
+          "title": "SubagentHandback",
+          "status": "completed",
+          "kind": "other",
+          "content": [],
+          "rawInput": {
+            "message": "## Latent-action related notes in the vault\n\nSearched vault-wide (`*.md`, excluding `assets/` source dumps) for: latent action / latent-action / 潜在动作 / 隐式动作 / LAPA / Genie / UniVLA / Moto / IGOR / 逆动力学 / inverse dynamics / VQ-VAE action tokens. No note mentions **Moto** or **IGOR** as a paper of its own (IGOR appears only once as a related-work name-drop inside VITRA).\n\n### Tier 1 — latent action is a core topic\n\n**`GR00T N1 - 通用人形机器人开源基础模型`**\n(`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/GR00T N1 - 通用人形机器人开源基础模型.md`)\nThe richest latent-action note in the vault: it has a dedicated §3.4 \"Latent Action：跨本体的隐式动作\" describing a VQ-VAE trained on frame pairs ($x_t$, $x_{t+H}$) whose encoder is reused as an IDM, with the **pre-quantization continuous embedding** used as the latent-action label and treated as a separate \"LAPA\" embodiment under the same flow-matching loss. Also reports the LAPA-vs-IDM pseudo-label ablation: LAPA wins at very low data (30 demos) but IDM overtakes it as data grows, so real-robot co-training uses IDM only. Tagged `Latent-Action`.\n\n**`DreamDojo - 基于大规模人类视频的通用机器人世界模型`**\n(`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/DreamDojo - 基于大规模人类视频的通用机器人世界模型.md`)\nHas a module section \"连续 latent action 作为统一代理动作\": a bottlenecked VAE latent action model extracts *continuous* (not VQ) latent actions from adjacent frames as a cross-embodiment proxy action for human video without action labels. Key finding reported: latent-action pretraining nearly matches ideal ground-truth action annotation and scales best; the note's own critique questions whether it covers fine contact-rich manipulation.\n\n**`Genie 1-3 架构演进 - Survey`**\n(`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/Genie 1-3 架构演进 - Survey.md`)\nTreats Genie 1's **8 discrete latent action codes** learned from unlabeled video as the series' central architectural innovation (also validated on RT-1 robot video with original action labels ignored), and tracks how Genie 2/3 replace that control interface with keyboard/mouse and navigation+text world events. Explicitly flags as unconfirmed any claim that Genie 2 keeps the 8 latent actions. Tagged `Latent-Action`.\n\n**`VITRA - 基于真实人类活动视频的VLA预训练`**\n(`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/VITRA - 基于真实人类活动视频的VLA预训练.md`)\nThe vault's main *counter-argument* note: it deliberately chooses a 102-dim explicit 3D hand action representation over latent actions, and its §5.4 ablation has a \"Latent action pretrain (LAPA)\" baseline score **0.0% on all unseen tasks** vs VITRA's 64.6% — used as sharp evidence that latent actions collapse outside data coverage. Cites GR00T N1 and IGOR as the unsupervised latent-action line.\n\n**`VAE`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/VAE.md`)\nUses Genie as the worked example of \"从视频里学动作\": a VQ structure over adjacent frames learns an 8-entry codebook of 潜在动作, giving pseudo-action labels to unlabeled internet video, later aligned to a real robot with a little teleop data. Adds a strong critique — the real limit is not codebook size but **modality**: contact forces (5N vs 15N) are invisible in pixels, so video-derived latent actions are inherently blind to force.\n\n**`视觉世界模型 - Survey`**\n(`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/World-Models/视觉世界模型 - Survey.md`)\nCalls Genie the only work in the survey that invents its own action space, and explains the **asymmetric information bottleneck** (encoder sees $x_{t+1}$, decoder doesn't, so the 3-bit channel can only carry the change) plus why the codebook is 8 (human playability). Carries an important caveat citing \"What Do Latent Action Models Actually Learn?\" (arXiv 2506.15691): the objective relates to PCA and does not intrinsically separate controllable action from exogenous noise, so \"latent action = action\" should be discounted.\n\n**`world_model`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/Tencent/red/world_model.md`)\nGenie generation-by-generation notes: Genie 1 = 11B ST-Transformer + VQ-VAE tokenizer + MaskGIT, whose core contribution is the Latent Action Model discovering an 8-dim discrete action space from pure video; Genie 2/3 move to continuous latent autoregressive diffusion and real-time 720p with architecture undisclosed. Separately has a taxonomy of **action-token injection schemes** into world-model predictors (shared attention / separate FFN / masking so action tokens can't see future video tokens).\n\n### Tier 2 — latent action / IDM discussed as a route, but not the note's subject\n\n- **`UniPi - 文本引导视频生成的通用策略`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/UniPi - 文本引导视频生成的通用策略.md`) — the canonical \"video plan + 逆动力学\" two-stage decomposition; §3.3 details the small task-specific inverse dynamics model (conv→residual→MLP(128,7), MSE) that converts generated adjacent frames into actions, and argues this decouples action labeling cost from the planner.\n- **`PAD - 联合去噪过程的视觉策略学习`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/PAD - 联合去噪过程的视觉策略学习.md`) — argues *against* an explicit IDM: action is a \"virtual observation\" inside the joint denoising process, making inverse dynamics an implicit by-product and avoiding error amplification from the video stage.\n- **`VPP - 预测性视觉表征的通用机器人策略`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/VPP - 预测性视觉表征的通用机器人策略.md`) — learns an **implicit inverse dynamics model** on one-step-denoised SVD representations via Video Former + diffusion policy, instead of full video prediction then IDM.\n- **`VLA 模型架构与数据演化 - Survey`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/20-Surveys/VLA/VLA 模型架构与数据演化 - Survey.md`) — has a table row defining IDM, and describes **Latent Action VAE** (optical-flow/DPFlow-derived latent actions compressed by a VAE) as the mechanism that lets models pretrain action priors on unlabeled internet/human video; also covers Motus (a \"Unified Latent Action World Model\" MoT with an IDM mode) and benchmarks against UniVLA.\n- **`LeWAM - 端到端JEPA世界动作模型`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/LeWAM - 端到端JEPA世界动作模型.md`) — contrasts itself with the two-stage GC-IDM / LeWM(IDM) configuration where goal-conditioned inverse dynamics is post-trained on a frozen encoder, arguing action supervision should shape the encoder from day one.\n- **`DreamZero - 视频世界动作模型的零样本机器人策略`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/DreamZero - 视频世界动作模型的零样本机器人策略.md`) — factorizes joint video+action prediction into a video term times an IDM term, and frames its contribution as upgrading that old decomposition with a video-diffusion backbone and shared denoising.\n- **`DINO-WM - 预训练视觉特征上的零样本规划`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/DINO-WM - 预训练视觉特征上的零样本规划.md`) — needs no IDM/policy head for planning, but its outlook names joining **latent action discovery or inverse dynamics** as the key missing piece for scaling to internet video.\n- **`Paper-Index`** (`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/Paper-Index.md`) — index rows summarizing UniPi, VPP, PAD, Motus (\"Motus: A Unified Latent Action World Model\"), OpenVLA (discrete action tokens) and FAST action tokenization.\n\n### Tier 3 — one-line mentions only (IDM as a baseline/related-work label; no latent-action content)\n`/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/World-Models/Fast-WAM - 无测试时未来想象的世界动作模型.md`, `.../Dyna-2 - 世界动作模型百万小时缩放定律.md`, `.../Large Video Planner - 大规模开源视频规划模型.md`, `.../LeWorldModel - 像素端到端稳定JEPA世界模型.md`, `.../JEPA - 联合嵌入预测架构.md`, `.../Slow Features - JEPA的慢特征偏置.md`, `/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/10-Papers/VLA/UP-VLA - 统一理解与预测的具身模型.md`, `.../OpenWAM - 模块化世界动作模型预训练.md`, `.../GigaBrain-0 - 世界模型驱动的VLA数据引擎.md`, `.../BagelVLA - 交错式视觉语言动作生成.md`, `.../ReconVLA - 目标区域重建驱动的机器人视觉对齐.md` (UniVLA as a benchmark baseline only), `.../X-VLA - 软提示跨具身视觉语言动作模型.md` (UniVLA-9B as baseline), `/Users/eilonxtxue/Documents/obsidian/obsidian_bk/AIReadPaper/24-MyArtical/世界模型不只是会做梦 - 从空间智能到行动闭环.md`.\n\nGenie-only mentions with no latent-action discussion: `世界模型记忆机制架构演进 - Survey`, `世界模型演化 - Survey`, `视频生成模型技术谱系与2026现状 - Survey`, `First`, `LingbotWorld - 动作可控交互世界模型`.\n\n### Notable gap\nThere is **no dedicated note** for LAPA, UniVLA, Moto, IGOR, or Genie 1 as a standalone paper — latent action is covered only through GR00T N1, DreamDojo, the Genie survey, and the critical takes in VITRA / `VAE` / `视觉世界模型 - Survey`.\n"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I want to lay out the major latent-action approaches accurately, noting Genie's VQ-VAE bottleneck with discrete codes and LAPA's video-based pretraining method, before linking these to relevant vault notes.Other threads I should mention: IGOR unifying human and robot motion, UniVLA's use of DINO features with language conditioning to filter task-irrelevant motion, Moto's motion tokens via an M-Former, GR00T N1's VQ-VAE pseudo-embodiment, DreamDojo's continuous VAE variant, and AgiBot GO-1's ViLLA architecture combining vision, language, and latent action planning.Then there's \"Villa-X\" extending ViLLA further, plus a few more names worth noting — Motus as a unified latent action world model, Genie Envisioner, CLAM, and latent action pretraining variants.\n\nI want to organize the design space along key axes: discrete VQ versus continuous bottlenecks, whether the representation is built from raw pixels or DINO features, task-conditioning, how it transfers to real actions through decoder or head finetuning, and common failure modes like exogenous or camera motion and force blindness. My plan is to lay out a mechanism template, follow with a table of representative works, then the axes of variation, and finally explain why VITRA moves away from this approach — keeping it concise but informative, using wikilinks for vault notes, and flagging where I'm less certain."
+        },
+        {
+          "type": "text",
+          "text": "先说结论：latent action 不是一个方法，而是一个**模板**。所有这类工作都在做同一件事——\n\n> 没有动作标签的视频里，相邻帧之间的变化 $x_t \\to x_{t+H}$ 一定包含了\"发生了什么动作\"的信息。那就训一个编码器把这个变化压成一个低维 code $z_t$，再训一个解码器用 $(x_t, z_t)$ 重建 $x_{t+H}$。**信息瓶颈**逼着 $z_t$ 只能装下\"可控的那部分变化\"，于是 $z_t$ 就成了伪动作标签。\n\n这本质上是一个**带非对称信息瓶颈的 IDM**：编码器能看未来帧，解码器看不到。瓶颈越窄，$z$ 越被迫只编码变化而不是内容。vault 里 [[视觉世界模型 - Survey]] 把这个机制讲得最清楚。\n\n---\n\n## 代表性路线\n\n**1. Genie（DeepMind, 2024）—— 开山之作，离散 8 码**\n\nVQ-VAE 结构，codebook 只有 **8** 个 entry。为什么是 8？因为目标是让人能用键盘玩生成出来的 2D 平台游戏世界。还在 RT-1 机器人视频上验证过：**完全忽略原始动作标签**，纯从视频里也能学出一个可控动作空间。见 [[Genie 1-3 架构演进 - Survey]] 和 [[world_model]]——注意 Genie 2/3 已经放弃了这条路，改回键鼠/文本 world event 做控制接口。\n\n**2. LAPA（Latent Action Pretraining，2024）—— 三段式范式化**\n\n把 Genie 的思路工程化成一个明确的三阶段：① VQ-VAE 在互联网人类视频上学 latent action codebook；② 用 VLM 做 behavior cloning，预测的是 **latent action token**（于是预训练完全不需要动作标签）；③ 用少量真实机器人遥操数据，把 latent token 头替换/微调成真实动作头。这是目前\"latent action 预训练\"的标准 baseline。\n\n**3. GR00T N1（NVIDIA）—— latent action 当作一个\"虚拟本体\"**\n\n做法很优雅：VQ-VAE 编码器复用为 IDM，但**取量化前的连续 embedding** 作为 label（避免 codebook 过粗），然后把 latent action 数据当成一个独立的 embodiment，和真机数据共用同一个 flow-matching loss 一起训。[[GR00T N1 - 通用人形机器人开源基础模型]] 里还有个很关键的消融：**LAPA 伪标签在 30 条 demo 的极低数据量下赢，但数据一多就被真 IDM 反超**，所以最终真机 co-training 只用 IDM。这条曲线基本定义了 latent action 的适用区间。\n\n**4. UniVLA（2025）—— 任务中心的 latent action**\n\n针对前面所有方法的核心病症：视频里的变化不只有\"我的动作\"，还有相机运动、背景里走过的人、风吹的窗帘。UniVLA 的做法是在 DINO 特征空间上建 latent action，并**用语言指令做条件分解**，把 task-relevant 的运动和 task-irrelevant 的运动拆到不同的 latent 里。可以理解为给瓶颈加了一道\"因果过滤\"。\n\n**5. Moto / ViLLA 系（Moto-GPT、AgiBot GO-1、villa-X）**\n\n\"latent motion token\"路线：先在视频上自回归预训练一个 motion token 序列模型（像 LLM 一样 next-token predict 动作），再接一个很轻的 action head 落到真机。GO-1 的 ViLLA 就是 Vision-Language-**Latent**-Action，把 latent action 当成 VLM 和真实控制之间的中间层。\n\n**6. DreamDojo —— 连续而非离散**\n\n放弃 VQ，用一个 bottleneck VAE 抽**连续** latent action 作为跨本体代理动作。[[DreamDojo - 基于大规模人类视频的通用机器人世界模型]] 里报的结果是：latent action 预训练几乎追平了\"理想的真值动作标注\"，而且 scaling 表现最好。\n\n---\n\n## 设计空间的几个轴\n\n| 轴 | 两端 | 代表 |\n|---|---|---|\n| 离散 vs 连续 | VQ codebook / 连续 embedding | Genie、LAPA ↔ GR00T N1、DreamDojo |\n| 瓶颈建在哪 | 像素空间 / 预训练视觉特征空间 | Genie ↔ UniVLA（DINO） |\n| 是否条件化 | 无条件 / 语言或任务条件 | LAPA ↔ UniVLA |\n| 怎么落地真机 | 换头微调 / 当作额外 embodiment 共训 | LAPA ↔ GR00T N1 |\n| 时间跨度 | 相邻帧 / 固定 horizon $H$ | Genie ↔ GR00T N1 |\n\n---\n\n## 为什么 VITRA 要反着来\n\n你选中的那段话，背后是 §5.4 那个很刺眼的数字：**LAPA baseline 在全部 unseen task 上 0.0%，VITRA 64.6%**。\n\nlatent action 的根本问题有三个，vault 里几篇笔记各打中一个：\n\n- **它学的不一定是动作**。[[视觉世界模型 - Survey]] 引了 *What Do Latent Action Models Actually Learn?*（arXiv 2506.15691）：这个目标函数在数学上和 PCA 相关，它压的是\"方差最大的变化方向\"，并不天然区分 agent 可控的动作和外生噪声。相机一动，latent 就被污染。\n- **它对像素看不见的东西是瞎的**。[[VAE]] 里那个批评很到位：5N 和 15N 的接触力在画面上长得一模一样，所以从视频里蒸出来的 latent action 结构性地不含力信息。\n- **它没有共享坐标系**。latent space 是模型自己定义的，换个数据分布就漂移，所以一出 coverage 就崩。\n\nVITRA 的 102 维（双手 $\\Delta t, \\Delta r, \\theta_h^{MANO}$）正好是对这三点的正面回应：**度量空间里的显式物理量**，人手和机器手共用同一套坐标，可以直接监督、直接 retarget。代价是前面那条又贵又脆的 3D 重建 pipeline——HaWoR + MegaSAM + MoGe-2 全都得跑对。\n\n一句话总结两条路线的赌注：**latent action 赌的是\"规模能治好不精确\"，VITRA 赌的是\"精确能换来免于规模\"。** GR00T N1 的那条消融曲线暗示，真实答案可能是数据量的函数。\n\n---\n\n顺带一提：vault 里目前**没有** LAPA、UniVLA、Moto、IGOR、Genie 1 的独立笔记，latent action 全靠 GR00T N1、DreamDojo 和几篇 survey 侧面覆盖。要不要我补一篇 LAPA 或 UniVLA 的精读？"
+        }
+      ],
+      "timestamp": "2026-10-20T14:09:15.208Z"
+    }
+  ],
+  "savedAt": "2026-10-20T14:10:17.189Z"
+}

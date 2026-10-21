@@ -451,8 +451,8 @@ LongLive-2.0 横跨三条相关工作线，每条都明确"接住"了什么、�
 | `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/fig1-overall.png` | 总体框架图 | arXiv HTML 2605.18739v2/fig1-overall.png | Figure 1, p.1 | 1.3 / 3.1 章节 |
 | `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/fig3-training-pipeline-v7.png` | 训练基础设施对比 | arXiv HTML 2605.18739v2/fig3-training-pipeline-v7.png | Figure 2, p.3 | 3.2 章节 |
 | `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/Fig-clean-pipeline.png` | Clean Pipeline 对比 | arXiv HTML 2605.18739v2/Fig-clean-pipeline.png | Figure 3, p.5 | 3.7 章节 |
-| `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/nvfp4_dmd.png` | NVFP4 DMD 训练基础设施 | arXiv HTML 2605.18739v2/nvfp4_dmd.png | Figure 4, p.6 | 3.3 / 3.7 章节 |
-| `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/shot-level-sink.png` | Multi-Shot Attention Sink 示意 | arXiv HTML 2605.18739v2/shot-level-sink.png | Figure 6, p.7 | 3.8 章节 |
+| `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/nvfp4_dmd.png` | NVFP4 DMD 训练基础设施 | arXiv e-print 2605.18739，源码 `figs/nvfp4_dmd.pdf`，2026-10-16 以 2000 px 渲染替换低分辨率 HTML 图 | Figure 4, p.6 | 3.3 / 3.7 章节 |
+| `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/shot-level-sink.png` | Multi-Shot Attention Sink 示意 | arXiv e-print 2605.18739，源码 `figs/shot-level-sink.pdf`，2026-10-16 以 2000 px 渲染替换低分辨率 HTML 图 | Figure 6, p.7 | 3.8 章节 |
 | `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/shot-level-sink-ablation.png` | Multi-Shot Attention Sink 消融 | arXiv HTML 2605.18739v2/shot-level-sink-ablation.png | Figure 7, p.7 | 5.4 章节 |
 | `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/ptq_nvfp4.png` | PTQ vs Ours 多镜头对比 | arXiv HTML 2605.18739v2/ptq_nvfp4.png | 附录 F | 5.4 章节 |
 | `assets/LongLive-2.0 - NVFP4长视频生成训练与推理系统/DMD_comparison.png` | DMD 蒸馏策略对比 | arXiv HTML 2605.18739v2/figs/DMD_comparison.png | 附录 H | 5.4 章节 |

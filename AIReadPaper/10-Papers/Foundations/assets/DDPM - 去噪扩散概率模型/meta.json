@@ -1,0 +1,308 @@
+{
+  "url": "https://arxiv.org/pdf/2006.11239",
+  "fetch_url": "https://arxiv.org/pdf/2006.11239",
+  "title": "Denoising Diffusion Probabilistic Models",
+  "type": "pdf",
+  "arxiv_id": "2006.11239",
+  "n_images": 22,
+  "images": [
+    {
+      "path": "images/img_000_p1.png",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_001_p1.png",
+      "page": 1,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_002_p2.jpeg",
+      "page": 2,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_003_p2.jpeg",
+      "page": 2,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_004_p2.jpeg",
+      "page": 2,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_005_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_006_p6.jpeg",
+      "page": 6,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_007_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_008_p7.jpeg",
+      "page": 7,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_009_p8.jpeg",
+      "page": 8,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_010_p16.jpeg",
+      "page": 16,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_011_p17.jpeg",
+      "page": 17,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_012_p18.jpeg",
+      "page": 18,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_013_p18.jpeg",
+      "page": 18,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_014_p19.png",
+      "page": 19,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_015_p20.jpeg",
+      "page": 20,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_016_p21.jpeg",
+      "page": 21,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_017_p21.jpeg",
+      "page": 21,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_018_p22.jpeg",
+      "page": 22,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_019_p23.jpeg",
+      "page": 23,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_020_p24.jpeg",
+      "page": 24,
+      "source": "pdf_embedded"
+    },
+    {
+      "path": "images/img_021_p25.jpeg",
+      "page": 25,
+      "source": "pdf_embedded"
+    }
+  ],
+  "page_images": [
+    {
+      "path": "images/pages/page_001.png",
+      "page": 1,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_002.png",
+      "page": 2,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_003.png",
+      "page": 3,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_004.png",
+      "page": 4,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_005.png",
+      "page": 5,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_006.png",
+      "page": 6,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_007.png",
+      "page": 7,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_008.png",
+      "page": 8,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_009.png",
+      "page": 9,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_010.png",
+      "page": 10,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_011.png",
+      "page": 11,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_012.png",
+      "page": 12,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_013.png",
+      "page": 13,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_014.png",
+      "page": 14,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_015.png",
+      "page": 15,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_016.png",
+      "page": 16,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_017.png",
+      "page": 17,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_018.png",
+      "page": 18,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_019.png",
+      "page": 19,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_020.png",
+      "page": 20,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_021.png",
+      "page": 21,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_022.png",
+      "page": 22,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_023.png",
+      "page": 23,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_024.png",
+      "page": 24,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    },
+    {
+      "path": "images/pages/page_025.png",
+      "page": 25,
+      "source": "pdf_page_render",
+      "w": 1700,
+      "h": 2200
+    }
+  ],
+  "n_page_renders": 25,
+  "n_chars": 54903,
+  "authors": [
+    "Jonathan Ho",
+    "Ajay Jain",
+    "Pieter Abbeel"
+  ],
+  "abstract": "We present high quality image synthesis results using diffusion probabilistic models, a class of latent variable models inspired by considerations from nonequilibrium thermodynamics. Our best results are obtained by training on a weighted variational bound designed according to a novel connection between diffusion probabilistic models and denoising score matching with Langevin dynamics, and our models naturally admit a progressive lossy decompression scheme that can be interpreted as a generalization of autoregressive decoding. On the unconditional CIFAR10 dataset, we obtain an Inception score of 9.46 and a state-of-the-art FID score of 3.17. On 256x256 LSUN, we obtain sample quality similar to ProgressiveGAN. Our implementation is available at https://github.com/hojonathanho/diffusion",
+  "need_agent_fetch": false,
+  "source_md": "source.md",
+  "warnings": []
+}

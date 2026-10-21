@@ -1,0 +1,157 @@
+\section{Physical-Robot Setup and Evaluation}
+\label{app:real-robot}
+
+This section documents the physical-robot experiments in Section~\ref{sec:behavior-cloning-robot-control}.
+
+\subsection{Platform and Data Collection}
+\label{app:robot-data}
+
+Demonstrations are collected by joint-space teleoperation from a
+\methodname{reBot Arm 102} leader to a \methodname{reBot B601-DM} follower through
+\methodname{LeRobot}~\citep{cadene2026lerobot}. The follower uses impedance control
+with gravity feedforward. One proficient operator collects successful demonstrations
+without intentional exploration. Between episodes, both arms return to the calibration
+zero pose before recording resumes.
+
+A \methodname{ZED-Mini} records the scene at $672\times376$ pixels per eye, and a
+wrist-mounted \methodname{Logitech C270} records at $640\times360$ pixels. The model
+uses the left scene view and wrist view, both cropped to 256$\times$256 pixels; the right stereo view is recorded but unused.
+At 30 Hz, a Raspberry Pi 5 stores the three video streams, seven-dimensional joint
+targets as actions, and follower position, torque, and velocity as a 21-dimensional state.
+% TODO: replace the dataset-link placeholder with the public release URL after submission.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Datasets for the physical-robot tasks in Section~\ref{sec:behavior-cloning-robot-control}.}
+\label{tab:robot-current-datasets}
+\label{tab:robot-datasets}
+\begin{tabular}{@{}lrrr>{\raggedright\arraybackslash}p{0.38\linewidth}@{}}
+\toprule
+Task & Episodes & Frames & Duration & Task Description \\
+\midrule
+Pick and Place T & 200 & 52,297 & 29 min & "Pick up the T block and place it onto the outline." \\
+Push-T & 100 & 61,996 & 34 min & "Push the T block onto the outline." \\
+Tape Stack & 100 & 23,726 & 13 min & "Stack the green roll of tape on the white roll of tape." \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Model Implementation}
+\label{app:robot-implementation}
+
+The \method{} models in Section~\ref{sec:behavior-cloning-robot-control} use the state MSE and action flow
+matching objectives from Section~\ref{sec:joint-predictor}. In the frozen
+\methodname{V-JEPA 2.1} variant, attentive pooling and a BatchNorm MLP reduce each
+camera frame to one summary token. Proprioceptive state and previous actions are
+linearly projected from raw vectors to the model dimension. Learned queries initialize
+the future-camera and action streams.
+
+The real world \method{} variants take two video context frames and predict three future frames,
+all sampled at 2.5~Hz.
+They use model width 512 and depth eight, and train with AdamW
+at batch size 256, using gradient accumulation when needed. Both variants use a
+ViT-B visual backbone. The end-to-end model trains its visual encoder from scratch;
+the frozen variant initializes its encoder from \methodname{V-JEPA 2.1}~\citep{murlabadia2026vjepa21}
+and keeps it fixed. The action chunk length and execution interval are specified
+in Appendix~\ref{app:bc-physical}.
+
+For Table~\ref{tab:real-robot-results}, batch-1 GFLOPs include all inference steps
+for one full action chunk: 100 DDPM steps for \methodname{Diffusion Policy}~\citep{chi2023diffusionpolicy},
+ten Euler steps for $\pi_{0.5}$~\citep{physicalintelligence2025pi05}, and ten
+Euler steps for each physical-robot \method{} variant.
+
+\subsection{Physical-Robot Baseline Configurations}
+\label{app:bc-physical}
+For the comparison in Section~\ref{sec:behavior-cloning-robot-control}, both baselines use the
+\methodname{LeRobot} implementations~\citep{cadene2026lerobot}, adapted to the
+scene and wrist cameras and seven-dimensional joint-target actions. Each policy
+returns 36 future actions and executes the first 18 at 30~Hz before requesting
+a new chunk, matching the \method{} variants. The returned and executed chunks
+span 1.2 and 0.6 seconds, respectively. The demonstrations and evaluation procedure
+are described in Appendices~\ref{app:robot-data} and~\ref{app:robot-evaluation}, with 30 trials per task and method.
+
+The \dataset{Pick and Place T} and \dataset{Push-T} training configurations resize both camera
+streams to $256\times256$ and retain seven joint torques from the recorded
+proprioceptive state. Actions and torques are normalized by mapping their
+training-set first and 99th percentiles to $-1$ and $1$, respectively.
+Training examples start every three recorded frames; the observation offsets
+and action targets retain their 30~Hz timing. We hold out 10\% of episodes
+using split seed zero. The configurations specify 20,000 optimizer updates
+with effective batch size 256, a 500-update linear learning-rate warmup,
+and cosine decay. Validation runs every 200 updates; the trainer saves both
+the final checkpoint and the checkpoint with the lowest validation loss.
+
+\baselineitem{MethodDiffusionPolicy}{\textbf{\methodname{Diffusion Policy}}~\citep{chi2023diffusionpolicy}.
+The robot implementation uses a separate ImageNet-initialized ResNet-18 with
+spatial softmax for each camera and a conditional one-dimensional U-Net with
+channel widths $(336,672,1344)$. It conditions on two consecutive image and
+torque observations. Images are randomly cropped to $243\times243$ during
+training and center-cropped at evaluation. The internal diffusion horizon is
+40 action positions, aligned from one step before the current observation;
+the policy returns positions corresponding to the next 36 actions. This
+40-step internal sequence satisfies the U-Net's temporal downsampling constraint.
+Training uses noise-prediction MSE with a squared-cosine schedule, and inference
+uses 100 DDPM steps. AdamW uses learning rate $10^{-4}$, betas $(0.95,0.999)$,
+and weight decay $10^{-6}$. Exponential moving averaging with decay 0.999
+supplies the weights used for validation and saved checkpoints.}
+
+\baselineitem{PaperGray}{\textbf{$\pi_{0.5}$}~\citep{physicalintelligence2025pi05}.
+The policy conditions on the current scene and wrist images together with
+the task instruction and current torque vector. Its image frontend resizes
+the inputs to $224\times224$. The wrapper discretizes the normalized torque
+values into 256 bins and includes them in the language prompt.
+The action expert predicts a 36-action chunk by flow matching, using ten
+Euler steps at inference. The expert-only configuration freezes the vision
+and language backbone while training the action expert and action/time
+projections. Its task configurations use AdamW with learning rate
+$2.5\times10^{-5}$ and weight decay $10^{-4}$, and gradient accumulation to
+reach effective batch size 256.}
+
+
+
+\subsection{Closed-Loop Evaluation}
+\label{app:robot-evaluation}
+
+ For Section~\ref{sec:behavior-cloning-robot-control}, the robot sends its observation window to a
+remote inference machine, receives an action chunk, and executes it at 30 Hz under
+the receding-horizon schedule. A human evaluator labels each episode as success or
+failure, using the same criteria used during teleoperation. Each method is evaluated in 30 trials per task.
+% TODO: record per-trial outcomes, confidence intervals, execution
+% horizons, and measured model-only and network-inclusive latency for each configuration.
+
+\subsection{Representation Diagnostics and Evaluation}
+\label{app:robot-diagnostics}
+
+For visualization, we fit a pixel decoder $d_\psi$ to frozen encoder outputs
+$\vz_t=\enc(\vo_t)$. Learnable per-patch queries use cross-attention to map these
+representations to pixel patches. Only the decoder parameters $\psi$ are trained,
+using per-pixel MSE over training frames:
+\begin{equation}
+    \mathcal{L}_{\mathrm{dec}}(\psi)
+    =\mathbb{E}_{\vo_t}\!\left[
+    \operatorname{MSE}\bigl(d_\psi(\enc(\vo_t)),\vo_t\bigr)\right].
+    \label{eq:robot-pixel-decoder}
+\end{equation}
+The encoder and latent dynamics remain frozen. Framewise reconstructions are
+$d_\psi(\vz_t)$, and decoded rollout predictions are $d_\psi(\hat{\vz}_t)$.
+
+Figure~\ref{fig:robot-rollout-scene} compares both encoder variants on the same
+held-out Pick and Place T episode from the scene camera. Each strip shows recorded
+video, framewise reconstructions, and decoded autoregressive predictions. Latent
+rollouts start from the initial observation context and advance under recorded
+actions, without intermediate ground-truth frames or newly generated actions.
+We display ten frames at indices 0, 3, 6, 9, 12, 15, 18, 21, 24, and 26, spanning
+10.4 seconds at the 2.5~Hz model sampling rate.
+
+\begin{figure}[htbp!]
+    \centering
+    {\small\bfseries End-to-end LeWAM\par}
+    \includegraphics[width=\textwidth]{figures/real_robot_rollouts/output/lewam_scene.pdf}
+    \vspace{2pt}
+    {\small\bfseries LeWAM with frozen \methodname{V-JEPA 2.1}\par}
+    \includegraphics[width=\textwidth]{figures/real_robot_rollouts/output/frozen_vjepa21_scene.pdf}
+    \caption{Matched visual reconstructions and recorded-action latent rollouts for the scene camera. Within each model, rows show the ground-truth (GT) video, independent frame reconstructions, and decoded autoregressive predictions.}
+    \label{fig:robot-rollout-scene}
+    \label{fig:robot-decode-panel}
+\end{figure}

@@ -1,0 +1,355 @@
+/*
+ * WorkBuddy Reading Style for Obsidian
+ * 仅影响 Markdown 阅读视图与实时预览，不改侧边栏和其他界面。
+ * 目标：克制的系统字体、舒展行高、清晰标题层级、柔和代码/表格/引用样式。
+ */
+
+:root {
+  --wb-reading-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "PingFang TC", "Helvetica Neue", Arial, sans-serif;
+  --wb-reading-mono: "SFMono-Regular", "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --wb-reading-width: 860px;
+  --wb-reading-size: 14px;
+  --wb-reading-line-height: 1.78;
+}
+
+.theme-light {
+  --wb-reading-bg: #ffffff;
+  --wb-reading-text: #262626;
+  --wb-reading-muted: #6b7280;
+  --wb-reading-heading: #1f2328;
+  --wb-reading-border: #e5e7eb;
+  --wb-reading-soft-bg: #f6f8fa;
+  --wb-reading-code-bg: #f3f4f6;
+  --wb-reading-code-text: #c2415d;
+  --wb-reading-link: #2563a6;
+  --wb-reading-quote-border: #c8d7e4;
+  --wb-reading-quote-bg: #f8fafc;
+  --wb-reading-table-alt: #fafafa;
+  --wb-reading-mark: #fff2a8;
+}
+
+.theme-dark {
+  --wb-reading-bg: #1e1f22;
+  --wb-reading-text: #d8dce3;
+  --wb-reading-muted: #9ca3af;
+  --wb-reading-heading: #f2f4f7;
+  --wb-reading-border: #363a40;
+  --wb-reading-soft-bg: #26292e;
+  --wb-reading-code-bg: #2b2e34;
+  --wb-reading-code-text: #f08aa2;
+  --wb-reading-link: #78aee8;
+  --wb-reading-quote-border: #52697d;
+  --wb-reading-quote-bg: #252a30;
+  --wb-reading-table-alt: #24262a;
+  --wb-reading-mark: #665c1e;
+}
+
+/* Markdown 面板背景 */
+.workspace-leaf-content[data-type="markdown"] .view-content {
+  --background-primary: var(--wb-reading-bg);
+  background: var(--wb-reading-bg);
+}
+
+/* 阅读视图与实时预览的正文容器 */
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view,
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6 .cm-scroller {
+  font-family: var(--wb-reading-font);
+  font-size: var(--wb-reading-size);
+  line-height: var(--wb-reading-line-height);
+  color: var(--wb-reading-text);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-align: left !important;
+  hyphens: none !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-sizer,
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6 .cm-sizer {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--wb-reading-width);
+  margin-inline: auto;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-sizer {
+  padding: 28px 30px 88px;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6 .cm-content {
+  padding: 28px 30px 88px;
+  caret-color: var(--wb-reading-text);
+}
+
+/* 段落 */
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered p {
+  margin-block: 0.68em;
+}
+
+.workspace-leaf-content[data-type="markdown"] .cm-line {
+  color: var(--wb-reading-text);
+}
+
+/* 标题：小幅放大，通过字重与留白建立层级 */
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h1,
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h2,
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h3,
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h4,
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h5,
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h6 {
+  font-family: var(--wb-reading-font);
+  color: var(--wb-reading-heading);
+  letter-spacing: -0.012em;
+  line-height: 1.42;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h1 {
+  margin: 0 0 1.15em;
+  font-size: 1.78em;
+  font-weight: 720;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h2 {
+  margin: 1.75em 0 0.72em;
+  font-size: 1.29em;
+  font-weight: 700;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h3 {
+  margin: 1.42em 0 0.56em;
+  font-size: 1.1em;
+  font-weight: 680;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered h4 {
+  margin: 1.2em 0 0.45em;
+  font-size: 1em;
+  font-weight: 680;
+}
+
+.workspace-leaf-content[data-type="markdown"] .HyperMD-header {
+  font-family: var(--wb-reading-font);
+  color: var(--wb-reading-heading);
+  line-height: 1.42;
+}
+
+.workspace-leaf-content[data-type="markdown"] .HyperMD-header-1 {
+  font-size: 1.78em;
+  font-weight: 720;
+  padding-block: 0.38em 0.52em;
+}
+
+.workspace-leaf-content[data-type="markdown"] .HyperMD-header-2 {
+  font-size: 1.29em;
+  font-weight: 700;
+  padding-block: 0.92em 0.25em;
+}
+
+.workspace-leaf-content[data-type="markdown"] .HyperMD-header-3 {
+  font-size: 1.1em;
+  font-weight: 680;
+  padding-block: 0.66em 0.18em;
+}
+
+.workspace-leaf-content[data-type="markdown"] .HyperMD-header-4,
+.workspace-leaf-content[data-type="markdown"] .HyperMD-header-5,
+.workspace-leaf-content[data-type="markdown"] .HyperMD-header-6 {
+  font-size: 1em;
+  font-weight: 680;
+  padding-block: 0.45em 0.12em;
+}
+
+/* 强调与链接 */
+.workspace-leaf-content[data-type="markdown"] strong,
+.workspace-leaf-content[data-type="markdown"] .cm-strong {
+  color: var(--wb-reading-heading);
+  font-weight: 680;
+}
+
+.workspace-leaf-content[data-type="markdown"] a,
+.workspace-leaf-content[data-type="markdown"] .cm-link,
+.workspace-leaf-content[data-type="markdown"] .cm-hmd-internal-link {
+  color: var(--wb-reading-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+
+.workspace-leaf-content[data-type="markdown"] mark {
+  background: var(--wb-reading-mark);
+  color: inherit;
+  padding-inline: 0.12em;
+  border-radius: 2px;
+}
+
+/* 列表 */
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered ul,
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered ol {
+  margin-block: 0.72em 0.95em;
+  padding-inline-start: 1.72em;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered li {
+  margin-block: 0.34em;
+  padding-inline-start: 0.12em;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered li::marker {
+  color: var(--wb-reading-muted);
+}
+
+/* 分隔线 */
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered hr,
+.workspace-leaf-content[data-type="markdown"] .HyperMD-hr {
+  border: 0;
+  border-top: 1px solid var(--wb-reading-border);
+  margin-block: 1.7em;
+}
+
+/* 引用块：覆盖旧 stylish-blockquotes 的大引号 */
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered blockquote {
+  margin: 1em 0;
+  padding: 0.7em 1em;
+  border-inline-start: 3px solid var(--wb-reading-quote-border);
+  border-radius: 0 6px 6px 0;
+  background: var(--wb-reading-quote-bg);
+  color: var(--wb-reading-muted);
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered blockquote::before {
+  content: none !important;
+  display: none !important;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered blockquote p {
+  display: block;
+  margin: 0.24em 0;
+}
+
+/* 行内代码与代码块 */
+.workspace-leaf-content[data-type="markdown"] :not(pre) > code,
+.workspace-leaf-content[data-type="markdown"] .cm-inline-code {
+  font-family: var(--wb-reading-mono);
+  font-size: 0.9em;
+  color: var(--wb-reading-code-text);
+  background: var(--wb-reading-code-bg);
+  border: 1px solid color-mix(in srgb, var(--wb-reading-border) 78%, transparent);
+  border-radius: 4px;
+  padding: 0.12em 0.34em;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered pre,
+.workspace-leaf-content[data-type="markdown"] .HyperMD-codeblock {
+  font-family: var(--wb-reading-mono);
+  font-size: 0.9em;
+  line-height: 1.62;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered pre {
+  margin: 1em 0;
+  padding: 1em 1.1em;
+  background: var(--wb-reading-soft-bg);
+  border: 1px solid var(--wb-reading-border);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+/* 表格 */
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered table {
+  width: 100%;
+  margin: 1.15em 0 1.35em;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--wb-reading-border);
+  border-radius: 7px;
+  overflow: hidden;
+  font-size: 0.94em;
+  line-height: 1.58;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered th,
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered td {
+  padding: 0.58em 0.72em;
+  border: 0;
+  border-right: 1px solid var(--wb-reading-border);
+  border-bottom: 1px solid var(--wb-reading-border);
+  vertical-align: top;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered th:last-child,
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered td:last-child {
+  border-right: 0;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered tr:last-child td {
+  border-bottom: 0;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered th {
+  background: var(--wb-reading-soft-bg);
+  color: var(--wb-reading-heading);
+  font-weight: 680;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered tbody tr:nth-child(even) td {
+  background: var(--wb-reading-table-alt);
+}
+
+/* 数学公式 */
+.workspace-leaf-content[data-type="markdown"] .math-block,
+.workspace-leaf-content[data-type="markdown"] mjx-container[display="true"] {
+  margin-block: 1.05em !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  color: var(--wb-reading-heading);
+}
+
+.workspace-leaf-content[data-type="markdown"] .math-inline,
+.workspace-leaf-content[data-type="markdown"] mjx-container:not([display="true"]) {
+  color: var(--wb-reading-heading);
+}
+
+/* 图片与图注 */
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered img:not([class*="emoji"]) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered em:has(> img),
+.workspace-leaf-content[data-type="markdown"] .markdown-rendered img + em {
+  color: var(--wb-reading-muted);
+  font-size: 0.92em;
+}
+
+/* Callout */
+.workspace-leaf-content[data-type="markdown"] .callout {
+  margin: 1em 0;
+  border-radius: 8px;
+  border-width: 1px;
+  padding: 0.2em 0.3em;
+  box-shadow: none;
+}
+
+.workspace-leaf-content[data-type="markdown"] .callout-title {
+  font-weight: 680;
+}
+
+/* 脚注与元信息 */
+.workspace-leaf-content[data-type="markdown"] .footnotes,
+.workspace-leaf-content[data-type="markdown"] .frontmatter-container {
+  color: var(--wb-reading-muted);
+  font-size: 0.92em;
+}
+
+/* 小屏时减少内边距 */
+@media (max-width: 700px) {
+  :root {
+    --wb-reading-size: 14px;
+  }
+
+  .workspace-leaf-content[data-type="markdown"] .markdown-preview-sizer,
+  .workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6 .cm-content {
+    padding-inline: 18px;
+  }
+}

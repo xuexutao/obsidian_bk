@@ -1,0 +1,45 @@
+% Evidence: original papers linked by each method's citation.
+% Local audit: local/literature/paradigm-table-2026-09-13/README.md.
+% Joint means clean-action FDM and policy losses in the SAME training pass.
+% It does not mean generic joint video/action generation, which several baselines support.
+\begin{table}[H]
+\centering
+\caption{\lead{Modeling and Control Capabilities.}
+FDM denotes forward dynamics conditioned on clean actions; Policy denotes learned action
+prediction. Entries describe reported training recipes or the goal-reaching configurations used here.}
+\label{tab:world-action-factorizations}
+\begingroup
+\newcommand{\yes}{\ding{51}}
+\newcommand{\no}{\ding{55}}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+Method & FDM & Policy & \shortstack{Joint FDM\\and Policy} & \shortstack{End-to-end\\from scratch} \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{World models}} \\
+\methodname{DINO-WM}~\citep{zhou2024dinowm} & \yes & \no & \no & \no \\
+\methodname{V-JEPA 2-AC}~\citep{assran2025vjepa2} & \yes & \no & \no & \no \\
+\methodname{LeWM (CEM)}~\citep{maes2026lewm} & \yes & \no & \no & \yes \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{World action models}} \\
+\methodname{UVA}~\citep{li2025uva} & \yes & \yes & \no & \no \\
+\methodname{UWM}~\citep{zhu2025uwm} & \yes & \yes & \no & \no \\
+\methodname{DreamZero}~\citep{ye2026dreamzero} & \no & \yes & \no & \no \\
+\methodname{Fast-WAM}~\citep{yuan2026fastwam} & \no & \yes & \no & \no \\
+\methodname{Cosmos 3}~\citep{nvidia2026cosmos3} & \yes & \yes & \no & \no \\
+\textbf{\method{} (ours)} & \yes & \yes & \yes & \yes \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Goal-conditioned policy}} \\
+\methodname{LeWM (IDM)}~\citep{nguyen2026gcidm} & \yes & \yes & \no & \no \\
+\methodname{GCBC}~\citep{ghosh2021gcsl} & \no & \yes & \no & \no \\
+\bottomrule
+\end{tabular*}
+\par\vspace{3pt}
+\begin{minipage}{\linewidth}
+Joint requires clean-action FDM and policy losses on the same sample in one training pass.
+From scratch includes visual encoding and prediction without pretrained or frozen components.
+UWM uses a frozen pretrained variational autoencoder even when its robot backbone is trained from scratch.
+\end{minipage}
+\endgroup
+\end{table}

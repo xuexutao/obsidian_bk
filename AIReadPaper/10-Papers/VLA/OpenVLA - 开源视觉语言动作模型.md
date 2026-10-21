@@ -90,7 +90,11 @@ OpenVLA 是首个**完全开源**的 7B 视觉-语言-动作模型（VLA）：�
 
 ### 3.1 总体框架
 
-OpenVLA 由三部分组成（Figure 2）：(1) **视觉编码器**，把输入图像映射为一组图像 patch embedding；(2) **投影器**，把视觉特征映射到语言模型的输入空间；(3) **LLM 主干**，一个 7B 参数的 Llama 2。训练时把动作预测当作 VLM 的「视觉问答」，输入图像 + 指令 prompt（格式为 "What should the robot do to {task}? A:"），模型自回归输出动作 token，再经 action de-tokenizer 还原为 7 维连续动作。
+OpenVLA 由三部分组成（Figure 2）：
+(1) **视觉编码器**，把输入图像映射为一组图像 patch embedding；
+(2) **投影器**，把视觉特征映射到语言模型的输入空间；
+(3) **LLM 主干**，一个 7B 参数的 Llama 2。
+训练时把动作预测当作 VLM 的「视觉问答」，输入图像 + 指令 prompt（格式为 "What should the robot do to {task}? A:"），模型自回归输出动作 token，再经 action de-tokenizer 还原为 7 维连续动作。
 
 ![](assets/OpenVLA%20-%20开源视觉语言动作模型/figures/02-architecture.png)
 

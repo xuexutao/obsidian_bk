@@ -1,4 +1,6 @@
-**一句话判断：** 这篇工作把“结构/功能约束”正式引入 image-to-3D 生成，用 **不重训 TRELLIS.2 主模型** 的方式，把对称性直接施加在生成过程而不是后处理阶段。对 3D 资产从“能看”走向“可制造、可使用”很有启发。
+## 一句话结论
+
+SymTRELLIS 观察到单图 3D 结果视觉上逼真却常因轻微不对称而无法制造或正常运转，而生成后再对 mesh 做 symmetrization 又会丢失视觉证据，于是**不重训 TRELLIS.2 主模型**：在每个 flow/ODE step 对对称变换后的速度做 group averaging，用学习到的 spatial-transform latent mapper 近似旋转/反射在 voxel latent 中的作用，并以自动 symmetry detection 或用户 specification 提供约束。它把 TRELLIS.2 的 $\epsilon$-Errmax@0.03 从 **7.32** 降到 **1.13**，打印陀螺的晃动指标从 **6.55** 降到 **0.45**，证明功能约束应直接进入生成轨迹；但方法依赖显式 voxel latent，重复 averaging 会抹平细节，自动对称检测失败时仍需人工指定。
 
 **论文信息：** [SymTRELLIS: Symmetry-Enforced Voxel Latents for 3D Generation](https://arxiv.org/abs/2606.04108)；作者来自 Simon Fraser University。
 

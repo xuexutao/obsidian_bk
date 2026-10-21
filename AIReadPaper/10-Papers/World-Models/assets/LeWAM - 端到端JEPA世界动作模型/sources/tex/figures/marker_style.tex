@@ -1,0 +1,16 @@
+% Native vector counterpart of Matplotlib MarkerStyle("*") in Figure 6.
+% Same ten vertices, bevel joins, white outline, and uniform dark-gray fill.
+% Caption size follows the surrounding font, independently of the plot scale.
+% The visible star is about one em high, with a font-relative white outline.
+\DeclareRobustCommand{\endtoendstar}{%
+  \tikz[baseline=-0.65ex,x=1.2em,y=1.2em]{%
+    \filldraw[fill=PaperGrayDark,draw=FigureWhite,
+              line width=0.04em,line join=bevel]
+      (0,0.5) -- (-0.112256991,0.154508493)
+      -- (-0.475528258,0.154508497) -- (-0.181635627,-0.059016993)
+      -- (-0.293892626,-0.404508497) -- (0,-0.190983)
+      -- (0.293892626,-0.404508497) -- (0.181635627,-0.059016993)
+      -- (0.475528258,0.154508497) -- (0.112256991,0.154508493)
+      -- cycle;
+  }%
+}

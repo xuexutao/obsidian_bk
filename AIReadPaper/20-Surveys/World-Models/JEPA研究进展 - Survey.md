@@ -3,9 +3,9 @@ type: survey
 status: complete
 domain: World-Models
 topic: Joint-Embedding Predictive Architecture
-coverage: 2022-06 to 2026-10-15
+coverage: 2022-06 to 2026-10-16
 created: 2026-10-15
-updated: 2026-10-15
+updated: 2026-10-16
 tags:
   - World-Models
   - JEPA
@@ -19,9 +19,9 @@ tags:
 
 ## 基本信息
 
-- **时间范围**：2022 年 6 月—2026 年 10 月 15 日
-- **主线论文**：LeCun 2022 纲领、Slow Features、I-JEPA、MC-JEPA、Image World Models、V-JEPA、DINO-WM、V-JEPA 2、LeJEPA、LeWorldModel、When Does LeJEPA Learn a World Model?、V-JEPA 2.1、LeVJEPA、UniJEPA、Flow-JEPA、AD-E2E-JEPA
-- **最新分支**：VL-JEPA、SD-JEPA、M-JEPA 等
+- **时间范围**：2022 年 6 月—2026 年 10 月 16 日
+- **主线论文**：LeCun 2022 纲领、Slow Features、I-JEPA、MC-JEPA、Image World Models、V-JEPA、DINO-WM、V-JEPA 2、LeJEPA、LeWorldModel、When Does LeJEPA Learn a World Model?、V-JEPA 2.1、LeVJEPA、UniJEPA、Flow-JEPA、AD-E2E-JEPA、LeWAM
+- **最新分支**：LeWAM、VL-JEPA、SD-JEPA、M-JEPA 等
 - **核心判断**：JEPA 已经从“预测 embedding 的视觉自监督目标”演化成一组世界模型设计原则，但目前还不是单一统一架构。真正被反复验证的是三件事：潜空间预测能避免像素级不可预测细节的负担；可规划 latent 必须同时满足可预测、非坍塌和任务相关；高效规划需要在表示粒度、动力学形式和搜索预算之间做明确权衡。
 
 ---
@@ -84,6 +84,7 @@ JEPA 不是只要预测误差低就成功。至少要同时满足：
 | 2026-05 | When Does LeJEPA Learn a World Model? | 给出高斯潜变量下线性可识别与规划等价条件 | 真实策略轨迹常非高斯、非平稳 |
 | 2026-08 | UniJEPA / LeVJEPA / Flow-JEPA | 统一图像—视频任务、降低视频计算、提升噪声鲁棒性 | 真实机器人、长时程、严格机制拆分仍不足 |
 | 2026-09 | AD-E2E-JEPA / M-JEPA | 把规划 patch 压缩到可用规模；优化多 mask 训练执行 | 安全目标、oracle goal、跨节点系统效率仍未闭环 |
+| 2026-10 | LeWAM | 用共享 encoder 联合训练未来 latent 预测与 action flow matching，让单模型兼容直接策略执行和基于世界模型的候选动作评估 | 仍需核验复杂真实机器人任务、长时闭环误差、规划与直接策略的机制拆分及对基线算力的公平比较 |
 
 ---
 
@@ -289,6 +290,18 @@ M-JEPA（arXiv:2609.22674）不改学习目标，而是共享 mask-independent �
 
 VL-JEPA（arXiv:2512.10942）把 vision-language 训练从自回归 token 生成改为目标文本 embedding 预测，需要显式文本时才调用轻量 decoder。论文报告在受控比较中可训练参数减少 50%，选择性解码次数降低 2.85 倍，并支持分类、检索和判别式 VQA。其边界是复杂开放生成、工具调用和长链语言推理尚未证明；它更像“语义预测接口”而不是完整替代生成式 VLM。
 
+### 7.8 LeWAM：把世界预测、动作分布和规划收进同一端到端模型
+
+[[LeWAM - 端到端JEPA世界动作模型]]沿着 LeWorldModel 的 shared encoder、next-latent prediction 与 SIGReg 继续前进，但不再把策略或求解器视作训练后的外接模块。它在同一个 Mixture-of-Transformers 中联合优化两条接口：clean actions 条件下预测未来 latent，noisy action chunks 条件下用 flow matching 学习多模态动作分布。动作监督因此能直接塑造视觉表征，模型也同时获得 consequence model 与 behavior model。
+
+![](../../10-Papers/World-Models/assets/LeWAM%20-%20端到端JEPA世界动作模型/figures/01-training-overview.png)
+
+> **图 18：LeWAM 的联合训练。** shared encoder 同时服务历史、目标与未来帧；MoT 的状态分支预测下一 latent，动作分支回归 action flow velocity，SIGReg 约束潜空间为各向同性高斯。关键变化是 world model 和 policy 不再分阶段训练。来源：LeWAM Figure 1。
+
+部署时，LeWAM 可以直接把 action flow 解码为策略，也可以先从学到的动作分布提出多条 action chunks，再用冻结的 latent dynamics 做梯度细化与 best-of-N 选择。相比 LeWM 从宽高斯出发的 CEM，这使候选动作更接近数据支持，尤其适合接触模式切换明显的任务。论文报告四项接触丰富任务平均成功率由 28.6% 提高到 89.7%，100-step goal offset 的长时任务由 10.9% 提高到 46.2%，规划吞吐从 1.62 提升到 52.50 plans/s，约 32.3 倍。
+
+这些数字不能被解读为专用策略已被淘汰：真实机器人三任务中，LeWAM 证明了端到端世界—动作联合建模的可行性与计算效率，但平均成功率没有超过 Diffusion Policy。更需要后续拆分的是：收益究竟来自 action flow 的多模态建模、动作监督对 encoder 的反向塑形、proposal initialization，还是 gradient refinement；同时还需在更长闭环、跨任务数据和安全约束下验证世界模型是否会被 planner 利用其误差。
+
 ---
 
 ## 8. Anti-collapse 机制的四次演化
@@ -315,6 +328,7 @@ VL-JEPA（arXiv:2512.10942）把 vision-language 训练从自回归 token 生成
 | 冻结特征 WM | DINO-WM、AD-E2E-JEPA | 否 | 预训练 patch latent | 是 | 是 | 稳定、空间特征强 | 表征受外部模型限制，rollout 贵 |
 | SIGReg 端到端 WM | LeWM、UniJEPA | 是 | next latent | 是 | 是 | recipe 简、单卡可复现 | 低维/复杂 3D/长时程有限 |
 | 随机轨迹动力学 | Flow-JEPA | 是/可热启动 | 整段 latent trajectory | 是 | 是 | 噪声鲁棒、减递归误差 | 多次 NFE，机制未拆分 |
+| 端到端世界—动作模型 | LeWAM | 是 | next latent + action flow | 是，联合训练 | 直接策略 + 规划 | 动作监督塑造表征，proposal 搜索快 | 真实机器人未超专用策略，组件贡献待拆分 |
 | 分解潜空间 | SD-JEPA | 是 | progression + content | 是 | 是 | 可解释任务进度 | 环境依赖、规模小 |
 | 视觉语言 JEPA | VL-JEPA | 是 | 文本语义 embedding | 问句/视频 | 非物理规划 | 减少 token 解码 | 开放生成与推理不足 |
 
@@ -393,7 +407,7 @@ M-JEPA 说明 mask routing 与 target-side 冗余是训练瓶颈；AD-E2E-JEPA �
 
 JEPA 最重要的贡献，不是提供了一个“反 LLM/反生成”的品牌，而是把世界模型设计问题重新拆成三层：**观测应压成什么状态、状态应怎样预测、预测怎样转成行动。** 2023 年解决了第一层的可行性，2024—2025 年把第二层扩到视频和动作，2026 年开始真正处理第三层所需的几何、鲁棒性、延迟和代价一致性。
 
-当前最值得投入的路线不是继续只刷视频分类，而是把 LeJEPA 的统计健康、V-JEPA 2.1 的稠密时空状态、Flow-JEPA 的多步随机动力学、SD-JEPA 的进度子空间和显式安全 cost 组合到统一评测中。若这几块不能同时成立，JEPA 仍只是优秀表征学习器；若能成立，它才会成为 LeCun 2022 所说的可规划世界模型。
+当前最值得投入的路线不是继续只刷视频分类，而是把 LeJEPA 的统计健康、V-JEPA 2.1 的稠密时空状态、Flow-JEPA 的多步随机动力学、LeWAM 的世界—动作联合训练、SD-JEPA 的进度子空间和显式安全 cost 组合到统一评测中。LeWAM 已经证明动作监督可以从外接控制器变成塑造 latent 的训练信号，但它还没有回答多步随机世界、跨任务策略与安全约束能否在同一模型中稳定共存。若这些模块不能同时成立，JEPA 仍只是优秀表征学习器；若能成立，它才会成为 LeCun 2022 所说的可规划世界模型。
 
 ---
 
@@ -420,7 +434,8 @@ JEPA 最重要的贡献，不是提供了一个“反 LLM/反生成”的品牌�
 11. [[Flow-JEPA - 流匹配的鲁棒JEPA潜动力学]]：多步误差与分布鲁棒性；
 12. [[UniJEPA - 统一任务无关视觉世界建模]]：统一任务接口；
 13. [[AD-E2E-JEPA - 端到端自动驾驶潜空间规划]]：规划压缩、oracle goal 与安全边界；
-14. [[DINO-WM - 预训练视觉特征上的零样本规划]]：作为 frozen-feature 强基线对照。
+14. [[LeWAM - 端到端JEPA世界动作模型]]：看 action flow、shared encoder 与 latent dynamics 如何端到端联合，并比较直接执行和规划两种部署模式；
+15. [[DINO-WM - 预训练视觉特征上的零样本规划]]：作为 frozen-feature 强基线对照。
 
 ---
 
@@ -449,4 +464,5 @@ JEPA 最重要的贡献，不是提供了一个“反 LLM/反生成”的品牌�
 - Huo et al., 2026. *Flow-JEPA*. arXiv:2608.29029.
 - Sanim et al., 2026. *Mask-Aware Execution for Efficient JEPA Training*. arXiv:2609.22674.
 - Zhu et al., 2026. *AD-E2E-JEPA*. arXiv:2609.34085.
+- Fu et al., 2026. *LeWAM: End-to-End World and Action Modeling with JEPAs*. arXiv:2610.12818.
 - Meta AI, 2025/2026. *VL-JEPA*. arXiv:2512.10942.

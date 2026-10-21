@@ -1,0 +1,107 @@
+\section{Discussion of the Role of Joint Prediction}
+\label{app:joint-prediction}
+
+The conditional-risk analysis describes how action supervision shapes representations; the planning discussion connects learned proposals to contact-dependent outcomes. These mechanisms complement Sections~\ref{sec:what-joint-buys} and~\ref{sec:control-planning}.
+
+\Needspace{30\baselineskip}
+\phantomsection
+\label{app:system-simplicity}
+
+Table~\ref{tab:world-action-factorizations} complements Section~\ref{sec:related} with a
+comparison of training requirements and prediction capabilities.
+
+\input{tables/model_paradigms}
+
+\Needspace{12\baselineskip}
+\subsection{Representation and Dynamics}
+\label{app:joint-representation}
+
+\begin{wrapfigure}{r}{0.40\linewidth}
+\vspace{-16pt}
+\centering
+\includegraphics[width=\linewidth,trim=20bp 25bp 20bp 30bp,clip]{figures/assets/anti_collapse/anti_collapse_open_arrows.pdf}
+\setlength{\abovecaptionskip}{3pt}
+\vspace{-4pt}
+\caption{Conceptual roles of SIGReg and action flow matching in shaping the latent space.}
+\label{fig:anti-collapse-mechanisms}
+\vspace{-6pt}
+\end{wrapfigure}
+
+\lead{Representation Shaping.} SIGReg~\citep{balestriero2025lejepa,maes2026lewm}
+regularizes the latent marginal; action supervision encourages control-relevant
+distinctions (Figure~\ref{fig:anti-collapse-mechanisms}). If visual history
+changes the conditional action velocity, discarding it increases optimal action
+regression risk. Latent prediction adds pressure to retain action-conditioned
+consequences.
+\finishwrapfigure
+
+\Needspace{10\baselineskip}
+\lead{Conditional Action Risk.} In Equation~\ref{eq:action-flow-path}, squared
+flow matching makes the optimal velocity the conditional mean of
+$\va_j-\vepsilon_j$. Let $\mathcal I_j$ include the noisy action prefix, flow
+time, and other conditioning, but exclude visual history $\vz_{\leq t}$. With
+$\mathcal R_{\mathrm{FM}}$ denoting optimal velocity MSE, the conditional
+projection identity gives
+\begin{equation}
+    \begin{aligned}
+    &\mathcal{R}_{\mathrm{FM}}(\mathrm{constant})-
+      \mathcal{R}_{\mathrm{FM}}(\vz_{\leq t})\\
+    &=\frac{1}{C}\sum_{j=t}^{t+C-1}\mathbb{E}\!\left[
+      \operatorname{MSE}\!\left(
+      \mathbb{E}[\va_j-\vepsilon_j\mid\mathcal I_j,\vz_{\leq t}],
+      \mathbb{E}[\va_j-\vepsilon_j\mid\mathcal I_j]
+      \right)
+    \right]\geq 0.
+    \end{aligned}
+    \label{eq:flow-collapse-gap}
+\end{equation}
+When visual history changes the conditional velocity, a constant code incurs higher optimal risk. Action supervision therefore favors these distinctions, while SIGReg regularizes the global latent distribution.
+
+\Needspace{24\baselineskip}
+\subsection{Planning with Learned Action Proposals}
+\label{app:joint-planning}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/contact_geometry.pdf}
+\caption{\lead{Action Proposals and Predicted Consequences.}
+\textbf{(a)} Smooth rollouts; \textbf{(b)} candidate rollouts branch at contact;
+\textbf{(c)} LeWAM pairs learned action proposals with predicted outcomes.
+Dashed links denote search; the solid link denotes joint prediction.
+}
+\label{fig:contact-geometry}
+\end{figure}
+
+\lead{Ill-Posed Action Solver in Contact-rich Events.} Prior JEPAs for control \eg, DINO-WM ~\citep{zhou2024dinowm} and \methodname{LeWM}~\citep{maes2026lewm}
+learn action-conditioned latent dynamics without an action-prediction
+objective and uses CEM~\citep{rubinstein1999cem} for downstream control. In smooth dynamics like 2D navigation, the action solver is \emph{well-posed}: a diverse representation can invert the action trajectories by argmin the cost of action-conditioned dynamics. However, a contact event can switch the active mode, so
+nearby actions yield distinct outcomes~\citep{pang2023contactplanning}. If
+sampled plans miss useful contact, an object-based goal cost provides little
+ranking signal~\citep{yamada2024dcubed}. With a finite population, CEM ranks the contact branches it samples, and additional iterations incur more rollouts. 
+
+
+\lead{Behavior and Consequence.}  Joint prediction
+additionally supplies a learned action distribution for planning proposals.
+Learned proposals can improve contact-rich planning under
+constrained budgets~\citep{brudermuller2025gpc}. Figure~\ref{fig:contact-geometry}
+illustrates why the population-based search from a broad prior cannot work on contact-rich manipulation, and how LeWAM uses the learned proposals and predicted consequences to alleviate this problem. The
+planning objective is defined in Section~\ref{sec:control-planning}, and the
+refinement procedure is specified in Appendix~\ref{app:planners}. Though this problem in 3D contact-rich manipulation is well known and our solution is heuristic, we consider the rigorous verification of the claim as future work.
+
+
+\clearpage
+\section{Author Contribution Statement}
+\label{app:author-contributions}
+All coauthors contributed to project discussions, writing, and editing.
+
+Minghao initiated the project and led its technical development. He proposed the
+general architecture with action flow matching, MoT, the initial version of
+gradient-based planning, and constructed the benchmarks. He also wrote the main
+part of the paper and built the webpage.
+
+Tavis designed the details of model architecture and MoT attention mechanism, optimized the planning algorithm to use batched gradients, and refined the methodology to the final version through extensive experimentation. He also finalized the released code. Tavis and Minghao
+completed the simulation experiments reported in the paper.
+
+Eryk designed and carried out the entire physical robot study. He built the hardware and teleoperation pipeline, adapted the model for real-robot deployment, collected all real-robot data, trained models for real robots, and ran the physical evaluations. He also wrote the main part of physical-robot experiments section and prepared its results.
+
+Randall initiated and supervised the project and guided its overall direction. He advised on representation learning, experimental design, and result verification, contributed extensively to writing and refining the manuscript, and finalized the paper's title, narrative, and branding.

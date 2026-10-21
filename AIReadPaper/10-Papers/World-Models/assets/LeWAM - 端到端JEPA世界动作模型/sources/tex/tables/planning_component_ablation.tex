@@ -1,0 +1,40 @@
+% Author-confirmed September 27: all displayed variants use epoch-30 checkpoints.
+% Success rates and gains originate from the September 25 author-supplied table;
+% its earlier checkpoint-epoch metadata is superseded for this release project.
+% Preserve reported gains, which can differ by 0.1 pp from rounded means.
+\begin{table}[!htbp]
+\centering
+\caption{\lead{SIGReg and Action-Head Ablations.} Direct and planning success
+rates (\%) using epoch-30 checkpoints for all variants. Gain is planning minus direct
+success in percentage points. Standard deviations are reported where available;
+none is inferred for gains.}
+\label{tab:planning-component-ablation}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llccc@{}}
+\toprule
+Environment & Variant  & Direct & Planning & Gain (pp) \\
+\midrule
+\multirow{3}{*}{\dataset{Push-T}}
+ & \method{}  & $82.7\pm8.1$ & $97.3\pm3.1$ & $+14.7$ \\
+ & w/o SIGReg  & $69.3\pm10.1$ & $72.0\pm3.5$ & $+2.7$ \\
+ & MSE action head  & $90.0\pm4.0$ & $95.3\pm1.2$ & $+5.3$ \\
+\midrule
+\multirow{3}{*}{\dataset{Scene}}
+ & \method{}  & $92.0\pm5.3$ & $97.3\pm1.2$ & $+5.3$ \\
+ & w/o SIGReg  & $91.3\pm2.3$ & $93.3\pm3.1$ & $+2.0$ \\
+ & MSE action head  & $89.3\pm4.2$ & $90.0\pm2.0$ & $+0.7$ \\
+\midrule
+\multirow{3}{*}{\dataset{Puzzle}}
+ & \method{}  & $76.0\pm7.2$ & $80.7\pm11.0$ & $+4.7$ \\
+ & w/o SIGReg  & $67.3\pm9.5$ & $75.3\pm9.0$ & $+8.0$ \\
+ & MSE action head  & $76.7\pm6.1$ & $74.7\pm6.1$ & $-2.0$ \\
+\midrule
+\multirow{3}{*}{\dataset{Cube}}
+ & \method{}  & $99.3\pm1.2$ & $100.0$ & $+0.7$ \\
+ & w/o SIGReg  & $99.3\pm1.2$ & $99.3\pm1.2$ & $0.0$ \\
+ & MSE action head  & $98.0\pm2.0$ & $99.3\pm1.2$ & $+1.3$ \\
+\bottomrule
+\end{tabular*}
+\end{table}

@@ -2,6 +2,9 @@
 type: paper-note
 status: complete
 domain: 3D-Reconstruction
+series: Depth Anything
+series_order: 3
+series_hub: "[[从 Depth Anything 到 DA3：前馈深度与三维几何 - Survey]]"
 paper: "Depth Anything 3: Recovering the Visual Space from Any Views"
 year: 2025
 arxiv: "2511.10647"
@@ -17,9 +20,13 @@ created: 2026-08-26
 updated: 2026-10-15
 ---
 
-# 3. Depth Anything 3：从任意视图恢复视觉空间
+# Depth Anything 3：从任意视图恢复视觉空间
 
-**一句话结论：** Depth Anything 3（DA3）用"一个 vanilla DINOv2 骨干 + 一个 depth-ray 预测目标"这套**最小化建模**，把从单图、多视图到视频的任意数量视觉输入统一到"恢复视觉空间"这一个目标下，且在相机位姿、几何重建、视觉渲染三个维度全面超越前 SOTA VGGT（位姿精度平均 +35.7%、几何精度平均 +23.6%），同时单目深度还反超 Depth Anything 2。最有冲击力的一点是：DA3-Large 仅约 **0.30B** 参数，比 VGGT 的 1.19B 小 3 倍，却在 20 个评测 setting 中拿下 18 个 SOTA、其中一半以小打大反超 VGGT——它用"做减法"证明前馈重建不需要复杂架构和冗余多任务。
+> 系列导航：[[Depth Anything - 大规模无标注数据驱动的单目深度]] → [[Depth Anything V2 - 精确合成监督与真实伪标签桥接]] → **Depth Anything 3** · [[从 Depth Anything 到 DA3：前馈深度与三维几何 - Survey|系列综述]]
+
+## 一句话结论
+
+Depth Anything 3（DA3）观察到单目深度、SfM、多视图重建和视频几何本质相通，既有 VGGT 类方法却用复杂专用架构和相机/点图/深度/跟踪多任务联合训练造成冗余，于是采用“**vanilla DINOv2 骨干 + depth-ray 最小充分目标**”：逐像素预测 depth 与包含 ray origin/direction 的 ray map，用简单运算恢复全局点云并可闭式反解相机，配合 input-adaptive 跨视图 attention、Dual-DPT 和合成 teacher 伪标签统一单图、多视图与视频输入。DA3 在 20 个 setting 中拿下 **18 个 SOTA**，相对 VGGT 位姿/几何平均提升 **35.7%/23.6%**；DA3-Large 仅约 **0.30B** 参数、比 1.19B VGGT 小约 3 倍，证明前馈重建的关键不是堆任务，而是找对最小表示并复用预训练，但鱼眼/全景相机、极端退化位姿和训练算力仍是边界。
 
 |         |                                                                                                                                                                                                                                                      |
 | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
