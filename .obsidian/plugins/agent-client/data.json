@@ -4,7 +4,7 @@
       "id": "claude-code-acp",
       "displayName": "Claude Code",
       "apiKeySecretId": "",
-      "command": "~/.workbuddy/bin/claude-agent-acp",
+      "command": "/Users/eilonxtxue/.workbuddy/bin/claude-agent-acp",
       "args": [],
       "env": [],
       "enabled": true
@@ -109,6 +109,14 @@
     "fontSize": null
   },
   "savedSessions": [
+    {
+      "sessionId": "424dbdd7-4c20-4e14-9366-4f67bb5c485d",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
+      "title": "你好",
+      "createdAt": "2026-10-22T08:58:45.032Z",
+      "updatedAt": "2026-10-22T08:58:45.034Z"
+    },
     {
       "sessionId": "77a37ec4-9dd2-41f9-99ca-486ed8523d2d",
       "agentId": "claude-code-acp",
