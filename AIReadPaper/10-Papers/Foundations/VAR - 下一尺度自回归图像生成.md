@@ -53,7 +53,7 @@ VAR 追问的是：**图像自回归是否必须等价于逐像素或逐 token �
 
 ### 1.3 本文核心贡献
 
-1. 提出 next-scale prediction，把图像自回归因子分解从单 token 改为整张尺度图。
+1. 提出 next-scale prediction，把图像<span style="color: red">**<span style="color: red">自回归因子分解从单 token 改为整张尺度图</span>**</span>。
 2. 设计多尺度残差 VQ tokenizer，把图像编码成由粗到细的一组离散 token map。
 3. 在 ImageNet 类别条件生成上展示出比传统 AR 更好的质量、速度和扩展性，并在论文对比口径下超过 DiT。
 4. 对参数量和最优训练计算量拟合出稳定幂律关系，同时展示无需微调的补全、外扩和类别条件编辑。
