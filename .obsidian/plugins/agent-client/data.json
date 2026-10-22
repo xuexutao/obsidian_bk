@@ -4,7 +4,7 @@
       "id": "claude-code-acp",
       "displayName": "Claude Code",
       "apiKeySecretId": "",
-      "command": "/Users/eilonxtxue/.workbuddy/binaries/node/versions/22.22.2/bin/claude-agent-acp",
+      "command": "~/.workbuddy/bin/claude-agent-acp",
       "args": [],
       "env": [],
       "enabled": true
@@ -85,7 +85,7 @@
     "tables": true
   },
   "debugMode": false,
-  "nodePath": "/Users/eilonxtxue/.workbuddy/binaries/node/versions/22.22.2/bin/node",
+  "nodePath": "/Users/eilonxtxue/.workbuddy/binaries/node/versions/22.22.2-6/bin/node",
   "exportSettings": {
     "defaultFolder": "Agent Client",
     "filenameTemplate": "agent_client_{date}_{time}",
