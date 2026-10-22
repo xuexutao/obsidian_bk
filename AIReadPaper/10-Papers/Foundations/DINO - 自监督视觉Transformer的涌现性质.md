@@ -108,22 +108,15 @@ ImageNet 式监督却把这些信息压缩成一个类别标签。
 ![[assets/DINO - 自监督视觉Transformer的涌现性质/figures/figure-2-dino-teacher-student.png]]
 
 > **图源**：Figure 2，PDF p.2，https://arxiv.org/pdf/2104.14294
-> **解读**：student 对视图 $x_1$ 产生分布 $p_1$，teacher 对另一视图 $x_2$ 产生经 centering 与 temperature softmax 的分布 $p_2$；teacher stop-gradient，参数由 student 的 EMA 更新。
+> **解读：** 对于同一输入x，使用不同的随机变换变为 $x_1$ 和 $x_2$ ，student 对视图 $x_1$ 产生分布 $p_1$，teacher 对另一视图 $x_2$ 产生经 centering (batch维度减均值中心化) 与 temperature softmax (特征维度) 的分布 $p_2$【teacher和student结构完全相同，但是参数不同】；teacher stop-gradient，参数由 student 的 EMA 更新。
 
-DINO 的核心不是传统“大模型教小模型”。
-teacher 与 student 采用相同网络架构。
-两者参数不同，teacher 不是外部预训练模型。
-student 通过反向传播更新。
-teacher 不接收梯度，只由 student 历史参数的指数滑动平均更新。
-因此 teacher 是训练过程中动态生成的时间集成目标。
+DINO 的核心不是传统“大模型教小模型”。teacher 与 student 采用相同网络架构。两者参数不同，teacher 不是外部预训练模型。student 通过反向传播更新。teacher 不接收梯度，只由 student 历史参数的指数滑动平均更新。因此 teacher 是训练过程中动态生成的时间集成目标。
 
 网络写成：
 
 $$g = h \circ f$$
 
-其中 $f$ 是 ViT 或 ResNet backbone。
-$h$ 是仅用于自监督预训练的 projection head。
-下游任务丢弃 $h$，使用 backbone $f$ 的表征。
+其中 $f$ 是 ViT 或 ResNet backbone。$h$  是仅用于自监督预训练的 projection head。下游任务丢弃 $h$，使用 backbone $f$ 的表征。
 
 ### 4.2 输出不是类别，而是潜在概率分布
 
@@ -149,7 +142,7 @@ $$\min_{\theta_s} H(P_t(x),P_s(x))$$
 
 $$H(a,b)=-\sum_i a_i\log b_i$$
 
-真正的 DINO 不比较同一输入，而是比较同一图像的不同视图。
+**<span style="color: red">真正的 DINO 不比较同一输入，而是比较同一图像的不同视图。</span>**
 这就得到 cross-view self-distillation。
 
 ### 4.3 Cross-view self-distillation 到底在约束什么
