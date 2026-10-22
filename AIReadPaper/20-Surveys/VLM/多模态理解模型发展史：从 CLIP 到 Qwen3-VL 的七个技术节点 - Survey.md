@@ -186,9 +186,25 @@ def visual_tokens(h, w, patch=14):
 
 好处是同一套位置系统统一三种模态，且图像/视频位置 ID 数值小、便于长序列外推。视频侧配合 2 FPS 采样 + 3D 卷积，Qwen2-VL 能理解 20 分钟以上长视频，并让 **grounding**（直接输出 $(x_1,y_1,x_2,y_2)$ 坐标框）成为可能。
 
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/07-qwen2vl-mrope.png)
+
+> M-RoPE 的三维位置 ID 分配：视频帧序列上，高度/宽度分量随 token 的二维坐标递增，时间分量随帧号递增；文本 token 则三者取相同 ID（退化为 1D RoPE）。右侧是把三个分量拼回"多模态旋转位置嵌入"的示意。这套设计让 grounding 的坐标输出有了明确的空间监督来源。来源：Qwen2-VL Figure 3（arXiv:2409.12191, p.5）。
+
 **InternVL 1.5/2 的另一条路**：动态 tiling（大图切若干 448×448 瓦片 + 全局缩略图）+ **pixel unshuffle**（每 tile 从 1024 token 降到 256，即 1/4）。在 OCR / 文档理解上同样拔群，与"固定 patch"生态兼容性好。
 
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/09-internvl15-architecture.png)
+
+> InternVL 1.5 的 ViT-MLP-LLM 架构：动态高分辨率切片 → InternViT-6B（🔥 可训练）→ Pixel Shuffle 降 4 倍 token → MLP Projector → InternLM2-Chat-20B。来源：InternVL 1.5 Figure 3（arXiv:2404.16821, p.3）。
+
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/10-internvl15-dynamic-high-resolution.png)
+
+> 动态高分辨率的具体流程：先把 800×1300 的输入与一组预定义长宽比（1:1、1:2 … 2:3 …）匹配，选出 2:3 并缩放到 896×1344，再切成 448×448 的瓦片，最后附一张同样 448×448 的缩略图提供全局语境。测试时瓦片数最多 40，对应 10496 个视觉 token——正好是 Q10 讨论的"token 预算控制"路线。来源：InternVL 1.5 Figure 4（arXiv:2404.16821, p.4）。
+
 ### 2.6 节点六（2025 上）：Qwen2.5-VL 与 InternVL3，效率、时间感知与原生预训练
+
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/11-qwen25vl-framework.png)
+
+> Qwen2.5-VL 框架一图三看点：① 右侧 ViT 块里只有 1 层 Full Attention + M 层 **Window Attention**（含 2×14 窗口划分与 Conv3D），对应"平方级 → 线性级"；② 中部的 **Align with Absolute Time**（M-RoPE ID 与真实时间戳对齐 + 动态 FPS 采样）对应"绝对时间对齐"；③ 底部 Height 8204 的超长截图说明原生动态分辨率能一次吃下整页长图。来源：Qwen2.5-VL Figure 1（arXiv:2502.13923, p.3）。
 
 **Qwen2.5-VL（2025.01）** 做三件事：
 
@@ -212,9 +228,17 @@ for tok in sequence:
     tok.pos_id = pos
 ```
 
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/12-internvl3-native-pretraining.png)
+
+> 原文"仅靠原生多模态预训练，InternVL3 的纯文本能力就超过了 Qwen2.5 本身"的实验证据：绿色/蓝色是**不带**原生多模态预训练的 InternVL2-8B（pretrain / SFT），粉色/紫色是**带**的——同一条件下全面更高，且未经任何后训练的紫色（w/ native pretrain, SFT）就已经超过绿色 SFT 版。来源：InternVL3 Figure 3（arXiv:2504.10479, p.18）。
+
 ### 2.7 节点七（2025 下–2026）：Qwen3-VL / GPT-5 / Gemini 3，推理与智能体
 
 **Qwen3-VL-235B-A22B**（MoE，激活 22B，2025.09）三大架构升级：
+
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/13-qwen3vl-framework.png)
+
+> Qwen3-VL 框架图值得逐块看：① 下半部分四张输入样例分别对应超长截图（9376×1248）、高分辨率文档、普通图片与多帧视频，全部以 **Native Resolution Input** 进入 Vision Encoder；② 右侧红框是 **DeepStack**——ViT 多层特征分别注入 LLM Block 1/2/3/…，而不是只给最后一层；③ 序列里显式出现 `<0.0 second>` 风格的文本时间戳 token，对应 Text–Timestamp Alignment；④ 上方是 Qwen3 Dense/MoE Decoder。来源：Qwen3-VL Figure 1（arXiv:2511.21631, p.3）。
 
 - **Interleaved-MRoPE**：在 M-RoPE 基础上把时间/高/宽三分量的频率**全频段分配**，长视频推理与跨模态对齐更强；
 - **DeepStack**：不再只用 ViT 最后一层特征，而是**多层 ViT 特征融合**后送入 LLM，细粒度细节（小字、细纹、遮挡边缘）大幅提升；
@@ -440,6 +464,9 @@ Qwen3-VL 的"OS World 级 GUI 智能体操作"已经是**行动**了，只是动
 | 文件 | 内容 | 来源 |
 |---|---|---|
 | `figures/01-qwen3vl-native-multimodal-arch.png` | 千问原生多模态架构设计图（原文开篇配图） | 微信公众号原文，2026-08-30 发布，2026-10-22 抓取 |
+| `figures/02 ~ 13` | 各节点代表论文的官方 pipeline / 消融图，共 12 张 | 从 arXiv 官方 PDF 按「页码 + 相对裁剪框」裁剪，覆盖 CLIP / Flamingo / BLIP-2 / LLaVA / Qwen2-VL / InternVL 1.5 / Qwen2.5-VL / InternVL3 / Qwen3-VL |
+
+完整清单（含每张图的原始 Figure 编号、页码与 arXiv ID）见 `sources.md`。
 
 溯源详见 `sources.md`。
 
