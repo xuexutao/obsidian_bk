@@ -70,6 +70,10 @@ def clip_loss(image_feats, text_feats, t=0.07):
     return (loss_i + loss_t) / 2
 ```
 
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/02-clip-contrastive-pretraining.png)
+
+> CLIP 的核心思想一图看懂。左：对比预训练——$N$ 个图像与 $N$ 段文本分别过编码器，算出 $N \times N$ 相似度矩阵，对角线（配对样本）取最大，即 InfoNCE；右：零样本推理——把类别名套进 "A photo of a {object}" 模板过文本编码器，图像向量与各类别向量比相似度即可分类，完全不需要训练分类头。来源：CLIP Figure 1（arXiv:2103.00020, p.2）。
+
 **致命短板**：只会算相似度，不会生成句子。CLIP 能回答"这张图和哪句话最像"，却答不了"图里几个人在干什么"。
 
 > 记忆点：双塔对齐是**嵌入层**的革命——把视觉与语言放进同一向量空间，但输出被锁死在"匹配"上，生成能力为零。
@@ -79,6 +83,10 @@ def clip_loss(image_feats, text_feats, t=0.07):
 DeepMind 的 Flamingo 第一次把"看图 + 自由文本生成"合体，32 个示例即可超过当年精调的专用模型。核心思想是：**一个已经会说话的 LLM（Chinchilla 70B）不需要重新学说话，只要给它"插上眼睛"**。
 
 三个关键设计：
+
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/03-flamingo-architecture.png)
+
+> Flamingo 架构总览。左下：视觉编码器（❄ 冻结）→ Perceiver Resampler（紫色，从头训练）；右侧：LM block（❄ 冻结）与 GATED XATTN-DENSE（紫色，从头训练）交替堆叠；底部是图文交错输入 `<image> This is a very cute dog. <image> This is`，顶部输出自由文本。注意它与单流模型的关键差别——文本 token 不与视觉 token 拼在同一条序列里，视觉信息只通过层间交叉注意力注入。来源：Flamingo Figure 3（arXiv:2204.14198, p.4）。
 
 - **双冻结**：视觉编码器（NFNet-F6，CLIP 式对比预训练）与 LLM 全部冻结，只有新增模块（约 10B 参数）参与训练。
 - **Perceiver Resampler**：用 64 个可学习 query 做交叉注意力，把任意数量的变长时空视觉特征压缩成**固定 64 个视觉 token**。
@@ -92,6 +100,10 @@ def gated_xattn_dense(h_text, v_tokens, alpha):
     x = FFN(x) + x                              # Dense 块
     return h_text + tanh(alpha) * x             # 门控：α 初始为 0
 ```
+
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/04-flamingo-gated-xattn-dense.png)
+
+> GATED XATTN-DENSE 层的内部结构与右侧伪代码一一对应：交叉注意力从视觉特征取 K/V、语言输入取 Q，随后 tanh gating（α 初始化为 0）逐门放行；❄ 表示冻结的 self-attention / FFW。这就是"训练初期新模块对 LLM 零影响、随训练逐渐开闸"的实现细节。来源：Flamingo Figure 4（arXiv:2204.14198, p.5）。
 
 数据侧贡献同样关键：从 4300 万网页挖出图文交错的 **M3W（MultiModal MassiveWeb）**，配合**分块注意力掩码**（文本 token 只 attend 前面最近那张图）支持任意交错序列。
 
@@ -112,7 +124,15 @@ loss = loss_itc + loss_itm + loss_itg
 
 Q-Former 本质是**信息瓶颈**：过滤与语言无关的底层视觉噪声，只保留 LLM 用得上的语义。
 
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/05-blip2-qformer-and-objectives.png)
+
+> 左：Q-Former 架构——Learned Queries 与文本共享一套 self-attention / cross-attention / FFN，图像特征只进 cross-attention 的 K/V；右侧三种注意力掩码分别对应 ITC（双向）、ITG（多模态因果）、ITM（单向）。这正是原文说的"三个目标用不同的注意力掩码隔开，防止互相泄漏"的实现。来源：BLIP-2 Figure 2（arXiv:2301.12597, p.3）。
+
 **LLaVA**：把架构简化到极致 —— CLIP ViT-L/14 + **一层线性投影** + Vicuna，视觉 token 直接拼在文本前面进 LLM。真正贡献在**数据**：用 GPT-4 把 COCO caption 改写成多轮对话（LLaVA-Instruct-158K）。两阶段训练：
+
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/06-llava-network-architecture.png)
+
+> LLaVA 的全部架构就这么多：图像 $X_v$ 过 CLIP ViT-L/14 得视觉特征 $Z_v$，经一个可训练投影矩阵 $\mathbf{W}$ 映射进词嵌入空间得到 $H_v$，与语言指令 $X_q$ 的 token 拼接后一起送进 LLM $f_\phi$（Vicuna）。没有 Resampler、没有 Q-Former、没有交叉注意力层。来源：LLaVA Figure 1（arXiv:2304.08485, p.4）。
 
 ```python
 # 阶段一：特征对齐，冻结 ViT 与 LLM，只训投影层（558K 图文对）
@@ -153,6 +173,10 @@ def visual_tokens(h, w, patch=14):
     return th * tw + 2                         # +2 是起止特殊 token
     # 224x224 → 66；448x896 → 512；1000x1000 → 约 2560；单图上限 16384
 ```
+
+![](assets/多模态理解模型发展史：从%20CLIP%20到%20Qwen3-VL%20的七个技术节点%20-%20Survey/figures/08-qwen2vl-dynamic-resolution.png)
+
+> 动态分辨率的直接收益：无论小图、长宽比极端的截图还是高分辨率文档，Qwen2-VL 都能按原生比例理解内容，不再被统一缩放到 224×224 而糊掉小字。来源：Qwen2-VL Figure 2（arXiv:2409.12191, p.4）。
 
 **M-RoPE**：把旋转嵌入拆成**时间 t、高度 h、宽度 w** 三个分量：
 
