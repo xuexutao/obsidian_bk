@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
   "title": "你好",
   "createdAt": "2026-10-22T08:58:45.032Z",
-  "updatedAt": "2026-10-22T08:58:45.033Z",
+  "updatedAt": "2026-10-22T12:55:23.768Z",
   "messages": [
     {
       "id": "dae800f7-7876-4ec5-891d-e766b738712a",
@@ -60,7 +60,37 @@
         }
       ],
       "timestamp": "2026-10-22T08:58:35.811Z"
+    },
+    {
+      "id": "3e2e7c4c-b866-4fb0-ad49-6041ab29fbc4",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "那你解释一下比如为什么 centering + sharpening 能互补防坍塌，或 EMA 的时间非对称性",
+          "autoMentionContext": {
+            "noteName": "DINO - 自监督视觉Transformer的涌现性质",
+            "notePath": "AIReadPaper/10-Papers/Foundations/DINO - 自监督视觉Transformer的涌现性质.md"
+          }
+        }
+      ],
+      "timestamp": "2026-10-22T12:54:17.043Z"
+    },
+    {
+      "id": "bf781180-1259-49fe-b81a-5cb674570abd",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "I want to dig into sections 4.8-4.10 and give a thorough explanation with the underlying math, since the user is just asking for clarification here rather than wanting me to edit the note directly."
+        },
+        {
+          "type": "text",
+          "text": "好，这两个问题分开讲，最后再说它们怎么咬合在一起。\n\n## 一、先定义清楚\"坍塌\"有两种\n\n坍塌的本质是：**输出不再依赖输入**，即 $P_t(x) \\approx P_t(x')$ 对任意 $x, x'$ 成立。但它有两条完全不同的退化路径：\n\n| 坍塌类型 | 表现 | 熵 $h(P_t)$ |\n|---|---|---|\n| **单维度主导**（one-hot 坍塌） | 所有样本都输出同一个维度 $k^*$ 的概率≈1 | $\\to 0$ |\n| **均匀坍塌** | 所有样本都输出 $1/K$ 的均匀分布 | $\\to \\log K$ |\n\n笔记 4.9 引用的分解是关键：\n\n$$H(P_t, P_s) = h(P_t) + D_{KL}(P_t \\Vert P_s)$$\n\nstudent 最小化 $H$ 时，有两条\"偷懒\"路线：把 $D_{KL}$ 压到 0 很容易——只要 student 和 teacher 都输出常数。而 $h(P_t)$ 这一项本身**不受 student 梯度控制**（teacher 是 stop-gradient + EMA），所以它成了一个可观测的诊断量：训练中如果 $h(P_t) \\to 0$ 或 $\\to \\log K$，就说明正在往对应那条路上滑。\n\n## 二、centering 和 sharpening 各自推的方向相反\n\n### centering 做什么\n\n$$c \\leftarrow mc + (1-m)\\frac{1}{B}\\sum_{i=1}^{B} g_{\\theta_t}(x_i)$$\n\nteacher 在 softmax 前算的是 $g_{\\theta_t}(x) - c$。\n\n注意 $c$ 是 **batch 维度上的均值**，是一个 $K$ 维向量。如果某个维度 $k^*$ 的 logit 在所有样本上系统性地大，那 $c^{(k^*)}$ 也会大，减掉后这个优势就被抹平了。\n\n所以 centering 是在做这件事：**禁止任何一个输出维度靠\"对谁都大\"取胜**。它只能惩罚 batch 内的一阶偏置，无法惩罚\"某个样本自己偏好某几维\"——后者正是我们想要的。\n\n但副作用很明确：减去均值会让所有 logit 向量被拉向同一个中心附近，softmax 后分布趋于平坦。**单独用 centering → 均匀坍塌**。\n\n### sharpening 做什么\n\n$$P_t(x)^{(i)} = \\frac{\\exp((g_{\\theta_t}(x)^{(i)} - c^{(i)})/\\tau_t)}{\\sum_k \\exp((g_{\\theta_t}(x)^{(k)} - c^{(k)})/\\tau_t)}, \\quad \\tau_t = 0.04$$\n\n$\\tau_t$ 很低（student 是 0.1，teacher 只有 0.04–0.07）。温度除法把 logit 的差距放大 $1/\\tau_t \\approx 14\\sim25$ 倍，softmax 后分布变尖。极限 $\\tau_t \\to 0$ 就是 argmax。\n\nsharpening 强制**每个样本必须作出选择**，不许输出\"我也不知道\"的均匀分布。所以它天然对抗均匀坍塌。\n\n但副作用同样明确：没人阻止所有样本都选同一维。**单独用 sharpening → 单维度坍塌**。\n\n### 互补的几何直觉\n\n把它们看成作用在 logits 矩阵 $G \\in \\mathbb{R}^{B \\times K}$ 上的两个算子：\n\n- **centering 作用在列方向（跨样本）**：把每列减去它的（滑动）均值 → 抑制列的全局平移优势 → 逼迫 $K$ 个维度在 batch 层面被\"均匀使用\"\n- **sharpening 作用在行方向（跨维度）**：放大每行内部的差异 → 逼迫单个样本的分布变尖\n\n$$\n\\underbrace{\\text{列：各维度使用率要分散}}_{\\text{centering}}\n\\quad \\bot \\quad\n\\underbrace{\\text{行：单样本分布要集中}}_{\\text{sharpening}}\n$$\n\n这两个约束是**正交的**。同时满足的唯一方式，就是：不同样本尖锐地选择**不同的**维度。而这恰恰就是\"有信息的表征\"的定义——输出必须依赖输入。\n\n这其实是一种**软性的、无需迭代的 batch balancing**。SwAV 用 Sinkhorn–Knopp 做严格的行列双归一化（行和为 1、列和为 $B/K$），代价是每步要迭代若干次。DINO 的 centering 只用一阶滑动统计量近似了\"列约束\"，sharpening 近似了\"行约束\"——便宜得多，但需要 EMA teacher 来兜底（见下）。\n\n笔记 5.12 里那组实验正好佐证：center momentum 取 0、0.9、0.99 都能训，取 0.999 就坍塌——因为 $c$ 跟不上 teacher logits 分布的漂移，列约束失效了。teacher 温度超过约 0.08 也坍塌——sharpening 不够，行约束失效。\n\n## 三、EMA 的时间非对称性\n\n### 问题的根源：自指\n\nstudent 的目标是 teacher 的输出。如果 teacher 就是 student 本身（$\\theta_t = \\theta_s$），那损失变成\n\n$$\\min_{\\theta_s} H(\\text{sg}[P_{\\theta_s}(x)], P_{\\theta_s}(x'))$$\n\n这是一个**自指方程**：解不唯一，而且常数函数是一个完美的全局最优解（损失可以真的降到熵的下界）。消融里 student copy 和 previous iteration 都得 0.1% k-NN，就是直接掉进这个解。\n\nstop-gradient 只阻止了梯度从 teacher 一侧回流，没有阻止\"两边同步漂移到同一个平凡点\"。因为 $\\theta_t = \\theta_s$ 意味着 teacher 的输出**瞬时**跟随 student 的任何移动——student 往坍塌方向走一步，目标也跟着走一步，没有任何回复力。\n\n### EMA 引入的是什么\n\n$$\\theta_t \\leftarrow \\lambda\\theta_t + (1-\\lambda)\\theta_s$$\n\n展开成对 student 历史的加权和：\n\n$$\\theta_t^{(T)} = (1-\\lambda)\\sum_{j=0}^{T-1} \\lambda^{j}\\, \\theta_s^{(T-j)} + \\lambda^T \\theta_t^{(0)}$$\n\n这是一个有效时间常数约为 $1/(1-\\lambda)$ 步的低通滤波器。$\\lambda$ 从 0.996 → 1（cosine schedule），对应有效窗口从约 250 步逐渐拉长到几乎冻结。\n\n它带来三层非对称：\n\n**1. 时间滞后 = 回复力。** teacher 落后 student 约 $1/(1-\\lambda)$ 步。student 想滑向坍塌，必须对抗一个还停留在\"过去那个有信息的状态\"的目标。坍塌不再是一步到位的，而要持续拖动整个历史平均——这给了其他机制（centering/sharpening 的熵约束）足够时间把它拽回来。\n\n**2. 参数平均 = 去噪 + 增强。** 这是 Polyak–Ruppert averaging。在 SGD 噪声下，参数轨迹的指数平均通常落在比瞬时点更好的位置。论文实测 teacher 在**整个训练过程中持续优于 student**——所以 student 追的不是一个\"同水平的影子\"，而是一个真的更强的老师。这才让\"self-distillation\"这个名字不只是类比：确实存在一个质量梯度。\n\n**3. 低噪声目标 = 不追逐偶然纹理。** 单个 minibatch 的目标分布含大量噪声，student 若逐批匹配，会去拟合裁剪与颜色扰动的偶然性。EMA teacher 的输出稳定得多，剩下的一致性信号主要来自跨视图真正不变的东西——也就是对象语义。\n\n### \"滞后\"本身就够，EMA 只是最好的滞后\n\n消融里最有说服力的一行是 **previous epoch teacher → 66.6% k-NN**。它不是 EMA，只是一个冻结的旧 checkpoint，但已经能工作。对比 previous iteration 的 0.1%。\n\n所以结论要精确：\n\n- 关键**不是**\"有两个网络\"这个形式（student copy 也是两个网络，照样坍塌）\n- 关键**是**目标网络在时间上与 student 解耦，解耦尺度要足够大（一个 iteration 不够，一个 epoch 够）\n- EMA 比 previous epoch 更好（72.8 vs 66.6），因为它是**连续的时间集成**而非某一个离散快照——既有滞后，又有平均增益，还没有 epoch 边界处目标突变的问题\n\n## 四、三者合起来：DINO 为什么稳\n\n笔记 4.10 列了三种非对称，我把它们按\"防哪种坍塌\"重排一下：\n\n| 机制 | 约束的方向 | 主要防 |\n|---|---|---|\n| centering | batch 列方向 | 单维度主导 |\n| sharpening（低 $\\tau_t$） | 样本行方向 | 均匀输出 |\n| EMA teacher | 时间方向 | 自指导致的整体漂移 |\n| multi-crop（teacher 只看 global） | 视图方向 | 平凡解不满足 local→global |\n\n缺任何一个会怎样，消融给了直接答案：\n\n- 去掉 EMA（仅 centering）→ **0.1%**，完全坍塌。此时必须换成更强的 Sinkhorn–Knopp 才能训（71.8，即 SwAV）\n- 有 EMA 之后，centering / batch-softmax / Sinkhorn 三选一，结果是 76.1 / 75.8 / 76.0 —— **几乎没差别**\n\n这一对结果非常能说明问题：**EMA teacher 是地基，输出调节方式是上层装修**。有了时间非对称性提供的稳定性，最廉价的一阶 centering 就够用了；没有它，就得上昂贵的迭代式 balancing，而且性能还更低。\n\n顺带解释了另一个消融结论——加 student predictor 反而略降（75.6 vs 76.1）。BYOL 需要 predictor 是因为它做 $\\ell_2$ 回归，缺少分布层面的熵约束，必须靠 predictor 造架构非对称。DINO 已经有了三重非对称，predictor 是冗余的。\n\n同理，CE 换 MSE 掉 20.2 个 k-NN 点（72.8 → 52.6）也不意外：MSE 匹配的是向量，不是分布，centering/sharpening 这套基于**熵**的调节机制整个失去了作用对象。\n\n---\n\n要不要我把这段整理成笔记里的一个小节（比如在 4.10 后面插一个\"防坍塌机制的统一视角\"），用表格 + 正交性那张图的形式固化下来？"
+        }
+      ],
+      "timestamp": "2026-10-22T12:54:24.651Z"
     }
   ],
-  "savedAt": "2026-10-22T08:58:45.034Z"
+  "savedAt": "2026-10-22T12:56:20.325Z"
 }
