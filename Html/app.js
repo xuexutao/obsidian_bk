@@ -1090,6 +1090,10 @@
     }
 
     const blkInfo = MDEditor.getBlockSelectionInfo(blockEl, container);
+    if (!blkInfo && blockEl.querySelector && blockEl.querySelector('img')) {
+      showToast('图片请直接将鼠标移至图片右上角，使用「✂️ 裁剪」或「🔄 替换图片」', false);
+      return;
+    }
     const rawMd = state.currentMarkdown || await state.src.getText(path);
     const loc = blkInfo ? MDEditor.locateInMarkdown(rawMd, blkInfo) : null;
     if (!loc) {
@@ -1097,8 +1101,8 @@
       return;
     }
 
-    // 把段落内的 KaTeX 公式节点设为 contenteditable="false"，保持公式精美渲染且不被误删内部 DOM，同时文字可直接编辑
-    blockEl.querySelectorAll('.katex').forEach(function (k) {
+    // 把段落内的 KaTeX 公式节点、子列表与图片工具条设为 contenteditable="false"，保持渲染且不被误删内部 DOM
+    blockEl.querySelectorAll('.katex, ul, ol, .img-edit-toolbar').forEach(function (k) {
       k.setAttribute('contenteditable', 'false');
     });
 
@@ -1137,7 +1141,10 @@
     st.blockEl.removeEventListener('compositionstart', st.handlers.compStart);
     st.blockEl.removeEventListener('compositionend', st.handlers.compEnd);
     st.blockEl.removeAttribute('contenteditable');
-    st.blockEl.querySelectorAll('[contenteditable]').forEach(function (n) { n.removeAttribute('contenteditable'); });
+    st.blockEl.querySelectorAll('[contenteditable]').forEach(function (n) {
+      if (n.classList && n.classList.contains('img-edit-toolbar')) return;
+      n.removeAttribute('contenteditable');
+    });
     st.blockEl.classList.remove('md-block-editing');
     selBlockEditBtn.classList.remove('active');
   }
@@ -1153,9 +1160,9 @@
     if (st.busy) { st.dirty = true; return; }
     const path = state.currentPath;
     if (!path) return;
-    const seg = MDEditor.serializeBlockElementToMarkdown(st.blockEl);
     const rawMd = state.currentMarkdown || await state.src.getText(path);
     const oldSeg = rawMd.slice(st.loc.start, st.loc.end);
+    const seg = MDEditor.serializeBlockElementToMarkdown(st.blockEl, oldSeg);
     if (!seg || seg === oldSeg) return;
     const next = rawMd.slice(0, st.loc.start) + seg + rawMd.slice(st.loc.end);
     if (!st.undoPushed) { MDEditor.pushUndo(path, rawMd); st.undoPushed = true; updateUndoButtons(); }
@@ -1222,9 +1229,9 @@
     const path = state.currentPath;
     if (!path) return;
 
-    const seg = MDEditor.serializeBlockElementToMarkdown(st.blockEl);
     const rawMd = state.currentMarkdown || await state.src.getText(path);
     const oldSeg = rawMd.slice(st.loc.start, st.loc.end);
+    const seg = MDEditor.serializeBlockElementToMarkdown(st.blockEl, oldSeg);
     if (seg && seg !== oldSeg) {
       const updatedMd = rawMd.slice(0, st.loc.start) + seg + rawMd.slice(st.loc.end);
       await commitMarkdownEdit(updatedMd, '修改段落内容', { skipUndo: st.undoPushed });

@@ -124,10 +124,10 @@
       const label = (alias && alias.trim()) || (target ? target.split('/').pop() : (heading || '').replace(/^#/, ''));
       if (/\.[A-Za-z0-9]{2,4}$/.test(target) && !/\.md$/i.test(target)) {
         const url = ctx.resolveAsset(target);
-        return put(url ? '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(label) + '</a>' : escapeHtml(label));
+        return put(url ? '<a href="' + escapeHtml(url) + '" data-raw-wikilink="' + escapeHtml(m) + '" target="_blank" rel="noopener">' + escapeHtml(label) + '</a>' : escapeHtml(label));
       }
       const p = target ? ctx.resolveNote(target) : ctx.docPath;
-      return put('<a class="internal-link' + (p ? '' : ' missing') + '" data-path="' + escapeHtml(p || '') + '" data-heading="' +
+      return put('<a class="internal-link' + (p ? '' : ' missing') + '" data-raw-wikilink="' + escapeHtml(m) + '" data-path="' + escapeHtml(p || '') + '" data-heading="' +
         escapeHtml((heading || '').replace(/^#/, '')) + '">' + escapeHtml(label) + '</a>');
     });
     text = text.replace(/==([^=\n][^\n]*?)==/g, '<mark>$1</mark>');
