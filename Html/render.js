@@ -103,12 +103,14 @@
     text = text.replace(/!\[\[([^\]\|#]+)(?:#[^\]\|]*)?(?:\\?\|([^\]]*))?\]\]/g, function (m, target, opt) {
       target = target.trim();
       if (/\.(png|jpe?g|gif|svg|webp|bmp)$/i.test(target)) {
-        const url = ctx.resolveAsset(target);
-        if (!url) return put('<span class="img-missing">未找到图片：' + escapeHtml(target) + '</span>');
+        const info = ctx.resolveAssetInfo ? ctx.resolveAssetInfo(target) : { url: ctx.resolveAsset(target), relPath: target };
+        const url = info && info.url;
+        const relPath = (info && info.relPath) || target;
+        if (!url) return put('<span class="img-missing" data-raw-target="' + escapeHtml(target) + '">未找到图片：' + escapeHtml(target) + '</span>');
         let style = '';
         const sz = opt && opt.trim().match(/^(\d+)(?:x(\d+))?$/);
         if (sz) style = ' style="width:' + sz[1] + 'px;max-width:100%"';
-        return put('<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(target) + '" loading="lazy"' + style + '>');
+        return put('<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(target) + '" data-vault-path="' + escapeHtml(relPath) + '" data-raw-src="' + escapeHtml(target) + '" loading="lazy"' + style + '>');
       }
       if (/\.pdf$/i.test(target)) {
         const url = ctx.resolveAsset(target);
@@ -153,13 +155,19 @@
     };
     renderer.image = function (href, title, alt) {
       const raw = safeDecode(href || '');
-      let url = /^(https?:|data:|blob:)/i.test(raw) ? raw : ctx.resolveAsset(raw);
-      if (!url) return '<span class="img-missing">未找到图片：' + escapeHtml(raw) + '</span>';
+      const isExternal = /^(https?:|data:|blob:)/i.test(raw);
+      const info = isExternal
+        ? { url: raw, relPath: '' }
+        : (ctx.resolveAssetInfo ? ctx.resolveAssetInfo(raw) : { url: ctx.resolveAsset(raw), relPath: raw });
+      const url = info && info.url;
+      const relPath = (info && info.relPath) || '';
+      if (!url) return '<span class="img-missing" data-raw-target="' + escapeHtml(raw) + '">未找到图片：' + escapeHtml(raw) + '</span>';
       let style = '';
       let altText = alt || '';
       const sz = altText.match(/^(\d+)(?:x(\d+))?$/);
       if (sz) { style = ' style="width:' + sz[1] + 'px;max-width:100%"'; altText = ''; }
-      return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(altText) + '"' + (title ? ' title="' + escapeHtml(title) + '"' : '') + ' loading="lazy"' + style + '>';
+      const pathAttr = relPath ? ' data-vault-path="' + escapeHtml(relPath) + '"' : '';
+      return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(altText) + '"' + pathAttr + ' data-raw-src="' + escapeHtml(href || '') + '"' + (title ? ' title="' + escapeHtml(title) + '"' : '') + ' loading="lazy"' + style + '>';
     };
     renderer.link = function (href, title, body) {
       if (!href) return body;

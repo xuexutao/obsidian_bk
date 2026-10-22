@@ -1,11 +1,12 @@
 cd "$(dirname "$0")"
 
-# 读写后端（/api/read、/api/save，监听 60051），已运行则跳过
-if ! lsof -nP -iTCP:60051 -sTCP:LISTEN >/dev/null 2>&1; then
-  nohup python3 server.py > /tmp/obsidian_vault_server.log 2>&1 &
+# 确保运行最新版的 server.py（同时承担静态页面服务与 /api/* 读写接口，监听 60051）
+if lsof -nP -iTCP:60051 -sTCP:LISTEN >/dev/null 2>&1; then
+  kill $(lsof -t -iTCP:60051 -sTCP:LISTEN) 2>/dev/null || true
+  sleep 0.3
 fi
 
-open http://127.0.0.1:60051/index.html
+(sleep 0.6 && open http://127.0.0.1:60051/index.html) &
+python3 server.py
 
-# 静态页面服务（监听 60051）
-python3 -m http.server 60051
+

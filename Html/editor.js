@@ -11,8 +11,8 @@
     { name: '紫色', value: '#9333ea', hex: '#9333ea', shortcut: '⌥6' }
   ];
 
-  // Undo & Redo 历史栈：按文档路径存储
-  const historyMap = new Map(); // path -> { undo: [str], redo: [str] }
+  // Undo & Redo 历史栈：按文档路径存储，支持字符串（纯 Markdown）或 { type: 'md'|'img'|'insert-img', ... }
+  const historyMap = new Map(); // path -> { undo: [entry], redo: [entry] }
 
   function getHistory(docPath) {
     if (!historyMap.has(docPath)) {
@@ -21,12 +21,17 @@
     return historyMap.get(docPath);
   }
 
-  function pushUndo(docPath, oldMarkdown) {
+  function pushUndo(docPath, oldMarkdownOrEntry) {
     const h = getHistory(docPath);
-    if (h.undo.length === 0 || h.undo[h.undo.length - 1] !== oldMarkdown) {
-      h.undo.push(oldMarkdown);
-      if (h.undo.length > 50) h.undo.shift();
+    const entry = typeof oldMarkdownOrEntry === 'string'
+      ? { type: 'md', markdown: oldMarkdownOrEntry }
+      : oldMarkdownOrEntry;
+    const last = h.undo.length > 0 ? h.undo[h.undo.length - 1] : null;
+    if (entry.type === 'md' && last && last.type === 'md' && last.markdown === entry.markdown) {
+      return;
     }
+    h.undo.push(entry);
+    if (h.undo.length > 50) h.undo.shift();
     h.redo.length = 0;
   }
 
@@ -38,7 +43,7 @@
     const h = getHistory(docPath);
     if (!h.undo.length) return null;
     const prev = h.undo.pop();
-    h.redo.push(currentMarkdown);
+    h.redo.push({ type: 'md', markdown: currentMarkdown });
     return prev;
   }
 
@@ -209,8 +214,11 @@
       // 3. 图片
       if (tag === 'IMG') {
         const alt = node.getAttribute('alt') || '';
-        const src = node.getAttribute('src') || '';
-        return '![' + alt + '](' + src + ')';
+        const rawSrc = node.getAttribute('data-raw-src') || node.getAttribute('src') || '';
+        return '![' + alt + '](' + rawSrc + ')';
+      }
+      if (node.classList && node.classList.contains('img-edit-toolbar')) {
+        return '';
       }
 
       // 递归子节点
@@ -535,6 +543,32 @@
     );
   }
 
+  /**
+   * 在原始 Markdown 中根据目标段落位置（loc）或位置策略（after / before / end）插入图片语法
+   */
+  function insertImageMarkdown(fullMarkdown, loc, markdownLink, altText, position) {
+    const cleanAlt = (altText || '').replace(/[\r\n\[\]]/g, '').trim();
+    const imgSyntax = '![' + cleanAlt + '](' + markdownLink + ')';
+
+    if (!loc || position === 'end') {
+      const trimmedEnd = fullMarkdown.replace(/\s+$/, '');
+      return trimmedEnd + '\n\n' + imgSyntax + '\n';
+    }
+
+    if (position === 'before') {
+      const beforePart = fullMarkdown.slice(0, loc.start);
+      const lineStart = beforePart.lastIndexOf('\n') + 1;
+      return fullMarkdown.slice(0, lineStart) + imgSyntax + '\n\n' + fullMarkdown.slice(lineStart);
+    }
+
+    // 默认 after：在当前段落结束换行处插入新段落
+    const afterStart = loc.end;
+    const rest = fullMarkdown.slice(afterStart);
+    const nextParaBreak = rest.search(/\r?\n[ \t]*\r?\n/);
+    const insertOffset = nextParaBreak === -1 ? fullMarkdown.length : afterStart + nextParaBreak;
+    return fullMarkdown.slice(0, insertOffset) + '\n\n' + imgSyntax + fullMarkdown.slice(insertOffset);
+  }
+
   window.MDEditor = {
     PRESET_COLORS: PRESET_COLORS,
     findClosestEditableBlock: findClosestEditableBlock,
@@ -546,6 +580,7 @@
     applyColorSpan: applyColorSpan,
     removeColorSpan: removeColorSpan,
     applyCommentSchemeC: applyCommentSchemeC,
+    insertImageMarkdown: insertImageMarkdown,
     pushUndo: pushUndo,
     canUndo: canUndo,
     popUndo: popUndo
