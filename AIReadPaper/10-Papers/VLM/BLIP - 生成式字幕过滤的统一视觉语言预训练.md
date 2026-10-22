@@ -50,7 +50,7 @@ BLIP 的关键不是单纯把“理解模型”和“字幕模型”拼在一起
 
 BLIP 针对两个彼此耦合的问题。第一是**能力割裂**：CLIP、ALBEF 一类 encoder 模型善于独立编码图像和文本，天然适合检索与匹配，却不能直接进行开放式文本生成；VL-T5、SimVLM 一类 encoder-decoder 模型能做字幕和问答，但没有被顺利用于高效的双塔检索。第二是**监督噪声**：继续扩大 CC、SBU、LAION 等网页图文对虽然能提升规模，却把错配、上下文残片和不描述视觉内容的 alt-text 一并放大。
 
-BLIP 的命题因此是：能否用一个模型参数族覆盖独立表示、跨模态理解和条件生成，并让模型反过来改善自己的训练语料？前半对应 Multimodal Mixture of Encoder-Decoder（MED），后半对应 Captioning and Filtering（CapFilt）。
+**<span style="color: red">BLIP 的命题因此是：能否用一个模型参数族覆盖独立表示、跨模态理解和条件生成，并让模型反过来改善自己的训练语料？前半对应 Multimodal Mixture of Encoder-Decoder（MED），后半对应 Captioning and Filtering（CapFilt）。</span>**
 
 ![](assets/BLIP%20-%20生成式字幕过滤的统一视觉语言预训练/figures/04-teaser.png)
 
