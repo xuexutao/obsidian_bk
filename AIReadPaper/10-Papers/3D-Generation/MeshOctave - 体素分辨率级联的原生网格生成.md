@@ -9,7 +9,7 @@
 - **一句话**：把"尺度"定义为**二进制体素网格分辨率**而非网格简化步骤，用分辨率坍缩的逆操作「拆分-重连」（split-and-rewire）把 next-scale 生成范式搬进显式拓扑网格，配一个尺度条件化的 mask-uniform 离散扩散模型，在几何保真与拓扑有效性上同时超过 AR 与流匹配基线，10 个尺度约 90 秒生成 1 万面网格（快约 10 倍）
 - **评级**：★★★★☆
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/01-teaser-cascading-resolution.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/01-teaser-cascading-resolution.png)
 
 > Figure 1（p.1）：从单个 voxel 出发（Level 0），每级并行预测所有父面的"实例化子顶点 + 重连"，坐标分辨率逐级加倍，到 Level 10 输出艺术家风格网格。底部是生成样例。来源：arXiv:2609.38985。
 
@@ -61,7 +61,7 @@ $$M_{ij}(a,b)=\mathbb{1}\left[\langle\mathcal{O}_a(v_i^{l-1}),\mathcal{O}_b(v_j^
 
 $i=j$ 为**父内矩阵** $S_i$（同一父顶点的子顶点互连），$i<j$ 为**父间矩阵** $C_{ij}$（两个父顶点的子顶点互连）。
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/02-face-centric-split-and-rewire.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/02-face-centric-split-and-rewire.png)
 
 > Figure 2（p.4）：每个父面 = 3 个 8-bit 占据向量（split）+ 3 个父内 + 3 个父间 8×8 连接矩阵（rewire）。左图展示坍缩/逆坍缩的往复；中间红蓝二值占据向量区分"实例化子顶点"与"空子体素"。来源：arXiv:2609.38985。
 
@@ -87,7 +87,7 @@ $$z_{f^{l-1}}=(O_0,O_1,O_2;\ S_0,S_1,S_2;\ C_{01},C_{02},C_{12})$$
 
 给定粗网格 $\mathcal{M}^{l-1}$，生成器为每个父面预测九元结构 token $z$。$z$ 只含二值向量/矩阵，因此预测被建成**离散扩散**过程。
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/03-scale-conditioned-diffusion.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/03-scale-conditioned-diffusion.png)
 
 > Figure 3（p.5）：结构 token $z$ 与父面顶点坐标逐 slot 相加（$x_{f,k}=\text{Embed}(z_{f,k})+\text{Embed}(f[k])$）→ hourglass 编码（9→3→1 token/面）→ Diffusion Transformer 主干（Self/Cross Attention）→ hourglass 解码回 9 token/面 → 占据头（256-way 分类）+ 8 行 AR 解码器逐行出连接矩阵。$t$ 与尺度 $l$ 经 adaLN 调制，条件点云经 PC Encoder 注入。来源：arXiv:2609.38985。
 
@@ -164,23 +164,23 @@ $$L_{conf}=\frac{1}{9n}\sum_{f,k}\kappa_{f,k}\,\text{BCE}\big(C_\phi(sg[h_{f,k}]
 - ARMesh / VertexRegen：5k 面 ~15 分钟；10k 面时 33.3 / 40.3 分钟（超出训练范围，仅计时时长未验有效性）；
 - 10k 面下 MeshOctave **1.6 分钟**，约 **20× 加速**（5k 面口径约 10×）。
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/11-inference-speed.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/11-inference-speed.png)
 
 > Figure 11（p.17）：wall-clock 时间 vs 输出面数。两条基线曲线随面数线性爬升（且超出 5k 训练范围后网格有效性未验证），Ours 几乎水平（1.6 min @10k faces）。来源：arXiv:2609.38985。
 
 ### 4.3 定性与消融
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/04-qualitative-comparison.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/04-qualitative-comparison.png)
 
 > Figure 4（p.8）：AR 系（BPT/DeepMesh/FastMesh/MeshRipple）常见表面破碎断裂；flow 系（MeshFlow/LATO.2）倾向过平滑抹掉细节；Ours 保住精细结构与细小部件。来源：arXiv:2609.38985。
 
 对最接近的两个 next-scale 基线（VertexRegen、ARMesh，无公开权重，作者在 200k 网格 <5k 面上按官方配置重训 5 天）：两者依赖逐元素串行细化，**误差复合导致严重几何畸变**；MeshOctave 整级并行解析，网格明显更完整、更水密。
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/05-generation-process.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/05-generation-process.png)
 
 > Figure 6（p.8）：左侧尺度间生成（Scale 2→10，从体素块到完整形状），右侧尺度内去噪（Diff. Step 2→20，从破碎碎片到连贯网格）。来源：arXiv:2609.38985。
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/07-ablation-table-qualitative.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/07-ablation-table-qualitative.png)
 
 > Table 3 + Figure 7（p.9）：四个变体各替换一个组件的定量结果与同一形状的定性对比。来源：arXiv:2609.38985。
 
@@ -200,7 +200,7 @@ $$L_{conf}=\frac{1}{9n}\sum_{f,k}\kappa_{f,k}\,\text{BCE}\big(C_\phi(sg[h_{f,k}]
 
 以粗网格表面采样的点云为条件，MeshOctave **不重训**即可执行 mesh subdivision。与 Loop、Neural Subdivision、SubdivAR 这类**均匀、固定拓扑**细分不同，它自适应预测子顶点占据与连通——可以改拓扑、把面集中到复杂区域。定性上比基线更接近 GT 的细节分布。
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/08-mesh-subdivision.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/08-mesh-subdivision.png)
 
 > Figure 8（p.9）：Coarse → Loop / NS / SubdivAR / Ours / GT。放大框内可见 Ours 在复杂区域（机械结构、塔尖）集中面数，简单区域保持稀疏。来源：arXiv:2609.38985。
 
@@ -227,11 +227,11 @@ $$L_{conf}=\frac{1}{9n}\sum_{f,k}\kappa_{f,k}\,\text{BCE}\big(C_\phi(sg[h_{f,k}]
 - **未开源**（截至 v1，项目页无代码），350K 数据过滤细节也待披露，复现成本高（8×H800 × 7 天 + 数据管线）。
 - 跨尺度顺序性意味着生成分辨率上限受尺度数与逐尺度的错误累积双重约束；论文中间尺度可视化（Figure 10）里 Level 4-6 的形状仍明显破碎，实际可用 LOD 大概从 6-8 级起。
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/09-intra-scale-denoising.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/09-intra-scale-denoising.png)
 
 > Figure 9（p.16）：尺度内去噪过程。Step0 预测碎片化、不连通；随迭代预测 + 重掩码，轮廓与局部连通逐步改善。来源：arXiv:2609.38985。
 
-![](10-Papers/3D-Generation/assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/10-generation-across-resolutions.png)
+![](assets/MeshOctave%20-%20体素分辨率级联的原生网格生成/figures/10-generation-across-resolutions.png)
 
 > Figure 10（p.17）：跨分辨率的完整生成轨迹（Resolution 2 → 1024），每级都是可独立使用的 LOD。低分辨率下形状明显破碎，6-8 级后才结构完整。来源：arXiv:2609.38985。
 
