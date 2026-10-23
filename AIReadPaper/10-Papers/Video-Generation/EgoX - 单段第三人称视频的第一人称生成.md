@@ -88,7 +88,7 @@ $$z_{t-1}=f_\theta(x_0, z_t \mid x_0, p_0, m^1, m^0)$$
 
 ### 3.3 Geometry-Guided Self-Attention（GGA）
 
-宽度拼接解决「怎么把 exo 塞进来」，GGA 解决「该看 exo 的哪里」。当 ego query token $q^{ego}$ 对 exo key token $k^{exo}$ 计算注意力时，理想的相关性应该同时考虑语义相似（外观）与 3D 空间对齐。EgoX 用 3.1 的点云给出几何先验：从 ego 相机中心 $c_i$ 到每个 query/key token 位置 $\tilde q,\tilde k$ 计算单位方向向量 $\hat q,\hat k$，再以方向余弦构造偏置加进注意力 logits：
+宽度拼接解决「怎么把 exo 塞进来」，GGA 解决「该看 exo 的哪里」。当 ego query token $q^{ego}$ 对 exo key token $k^{exo}$ 计算注意力时，理想的相关性应该同时考虑语义相似（外观）与 3D 空间对齐。EgoX 用 3.1 的点云给出几何先验：从 ego 相机中心 $c_i$ 到每个 query/key token 位置 $\tilde q,\tilde k$ 计算单位方向向量 $\hat q,\hat k$，再以方向余弦构造偏置加进注意力 logits。**注意两个向量共用同一个起点 $c_i$（当帧 ego 相机中心），而不是各自从自己的相机出发**——这正是 cos 可比的前提；并且 $\hat q,\hat k$ 只依赖相机中心**位置**，不依赖其朝向，朝向信息已由 query 自身的视线方向编码。
 
 $$s'_{m,n}=s_{m,n}+\log\left(g(\hat q_m,\hat k_n)\cdot\lambda_g\right),\qquad g(\hat a,\hat b)=\cos\text{sim}(\hat a,\hat b)+1$$
 
@@ -177,7 +177,7 @@ $$a_{m,n}=\frac{\exp(s_{m,n})\,g(\hat q_m,\hat k_n)^{\lambda_g}}{\sum_{j=1}^{l}\
 
 ### 5.1 论文自己承认的局限
 
-1. **需要 ego 相机轨迹作为输入**。Ego-Exo4D 有真值轨迹，但 in-the-wild 例子是作者用 Viser 在 3D 点云里**手动**摆放相机得到的（附录 F.2 / Figure 8）。没有自动头部位姿估计，这条流水线就不闭环——论文把视频头姿跟踪器或 SMPL 系估计器列为未来工作。这是全文最大的工程缺口。
+1. **ego 相机轨迹 $\phi$ 是「给定输入」而非模型估计量**。这一点在任务定义（Sec 3 开头 `Given X and egocentric camera pose ϕ`）里就定死了：EgoX 解决的是「已知轨迹下的视角转换」，不是「估计轨迹」。轨迹来源有三档：**Ego-Exo4D 提供真值**（Aria 眼镜 SLAM 轨迹 + 多 exo 相机联合标定，两者在同一场景世界坐标系下）；**in-the-wild 例子由作者用 Viser 在 lift 出的 3D 点云里手动摆放相机外参**（附录 F.2，Figure 8）——因为是直接在点云里摆，坐标系天然与 exo 点云一致；**未来方向**是接视频头姿跟踪器或 SMPL 系位姿估计器。坐标系一致性是硬要求：ego 位姿必须与 exo 点云同处一个世界系，否则方向余弦无意义。没有自动头部位姿估计，这条流水线就不闭环，这是全文最大的工程缺口。
 2. **任务歧义导致的失败**（附录 H.5 / Figure 12）：exo 视角下单臂弯曲、另一臂被遮挡时，模型可能生成双臂都伸直的 ego 画面。作者认为这更多是任务本身信息不足（人类观察者也难判断），而非模型缺陷——这个辩护成立，但也意味着该任务存在无法从单段 exo 视频消除的固有不确定性。
 
 ### 5.2 我的评价
