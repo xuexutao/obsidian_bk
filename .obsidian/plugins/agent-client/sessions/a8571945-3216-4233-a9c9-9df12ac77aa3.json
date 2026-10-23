@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "sessionId": "a8571945-3216-4233-a9c9-9df12ac77aa3",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
+  "title": "可以解释一下这个目标吗？这是 causal forcing 的训练目标吗？joint 和 ma...",
+  "createdAt": "2026-10-23T04:01:33.188Z",
+  "updatedAt": "2026-10-23T04:01:33.188Z",
+  "messages": [
+    {
+      "id": "c9fbe910-8115-4b63-986d-81f09c86b480",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "可以解释一下这个目标吗？这是 causal forcing 的训练目标吗？joint 和 margin 目标分别表示什么",
+          "autoMentionContext": {
+            "noteName": "DuoMatching - 联合边缘分布匹配的少步视频生成",
+            "notePath": "AIReadPaper/10-Papers/Video-Generation/DuoMatching - 联合边缘分布匹配的少步视频生成.md",
+            "selection": {
+              "fromLine": 33,
+              "toLine": 33
+            }
+          }
+        }
+      ],
+      "timestamp": "2026-10-23T04:00:41.184Z"
+    },
+    {
+      "id": "a39c7d99-1021-4c5f-b973-1420fdffa7e1",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "The user wants to know about the objective mentioned on line 33, so I should check the note to answer accurately.\n\n"
+        }
+      ],
+      "timestamp": "2026-10-23T04:00:46.139Z"
+    },
+    {
+      "id": "b9c95cc3-c9cf-4f83-ae45-da927ba56635",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01WJacV937UmtapKuWKbTygd",
+          "title": "Read AIReadPaper/10-Papers/Video-Generation/DuoMatching - 联合边缘分布匹配的少步视频生成.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/10-Papers/Video-Generation/DuoMatching - 联合边缘分布匹配的少步视频生成.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/10-Papers/Video-Generation/DuoMatching - 联合边缘分布匹配的少步视频生成.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "**Warning:** We're changing auto mode to no longer charge for classifier requests in Claude Code. However, this session isn't eligible because your requests go through 127.0.0.1:15721, which isn't compatible with this update. Nothing breaks: auto mode keeps working, and its classifier requests are billed as before. To fix it and access the new version of auto mode, ask your gateway to implement: https://code.claude.com/docs/en/auto-mode-classifier-billing"
+        },
+        {
+          "type": "agent_thought",
+          "text": "I need to explain this KL divergence objective combining joint and marginal distributions, and check whether it matches Causal Forcing's stated training objective, so let me look at how that note defines its loss.\n\n"
+        }
+      ],
+      "timestamp": "2026-10-23T04:00:46.674Z"
+    },
+    {
+      "id": "ba545196-88e5-46c3-98fe-bb274fa74e1f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01JhnmK2e5x6tffF1AZZDKNh",
+          "title": "grep -n \"KL\\|DMD\\|目标\\|objective\" \"/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/10-Papers/Video-Generation/Causal Forcing - 正确的自回归扩散蒸馏.md\" | head -50",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n \"KL\\|DMD\\|目标\\|objective\" \"/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/10-Papers/Video-Generation/Causal Forcing - 正确的自回归扩散蒸馏.md\" | head -50",
+            "description": "Search Causal Forcing note for objective"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I'm ready to give a clear, direct answer now.\n\n"
+        },
+        {
+          "type": "text",
+          "text": "这个目标不是 Causal Forcing 的训练目标，而是 **DuoMatching 自己提出的目标**——它把 Causal Forcing 的目标当成其中的第一项（joint 项）包进来了。\n\n## 先定位符号\n\n$$J_{\\mathrm{DM}}(\\theta)=\\underbrace{\\mathrm{D}_{\\mathrm{KL}}(Q_\\theta\\|P_v)}_{\\text{joint}}+\\omega\\underbrace{\\mathrm{D}_{\\mathrm{KL}}(m_\\theta\\|P_i)}_{\\text{marginal}}$$\n\n| 符号 | 含义 | 维度/对象 |\n|---|---|---|\n| $Q_\\theta$ | 学生（少步因果生成器）产生的**整段视频**的分布 | 81 帧联合 |\n| $P_v$ | 视频教师（Wan2.1 多步模型）的视频分布 | 81 帧联合 |\n| $m_\\theta$ | $m_\\theta = MQ_\\theta$，把 $Q_\\theta$ 边缘化掉\"除这一帧以外的所有帧\"后剩下的**单帧分布** | 单帧 |\n| $P_i$ | 图像教师（Qwen-Image）的**图像分布** | 单帧 |\n| $\\omega$ | 权重，默认 0.4，带 warmup | — |\n\n$M$ 是「取帧级边缘」这个算子：从一个视频分布里随机抽一帧看它长什么样。\n\n## joint 项 = Causal Forcing 那条线\n\n$\\mathrm{D}_{\\mathrm{KL}}(Q_\\theta\\|P_v)$ 就是 CausVid / Self-Forcing / [[Causal Forcing - 正确的自回归扩散蒸馏|Causal Forcing]] 一路做的**反向 KL 的 DMD**：学生自回归 self-rollout 出整段视频，视频教师给 real score，在线的 fake score 估计器给 fake score，两者之差就是梯度（笔记 `3.5` 节那段）。它约束的是**帧与帧之间的依赖关系**——运动是否连贯、rollout 后段会不会漂移。\n\nCausal Forcing 的贡献在这项的**上游**（ODE 初始化该用因果教师），不在这项本身的形式。DuoMatching 对 joint 项是原样照抄，连 checkpoint 都从 Causal Forcing++ 的 causal CD 初始化（笔记第 126 行）。\n\n## marginal 项 = 本文新加的那条\n\n$\\mathrm{D}_{\\mathrm{KL}}(m_\\theta\\|P_i)$ 不看帧间关系，只问：**学生随便吐一帧出来，它像不像一张好图？**\n\n为什么需要它？笔记 1.2 节那个 score 分解是关键：\n\n$$\\nabla_{z^l_\\tau}\\log p_\\tau(z_\\tau)=\\nabla_{z^l_\\tau}\\log p_\\tau(z^l_\\tau\\mid z^{\\backslash l}_\\tau)$$\n\njoint 目标给每个 latent slice 的梯度**全都是条件 score**——\"这一帧该怎么改\"永远被\"邻居帧长什么样\"钳制着。所以如果单帧该补一根羽毛、但这羽毛跟邻帧不一致，joint 项不会采纳。Figure 1 里那条压不上去的 Q-Align 曲线就是这个盲区的后果：**学生最多追到 $P_v$，而 $P_v$ 本身离真实分布还差一截**。\n\nmarginal 项换了个代理：既然 $P_i$（Qwen-Image）作为\"单帧分布\"的代理比 $m_v$（视频教师的帧级边缘）更准、细节和 prompt 对齐都更强，就直接拿它来监督帧。实现上同样是 DMD（式 6），只是作用在经 LatentBridge 翻译到图像潜空间的单帧 $u^{l,(i)}$ 上，并按**图像教师自己的噪声 schedule** 加噪。\n\n## 两项的分工，用一句话概括\n\n> **视频教师管「帧之间」，图像教师管「帧之内」。**\n\n这个分解的理论依据是 KL 链式法则（笔记附录 C）：\n\n$$\\mathrm{D}_{\\mathrm{KL}}(P^\\star\\|P)=\\underbrace{\\mathrm{D}_{\\mathrm{KL}}(m^\\star\\|MP)}_{\\text{边缘误差}}+\\underbrace{C(P)}_{\\text{条件误差}}$$\n\n联合拟合误差天然拆成「边缘拟合得好不好」+「给定其他帧的条件结构对不对」。既然这两块可以独立改进，就应该给边缘那块配一个最强的代理。附录 D 进一步证明：只要 $\\mathrm{D}_{\\mathrm{KL}}(m^\\star\\|P_i)\\le\\mathrm{D}_{\\mathrm{KL}}(m^\\star\\|m_v)$ 且 $P_i\\neq m_v$，存在 $\\omega_0>0$ 使任意 $0<\\omega<\\omega_0$ 都严格优于只用视频教师。\n\n## $\\omega$ 为什么必须小\n\n$\\omega$ 存在上界不是调参玄学，而是两项**内在冲突**：marginal 项按定义不关心时间关系，它只想让每一帧单独尽量好看，推到极致就是\"一串精美但不动的静帧\"。消融表 6 正好兑现了附录 D 那个 $\\omega_0$ 的警告：\n\n- $\\omega=0.1$ → Total 81.03（边缘项太弱）\n- $\\omega=0.4$ → Total 83.53（默认）\n- $\\omega=0.8$ → Total 81.57，**Dynamic 从 93.61 掉到 87.78**\n\n同样的张力也解释了表 4 为什么 Direct 基线会崩：直接在时间压缩 4× 的视频 latent 上做 marginal DMD，边缘监督把 latent 里编码的运动信息当\"噪声\"抹掉，Dynamic 从 94.44 崩到 76.94。LatentBridge 的真正作用就是**先把空间内容从时间压缩里解耦出来**，再让边缘监督只碰空间那部分。\n\n---\n\n顺带一个值得记的事实：表 3 显示拿**视频教师自己**当图像教师（不引入任何新先验）也已 +0.76 —— 说明「显式做边缘监督」和「转移更强的图像先验」是两个独立的收益来源，前者纯粹来自目标函数形式的改变。"
+        }
+      ],
+      "timestamp": "2026-10-23T04:00:54.323Z"
+    }
+  ],
+  "savedAt": "2026-10-23T04:01:33.193Z"
+}

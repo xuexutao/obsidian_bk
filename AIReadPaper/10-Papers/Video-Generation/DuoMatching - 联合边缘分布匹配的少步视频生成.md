@@ -30,7 +30,7 @@ updated: 2026-10-23
 
 ## 一句话结论
 
-现有因果视频蒸馏（CausVid/Self-Forcing/Causal Forcing 一系）用视频教师近似真实分布、只匹配**全部帧的联合分布**，能压住自回归 rollout 的漂移，却对**单帧质量**缺少直接监督——细节糊、prompt 指定的小物件（羽毛）会丢。DuoMatching 把目标改写成 $\mathrm{KL}(Q_\theta\|P_v)+\omega\,\mathrm{KL}(m_\theta\|P_i)$：joint 项沿用 [[Causal Forcing - 正确的自回归扩散蒸馏|Causal Forcing]] 流程，marginal 项用冻结的 Qwen-Image 对采样帧做 DMD，并用 **LatentBridge**（10.75M 参数的小翻译器）打通视频 VAE 与图像 VAE 两个潜空间、用 **Latent Variation Sampling** 把稀疏的帧级监督按运动变化分配到时间轴上。VBench 五个同预算组全第一（最好 83.53），人评对四个基线 overall 偏好全超 80%，时序动态仅打平不倒退，推理开销为零。
+<span style="color: red">现有因果视频蒸馏（CausVid/Self-Forcing/Causal Forcing 一系）用视频教师近似真实分布、只匹配**全部帧的联合分布**，能压住自回归 rollout 的漂移，却对**单帧质量**缺少直接监督——细节糊、prompt 指定的小物件（羽毛）会丢。</span>DuoMatching 把目标改写成 $\mathrm{KL}(Q_\theta\|P_v)+\omega\,\mathrm{KL}(m_\theta\|P_i)$：joint 项沿用 [[Causal Forcing - 正确的自回归扩散蒸馏|Causal Forcing]] 流程，marginal 项用冻结的 Qwen-Image 对采样帧做 DMD，并用 **LatentBridge**（10.75M 参数的小翻译器）打通视频 VAE 与图像 VAE 两个潜空间、用 **Latent Variation Sampling** 把稀疏的帧级监督按运动变化分配到时间轴上。VBench 五个同预算组全第一（最好 83.53），人评对四个基线 overall 偏好全超 80%，时序动态仅打平不倒退，推理开销为零。
 
 ---
 

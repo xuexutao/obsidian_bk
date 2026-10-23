@@ -110,6 +110,14 @@
   },
   "savedSessions": [
     {
+      "sessionId": "a8571945-3216-4233-a9c9-9df12ac77aa3",
+      "agentId": "claude-code-acp",
+      "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
+      "title": "可以解释一下这个目标吗？这是 causal forcing 的训练目标吗？joint 和 ma...",
+      "createdAt": "2026-10-23T04:01:33.188Z",
+      "updatedAt": "2026-10-23T04:01:33.189Z"
+    },
+    {
       "sessionId": "424dbdd7-4c20-4e14-9366-4f67bb5c485d",
       "agentId": "claude-code-acp",
       "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
