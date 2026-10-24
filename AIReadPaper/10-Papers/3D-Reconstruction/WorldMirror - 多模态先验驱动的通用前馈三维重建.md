@@ -84,7 +84,7 @@ $$\mathcal{L}=\lambda_{points}\mathcal{L}_{points}+\lambda_{depth}\mathcal{L}_{d
 
 > 图 2：WorldMirror 总体结构。不同类型先验先按各自结构编码，再与图像 token 融合；共享视觉 Transformer 聚合多视图特征，最后由五类任务头并行解码。来源：论文 Figure 2，第 3 页，[官方 PDF](https://3d-models.hunyuan.tencent.com/world/worldMirror1_0/HYWorld_Mirror_Tech_Report.pdf)。
 
-WorldMirror 沿用 VGGT 式全 Transformer 骨干，但将输入和输出两侧都扩展：输入端加入先验提示，输出端加入法线和 3DGS 预测头。其设计重点不是把所有模态粗暴拼接，而是根据先验的信息结构选择表示方式。
+**<span style="color: red">WorldMirror 沿用 VGGT 式全 Transformer 骨干，但将输入和输出两侧都扩展：输入端加入先验提示，输出端加入法线和 3DGS 预测头。其设计重点不是把所有模态粗暴拼接，而是根据先验的信息结构选择表示方式。</span>**
 
 ### 3.2 相机位姿与内参 token
 
