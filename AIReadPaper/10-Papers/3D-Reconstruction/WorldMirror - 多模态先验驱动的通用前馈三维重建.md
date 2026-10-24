@@ -90,7 +90,33 @@ $$\mathcal{L}=\lambda_{points}\mathcal{L}_{points}+\lambda_{depth}\mathcal{L}_{d
 
 相机位姿先做场景尺度归一化：平移以相机中心为基准，并按相机到中心的最大距离缩放。旋转矩阵转为四元数，再与三维平移组成 7 维向量，经两层 MLP 映射为单个 pose token。
 
-内参取 $(f_x,f_y,c_x,c_y)$，分别按图像宽高归一化，再经 MLP 压成单个 intrinsics token。消融显示，位姿和内参的单 token 表示总体优于稠密 Plücker ray / raymap，同时额外参数只有约 1.06M。
+内参取 $(f_x,f_y,c_x,c_y)$，分别按图像宽高归一化，再经 MLP 压成单个 intrinsics token。消融显示，位姿和内参的单 token 表示总体优于稠密 Plücker ray / raymap，同时额外参数<span class="md-comment-hl" data-comment="# worldmirror.py -> extract_priors() fx, fy = intrinsics[:, :, 0, 0] / w, intrinsics[:, :, 1, 1] / h cx, cy = intrinsics[:, :, 0, 2] / w, intrinsics[:, :, 1, 2] / h rays = torch.stack([fx, fy, cx, cy], dim=-1)   # [B, S, 4]" title="💬 # worldmirror.py -> extract_priors() fx, fy = intrinsics[:, :, 0, 0] / w, intrinsics[:, :, 1, 1] / h cx, cy = intrinsics[:, :, 0, 2] / w, intrinsics[:, :, 1, 2] / h rays = torch.stack([fx, fy, cx, cy], dim=-1)   # [B, S, 4]">只有约 1.06M。</span>
+
+> 💬 **批注**（针对「只有约 1.06M。」）：
+
+```python
+# worldmirror.py -> extract_priors()
+fx, fy = intrinsics[:, :, 0, 0] / w, intrinsics[:, :, 1, 1] / h
+cx, cy = intrinsics[:, :, 0, 2] / w, intrinsics[:, :, 1, 2] / h
+rays = torch.stack([fx, fy, cx, cy], dim=-1)   # [B, S, 4]
+
+
+1.06M的参数全部集中在两层MLP中，7->1024, 1024 -> 1024
+7 x 1024 = 7168, 1024 x 1024 = 1,048,576, 共1,057,792  1.06M
+
+
+# visual_transformer.py -> _init_cond_embeddings()
+self.pose_embed = nn.Sequential(          # 位姿: 7 维 (平移3 + 四元数4)
+    nn.Linear(7, 1024, bias=True),
+    nn.SiLU(),
+    nn.Linear(1024, 1024, bias=True)
+)
+self.ray_embed = nn.Sequential(           # 内参: 4 维 (fx, fy, cx, cy)
+    nn.Linear(4, 1024, bias=True),
+    nn.SiLU(),
+    nn.Linear(1024, 1024, bias=True)
+)
+```
 
 ### 3.3 深度稠密 token 与融合
 
