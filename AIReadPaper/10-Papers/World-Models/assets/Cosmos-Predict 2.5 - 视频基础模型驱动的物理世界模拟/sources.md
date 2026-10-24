@@ -15,6 +15,12 @@
 - Cosmos-Transfer2.5 官方代码：https://github.com/nvidia-cosmos/cosmos-transfer2.5
 - NVIDIA Cosmos 产品入口：https://www.nvidia.com/en-us/ai/cosmos/
 
+## 补充核验（2026-10-24）
+
+| 本地文件 | 材料类型 | 原始来源 | 论文位置 | 获取日期 | 用途 |
+|---|---|---|---|---|---|
+| 无本地文件 | 官方仓库 README | https://github.com/nvidia-cosmos/cosmos-predict2.5 | 仓库首页 | 2026-10-24 | 核对模型清单、许可与「已停止积极开发、推荐迁移 Cosmos 3」的当前状态 |
+
 ## 核验说明
 
 - 四张图片均从本地官方 PDF 按原始 Figure 页面完整裁剪，保留图号/图注，并已用 `Read` 逐张视觉核验；RL 人评图第一次裁剪截断图注，已重新裁剪并再次核验。
