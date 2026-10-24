@@ -112,7 +112,7 @@ Tokenizer 是一个带 ST-Transformer 编码器和解码器的 VQ-VAE，论文�
 
 ### 2.4 潜动作模型 LAM：用信息瓶颈逼出“左、右、跳”
 
-LAM 是一个 VQ 风格的 encoder–decoder。Encoder 同时看历史 $x_{1:t}$ 和真实未来帧 $x_{t+1}$，把两者间的变化压缩成离散动作 $a_t$；Decoder 只能看历史与这个动作码，并尝试重建未来帧。
+LAM 是一个 VQ 风格的 encoder–decoder。Encoder 同时看历史 $x_{1:t}$ 和真实未来帧 $x_{t+1}$，把两者间的变化压缩成离散动作 $a_t$；**<span style="color: red">Decoder 只能看历史与这个动作码，并尝试重建未来帧</span>**。
 
 ![](assets/Genie%201-3%20架构演进%20-%20Survey/figures/02-genie1-lam.png)
 
@@ -124,7 +124,7 @@ $$a_t=Q(E_{\text{LAM}}(x_{1:t+1}))$$
 
 $$\hat x_{t+1}=D_{\text{LAM}}(x_{1:t},a_t)$$
 
-主模型动作 codebook 只有 **8 个码**，每个码 32 维；LAM encoder 与 decoder 均为 20 层、hidden size 1024、16 heads，patch size 16，总计约 300M 参数。小 codebook 是刻意的信息瓶颈：码太多更容易重建视频，却会让动作语义碎片化、难以当作人类控制器。
+**<span style="color: red">主模型动作 codebook 只有 **8 个码**，每个码 32 维，是一个非常小的动作</span>**；LAM encoder 与 decoder 均为 20 层、hidden size 1024、16 heads，patch size 16，总计约 300M 参数。小 codebook 是刻意的信息瓶颈：码太多更容易重建视频，却会让动作语义碎片化、难以当作人类控制器。
 
 训练完成后，LAM encoder/decoder 在交互推理中都不需要；保留的是动作 codebook。用户直接选动作 ID，查表得到 action embedding，送入动力学模型。不同世界里的动作语义并非人工指定，但论文观察到它们通常能稳定对应 left、right、jump、no-op 等行为。
 
@@ -207,7 +207,7 @@ $$\hat h_{t+1}\xrightarrow{\text{decoder}}\hat x_{t+1}$$
 
 ### 3.2 与 Genie 1 可以确认的架构变化
 
-**第一，生成头从离散 MaskGIT 变成潜扩散。** Genie 1 在 VQ 离散 token 上做交叉熵 masked prediction；Genie 2 明确是 latent diffusion。它更接近现代高质量视频生成路线，目的很可能是提升复杂场景的视觉分布建模，但官方没有给出噪声参数化、采样器或扩散步数。
+**第一，生成头从离散 MaskGIT 变成潜扩散。** **<span style="color: red">Genie 1 在 VQ 离散 token 上做交叉熵 masked prediction</span>**；Genie 2 明确是 latent diffusion。它更接近现代高质量视频生成路线，目的很可能是提升复杂场景的视觉分布建模，但官方没有给出噪声参数化、采样器或扩散步数。
 
 **第二，输入表示从公开的 ST-ViViT VQ-VAE 变成未说明类型的 autoencoder latent。** 官方没有说是连续 VAE、VQ、时空压缩还是逐帧编码，因此不能写成“沿用 Genie 1 tokenizer”。
 
