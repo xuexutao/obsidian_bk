@@ -110,7 +110,7 @@ $$\hat{x}_{0:T}=\mathcal{D}(\mathcal{E}(x_{0:T}))$$
 
 - **镜头切分**：TransNetV2/AutoShot 检测 shot boundary；少于 2 秒的片段丢弃，超过 60 秒继续切分；
 - **统一转码**：`h264_nvenc` + NVDEC/NVENC；PyNvVideoCodec 方案吞吐 0.3702 videos/s，相比 H100 CPU `libx264` 的 0.0574 videos/s 约快 6.5 倍；
-- **过滤**：运动、DOVER 感知质量、审美分、文字覆盖、动画/游戏/抽象视觉类型；最低 15% 感知质量被剔除；
+- **过滤**：运动（光流的一个VIT模型）、DOVER 感知质量、审美分、文字覆盖、动画/游戏/抽象视觉类型；最低 15% 感知质量被剔除；
 - **标注**：内部 VILA-13B 对 8 帧采样生成平均 97 词 caption；TRT-LLM FP8 batch 16 达 1.96 clips/s，约为 PyTorch FP16 的 9.3 倍；
 - **去重**：InternVideo2 embedding、10,000 个聚类、簇内语义去重，约移除 30% 训练数据；
 - **分片**：按分辨率、长宽比和视频长度生成 WebDataset，由 Ray 流水线在异构集群上调度。
