@@ -25,6 +25,10 @@ VJEPA2 就是比较重要的，它分为两阶段训练了，第一个阶段也�
 - vjepa2 和 vjepa2-AC 使用的 z 不同，vjepa2 的z只是一个mask 的位置编码，而vjepa2AC的z是机器人动作（末端位姿、旋转、夹爪开合）和当前位姿【action-conditioned predictor】
 ![](assets/material/file-20261024222603095.png)
 
-Cosmos
+### Cosmos
+
 ![](assets/material/file-20261024223148427.png)
  genie给出的贡献可以理解为，他只输入视频和文本，通过将latent 的action 足够小，只有 8个32维的动作，让视频生成模型在预测下一帧的时候学会这些简单的动作
+![](assets/material/file-20261025000520209.png)
+WAM
+dreamZero · LingBot-VA · Cosmos policy
