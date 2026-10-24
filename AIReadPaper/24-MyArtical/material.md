@@ -9,7 +9,9 @@ egox是一个 video gen 模型，输入一段第三人称操作视频（exo vide
 ### JEPA
 
 JEPA，首先看JE，联合嵌入，基本上就是对xy都encoder到latent中再去做预测。LeCun认为，如果直接在pixel层面的生成模型的话，必须把一些没用的像素也都画出来，容量和算力就被迫花在这些细节上，另外，对于下一状态应该是有很多种不同的表示，导致预测是容易生成平均的模糊的画面。
+ 
  $\hat{s}_y = P(s_x, z)$ 
+
 因为 y 也需要经过 encoder，所以就容易造成，x和y的编码器都偷懒，都输出同一个常数。所以需要针对这个优化。
 第一种的话就是，对比学习，通过提高负样本的数量（能量）。想 CLIP，SigLIP  其实不太支持，因为高维空间负样本量是巨大的
 
@@ -22,3 +24,6 @@ masked video作为 x ，使用 encoder，unmask video 作为 y，由于stop grad
 VJEPA2 就是比较重要的，它分为两阶段训练了，第一个阶段也是训练一个 encoder，通过挖空的方式
 - vjepa2 和 vjepa2-AC 使用的 z 不同，vjepa2 的z只是一个mask 的位置编码，而vjepa2AC的z是机器人动作（末端位姿、旋转、夹爪开合）和当前位姿【action-conditioned predictor】
 ![](assets/material/file-20261024222603095.png)
+
+Cosmos
+![](assets/material/file-20261024223148427.png)
