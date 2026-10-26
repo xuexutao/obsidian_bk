@@ -48,15 +48,15 @@ LingBot 不是一个把所有能力塞进同一参数体的“万能机器人模
 
 ### 1.3 七个家族总表
 
-| 家族 | 核心问题 | 典型输入 | 典型输出 | 当前公开版本 | 在全栈中的角色 |
-|---|---|---|---|---|---|
-| LingBot-Vision | 如何学到边界清晰、空间敏感的视觉 token | RGB | 稠密 patch features | 1.0 | 通用稠密视觉编码器 |
-| LingBot-Depth | 如何修复传感器空洞并恢复 metric geometry | RGB + raw depth + intrinsics | metric depth + point cloud | 1.0 / 2.0 | 度量空间感知 |
-| LingBot-Map | 如何从无界视频流持续维护三维状态 | 单目 RGB 视频流 | pose + depth + world points | 1.0 | 在线地图与轨迹 |
-| LingBot-Video | 如何学习通用且具身友好的视觉动力学 | 文本/图像/结构化条件 | 视频/动作结果模拟 | 1.0 | 通用视频基础模型 |
-| LingBot-World | 如何生成可实时交互、长程一致的世界 | 初始帧 + camera/action/event | 可玩的未来视频流 | 1.0 / 2.0 | 交互环境模拟器 |
-| LingBot-VLA | 如何把视觉语言直接映射为机器人动作 | 多视角视觉 + 指令 + state | action chunks | 1.0 / 2.0 | 直接策略 |
-| LingBot-VA | 如何联合想象未来视频并产生动作 | 历史视觉 + 指令 + action context | future video + actions | 1.0 / 2.0 | 世界—动作联合模型 |
+| 家族             | 核心问题                         | 典型输入                         | 典型输出                        | 当前公开版本    | 在全栈中的角色   |
+| -------------- | ---------------------------- | ---------------------------- | --------------------------- | --------- | --------- |
+| LingBot-Vision | 如何学到边界清晰、空间敏感的视觉 token       | RGB                          | 稠密 patch features           | 1.0       | 通用稠密视觉编码器 |
+| LingBot-Depth  | 如何修复传感器空洞并恢复 metric geometry | RGB + raw depth + intrinsics | metric depth + point cloud  | 1.0 / 2.0 | 度量空间感知    |
+| LingBot-Map    | 如何从无界视频流持续维护三维状态             | 单目 RGB 视频流                   | pose + depth + world points | 1.0       | 在线地图与轨迹   |
+| LingBot-Video  | 如何学习通用且具身友好的视觉动力学            | 文本/图像/结构化条件                  | 视频/动作结果模拟                   | 1.0       | 通用视频基础模型  |
+| LingBot-World  | 如何生成可实时交互、长程一致的世界            | 初始帧 + camera/action/event    | 可玩的未来视频流                    | 1.0 / 2.0 | 交互环境模拟器   |
+| LingBot-VLA    | 如何把视觉语言直接映射为机器人动作            | 多视角视觉 + 指令 + state           | action chunks               | 1.0 / 2.0 | 直接策略      |
+| LingBot-VA     | 如何联合想象未来视频并产生动作              | 历史视觉 + 指令 + action context   | future video + actions      | 1.0 / 2.0 | 世界—动作联合模型 |
 
 ### 1.4 家族、版本与 checkpoint 的区别
 
@@ -94,13 +94,13 @@ flowchart LR
 
 **空间状态线**：
 
-$$\text{RGB}\rightarrow\text{boundary-aware features}\rightarrow\text{metric depth}\rightarrow\text{streaming 3D map}.$$
+$\text{RGB}\rightarrow\text{boundary-aware features}\rightarrow\text{metric depth}\rightarrow\text{streaming 3D map}.$
 
 它解决“机器人现在在哪里、物体离多远、历史空间如何组织”。Vision、Depth、Map 的输出越来越接近显式几何状态。
 
 **预测控制线**：
 
-$$\text{video prior}\rightarrow\text{interactive world}\rightarrow\text{direct policy / video-action policy}.$$
+$\text{video prior}\rightarrow\text{interactive world}\rightarrow\text{direct policy / video-action policy}.$
 
 它解决“下一步会发生什么、动作会造成什么结果、机器人应该怎么做”。Video/World 主要输出环境未来，VLA 直接输出动作，VA 同时建模未来视觉与动作。
 
@@ -123,17 +123,17 @@ $$\text{video prior}\rightarrow\text{interactive world}\rightarrow\text{direct p
 ### 3.3 关键结果
 
 - NYUv2 冻结特征 + 线性深度头 RMSE **0.296**，优于 7B DINOv3 的 0.309。
-- DAVIS / YouTube-VOS 无训练 label propagation J&F 为 **70.0 / 73.5**。
+- DAVIS / YouTube-VOS 无训练 label propagation J\&F 为 **70.0 / 73.5**。
 - ViT-L 学生约 0.3B，在 NYUv2 达 0.310，接近 7B DINOv3 的 0.309。
 
 ### 3.4 公开 checkpoint
 
-| 官方模型 | HF 标识 | 定位 |
-|---|---|---|
-| Giant | `robbyant/lingbot-vision-vit-giant` | 最高质量，约 1.1B |
+| 官方模型  | HF 标识                               | 定位           |
+| ----- | ----------------------------------- | ------------ |
+| Giant | `robbyant/lingbot-vision-vit-giant` | 最高质量，约 1.1B  |
 | Large | `robbyant/lingbot-vision-vit-large` | 官方推荐的性能/成本平衡 |
-| Base | `robbyant/lingbot-vision-vit-base` | 中等部署预算 |
-| Small | `robbyant/lingbot-vision-vit-small` | 轻量演示与下游 |
+| Base  | `robbyant/lingbot-vision-vit-base`  | 中等部署预算       |
+| Small | `robbyant/lingbot-vision-vit-small` | 轻量演示与下游      |
 
 ### 3.5 与系列的关系
 
@@ -156,23 +156,23 @@ LingBot-Vision 是 Depth 2.0 最明确的上游：只替换 Depth 编码器，�
 
 ### 4.3 1.0 与 2.0 的区别
 
-| 维度 | Depth 1.0 | Depth 2.0 |
-|---|---|---|
-| 视觉编码器 | DINOv2 ViT-L/14 系 | LingBot-Vision ViT-L/16 与 ViT-g/16 |
-| RGB-D 数据 | 3,019,200 对 | 150M 样本 |
-| 重点 | 证明 MDM 与跨模态对齐 | scaling + 边界感知编码器 |
-| 典型结果 | DIODE-Indoor block-mask RMSE 0.132 | 同项 0.062 |
-| 开放状态 | 代码、数据、权重明确 | 方法与结果已公开；独立权重需以当前模型卡为准 |
+| 维度       | Depth 1.0                          | Depth 2.0                          |
+| -------- | ---------------------------------- | ---------------------------------- |
+| 视觉编码器    | DINOv2 ViT-L/14 系                  | LingBot-Vision ViT-L/16 与 ViT-g/16 |
+| RGB-D 数据 | 3,019,200 对                        | 150M 样本                            |
+| 重点       | 证明 MDM 与跨模态对齐                      | scaling + 边界感知编码器                  |
+| 典型结果     | DIODE-Indoor block-mask RMSE 0.132 | 同项 0.062                           |
+| 开放状态     | 代码、数据、权重明确                         | 方法与结果已公开；独立权重需以当前模型卡为准             |
 
 3M 数据的明确构成是 RobbyReal 1,400,000、RobbyVla 580,960、RobbySim 999,264、RobbySimVal 38,976。2.0 的 150M 数字来自 Vision/Depth 2.0 官方说明，但当前 `lingbot-depth` README 的模型表仍主要列出 1.0 系权重，因此不能凭方法发布就虚构 2.0 checkpoint 名称。
 
 ### 4.4 当前仓库明确列出的 checkpoint
 
-| checkpoint | 用途 | 备注 |
-|---|---|---|
+| checkpoint                            | 用途                          | 备注             |
+| ------------------------------------- | --------------------------- | -------------- |
 | `lingbot-depth-pretrain-vitl-14-v0.5` | dense/sparse raw depth 通用补全 | 推荐，修复 v0.1 bug |
-| `lingbot-depth-pretrain-vitl-14` | 通用深度 refinement | v0.1 |
-| `lingbot-depth-postrain-dc-vitl14` | sparse depth completion | 专项后训练 |
+| `lingbot-depth-pretrain-vitl-14`      | 通用深度 refinement             | v0.1           |
+| `lingbot-depth-postrain-dc-vitl14`    | sparse depth completion     | 专项后训练          |
 
 ### 4.5 下游价值
 
@@ -194,7 +194,7 @@ LingBot-Map 用 Geometric Context Attention 将历史拆成：
 
 其上下文规模为：
 
-$$n(M+6)+k(M+6)+6(T-n-k)=(n+k)M+6T,$$
+$n(M+6)+k(M+6)+6(T-n-k)=(n+k)M+6T,$
 
 而完整 causal history 为 $T(M+6)$。这不是严格常量内存，但把每帧远历史增长从约 $M+6$ 降为 6。
 
@@ -235,12 +235,12 @@ Sparse MoE 用共享专家与 top-K routed experts 替换 dense FFN。官方主�
 
 ### 6.4 checkpoint
 
-| checkpoint | 规模/方法 | 能力 |
-|---|---|---|
-| `lingbot-video-dense-1.3b` | Dense 1.3B | T2I / T2V / TI2V |
-| `lingbot-video-moe-30b-a3b` | MoE 30B-A3B + Refiner | 高容量视频生成与 refinement |
-| `lingbot-video-moe-dmd-30b-a3b` | MoE 30B-A3B，DMD 8-step | 少步快速 T2V / TI2V |
-| `lingbot-video-rewriter-lora` | Qwen3.6-27B LoRA | prompt rewrite 辅助件，不是视频主模型 |
+| checkpoint                      | 规模/方法                  | 能力                         |
+| ------------------------------- | ---------------------- | -------------------------- |
+| `lingbot-video-dense-1.3b`      | Dense 1.3B             | T2I / T2V / TI2V           |
+| `lingbot-video-moe-30b-a3b`     | MoE 30B-A3B + Refiner  | 高容量视频生成与 refinement        |
+| `lingbot-video-moe-dmd-30b-a3b` | MoE 30B-A3B，DMD 8-step | 少步快速 T2V / TI2V            |
+| `lingbot-video-rewriter-lora`   | Qwen3.6-27B LoRA       | prompt rewrite 辅助件，不是视频主模型 |
 
 ### 6.5 结果与边界
 
@@ -260,11 +260,11 @@ RBench Avg 为 **0.620**，Manipulation 0.578、Long-horizon 0.634、Quadruped 0
 
 公开权重：
 
-| 名称 | 控制 | 说明 |
-|---|---|---|
-| LingBot-World-Base (Cam) | camera poses | 基础相机控制模型 |
-| LingBot-World-Base (Act) | actions | 动作控制模型；当前 README 的下载链接与 Cam 存在复用/不一致，应复核模型卡 |
-| LingBot-World-Fast | camera poses | 因果蒸馏实时版 |
+| 名称                       | 控制           | 说明                                          |
+| ------------------------ | ------------ | ------------------------------------------- |
+| LingBot-World-Base (Cam) | camera poses | 基础相机控制模型                                    |
+| LingBot-World-Base (Act) | actions      | 动作控制模型；当前 README 的下载链接与 Cam 存在复用/不一致，应复核模型卡 |
+| LingBot-World-Fast       | camera poses | 因果蒸馏实时版                                     |
 
 现有完整精读见 [[LingbotWorld - 动作可控交互世界模型]]。
 
@@ -278,23 +278,23 @@ RBench Avg 为 **0.620**，Manipulation 0.578、Long-horizon 0.634、Quadruped 0
 
 公开 checkpoint：
 
-| checkpoint | 角色 |
-|---|---|
-| `lingbot-world-v2-14b-causal-fast` | 14B 快速因果模型 |
-| `lingbot-world-v2-14b-causal-pretrain` | 14B 因果预训练模型 |
-| `lingbot-world-v2-14b-bid` | 14B 双向模型 |
-| `lingbot-world-v2-1.3b-causal-fast` | 1.3B 快速因果模型；包内主要是 DiT 权重，共用 T5/VAE/tokenizer assets |
+| checkpoint                             | 角色                                                  |
+| -------------------------------------- | --------------------------------------------------- |
+| `lingbot-world-v2-14b-causal-fast`     | 14B 快速因果模型                                          |
+| `lingbot-world-v2-14b-causal-pretrain` | 14B 因果预训练模型                                         |
+| `lingbot-world-v2-14b-bid`             | 14B 双向模型                                            |
+| `lingbot-world-v2-1.3b-causal-fast`    | 1.3B 快速因果模型；包内主要是 DiT 权重，共用 T5/VAE/tokenizer assets |
 
 ### 7.3 World 1.0→2.0 的实质变化
 
-| 维度 | 1.0 | 2.0 |
-|---|---|---|
-| 长度目标 | 分钟级上下文 | 无界/小时级交互叙事 |
-| 控制 | 基础 camera/action | richer actions + Pilot/Director |
-| 速度 | 480p 16 FPS 声明 | 720p 60 FPS 系统声明 |
-| 模型 | 28B 双专家路线 | 14B/1.3B causal + bidirectional |
-| 许可 | Apache-2.0 | CC BY-NC-SA 4.0 |
-| 开放边界 | 代码/权重 | 推理代码/权重；完整 deployment code 明确不计划发布 |
+| 维度   | 1.0              | 2.0                                |
+| ---- | ---------------- | ---------------------------------- |
+| 长度目标 | 分钟级上下文           | 无界/小时级交互叙事                         |
+| 控制   | 基础 camera/action | richer actions + Pilot/Director    |
+| 速度   | 480p 16 FPS 声明   | 720p 60 FPS 系统声明                   |
+| 模型   | 28B 双专家路线        | 14B/1.3B causal + bidirectional    |
+| 许可   | Apache-2.0       | CC BY-NC-SA 4.0                    |
+| 开放边界 | 代码/权重            | 推理代码/权重；完整 deployment code 明确不计划发布 |
 
 作者仍把 true long-term memory、长时间复杂交互和 faithful physics 列为开放问题，因此“Infinity”更应理解为系统设计目标，而不是已解决无限时长无漂移。
 
@@ -310,14 +310,15 @@ RBench Avg 为 **0.620**，Manipulation 0.578、Long-horizon 0.634、Quadruped 0
 - **几何增强**：可学习视觉 query 对齐 LingBot-Depth embedding，训练时蒸馏，推理不必单独运行深度模型。
 - **许可证**：Apache-2.0。
 
+
 checkpoint：
 
-| checkpoint | 深度蒸馏 | 用途 |
-|---|---:|---|
-| `lingbot-vla-4b` | 否 | 基础预训练 |
-| `lingbot-vla-4b-depth` | 是 | 基础预训练 |
-| `lingbot-vla-4b-posttrain-robotwin` | 否 | RoboTwin 后训练 |
-| `lingbot-vla-4b-depth-posttrain-robotwin` | 是 | RoboTwin 后训练 |
+| checkpoint                                | 深度蒸馏 | 用途           |
+| ----------------------------------------- | ---: | ------------ |
+| `lingbot-vla-4b`                          |    否 | 基础预训练        |
+| `lingbot-vla-4b-depth`                    |    是 | 基础预训练        |
+| `lingbot-vla-4b-posttrain-robotwin`       |    否 | RoboTwin 后训练 |
+| `lingbot-vla-4b-depth-posttrain-robotwin` |    是 | RoboTwin 后训练 |
 
 RoboTwin Clean/Randomized：无深度 **86.50%/85.34%**，深度版 **88.56%/86.68%**。真实机器人平均 Success Rate 从无深度 16.20% 到深度版 16.87%，增幅较小但 Progress Score 从 34.32% 到 35.16%。这说明几何蒸馏有效，但不是所有动作瓶颈都由深度决定。
 
@@ -331,15 +332,15 @@ RoboTwin Clean/Randomized：无深度 **86.50%/85.34%**，深度版 **88.56%/86.
 
 55 维具体分配：
 
-$$14_{\text{arm}}+14_{\text{EEF}}+2_{\text{gripper}}+12_{\text{hand}}+4_{\text{waist}}+2_{\text{head}}+3_{\text{mobility}}+4_{\text{reserved}}=55.$$
+$14_{\text{arm}}+14_{\text{EEF}}+2_{\text{gripper}}+12_{\text{hand}}+4_{\text{waist}}+2_{\text{head}}+3_{\text{mobility}}+4_{\text{reserved}}=55.$
 
 **MoE Action Expert** 让共享专家承载通用运动先验，routed experts 学习本体/任务差异；**Dual-Query Distillation** 同时加入 current 与 future queries，分别从 LingBot-Depth 和 DINO-Video 获取当前几何与未来语义动力学监督。它比 1.0 只补“当前空间”更进一步，开始把“未来会怎样”蒸进直接策略。
 
 checkpoint：
 
-| checkpoint | 用途 |
-|---|---|
-| `lingbot-vla-v2-6b` | native-depth 基础预训练权重 |
+| checkpoint                   | 用途                      |
+| ---------------------------- | ----------------------- |
+| `lingbot-vla-v2-6b`          | native-depth 基础预训练权重    |
 | `lingbot-vla-v2-6b-robotwin` | RoboTwin 2.0 50 任务后训练权重 |
 
 结果：
@@ -350,15 +351,15 @@ checkpoint：
 
 ### 8.3 VLA 1.0→2.0 的实质变化
 
-| 维度 | 1.0 | 2.0 |
-|---|---|---|
-| 数据 | 20K h robot | 50K h robot + 10K h ego |
-| 本体 | 9 种双臂 | 20 种，含单/双臂、半人形、人形、移动 |
-| 动作 | 双臂为主 | 55D 全身统一表示 |
-| 基座 | Qwen2.5-VL-3B | Qwen3-VL-4B |
-| expert | 常规 action expert | sparse MoE action expert |
-| 蒸馏 | current depth | current/future Depth + DINO-Video |
-| 模型 | 4B | 6B |
+| 维度     | 1.0              | 2.0                               |
+| ------ | ---------------- | --------------------------------- |
+| 数据     | 20K h robot      | 50K h robot + 10K h ego           |
+| 本体     | 9 种双臂            | 20 种，含单/双臂、半人形、人形、移动              |
+| 动作     | 双臂为主             | 55D 全身统一表示                        |
+| 基座     | Qwen2.5-VL-3B    | Qwen3-VL-4B                       |
+| expert | 常规 action expert | sparse MoE action expert          |
+| 蒸馏     | current depth    | current/future Depth + DINO-Video |
+| 模型     | 4B               | 6B                                |
 
 ---
 
@@ -373,11 +374,11 @@ checkpoint：
 
 公开 checkpoint：
 
-| checkpoint | 角色 |
-|---|---|
-| `lingbot-va-base` | shared-backbone 基础模型 |
-| `lingbot-va-posttrain-robotwin` | RoboTwin 后训练 |
-| `lingbot-va-posttrain-libero-long` | LIBERO-LONG 后训练 |
+| checkpoint                         | 角色                   |
+| ---------------------------------- | -------------------- |
+| `lingbot-va-base`                  | shared-backbone 基础模型 |
+| `lingbot-va-posttrain-robotwin`    | RoboTwin 后训练         |
+| `lingbot-va-posttrain-libero-long` | LIBERO-LONG 后训练      |
 
 当前官方仓库明确公开的是 **shared-backbone** 版本及后训练代码。2026-01-29 News 写的是“separated version 敬请期待”，并未宣布 separated 已发布，也不能把 separated 直接等同于 VA 2.0。
 
@@ -405,13 +406,13 @@ VA 2.0 不再把通用视频生成器事后改造成控制器，而是从 tokeni
 
 ### 9.3 VLA 与 VA 不是重复命名
 
-| 维度 | VLA | VA |
-|---|---|---|
-| 动作路径 | 视觉/语言表征直接条件化 action expert | 先/同时想象未来视觉，再解码动作 |
-| 计算重点 | 语义理解、跨本体动作统一 | 视觉动力学、长时记忆、闭环 re-grounding |
-| 优势 | 延迟可控、部署路径直接 | 未来可解释、数据效率与长历史潜力 |
-| 风险 | 可能缺显式未来建模 | 视频生成成本高，想象误差可能污染动作 |
-| 2.0 方向 | MoE action expert + 双查询蒸馏 | 视频 MoE + native tokenizer + Multi-Chunk + async foresight |
+| 维度     | VLA                        | VA                                                        |
+| ------ | -------------------------- | --------------------------------------------------------- |
+| 动作路径   | 视觉/语言表征直接条件化 action expert | 先/同时想象未来视觉，再解码动作                                          |
+| 计算重点   | 语义理解、跨本体动作统一               | 视觉动力学、长时记忆、闭环 re-grounding                                |
+| 优势     | 延迟可控、部署路径直接                | 未来可解释、数据效率与长历史潜力                                          |
+| 风险     | 可能缺显式未来建模                  | 视频生成成本高，想象误差可能污染动作                                        |
+| 2.0 方向 | MoE action expert + 双查询蒸馏  | 视频 MoE + native tokenizer + Multi-Chunk + async foresight |
 
 VLA 2.0 通过 DINO-Video future query 向 VA 靠近；VA 2.0 则通过高频异步执行向 VLA 的实时控制靠近。两条路线正在收敛，但尚未合并为同一模型。
 
@@ -421,14 +422,14 @@ VLA 2.0 通过 DINO-Video future query 向 VA 靠近；VA 2.0 则通过高频异
 
 ### 10.1 明确公开的依赖
 
-| 下游模型 | 上游模型/教师 | 用法 |
-|---|---|---|
-| Depth 2.0 | Vision | 替换 DINOv2 encoder 初始化 |
-| VLA 1.0 | Depth | 三视角 learnable query 对齐 depth embedding |
-| VLA 2.0 | Depth + DINO-Video | current/future dual-query distillation |
-| Map | DINOv2-Large / VGGT 风格骨架 | patch encoder 与交替注意力几何基座 |
-| World 1.0/2.0 | Wan2.2 | 视频生成/因果世界模型底座 |
-| VA 1.0 | video diffusion + IDM | 未来视频与动作联合建模 |
+| 下游模型          | 上游模型/教师                  | 用法                                     |
+| ------------- | ------------------------ | -------------------------------------- |
+| Depth 2.0     | Vision                   | 替换 DINOv2 encoder 初始化                  |
+| VLA 1.0       | Depth                    | 三视角 learnable query 对齐 depth embedding |
+| VLA 2.0       | Depth + DINO-Video       | current/future dual-query distillation |
+| Map           | DINOv2-Large / VGGT 风格骨架 | patch encoder 与交替注意力几何基座               |
+| World 1.0/2.0 | Wan2.2                   | 视频生成/因果世界模型底座                          |
+| VA 1.0        | video diffusion + IDM    | 未来视频与动作联合建模                            |
 
 ### 10.2 尚未被公开证明的连接
 
@@ -444,19 +445,19 @@ VLA 2.0 通过 DINO-Video future query 向 VA 靠近；VA 2.0 则通过高频异
 
 ## 11. checkpoint 与开源矩阵
 
-| 家族/版本 | 代码 | 权重 | 训练/后训练 | 许可证 | 主要限制 |
-|---|---:|---:|---:|---|---|
-| Vision 1.0 | ✅ | ✅ 4 档 backbone | 训练头未随 backbone 权重发布 | Apache-2.0 | checkpoint 为 backbone-only |
-| Depth 1.0 | ✅ | ✅ 3 档 | 数据 3M 已发布 | Apache-2.0 | v0.1 有 bug，优先 v0.5 |
-| Depth 2.0 | 方法/报告 ✅ | 独立权重需核模型卡 | 150M recipe 未完整复现 | 沿项目公开信息核查 | 不应虚构 checkpoint |
-| Map 1.0 | ✅ | ✅ 3 档 | 完整预训练难复现 | Apache-2.0 | 64 GPU 级训练，含内部数据 |
-| Video 1.0 | ✅ | ✅ 3 主模型 + rewriter | 推理资源齐全 | Apache-2.0 | 30B-A3B 部署成本高 |
-| World 1.0 | ✅ | ✅ Base/Fast | 仓库停止积极维护 | Apache-2.0 | 多 GPU、长时漂移 |
-| World 2.0 | 基础推理 ✅ | ✅ 4 档 | deployment code ❌ | CC BY-NC-SA 4.0 | 非商业；完整 60 FPS 系统不可等价复现 |
-| VLA 1.0 | ✅ | ✅ 4 档 | post-train/toolchain ✅ | Apache-2.0 | 主要围绕双臂构型 |
-| VLA 2.0 | ✅ | ✅ base + RoboTwin | post-train/deploy ✅ | Apache-2.0 | 6B + 多教师依赖，真机仍需本体适配 |
-| VA 1.0 | ✅ shared backbone | ✅ 3 档 | post-train ✅ | Apache-2.0 | separated 版本未明确发布 |
-| VA 2.0 | 未确认 | 未确认 | 技术报告/演示 ✅ | 未确认 | 不能称完整开源 |
+| 家族/版本      |                代码 |                 权重 |                 训练/后训练 | 许可证             | 主要限制                       |
+| ---------- | ----------------: | -----------------: | ---------------------: | --------------- | -------------------------- |
+| Vision 1.0 |                 ✅ |     ✅ 4 档 backbone |    训练头未随 backbone 权重发布 | Apache-2.0      | checkpoint 为 backbone-only |
+| Depth 1.0  |                 ✅ |              ✅ 3 档 |              数据 3M 已发布 | Apache-2.0      | v0.1 有 bug，优先 v0.5         |
+| Depth 2.0  |           方法/报告 ✅ |          独立权重需核模型卡 |      150M recipe 未完整复现 | 沿项目公开信息核查       | 不应虚构 checkpoint            |
+| Map 1.0    |                 ✅ |              ✅ 3 档 |               完整预训练难复现 | Apache-2.0      | 64 GPU 级训练，含内部数据           |
+| Video 1.0  |                 ✅ | ✅ 3 主模型 + rewriter |                 推理资源齐全 | Apache-2.0      | 30B-A3B 部署成本高              |
+| World 1.0  |                 ✅ |        ✅ Base/Fast |               仓库停止积极维护 | Apache-2.0      | 多 GPU、长时漂移                 |
+| World 2.0  |            基础推理 ✅ |              ✅ 4 档 |      deployment code ❌ | CC BY-NC-SA 4.0 | 非商业；完整 60 FPS 系统不可等价复现     |
+| VLA 1.0    |                 ✅ |              ✅ 4 档 | post-train/toolchain ✅ | Apache-2.0      | 主要围绕双臂构型                   |
+| VLA 2.0    |                 ✅ |  ✅ base + RoboTwin |    post-train/deploy ✅ | Apache-2.0      | 6B + 多教师依赖，真机仍需本体适配        |
+| VA 1.0     | ✅ shared backbone |              ✅ 3 档 |           post-train ✅ | Apache-2.0      | separated 版本未明确发布          |
+| VA 2.0     |               未确认 |                未确认 |              技术报告/演示 ✅ | 未确认             | 不能称完整开源                    |
 
 ---
 
@@ -464,17 +465,17 @@ VLA 2.0 通过 DINO-Video future query 向 VA 靠近；VA 2.0 则通过高频异
 
 按官方项目页与仓库的公开节奏，LingBot 在 2026 年形成两轮发布：
 
-| 日期 | 节点 | 意义 |
-|---|---|---|
-| 2026-01-27 | Depth 1.0 | 从传感器空洞切入空间感知 |
-| 2026-01-28 | VLA 1.0 | 20K 小时真实机器人基础策略 |
-| 2026-01-29 | World 1.0 | 动作可控交互世界 |
-| 2026-01-30 | VA 1.0 | 视频预测与机器人动作联合 |
-| 2026-04-16 | Map 1.0 | 补齐持久在线三维状态 |
+| 日期         | 节点                     | 意义                                 |
+| ---------- | ---------------------- | ---------------------------------- |
+| 2026-01-27 | Depth 1.0              | 从传感器空洞切入空间感知                       |
+| 2026-01-28 | VLA 1.0                | 20K 小时真实机器人基础策略                    |
+| 2026-01-29 | World 1.0              | 动作可控交互世界                           |
+| 2026-01-30 | VA 1.0                 | 视频预测与机器人动作联合                       |
+| 2026-04-16 | Map 1.0                | 补齐持久在线三维状态                         |
 | 2026-07-07 | Vision 1.0 / Depth 2.0 | 空间视觉 backbone 与 150M RGB-D scaling |
-| 2026-07-08 | VLA 2.0 | 60K 小时、20 本体、55D、MoE |
-| 2026-07-09 | World 2.0 / Video 1.0 | 无界交互系统与通用视频基础模型 |
-| 2026-07-10 | VA 2.0 | 具身原生视频—动作预训练 |
+| 2026-07-08 | VLA 2.0                | 60K 小时、20 本体、55D、MoE               |
+| 2026-07-09 | World 2.0 / Video 1.0  | 无界交互系统与通用视频基础模型                    |
+| 2026-07-10 | VA 2.0                 | 具身原生视频—动作预训练                       |
 
 第一轮先铺“能看、能做、能模拟”；第二轮则把底层视觉、数据规模、MoE 和实时系统补齐。
 
@@ -511,7 +512,7 @@ VLA 2.0 通过 DINO-Video future query 向 VA 靠近；VA 2.0 则通过高频异
 
 一个自然的后续系统可以是：
 
-$$\text{Vision/Depth}\rightarrow\text{Map memory}\rightarrow\text{VA foresight}\rightarrow\text{VLA action expert},$$
+$\text{Vision/Depth}\rightarrow\text{Map memory}\rightarrow\text{VA foresight}\rightarrow\text{VLA action expert},$
 
 其中 Map 提供可回环的对象级/几何级持久状态，VA 负责候选未来的视觉动力学 rollout，VLA 负责低延迟 action decoding；World 则作为离线数据引擎与安全评估环境。真正困难的不是把模块串起来，而是让它们共享不漂移、可更新、可对齐到动作的中间状态。
 
@@ -519,30 +520,30 @@ $$\text{Vision/Depth}\rightarrow\text{Map memory}\rightarrow\text{VA foresight}\
 
 ## 14. 最终评级
 
-| 家族 | 评级 | 理由 |
-|---|---:|---|
-| Vision | ★★★★☆ | 边界中心预训练思路清楚，稠密任务强；训练数据和完整 recipe 复现门槛仍高 |
-| Depth | ★★★★☆ | MDM 直击真实传感器失败，跨模型价值高；2.0 权重开放边界需继续核查 |
-| Map | ★★★★☆ | GCA 的几何分层记忆很有启发；无显式回环，超长程依赖窗口拼接 |
-| Video | ★★★★☆ | 首批面向具身的开源 MoE 视频底座，数据与模型齐；视频指标到控制价值仍有距离 |
-| World | ★★★★☆ | 实时交互系统方向完整；2.0 非商业且部署栈不完整公开 |
-| VLA | ★★★★★ | 数据、跨本体、几何/未来蒸馏、后训练与部署链最完整，是当前最可用分支 |
-| VA | ★★★★☆ | 范式前沿，闭环与记忆潜力大；VA 2.0 复现材料不足 |
+| 家族      |        评级 | 理由                                                   |
+| ------- | --------: | ---------------------------------------------------- |
+| Vision  |     ★★★★☆ | 边界中心预训练思路清楚，稠密任务强；训练数据和完整 recipe 复现门槛仍高              |
+| Depth   |     ★★★★☆ | MDM 直击真实传感器失败，跨模型价值高；2.0 权重开放边界需继续核查                 |
+| Map     |     ★★★★☆ | GCA 的几何分层记忆很有启发；无显式回环，超长程依赖窗口拼接                      |
+| Video   |     ★★★★☆ | 首批面向具身的开源 MoE 视频底座，数据与模型齐；视频指标到控制价值仍有距离              |
+| World   |     ★★★★☆ | 实时交互系统方向完整；2.0 非商业且部署栈不完整公开                          |
+| VLA     |     ★★★★★ | 数据、跨本体、几何/未来蒸馏、后训练与部署链最完整，是当前最可用分支                   |
+| VA      |     ★★★★☆ | 范式前沿，闭环与记忆潜力大；VA 2.0 复现材料不足                          |
 | **全系列** | **★★★★★** | 少见地覆盖感知—建图—模拟—行动完整链，并形成明确内部教师关系；价值在“系统谱系”而非每项都单独绝对领先 |
 
 ---
 
 ## 15. 官方来源
 
-| 模型 | 项目页 | 论文/报告 | 代码 |
-|---|---|---|---|
-| Vision | <https://technology.robbyant.com/lingbot-vision> | <https://arxiv.org/abs/2607.05247> | <https://github.com/Robbyant/lingbot-vision> |
-| Depth | <https://technology.robbyant.com/lingbot-depth> | <https://arxiv.org/abs/2601.17895> | <https://github.com/Robbyant/lingbot-depth> |
-| Map | <https://technology.robbyant.com/lingbot-map> | <https://arxiv.org/abs/2604.14141> | <https://github.com/Robbyant/lingbot-map> |
-| Video | <https://technology.robbyant.com/lingbot-video> | <https://arxiv.org/abs/2607.07675> | <https://github.com/Robbyant/lingbot-video> |
-| World 1.0 | <https://technology.robbyant.com/lingbot-world> | <https://arxiv.org/abs/2601.20540> | <https://github.com/Robbyant/lingbot-world> |
-| World 2.0 | <https://technology.robbyant.com/lingbot-world-v2> | <https://arxiv.org/abs/2607.07534> | <https://github.com/Robbyant/lingbot-world-v2> |
-| VLA 1.0 | <https://technology.robbyant.com/lingbot-vla> | <https://arxiv.org/abs/2601.18692> | <https://github.com/Robbyant/lingbot-vla> |
-| VLA 2.0 | <https://technology.robbyant.com/lingbot-vla-v2> | <https://arxiv.org/abs/2607.06403> | <https://github.com/Robbyant/lingbot-vla-v2> |
-| VA 1.0 | <https://technology.robbyant.com/lingbot-va> | <https://arxiv.org/abs/2601.21998> | <https://github.com/Robbyant/lingbot-va> |
-| VA 2.0 | <https://technology.robbyant.com/lingbot-va-v2> | <https://github.com/Robbyant/lingbot-va/blob/main/LingBot_VA2_paper.pdf> | 当前未确认独立代码/权重发布 |
+| 模型        | 项目页                                                | 论文/报告                                                                    | 代码                                             |
+| --------- | -------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------- |
+| Vision    | <https://technology.robbyant.com/lingbot-vision>   | <https://arxiv.org/abs/2607.05247>                                       | <https://github.com/Robbyant/lingbot-vision>   |
+| Depth     | <https://technology.robbyant.com/lingbot-depth>    | <https://arxiv.org/abs/2601.17895>                                       | <https://github.com/Robbyant/lingbot-depth>    |
+| Map       | <https://technology.robbyant.com/lingbot-map>      | <https://arxiv.org/abs/2604.14141>                                       | <https://github.com/Robbyant/lingbot-map>      |
+| Video     | <https://technology.robbyant.com/lingbot-video>    | <https://arxiv.org/abs/2607.07675>                                       | <https://github.com/Robbyant/lingbot-video>    |
+| World 1.0 | <https://technology.robbyant.com/lingbot-world>    | <https://arxiv.org/abs/2601.20540>                                       | <https://github.com/Robbyant/lingbot-world>    |
+| World 2.0 | <https://technology.robbyant.com/lingbot-world-v2> | <https://arxiv.org/abs/2607.07534>                                       | <https://github.com/Robbyant/lingbot-world-v2> |
+| VLA 1.0   | <https://technology.robbyant.com/lingbot-vla>      | <https://arxiv.org/abs/2601.18692>                                       | <https://github.com/Robbyant/lingbot-vla>      |
+| VLA 2.0   | <https://technology.robbyant.com/lingbot-vla-v2>   | <https://arxiv.org/abs/2607.06403>                                       | <https://github.com/Robbyant/lingbot-vla-v2>   |
+| VA 1.0    | <https://technology.robbyant.com/lingbot-va>       | <https://arxiv.org/abs/2601.21998>                                       | <https://github.com/Robbyant/lingbot-va>       |
+| VA 2.0    | <https://technology.robbyant.com/lingbot-va-v2>    | <https://github.com/Robbyant/lingbot-va/blob/main/LingBot_VA2_paper.pdf> | 当前未确认独立代码/权重发布                                 |
