@@ -34,6 +34,12 @@
 | DepthSplat | https://haofeixu.github.io/depthsplat/ |
 | LRM | https://arxiv.org/abs/2311.04400 |
 | InstantMesh | https://github.com/TencentARC/InstantMesh |
+| VGGT-Ω | https://vggt-omega.github.io/ |
+| Pow3R | https://github.com/naver/pow3r |
+| LVSM | https://haian-jin.github.io/projects/LVSM/ |
+| Occupancy Networks | https://arxiv.org/abs/1812.03828 |
+| Pixel2Mesh | https://arxiv.org/abs/1804.01654 |
+| MeshLRM | https://arxiv.org/abs/2404.12385 |
 
 ## 单目与广义深度估计
 
@@ -57,6 +63,10 @@
 | Video Depth Anything | https://videodepthanything.github.io/ |
 | Prompt Depth Anything | https://promptda.github.io/ |
 | Marigold-DC | https://marigolddepthcompletion.github.io/ |
+| MoGe-2 | https://www.microsoft.com/en-us/research/publication/moge-2-accurate-monocular-geometry-with-metric-scale-and-sharp-details/ |
+| Metric3D v2 | https://arxiv.org/abs/2404.15506 |
+| DEFOM-Stereo | https://cvpr.thecvf.com/virtual/2025/poster/32552 |
+| ManyDepth | https://nianticlabs.github.io/manydepth/ |
 
 ## 视频生成
 
@@ -85,6 +95,8 @@
 | Self-Forcing | https://self-forcing.github.io/ |
 | LongLive | https://github.com/NVlabs/LongLive |
 | FramePack | https://arxiv.org/abs/2504.12626 |
+| HunyuanVideo-1.5 | https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5 |
+| LTX-2 | https://github.com/Lightricks/LTX-2 |
 
 ## 视频与三维世界模型
 
@@ -104,6 +116,13 @@
 | Lyra | https://github.com/nv-tlabs/lyra |
 | Lyra 2.0 | https://research.nvidia.com/labs/sil/projects/lyra2 |
 | Matrix-Game 2.0 | https://arxiv.org/abs/2508.13009 |
+| DIAMOND | https://diamond-wm.github.io/ |
+| Masked Visual Actions | https://masked-visual-actions.github.io/ |
+| Cosmos 3 | https://research.nvidia.com/labs/cosmos-lab/cosmos3/ |
+| Voyager | https://voyager-world.github.io/ |
+| AEON | https://weiqi-zhang.github.io/AEON/ |
+| HY-World 2.0 | https://github.com/Tencent-Hunyuan/HY-World-2.0 |
+| PointWorld | https://point-world.github.io/ |
 
 ## JEPA
 
@@ -116,7 +135,11 @@
 | V-JEPA 2.1 | https://arxiv.org/abs/2603.14482 |
 | DINO-WM | https://arxiv.org/abs/2411.04983 |
 | LeWorldModel | https://arxiv.org/abs/2603.19312 |
-| LeWAM | https://arxiv.org/abs/2610.12818 |
+| LeWAM (End-to-End World and Action Modeling with JEPAs) | https://arxiv.org/abs/2610.12818 |
+| LeWAM (Latent evolving World Action Model) | https://arxiv.org/abs/2609.27455 |
+| V-JEPA 2.1 | https://arxiv.org/abs/2603.14482 |
+| Flow-JEPA | https://arxiv.org/abs/2608.29029 |
+| LeWorldModel | https://le-wm.github.io/ |
 
 ## VLA 与 WAM
 
@@ -144,3 +167,11 @@
 | OpenWAM | https://openwam.stanford.edu/ |
 | LeWAM | https://arxiv.org/abs/2610.12818 |
 | World Action Models survey | https://world-action-models.github.io/ |
+| GR00T N1.7 | https://github.com/NVIDIA/Isaac-GR00T |
+| Helix 02 | https://www.figure.ai/news/helix-02 |
+| Helix 2.5 | https://www.figure.ai/news/helix-2-5-zero-shot-30-home-generalization |
+| StarVLA-α | https://arxiv.org/abs/2604.11757 |
+| StarVLA framework | https://github.com/starVLA/starVLA |
+| MMaDA-VLA | https://arxiv.org/abs/2603.25406 |
+| Masked Visual Actions | https://masked-visual-actions.github.io/ |
+| LeWAM (Latent evolving World Action Model) | https://arxiv.org/abs/2609.27455 |

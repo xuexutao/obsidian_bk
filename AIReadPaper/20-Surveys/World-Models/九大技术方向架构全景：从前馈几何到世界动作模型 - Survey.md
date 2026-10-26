@@ -71,6 +71,15 @@ tags:
 | VLA | 6 类动作解码 × 5 类融合方式 | 低频语义系统 + 高频连续 action expert + action chunk |
 | WAM | 3 类耦合 × 3 类中间状态 | 训练期预测性表征 + 测试时策略/评分/规划按需组合 |
 
+### 1.4 代表作如何分层
+
+为避免“经典论文很多、却看不出前沿推进到哪里”，下文对每条路线同时保留两类锚点：
+
+- **经典 / 高影响力锚点**：提出关键表示、训练目标或信息流，决定后续论文在解决什么问题；
+- **当前旗舰 / 最新前沿**：以 2024–2026 年工作为主，代表该路线当前性能、规模、统一性或系统能力的边界。
+
+发布状态统一标为：**正式**（已同行评审）、**arXiv**（公开预印本）、**技术报告**（机构披露）、**产品 / 博客**（仅官方演示或系统说明）。“更新”不自动等于“影响力更大”，“厂商旗舰”也不自动等于可复现科研证据；同一路线若 2024–2026 年没有公认新旗舰，会明确写“当前无新主线”，而不是为了追新堆普通论文。
+
 ---
 
 ## 2. 前馈 3D 重建：从任务管线到几何基础模型
@@ -88,24 +97,24 @@ tags:
 
 ### 2.2 六类输出表示
 
-| 家族 | 核心表示 | 代表作 | 代表性贡献 | 主要问题 |
-|---|---|---|---|---|
-| Pointmap 几何 | 每像素三维点 | [DUSt3R](https://arxiv.org/abs/2312.14132)、[MASt3R](https://arxiv.org/abs/2406.09756)、[VGGT](https://vgg-t.github.io/)、[π³](https://yyfz.github.io/pi3/) | 将匹配、深度、相机恢复压成统一稠密几何回归；VGGT 推进到全视图联合预测；π³ 去掉固定参考帧 | 坐标规范、尺度、参考帧偏置与跨头一致性 |
-| Depth-ray 因子化 | 深度 + 射线 / 相机 | [DA3](https://depth-anything-3.github.io/)、MapAnything | 把几何和相机解耦，以更少目标统一单图到多视图 | 射线、深度与 metric scale 如何稳定联合标定 |
-| 前馈 3DGS | Gaussian 位置、尺度、颜色、透明度 | [pixelSplat](https://davidcharatan.com/pixelsplat)、[MVSplat](https://donydchen.github.io/mvsplat/)、[NoPoSplat](https://noposplat.github.io/)、[DepthSplat](https://haofeixu.github.io/depthsplat/) | 预测后立即可渲染；将单目先验、cost volume 与可微渲染融合 | 渲染好不等于表面准；透明度可掩盖几何错误 |
-| NeRF / triplane / LRM | 连续场或三平面 | pixelNeRF、[LRM](https://arxiv.org/abs/2311.04400)、TripoSR | 从跨场景 NeRF 发展到单图对象级大重建模型 | 不可见面来自生成先验；更像资产补全而非测量 |
-| Surface / occupancy | mesh、SDF、voxel | InstantMesh 等 | 直接输出下游可编辑、可碰撞表面 | 拓扑、薄结构、非流形和离散化误差 |
-| 3D-free 视图合成 | target-view latent / light field | 部分 NVS Transformer | 不显式构建完整 3D，直接预测目标视角 | 难导出可测量、可规划的持久几何 |
+| 家族 | 核心表示 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 最新推进与证据状态 | 主要问题 |
+|---|---|---|---|---|---|
+| Pointmap 几何 | 每像素三维点 | [DUSt3R](https://arxiv.org/abs/2312.14132)【正式·CVPR 2024】、[MASt3R](https://arxiv.org/abs/2406.09756)【正式·ECCV 2024】 | [VGGT](https://vgg-t.github.io/)【正式·CVPR 2025 Best Paper】、[π³](https://yyfz.github.io/pi3/)【正式·ICLR 2026】、[VGGT-Ω](https://vggt-omega.github.io/)【正式·CVPR 2026 Oral】 | 从 pairwise pointmap 推进到全视图联合、置换等变和动态场景规模化；VGGT-Ω 官方提示 released 1B checkpoint 的部分 benchmark 可能受数据污染，相关数值应暂定 | 坐标规范、尺度、参考帧偏置与跨头一致性 |
+| Depth-ray 因子化 | 深度 + 射线 / 相机 | MVSNet【正式·ECCV 2018】、UniDepth【正式·CVPR 2024】 | [MapAnything](https://map-anything.github.io/)【正式·3DV 2026】、[DA3](https://depth-anything-3.github.io/)【正式·ICLR 2026 Oral】 | 把 geometry、camera 与 metric scale 因子化；DA3 用单一 depth-ray 目标统一单图到任意视图 | 射线、深度与 metric scale 如何稳定联合标定 |
+| 前馈 3DGS | Gaussian 位置、尺度、颜色、透明度 | [pixelSplat](https://davidcharatan.com/pixelsplat)【正式·CVPR 2024】、[MVSplat](https://donydchen.github.io/mvsplat/)【正式·ECCV 2024 Oral】 | [NoPoSplat](https://noposplat.github.io/)【正式·ICLR 2025 Oral】、[DepthSplat](https://haofeixu.github.io/depthsplat/)【正式·CVPR 2025】 | 从已知位姿稀疏视图推进到无位姿 canonical Gaussian，并引入基础深度先验 + cost volume | 渲染好不等于表面准；透明度可掩盖几何错误 |
+| NeRF / triplane / LRM | 连续场或三平面 | pixelNeRF【正式·CVPR 2021】、[LRM](https://arxiv.org/abs/2311.04400)【正式·ICLR 2024】 | InstantMesh【正式·AAAI 2025】、MeshLRM【arXiv 2024】 | 从跨场景条件 NeRF 发展到单图对象级三平面与可微 mesh 提取；主要是资产补全而非开放场景测量 | 不可见面来自生成先验；几何真实性与外观合理性难分离 |
+| Surface / occupancy | mesh、SDF、voxel | Occupancy Networks【正式·CVPR 2019】、Pixel2Mesh【正式·ECCV 2018】 | InstantMesh【正式·AAAI 2025】、MeshLRM【arXiv 2024】 | 直接导出可编辑、可碰撞表面；前沿重点从渲染转向拓扑、材质和工业资产接口 | 薄结构、非流形、拓扑与离散化误差 |
+| 3D-free 视图合成 | target-view latent / light field | IBRNet【正式·CVPR 2021】、GNT【正式·ICLR 2023】 | [LVSM](https://haian-jin.github.io/projects/LVSM/)【正式·ICLR 2025 Oral】 | 进一步移除 NeRF、3DGS、plane sweep 等显式 3D 归纳偏置，直接把输入视图与目标射线映射为新视图 | NVS 强不等于可导出可测量、可规划的持久几何 |
 
 ### 2.3 五类信息流
 
-| 信息流 | 代表作 | 优势 | 局限 |
-|---|---|---|---|
-| Pairwise cross-attention + 图优化 | DUSt3R、MASt3R、MASt3R-SfM | 两视图训练稳定，容易接入 SfM | 图像对可达 $O(N^2)$，全局对齐慢 |
-| 全视图 all-to-all | Fast3R、VGGT、π³、DA3 | 在网络内部直接建立全局一致性 | 视频很长时 token 和全局注意力成本高 |
-| Recurrent / persistent state | Spann3R、CUT3R、UniT | 在线、流式、内存可控 | 状态会遗忘，错误会被持续写回，回环困难 |
-| Cost volume / plane sweep | MVSplat、DepthSplat、MVSNet 系 | 显式使用相机与对应，局部几何可靠 | 依赖相机、深度候选和较大显存 |
-| Optional-condition model | MapAnything、OmniVGGT、WorldMirror、DA3 | 相机、深度、点图可作为任意组合输入 | 训练组合空间大，模型可能忽视辅助模态 |
+| 信息流 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 优势 | 局限 |
+|---|---|---|---|---|
+| Pairwise cross-attention + 图优化 | DUSt3R、MASt3R | MASt3R-SfM【正式·3DV 2025】、Pow3R【正式·CVPR 2025】 | 两视图训练稳定，容易接入 SfM；Pow3R 可注入相机/深度先验 | 图像对可达 $O(N^2)$，全局对齐慢 |
+| 全视图 all-to-all | Fast3R、VGGT | π³、DA3、VGGT-Ω【均为 2026 正式论文】 | 在网络内部直接建立全局一致性，并开始处理参考帧偏置和动态场景 | 视频很长时 token 和全局注意力成本高 |
+| Recurrent / persistent state | Spann3R | CUT3R【正式·CVPR 2025 Oral】、UniT【arXiv 2026，TPAMI submitted】 | 在线、流式、内存可控；UniT 用 group-AR 与 queue-style KV cache 统一离线/在线 | 状态会遗忘，错误会持续写回，回环困难 |
+| Cost volume / plane sweep | MVSNet、PatchmatchNet | MVSplat【ECCV 2024 Oral】、DepthSplat【CVPR 2025】、MVSAnywhere【CVPR 2025】 | 显式使用相机与对应，局部几何可靠，并吸收单目基础先验 | 依赖相机、深度候选和较大显存 |
+| Optional-condition model | Pow3R | MapAnything【3DV 2026】、OmniVGGT【CVPR 2026】、UniT【arXiv 2026】 | 相机、深度、点图可作为任意组合输入 | 训练组合空间大，模型可能忽视辅助模态 |
 
 ### 2.4 目前在争什么
 
@@ -139,14 +148,14 @@ tags:
 
 ### 3.2 六类架构家族
 
-| 家族 | 代表作 | 核心贡献 | 当前地位 |
-|---|---|---|---|
-| 监督式多尺度回归 | Eigen、DORN、AdaBins、DPT | 从连续回归发展到 ordinal / adaptive bins / ViT dense decoder | 奠基组件，已不是通用前沿主战场 |
-| 光度自监督 | Monodepth、SfMLearner、Monodepth2、PackNet-SfM | 用双目或视频重投影替代密集深度标注 | 适合领域适配；受静态、Lambertian、遮挡和相机假设约束 |
-| Relative depth foundation model | MiDaS、[Depth Anything](https://depth-anything.github.io/)、[DA V2](https://depth-anything-v2.github.io/) | 多数据集混训、海量伪标签和强 ViT backbone | 通用部署与下游特征主线 |
-| Zero-shot metric depth | ZoeDepth、Metric3D、[UniDepth](https://lpiccinelli-eth.github.io/pub/unidepth/)、[Depth Pro](https://github.com/apple/ml-depth-pro) | canonical camera、FOV head、pseudo-spherical 表示 | 走向 camera-aware metric geometry |
-| 单目 pointmap / geometry | UniDepth、[MoGe](https://github.com/microsoft/MoGe)、DA3 | 从标量深度升级为可反投影的三维状态 | 2026 年最强主线之一 |
-| 生成式深度 | [Marigold](https://marigoldmonodepth.github.io/)、GeoWizard、[DepthFM](https://depthfm.github.io/) | diffusion / flow 提供边界、细节和后验多样性 | 高保真与不确定性支线，尚未取代判别式部署主线 |
+| 家族 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 核心推进 | 当前地位 |
+|---|---|---|---|---|
+| 监督式多尺度回归 | Eigen、DORN、AdaBins、DPT | Metric3D v2【正式·TPAMI 2024】、[Depth Pro](https://github.com/apple/ml-depth-pro)【正式·ICLR 2025】 | 从连续回归、ordinal/binning 发展到 ViT dense decoder、canonical camera 与高分辨率边界 | 组件仍重要，但已被几何基础模型吸收 |
+| 光度自监督 | Monodepth、SfMLearner、Monodepth2、PackNet-SfM | From-Ground-To-Objects【正式·CVPR 2024】；2025–2026 暂无公认基础模型级新旗舰 | 用双目/视频重投影替代密集标签，近期主要修补动态物体、遮挡和相机假设 | 适合无标注领域适配，不是开放域主战场 |
+| Relative depth foundation model | MiDaS、[Depth Anything](https://depth-anything.github.io/)【正式·CVPR 2024】 | [DA V2](https://depth-anything-v2.github.io/)【正式·NeurIPS 2024】、DA3-Mono【正式·ICLR 2026 Oral】 | 多数据集混训、合成真值 + 6200 万真实伪标签、强 DINO 表征；DA3 开始让单目与任意视图共享骨干 | 通用部署与下游特征主线 |
+| Zero-shot metric depth | ZoeDepth、Metric3D | [UniDepth](https://lpiccinelli-eth.github.io/pub/unidepth/)【正式·CVPR 2024】、Depth Pro【正式·ICLR 2025】、[MoGe-2](https://github.com/microsoft/MoGe)【正式·NeurIPS 2025】 | 相机/FOV 感知、仿射不变几何与全局 metric scale 解耦；MoGe-2 同时改善尺度和锐利细节 | 正走向 camera-aware metric geometry |
+| 单目 pointmap / geometry | UniDepth、[MoGe](https://github.com/microsoft/MoGe)【正式·CVPR 2025 Oral】 | MoGe-2【正式·NeurIPS 2025】、DA3【正式·ICLR 2026 Oral】 | 从标量深度升级为 pointmap 或 depth-ray；统一单图、多视和相机恢复 | 2026 年最强主线之一 |
+| 生成式深度 | [Marigold](https://marigoldmonodepth.github.io/)【正式·CVPR 2024 Oral】、GeoWizard | [DepthFM](https://depthfm.github.io/)【正式·AAAI 2025 Oral】、Marigold-DC【正式·ICCV 2025】 | diffusion / flow 提供边界、细节、后验多样性和稀疏深度引导 | 高保真与不确定性支线，尚未取代判别式部署主线 |
 
 ### 3.3 目前在争什么
 
@@ -221,7 +230,17 @@ $$\text{views}+\text{optional cameras}+\text{optional depths}\rightarrow\text{ra
 
 DUSt3R、VGGT、CUT3R、DA3、MapAnything、OmniVGGT、UniT 是这一方向的代表。
 
-### 4.2 目前在争什么
+### 4.2 五条路线的经典锚点与当前前沿
+
+| 路线 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 当前推进 |
+|---|---|---|---|
+| Stereo | PSMNet、RAFT-Stereo | [FoundationStereo](https://nvlabs.github.io/FoundationStereo/)【正式·CVPR 2025】、DEFOM-Stereo【正式·CVPR 2025】 | 将单目基础先验与 correlation / recurrent stereo 结合，同时保留已知基线提供的 metric scale |
+| MVS | MVSNet、PatchmatchNet | MVSFormer++【正式·ICLR 2024】、MVSAnywhere【正式·CVPR 2025】 | 强 ViT 特征、Transformer cost regularization、自适应深度范围和零样本跨域 |
+| Temporal / Video Depth | ManyDepth 等几何时序基线 | DepthCrafter、RollingDepth、[Video Depth Anything](https://videodepthanything.github.io/)【三者均为 CVPR 2025】 | 形成扩散式全局一致、窗口级 scale/shift 配准、判别式时空头三条分支 |
+| Depth Completion | CSPN、NLSPN、CompletionFormer | Prompt Depth Anything【CVPR 2025】、Marigold-DC【ICCV 2025】、MapAnything【3DV 2026】 | 从“RGB 引导补洞”转向“强单目稠密先验 + 稀疏 metric anchor” |
+| Geometry Foundation Model | DUSt3R、VGGT | DA3【ICLR 2026 Oral】、MapAnything【3DV 2026】、OmniVGGT【CVPR 2026】、UniT【arXiv 2026】 | 把任务差异变成 views、camera、depth、pointmap 等输入配置差异；离线 all-to-all 与在线 memory 开始统一 |
+
+### 4.3 目前在争什么
 
 - **专家模型 vs 统一模型**：固定传感器和实时指标上专家模型仍强；未知域和缺失模态下统一模型更强。终局可能是统一 backbone + 专家 adapter/head。
 - **离线 all-to-all vs 在线 memory**：离线模型全局一致但昂贵；在线模型高效但遗忘和漂移。组自回归是中间方案。
@@ -234,16 +253,16 @@ DUSt3R、VGGT、CUT3R、DA3、MapAnything、OmniVGGT、UniT 是这一方向的�
 
 ### 5.1 八类生成架构
 
-| 家族 | 代表作 | 核心贡献 | 关键局限 |
-|---|---|---|---|
-| 视频 GAN | TGAN、MoCoGAN、DVD-GAN | 内容/运动分解、3D 判别器、单次生成 | 训练不稳、模式坍缩、长时和文本条件扩展差 |
-| 离散 token AR / masked | VideoGPT、Phenaki、MAGVIT-v2、VideoPoet、Emu3 | 将视频转成 token，复用语言模型或 MaskGIT 基础设施 | token 长、量化误差、串行延迟 |
-| 像素扩散 | Video Diffusion Models、Imagen Video | 建立 3D U-Net 和级联视频扩散 | 计算成本高，主要是历史奠基 |
-| 潜扩散 U-Net | Make-A-Video、Video LDM、AnimateDiff、SVD | 复用图像模型，仅增加时间层/运动模块 | 空间与时间人为分离，复杂运动受限 |
-| 时空 DiT | Sora 报告、CogVideoX、HunyuanVideo、Wan、Movie Gen | spacetime latent patch + 大规模 Transformer | full attention 的 token 成本成为核心瓶颈 |
-| Flow matching | Movie Gen、Wan、HunyuanVideo、LTX | 学习连续速度场，便于少步采样和蒸馏 | 效果仍强依赖 path、采样器、时间分布和 VAE |
-| AR diffusion / Diffusion Forcing | Diffusion Forcing、SkyReels-V2、MAGI-1 | 块内并行去噪、块间因果，连接离线扩散与流式生成 | exposure bias、逐块漂移、缓存增长 |
-| 因果蒸馏 / 实时流式 | CausVid、Self-Forcing、LongLive、Matrix-Game 2.0 | 块因果注意力、KV cache、少步蒸馏、自 rollout 训练 | 教师上限、模式收缩、硬件与系统强耦合 |
+| 家族 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 最新推进与证据状态 | 关键局限 |
+|---|---|---|---|---|
+| 视频 GAN | TGAN、MoCoGAN、DVD-GAN | 2024–2026 暂无公认新旗舰 | 建立内容/运动分解、3D 判别器和单次生成；关键思想被后续生成器吸收，但路线已退出基础模型主战场 | 训练不稳、模式坍缩、长时和文本条件扩展差 |
+| 离散 token AR / masked | VideoGPT、Phenaki | MAGVIT-v2【ICLR 2024】、VideoPoet【ICML 2024】、Emu3【arXiv 2024】 | 高压缩 tokenizer、MaskGIT 并行生成，以及文本/图像/视频统一 next-token 接口 | token 长、量化误差、串行延迟 |
+| 像素扩散 | Video Diffusion Models、Imagen Video | 2024–2026 无独立旗舰，主线已迁入 latent space | 建立 3D U-Net、时空扩散与级联超分，是后续视频扩散的奠基结构 | 计算成本高，主要是历史锚点 |
+| 潜扩散 U-Net | Make-A-Video、Video LDM、SVD | AnimateDiff【ICLR 2024】及 motion-module 生态 | 复用图像模型，仅增加时间层/运动模块，形成低成本视频微调路线 | 空间与时间人为分离，复杂运动受限 |
+| 时空 DiT | DiT、Sora 技术报告、CogVideoX | HunyuanVideo / 1.5【技术报告+开源】、Wan2.2【官方开源系统】 | 收敛到 spacetime latent patch + 3D causal VAE + 大规模 Transformer，并引入 MoE 与稀疏注意力；Wan2.2 不应写成独立正式论文 | full attention 的 token 成本成为核心瓶颈 |
+| Flow matching | Flow Matching、Movie Gen | LTX-2【arXiv 2026+开源】、HunyuanVideo-1.5、Wan2.2 | 连续速度场更适配少步采样、蒸馏和音视频联合；模型代际必须与早期 LTX/Wan 版本分开 | 效果仍强依赖 path、采样器、时间分布和 VAE |
+| AR diffusion / Diffusion Forcing | Diffusion Forcing【NeurIPS 2024】 | SkyReels-V2、MAGI-1【均为 2025 arXiv+开源】 | 块内并行去噪、块间因果，连接离线扩散与 next-token 流式生成 | exposure bias、逐块漂移、缓存增长 |
+| 因果蒸馏 / 实时流式 | CausVid【CVPR 2025】 | Self-Forcing【NeurIPS 2025】、LongLive【ICLR 2026】、Matrix-Game 2.0【arXiv+开源】 | 从双向多步教师蒸馏到 frame/block causal、self-rollout、KV-recache 和流式解码 | 教师上限、模式收缩、硬件与系统强耦合 |
 
 ### 5.2 骨干的事实收敛
 
@@ -304,15 +323,15 @@ $$p(o_{t+1:t+H}\mid o_{\le t},a_{t:t+H-1},c)$$
 
 ### 6.2 七类架构
 
-| 家族 | 状态与动力学 | 代表作 | 优势 / 局限 |
-|---|---|---|---|
-| RSSM / latent dynamics | 随机潜状态 + RNN/SSM | PlaNet、DreamerV3 | 快、适合规划；跨域视觉知识有限 |
-| 离散 token AR | VQ token + Transformer | IRIS、iVideoGPT | 与 LLM 技术栈兼容；序列长、误差积累 |
-| Masked token world model | 离散 token 并行填充 | Genie 1 | 可从无动作视频发现 latent action；因果闭环需额外设计 |
-| 视频 diffusion / DiT simulator | 视频 latent 迭代去噪 | GameNGen、Cosmos | 画质和多模态条件强；延迟和控制频率受限 |
-| Causal / streaming diffusion | 块或帧级因果去噪 | Matrix-Game、Yume、WorldPlay | 在线交互；长期漂移与缓存压力 |
-| 显式记忆增强 | RGB、几何、surfel、检索 cache | CaM、SPMem、VMem | 改善重访；错误记忆会污染未来 |
-| 世界基础模型平台 | 大规模视频基座 + 领域后训练 | Cosmos、Genie 2/3 | 可服务驾驶、机器人和游戏；通用物理能力尚未严格证明 |
+| 家族 | 状态与动力学 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 最新推进与证据边界 | 优势 / 局限 |
+|---|---|---|---|---|---|
+| RSSM / latent dynamics | 随机潜状态 + RNN/SSM | PlaNet【ICML 2019】、Dreamer 系列 | DreamerV3【正式·Nature 2025】 | 将 imagined rollout 统一扩到多类控制域；仍是紧凑模型式 RL，而非开放世界像素模拟器 | 快、适合规划；跨域视觉知识有限 |
+| 离散 token AR | VQ token + Transformer | IRIS【ICLR 2023】 | iVideoGPT【arXiv 2024+开源】 | 用可扩展 tokenizer 与交互式预训练连接视频生成和具身世界建模 | 与 LLM 技术栈兼容；序列长、误差积累 |
+| Masked token / visual action | masked token 或像素时空掩码 | Genie 1【ICML 2024】 | [Masked Visual Actions](https://masked-visual-actions.github.io/)【arXiv 2026+代码】 | 从无动作视频发现 latent action，进一步用实体 mask 统一 forward dynamics、inverse modeling 和候选评分；两者动作表示并不相同 | 因果闭环和跨本体标定仍需额外设计 |
+| 视频 diffusion / DiT simulator | 视频 latent 迭代去噪 | DIAMOND【NeurIPS 2024 Spotlight】、GameNGen【ICLR 2025】 | Cosmos-Predict2.5【技术报告+开源】 | 从单环境像素模拟推进到 Text2World / Image2World / Video2World 统一基座 | 画质和多模态条件强；延迟和控制频率受限 |
+| Causal / streaming diffusion | 块或帧级因果去噪 | CausVid、Self-Forcing | Matrix-Game 2.0【arXiv 2025+开源】、LongLive【ICLR 2026】 | few-step AR diffusion、逐帧动作条件与 KV cache 将交互推进到实时区间 | 在线可交互；实时输出不等于长期物理可靠 |
+| 显式记忆增强 | RGB、几何、surfel、检索 cache | Neural Map 等结构化记忆 | CaM、SPMem、VMem【2025 arXiv】、Lyra 2.0【2026 arXiv+代码】 | 从 recurrent hidden state 转向按视场、pointmap 或 surfel 索引的外部空间记忆 | 改善重访；错误记忆会污染未来 |
+| 世界基础模型平台 | 大规模视频基座 + 领域后训练 | Genie 1、Cosmos 1.0 | Genie 3【产品/博客，无论文权重】、Cosmos 3【技术报告】 | 前者强调实时可交互世界，后者用 Mixture-of-Transformers 统一语言、图像、视频、音频和动作；证据等级与可复现性差异很大 | 可服务驾驶、机器人和游戏；通用物理能力尚未严格证明 |
 
 ### 6.3 历史主线
 
@@ -348,20 +367,20 @@ $$p(o_{t+1:t+H}\mid o_{\le t},a_{t:t+H-1},c)$$
 
 ### 7.2 八类架构
 
-| 家族 | 世界状态 | 代表作 | 主要价值 |
-|---|---|---|---|
-| Occupancy world model | 3D voxel / semantic occupancy | OccWorld | 驾驶未来预测与碰撞规划 |
-| LiDAR / point world model | 点云、range image、point flow | PointWorld | 度量几何、动态点预测 |
-| Gaussian world model | 3D/4D Gaussian | GaussianWorld、AEON | 实时渲染与持续场景更新 |
-| NeRF / 3DGS dynamics | 神经场或高斯随时间变化 | 多类动态 NeRF/4DGS | 自由视角动态重建 |
-| 几何 cache 引导视频 | 点云、深度、warped context | GEN3C、Voyager | 精确相机控制和新区域补全 |
-| 检索式空间记忆 | RGB、latent、pointmap、surfel | SPMem、VMem、WorldCrafter | 长程回访与空间寻址 |
-| Video-to-3D lifting | 生成视频 → 前馈 3DGS/mesh | Lyra 1.0/2.0 | 复用视频先验并导出显式资产 |
-| Asset / object-centric world | 物体、mesh、材质、关系 | HunyuanWorld、Marble 类系统 | 可编辑、可组合、可接物理引擎 |
+| 家族 | 世界状态 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 最新推进与证据状态 | 主要价值 |
+|---|---|---|---|---|---|
+| Occupancy world model | 3D voxel / semantic occupancy | OccWorld【ECCV 2024】 | 2025–2026 仍以 occupancy forecasting 后续为主，暂无统一开放域旗舰 | 将驾驶世界压成语义 occupancy token 并预测未来，路线年轻且场景专用 | 驾驶未来预测与碰撞规划 |
+| LiDAR / point world model | 点云、range image、point flow | Copilot4D【ICLR 2024】 | PointWorld【arXiv 2026；ICLR 投稿已撤回】 | 从离散点云扩散推进到场景点与机器人动作的 3D point flow | 度量几何、动态点预测，减少 pixel tax |
+| Gaussian world model | 3D/4D Gaussian | GaussianWorld【CVPR 2025】 | [AEON](https://weiqi-zhang.github.io/AEON/)【NeurIPS 2026 accepted / arXiv】 | 从流式 3D occupancy evolution 推进到将视频生成 latent 解码为持久 4DGS | 实时渲染与持续场景更新；物理属性仍不足 |
+| NeRF / 3DGS dynamics | 神经场或高斯随时间变化 | D-NeRF【CVPR 2021】 | 4D Gaussian Splatting【CVPR 2024】、AEON【2026】 | 从 canonical deformation field 发展到显式时变 Gaussian；首先是动态表示，不自动具备动作条件 | 自由视角动态重建 |
+| 几何 cache 引导视频 | 点云、深度、warped context | GEN3C【arXiv 2025+代码】 | [Voyager](https://voyager-world.github.io/)【arXiv 2025+代码】 | 从 3D cache 渲染目标视角条件，推进到联合 RGB-D 生成、world cache 回写和长距离探索 | 精确相机控制和新区域补全 |
+| 检索式空间记忆 | RGB、latent、pointmap、surfel | CaM、SPMem、VMem【2025 arXiv】 | Lyra 2.0【2026 arXiv+代码】 | 空间重叠、pointmap、surfel 检索开始替代纯时间窗口；几何主要负责寻址和信息路由 | 长程回访与空间寻址 |
+| Video-to-3D / 4D lifting | 生成视频 → 3DGS / 4DGS / mesh | Lyra 1.0【ICLR 2026】 | Lyra 2.0、AEON【2026】 | 从视频扩散隐式 3D 蒸馏到前馈 3DGS，进一步输出持久 4DGS；需与“内部原生维护 3D”区分 | 复用视频先验并导出显式资产 |
+| Asset / object-centric world | 物体、mesh、材质、关系 | HunyuanWorld 1.0 | [HY-World 2.0](https://github.com/Tencent-Hunyuan/HY-World-2.0)【arXiv 2026+代码】、Marble【产品/博客】 | 从全景世界生成扩到导航、立体生成、几何编译和编辑；Marble 无正式论文，不反推内部表示 | 可编辑、可组合、可接物理引擎 |
 
 ### 7.3 代表性路线
 
-**GaussianWorld** 把自车运动、动态对象和新区域补全放进 Gaussian 状态。**GEN3C** 用三维缓存渲染目标视角条件，解决相机控制。**Lyra 1.0** 把视频扩散先验蒸馏成前馈 3DGS；**Lyra 2.0** 增加几何检索记忆和 self-augmentation，使可探索时长和回访一致性提高。**AEON** 尝试用持久 4DGS 统一视频与 3D 世界。
+**GaussianWorld** 把自车运动、动态对象和新区域补全放进 Gaussian 状态。**GEN3C** 用三维缓存渲染目标视角条件，解决相机控制；**Voyager** 进一步联合生成 RGB-D 并把结果写回 world cache，支持长距离探索。**Lyra 1.0** 把视频扩散先验蒸馏成前馈 3DGS；**Lyra 2.0** 增加几何检索记忆和 self-augmentation，使可探索时长和回访一致性提高。**AEON** 尝试把视频生成 latent 解码为持久 4DGS。**HY-World 2.0** 则走模块化资产世界路线，把全景生成、轨迹规划、立体视频、前馈深度和 3DGS 编译串起来。后三者均很新，结论主要来自作者报告和开放实现，尚缺充分第三方复现。
 
 ### 7.4 目前在争什么
 
@@ -389,23 +408,25 @@ $$s_x=E_x(x),\quad s_y=E_y(y),\quad \hat s_y=P(s_x,z),\quad \mathcal L=D(\hat s_
 
 ### 8.2 七类 JEPA
 
-| 家族 | 代表作 | 预测对象 | 用途 |
-|---|---|---|---|
-| Canonical image JEPA | [I-JEPA](https://arxiv.org/abs/2301.08243) | masked image embedding | 自监督表征 |
-| Video JEPA | [V-JEPA](https://arxiv.org/abs/2404.08471) | 时空 target embedding | 视频理解与动作预判 |
-| Action-conditioned JEPA | [V-JEPA 2](https://arxiv.org/abs/2506.09985) | 动作条件未来 embedding | latent MPC、机器人规划 |
-| Frozen-feature world model | DINO-WM | 预训练 dense feature 的未来 | 零样本目标规划 |
-| End-to-end JEPA world model | LeWorldModel | 从像素端到端学习 latent dynamics | 轻量规划 |
-| Flow / stochastic JEPA | Flow-JEPA | 多未来 latent trajectory | 处理多模态未来与鲁棒性 |
-| JEPA-WAM | LeWAM 等 | future latent + action flow | 直接策略与规划统一 |
+| 家族 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 预测对象与推进 | 用途 / 状态 |
+|---|---|---|---|---|
+| Canonical image JEPA | [I-JEPA](https://arxiv.org/abs/2301.08243)【CVPR 2023】 | LeJEPA / SIGReg【arXiv 2025】 | 从大块 masked image embedding 预测，推进到显式分布正则简化 anti-collapse | 自监督表征；LeJEPA 尚属预印本 |
+| Video JEPA | [V-JEPA](https://arxiv.org/abs/2404.08471)【ICLR 2025】 | [V-JEPA 2](https://arxiv.org/abs/2506.09985)【arXiv 2025】、V-JEPA 2.1【arXiv 2026+代码】 | V-JEPA 2 扩展互联网视频规模；2.1 用 dense predictive loss、deep self-supervision 和图像—视频联合训练强化局部空间特征 | 视频理解、dense representation；2.1 不是新的 action planner |
+| Action-conditioned JEPA | DINO-WM【ICML 2025】 | V-JEPA 2-AC【arXiv 2025+权重】 | 预测动作条件未来 feature，并用 MPC 比较候选动作后果 | latent MPC、机器人规划；普通 V-JEPA 本身不自动属于 WAM |
+| Frozen-feature world model | DINO-WM | V-JEPA 2-AC | 冻结 DINO/JEPA dense feature，仅训练动作条件 dynamics | 数据效率高；受冻结 latent 几何约束 |
+| End-to-end JEPA world model | DINO-WM 作为冻结特征对照 | [LeWorldModel](https://le-wm.github.io/)【arXiv 2026+代码】 | 从像素端联合学习 encoder 与 action-conditioned latent dynamics | 轻量规划；约 15M 参数，但结论仍属早期预印本 |
+| Flow / stochastic JEPA | 确定性 embedding regression | Flow-JEPA【arXiv 2026+代码】 | 用 conditional flow matching 联合生成多未来 latent trajectory | 处理多模态未来与递归误差；当前验证域较小 |
+| JEPA-WAM | V-JEPA 2-AC、LeWorldModel | 两篇同名 LeWAM：Latent evolving WAM【arXiv 2609.27455】与 End-to-End WAM with JEPAs【arXiv 2610.12818】 | 前者冻结 I-JEPA 并加未来/动作头；后者联合 next-latent prediction 与 action flow | 必须按完整标题消歧；只有预测真正进入动作或规划路径时才是严格 WAM |
 
 ### 8.3 从表征学习到世界模型
 
 - **I-JEPA**：大块上下文预测大块目标表征，避免像素重建偏向纹理；
 - **V-JEPA**：扩展到时空 mask，学习运动与对象表征；
 - **V-JEPA 2**：先用大规模无动作视频预训练，再用少量机器人数据训练动作条件 predictor，用 MPC 比较候选动作；
+- **V-JEPA 2.1**：重点修补局部空间与 dense feature，不应误写成新的动作条件规划器；
 - **LeJEPA / SIGReg**：尝试用显式分布正则简化 anti-collapse；
-- **LeWorldModel / Flow-JEPA / LeWAM**：把 latent prediction 推进到端到端动力学和动作闭环。
+- **LeWorldModel / Flow-JEPA**：把 latent prediction 推进到端到端动力学和随机多未来轨迹；
+- **两篇 LeWAM**：一篇是冻结 I-JEPA 的 latent-evolving world-action policy，另一篇端到端联合 next-latent 与 action flow；同名但不是同一工作。
 
 ### 8.4 目前在争什么
 
@@ -429,22 +450,22 @@ JEPA 的意义不只是“另一种 SSL loss”，而是提出世界模型的另
 
 ### 9.1 六类动作表示与解码
 
-| 家族 | 代表作 | 特点 | 主要取舍 |
-|---|---|---|---|
-| 离散动作 token AR | RT-1、RT-2、OpenVLA | 动作语言化，复用 LLM 交叉熵和推理栈 | 量化误差、串行延迟、高频冗余 |
-| 压缩动作 token | FAST / π0-FAST | DCT + 量化 + BPE 压缩动作块 | 保留 AR 优势，但仍是离散接口 |
-| 连续直接回归 | OpenVLA-OFT、StarVLA-α、Helix S1 | 极低延迟，结构简单 | 多峰动作可能被均值化 |
-| Diffusion policy | Octo、RDT-1B | 连续、多峰、平滑 action chunk | 多步采样与部署复杂度 |
-| Flow action expert | π0、GR-3、GR00T | VLM 提供语义，action expert 生成连续块 | 专家梯度、时延和 chunk 开环风险 |
-| 离散 diffusion | MMaDA-VLA | 并行去噪图像、语言和动作 token | 统一性强，尚需更充分真机验证 |
+| 家族 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 最新推进与证据状态 | 主要取舍 |
+|---|---|---|---|---|
+| 离散动作 token AR | RT-1【2022】、RT-2【2023】 | OpenVLA【正式·CoRL 2024+权重】 | 动作语言化，建立开放 7B 跨本体基线；RT-2 未开放完整权重，OpenVLA 可复现性更强 | 量化误差、串行延迟、高频冗余 |
+| 压缩动作 token | RT-2 / OpenVLA 的逐维分箱 | FAST / FAST+ / π0-FAST【正式·RSS 2025+代码】 | DCT + 量化 + BPE 压缩 action chunk，使 AR VLA 可处理高频灵巧动作 | 保留 AR 优势，但仍是离散接口 |
+| 连续直接回归 | 传统 BC regression | OpenVLA-OFT【RSS 2025】、StarVLA-α【arXiv 2026】 | 并行 action chunk、连续头和简化强基线；StarVLA 是研究框架，StarVLA-α 才是具体模型 | 极低延迟，但多峰动作可能被均值化 |
+| Diffusion policy | Diffusion Policy | Octo【RSS 2024】、RDT-1B【ICLR 2025】 | 连续、多峰、平滑 action chunk，并扩到跨本体大模型 | 多步采样与部署复杂度 |
+| Flow action expert | π0【arXiv 2024】 | π0.5【技术报告 2025】、GR-3【技术报告 2025】、GR00T N1.7【官方模型/仓库 2026】 | VLM 提供低频语义，flow/DiT action expert 生成连续块；π0 系有 openpi，GR-3 无公开权重，N1 论文不能替代 N1.7 独立披露 | 专家梯度、时延和 chunk 开环风险 |
+| 离散 diffusion / 联合未来—动作 | 离散 diffusion 多模态模型 | MMaDA-VLA【arXiv 2026，ACM MM 2026 已录用】 | 在共享离散空间并行去噪未来目标观测与 action chunk，因此同时属于统一 VLA 与联合式 WAM | 统一性强，会议在资料截止日后召开，仍需更多真机验证 |
 
 ### 9.2 五类融合结构
 
 1. **动作进入 VLM 词表**：RT-2、OpenVLA；
 2. **强 VLM + 轻量 action head**：OpenVLA-OFT、StarVLA-α；
 3. **VLM + policy adapter**：小型机器人模块读取多层 VLM 特征；
-4. **VLM + action expert / MoT**：π0、GR-3、GR00T；
-5. **快慢双系统**：低频 VLM 处理语义，高频小策略输出控制，Helix 和 GR00T 是典型。
+4. **VLM + action expert / MoT**：π0/π0.5、GR-3、GR00T N1–N1.7；
+5. **快慢双系统**：低频 VLM 处理语义，高频小策略输出控制，Helix、GR00T 是典型。Helix 02/2.5 属厂商产品/技术博客，暂无公开论文、代码和权重；GR00T N1.7 是官方 GA 模型与仓库发布，不能把 N1 的论文自动当作 N1.7 的同行评审证据。
 
 ### 9.3 策略时间结构
 
@@ -542,16 +563,16 @@ $$p(O',A\mid O,l)$$
 
 ### 10.5 代表作与贡献
 
-| 工作 | 类型 | 贡献 |
-|---|---|---|
-| [UniPi](https://arxiv.org/abs/2302.00111) | 级联 Predict-then-Act | 文本生成视频计划，再由 inverse dynamics / planner 解出动作 |
-| GR-1 | 联合视频—动作 | 共享 Transformer 同时预测未来图像和动作，证明视频预训练可进入策略 |
-| JOWA | 联合 world–action | 在 Atari 离线 RL 中联合世界预测与动作价值，较早明确使用 World-Action 名称 |
-| [DreamZero](https://dreamzero0.github.io/) | 视频扩散联合 WAM | 在视频生成骨干中联合预测未来视频与动作，推进零样本和闭环机器人控制 |
-| Fast-WAM | 训练期预测、测试期跳过显式未来 | 质疑部署时完整视频想象是否必要，强调预测式协同训练价值 |
-| Motus / FlowWAM | 多专家或统一动作表示 | 探索视频、动作、逆动力学和世界模型共享主干 |
-| [OpenWAM](https://openwam.stanford.edu/) | 模块化系统研究 | 控制变量比较视频骨干、latent、动作容量、信息流和数据配方 |
-| LeWAM | JEPA-WAM | 联合 next-latent prediction 与 action flow，兼容直接策略和 latent planning |
+| 路线 / 工作 | 经典 / 高影响力锚点 | 当前旗舰 / 最新前沿 | 贡献与证据状态 |
+|---|---|---|---|
+| 级联 Predict-then-Act | [UniPi](https://arxiv.org/abs/2302.00111)【NeurIPS 2023】 | [Masked Visual Actions](https://masked-visual-actions.github.io/)【arXiv 2026+代码】 | 从文本生成完整视频计划再解动作，推进到以实体 mask / 视觉轨迹作为更紧凑的 forward/inverse 动力学接口 |
+| 联合自回归视频—动作 | GR-1【ICLR 2024+代码】 | [DreamZero](https://dreamzero0.github.io/)【arXiv 2026+部分权重】 | 共享 Transformer 或视频扩散骨干联合预测未来与动作；DreamZero 结果仍主要来自作者真机评测 |
+| 联合 world–action 离线 RL | Dreamer 类模型式 RL | JOWA【ICLR 2025+代码】 | 在 Atari 中联合世界转移、动作价值和规划，说明 WAM 不只等于机器人视频扩散 |
+| 训练期未来预测、测试期直接动作 | GR-1 等联合训练 | Fast-WAM【arXiv 2026+代码】 | 拆分训练期预测监督与测试时显式想象的收益；严格口径下更接近 WAM-derived VLA / future-auxiliary policy |
+| 模块化耦合比较 | 固定 joint 或级联结构 | [OpenWAM](https://openwam.stanford.edu/)【arXiv 2026+代码】 | 在同一骨架比较 joint、video-then-action、action-then-video、decoupled；它是实验框架与模型族，不只是一个 checkpoint |
+| JEPA / latent-only WAM | DINO-WM、V-JEPA 2-AC | Latent evolving LeWAM【arXiv 2609.27455】、End-to-End LeWAM【arXiv 2610.12818】 | 两篇同名不同团队：前者冻结 I-JEPA，未来分支可在部署裁掉；后者联合 next-latent 与 action flow，可直接策略也可 latent planning |
+| 原生离散 diffusion WAM | 多模态离散 diffusion | MMaDA-VLA【arXiv 2026，ACM MM 2026 已录用】 | 同一去噪过程联合生成 future goal observation 与 action chunk，是 VLA 与 WAM 交叉最明确的新路线之一 |
+| 像素对齐动作接口 / 候选评分 | action-conditioned video + inverse dynamics | Masked Visual Actions【arXiv 2026】 | 机器人 mask 做 forward dynamics、目标物体 mask 做 inverse modeling，并可做 Best-of-N 策略评分；只有输出进入控制时才构成 WAM |
 
 ### 10.6 目前在争什么
 
