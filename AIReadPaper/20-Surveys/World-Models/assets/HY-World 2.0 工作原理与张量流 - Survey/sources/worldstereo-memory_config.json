@@ -1,0 +1,143 @@
+{
+  "base_model": "Wan-AI/Wan2.1-I2V-14B-480P-Diffusers",
+  "load_uni3c": false,
+  "seed": 1024,
+  "nframe": 21,
+  "num_workers": 8,
+  "scale_map": [
+    [
+      480,
+      832
+    ],
+    [
+      480,
+      768
+    ],
+    [
+      512,
+      784
+    ],
+    [
+      512,
+      720
+    ],
+    [
+      576,
+      704
+    ],
+    [
+      576,
+      640
+    ],
+    [
+      640,
+      640
+    ],
+    [
+      640,
+      576
+    ],
+    [
+      704,
+      576
+    ],
+    [
+      720,
+      512
+    ],
+    [
+      784,
+      512
+    ],
+    [
+      768,
+      480
+    ],
+    [
+      832,
+      480
+    ]
+  ],
+  "grad_checkpoint": true,
+  "freeze_backbone": false,
+  "ema_eval": true,
+  "render_radius": 0.008,
+  "points_per_pixel": 8,
+  "background_color": [
+    0,
+    0,
+    0
+  ],
+  "sobel_threshold": 0.35,
+  "center_scale": 1.0,
+  "start_elevation": 5.0,
+  "pcd_aug_cfg": {
+    "crop_ratio": 0.1,
+    "edge_mask_ratio": 0.5,
+    "pcd_degrade": true,
+    "fly_edge_ratio": 0.1,
+    "fly_dege_size": 3,
+    "global_distortion_ratio": 0.0,
+    "global_distortion_size": 21,
+    "local_distortion_ratio": 0.0,
+    "local_distortion_size": 27,
+    "local_distortion_region": 4
+  },
+  "ref_aug_cfg": {
+    "motion_blur_aug": true,
+    "motion_blur_aug_ratio": 0.1,
+    "motion_blur_kernel_size": 7,
+    "jitter_aug": true,
+    "jitter_brightness": 0.15,
+    "jitter_contrast": 0.15,
+    "jitter_saturation": 0.15
+  },
+  "camera_embedding": true,
+  "is_w2c": true,
+  "controlnet_cfg": {
+    "conv_out_dim": 5120,
+    "time_embed_dim": 5120,
+    "dim": 1024,
+    "ffn_dim": 4096,
+    "num_heads": 16,
+    "num_layers": 20,
+    "add_channels": 7,
+    "mid_channels": 256,
+    "mask_downsample": 1,
+    "update_ref": true,
+    "ref_embedding": false,
+    "main_camera_embedding": true,
+    "camera_embedding_dim": 7,
+    "freeze_attn2": true,
+    "freeze_ffn": false
+  },
+  "lr": 1e-05,
+  "mainblock_lr": 4e-06,
+  "grad_clip": 1.0,
+  "weight_decay": 0.0001,
+  "adam_eps": 1e-08,
+  "lr_scheduler": "constant",
+  "render_dropout": 0.05,
+  "camera_dropout": 0.08,
+  "pointmap_dropout": 0.0,
+  "referece_dropout": 0.0,
+  "latent_cond_mode": "first_frame_only",
+  "use_ema": true,
+  "ema_decay": 0.999,
+  "ema_warmup_steps": 20,
+  "loss": {
+    "num_train_timesteps": 1000,
+    "shift": 5.0,
+    "use_discrete_timesteps": false,
+    "sample_method": "logit-normal",
+    "use_timestep_transform": true,
+    "loc": 0.0,
+    "scale": 1.0
+  },
+  "total_steps": 90001,
+  "warmup_steps": 250,
+  "log_every": 1,
+  "eval_every": 0,
+  "ckpt_every": 500,
+  "enable_prope": false
+}

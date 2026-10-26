@@ -1,0 +1,21 @@
+{
+    "disable_compile": true,
+    "eos_token_id": [
+        127957
+    ],
+    "pad_token_id": 128009,
+    "do_sample": true,
+    "top_k": 1024,
+    "top_p": 0.95,
+    "temperature": 0.6,
+    "max_length": 22800,
+    "sequence_template": "instruct",
+    "diff_infer_steps": 50,
+    "diff_guidance_scale": 4.0,
+    "flow_shift": 6.5,
+    "use_system_prompt": "en_unified",
+    "drop_think": false,
+    "bot_task": "think_recaption",
+    "max_new_tokens": 2048,
+    "transformers_version": "4.50.0"
+}
