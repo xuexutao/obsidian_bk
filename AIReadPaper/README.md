@@ -254,7 +254,16 @@ research-field-survey/scripts/extract_figure.py
 
 ---
 
-## 10. 材料来源
+## 10. 代码级实现（有开源仓库时必写）
+
+### 10.1 仓库概览与模块映射
+### 10.2 全链路张量总表
+### 10.3 逐模块拆解（输入输出 / 为什么这么设计 / 关键超参 / 代码与论文差异）
+### 10.4 计算账与复现建议
+
+---
+
+## 11. 材料来源
 ```
 
 写作要求：
@@ -271,6 +280,8 @@ research-field-survey/scripts/extract_figure.py
 - 每张图片下方必须写一句以上的中文解读，并注明来源；
 - 必须讨论方法价值、适用边界、失败案例、局限和个人判断；
 - 对复现成本、数据需求、训练资源、推理速度和代码可用性进行评估；
+- **必须检查论文是否有开源仓库**（PDF 正文链接、arXiv/项目页、Papers with Code、WebSearch），结论写进「基本信息」与 frontmatter `code:`；
+- **有官方代码时必须追加「代码级实现」章节**：克隆仓库并记录 commit，结合官方权重配置（如 HF `config.json`），按流程逐模块写出输入输出张量形状（用默认配置的具体数字）、为什么这么设计、关键超参，以及代码与论文的差异；未开源时注明“截至 YYYY-MM-DD 未开源”。范例：`20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md`；
 - 信息缺失时如实标注“论文未披露”或“暂未找到”，不得补造事实。
 
 ### 6.1 图片引用示例
@@ -297,6 +308,7 @@ doi: null
 source: https://arxiv.org/abs/xxxx.xxxxx
 project: null
 code: null
+code_commit: null
 tags:
   - 3D-Generation
 created: YYYY-MM-DD
@@ -385,6 +397,7 @@ updated: YYYY-MM-DD
 - [ ] 公式符合 Obsidian 语法
 - [ ] 附件目录与笔记名一致，正文使用相对路径
 - [ ] 已讨论局限、失败案例、复现成本和个人判断
+- [ ] 已检查开源仓库；若有官方代码，已写「代码级实现」章节（模块映射、张量总表、逐模块四段、代码与论文差异），并在 `sources.md` 记录 commit 与 config 来源
 - [ ] 索引摘要已回填并包含 ★ 评级
 - [ ] `[[阅读总结链接]]` 可以正常打开
 - [ ] 已清理未使用的整页渲染图、碎片图和重复文件

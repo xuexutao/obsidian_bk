@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
   "title": "HunyuanImage-3 是 16× VAE、patch 1；Qwen-Image 是 8...",
   "createdAt": "2026-10-26T07:17:02.649Z",
-  "updatedAt": "2026-10-26T07:17:02.649Z",
+  "updatedAt": "2026-10-26T07:17:02.650Z",
   "messages": [
     {
       "id": "100bb7d4-069e-49f4-819e-3a1b2f69d265",
@@ -70,7 +70,117 @@
         }
       ],
       "timestamp": "2026-10-26T07:16:41.398Z"
+    },
+    {
+      "id": "745960e1-aa44-46f8-91f6-62286bf2093a",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "没太懂最后这个，为什么 潜空间是 16列和8列，又为什么一定要 1952 呢？那个32是如何得到的",
+          "autoMentionContext": {
+            "noteName": "HY-World 2.0 工作原理与张量流 - Survey",
+            "notePath": "AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md",
+            "selection": {
+              "fromLine": 108,
+              "toLine": 108
+            }
+          }
+        }
+      ],
+      "timestamp": "2026-10-26T07:21:05.411Z"
+    },
+    {
+      "id": "32e2bce9-ec69-4b15-a245-16b5a586ab2f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "My previous answer's last part was speculative and possibly inaccurate, so I want to reconsider it honestly rather than invent details. I'm trying to work out why 1952 is 32 pixels more than 1920, which seems to correspond to a small overlap region used for blending a seam, equating to roughly 2 latent columns at the standard downscale factor.\n\nActually, since both 1920 and 1952 divide evenly by 32, my earlier claim that 1920 wouldn't satisfy alignment was wrong — I need to correct that. The real purpose of the extra 32 columns is likely a fixed overlap width for blending left and right edges in pixel space, chosen as a multiple of the compression factor so it maps cleanly to whole latent columns or tokens.\n\nI also realize I conflated latent-level and token-level pixel ratios when describing how padding columns translate to pixel footprint for different VAEs, so I should go back to the source material to ground these claims properly rather than keep guessing.\n\n"
+        }
+      ],
+      "timestamp": "2026-10-26T07:21:11.317Z"
+    },
+    {
+      "id": "67522bf4-c48a-4281-95c3-2dbe5f949e21",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_019bPRFhcL58h9PNscQcYrFP",
+          "title": "grep -n \"1952\\|32 列\\|circle\\|环形\\|融合\\|pad\" \"/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md\" | head -60",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n \"1952\\|32 列\\|circle\\|环形\\|融合\\|pad\" \"/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md\" | head -60",
+            "description": "Find mentions of 1952, padding, blending in the note"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I should double-check my reasoning here—the 32-column figure may not come directly from patch size but rather be chosen for blending overlap. Checking the numbers: 1952 equals 1920 plus 32, and dividing both by 16 gives 120 and 122 latent columns respectively, so I'm working out what that 32-pixel overlap translates to at the 16x VAE scale.\n\nActually my earlier reasoning was tangled—for the 8x latent,1952 divided by 8 gives 244, which is even, so that's the actual evenness constraint, not the 16x division. I want to go back and verify this against the actual code lines to get it right.\n\n"
+        }
+      ],
+      "timestamp": "2026-10-26T07:21:20.316Z"
+    },
+    {
+      "id": "755bf81b-1b13-4e80-ab1a-a8791e606084",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_015kdXMWdNTJjFNWLvQAtAri",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md (121 - 160)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md",
+              "line": 121
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md",
+            "offset": 121,
+            "limit": 40
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I realize my earlier explanation was partly speculative, so I should correct myself here. The 1952 figure comes from 1920 plus a 32-pixel blend margin added in pixel space, and I need to verify why that particular blend width was chosen against the model's divisibility requirements.\n\nChecking the math: both HunyuanImage-3's VAE (divisible by 16) and Qwen's VAE+packing (also divisible by 16) are already satisfied by 1920 alone, so the extra 32 isn't strictly required by divisibility — it's a deliberate design choice for blend width. 32 pixels maps to exactly 2 latent token columns in both architectures, which gives a wide enough seam to blend smoothly, whereas 16 pixels would only give 1 token column, too narrow — so my prior claim that 1920 \"wouldn't work\" without the extra padding was incorrect.\n\n"
+        }
+      ],
+      "timestamp": "2026-10-26T07:21:32.883Z"
+    },
+    {
+      "id": "0e9fc4f9-eed7-4968-bebb-ffbbc97e456e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01MHwuWuYWycMZPZu8m5fxGe",
+          "title": "cd /Users/eilonxtxue/Documents/hexo/obsidian_bk 2>/dev/null; ls ~/Documents 2>/dev/null | head -30; echo \"---\"; find ~ -maxdepth 4 -iname \"*anyuanWorld*\" -o -maxdepth 4 -iname \"panogen\" 2>/dev/null | head",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/hexo/obsidian_bk 2>/dev/null; ls ~/Documents 2>/dev/null | head -30; echo \"---\"; find ~ -maxdepth 4 -iname \"*anyuanWorld*\" -o -maxdepth 4 -iname \"panogen\" 2>/dev/null | head",
+            "description": "Check whether the HunyuanWorld repo is available locally"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "Since I don't have the repo locally, I can't actually verify these numbers, so I need to be more careful about my earlier claims regarding 1952 and 32 — some of that was overreaching rationalization rather than solid reasoning. The 32-pixel overlap is likely just a design choice for blending width rather than something strictly derived from patch alignment, though it still needs to satisfy certain divisibility constraints.\n\nChecking HunyuanImage-3 and Qwen-Image, both require width divisible by 16 (whether through direct VAE downsampling or VAE plus 2×2 packing), and 1952 satisfies that. But 32 isn't uniquely forced — it just needs to be a multiple of 16, and 1920+16=1936 would also work, so 32 is really a chosen blend width equal to two latent columns, not a mathematically required value. I also need to be more precise about distinguishing a \"latent column\" from a \"token column\" — for Hunyuan one latent column is 16px, but for Qwen one latent column is 8px while one token (after 2×2 packing) corresponds to 16px, which is a distinction I glossed over earlier.\n\n"
+        },
+        {
+          "type": "text",
+          "text": "先说一句：我上一条回答里对 `1952` 的解释有个错误，我把\"1920 不满足 pack 对齐\"说成了理由——这是错的。$1920/16=120$，偶数，完全对齐。下面重新讲清楚。\n\n## 1. \"16 列 / 8 列\"指的是什么\n\n这里我上次没说清，关键是要区分**潜变量列**和**token 列**：\n\n| | VAE 下采样 | 1 个潜变量列 = ? 像素 | patch | 1 个 token 列 = ? 像素 |\n|---|---|---|---|---|\n| HunyuanImage-3 | 16× | **16 px** | 1×1 | 16 px |\n| Qwen-Image | 8× | **8 px** | 2×2 | 16 px |\n\n所以上次说的\"补 1 列是 16 列 vs 8 列像素\"，说的是**潜变量**那一层：Qwen 的潜变量网格是 $120\\times244$，比 Hunyuan 的 $60\\times122$ 细一倍，所以在潜空间做环形填充时，同样\"复制 1 列\"在 Qwen 上只覆盖 8 个像素。\n\n但**到了 token 层面两者完全一样**，都是 1 token = 16×16 像素。这才是对 1952 这个数字起约束作用的那一层。\n\n## 2. 为什么是 1952\n\n两个独立的要求叠在一起：\n\n**(a) 宽度必须能被 16 整除**（两种后端的有效压缩率都是 16×，不整除就没法 patchify）：\n\n$$1952 = 16 \\times 122 \\quad\\checkmark$$\n\n**(b) 需要在 1920 之外多生成一段用于接缝融合**，这段的宽度也必须是 16 的倍数。\n\n$$1952 = 1920 + 32,\\qquad 32 = 16\\times 2$$\n\n所以 **1952 没什么神秘之处**：它就是\"目标 1920 + 32 像素冗余\"，而 32 是 16 的倍数里的一个选择。\n\n## 3. 那 32 是怎么来的\n\n诚实的答案：**32 是一个人为选的融合带宽度，不是推导出来的**。它只受一个硬约束——必须是 16 的倍数，否则 token 网格不是整数。候选值其实有：\n\n| 冗余宽度 | 生成尺寸 | token 列数 | 融合带 |\n|---|---|---|---|\n| 16 px | 1936 | 121 | 只有 1 个 token 宽 |\n| **32 px** | **1952** | **122** | **2 个 token 宽** ← 代码选择 |\n| 48 px | 1968 | 123 | 3 个 token 宽 |\n\n选 32 的实际理由是工程权衡：\n\n- **16 px 太窄**。线性渐变只有 16 个像素的过渡区，如果模型在接缝处的内容有轻微错位，会看出一条竖线。而且 1 个 token 宽意味着模型几乎没有\"空间\"去规划越界内容。\n- **32 px 足够但不浪费**。$32/1920\\times 360° = 6°$ 的重叠视角，对 ERP 来说是个合理的过渡带；代价只是多 2 列 token（$122$ vs $120$，+1.7% 序列长度）。\n- 更宽（48、64）不会明显改善接缝，但 token 数和注意力开销线性/平方增长。\n\n> 补一个校正：我上次说\"多出的 32 列正好是一个 patch 的像素宽度（16×2）\"——准确说法是 **32 像素 = 2 个 token 列**（每个 token 列 16 px），不是 1 个 patch。\n\n## 4. 整条链串起来\n\n以 HunyuanImage-3 后端为例：\n\n$$\\underbrace{960\\times 1952}_{\\text{生成像素}} \\xrightarrow{\\text{VAE }16\\times} \\underbrace{60\\times 122}_{\\text{潜变量}} \\xrightarrow{p=1} \\underbrace{7320}_{\\text{token}} \\xrightarrow{\\text{50 步去噪}} \\cdots \\xrightarrow{\\text{VAE 解码}} 960\\times 1952$$\n\n$$\\xrightarrow{\\text{对左 32 列线性融合}} \\xrightarrow{\\text{裁掉右 32 列}} \\underbrace{960\\times 1920}_{\\text{严格 2:1 ERP}}$$\n\n融合公式就是 note 第 152 行那个（$W'=1952$）：\n\n$$I'[:,x]=\\left(1-\\tfrac{x}{32}\\right)\\,I[:,1920+x]+\\tfrac{x}{32}\\,I[:,x],\\quad x\\in[0,32)$$\n\n即 $x=0$ 处完全取\"越过 360° 之后\"的那一列，$x=31$ 处几乎完全取原第 31 列，中间平滑过渡。这样裁掉右侧后，新的第 0 列和第 1919 列在内容上就是连续的。\n\n---\n\n说明一下我的把握程度：**第 1、2、4 节是从 note 里已有的配置数字直接算出来的，可靠**。第 3 节里\"为什么不是 16 或 48\"是我的工程推断——仓库不在本地，我没法去 `panogen/` 里确认代码有没有注释解释这个常数。如果你想要确证，需要在 HunyuanWorld 2.0 仓库里搜 `circular_blend_edges` 的定义和那个 `32` 是写死还是可配置参数。\n\n要不要我把第 1 节那个\"潜变量列 vs token 列\"的对照表补进 note 的 2.2 节？那是目前 note 里最容易让人混淆的地方。"
+        }
+      ],
+      "timestamp": "2026-10-26T07:21:50.650Z"
     }
   ],
-  "savedAt": "2026-10-26T07:17:02.651Z"
+  "savedAt": "2026-10-26T07:23:46.398Z"
 }
