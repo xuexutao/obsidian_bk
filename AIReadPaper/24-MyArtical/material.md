@@ -32,3 +32,7 @@ VJEPA2 就是比较重要的，它分为两阶段训练了，第一个阶段也�
 ![](assets/material/file-20261025000520209.png)
 WAM
 dreamZero · LingBot-VA · Cosmos policy
+
+### VGGT 和 DA3
+
+VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 之间主要是通过共享 backbone 产生“软耦合”，不一定存在严格的跨 head 几何一致性约束。

@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
   "title": "那像前馈3D重建里的 hunyuan world mirror，和 lingbot map 等...",
   "createdAt": "2026-10-26T09:22:57.636Z",
-  "updatedAt": "2026-10-26T09:22:57.636Z",
+  "updatedAt": "2026-10-26T09:22:57.638Z",
   "messages": [
     {
       "id": "35989e2c-81c6-4a22-a24c-d87d73ef9a67",
@@ -181,11 +181,176 @@
         },
         {
           "type": "agent_thought",
-          "text": "I should check the \"分支谱系总览\" survey next and cross-reference which papers from the vault's 3D-Reconstruction folder are already covered there versus which recent works are missing. Looking at section 2 of the big survey, it already lists DUSt3R, MASt3R, VGGT, π³, DA3, MapAnything, pixelSplat, MVSplat, NoPoSplat, DepthSplat, and pixelNeR."
+          "text": "I should check the \"分支谱系总览\" survey next and cross-reference which papers from the vault's 3D-Reconstruction folder are already covered there versus which recent works are missing. Looking at section 2 of the big survey, it already lists DUSt3R, MASt3R, VGGT, π³, DA3, MapAnything, pixelSplat, MVSplat, NoPoSplat, DepthSplat, and pixelNeR.Expanding that list, I also see LRM, TripoSR, InstantMesh, Fast3R, CUT3R, UniT, Spann3R, MASt3R-SfM, MVSNet, and OmniVGGT covered, with WorldMirror only appearing once in the optional-condition row of table 2.3. LingBot-Map isn't mentioned at all, and papers like HiP3R, VGGT-Ω, MonST3R, D4RT, Foundation4D, Dyna3, SAM 3D, ViPE, and Lyra seem to be missing entirely from the vault. I want to look at the 分支谱系总览 to see how it categorizes these gaps and do a broader scan for other recent works not yet captured in the survey."
         }
       ],
       "timestamp": "2026-10-26T09:19:58.341Z"
+    },
+    {
+      "id": "cb0a4cce-15ab-4de2-993b-ebdadbc414f7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01C6nvd8i9XVCFSqXHRVLkf7",
+          "title": "grep -n \"LingBot\\|WorldMirror\\|HiP3R\\|VGGT-Ω\\|Omni\\|StreamVGGT\\|Stream3R\\|TTT3R\\|Wint3R\\|InfiniteVGGT\\|Pow3R\\|AnySplat\\|MapAnything\" \"20-Surveys/3D-Reconstruction/前馈式三维重建 - 分支谱系总览.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n \"LingBot\\|WorldMirror\\|HiP3R\\|VGGT-Ω\\|Omni\\|StreamVGGT\\|Stream3R\\|TTT3R\\|Wint3R\\|InfiniteVGGT\\|Pow3R\\|AnySplat\\|MapAnything\" \"20-Surveys/3D-Reconstruction/前馈式三维重建 - 分支谱系总览.md\"",
+            "description": "Check lineage survey for recent works"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I notice the lineage survey covers WorldMirror but is missing LingBot-Map, which is newer (2026-10-26). I should check the HiP3R note and section 2 of the 九大 survey to see what other 2026 papers in the vault might be missing from that section.I need to pin down three things: how WorldMirror and LingBot-Map fit into the taxonomy, what the core disagreement between them is, and which recent works are absent from section 2. Let me verify this by checking HiP3R and a few other recent notes for accuracy."
+        }
+      ],
+      "timestamp": "2026-10-26T09:34:45.198Z"
+    },
+    {
+      "id": "f6e066a6-bab8-46db-9050-2b18fbf67baf",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01FCfBHG86y6fhSky5x8AmTf",
+          "title": "for f in \"10-Papers/3D-Reconstruction/HiP3R - 分层位姿图长时序三维重建.md\" \"10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建.md\" \"10-Papers/3D-Reconstruction/D4RT - 统一查询式动态四维场景重建.md\" \"10-Papers/3D-Reconstruction/SAM 3D - 自然图像中的单物体三维重建.md\" \"10-Papers/3D-Reconstruction/Foundation4D - 自动驾驶统一4D感知与重建.md\" \"10-Papers/3D-Reconstruction/Dyna3 - VLM引导的免训练动态四维重建.md\"; do echo \"=== $f\"; sed -n '1,45p' \"$f\" | grep -n \"paper:\\|year:\\|一句话\\|定位\"; sed -n '/一句话结论/,/^---/p' \"$f\" | head -8; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "for f in \"10-Papers/3D-Reconstruction/HiP3R - 分层位姿图长时序三维重建.md\" \"10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建.md\" \"10-Papers/3D-Reconstruction/D4RT - 统一查询式动态四维场景重建.md\" \"10-Papers/3D-Reconstruction/SAM 3D - 自然图像中的单物体三维重建.md\" \"10-Papers/3D-Reconstruction/Foundation4D - 自动驾驶统一4D感知与重建.md\" \"10-Papers/3D-Reconstruction/Dyna3 - VLM引导的免训练动态四维重建.md\"; do echo \"=== $f\"; sed -n '1,45p' \"$f\" | grep -n \"paper:\\|year:\\|一句话\\|定位\"; sed -n '/一句话结论/,/^---/p' \"$f\" | head -8; done",
+            "description": "Scan recent 3D reconstruction notes for one-line conclusions"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "The user wants to know where WorldMirror and LingBot-Map fit into section 2's categorization, what debate they're part of, and whether the survey is missing recent work since it currently only covers classic architectures like DUSt3R, MASt3R, VGGT, and π³. I should answer directly and check what other recent works might also be absent before considering an update to the survey."
+        }
+      ],
+      "timestamp": "2026-10-26T09:34:45.198Z"
+    },
+    {
+      "id": "b3760790-0198-4bfd-8fff-0ef1011f9389",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_018xZnQNWGzrCEsRBmZnDgAb",
+          "title": "sed -n '1,200p' \"20-Surveys/3D-Reconstruction/前馈式三维重建 - 分支谱系总览.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "sed -n '1,200p' \"20-Surveys/3D-Reconstruction/前馈式三维重建 - 分支谱系总览.md\"",
+            "description": "Read lineage survey"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I should classify Hunyuan World Mirror and Lingbot Map along the survey's existing axes, then check which recent works section 2 already covers versus what's missing in the vault notes—I recall §2.3 mentions WorldMirror in the optimization-based category, so I need to verify what else needs adding.LingBot-Map isn't mentioned anywhere in §2, and neither are HiP3R, VGGT-Ω, D4RT, SAM 3D, Foundation4D, Dyna3, Pi3X, or the Stream/TTT/Wint3R family. I'm also checking the persistent-state row—it lists Spann3R, CUT3R, and UniT but not LingBot-Map, confirming the gap.\n\nGiven the user's question is phrased as an inquiry rather than a direct edit request, I think the right move is to give a thorough analysis of what's missing and offer to patch §2 rather than editing unprompted—I'll scan the Paper-Index for any other recent feed-forward works in the vault that aren't yet reflected in the survey."
+        }
+      ],
+      "timestamp": "2026-10-26T09:34:45.198Z"
+    },
+    {
+      "id": "59ef2deb-7088-4985-a734-3e6471fe8419",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_014odTH1FsYoUqvMxUChBsZy",
+          "title": "grep -n \"3D-Reconstruction\\|重建\\|深度\" Paper-Index.md | head -60",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n \"3D-Reconstruction\\|重建\\|深度\" Paper-Index.md | head -60",
+            "description": "Scan paper index for reconstruction entries"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I have enough context now — the survey's section 2 covers classic architectures and mentions WorldMirror only briefly, but it's missing several newer entries like LingBot-Map, HiP3R, VGGT-Ω, Pi3X, D4RT, VGGT4D, SAM 3D, Foundation4D, and Dyna3 that should be checked against the vault."
+        }
+      ],
+      "timestamp": "2026-10-26T09:34:45.198Z"
+    },
+    {
+      "id": "e4e11b00-be07-4c88-9221-73cce9239dba",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01XxdSocJh9UGMq5xUdDu9FG",
+          "title": "grep -n \"重建\\|三维\\|深度\\|Depth\\|3R\\|VGGT\\|Splat\\|Geometry\" Paper-Index.md | cut -c1-260 | grep -i \"2026-\" | tail -45",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n \"重建\\|三维\\|深度\\|Depth\\|3R\\|VGGT\\|Splat\\|Geometry\" Paper-Index.md | cut -c1-260 | grep -i \"2026-\" | tail -45",
+            "description": "List recent reconstruction-related index entries"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I now have a clear picture to answer directly: which taxonomy cells WorldMirror and LingBot-Map occupy, what the real debate is, and which recent works are absent from §2. I recall §2.3 already places WorldMirror under the \"Optional-condition model\" row, but LingBot-Map doesn't appear anywhere in the survey, so I need to double-check that."
+        }
+      ],
+      "timestamp": "2026-10-26T09:34:45.198Z"
+    },
+    {
+      "id": "d4f68736-eaf3-4121-abb6-346e3e130345",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01NAWbp1Viqv6aHTDo9wgD5e",
+          "title": "grep -n \"LingBot\\|WorldMirror\\|HiP3R\\|VGGT-Ω\\|D4RT\\|MoGe-2\\|MoGe-3\\|Dyna3\\|Foundation4D\\|SAM 3D\\|VLM3\\|VLM³\\|VGGT4D\" \"20-Surveys/World-Models/九大技术方向架构全景：从前馈几何到世界动作模型 - Survey.md\"",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "grep -n \"LingBot\\|WorldMirror\\|HiP3R\\|VGGT-Ω\\|D4RT\\|MoGe-2\\|MoGe-3\\|Dyna3\\|Foundation4D\\|SAM 3D\\|VLM3\\|VLM³\\|VGGT4D\" \"20-Surveys/World-Models/九大技术方向架构全景：从前馈几何到世界动作模型 - Survey.md\"",
+            "description": "Check which recent works the global survey mentions"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I notice the global survey references WorldMirror only once but omits LingBot-Map entirely, so I want to check the vault's other sections for recent works and compare against a possible \"世界模型记忆机制\" survey. I should systematically list all paper notes in the 3D-Reconstruction and Foundations folders to see whichones are missing from the survey's coverage.I need to answer two things directly: what family/axis WorldMirror and LingBot-Map belong to and which debate they're part of, and which recent works are absent from section 2 and the broader survey. I'll check each note title against the survey content to find gaps."
+        }
+      ],
+      "timestamp": "2026-10-26T09:34:45.198Z"
+    },
+    {
+      "id": "b5aa0c39-e4d7-425e-8d65-d0752ff193bf",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01XcPM8LJz9hnkGtbmLpn6gz",
+          "title": "S=\"20-Surveys/World-Models/九大技术方向架构全景：从前馈几何到世界动作模型 - Survey.md\"; for f in 10-Papers/3D-Reconstruction/*.md 10-Papers/Foundations/*.md; do n=$(basename \"$f\" .md); key=$(echo \"$n\" | sed 's/ -.*//'); if ! grep -qF \"$key\" \"$S\"; then echo \"MISSING: $key\"; fi; done",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "S=\"20-Surveys/World-Models/九大技术方向架构全景：从前馈几何到世界动作模型 - Survey.md\"; for f in 10-Papers/3D-Reconstruction/*.md 10-Papers/Foundations/*.md; do n=$(basename \"$f\" .md); key=$(echo \"$n\" | sed 's/ -.*//'); if ! grep -qF \"$key\" \"$S\"; then echo \"MISSING: $key\"; fi; done",
+            "description": "Find vault papers absent from global survey"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I now have enough to answer both of the user's questions: where WorldMirror and LingBot-Map fit and what they're debating, plus what recent work is missing from section 2's classic architectures.Several axes jump out as gaps: streaming/causal designs with hierarchical context granularity (LingBot-Map, Wint3R, TTT3R, Stream3R/StreamVGGT, InfiniteVGGT) that go beyond the simple recurrent-state examples already listed; training-free backends like HiP3R; scaling laws (VGGT-Ω); dynamic/4D methods (MonST3R, VGGT4D, D4RT, Dyna3, Foundation4D) that the current static-only framing misses entirely; query-based output representations (D4RT); object-level work (SAM 3D); and annotation engines (ViPE). WorldMirror itself already fits into the multimodal-prior conditioning table in §2.3.I'll structure the answer as: what the two papers are positioning themselves as, what they're actually debating, and then this gap checklist for §2 — then offer to patch the note directly, since the user's question reads as an invitation to surface missing recent work.Let me check whether VGGT-Ω has a one-liner I should pull in for the note."
+        },
+        {
+          "type": "text",
+          "text": "先回答两篇的归属，再给第 2 节的缺口清单。库里这两篇都已有精读，所以位置可以定得很实：[[WorldMirror - 多模态先验驱动的通用前馈三维重建]]、[[LingBot-Map - 几何上下文流式三维重建]]。\n\n## 1. 这两篇在综述的坐标里是什么\n\n**WorldMirror**（腾讯混元，2026-09）在你第 76 行开始的第 2 节里**只出现了一次**，在 2.3 的「Optional-condition model」那一行。这个归位不完整，因为它同时横跨两张表：\n\n- 在 **2.3 信息流**里它属于条件注入轴：把位姿（7 维→单 token）、内参（4 维→单 token）、深度（conv 稠密 token 直接加到 image token 上）做成可任意组合的 prompt，训练时每种先验以 0.5 概率开关。这是它的主轴。\n- 但在 **2.2 输出表示**里它一个格子都没占——而它恰恰同时输出 pointmap、depth、normal、camera、3DGS 五类。它是对「六类输出表示互斥」这个表格结构本身的反例：pointmap 家族和前馈 3DGS 家族在同一个骨干里共存，并且论文证明了跨任务增益（加位姿改善全局结构、加内参约束投影、加深度改善局部复杂区域）。\n\n所以 WorldMirror 讨论的是你 2.4 里**没有列出的第五个争议**：几何先验到底是「限制泛化的拐杖」还是「可插拔提示」？它的答案是后者，而且 7-Scenes 点图误差从无先验 0.043 到全先验 0.018 这个跨度，说明真实管线里「有多少用多少」的收益比换骨干更大。\n\n**LingBot-Map**（ECCV 2026，arXiv 2604.14141）在第 2 节里**完全缺席**，这是更明显的漏洞。它应该落在 2.3 的「Recurrent / persistent state」那一行，但那一行现在写的是 Spann3R、CUT3R、UniT，而 LingBot-Map 正是对这一行「状态会遗忘，错误会被持续写回」这个局限的直接回应：\n\n它把上下文拆成三层粒度——锚帧（前 n 帧，永久保留完整 token，定坐标和尺度）、局部窗口（最近 k=64 帧，完整 M+6 token，负责细粒度跟踪）、轨迹记忆（远历史每帧只留 camera + anchor + 4 register 共 6 个 token，用 Video RoPE 注入时序）。代价账是 $(n+k)M + 6T$ 对比标准 causal 的 $MT + 6T$。\n\n它讨论的是你 2.3 表格里**没有被表达出来的设计轴**：历史不是「保留 / 压缩」的二选一，而是**记忆粒度可以按几何角色分层**。而且它的消融给了一个反直觉结论——GCA 窗口 64 的 ATE 5.98 比 full causal 的 6.60 **更好**，只有局部旋转略输。所以远历史的 image token 不只是贵，还是噪声。\n\n这条轴值得单独加进 2.3，因为它和 CUT3R 的「固定隐状态」在架构上是不同类型：CUT3R 是常量内存，LingBot-Map 是 $O(6T)$ 慢增长，这是两种不同的工程取舍，不该挤在同一行。\n\n## 2. 第 2 节确实缺了一整代工作\n\n我把库里已有精读、但第 2 节没提的对了一遍，缺口按轴分：\n\n**(a) 流式 / 因果上下文管理这一整条线**。2.3 只有 Spann3R/CUT3R/UniT 代表 2024–2025 初。2026 年这条线已经分化出 Stream3R / StreamVGGT（近全历史 KV）、TTT3R、Wint3R（窗口 + camera token pool）、InfiniteVGGT、LingBot-Map（分层 GCA）。核心争议从「要不要状态」变成「保留哪些 token、以什么粒度」。\n\n**(b) 训练无关的几何后端**。你 2.1 的第 4 类口径「前馈初始化 + 可选 BA / PnP / 融合」写了「工程上最稳健」，但一个代表作都没给。[[HiP3R - 分层位姿图长时序三维重建]] 正是这一格：chunk 级 Sim(3) 位姿图恢复全局布局 + frame 级 shared SE(3) 融合重叠窗口的冲突预测，不微调 VGGT-Ω 或 LingBot-Map 就把七数据集宏平均 ATE 从 18.555 降到 4.906 / 从 8.288 降到 4.017。这是对 2.4 第一个争议（前馈能否取代 SfM/BA）最有力的实证：答案是「不取代，但分层优化的收益远大于换模型」。\n\n**(c) Scaling law 维度完全没有**。[[VGGT-Ω - 可扩展前馈式静动态三维重建]] 证明前馈重建存在可预测 scaling law（Register Attention + 动态标注管线，训练显存降到约 30%，Sintel 相机精度 +77%）。你第 12.5 节讨论「大数据缩放 vs 结构归纳偏置」，但第 2 节没有把这个证据接上。\n\n**(d) 第 2 节整节是静态的**。动态/4D 前馈重建完全没进来：MonST3R（逐时间步点图 + 静态元素对齐）、VGGT4D（免训练挖 VGGT 内部 Gram 相似度做动静分离）、[[D4RT - 统一查询式动态四维场景重建]]、[[Dyna3 - VLM引导的免训练动态四维重建]]、[[Foundation4D - 自动驾驶统一4D感知与重建]]。考虑到整篇综述的落点是世界模型和动作闭环，前馈几何的动态能力缺失是个结构性漏洞——第 7 节讲 3D/4D 世界模型时，没有几何侧的 4D 基础可以衔接。\n\n**(e) 2.2 的六类输出表示缺第七类：查询式接口**。D4RT 的做法是 ViT-g 把整段视频编码成统一场景表示，再让轻量 cross-attention decoder 回答 $(u,v,t_{src},t_{tgt},t_{cam})$ 查询，深度、点云、3D 轨迹、内外参全部从这一个接口派生。这不属于你表里任何一行——它不是「输出某种表示」，而是「输出一个可查询函数」。而且这个思路和第 7.4 节「几何该负责寻址」的判断是直接呼应的。\n\n**(f) 物体级和数据侧**。[[SAM 3D - 自然图像中的单物体三维重建]] 可以补 2.2 的 Surface/occupancy 行（现在只有一个「InstantMesh 等」）；[[ViPE - 视频位姿与稠密几何标注引擎]] 则是另一个没被表达的事实——前馈几何模型现在的主要用途之一是给视频生成和世界模型造训练标注，这正好是第 2 节向第 5–7 节的真实接口。\n\n**(g) 单目线的 MoGe 二三代**。第 3.2 节的「单目 pointmap / geometry」行只写了 MoGe，而库里已有 [[MoGe-2 - 兼顾米制尺度与锐利细节的单目几何]]（CLS token 在 log 空间预测全局 metric scale，stop-gradient 隔离尺度与相对几何）和 [[MoGe-3 - 自引导稀疏体积细化的精细单目几何]]（在 coarse point map 上建 $(i,j,D\\log Z)$ sparse voxel shell，因为二维 decoder 会在遮挡边界跨真实三维表面混特征）。后者对 3.3 的「2D 指标是否够用」那条争议是直接证据。\n\n---\n\n要不要我动手改？我倾向做三件事，范围可控：\n\n1. 2.3 的「Recurrent / persistent state」拆成两行（固定隐状态 / 分层上下文），补上 LingBot-Map、Wint3R、Stream3R 一代；2.1 第 4 类口径补 HiP3R 作代表作。\n2. 2.2 加第七类「查询式隐式接口」（D4RT），并给 WorldMirror 在输出表示侧补一句「跨家族统一」的说明。\n3. 2.2/2.3 之间加一小节「动态与 4D 前馈几何」（MonST3R / VGGT4D / D4RT / Dyna3 / Foundation4D），再在 2.5 判断里把 VGGT-Ω 的 scaling law 和 ViPE 的标注引擎用途接上。\n\n另外 1.3 节那张「结构数量概览」表里前馈 3D 重建写的是「6 类输出表示 × 5 类信息流」，改了之后要同步成 7 × 6，否则两处会不一致。确认一下要不要按这个范围改，还是你想先只补 2.3 那一行。"
+        }
+      ],
+      "timestamp": "2026-10-26T09:34:45.198Z"
     }
   ],
-  "savedAt": "2026-10-26T09:22:57.645Z"
+  "savedAt": "2026-10-26T09:34:46.008Z"
 }
