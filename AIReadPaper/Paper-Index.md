@@ -168,6 +168,7 @@
 
 |时间|文章题目|论文名称|文章简要总结|原始链接|阅读总结链接|
 |---|---|---|---|---|---|
+|2026-10-26|VGGT 系列综述：几何状态的强化与复用|VGGT for 3D Reconstruction and Beyond: A Survey of Geometric State Strengthening and Its Applications|待完成|[项目页](https://richardchen225.github.io/vggt_survey/)|[[VGGT 系列：几何状态的强化与复用 - Survey]]|
 |2026-10-15|3DGS：实时辐射场渲染的三维高斯表示|3D Gaussian Splatting for Real-Time Radiance Field Rendering|用各向异性三维高斯、可微 tile rasterizer 与自适应 clone/split/prune，把辐射场从隐式体渲染改写为显式基元优化，在 1080p 达到实时渲染。它是 Lyra 1.0/2.0、DA3 Gaussian head 与大量生成式三维世界的事实标准输出表示；但原论文仍需逐场景优化，前馈预测高斯是后续范式。★★★★★|[arXiv](https://arxiv.org/abs/2308.04079)|[[3DGS - 实时辐射场渲染的三维高斯表示]]|
 |2026-10-15|CUT3R：带持久状态的连续三维感知模型|Continuous 3D Perception Model with Persistent State|用固定容量 recurrent scene state 持续读写新观测，在线输出统一坐标系下的 metric pointmap、相机参数，并可用虚拟 raymap 查询未观测视角；统一静态/动态、视频/无序图集与多项 3D 任务。它为 SPMem 提供在线几何/位姿，也用于 FantasyWorld 几何伪标签；局限是无回环全局校正时误差会写回状态并累积。★★★★★|[arXiv](https://arxiv.org/abs/2501.12387)|[[CUT3R - 带持久状态的连续三维感知]]|
 |2026-10-15|ViPE：面向三维几何感知的视频位姿引擎|ViPE: Video Pose Engine for 3D Geometric Perception|把学习式前端、稠密 BA、动态区域处理和深度尺度对齐组合为视频几何标注引擎，从随手视频输出内参、相机运动与近 metric 稠密深度，支持透视/广角/360°，单卡 3–5 FPS，并构建 96M 帧标注集。它为 Lyra、WorldPlay 等提供训练位姿/深度；本质是混合工程系统而非单一神经基础模型。★★★★☆|[arXiv](https://arxiv.org/abs/2508.10934)|[[ViPE - 视频位姿与稠密几何标注引擎]]|
