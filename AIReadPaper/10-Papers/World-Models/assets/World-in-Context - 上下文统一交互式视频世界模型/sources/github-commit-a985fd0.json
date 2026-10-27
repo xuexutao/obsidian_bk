@@ -1,0 +1,101 @@
+{
+  "sha": "a985fd003458f07de5c8a537d750efbadd989aa9",
+  "node_id": "C_kwDOVTBNTNoAKGE5ODVmZDAwMzQ1OGYwN2RlNWM4YTUzN2Q3NTBlZmJhZGQ5ODlhYTk",
+  "commit": {
+    "author": {
+      "name": "HaroldChen19",
+      "email": "haroldchen328@gmail.com",
+      "date": "2026-10-27T02:14:08Z"
+    },
+    "committer": {
+      "name": "HaroldChen19",
+      "email": "haroldchen328@gmail.com",
+      "date": "2026-10-27T02:14:08Z"
+    },
+    "message": "update link",
+    "tree": {
+      "sha": "6363d5266ff3d7dc133c274eedaa0a25ed27fcf6",
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/trees/6363d5266ff3d7dc133c274eedaa0a25ed27fcf6"
+    },
+    "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/commits/a985fd003458f07de5c8a537d750efbadd989aa9",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "url": "https://api.github.com/repos/aigc3d/World-in-Context/commits/a985fd003458f07de5c8a537d750efbadd989aa9",
+  "html_url": "https://github.com/aigc3d/World-in-Context/commit/a985fd003458f07de5c8a537d750efbadd989aa9",
+  "comments_url": "https://api.github.com/repos/aigc3d/World-in-Context/commits/a985fd003458f07de5c8a537d750efbadd989aa9/comments",
+  "author": {
+    "login": "HaroldChen19",
+    "id": 132244627,
+    "node_id": "U_kgDOB-Hkkw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/132244627?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/HaroldChen19",
+    "html_url": "https://github.com/HaroldChen19",
+    "followers_url": "https://api.github.com/users/HaroldChen19/followers",
+    "following_url": "https://api.github.com/users/HaroldChen19/following{/other_user}",
+    "gists_url": "https://api.github.com/users/HaroldChen19/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/HaroldChen19/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/HaroldChen19/subscriptions",
+    "organizations_url": "https://api.github.com/users/HaroldChen19/orgs",
+    "repos_url": "https://api.github.com/users/HaroldChen19/repos",
+    "events_url": "https://api.github.com/users/HaroldChen19/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/HaroldChen19/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "HaroldChen19",
+    "id": 132244627,
+    "node_id": "U_kgDOB-Hkkw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/132244627?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/HaroldChen19",
+    "html_url": "https://github.com/HaroldChen19",
+    "followers_url": "https://api.github.com/users/HaroldChen19/followers",
+    "following_url": "https://api.github.com/users/HaroldChen19/following{/other_user}",
+    "gists_url": "https://api.github.com/users/HaroldChen19/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/HaroldChen19/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/HaroldChen19/subscriptions",
+    "organizations_url": "https://api.github.com/users/HaroldChen19/orgs",
+    "repos_url": "https://api.github.com/users/HaroldChen19/repos",
+    "events_url": "https://api.github.com/users/HaroldChen19/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/HaroldChen19/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "3191dcb1af71d87f36f6ae01d1ca7890adff0666",
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/commits/3191dcb1af71d87f36f6ae01d1ca7890adff0666",
+      "html_url": "https://github.com/aigc3d/World-in-Context/commit/3191dcb1af71d87f36f6ae01d1ca7890adff0666"
+    }
+  ],
+  "stats": {
+    "total": 8,
+    "additions": 4,
+    "deletions": 4
+  },
+  "files": [
+    {
+      "sha": "53cc5c40603e227ed3289632b1d792cce0097e5c",
+      "filename": "README.md",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "blob_url": "https://github.com/aigc3d/World-in-Context/blob/a985fd003458f07de5c8a537d750efbadd989aa9/README.md",
+      "raw_url": "https://github.com/aigc3d/World-in-Context/raw/a985fd003458f07de5c8a537d750efbadd989aa9/README.md",
+      "contents_url": "https://api.github.com/repos/aigc3d/World-in-Context/contents/README.md?ref=a985fd003458f07de5c8a537d750efbadd989aa9",
+      "patch": "@@ -2,12 +2,12 @@\n \n # World-in-Context\n \n-**In-Context Conditioning for Interactive Video World Models**\n+**Interactive Video World Modeling with In-Context Conditioning**\n \n <img src=\"assets/logo.png\" alt=\"Alibaba Token Hub\" width=\"20\" height=\"20\" align=\"absmiddle\">&nbsp;Alibaba Token Hub, Alibaba Group\n \n [![Website](assets/badge-website.svg)](https://haroldchen19.github.io/WiC-site)\n-[![Report](assets/badge-paper.svg)](https://github.com/aigc3d/World-in-Context)\n+[![Report](assets/badge-paper.svg)](https://arxiv.org/abs/2610.33169)\n \n </div>\n \n@@ -93,9 +93,9 @@ The per-GPU batch is one clip; adjust `gradient_accumulation_steps` for the effe\n \n ```bib\n @article{chen2026world,\n-  title={World-in-Context: In-Context Conditioning for Interactive Video World Models},\n+  title={World-in-Context: Interactive Video World Modeling with In-Context Conditioning},\n   author={Chen, Harold Haodong and Peng, Rui and Guo, Rongjin and Qiu, Lingteng and Qiu, Kejie and Xu, Chao and Dong, Zilong},\n-  journal={arXiv preprint arXiv:TBD},\n+  journal={arXiv preprint arXiv:2610.33169},\n   year={2026}\n }\n ```"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "sha": "a985fd003458f07de5c8a537d750efbadd989aa9",
+  "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/trees/a985fd003458f07de5c8a537d750efbadd989aa9",
+  "tree": [
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fafff2e8d6c86b79ee1db7cde4325e11516fabfb",
+      "size": 20,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/fafff2e8d6c86b79ee1db7cde4325e11516fabfb"
+    },
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0e5a49f5f70af9e9d37278f72315d1b1afd34895",
+      "size": 11347,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/0e5a49f5f70af9e9d37278f72315d1b1afd34895"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "53cc5c40603e227ed3289632b1d792cce0097e5c",
+      "size": 4997,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/53cc5c40603e227ed3289632b1d792cce0097e5c"
+    },
+    {
+      "path": "assets",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "4793d73fa11cf01723fa6a676c4d5d8595d44fc1",
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/trees/4793d73fa11cf01723fa6a676c4d5d8595d44fc1"
+    },
+    {
+      "path": "assets/badge-paper.svg",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3a50882bb99f918ee773b2e1ada00071fbdd814c",
+      "size": 540,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/3a50882bb99f918ee773b2e1ada00071fbdd814c"
+    },
+    {
+      "path": "assets/badge-website.svg",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cc1b515c36c07b80e7eeefc65f92227c1bf3c4eb",
+      "size": 814,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/cc1b515c36c07b80e7eeefc65f92227c1bf3c4eb"
+    },
+    {
+      "path": "assets/logo.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e813a035e71a72fb2127fde7317085c1fc851604",
+      "size": 29173,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/e813a035e71a72fb2127fde7317085c1fc851604"
+    },
+    {
+      "path": "assets/method.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "baf631890fe2d3d0b72e042eeebb9a1bbafea7fb",
+      "size": 1668727,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/baf631890fe2d3d0b72e042eeebb9a1bbafea7fb"
+    },
+    {
+      "path": "assets/table.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7e3ac4d3a878f37c21d6e95410d453e047d5fd7a",
+      "size": 294797,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/7e3ac4d3a878f37c21d6e95410d453e047d5fd7a"
+    },
+    {
+      "path": "assets/teaser.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "689daaecb91e850dec6c6c8d4909f050c1c9c62c",
+      "size": 6939521,
+      "url": "https://api.github.com/repos/aigc3d/World-in-Context/git/blobs/689daaecb91e850dec6c6c8d4909f050c1c9c62c"
+    }
+  ],
+  "truncated": false
+}
