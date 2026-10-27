@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
   "title": "TRELLIS代码中使用多少分辨率的体素，是如何定位到active voxel 的呢？",
   "createdAt": "2026-10-27T08:13:17.775Z",
-  "updatedAt": "2026-10-27T08:13:17.775Z",
+  "updatedAt": "2026-10-27T08:13:17.776Z",
   "messages": [
     {
       "id": "3e5ee0e0-9d10-483f-a60c-7e36be6fa4a6",
@@ -91,7 +91,102 @@
         }
       ],
       "timestamp": "2026-10-27T08:12:14.952Z"
+    },
+    {
+      "id": "ebcd6be0-e503-47c0-ab5a-50133f872fd0",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "使用什么去定位到 active voxel 的呢？",
+          "autoMentionContext": {
+            "noteName": "TRELLIS - 结构化潜变量三维生成",
+            "notePath": "AIReadPaper/10-Papers/3D-Generation/TRELLIS - 结构化潜变量三维生成.md"
+          }
+        }
+      ],
+      "timestamp": "2026-10-27T08:32:06.794Z"
+    },
+    {
+      "id": "9d44a818-4ee4-43a2-ac57-ec86f89d06ab",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "The user is narrowing their question to specifically what mechanism locates active voxels. I realize my earlier answer relied on memory of the repo that wasn't verified, so I should be upfront about that uncertainty rather than restating specific code lines as fact.The direct answer layers: at inference, active voxels come from thresholding the decoder's occupancy logits (argwhere where logits > 0); at training, they come from voxelizing the mesh surface; representationally, they're indexed by integer coordinate tensors (batch, x, y, z). I should note this is from memory, not verified against an actual checkout — and since the user has asked twice now, it'd be more useful to actually fetch the real pipeline code from GitHub and confirm rather than guessing again."
+        }
+      ],
+      "timestamp": "2026-10-27T08:32:14.666Z"
+    },
+    {
+      "id": "0acd8052-9eca-4c2f-86ca-e1f95669e552",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01RHDT2f4AFm3p7ZpvfNiwKK",
+          "title": "ToolSearch",
+          "status": "completed",
+          "kind": "other",
+          "content": [],
+          "rawInput": {
+            "query": "select:WebFetch",
+            "max_results": 1
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "The user wants to know what mechanism identifies active voxels. I already gave an answer, but I should verify against the actual source code rather than relying on memory, so let me fetch the real file from GitHub to confirm accuracy."
+        }
+      ],
+      "timestamp": "2026-10-27T08:32:24.117Z"
+    },
+    {
+      "id": "f86e78f7-f933-45b5-bb1c-32e1a55709ff",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01EFQyZB3Lbfigb9drjxhzup",
+          "title": "Fetch https://raw.githubusercontent.com/microsoft/TRELLIS/main/trellis/pipelines/trellis_image_to_3d.py",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "url": "https://raw.githubusercontent.com/microsoft/TRELLIS/main/trellis/pipelines/trellis_image_to_3d.py",
+            "prompt": "Show the sample_sparse_structure method verbatim, including how coords are extracted from the decoded occupancy grid (argwhere, thresholds, resolution)."
+          }
+        }
+      ],
+      "timestamp": "2026-10-27T08:32:32.683Z"
+    },
+    {
+      "id": "f5854747-c723-4fa0-ae97-b557f8ea9cc2",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_012MQ3otNE99Xh8F9v6Hk7eF",
+          "title": "Fetch https://raw.githubusercontent.com/microsoft/TRELLIS/main/dataset_toolkits/voxelize.py",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "url": "https://raw.githubusercontent.com/microsoft/TRELLIS/main/dataset_toolkits/voxelize.py",
+            "prompt": "Show the voxelization code verbatim: what library/function is used, voxel_size, resolution, how point cloud is sampled, how indices are extracted."
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I need to correct an earlier mistake: the right method is create_from_triangle_mesh_within_bounds, not the point cloud sampling approach I mentioned. I'll avoid reasserting unverified numbers like view counts, and focus the answer on addressing the core question about positioning/localization."
+        },
+        {
+          "type": "text",
+          "text": "核心就一行代码，在 `trellis/pipelines/trellis_image_to_3d.py` 的 `sample_sparse_structure` 里：\n\n```python\ncoords = torch.argwhere(decoder(z_s) > 0)[:, [0, 2, 3, 4]].int()\n```\n\n拆开看，定位 active voxel 靠的是这三样东西：\n\n**1. `sparse_structure_decoder`（一个 3D 卷积 VAE decoder）产出 occupancy 场**\n\n输入是 Stage 1 flow 采样出的 dense latent `z_s`，形状 `(B, in_channels, reso, reso, reso)`，`reso = flow_model.resolution`（即 16）。decoder 把它上采样成 $64^3$ 的单通道 occupancy logits `(B, 1, 64, 64, 64)`。\n\n**2. `> 0` 阈值**\n\n就是直接拿 logit 和 0 比，等价于 $\\text{sigmoid} > 0.5$。没有别的后处理、没有连通域过滤、没有可调超参——所以\"active\"的定义纯粹是 decoder 自己学出来的二分类边界。\n\n**3. `torch.argwhere` + 列筛选**\n\n`argwhere` 返回所有满足条件位置的 5 维索引 `[b, c, x, y, z]`；`[:, [0, 2, 3, 4]]` 丢掉恒为 0 的通道维，留下 `[batch, x, y, z]`。这正好是稀疏算子要求的坐标格式，直接拿去建 `SparseTensor` 给 Stage 2 用。\n\n## 训练侧的 ground truth 用的是另一套工具\n\n这里要修正我上一条消息的一个说法：`dataset_toolkits/voxelize.py` 用的不是点云体素化，而是 **Open3D 的三角网格体素化**：\n\n```python\nvoxel_grid = o3d.geometry.VoxelGrid.create_from_triangle_mesh_within_bounds(\n    mesh, voxel_size=1/64, min_bound=(-0.5,-0.5,-0.5), max_bound=(0.5,0.5,0.5))\nvertices = np.array([voxel.grid_index for voxel in voxel_grid.get_voxels()])\n```\n\n定位靠的是 `voxel.grid_index`——Open3D 判定与三角面片相交的格子即为 active，所以仍然是**表面体素化**（内部空心）。之后 `(vertices + 0.5) / 64 - 0.5` 把整数索引换算成单位立方体内的格心坐标，这组坐标再去多视图里投影采 DINOv2 特征。\n\n所以一句话：**训练时用 Open3D 的 mesh-voxel 相交判定来定位，推理时用 VAE decoder 的 occupancy logit 过零点来定位**，两者共享同一套 $64^3$ / `voxel_size=1/64` / $[-0.5,0.5]^3$ 的网格约定，坐标才能对齐。"
+        }
+      ],
+      "timestamp": "2026-10-27T08:32:32.683Z"
     }
   ],
-  "savedAt": "2026-10-27T08:13:17.777Z"
+  "savedAt": "2026-10-27T08:33:24.188Z"
 }

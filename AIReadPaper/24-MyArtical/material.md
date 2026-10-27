@@ -40,4 +40,4 @@ VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 
 
 
 
-意思是，我理解一下：trellis的流程是首先对一个资产进行体素化到 64^3，然后
+意思是，我理解一下：trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间，进行体素化到 64^3，然后定位activate voxel，使用的是
