@@ -27,9 +27,8 @@
 
 | 本地材料 | 类型 | 原始来源 | 范围 | 用途 |
 |---|---|---|---|---|
-| `/Users/eilonxtxue/WorkBuddy/2026-10-27-19-36-47/world-in-context-staging/source.pdf` | 官方 PDF | https://arxiv.org/pdf/2610.33169 | 全文 18 页 | 页面、图表、公式与附录核对 |
-| `/Users/eilonxtxue/WorkBuddy/2026-10-27-19-36-47/world-in-context-staging/source-clean.md` | 去 NUL 全文抽取 | 官方 PDF | 全文、参考文献与附录 | 搜索、数字转录与公式核对 |
-| `sources/paper-extracted.md` | 已保存全文抽取副本 | 官方 PDF | 全文抽取 | Obsidian 附件内长期留档 |
+| `sources/paper-v1.pdf` | 官方 PDF v1 | https://arxiv.org/pdf/2610.33169 | 全文 22 页 | Obsidian 内长期留档；页面、图表、公式与附录核对 |
+| `sources/paper-extracted.md` | 去 NUL 的全文抽取副本 | 官方 PDF | 全文、参考文献与附录 | 搜索、数字转录与公式核对 |
 
 说明：PDF 是最终事实来源；文本抽取可能打乱公式、表格与分页，因此关键数字同时结合已准备的 PDF 裁图核对。
 

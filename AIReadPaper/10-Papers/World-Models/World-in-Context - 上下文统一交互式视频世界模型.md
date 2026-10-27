@@ -22,7 +22,7 @@ tags:
   - IT-RoPE
   - Camera-Control
   - Action-Control
-rating: 9/10
+rating: "★★★★☆"
 ---
 # World-in-Context：用上下文统一视角、动作与相机控制的交互式视频世界模型——论文详细精读
 ## 基本信息
