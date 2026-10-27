@@ -36,3 +36,8 @@ dreamZero · LingBot-VA · Cosmos policy
 ### VGGT 和 DA3
 
 VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 之间主要是通过共享 backbone 产生“软耦合”，不一定存在严格的跨 head 几何一致性约束。
+
+
+
+
+意思是，我理解一下：trellis的流程是首先对一个资产进行体素化到 64^3，然后
