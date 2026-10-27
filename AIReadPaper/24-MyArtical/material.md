@@ -40,4 +40,4 @@ VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 
 
 
 
-意思是，我理解一下：trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间，进行体素化到 64^3，然后定位activate voxel，使用的是
+意思是，我理解一下：trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间，进行体素化到 64^3 的 0-1 网格，接下来有两个去处，第一个去encoder_ss_latent.py 的 SparseStructure-VAE 的 encoder 下采样4倍变成 16^3 x 8 的latent。这就是第一个flow model学习的分布。推理时再还原回 64^3.

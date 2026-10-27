@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
   "title": "TRELLIS代码中使用多少分辨率的体素，是如何定位到active voxel 的呢？",
   "createdAt": "2026-10-27T08:13:17.775Z",
-  "updatedAt": "2026-10-27T08:13:17.776Z",
+  "updatedAt": "2026-10-27T08:33:24.182Z",
   "messages": [
     {
       "id": "3e5ee0e0-9d10-483f-a60c-7e36be6fa4a6",
@@ -186,7 +186,79 @@
         }
       ],
       "timestamp": "2026-10-27T08:32:32.683Z"
+    },
+    {
+      "id": "8b0db940-434c-4e82-9f5f-5c55d33264f8",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "体素化到 64^3 之后，然后做什么呢？",
+          "autoMentionContext": {
+            "noteName": "TRELLIS - 结构化潜变量三维生成",
+            "notePath": "AIReadPaper/10-Papers/3D-Generation/TRELLIS - 结构化潜变量三维生成.md"
+          }
+        }
+      ],
+      "timestamp": "2026-10-27T08:34:06.184Z"
+    },
+    {
+      "id": "9b60f11f-a011-4e21-a7b8-4c3621dffc8d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "After voxelization to 64³, I should trace what comes next in the pipeline — extracting DINOv2 features, encoding through the SLAT VAE, then training. Let me check extract_feature.py to get the details right."
+        }
+      ],
+      "timestamp": "2026-10-27T08:34:12.449Z"
+    },
+    {
+      "id": "024824a7-b24a-475b-9f8b-dc0ceb4c528f",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_014oyWxitbWXUsaN1yfLnPfa",
+          "title": "Fetch https://raw.githubusercontent.com/microsoft/TRELLIS/main/dataset_toolkits/extract_feature.py",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "Show verbatim how features are extracted: which DINOv2 model, image resolution, patch tokens, how voxel centers are projected into views, grid_sample usage, how many views, how features are aggregated, output dtype/shape and saved format.",
+            "url": "https://raw.githubusercontent.com/microsoft/TRELLIS/main/dataset_toolkits/extract_feature.py"
+          }
+        }
+      ],
+      "timestamp": "2026-10-27T08:34:14.054Z"
+    },
+    {
+      "id": "1a8a6a74-b027-4e67-96a1-178c2e36264a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01UUu5XhcLqseV1bFCoNS3BS",
+          "title": "Fetch https://raw.githubusercontent.com/microsoft/TRELLIS/main/DATASET.md",
+          "status": "completed",
+          "kind": "fetch",
+          "content": [],
+          "rawInput": {
+            "prompt": "List the files in this directory and describe what the dataset_toolkits pipeline steps are (render, voxelize, extract_feature, encode_sslat / encode_latent, etc). Show the README ordering of commands if present.",
+            "url": "https://raw.githubusercontent.com/microsoft/TRELLIS/main/DATASET.md"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "After voxelization, there are two branches: extracting features and encoding into the sparse structure latent (SLAT), plus separately encoding the sparse structure latent itself. The voxels get saved as a PLY of centers, with indices stored as uint8 since they fit within 0-63. I'll walk through each step concretely."
+        },
+        {
+          "type": "text",
+          "text": "体素化产出的只是一个 $64^3$ 的 0/1 占据网格（存成格心坐标的 PLY）。它之后**兵分两路**，分别喂给两个阶段的生成模型——这正是笔记 3.3 节\"两阶段\"在数据侧的对应。\n\n```\nvoxelize.py  →  64³ occupancy\n                 ├─[路线 A] encode_ss_latent.py  → 16³×8  → Stage 1 训练目标\n                 └─[路线 B] extract_feature.py → encode_latent.py → SLAT → Stage 2 训练目标\n```\n\n## 路线 A：压成 Stage 1 的稀疏结构 latent\n\n`encode_ss_latent.py` 把 $64^3$ 的二值网格丢进 **SparseStructure VAE 的 encoder**，下采样 4 倍，得到 $16^3 \\times 8$ 的连续 latent。\n\n这步的意义在于：$64^3$ 的二值场对 flow matching 很不友好（离散、极度稀疏），而 $16^3\\times 8 = 32768$ 个连续数就是一个普通 DiT 能直接处理的 dense 张量。Stage 1 的 flow model 学的就是这个 latent 的分布，推理时再由 decoder 还原回 $64^3$ —— 也就是上一轮说的 `decoder(z_s) > 0`。\n\n## 路线 B：给每个 active voxel 贴特征，再压成 SLAT\n\n这一路有两步，是 SLAT 真正的来源。\n\n**第一步 `extract_feature.py`：多视图投影采样**\n\n- 渲染阶段已经出了 **150 个视角**的 RGBA 图（`render.py --num_views`，默认 150）；\n- 每张图 resize 到 $518\\times518$，RGB 先乘 alpha 去背景，过 **DINOv2 ViT-L/14-reg**（`dinov2_vitl14_reg`）；\n- 取 `x_prenorm` 并丢掉 CLS 和 register token，reshape 成 $1024 \\times 37 \\times 37$ 的 patch 特征图；\n- 把每个 active voxel 的格心坐标用相机内外参投影到各视图，得到归一化到 $[-1,1]$ 的 `uv`，再 `F.grid_sample(patchtokens, uv, mode='bilinear')` 双线性采样；\n- 跨 150 个视角**直接取平均**（`np.mean(..., axis=0)`），存成 float16。\n\n输出是 `features/<model>/<sha256>.npz`，两个键：`indices`（N×3，uint8，刚好装得下 0–63）和 `patchtokens`（N×1024）。\n\n值得注意的是：投影用的是 PLY 里的浮点格心坐标，不是整数索引；整数索引只用来做稀疏张量的坐标。另外这里**没有做可见性剔除**——被遮挡的视角也参与平均，靠 150 视角的冗余把噪声摊平。\n\n**第二步 `encode_latent.py`：1024 → 8**\n\n把 `(coords, 1024维特征)` 组成稀疏张量，过 **SLAT VAE encoder**（稀疏卷积 + 稀疏注意力），压到每体素 **8 维**。这个 $(N, 8)$ 的稀疏张量就是 SLAT，也是 Stage 2 flow model 的训练目标。注意空间分辨率全程保持 $64^3$，只压通道不压空间——这是 SLAT 和普通 3D VAE 最大的区别。\n\n## 还有一步：条件图像\n\n`render_cond.py` 另外渲 **24 个**带数据增强的视角，专门给 image-to-3D 的条件编码器用，和上面两路并列。\n\n## 回到推理侧\n\n训练完这三个 VAE / 两个 flow model 之后，推理就是把上面的流程倒过来跑：\n\n| 推理步骤 | 对应的训练产物 |\n|---|---|\n| 采 $16^3\\times8$ latent | encode_ss_latent 的分布 |\n| decode → $64^3$ → `argwhere` 取 coords | SparseStructure VAE decoder |\n| 在 coords 上采 8 维 SLAT | encode_latent 的分布 |\n| SLAT → GS / RF / Mesh | 三个独立训练的 decoder |\n\n所以笔记 3.2 节那句\"真正被显式建模的是其中激活的小部分\"，落到数据上就是：$64^3=262144$ 个格子里只有约 2 万个进入 `features.npz`，后面所有的 1024 维特征提取、VAE 编码、Stage 2 生成都只在这 2 万个位置上发生。"
+        }
+      ],
+      "timestamp": "2026-10-27T08:34:14.068Z"
     }
   ],
-  "savedAt": "2026-10-27T08:33:24.188Z"
+  "savedAt": "2026-10-27T08:35:25.693Z"
 }
