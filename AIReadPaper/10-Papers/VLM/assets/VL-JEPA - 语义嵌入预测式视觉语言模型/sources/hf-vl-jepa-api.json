@@ -1,0 +1,67 @@
+{
+  "_id": "694286603911a5aea98a876e",
+  "id": "delong-chen/VL-JEPA",
+  "private": false,
+  "tags": [
+    "meta-ai",
+    "meta-pytorch",
+    "en",
+    "license:fair-noncommercial-research-license",
+    "region:us"
+  ],
+  "downloads": 0,
+  "likes": 51,
+  "modelId": "delong-chen/VL-JEPA",
+  "author": "delong-chen",
+  "sha": "20f7f0e71f43e00e579df9a1814c5b9f519b45ea",
+  "lastModified": "2025-12-17T10:41:53.000Z",
+  "gated": "manual",
+  "disabled": false,
+  "model-index": null,
+  "config": {},
+  "cardData": {
+    "extra_gated_fields": {
+      "First Name": "text",
+      "Last Name": "text",
+      "Date of birth": "date_picker",
+      "Country": "country",
+      "Affiliation": "text",
+      "Job title": {
+        "type": "select",
+        "options": [
+          "Student",
+          "Research Graduate",
+          "AI researcher",
+          "AI developer/engineer",
+          "Reporter",
+          "Other"
+        ]
+      },
+      "geo": "ip_location",
+      "Test request?": "checkbox",
+      "By clicking Submit below I accept the terms of the license and acknowledge that the information I provide will be collected stored processed and shared in accordance with the Meta Privacy Policy": "checkbox"
+    },
+    "extra_gated_description": "The information you provide will be collected, stored, processed and shared in accordance with the [Meta Privacy Policy](https://www.facebook.com/privacy/policy/).",
+    "extra_gated_button_content": "Submit",
+    "extra_gated_heading": "Please be sure to provide your full legal name, date of birth, and full organization name with all corporate identifiers. Avoid the use of acronyms and special characters. Failure to follow these instructions may prevent you from accessing this model and others on Hugging Face. You will not have the ability to edit this form after submission, so please ensure all information is accurate.",
+    "language": [
+      "en"
+    ],
+    "tags": [
+      "meta-ai",
+      "meta-pytorch"
+    ],
+    "license": "fair-noncommercial-research-license"
+  },
+  "siblings": [
+    {
+      "rfilename": ".gitattributes"
+    },
+    {
+      "rfilename": "README.md"
+    }
+  ],
+  "spaces": [],
+  "createdAt": "2025-12-17T10:30:56.000Z",
+  "usedStorage": 0
+}
