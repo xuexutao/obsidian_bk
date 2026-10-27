@@ -1,0 +1,1397 @@
+[
+  {
+    "type": "directory",
+    "oid": "b11a502ffd482b6cd249767cccedb24632218156",
+    "size": 0,
+    "path": "assets",
+    "lastCommit": {
+      "id": "2adab52f4158eec864305d2f9c2dfafeb23ea5f3",
+      "title": "Update model links, paper badges, and release news (#10)",
+      "date": "2026-10-14T09:37:28.000Z"
+    }
+  },
+  {
+    "type": "file",
+    "oid": "394836278bd63a0a08e72b6f767f4899b17cae3b",
+    "size": 2005,
+    "path": ".gitattributes",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=394836278bd63a0a08e72b6f767f4899b17cae3b&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "de58d8b266a629f2591dcf7dac50deddc4af06ec",
+    "size": 1014,
+    "path": "LICENSE",
+    "lastCommit": {
+      "id": "b0298e38670352b97bcfb8e988fb06eda969b824",
+      "title": "Simplify model card layout and evaluation; clarify license scope (#2)",
+      "date": "2026-10-02T05:52:59.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=de58d8b266a629f2591dcf7dac50deddc4af06ec&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+    "size": 11358,
+    "path": "LICENSE-Apache-2.0",
+    "lastCommit": {
+      "id": "b0298e38670352b97bcfb8e988fb06eda969b824",
+      "title": "Simplify model card layout and evaluation; clarify license scope (#2)",
+      "date": "2026-10-02T05:52:59.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "safe",
+        "message": "This file has no security findings.",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=d645695673349e3947e8e5ae42332d0ac3164cd7&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "97c0111bba229b0981b1d74e34bacef723ca8f7b",
+    "size": 3065,
+    "path": "LICENSE-Kimi-K3",
+    "lastCommit": {
+      "id": "b0298e38670352b97bcfb8e988fb06eda969b824",
+      "title": "Simplify model card layout and evaluation; clarify license scope (#2)",
+      "date": "2026-10-02T05:52:59.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "safe",
+        "message": "This file has no security findings.",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=97c0111bba229b0981b1d74e34bacef723ca8f7b&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "97e94dbdb200c03ed912ccf01d0ddbdc846b3e3f",
+    "size": 30020,
+    "path": "README.md",
+    "lastCommit": {
+      "id": "08d397c8769f7f10b96ff6d56ee6f56acb04181f",
+      "title": "Fix Chinese emphasis rendering in the model overview (#11)",
+      "date": "2026-10-14T10:41:16.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=97e94dbdb200c03ed912ccf01d0ddbdc846b3e3f&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "e1a99aee7fab2149ca02e88e062b753d75c29bf8",
+    "size": 19615,
+    "path": "added_tokens.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=e1a99aee7fab2149ca02e88e062b753d75c29bf8&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "6f9cd774d7dde93816f98c54b9a8190d321936b7",
+    "size": 428602,
+    "lfs": {
+      "oid": "289def5327239d666d8ec7c9a61c14507a0af52657bd9d06d5611f8b4b15f2d7",
+      "size": 428602,
+      "pointerSize": 131
+    },
+    "xetHash": "e23d83eb324f8f707b15b037e09c17ee7cce43e24c9c0b6f78a1a5364f7728ae",
+    "path": "assets/demo-poster.jpg",
+    "lastCommit": {
+      "id": "549da6eae25d9e982567b3c1d0d5ffef2ec27f8c",
+      "title": "Update main demo video and prepared cover (#4)",
+      "date": "2026-10-03T00:56:12.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=6f9cd774d7dde93816f98c54b9a8190d321936b7&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
+        "reportLink": "https://www.virustotal.com/gui/file/289def5327239d666d8ec7c9a61c14507a0af52657bd9d06d5611f8b4b15f2d7?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "66d5699402bae2dc6679fce67abd9e684f4ffdfc",
+    "size": 94386805,
+    "lfs": {
+      "oid": "ad6b6b5f32428f4e9a31858524db51018478373298de1086d66cd7894c212fc3",
+      "size": 94386805,
+      "pointerSize": 133
+    },
+    "xetHash": "df315ba84bd1801f2f2ee053e1b1c7fa933009aa952603888b539a4e058a9cd8",
+    "path": "assets/demo.mp4",
+    "lastCommit": {
+      "id": "549da6eae25d9e982567b3c1d0d5ffef2ec27f8c",
+      "title": "Update main demo video and prepared cover (#4)",
+      "date": "2026-10-03T00:56:12.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=66d5699402bae2dc6679fce67abd9e684f4ffdfc&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
+        "reportLink": "https://www.virustotal.com/gui/file/ad6b6b5f32428f4e9a31858524db51018478373298de1086d66cd7894c212fc3?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "9beb270ef1ebdb124ab7e8210a43d5de2f5a8ca3",
+    "size": 4751371,
+    "lfs": {
+      "oid": "4a8bdf882c9ffe648c861e2e1fae2811ba7b6cdeccda25ace2dc6566e2bd7eb8",
+      "size": 4751371,
+      "pointerSize": 132
+    },
+    "xetHash": "0b8c6c145217606befa5019dcb689dda588b1a9ee180c01d9165d8a724937548",
+    "path": "assets/fig1-teaser.png",
+    "lastCommit": {
+      "id": "aca9bde34a146cf0510e7f8732d4766169105194",
+      "title": "Replace teaser with updated ICLR artwork (#5)",
+      "date": "2026-10-03T01:06:51.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=9beb270ef1ebdb124ab7e8210a43d5de2f5a8ca3&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "",
+        "version": "1.5.4/28141"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
+        "reportLink": "https://www.virustotal.com/gui/file/4a8bdf882c9ffe648c861e2e1fae2811ba7b6cdeccda25ace2dc6566e2bd7eb8?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "63a177c5d7e5b92a2f7edcc66c400b35631e47a8",
+    "size": 573717,
+    "lfs": {
+      "oid": "b7f972087b9895bd0f166cdddcda7c5fdf6e35a1e8be339d2b94c08edefc80fe",
+      "size": 573717,
+      "pointerSize": 131
+    },
+    "xetHash": "36688ac48e2eb8580c34a800b39e47b0e283896cae449cd12b3147f64f3b3efc",
+    "path": "assets/fig2-architecture.png",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=63a177c5d7e5b92a2f7edcc66c400b35631e47a8&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
+        "reportLink": "https://www.virustotal.com/gui/file/b7f972087b9895bd0f166cdddcda7c5fdf6e35a1e8be339d2b94c08edefc80fe?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "ec51a262309291f5251de710b3ed9907ad094b17",
+    "size": 755147,
+    "lfs": {
+      "oid": "ff6521580f766a53264aacfb259cf4a3bf7a8326342d5303796cfdc01c7bb43f",
+      "size": 755147,
+      "pointerSize": 131
+    },
+    "xetHash": "c2f85ed98e0453c468a3d766d4ca93cc20dadfb3fa44d40392a61eff74a5c582",
+    "path": "assets/fig5-grounding-performance.png",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "queued",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=ec51a262309291f5251de710b3ed9907ad094b17&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "queued",
+        "message": "QUEUED",
+        "reportLink": "https://www.virustotal.com/gui/file/ff6521580f766a53264aacfb259cf4a3bf7a8326342d5303796cfdc01c7bb43f?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "ce15f7a3b255388c337e6c262d1356336ccae77d",
+    "size": 568383,
+    "lfs": {
+      "oid": "4a1430a9a3871942240b9f8dbd25ef819886cd2c1334ab5b8cabcf6e040ebcb2",
+      "size": 568383,
+      "pointerSize": 131
+    },
+    "xetHash": "fb3de813376f6474eb29d1205f8a5d6674545cedfb778b65c8ecd64ef1d164d4",
+    "path": "assets/fig6-physical-intelligence.png",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "queued",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=ce15f7a3b255388c337e6c262d1356336ccae77d&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "queued",
+        "message": "QUEUED",
+        "reportLink": "https://www.virustotal.com/gui/file/4a1430a9a3871942240b9f8dbd25ef819886cd2c1334ab5b8cabcf6e040ebcb2?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "d9a83acf7d5b319263aa0656a6f59e0d610cdc11",
+    "size": 5009,
+    "path": "assets/huggingface-paper-gold-day.svg",
+    "lastCommit": {
+      "id": "2adab52f4158eec864305d2f9c2dfafeb23ea5f3",
+      "title": "Update model links, paper badges, and release news (#10)",
+      "date": "2026-10-14T09:37:28.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=d9a83acf7d5b319263aa0656a6f59e0d610cdc11&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "",
+        "version": "1.5.3/28055"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "94ec51d018ce72d69be0bdd4273a0c5ee3ca9a9b",
+    "size": 334939,
+    "lfs": {
+      "oid": "cf685b107356bcf4fbea332a2d1ccdf878eb8757c886470bc260a3d36a77c9bd",
+      "size": 334939,
+      "pointerSize": 131
+    },
+    "xetHash": "ad27c992666191c643f2ef91745cb03b04f89c6a74d4ef1444b78fcb8b1bdfe3",
+    "path": "assets/logo.png",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=94ec51d018ce72d69be0bdd4273a0c5ee3ca9a9b&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
+        "reportLink": "https://www.virustotal.com/gui/file/cf685b107356bcf4fbea332a2d1ccdf878eb8757c886470bc260a3d36a77c9bd?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "3f5685ff2c3edd1441623310cc3cfa3a5af822ae",
+    "size": 1195,
+    "path": "assets/modelscope-logo.svg",
+    "lastCommit": {
+      "id": "2adab52f4158eec864305d2f9c2dfafeb23ea5f3",
+      "title": "Update model links, paper badges, and release news (#10)",
+      "date": "2026-10-14T09:37:28.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=3f5685ff2c3edd1441623310cc3cfa3a5af822ae&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "",
+        "version": "1.5.4/28152"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "6c226632394ae7474b0d4b13e15793eac2e21ee9",
+    "size": 1017,
+    "path": "chat_template.jinja",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "safe",
+        "message": "This file has no security findings.",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=6c226632394ae7474b0d4b13e15793eac2e21ee9&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "0c0f837dc6f9de61c9504ac42d43c1cca18eab84",
+    "size": 2731,
+    "path": "checksums.sha256",
+    "lastCommit": {
+      "id": "08d397c8769f7f10b96ff6d56ee6f56acb04181f",
+      "title": "Fix Chinese emphasis rendering in the model overview (#11)",
+      "date": "2026-10-14T10:41:16.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=0c0f837dc6f9de61c9504ac42d43c1cca18eab84&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "bf5af5318af53d17d29b825ba7fe555ba0571d4d",
+    "size": 3882,
+    "path": "config.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=bf5af5318af53d17d29b825ba7fe555ba0571d4d&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "e2116b644841b5dcd82daba91c889539ad227d2e",
+    "size": 7572,
+    "path": "configuration_groundingpi.py",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=e2116b644841b5dcd82daba91c889539ad227d2e&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "7da6a5be20021b4251de860ac8a5ab04528d0388",
+    "size": 11500,
+    "path": "configuration_groundingpi_vision.py",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=7da6a5be20021b4251de860ac8a5ab04528d0388&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "c427089686480a110c92692944c1dfcad7ad6ef2",
+    "size": 226,
+    "path": "generation_config.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=c427089686480a110c92692944c1dfcad7ad6ef2&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "ecccaf53b2e9f0272e85c01a417f4ae94477c0cf",
+    "size": 8091,
+    "path": "image_processing_groundingpi.py",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=ecccaf53b2e9f0272e85c01a417f4ae94477c0cf&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "e8b2ae127e254e364e6b568b1093a7e12ac576e0",
+    "size": 13844,
+    "path": "media_utils.py",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "safe",
+        "message": "This file has no security findings.",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=e8b2ae127e254e364e6b568b1093a7e12ac576e0&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "31349551d90c7606f325fe0f11bbb8bd5fa0d7c7",
+    "size": 1671853,
+    "path": "merges.txt",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "safe",
+        "message": "This file has no security findings.",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=31349551d90c7606f325fe0f11bbb8bd5fa0d7c7&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "d5266a6fb4a61091db6e52108723b20491305993",
+    "size": 4995018360,
+    "lfs": {
+      "oid": "2ff67831e10766e557311324b3ed5b31864baeb8363a5aef07e876c69afa6de1",
+      "size": 4995018360,
+      "pointerSize": 135
+    },
+    "xetHash": "6991f7435f7b0ab48df21f80c57f087a750c2028f199212c1b83a9b02df6b376",
+    "path": "model-00001-of-00002.safetensors",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=d5266a6fb4a61091db6e52108723b20491305993&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "unscanned",
+        "message": "",
+        "version": "1.5.4/28124"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
+        "reportLink": "https://www.virustotal.com/gui/file/2ff67831e10766e557311324b3ed5b31864baeb8363a5aef07e876c69afa6de1?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "safe",
+        "message": "Safe model, does not support code execution on load.",
+        "reportLink": "https://research.jfrog.com/model-threats/noautoload-suscode?utm_source=huggingface"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "d1842c60e3267be4d848ff84d57b12dfc6c74ae2",
+    "size": 4692384808,
+    "lfs": {
+      "oid": "08137c2be794e4932acfca2adac89e290f5ec0b3bb60d63ee7fb1ddc6a9501d2",
+      "size": 4692384808,
+      "pointerSize": 135
+    },
+    "xetHash": "42d647026edf63d816c64e087ad27fc1fb655e0198ece8085bd76fd3331fc90a",
+    "path": "model-00002-of-00002.safetensors",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=d1842c60e3267be4d848ff84d57b12dfc6c74ae2&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "unscanned",
+        "message": "",
+        "version": "1.5.4/28125"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
+        "reportLink": "https://www.virustotal.com/gui/file/08137c2be794e4932acfca2adac89e290f5ec0b3bb60d63ee7fb1ddc6a9501d2?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "safe",
+        "message": "Safe model, does not support code execution on load.",
+        "reportLink": "https://research.jfrog.com/model-threats/noautoload-suscode?utm_source=huggingface"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "b66eb74263c30110e71df010384f816cd5458aca",
+    "size": 55711,
+    "path": "model.safetensors.index.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=b66eb74263c30110e71df010384f816cd5458aca&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "788adc52a6b28d3520b0657472a50f4904ce4911",
+    "size": 76484,
+    "path": "modeling_groundingpi.py",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=788adc52a6b28d3520b0657472a50f4904ce4911&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "f139f1e6e35bc3c49e6ee076d85795bfd39bbbbd",
+    "size": 54539,
+    "path": "modeling_groundingpi_vision.py",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=f139f1e6e35bc3c49e6ee076d85795bfd39bbbbd&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "2f675044439d4564f80ec990ce900416b844ebe6",
+    "size": 944,
+    "path": "preprocessor_config.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=2f675044439d4564f80ec990ce900416b844ebe6&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "2880acb0281273d365f100e4ca07fc6d235e6f4a",
+    "size": 5227,
+    "path": "processing_groundingpi.py",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=2880acb0281273d365f100e4ca07fc6d235e6f4a&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "ddf4c29b6b5aa0083d16ec4f0290a0cbe8d96bf4",
+    "size": 75,
+    "path": "requirements.txt",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=ddf4c29b6b5aa0083d16ec4f0290a0cbe8d96bf4&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "0980b88ffa996dfbafe3eb9e457eae5e892637db",
+    "size": 141279,
+    "path": "special_tokens_map.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=0980b88ffa996dfbafe3eb9e457eae5e892637db&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "75dcbd63d0367f23aee474c6323d9840fabde3b8",
+    "size": 5102,
+    "path": "streammind_gate.py",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "safe",
+        "message": "This file has no security findings.",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=75dcbd63d0367f23aee474c6323d9840fabde3b8&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "c68c657e91a21484ae13deb8af33c453e5bda136",
+    "size": 11604725,
+    "lfs": {
+      "oid": "1a45e3949a652ba4fa8e65017b134404adee1146e1c61fa05e55cdcfa1279e01",
+      "size": 11604725,
+      "pointerSize": 133
+    },
+    "xetHash": "dc3ca798f5233544733e2de5d3703f06d1e7d5a41c2a32cc959ad009f47c7998",
+    "path": "tokenizer.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=c68c657e91a21484ae13deb8af33c453e5bda136&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
+        "reportLink": "https://www.virustotal.com/gui/file/1a45e3949a652ba4fa8e65017b134404adee1146e1c61fa05e55cdcfa1279e01?utm_source=huggingface"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "41d8a4535bff97569ccb9da1b7bfe2dfb2830f66",
+    "size": 191414,
+    "path": "tokenizer_config.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "unscanned",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=41d8a4535bff97569ccb9da1b7bfe2dfb2830f66&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  },
+  {
+    "type": "file",
+    "oid": "4783fe10ac3adce15ac8f358ef5462739852c569",
+    "size": 2776833,
+    "path": "vocab.json",
+    "lastCommit": {
+      "id": "ca5b1eb5e60622afd0a146125667b93edaba05e3",
+      "title": "Publish model weights, paper figures, and complete model card (#1)",
+      "date": "2026-10-02T02:30:20.000Z"
+    },
+    "securityFileStatus": {
+      "status": "safe",
+      "protectAiScan": {
+        "status": "safe",
+        "message": "This file has no security findings.",
+        "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=4783fe10ac3adce15ac8f358ef5462739852c569&utm_source=huggingface"
+      },
+      "avScan": {
+        "status": "safe",
+        "message": "No security issues detected",
+        "reportLink": "https://fdtn.ai/ai-supply-chain/hugging-face?utm_source=huggingface"
+      },
+      "pickleImportScan": {
+        "status": "unscanned",
+        "pickleImports": [],
+        "version": "0.0.0"
+      },
+      "virusTotalScan": {
+        "status": "unscanned"
+      },
+      "jFrogScan": {
+        "status": "unscanned",
+        "message": "Not a machine-learning model"
+      }
+    }
+  }
+]

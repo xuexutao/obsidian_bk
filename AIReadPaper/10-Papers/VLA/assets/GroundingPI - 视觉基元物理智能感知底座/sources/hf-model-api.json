@@ -1,0 +1,223 @@
+{
+  "_id": "6abcc5a29f2b1b746975a7ca",
+  "id": "GroundingPI/GroundingPI",
+  "private": false,
+  "pipeline_tag": "image-text-to-text",
+  "library_name": "transformers",
+  "tags": [
+    "transformers",
+    "safetensors",
+    "groundingpi",
+    "text-generation",
+    "visual-grounding",
+    "object-detection",
+    "referring-expression-comprehension",
+    "pointing",
+    "ocr",
+    "document-layout",
+    "custom-code",
+    "image-text-to-text",
+    "conversational",
+    "custom_code",
+    "en",
+    "zh",
+    "arxiv:2609.39601",
+    "license:other",
+    "region:us"
+  ],
+  "downloads": 1008,
+  "likes": 34,
+  "modelId": "GroundingPI/GroundingPI",
+  "author": "GroundingPI",
+  "sha": "08d397c8769f7f10b96ff6d56ee6f56acb04181f",
+  "lastModified": "2026-10-14T10:41:16.000Z",
+  "gated": false,
+  "disabled": false,
+  "widgetData": [
+    {
+      "text": "Hi, what can you help me with?"
+    },
+    {
+      "text": "What is 84 * 3 / 2?"
+    },
+    {
+      "text": "Tell me an interesting fact about the universe!"
+    },
+    {
+      "text": "Explain quantum computing in simple terms."
+    }
+  ],
+  "model-index": null,
+  "config": {
+    "architectures": [
+      "GroundingPIForConditionalGeneration"
+    ],
+    "auto_map": {
+      "AutoConfig": "configuration_groundingpi.GroundingPIConfig",
+      "AutoModel": "modeling_groundingpi.GroundingPIModel",
+      "AutoModelForCausalLM": "modeling_groundingpi.GroundingPIForConditionalGeneration",
+      "AutoModelForImageTextToText": "modeling_groundingpi.GroundingPIForConditionalGeneration",
+      "AutoProcessor": "processing_groundingpi.GroundingPIProcessor"
+    },
+    "model_type": "groundingpi",
+    "tokenizer_config": {
+      "bos_token": null,
+      "chat_template": "{% set image_count = namespace(value=0) %}{% set video_count = namespace(value=0) %}{% for message in messages %}{% if loop.first and message['role'] != 'system' %}<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n{% endif %}<|im_start|>{{ message['role'] }}\n{% if message['content'] is string %}{{ message['content'] }}<|im_end|>\n{% else %}{% for content in message['content'] %}{% if content['type'] == 'image' or 'image' in content or 'image_url' in content %}{% set image_count.value = image_count.value + 1 %}{% if add_vision_id %}Picture {{ image_count.value }}: {% endif %}<|vision_start|><|image_pad|><|vision_end|>{% elif content['type'] == 'video' or 'video' in content %}{% set video_count.value = video_count.value + 1 %}{% if add_vision_id %}Video {{ video_count.value }}: {% endif %}<|vision_start|><|video_pad|><|vision_end|>{% elif 'text' in content %}{{ content['text'] }}{% endif %}{% endfor %}<|im_end|>\n{% endif %}{% endfor %}{% if add_generation_prompt %}<|im_start|>assistant\n{% endif %}",
+      "eos_token": "<|im_end|>",
+      "pad_token": "<|endoftext|>",
+      "unk_token": null
+    },
+    "chat_template_jinja": "{% set image_count = namespace(value=0) %}{% set video_count = namespace(value=0) %}{% for message in messages %}{% if loop.first and message['role'] != 'system' %}<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n{% endif %}<|im_start|>{{ message['role'] }}\n{% if message['content'] is string %}{{ message['content'] }}<|im_end|>\n{% else %}{% for content in message['content'] %}{% if content['type'] == 'image' or 'image' in content or 'image_url' in content %}{% set image_count.value = image_count.value + 1 %}{% if add_vision_id %}Picture {{ image_count.value }}: {% endif %}<|vision_start|><|image_pad|><|vision_end|>{% elif content['type'] == 'video' or 'video' in content %}{% set video_count.value = video_count.value + 1 %}{% if add_vision_id %}Video {{ video_count.value }}: {% endif %}<|vision_start|><|video_pad|><|vision_end|>{% elif 'text' in content %}{{ content['text'] }}{% endif %}{% endfor %}<|im_end|>\n{% endif %}{% endfor %}{% if add_generation_prompt %}<|im_start|>assistant\n{% endif %}"
+  },
+  "cardData": {
+    "license": "other",
+    "license_name": "apache-2.0-with-upstream-kimi-k3",
+    "license_link": "LICENSE",
+    "language": [
+      "en",
+      "zh"
+    ],
+    "library_name": "transformers",
+    "pipeline_tag": "image-text-to-text",
+    "tags": [
+      "visual-grounding",
+      "object-detection",
+      "referring-expression-comprehension",
+      "pointing",
+      "ocr",
+      "document-layout",
+      "custom-code"
+    ],
+    "inference": false
+  },
+  "transformersInfo": {
+    "auto_model": "AutoModelForCausalLM",
+    "custom_class": "modeling_groundingpi.GroundingPIForConditionalGeneration",
+    "pipeline_tag": "text-generation"
+  },
+  "siblings": [
+    {
+      "rfilename": ".gitattributes"
+    },
+    {
+      "rfilename": "LICENSE"
+    },
+    {
+      "rfilename": "LICENSE-Apache-2.0"
+    },
+    {
+      "rfilename": "LICENSE-Kimi-K3"
+    },
+    {
+      "rfilename": "README.md"
+    },
+    {
+      "rfilename": "added_tokens.json"
+    },
+    {
+      "rfilename": "assets/demo-poster.jpg"
+    },
+    {
+      "rfilename": "assets/demo.mp4"
+    },
+    {
+      "rfilename": "assets/fig1-teaser.png"
+    },
+    {
+      "rfilename": "assets/fig2-architecture.png"
+    },
+    {
+      "rfilename": "assets/fig5-grounding-performance.png"
+    },
+    {
+      "rfilename": "assets/fig6-physical-intelligence.png"
+    },
+    {
+      "rfilename": "assets/huggingface-paper-gold-day.svg"
+    },
+    {
+      "rfilename": "assets/logo.png"
+    },
+    {
+      "rfilename": "assets/modelscope-logo.svg"
+    },
+    {
+      "rfilename": "chat_template.jinja"
+    },
+    {
+      "rfilename": "checksums.sha256"
+    },
+    {
+      "rfilename": "config.json"
+    },
+    {
+      "rfilename": "configuration_groundingpi.py"
+    },
+    {
+      "rfilename": "configuration_groundingpi_vision.py"
+    },
+    {
+      "rfilename": "generation_config.json"
+    },
+    {
+      "rfilename": "image_processing_groundingpi.py"
+    },
+    {
+      "rfilename": "media_utils.py"
+    },
+    {
+      "rfilename": "merges.txt"
+    },
+    {
+      "rfilename": "model-00001-of-00002.safetensors"
+    },
+    {
+      "rfilename": "model-00002-of-00002.safetensors"
+    },
+    {
+      "rfilename": "model.safetensors.index.json"
+    },
+    {
+      "rfilename": "modeling_groundingpi.py"
+    },
+    {
+      "rfilename": "modeling_groundingpi_vision.py"
+    },
+    {
+      "rfilename": "preprocessor_config.json"
+    },
+    {
+      "rfilename": "processing_groundingpi.py"
+    },
+    {
+      "rfilename": "requirements.txt"
+    },
+    {
+      "rfilename": "special_tokens_map.json"
+    },
+    {
+      "rfilename": "streammind_gate.py"
+    },
+    {
+      "rfilename": "tokenizer.json"
+    },
+    {
+      "rfilename": "tokenizer_config.json"
+    },
+    {
+      "rfilename": "vocab.json"
+    }
+  ],
+  "spaces": [
+    "GroundingPI/GroundingPI",
+    "FanLR/GroundingPI"
+  ],
+  "createdAt": "2026-09-30T08:17:38.000Z",
+  "safetensors": {
+    "parameters": {
+      "BF16": 4843664384
+    },
+    "total": 4843664384
+  },
+  "usedStorage": 9836634648
+}
