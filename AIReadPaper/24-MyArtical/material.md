@@ -40,4 +40,6 @@ VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 
 
 
 
-意思是，我理解一下：trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间，进行体素化到 64^3 的 0-1 网格，接下来有两个去处，第一个去encoder_ss_latent.py 的 SparseStructure-VAE 的 encoder 下采样4倍变成 16^3 x 8 的latent。这就是第一个flow model学习的分布。推理时再还原回 64^3.
+意思是，我理解一下：trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间，进行体素化到 64^3 的 0-1 网格，接下来有两个去处，第一个去encoder_ss_latent.py 的 SparseStructure-VAE 的 encoder 下采样4倍变成 16^3 x 8 的latent。这就是第一个flow model学习的分布。推理时再还原回 64^3。
+渲染时渲染资产的150 views ，518x 518 的RGBA。经过DinoV2 Vit-L/14-reg，取 x-prenorm，丢掉 cls 和 register-token，reshape 成 1024x37x37的patch 特征图，然后把 active voxel的格心坐标用相机内外参投影到每个视角，然后取平均，存成npz文件，包含两个 key：indices（Nx3，uint8，取值0-63）、patchtokens（Nx1024）
+接下来把dino特征，encoder-latent.py 了 1024 -> 8。 把(coords, tokens) 组成稀疏张量，经过SLAT VAE encoder（稀疏卷积和稀疏注意力）压到每体素8维，这个 （Nx8）的稀疏张量就是 SLAT。空间分辨率始终为 64^3
