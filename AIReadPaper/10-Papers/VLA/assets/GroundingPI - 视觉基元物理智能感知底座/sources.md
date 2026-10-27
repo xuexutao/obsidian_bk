@@ -37,9 +37,9 @@ Hugging Face 固定 revision：
 
 | 本地文件 | 来源 | 说明 |
 |---|---|---|
-| `/Users/eilonxtxue/WorkBuddy/2026-10-27-19-36-47/groundingpi-staging/source.pdf` | arXiv PDF v2 | 官方 PDF，一手版面与页码依据 |
-| `/Users/eilonxtxue/WorkBuddy/2026-10-27-19-36-47/groundingpi-staging/source.md` | 官方 PDF 文本抽取 | 用于定位方法、训练、表格、附录和精确数字 |
-| `/tmp/groundingpi-code-20261027` | 官方 GitHub | 固定在上述 commit 的代码快照 |
+| `sources/paper-v2.pdf` | arXiv PDF v2 | Obsidian 内保存的官方 PDF，一手版面与页码依据 |
+| `sources/paper-extracted.md` | 官方 PDF 文本抽取 | Obsidian 内保存的全文抽取，用于定位方法、训练、表格、附录和精确数字 |
+| `/tmp/groundingpi-code-20261027` | 官方 GitHub | 临时代码快照；长期溯源以仓库 URL 与 commit 为准 |
 
 论文抽取首页记录的 PDF 来源：
 
@@ -49,18 +49,18 @@ https://arxiv.org/pdf/2609.39601v2
 
 ## 3. 八张论文图的来源映射
 
-所有本地图均从官方论文 PDF 对应 Figure 裁取，用于 Obsidian 离线引用。
+`01-teaser.png` 复制自固定官方代码 commit 的 `docs/assets/teaser.png`；其余七张图从官方论文 PDF 对应 Figure 完整裁取，用于 Obsidian 离线引用。
 
 | 本地文件 | 论文图号 | PDF 文件页 | 官方来源 | 内容 |
 |---|---:|---:|---|---|
-| `figures/01-teaser.png` | Figure 1 | 1 | arXiv PDF v2；仓库 `docs/assets/teaser.png` | 感知能力、34 项评测与物理智能迁移总览 |
-| `figures/02-architecture.png` | Figure 2 | 3 | arXiv PDF v2；HF `assets/fig2-architecture.png` | MoonViT-V2、2×2 merge、projector、Qwen3 与 GAM |
-| `figures/03-data-engine.png` | Figure 3 | 3 | arXiv PDF v2 | candidate、field fusion、validation、on-demand evidence 与 iteration |
-| `figures/04-training-pipeline.png` | Figure 4 | 6 | arXiv PDF v2 | token CE SFT 与 $G=8$ GRPO |
-| `figures/05-capability-wheel.png` | Figure 5 | 8 | arXiv PDF v2；HF `assets/fig5-grounding-performance.png` | 11 类感知能力与领先 baseline |
-| `figures/06-physical-transfer.png` | Figure 6 | 11 | arXiv PDF v2；HF `assets/fig6-physical-intelligence.png` | RoboTwin、RoboCasa 与 nuScenes |
-| `figures/07-scaling.png` | Figure 9 | 14 | arXiv PDF v2 | 88.4B、132.6B、176.8B、221B scaling |
-| `figures/08-data-composition.png` | Figure 10 | 15 | arXiv PDF v2 | A–F task group、组合结果和 leave-one-out |
+| `figures/01-teaser.png` | Figure 1 | 1 | 仓库 `docs/assets/teaser.png`（官方 commit 固定） | 感知能力、34 项评测与物理智能迁移总览 |
+| `figures/02-architecture.png` | Figure 2 | 6 | arXiv PDF v2；HF `assets/fig2-architecture.png` | MoonViT-V2、2×2 merge、projector、Qwen3 与 GAM |
+| `figures/03-data-engine.png` | Figure 3 | 6 | arXiv PDF v2 | candidate、field fusion、validation、on-demand evidence 与 iteration |
+| `figures/04-training-pipeline.png` | Figure 4 | 7 | arXiv PDF v2 | token CE SFT 与 $G=8$ GRPO |
+| `figures/05-capability-wheel.png` | Figure 5 | 9 | arXiv PDF v2；HF `assets/fig5-grounding-performance.png` | 11 类感知能力与领先 baseline |
+| `figures/06-physical-transfer.png` | Figure 6 | 12 | arXiv PDF v2；HF `assets/fig6-physical-intelligence.png` | RoboTwin、RoboCasa 与 nuScenes |
+| `figures/07-scaling.png` | Figure 9 | 15 | arXiv PDF v2 | 88.4B、132.6B、176.8B、221B scaling |
+| `figures/08-data-composition.png` | Figure 10 | 16 | arXiv PDF v2 | A–F task group、组合结果和 leave-one-out |
 
 仓库 README 中三张 HF 图片使用的官方固定资源 revision 为：
 
@@ -234,11 +234,11 @@ https://huggingface.co/api/models/GroundingPI/GroundingPI/tree/08d397c8769f7f10b
 
 ### 6.1 模型与视觉处理
 
-- `models/vlm/modeling_groundingpi_vision.py:717-721`
-  - `sd2_tpool` merge 路径。
-- `models/vlm/modeling_groundingpi_vision.py:791-823`
-  - `PatchMergerMLPV2`；四 patch flatten；`4096→4096→2560`；GELU；RMSNorm。
-- `models/vlm/modeling_groundingpi_vision.py:910-927`
+- `models/vlm/modeling_groundingpi_vision.py:628-653`
+  - `tpool_patch_merger`：时间维求均值，空间 2×2 四 patch 保留。
+- `models/vlm/modeling_groundingpi.py:964-991`
+  - `GroundingPITwoLayerProjector`；LayerNorm；四 patch flatten；`4096→4096→2560`；GELU；RMSNorm。
+- `models/vlm/modeling_groundingpi.py:994-1031`
   - vision tower、projector、language model 的构造。
 - `models/vlm/modeling_groundingpi.py:1310-1318`
   - `masked_scatter` 将 image embedding 写入文本序列。

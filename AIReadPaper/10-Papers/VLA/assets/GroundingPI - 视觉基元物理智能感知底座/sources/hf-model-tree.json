@@ -411,7 +411,7 @@
       "date": "2026-10-02T02:30:20.000Z"
     },
     "securityFileStatus": {
-      "status": "queued",
+      "status": "safe",
       "protectAiScan": {
         "status": "unscanned",
         "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=ec51a262309291f5251de710b3ed9907ad094b17&utm_source=huggingface"
@@ -427,8 +427,8 @@
         "version": "0.0.0"
       },
       "virusTotalScan": {
-        "status": "queued",
-        "message": "QUEUED",
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
         "reportLink": "https://www.virustotal.com/gui/file/ff6521580f766a53264aacfb259cf4a3bf7a8326342d5303796cfdc01c7bb43f?utm_source=huggingface"
       },
       "jFrogScan": {
@@ -454,7 +454,7 @@
       "date": "2026-10-02T02:30:20.000Z"
     },
     "securityFileStatus": {
-      "status": "queued",
+      "status": "safe",
       "protectAiScan": {
         "status": "unscanned",
         "reportLink": "https://insights-db.paloaltonetworks.com/models/GroundingPI/GroundingPI/08d397c8769f7f10b96ff6d56ee6f56acb04181f/files?blob-id=ce15f7a3b255388c337e6c262d1356336ccae77d&utm_source=huggingface"
@@ -470,8 +470,8 @@
         "version": "0.0.0"
       },
       "virusTotalScan": {
-        "status": "queued",
-        "message": "QUEUED",
+        "status": "unscanned",
+        "message": "File not scanned in VirusTotal",
         "reportLink": "https://www.virustotal.com/gui/file/4a1430a9a3871942240b9f8dbd25ef819886cd2c1334ab5b8cabcf6e040ebcb2?utm_source=huggingface"
       },
       "jFrogScan": {

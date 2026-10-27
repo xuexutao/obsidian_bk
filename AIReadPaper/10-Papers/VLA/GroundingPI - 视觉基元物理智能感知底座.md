@@ -125,8 +125,8 @@ HF 权重是 grounding VLM。
 ![](assets/GroundingPI%20-%20视觉基元物理智能感知底座/figures/02-architecture.png)
 **图解：** 图像先经 MoonViT-V2 得到 patch feature，2×2 相邻空间 patch 被分组，projector 把每组四个 1024 维向量展平为 4096 维，再映射到 Qwen3-4B 的 2560 维语言空间。语言查询和视觉 embedding 进入同一序列，decoder 自回归生成标签、分隔符、box/point 坐标和结束标记。
 **容易误读之处：** 图中“2×2 merge”不是四个空间 patch 取平均。四个空间 patch 的信息全部保留并 flatten；只有视频/时间聚合路径涉及时间维 pooling。
-**图号与页码：** Figure 2，PDF Page 3。
-**官方来源：** 论文 PDF；官方 HF 资源 `assets/fig2-architecture.png`；代码 `models/vlm/modeling_groundingpi_vision.py:791-823`。
+**图号与页码：** Figure 2，PDF Page 6。
+**官方来源：** 论文 PDF；官方 HF 资源 `assets/fig2-architecture.png`；代码 `models/vlm/modeling_groundingpi_vision.py:628-653` 与 `models/vlm/modeling_groundingpi.py:964-991`。
 给定图像 $I$ 与查询 $P$，视觉编码器和连接器产生：
 $$V=C_\phi(E_\psi(I))$$
 语言模型按因果顺序生成可变长输出 $Y$：
@@ -154,8 +154,8 @@ MoonViT-V2 相比普通 MoonViT 和 Qwen3-ViT 的消融分数更高，但该比�
 上述配置来自官方 `config.json`、`preprocessor_config.json` 与论文 Table 8。
 #### 3.2.4 代码与论文差异
 论文主文只说 projector “aggregates” 2×2 feature，容易让读者联想到 average pooling。
-代码里 projector 的输入宽度显式计算为 $1024\times2\times2=4096$，说明空间通道被拼接保留，见 `models/vlm/modeling_groundingpi_vision.py:791-823`。
-`merge_type="sd2_tpool"` 中的 `tpool` 处理时间维；空间维仍经过重排和 flatten，见 `models/vlm/modeling_groundingpi_vision.py:717-721`。
+代码里 projector 的输入宽度显式计算为 $1024\times2\times2=4096$，说明空间通道被拼接保留，见 `models/vlm/modeling_groundingpi_vision.py:628-653` 与 `models/vlm/modeling_groundingpi.py:964-991`。
+`merge_type="sd2_tpool"` 中的 `tpool` 处理时间维；空间维仍经过重排和 flatten，见 `models/vlm/modeling_groundingpi_vision.py:628-653`。
 当前公开 image processor 只接受 image；传入其他 media type 会抛错，见 `models/vlm/image_processing_groundingpi.py:75-95`、`models/vlm/image_processing_groundingpi.py:152-159`。
 ### 3.3 2×2 merge 的真实张量语义
 #### 3.3.1 空间维不做平均
@@ -197,7 +197,7 @@ $$\mathbb{R}^{4096}\rightarrow\mathbb{R}^{4096}\rightarrow\mathbb{R}^{2560}$$
 projector 参数量为 27,267,584。
 #### 3.4.4 代码与论文差异
 论文图没有画出 projector 后的 RMSNorm。
-代码明确使用 `self.post_norm(self.proj(x))`，见 `models/vlm/modeling_groundingpi_vision.py:791-823`。
+代码明确执行 `LayerNorm → flatten → Linear → GELU → Linear → RMSNorm`，见 `models/vlm/modeling_groundingpi.py:964-991`。
 论文主文也没有展开 bias-free 细节；代码两层 `nn.Linear(...,bias=False)`。
 ### 3.5 Qwen3-4B 语言骨干
 #### 3.5.1 输入输出
@@ -338,7 +338,7 @@ point/box 只能表达“在哪里”，不能直接表达接触力、动力学�
 ### 5.1 五步数据引擎
 ![](assets/GroundingPI%20-%20视觉基元物理智能感知底座/figures/03-data-engine.png)
 **图解：** 数据引擎不是简单让单一教师生成伪标签，而是先产生候选，再按字段融合，进行任务依赖验证，对 pending case 调用补充教师或局部视图，最后形成有版本的监督并迭代训练统一 grounding expert。
-**图号与页码：** Figure 3，PDF Page 3。
+**图号与页码：** Figure 3，PDF Page 6。
 **官方来源：** 论文 PDF，Figure 3；论文 Appendix A.3。
 五步可以概括为：
 1. **Candidate generation**：教师 ensemble 与已有 grounding expert 产生对象、box、mask、属性、文字和布局候选；
@@ -446,7 +446,7 @@ seed 与 data seed 都为 42。
 ### 6.8 两阶段后训练图
 ![](assets/GroundingPI%20-%20视觉基元物理智能感知底座/figures/04-training-pipeline.png)
 **图解：** 左侧 SFT 让模型在 teacher forcing 下学习完整结构化输出；右侧每个 image-query 从旧策略采样 $G=8$ 个 response，用 grounding 或 OCR reward 计算组内标准化 advantage，再执行 clipped GRPO。图中 missing、duplicate 和 aligned rollout 展示 reward 不只评价单框 IoU，还处理集合完整性和格式可靠性。
-**图号与页码：** Figure 4，PDF Page 6。
+**图号与页码：** Figure 4，PDF Page 7。
 **官方来源：** 论文 PDF，Figure 4；Appendix A.6。
 ### 6.9 GRPO 的 rollout 与冻结范围
 每个 prompt 采样 $G=8$ 个完整自回归回答。
@@ -540,7 +540,7 @@ Figure 5 图中文字却写 “Across 45 Baselines Including GPT-6 Astra”。
 ### 7.4 capability wheel
 ![](assets/GroundingPI%20-%20视觉基元物理智能感知底座/figures/05-capability-wheel.png)
 **图解：** 雷达/轮图展示 11 类能力上 GroundingPI 与四个最强 baseline 的覆盖范围。它强调的是跨任务宽度，不意味着每个子 benchmark 都第一；例如 GPT-6 Astra 在 frontier GUI、Dense200 pointing、TotalText 等项目仍强。
-**图号与页码：** Figure 5，PDF Page 8。
+**图号与页码：** Figure 5，PDF Page 9。
 **官方来源：** 论文 PDF；官方 HF 资源 `assets/fig5-grounding-performance.png`。
 ### 7.5 Table 1：检测与 referring grounding
 下表完整摘录三种关键模型的八列 F1mIoU：
@@ -630,9 +630,9 @@ cosine decay，2000 warmup step，最小 LR $5\times10^{-7}$。
 每个 observation 采两个 flow noise sample。
 ### 8.4 物理迁移结果图
 ![](assets/GroundingPI%20-%20视觉基元物理智能感知底座/figures/06-physical-transfer.png)
-**图解：** 左侧 RoboTwin 比较场景内训练和 Clean→Random 的环境变化；中间 RoboCasa 比较 ID 与对象类型、外观、容器组合 OOD；右侧把 nuScenes L2 取倒数绘图以统一“越高越好”的方向。图中 GroundingPI 在五个六个操作设置中第一，四个 OOD 设置全部第一。
+**图解：** 左侧 RoboTwin 比较场景内训练和 Clean→Random 的环境变化；中间 RoboCasa 比较 ID 与对象类型、外观、容器组合 OOD；右侧把 nuScenes L2 取倒数绘图以统一“越高越好”的方向。图中 GroundingPI 在六个操作设置中的五个第一，四个 OOD 设置全部第一。
 **关键数字：** RoboTwin Full/ID 66.20，Clean2Random/OOD 17.60；RoboCasa ID 37.75，Type OOD 28.94，Appearance OOD 37.78，Container OOD 37.86；nuScenes 平均 L2 0.296 m。
-**图号与页码：** Figure 6，PDF Page 11。
+**图号与页码：** Figure 6，PDF Page 12。
 **官方来源：** 论文 PDF；官方 HF 资源 `assets/fig6-physical-intelligence.png`。
 ### 8.5 RoboTwin 2.0
 RoboTwin Full 同时训练和评测 Clean 与 Randomized data。
@@ -692,7 +692,7 @@ GroundingPI 之前已经消耗 721.58B token 的感知与多模态训练。
 ### 9.1 88.4B 到 221B 的 scaling
 ![](assets/GroundingPI%20-%20视觉基元物理智能感知底座/figures/07-scaling.png)
 **图解：** 四个 checkpoint 使用相同初始 backbone、相同下游 ActionDiT、相同动作示范和动作训练 recipe，仅改变 grounding-training exposure。Grounding score 与 OOD Avg 单调上升；ID 在第三点达到 38.75 后，完整 221B 点回落到 37.75。
-**图号与页码：** Figure 9，PDF Page 14。
+**图号与页码：** Figure 9，PDF Page 15。
 **官方来源：** 论文 PDF，Figure 9；Appendix Table 16。
 四个点为：
 | Grounding token exposure | Grounding Avg | RoboCasa ID | RoboCasa OOD Avg |
@@ -707,7 +707,7 @@ GroundingPI 之前已经消耗 721.58B token 的感知与多模态训练。
 ### 9.2 六类监督组成
 ![](assets/GroundingPI%20-%20视觉基元物理智能感知底座/figures/08-data-composition.png)
 **图解：** A–F 六组分别是 Basic Grounding、Dense Grounding、Referring、Basic Pointing、Robo Pointing 和 Else/OCR。右侧 leave-one-out 以 full six 为基准，显示移除 Dense 与 F 组对操作迁移影响最大；但实验矩阵并不完整，不能把各组 drop 当成独立可加的因果贡献。
-**图号与页码：** Figure 10，PDF Page 15。
+**图号与页码：** Figure 10，PDF Page 16。
 **官方来源：** 论文 PDF，Figure 10；Appendix Table 17。
 论文主图把 F 简写为 OCR，附录更准确地写成 Else/OCR、Layout、GUI。
 这一区别很重要：去掉 F 的效果不能只归因于 OCR。
@@ -788,8 +788,8 @@ MoonViT/Kimi 派生实现与适用 derivative work 保留 Kimi K3 条件，见 `
 |---|---|---|
 | 动态分辨率 | `models/vlm/image_processing_groundingpi.py` | 34-44，75-95，148-184 |
 | NaViT patchify | `models/vlm/media_utils.py` | 319-341 |
-| MoonViT-V2 forward/merge | `models/vlm/modeling_groundingpi_vision.py` | 717-721 |
-| 2×2 projector | `models/vlm/modeling_groundingpi_vision.py` | 791-823 |
+| MoonViT-V2 forward/merge | `models/vlm/modeling_groundingpi_vision.py` | 628-653，656-725 |
+| 2×2 projector | `models/vlm/modeling_groundingpi.py` | 964-991 |
 | 视觉 embedding 注入 | `models/vlm/modeling_groundingpi.py` | 1310-1318 |
 | Qwen3 decoder | `models/vlm/modeling_groundingpi.py` | 1330-1357 |
 | LM head | `models/vlm/modeling_groundingpi.py` | 1369-1378，1537-1547 |
@@ -847,7 +847,7 @@ patch 14、merge 2、input patch limit 4096、单边 patch limit 512、默认最
 27 层、1024 hidden、4096 FFN、12 head、最多 4096 patch。
 #### 10.5.4 代码与论文差异
 “merge”不是 spatial average。
-代码的 `.view(item.shape[0],-1)` 保留四个 patch channel，见 `models/vlm/modeling_groundingpi_vision.py:815-822`。
+代码的 `.reshape(item.shape[0],self.input_size)` 保留四个 patch channel，见 `models/vlm/modeling_groundingpi.py:982-990`。
 只有 temporal pooling 路径对时间维聚合。
 ### 10.6 核心模块三：projector
 #### 10.6.1 输入输出
@@ -1144,13 +1144,13 @@ GroundingPI 使用的原生 spatial-token protocol，将标签 wrapper、box wra
 | 本地文件 | 论文图号 | PDF 页 | 内容 |
 |---|---|---:|---|
 | `figures/01-teaser.png` | Figure 1 | 1 | 模型定位、11 类能力与物理迁移总览 |
-| `figures/02-architecture.png` | Figure 2 | 3 | MoonViT-V2、2×2 merge、projector、Qwen3 与 GAM |
-| `figures/03-data-engine.png` | Figure 3 | 3 | 多教师、字段融合、验证、补证与迭代 |
-| `figures/04-training-pipeline.png` | Figure 4 | 6 | SFT 与 GRPO 两阶段后训练 |
-| `figures/05-capability-wheel.png` | Figure 5 | 8 | 11 类 capability 与强 baseline 对比 |
-| `figures/06-physical-transfer.png` | Figure 6 | 11 | RoboTwin、RoboCasa、nuScenes |
-| `figures/07-scaling.png` | Figure 9 | 14 | 88.4B–221B 感知和动作 scaling |
-| `figures/08-data-composition.png` | Figure 10 | 15 | A–F 数据组成与 leave-one-out |
+| `figures/02-architecture.png` | Figure 2 | 6 | MoonViT-V2、2×2 merge、projector、Qwen3 与 GAM |
+| `figures/03-data-engine.png` | Figure 3 | 6 | 多教师、字段融合、验证、补证与迭代 |
+| `figures/04-training-pipeline.png` | Figure 4 | 7 | SFT 与 GRPO 两阶段后训练 |
+| `figures/05-capability-wheel.png` | Figure 5 | 9 | 11 类 capability 与强 baseline 对比 |
+| `figures/06-physical-transfer.png` | Figure 6 | 12 | RoboTwin、RoboCasa、nuScenes |
+| `figures/07-scaling.png` | Figure 9 | 15 | 88.4B–221B 感知和动作 scaling |
+| `figures/08-data-composition.png` | Figure 10 | 16 | A–F 数据组成与 leave-one-out |
 ### 14.2 关键论文表
 Table 1：detection 与 referring grounding。
 Table 2：robot/spatial pointing 与 GUI grounding。
@@ -1178,9 +1178,9 @@ Table 18：OCR mixing。
 HF 固定 revision：`08d397c8769f7f10b96ff6d56ee6f56acb04181f`。
 获取与核对日期：2026-10-27。
 ### 15.2 本地材料
-论文抽取：`groundingpi-staging/source.md`。
-官方 PDF：`groundingpi-staging/source.pdf`。
-官方代码快照：`/tmp/groundingpi-code-20261027`。
+论文抽取：`assets/GroundingPI - 视觉基元物理智能感知底座/sources/paper-extracted.md`。
+官方 PDF：`assets/GroundingPI - 视觉基元物理智能感知底座/sources/paper-v2.pdf`。
+官方代码版本：<https://github.com/groundingpi/GroundingPI/tree/090932430bbbeea004cfa461767ede7f563c0f3a>。
 HF 配置与 API 快照：`assets/GroundingPI - 视觉基元物理智能感知底座/sources/`。
 详细来源、原始 URL、图像 provenance、实际阅读源码和开源边界见同资产目录的 `sources.md`。
 ### 15.3 开源覆盖结论
