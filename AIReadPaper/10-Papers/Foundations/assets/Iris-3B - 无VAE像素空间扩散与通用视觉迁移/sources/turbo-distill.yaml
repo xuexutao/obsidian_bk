@@ -1,0 +1,21 @@
+dmd:
+  sigmas:
+  - 1.0
+  - 0.938
+  - 0.833
+  - 0.625
+  schedule: decoupled_hybrid
+  cfg_scale: 3.5
+  dm_weight: 1.0
+  ca_weight: 1.0
+  proxy_weight: 1.0
+  sigma_min: 0.01
+  sigma_max: 0.99
+  normalize: false
+  shared_norm: false
+  method: tdm
+  huber_c: 0.0
+  deterministic: true
+  renoise_shift: 1.0
+height: 1024
+width: 1024
