@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "sessionId": "22f7b3c7-cf39-4f8e-9265-5f572772fcb3",
+  "agentId": "claude-code-acp",
+  "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
+  "title": "为什么要做轨迹规划呢？这个轨迹规划是如何做的呢",
+  "createdAt": "2026-10-29T03:41:40.361Z",
+  "updatedAt": "2026-10-29T03:41:40.361Z",
+  "messages": [
+    {
+      "id": "db49e728-85d0-44e7-acde-ec471b600970",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "为什么要做轨迹规划呢？这个轨迹规划是如何做的呢",
+          "autoMentionContext": {
+            "noteName": "HY-World 2.0 工作原理与张量流 - Survey",
+            "notePath": "AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-10-29T03:40:33.040Z"
+    },
+    {
+      "id": "d3497bfa-521c-47b3-a0d6-c72912c9f33d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "Let me go read that note.\n\n"
+        }
+      ],
+      "timestamp": "2026-10-29T03:40:37.791Z"
+    },
+    {
+      "id": "e3bcb89c-8798-4285-8b71-6057bc73add7",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_01MXcTGQRaMcxdAUv38RMf5B",
+          "title": "Read AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md",
+              "line": 1
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md"
+          }
+        },
+        {
+          "type": "text",
+          "text": "**Warning:** We're changing auto mode to no longer charge for classifier requests in Claude Code. However, this session isn't eligible because your requests go through 127.0.0.1:15721, which isn't compatible with this update. Nothing breaks: auto mode keeps working, and its classifier requests are billed as before. To fix it and access the new version of auto mode, ask your gateway to implement: https://code.claude.com/docs/en/auto-mode-classifier-billing读完第 3 章（[[HY-World 2.0 工作原理与张量流 - Survey]] 的 Stage II）后，可以把这个问题拆成\"为什么必须有这一步\"和\"具体怎么算出 35 条相机轨迹\"两半。\n\n## 一、为什么要做轨迹规划\n\n### 1. 下游模型吃的就是相机，没有相机无法启动\nWorldStereo 2.0 本质是一个**相机可控的视频扩散模型**：它的条件有三样——点云沿轨迹的渲染视频、逐像素 Plücker 射线、7 维位姿嵌入（`camera_qt [1,21,7]`）。这三样全部由相机位姿导出。没有轨迹，Stage III 连输入都构造不出来。\n\n### 2. 一张全景只有一个光心，信息量上限被锁死\nERP 全景给的是\"站在原点看四周\"，它没有视差、没有遮挡关系、物体背面完全缺失。要得到可漫游的 3DGS 世界，必须有**带基线的多视角观测**。轨迹规划就是在回答：相机该走到哪里、朝哪看，才能把全景里看不到的那部分\"逼\"出来。\n\n### 3. \"相机完全已知\"是整条链能闭环的根本前提\n这是我认为全文最关键的一点（笔记 8.2、9.2）：相机是全链路唯一精确已知的量。正因为位姿是自己规划出来的而不是估计出来的，后面才敢这么省：\n\n- WorldMirror 2.0 只回归深度，关掉相机估计以外的头 —— 不然它会把生成帧之间的细微不一致\"解释\"成相机漂移；\n- 深度对齐只需要每帧一个 $(k,b)$ 的线性 RANSAC，2 分钟搞定，而 video2world 的特征匹配 + ICP 要 5 小时；\n- 3DGS 直接用这些相机当训练视角，不需要 COLMAP/BA。\n\n换句话说，轨迹规划不只是\"安排镜头运动\"，它是**把一个无标定重建问题，提前转化成一个已知位姿的深度回归问题**。\n\n### 4. 必须是\"规划\"而不是随机采样\n预算是硬的：约 35 条轨迹 × 21 帧 ≈ 735 个生成视角，每条还要跑 4 步 14B 前向。随机撒相机会出三个问题——穿墙钻地（物理不合法）、重复覆盖已知区域（浪费）、漏掉几何空洞（重建崩）。所以才有 NavMesh 碰撞约束和五类有明确分工的轨迹。代价是这一级耗时 182 s，比全景生成本身慢 12 倍。\n\n## 二、具体怎么做\n\n### 第 0 步：先把一张图变成可规划的几何/语义资产\n规划需要知道\"哪里是墙、哪里是地、哪里有值得绕的东西\"，所以 `traj_generate.py` 先做场景解析：\n\n| 产物 | 作用于规划的哪一环 |\n|---|---|\n| 全景深度（42 视角 MoGe-2 + 对数域梯度场 LSMR 融合） | 一切几何的源头 |\n| `global_mesh`（960×1920 网格化） | 严格碰撞检测 |\n| NavMesh（Recast 体素化） | 可行走区域、Dijkstra 图搜索 |\n| Qwen3-VL 地标 + SAM3 mask → 3D 质心 | 环绕轨迹的目标 |\n| 退化面片检测（高长宽比三角面） | 定位几何空洞 |\n| 天空 mask（GroundingDINO + ZIM） | 排除无效区域 |\n\n注意 NavMesh 参数（`agentHeight=0.2, agentRadius=0.1, maxSlope=30°`）是在 MoGe 的**相对尺度**下定义的，所以\"0.1\"的物理含义随场景浮动——这是个隐藏的脆弱点。\n\n### 第 1 步：五类轨迹，各管一类缺失信息\n\n| 轨迹 | 上限 | 怎么生成 | 补什么 |\n|---|---:|---|---|\n| Regular | 9 | 3 个分割视角（120° 间隔），每个做左/右旋转 ±120° 和一条右上航拍 | 离开全景原点，建立基线 |\n| Surrounding | 5 | VLM 找地标 → SAM3 → 3D 质心 → 72 个候选环绕节点，半径随物体尺寸自适应 | 物体侧面与背面 |\n| Reconstruction-aware | 10 | 检测退化面片 → NMS → top-5；`traj1` 为迭代环绕 | 几何空洞 |\n| Wandering | 3 | NavMesh 分 8 扇区，Dijkstra 找最远可达点，`move_dist=8.0` | 走廊、街道纵深 |\n| Aerial | 8 | 在上述轨迹上叠 +45° 俯视，碰撞时动态减小俯角 | BEV 盲区 |\n\n这里的逻辑很清晰：**每一类轨迹对应一种特定的信息缺失**，而不是\"多拍几个角度\"。\n\n### 第 2 步：每条轨迹输出 21 帧\n产物是 `camera.json` 里的 `extrinsic [21,4,4]`（OpenCV w2c）、`intrinsic [21,3,3]`，加一张从全景切出的 `start_frame.png [480,832,3]`。\n\n为什么偏偏 21 帧？因为 Wan2.1 的 81 帧视频经 4× 时间压缩正好是 21 个潜变量帧。WorldStereo 把\"81 帧视频\"替换成\"21 个独立关键帧\"，潜变量形状 `[1,16,21,60,104]` 完全不变，骨干的时间 RoPE 和显存都和预训练对齐。同理 480×832 来自 $w=\\mathrm{round}(\\tan 60°/\\tan 45° \\times 480)=831\\to832$，恰好是 Wan2.1-480P 的标准分辨率。**轨迹的\"形状\"是被下游骨干反向约束出来的。**\n\n### 第 3 步：把轨迹渲染成条件信号\n`traj_render.py` 用 PyTorch3D 把 `global_pcd` 沿每条轨迹溅射出 `render.mp4 [21,480,832,3]` 和 `render_mask.mp4`，第 0 帧换成高质量 `start_frame`，再让 Qwen3-VL 看着视频写 `traj_caption.json` 当文本条件。\n\nmask 在这里承担了一个很漂亮的双重角色：**mask=1 的像素是\"照着画\"的强约束，mask=0 的空洞才是真正要想象的区域**。规划的输出因此既是控制信号，也是已知/未知的显式划分。\n\n### 第 4 步：生成顺序也是规划的一部分\nview\\*（traj2 向上航拍 → traj0 右 → traj1 左）→ target\\* → reconstruct\\*/traj0 → wonder\\* → reconstruct\\*/traj1。先生成俯视，后续左右旋转才能从记忆库里检索到\"高处看下来\"的内容；依赖前序结果的迭代重建轨迹放最后。这是一种课程式的世界填充 —— 轨迹之间不是并行独立的，而是有信息依赖的偏序。\n\n## 一句话总结\n\n轨迹规划之所以存在，是因为它把\"从一张图生成 3D 世界\"这个欠定问题，**切成了一组位姿已知、覆盖互补、物理合法的条件化生成子问题**；做法是先用全景深度+NavMesh+VLM 把场景解析成可规划的几何语义结构，再按五类信息缺失各自生成 21 帧轨迹，最后渲染成点云视频+mask 当作下游扩散的控制信号。\n\n要补充的是笔记 9.2 里提到的局限：轨迹是**一次性离线规划完**的，全景深度一旦估错，错误会以\"先验\"身份传遍全链路且无人回头修正；而生成结果也不会反过来更新点云、重规划后续轨迹。把对齐提前到每条轨迹之后、让规划用\"滚动更新的点云\"，是个很自然的改进方向。"
+        },
+        {
+          "type": "agent_thought",
+          "text": "I should answer in Chinese, drawing from the note's section 3, explaining why trajectory planning matters: since camera pose is the only precisely known quantity in the pipeline, and generation relies on camera-conditioned video diffusion, planning the camera trajectory is essential to drive that generation process.\n\nI'm thinking through the \"why\": a panorama only captures one viewpoint without parallax, so building a 3DGS world requires multi-view coverage with proper baselines. Planning (rather than random/user-driven movement) ensures coverage of occluded regions, collision-free paths, reconstruction-friendly baselines, and a bounded trajectory budget.\n\nFor the \"how,\" I want to cover scene parsing (panoramic depth fusion, point clouds, mesh, NavMesh, VLM landmarks), the five trajectory families with their caps, the 21-frame structure tied to Wan's latent frames, and the rendering pipeline that produces conditioning video/mask/captions, plus ordering for memory retrieval and the NavMesh scale/cost details. I'll structure this with tables where helpful, adding blank lines before them."
+        }
+      ],
+      "timestamp": "2026-10-29T03:40:38.024Z"
+    }
+  ],
+  "savedAt": "2026-10-29T03:41:40.363Z"
+}
