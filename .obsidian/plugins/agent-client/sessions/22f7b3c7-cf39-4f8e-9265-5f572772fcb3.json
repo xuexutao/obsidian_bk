@@ -5,7 +5,7 @@
   "cwd": "/Users/eilonxtxue/Documents/hexo/obsidian_bk",
   "title": "为什么要做轨迹规划呢？这个轨迹规划是如何做的呢",
   "createdAt": "2026-10-29T03:41:40.361Z",
-  "updatedAt": "2026-10-29T03:41:40.361Z",
+  "updatedAt": "2026-10-29T03:41:40.362Z",
   "messages": [
     {
       "id": "db49e728-85d0-44e7-acde-ec471b600970",
@@ -64,7 +64,433 @@
         }
       ],
       "timestamp": "2026-10-29T03:40:38.024Z"
+    },
+    {
+      "id": "a017c4e4-dd90-44c5-9508-5108e7246dbb",
+      "role": "user",
+      "content": [
+        {
+          "type": "text_with_context",
+          "text": "可以吧具体做法详细解释一下吗",
+          "autoMentionContext": {
+            "noteName": "HY-World 2.0 工作原理与张量流 - Survey",
+            "notePath": "AIReadPaper/20-Surveys/World-Models/HY-World 2.0 工作原理与张量流 - Survey.md"
+          }
+        }
+      ],
+      "timestamp": "2026-10-29T03:50:04.623Z"
+    },
+    {
+      "id": "aa9ed1fe-c81a-4113-8d47-6cec78f34b7c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "agent_thought",
+          "text": "I want to give a detailed explanation of the trajectory planning method, so I should check whether the actual source code is available locally, like a sources.md file or the repo itself, rather than relying on memory alone."
+        }
+      ],
+      "timestamp": "2026-10-29T03:50:10.424Z"
+    },
+    {
+      "id": "7edce9a1-8dd4-4dfa-9228-2086e4ca2b2e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_bdrk_017nNub52yh5DfnahLVd6tRq",
+          "title": "ls \"/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/20-Surveys/World-Models/assets/HY-World 2.0 工作原理与张量流 - Survey/\" 2>/dev/null; echo \"---\"; find /Users/eilonxtxue -maxdepth 4 -iname \"*HY-World*\" -not -path \"*/obsidian_bk/*\" 2>/dev/null | head -20",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "ls \"/Users/eilonxtxue/Documents/hexo/obsidian_bk/AIReadPaper/20-Surveys/World-Models/assets/HY-World 2.0 工作原理与张量流 - Survey/\" 2>/dev/null; echo \"---\"; find /Users/eilonxtxue -maxdepth 4 -iname \"*HY-World*\" -not -path \"*/obsidian_bk/*\" 2>/dev/null | head -20"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I see the code is available locally at that workspace path, so I'll dig into the trajectory generation code in detail."
+        },
+        {
+          "type": "text",
+          "text": "代码在本地，我直接读源码给你逐行讲。"
+        }
+      ],
+      "timestamp": "2026-10-29T03:50:10.673Z"
+    },
+    {
+      "id": "914e22b9-292c-426f-95d7-e7fb70ed421d",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01Qjd4erGuz3D7iv1up6GvcY",
+          "title": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0 && ls && echo \"=== worldgen ===\" && ls worldgen/ && echo \"=== src ===\" && ls worldgen/src/ 2>/dev/null || find . -name \"navi_utils.py\" -o -name \"traj_generate.py\" | head",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0 && ls && echo \"=== worldgen ===\" && ls worldgen/ && echo \"=== src ===\" && ls worldgen/src/ 2>/dev/null || find . -name \"navi_utils.py\" -o -name \"traj_generate.py\" | head"
+          }
+        }
+      ],
+      "timestamp": "2026-10-29T03:50:23.872Z"
+    },
+    {
+      "id": "bf313c2d-a528-40d0-8743-d284c9e49222",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01EmM325yK2W2fAFmDGcpkw3",
+          "title": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && wc -l traj_generate.py src/*.py && echo \"=== funcs in navi_utils ===\" && grep -n \"^def \\|^class \\|^    def \" src/navi_utils.py",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && wc -l traj_generate.py src/*.py && echo \"=== funcs in navi_utils ===\" && grep -n \"^def \\|^class \\|^    def \" src/navi_utils.py"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I should focus my reading on the key parts of traj_generate.py, particularly the main trajectory generation flow, rather than trying to read everything in detail."
+        }
+      ],
+      "timestamp": "2026-10-29T03:50:32.423Z"
+    },
+    {
+      "id": "b6528d95-5081-4963-93d4-07dee0f01f27",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01Sq39u8gSZEmFVRjiBHZJew",
+          "title": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"def \\|process_single_scene\\|navmesh\\|NavMesh\" traj_generate.py | head -60",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"def \\|process_single_scene\\|navmesh\\|NavMesh\" traj_generate.py | head -60"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I'll goahead and read process_single_scene along with the key trajectory functions directly rather than dispatching subagents, since this is a focused task."
+        }
+      ],
+      "timestamp": "2026-10-29T03:50:43.306Z"
+    },
+    {
+      "id": "7a476254-22bd-45b4-9a17-8f6470218abf",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01LEF4ZWFymnV5EGhoVxiggV",
+          "title": "Read /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py (3115 - 3319)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py",
+              "line": 3115
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py",
+            "offset": 3115,
+            "limit": 205
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "Actually, agentHeight is adaptive via a downward raycast from origin, which corrects my earlier note. I want to dig into the key functions next — the NavMeshGraph initialization and dense graph building, the agent exploration and surround path logic, destination reconstruction, trajectory processing, and the part that converts paths into camera trajectories. I'll read these in parallel."
+        },
+        {
+          "type": "text",
+          "text": "这里有个重要发现：`agentHeight` 其实是自适应的，不是我笔记里写的固定值。继续深挖。"
+        }
+      ],
+      "timestamp": "2026-10-29T03:50:54.222Z"
+    },
+    {
+      "id": "0005082a-9a7c-4ea8-b577-585e543cef0e",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_015EsB3s7WsqrBANEBNzsGfb",
+          "title": "Read /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py (35 - 244)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py",
+              "line": 35
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py",
+            "limit": 210,
+            "offset": 35
+          }
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:01.871Z"
+    },
+    {
+      "id": "94cdc683-b3cd-4c75-a4a8-b8d84d94319a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01T5n9u33SbPXzGSqb5EG3tt",
+          "title": "Read /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py (503 - 802)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py",
+              "line": 503
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py",
+            "limit": 300,
+            "offset": 503
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "Now I want to check process_trajectories, since that's where the 21 frames and camera orientation come from, along with how traj_generate.py builds the camera for regular trajectories."
+        },
+        {
+          "type": "text",
+          "text": "现在看最关键的一步：路径点 → 21 帧相机。"
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:06.688Z"
+    },
+    {
+      "id": "14208e98-5a27-4915-beeb-1fcdb5e689e2",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_013YeP6mqBhzawYDdjUUZMhp",
+          "title": "Read /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py (2350 - 2489)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py",
+              "line": 2350
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/src/navi_utils.py",
+            "limit": 140,
+            "offset": 2350
+          }
+        },
+        {
+          "type": "text",
+          "text": "现在看 traj_generate.py 里 regular 轨迹和 aerial 变体的生成。"
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:12.976Z"
+    },
+    {
+      "id": "8906d2f9-58c5-47f4-beee-799a09f04e68",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_015nG3YBLYQ7QLy8MN1PkzrH",
+          "title": "Read /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py (860 - 1089)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py",
+              "line": 860
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py",
+            "limit": 230,
+            "offset": 860
+          }
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:19.092Z"
+    },
+    {
+      "id": "f601e03f-78ee-4a41-9800-ee728edff8ac",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01LSwa4We8URSH7oAWa7KrnR",
+          "title": "Read /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py (1088 - 1272)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py",
+              "line": 1088
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py",
+            "limit": 185,
+            "offset": 1088
+          }
+        },
+        {
+          "type": "text",
+          "text": "现在看 regular 轨迹（view*）和 `get_c2w` 的运动原语。"
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:24.688Z"
+    },
+    {
+      "id": "7633993d-95eb-44d6-a74d-b5498779f6ef",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01Pv8TVSydaXc4zzE52NE411",
+          "title": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"view\\|split_view\\|rotation\\|move_list\\|MOVE\" traj_generate.py | sed -n '1,80p'",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"view\\|split_view\\|rotation\\|move_list\\|MOVE\" traj_generate.py | sed -n '1,80p'"
+          }
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:31.741Z"
+    },
+    {
+      "id": "10e1694d-67c1-4603-a4ea-12bf4bfc6b4c",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_012GRaVLv6qAFxsNCUZPhEpg",
+          "title": "Read /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py (605 - 664)",
+          "status": "completed",
+          "kind": "read",
+          "content": [],
+          "locations": [
+            {
+              "path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py",
+              "line": 605
+            }
+          ],
+          "rawInput": {
+            "file_path": "/Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen/traj_generate.py",
+            "limit": 60,
+            "offset": 605
+          }
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:41.824Z"
+    },
+    {
+      "id": "6fa2bb6f-f797-4e99-baa3-8b5497363771",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_01FPuGr9CuamtpuNDxttz1Sy",
+          "title": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"def get_c2w\" -A 150 src/camera_utils.py",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"def get_c2w\" -A 150 src/camera_utils.py"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "Checking camera_rotation — it's actually an orbit around a look-at point rather than a rotation in place, which matters here."
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:46.155Z"
+    },
+    {
+      "id": "bcd04c2b-c717-4749-ae4b-f7ae815d637a",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_014uhv7Y377dYuRNApykk3HW",
+          "title": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"def camera_rotation\" -A 40 src/camera_utils.py && echo \"=== defaults ===\" && sed -n '140,230p' traj_generate.py",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"def camera_rotation\" -A 40 src/camera_utils.py && echo \"=== defaults ===\" && sed -n '140,230p' traj_generate.py"
+          }
+        }
+      ],
+      "timestamp": "2026-10-29T03:51:55.722Z"
+    },
+    {
+      "id": "44285f1c-1858-41ac-9a02-58c611d8dc42",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_014WHceiZp44TBVgou2WxcHi",
+          "title": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"def native_camera_rotation\" -A 45 src/camera_utils.py",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && grep -n \"def native_camera_rotation\" -A 45 src/camera_utils.py"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I have enough now, but let me also quickly check get_reconstruct_destinations for how it detects degenerate faces."
+        }
+      ],
+      "timestamp": "2026-10-29T03:52:06.588Z"
+    },
+    {
+      "id": "3e41c761-bb5a-492b-92fc-ba96bb97b061",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_call",
+          "toolCallId": "toolu_011gF3wvnuT9B4g3TYKAkjoD",
+          "title": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && sed -n '1180,1300p' src/navi_utils.py",
+          "status": "completed",
+          "kind": "execute",
+          "content": [],
+          "rawInput": {
+            "command": "cd /Users/eilonxtxue/Documents/demo/workspace/HY-World-2.0/hyworld2/worldgen && sed -n '1180,1300p' src/navi_utils.py"
+          }
+        },
+        {
+          "type": "agent_thought",
+          "text": "I have enough material now to write a thorough answer. Let me correct a few inaccuracies I noted: agentHeight is adaptive, NavMesh sample_spacing is 0.05, and the third regular trajectory defaults to an aerial-type up-right view at (-60,-45).I should also double-check the \"72 candidate nodes\" figure and the adaptive radius formula (min of 1.0×distance and 2.0×scale), both of which hold up. More importantly, I realize the regular trajectory's rotation isn't a simple in-place pan — working through the dummy_c2w math, the camera is translated back by the median depth, rotated, then translated forward again, which means it's actually orbiting around an anchor point in front of the camera at that median depth, not spinning around its own origin. That distinction between orbit and pan is worth highlighting clearly in my answer."
+        },
+        {
+          "type": "text",
+          "text": "全部看完了源码。下面按\"从一张全景 → 35 条 `camera.json`\"的实际执行顺序逐层讲，关键参数都标了行号可核对。\n\n---\n\n## 0. 两套完全独立的规划器\n\n读代码第一个认知修正：`traj_generate.py` 里有两个 stage，走的是**两条互不相干的技术路线**：\n\n| | Stage 1（regular） | Stage 2（`--apply_nav_traj`） |\n|---|---|---|\n| 规划空间 | 不用 NavMesh，纯**原地旋转** | NavMesh 图搜索 |\n| 相机位置 | 基本不动（轨道旋转） | 沿可行走路径平移 |\n| 碰撞检测 | KD-Tree / mesh 距离，失败就**缩小动作** | 可行走区域天然保证 + 光线投射 |\n| 产物 | `view{0,1,2}/traj{0,1,2}` | `target_*`、`wonder_*`、`reconstruct_*` |\n\n前者解决\"看周围\"，后者解决\"走过去\"。\n\n---\n\n## 1. Stage 1：Regular 轨迹 —— 轨道旋转而非平移\n\n### 1.1 三个分割视角\n\n全景先按 `split_view_num=3` 切出 3 个起始视角（120° 间隔，第 0 个是全景正前方），每个视角得到 `c2w_start`、`K`、以及该视角的 `median_depth`（局部深度中位数，后面所有尺度都由它定）。\n\n### 1.2 三个运动原语（`traj_generate.py:212-219`）\n\n```python\ncamera_candidates_near = [\n  {\"type\":\"normal\", \"rotation\":[-120, 0], \"name\":\"right-rotation\"},\n  {\"type\":\"normal\", \"rotation\":[ 120, 0], \"name\":\"left-rotation\"},\n  {\"type\":\"aerial\", \"rotation\":[-60, -45], \"name\":\"up-right-aerial\"},  # up_right=60 > 0\n]\n```\n\n注意 `backward-forward` 和 `left-right` 都是 0 —— **相机不平移**。\n\n### 1.3 关键：旋转中心不在相机上\n\n`native_camera_rotation`（`camera_utils.py:201`）构造了一个局部变换：\n\n$$\\mathrm{dummy} = R_\\phi R_\\theta \\cdot T(-d\\hat z),\\quad \\mathrm{dummy}[:3,3] \\mathrel{+}= d\\hat z$$\n\n展开后相机局部原点被映到 $R(-d\\hat z) + d\\hat z$，这正是**绕相机前方 $d = $ `median_depth` 处那个锚点做轨道旋转**，而不是绕光心 pan。\n\n这个设计很关键：纯 pan 转 120° 后视锥与原视锥几乎无重叠，而且没有任何视差 → 对 3D 重建毫无价值。改成 orbit 后，相机位置实际发生了位移，产生了基线，同时前方 $d$ 处的内容始终在画面里，保证了与起始帧的重叠（检索和一致性都靠它）。\n\n### 1.4 `aerial` 类型是\"先抬头再侧移\"\n\n`get_c2w` 对 `aerial` 的处理（`camera_utils.py:406-418`）把 21 帧按角度比例劈成两段：\n\n$$n_\\theta = \\lfloor \\tfrac{|\\theta|}{|\\phi|+|\\theta|}\\cdot n \\rceil,\\quad n_\\phi = n - n_\\theta$$\n\n对 $(\\phi,\\theta)=(-60°,-45°)$ 就是先用 $\\approx 9$ 帧抬俯仰到 $-45°$，再用 $\\approx 11$ 帧绕方位转 $-60°$。**顺序分解而非同时插值**，因为同时转会让轨迹切出一条斜向弧线更容易撞墙。\n\n### 1.5 碰撞回退：不是拒绝，是\"打折\"\n\n`get_c2w:422-491` 这段逻辑挺巧：\n\n1. 把 21 帧**上采样到 80 帧**再测距（避免帧间跳过薄墙）；\n2. 距离用 `compute_points_to_mesh_distance`（有 mesh 时）或 KD-Tree 的 k=5 平均距离；\n3. 阈值 `distance_threshold = min(0.1, median_depth*0.1)` —— 相对尺度，和场景一起缩放；\n4. 撞了就按 `obs_decay = 2/3` 衰减，最多 `obs_limit=3` 次：\n\n| 类型 | 衰减方式 |\n|---|---|\n| `normal` | 截断轨迹到前 2/3，再重新插值回 21 帧（**保留运动方向，缩短行程**） |\n| `eloop` | 环绕半径 × 2/3 |\n| `aerial` | 按碰撞发生在哪一段，**只衰减对应的那个角度**（前段撞→减 $\\theta$，后段撞→减 $\\phi$） |\n\n`aerial` 的分段归因是个细节：它先算 `n_dist_theta` 把距离数组也按同比例劈开，看碰撞下标落在哪半边。\n\n`rotation_deg` 最终被记进 `camera.json` 的 `\"rotation_deg\": |rotation|·obs_decay^obs_iteration`，下游可以知道这条轨迹被打了几折。\n\n---\n\n## 2. Stage 2 第一步：NavMesh 构建\n\n### 2.1 Agent 尺寸是自适应的（我笔记这里写错了）\n\n`navi_utils.py:3127-3170`：先从原点往下打 8 根射线（`±1e-3` 的微小抖动，避免正好命中边界），取命中距离均值 = **相机到地面的高度**，由此反推 agent 尺寸：\n\n```\n室外: clip(h, 0.20, 0.75)    室内: clip(h, 0.28, 0.78)\nagentHeight   = h * 1.2\nagentRadius   = agentHeight * 0.4\nagentMaxClimb = agentHeight * 0.5\n```\n\n命令行里的 `agentHeight=0.2` 只是射线全部打空时的 fallback。这比固定值合理得多：MoGe 的尺度是相对的，但\"相机离地高度\"在物理上就是人眼高度，用它当标尺，agent 尺寸自动跟着场景尺度走。\n\n### 2.2 Recast 之后的四道后处理（`:3203-3211`）\n\n| 步骤 | 函数 | 解决什么 |\n|---|---|---|\n| 按高度过滤 | `filter_navmesh_by_height(roof_height_threshold=0.1)` | 去掉屋顶、桌面等\"可站立但不该站\"的面 |\n| 连通分量桥接 | `connect_navmesh_components(max_bridge_z_diff=5.0)` | 全景深度的空洞会把地面切碎，这里给高度差 <5 的孤岛合成桥接多边形 |\n| 保留最大分量 | `filter_largest_navmesh_component` | 剩下的孤岛直接丢 |\n| 贴地 + 去穿插 | `snap_navmesh_to_surface` / `resolve_face_clipping_sampling` | Recast 的体素化输出是阶梯状的，用光线投射把顶点贴回真实表面（`max_lift_dist=0.01`，只许微调） |\n\n注意传入 Recast 的是 `faces_double = faces + 反向faces` —— 全景网格是单面的，不加反面 Recast 会判断不出朝向。\n\n### 2.3 稠密图而非多边形图\n\n`NavMeshGraph.__init__` 用 `sample_spacing=0.05`（不是默认的 0.25）：\n\n1. 按面积算采样数 $n = \\frac{A}{s^2}\\times 1.5$，`trimesh.sample_surface` 均匀撒点；\n2. **边界腐蚀**：把所有 boundary edge 离散成点云建 KD-Tree，剔除距边界 < `spacing` 的采样点 —— 这是防相机贴墙的关键；\n3. 上限 60 万点，四位小数去重；\n4. 建边：`query_pairs(r = spacing*5)`，再加 `|Δy| ≤ 0.5` 的高度约束（防止跨楼层连边）。\n\n然后在这张稠密图上跑一次 Dijkstra（起点 = 离原点最近的节点，`find_nearest_node` 只比 XZ 平面距离），得到 `distances` / `predecessors`，**后面三类轨迹全部复用这一次的结果**。\n\n---\n\n## 3. Stage 2 第二步：三类目标点的选取\n\n### 3.1 Wandering：扇区取最远（`explore_agents`）\n\n把所有可达节点按 $\\mathrm{atan2}(dz, dx)$ 分到 8 个扇区，每扇区取**欧氏位移最大**（注意不是 Dijkstra 距离最大 —— 要的是\"走得远\"而非\"绕得久\"），位移 <0.2 的扇区丢弃。回溯 `predecessors` 得到路径，再过一道 `fix_start_direction` 砍掉开头倒退/急偏的点。\n\n### 3.2 Surrounding：72 点环绕弧（`get_surround_paths_to_targets`）\n\n半径的确定（`:534-545`）：\n\n$$r = \\min(1.0\\cdot d_{\\text{agent→target}},\\ 2.0\\cdot s_{\\text{obj}})$$\n\n如果 $d - r > $ `radius_threshold`（= `global_median_depth × 4`），说明目标太远、环绕圈太小了，强行放大到 $r = d - \\text{threshold}$。\n\n然后在目标周围撒 72 个等角候选点，每个点：\n\n1. 从 $y=500$ 垂直向下打射线，**不命中 NavMesh 就丢**（在不在可行走区域上）；\n2. XZ 平面 KD-Tree 找最近 10 个节点，取第一个可达且 $|Δy| < 0.3$ 的；\n\n接着是我觉得最精巧的一段 —— **把离散的 72 个候选点组织成一段连续圆弧**：\n\n- 取 Dijkstra 距离最小的候选点作为\"切入点\"（走过去最省力的那个角度）；\n- 以它为 0 点，把其余候选按角度差排序（带 $\\pm$ 号，mod 72 后取短边）；\n- 从切入点分别向顺/逆时针**贪心延伸**，一旦相邻两点距离 > `max_jump_dist = (2πr/72)×10` 就断开 —— 这就是遇到障碍、弧断了；\n- 弧长超过 36 步（半圈）就以切入点为中心截取；\n- 比较两端 tip 的 Dijkstra 距离，从近的那端进入。\n\n最后把 Dijkstra 回溯出的接近段 + 圆弧段拼起来，并剔除接近段中已经落在 $0.98r$ 以内的点（避免先穿过环绕圈再绕出来）。\n\n### 3.3 Reconstruction-aware：退化面片聚类（`get_reconstruct_destinations`）\n\n这个是\"找几何空洞\"的具体做法。全景反投影的网格里，深度不连续处会出现又长又窄的三角面 —— 它们就是遮挡边界：\n\n```\naspect_ratio = max_edge / min_edge\nadaptive_threshold = 6.0 + dist_h / global_median_depth   # 远处放宽\nstretched = aspect_ratio > adaptive_threshold\n```\n\n阈值随水平距离放宽，因为远处同样的角分辨率对应更大的物理尺寸，长宽比天然更大。\n\n之后：\n\n1. `connected_components` 把退化面片聚成簇，面积 < 0.01 丢弃；\n2. 按面积降序**贪心合并**中心距 < 0.6 的簇；\n3. 有效尺度 $s_{\\text{eff}} = \\text{max\\_edge} \\times \\mathrm{clip}(d_h/d_{\\text{med}}, 0, 2)$ —— 远处的空洞需要更大的环绕半径；\n4. 每个簇找最近的 SAM3 物体（距离 < 3.0 算归属），**每个物体最多保留 4 个空洞**（防止一个复杂物体霸占全部预算），其余归为 `structural_void`；\n5. 室外场景丢弃 $d_h > 8 d_{\\text{med}}$ 的簇（天空边界产生的假空洞）。\n\n---\n\n## 4. Stage 2 第三步：路径点 → 21 帧相机（`process_trajectories`）\n\n这是最核心的一步。输入是一串不等间距的路径点 $(M,3)$，输出 `(21,4,4)` 的 c2w。\n\n### 4.1 B-spline 拟合 + 起点硬锚定\n\n```python\nweights = np.ones(M); weights[0] = 1e5          # 起点权重 1e5\ntck, u = splprep(traj.T, s=smoothing, k=min(3,M-1), w=weights)\nxyz_dense = splev(linspace(0,1,1000), tck)\nxyz_dense += traj[0] - xyz_dense[0]             # 再硬平移对齐\n```\n\n起点同时用 $10^5$ 权重和显式平移锚两次，因为第 0 帧必须严格等于从全景切出的 `start_frame`，否则扩散模型的首帧条件和渲染条件会对不上。`smoothing` 对 reconstruct 用 0.2（要贴紧目标），其余 0.5。\n\n### 4.2 弧长参数化重采样\n\n$$\\text{cum\\_dist} \\to \\text{target\\_dists} = \\mathrm{linspace}(0, L_{\\text{eff}}, 21)$$\n\n在 1000 点稠密曲线上按**累积弧长**线性插值，保证 21 帧**等距**而非等参数 —— 这直接决定了关键帧之间的视角跨度均匀。\n\n截断长度：\n\n```\nexploration:  move_dist(8.0) × global_median_depth\n其他:         move_dist(8.0) × global_median_depth × 1.5\n```\n\n### 4.3 朝向：look-at vs 切线\n\n| 轨迹类型 | $z$ 轴 |\n|---|---|\n| target / surround / reconstruct | $z = \\mathrm{normalize}(p_{\\text{target}} - p_i)$，**始终盯住目标** |\n| wandering | $z = \\mathrm{normalize}(\\nabla p)$，**沿路径切线**（`np.gradient`，中心差分） |\n\n正交基由 $x = z \\times \\text{up}$、$y = z \\times x$ 构造，`up = (0,0,1)`；$\\|x\\| < 10^{-6}$ 的奇异情况（正上/正下看）回退到 $(1,0,0)$。\n\n### 4.4 Reconstruct 专属的两道硬否决\n\n这里不是打折，而是**直接丢弃整条轨迹**：\n\n```python\n# ① 倒退检测\ncos_theta = <移动方向, 指向目标方向>\nbackward_idx = where(cos_theta < -0.501)       # 夹角 > 120°\nif cut_idx < 300:  continue                    # 前 30% 就倒退 → 丢弃\nelse:              截断到 cut_idx\n\n# ② 俯仰检测\nif any(|<z_axis, up>| > 0.7071):  continue     # 俯仰 > 45° → 丢弃\n```\n\n原因：重建轨迹的全部价值在于\"从新角度看这个空洞\"。如果相机在远离目标，补不到任何信息；如果俯仰过大，渲染条件里几乎全是地面或天空。宁缺毋滥。\n\n---\n\n## 5. Stage 2 第四步：去冗余（预算分配）\n\n候选轨迹数远超预算，两条不同的筛选路径：\n\n**wandering** → `filter_and_select_diverse_trajectories`：`overlap_ratio=0.5`、`min_angle_threshold=40°`、长度权重 0.3 + 多样性权重 0.7，选 `wonder_topk=3`。选完之后**用原始路径点重新跑一遍 `process_trajectories`**（因为前面用的是逐条独立的 `move_threshold`）。\n\n**target / surround / reconstruct** → `compute_trajectory_similarity_matrix`：\n\n$$\\text{sim} = 0.75 \\cdot \\text{sim}_{\\text{pos}}(\\text{scale}=d_{\\text{med}}) + 0.25 \\cdot \\text{sim}_{\\text{rot}}(\\text{scale}=20°)$$\n\n取上三角置零后，保留 $\\max_j \\text{sim}_{ij} < 0.7$ 的（即\"与任何编号更小的轨迹都不相似\"的）。reconstruct 若仍超 `recon_topk=5`，再用 `select_reconstruct_via_fps` 做最远点采样。\n\n位置相似度用 $d_{\\text{med}}$ 归一、旋转用 20° 归一，这个 0.75/0.25 的配比意味着**位置差异比朝向差异更重要** —— 符合\"要的是视差\"这个目标。\n\n---\n\n## 6. Stage 2 第五步：两种派生轨迹\n\n每条基础轨迹都可以再派生一条 `traj1`：\n\n### 6.1 Aerial（`--apply_up_route`，作用于 target/surround/exploration）\n\n不是简单给每帧加俯仰，而是**两段式**（`traj_generate.py:1149-1173`）：\n\n1. 前 `nframe//2 = 10` 帧：原地抬升到 $-45°$ 俯视（`rise_move`）；\n2. 后续帧：把**原轨迹的平移偏移量** `offsets = c2w[1:,:3,3] - c2w[0,:3,3]` 原样搬到抬升后的位置，旋转叠一个绕 x 轴的 `rise_R`。\n\n即\"先升空，再按原路线飞一遍\"。退避循环的条件是双重的：\n\n```python\nwhile (min_distance < 0.1 or max_xy_angle > 75) and obs_iteration < 4:\n    up_rot_deg *= 0.65\n    if up_rot_deg < 15:  success_aerial = False; break\n```\n\n`max_xy_angle > 75` 这个条件值得注意 —— 不只是防撞，还防\"相机姿态畸变\"（`compute_lookat_xy_angle` 测视线与水平面的夹角）。俯仰角低于 15° 就彻底放弃这条航拍。\n\n### 6.2 Eloop（`--apply_recon_iteration`，作用于 reconstruct）\n\n从 reconstruct 轨迹的**最后一帧**出发做一个闭合小环（`camera_utils.py:393-405`）：\n\n$$p(\\alpha) = \\big(r_x\\sin\\alpha,\\ r_y(\\cos\\alpha - 1),\\ 0\\big),\\quad \\alpha \\in (0, 2\\pi]$$\n\n减去 $r_y$ 保证 $\\alpha=0$ 时回到原点（闭环）。朝向用 `look_at_rotation` 盯住前方 $d$ 处。半径 `eloop_dist=0.25 × median_depth`，而这个 `median_depth` 是**现场渲染一次该视角的点云深度图算出来的**（`:1222-1229`）—— 不是全局中位数，而是局部尺度。这是\"迭代环绕\"：先走到空洞附近，再在那儿绕一小圈密集采样。\n\n---\n\n## 7. 最后的输出\n\n```python\nc2ws[0, :3, 3] = 0        # 第 0 帧位置强制归零\nw2cs = inv(c2ws)\ncamera.json = {\"intrinsic\": [K]*21, \"extrinsic\": w2cs.tolist(), \"type\": ..., \"rotation_deg\": ...}\n```\n\n`K` 从 Stage 1 已有的 `camera.json` 读回来复用（`:870`），保证全链路内参完全一致。`start_frame.png` 由 `split_panorama_image` 用归一化的 $K$（除以 $W,H$）从 ERP 重采样得到。\n\n---\n\n## 整条链的设计逻辑\n\n把上面串起来看，有三个贯穿始终的原则：\n\n1. **一切尺度都相对于 `median_depth`**。碰撞阈值、运动距离、环绕半径、退化面片阈值、agent 尺寸 —— 没有一个是绝对物理量。因为 MoGe 的深度只有相对尺度，任何绝对常数都会在不同场景崩掉。\n\n2. **碰撞处理分两种语义**。几何上可修的（regular/aerial/eloop 的角度和半径）→ 按 2/3 几何衰减打折；语义上无意义的（reconstruct 倒退、俯仰过大、孤立 NavMesh 岛）→ 直接丢弃。前者保留了轨迹的意图，后者承认这条轨迹不该存在。\n\n3. **每一步都在为\"重叠 + 视差\"这对矛盾服务**。orbit 而非 pan、look-at 而非切线、弧长等距重采样、0.75 位置 / 0.25 朝向的相似度配比 —— 都是在\"必须和已有内容有足够重叠才能保证一致性\"和\"必须有足够基线才能支撑重建\"之间找平衡。\n\n---\n\n## 需要更正的笔记内容\n\n读完代码发现 §3.2 末尾那段有两处不准：\n\n1. **Agent 参数不是固定的** `agentHeight=0.2, agentRadius=0.1, agentMaxClimb=0.1`，而是从原点向下射线测出的离地高度自适应推出的，命令行值只是 fallback。我原来写的\"这些是在 MoGe 相对尺度下定义的，0.1 的物理含义随场景变化\"这个顾虑，代码其实已经处理了。\n2. **NavMesh 图的 `sample_spacing` 是 0.05**，不是类默认的 0.25。\n\n另外 §3.2 表格里 Regular 的\"右上航拍\"是 `aerial` 类型的两段式分解（先俯仰后方位），不是单次旋转；Reconstruction-aware 的\"检测高长宽比退化面片 → NMS\"实际是**面积加权的贪心中心合并 + 每物体最多 4 个**，不是标准 NMS。\n\n要我把这些更正和上面的细节整理进笔记吗？我倾向于在 §3.2 后面新增一节「3.2.x 轨迹规划的代码级细节」，而不是把现有表格撑爆 —— 现有表格作为速查还是合适的。"
+        }
+      ],
+      "timestamp": "2026-10-29T03:52:17.755Z"
     }
   ],
-  "savedAt": "2026-10-29T03:41:40.363Z"
+  "savedAt": "2026-10-29T03:54:32.062Z"
 }
