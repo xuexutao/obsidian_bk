@@ -68,3 +68,7 @@ feature["x_prenorem"][:,dinov2_model.num_register_tokens + 1, :]
 ```
 
 SLAT理解：叫做结构化潜在表示，主要是在稀疏的3D网格上定义局部潜在变量，同时表征几何和纹理。
+
+### hunyuan3D 理解
+
+最核心的就是把几何和纹理生成分成两阶段生成
