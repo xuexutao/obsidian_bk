@@ -17,7 +17,7 @@ tags:
   - data-curation
   - visual-geometry
 created: 2026-10-15
-updated: 2026-10-15
+updated: 2026-10-31
 ---
 
 # DINOv2：无监督鲁棒视觉特征
@@ -409,7 +409,7 @@ $$
 
 最小化它会惩罚彼此过近的样本，推动特征在单位超球面上更均匀展开。
 
-论文只对第一个 global crop 的 CLS tokens 使用 KoLeo，权重为 0.1，并且每张 GPU 内独立计算，不做跨 GPU 通信。
+论文文字可被读成对 global-view CLS 使用 KoLeo；锁定版本的训练代码实际把 `student_cls_tokens.chunk(2)` 后的两个 global crop 分别送入 KoLeo 再求和，权重为 0.1，并且每张 GPU 内独立计算，不做跨 GPU 通信。
 
 示意性的总目标为：
 
@@ -453,7 +453,7 @@ DINOv2 发布四个 patch size 14 的 ViT：
 | 模型 | 参数量 | Embed dim | Heads | Blocks | 训练方式 |
 |---|---:|---:|---:|---:|---|
 | ViT-S/14 | 21M | 384 | 6 | 12 | 从 ViT-g 蒸馏 |
-| ViT-B/14 | 86M | 768 | 12 | 18 | 从 ViT-g 蒸馏 |
+| ViT-B/14 | 86M | 768 | 12 | 12 | 从 ViT-g 蒸馏 |
 | ViT-L/14 | 300M | 1024 | 16 | 24 | 发布版为蒸馏模型 |
 | ViT-g/14 | 1.1B | 1536 | 24 | 40 | 从零自监督训练 |
 
@@ -1268,7 +1268,128 @@ DINOv2 最值得复用的不是 142M 这个数字，而是数据原则：
 
 ---
 
-## 12. 关键术语表
+## 12. 源码锁定、完整张量链路与可复现接口
+
+### 12.1 固定版本：代码、配置与权重
+
+为避免把后续 register 版本、当前 `main` 的接口和原论文训练配置混为一谈，本节固定以下复现坐标：
+
+| 对象 | 固定值 |
+|---|---|
+| 官方仓库 | `facebookresearch/dinov2` |
+| 源码 commit | `7764ea0f912e53c92e82eb78a2a1631e92725fc8`（2026-06-03） |
+| 论文主训练 config | `dinov2/configs/train/vitg14.yaml`，并继承 `dinov2/configs/ssl_default_config.yaml` |
+| 原论文主干权重 | `dinov2_vitb14_pretrain.pth`、`dinov2_vitl14_pretrain.pth`、`dinov2_vitg14_pretrain.pth` |
+| 后续 register 权重 | 文件名含 `reg4`；不用于复现原论文模型 |
+| Hub 构造入口 | `dinov2/hub/backbones.py::_make_dinov2_model` |
+| 权重版本边界 | 官方文件 URL 固定到具体文件名，但服务器未提供论文式 revision ID；因此复现记录应同时保存文件 SHA-256。本文未下载大权重，SHA-256 **未核验**。 |
+
+官方 Hub 在锁定 commit 中以 `img_size=518, patch_size=14` 构造发布模型，这意味着发布权重的 learned positional grid 是 $37\times37$；输入 224 时会把该 grid 双三次插值为 $16\times16$。这与“主训练先 224、最后 518 高分辨率适配”一致，而不是说每次推理必须使用 518。
+
+### 12.2 模块 → 代码入口
+
+| 模块 | 真实代码入口 | 关键职责 |
+|---|---|---|
+| 训练多裁剪 | `dinov2/data/augmentations.py::DataAugmentationDINO` | 2 个 global crop、8 个 local crop、颜色扰动、模糊、solarization、归一化 |
+| 归一化 | `dinov2/data/transforms.py::make_normalize_transform` | ImageNet mean `(0.485,0.456,0.406)`、std `(0.229,0.224,0.225)` |
+| crop 拼 batch / mask | `dinov2/data/collate.py::collate_data_and_cast` | 以 crop-major 顺序堆叠；生成 global patch mask 与扁平 masked indices |
+| patch embedding | `dinov2/layers/patch_embed.py::PatchEmbed` | `Conv2d(k=14,s=14)` 后 flatten、transpose |
+| token、位置编码、主干输出 | `dinov2/models/vision_transformer.py::DinoVisionTransformer` | mask→CLS→位置插值→可选 registers→blocks→norm→字段切片 |
+| Transformer block | `dinov2/layers/block.py::NestedTensorBlock` | self-attention、LayerScale、stochastic depth、FFN；训练时支持不同长度序列 packing |
+| student / teacher 总控 | `dinov2/train/ssl_meta_arch.py::SSLMetaArch.forward_backward` | teacher global、student global+local、DINO/iBOT/KoLeo、EMA |
+| DINO/iBOT projection head | `dinov2/layers/dino_head.py::DINOHead` | 3 层 MLP→L2 bottleneck→weight-normalized prototype layer |
+| DINO loss / SK | `dinov2/loss/dino_clstoken_loss.py::DINOLoss` | CLS prototype 分布、3 次 Sinkhorn-Knopp、跨 crop 交叉熵 |
+| iBOT loss / SK | `dinov2/loss/ibot_patch_loss.py::iBOTPatchLoss` | 仅 masked patch 的 prototype 分布与加权交叉熵 |
+| 主配置 | `dinov2/configs/train/vitg14.yaml` | ViT-g/14、SwiGLU、4 chunks、131072 prototypes、98 local crop |
+
+### 12.3 inference backbone：从 image tensor 到所有输出字段
+
+记输入已变换为 $x\in\mathbb{R}^{B\times3\times H\times W}$，要求 $H,W$ 都能被 patch size $p=14$ 整除。定义
+
+$$
+h=H/14,\qquad w=W/14,\qquad P=hw,\qquad R=\text{num\_register\_tokens}.
+$$
+
+原论文模型 $R=0$；后续 `_reg` 模型 $R=4$。完整顺序严格对应代码：
+
+1. **外部 crop / normalize**：推理常用 `Resize(256)→CenterCrop(224)→ToTensor→Normalize`，得到 $[B,3,224,224]$；稠密任务也可直接送入任意 14 的倍数尺寸。crop/normalize 不在 backbone `forward` 内，调用者必须完成。
+2. **PatchEmbed**：`Conv2d(3,D,kernel=14,stride=14)` 得 $[B,D,h,w]$，flatten+transpose 得 patch tokens $[B,P,D]$。无重叠 stride 使每个 token 对应规则 $14\times14$ 感受单元，便于稠密输出恢复为网格。
+3. **mask token（仅传入 masks 时）**：`masks` 为 $[B,P]$；被 mask 位置用同一个 learned vector 替换，shape 仍为 $[B,P,D]$。普通推理 `masks=None`，此分支不执行。
+4. **CLS token**：前置 learned CLS，变成 $[B,1+P,D]$。
+5. **位置插值**：learned `pos_embed` 分成 $[1,1,D]$ 的 CLS 位置和 $[1,P_0,D]$ 的训练 grid；patch 部分 reshape 为 $[1,D,\sqrt{P_0},\sqrt{P_0}]$，bicubic 到 $[1,D,h,w]$，再展平并与 CLS 位置拼接为 $[1,1+P,D]$。位置只加给 CLS+patch。
+6. **register 插入（后续 `_reg` 模型）**：位置相加之后，把 $R$ 个 register 插在 CLS 与 patch 之间，得到 $[B,1+R+P,D]$。register 没有单独的 learned absolute position；原论文 $R=0$，此步为空操作。
+7. **Transformer blocks**：每层保持 $[B,T,D]$，$T=1+R+P$。attention 内部 $Q,K,V$ 为 $[B,A,T,D/A]$；B/L/g 的 head dim 都是 64。FFN 后回到 $D$，残差不改 shape。
+8. **末端 LayerNorm**：`x_norm=self.norm(x)`，shape 仍为 $[B,T,D]$。
+9. **字段切片**：`forward_features` 返回字典；普通 `forward(is_training=False)` 只返回 `head(x_norm_clstoken)`，而 `head` 是 `Identity`，故最终是 $[B,D]$ CLS。
+
+#### 全链路张量总表（发布模型）
+
+| 阶段 / 字段 | 符号 shape | ViT-B/14 @224 | ViT-L/14 @518 | ViT-g/14 @518 |
+|---|---|---:|---:|---:|
+| normalized image | $B\times3\times H\times W$ | $B\times3\times224\times224$ | $B\times3\times518\times518$ | 同左 |
+| patch grid | $h\times w$ | $16\times16$ | $37\times37$ | $37\times37$ |
+| patch tokens | $B\times P\times D$ | $B\times256\times768$ | $B\times1369\times1024$ | $B\times1369\times1536$ |
+| CLS+patch（无 reg） | $B\times(1+P)\times D$ | $B\times257\times768$ | $B\times1370\times1024$ | $B\times1370\times1536$ |
+| CLS+reg+patch（reg4） | $B\times(5+P)\times D$ | $B\times261\times768$ | $B\times1374\times1024$ | $B\times1374\times1536$ |
+| attention Q/K/V | $B\times A\times T\times(D/A)$ | $B\times12\times T\times64$ | $B\times16\times T\times64$ | $B\times24\times T\times64$ |
+| `x_norm_clstoken` | $B\times D$ | $B\times768$ | $B\times1024$ | $B\times1536$ |
+| `x_norm_regtokens` | $B\times R\times D$ | $B\times0\times768$ 或 $B\times4\times768$ | 对应 $D=1024$ | 对应 $D=1536$ |
+| `x_norm_patchtokens` | $B\times P\times D$ | $B\times256\times768$ | $B\times1369\times1024$ | $B\times1369\times1536$ |
+| `x_prenorm` | $B\times(1+R+P)\times D$ | $B\times T\times768$ | $B\times T\times1024$ | $B\times T\times1536$ |
+| `masks` | `None` 或 $B\times P$ | `None` / $B\times256$ | `None` / $B\times1369$ | 同左 |
+
+`get_intermediate_layers(..., reshape=True)` 会先移除 CLS/register，再把 patch tokens 恢复为 $[B,D,h,w]$；这是 DPT、分割与 3D 下游真正消费的接口。动态尺寸下应使用实际 $h=H/14,w=W/14$，不能把 16×16 或 37×37 写死。
+
+### 12.4 training heads：multi-crop、teacher/student 与 iBOT 的 shape
+
+以下采用论文主配置：每卡原图 batch 为 $b=12$，2 个 224 global crops、8 个 98 local crops，ViT-g/14 的 $D=1536$，global patch 数 $P_g=16^2=256$，local patch 数 $P_l=7^2=49$，DINO 与 iBOT 各有 $K=131072$ prototypes、bottleneck 384。若讨论全局 batch，只需把 $b$ 替换为 3072；代码 shape 逻辑相同。
+
+| 张量 | shape | 来源 / 目的 |
+|---|---:|---|
+| `collated_global_crops` | $[2b,3,224,224]=[24,3,224,224]$ | 两个 global crop 以 crop-major 顺序堆叠 |
+| `collated_local_crops` | $[8b,3,98,98]=[96,3,98,98]$ | 八个 local crop |
+| `collated_masks` | $[2b,256]=[24,256]$ | 只给 student global；默认 50% global 样本取 10%–50% mask ratio |
+| teacher global CLS | $[2b,D]=[24,1536]$ | teacher 只看未 mask global |
+| teacher global patch | $[2b,256,D]=[24,256,1536]$ | 为 iBOT 提供完整目标 |
+| student global CLS / patch | $[24,1536]$ / $[24,256,1536]$ | patch 中 mask 位置已替换 |
+| student local CLS / patch | $[96,1536]$ / $[96,49,1536]$ | local 不 mask；patch 不送 iBOT head |
+| DINO student local logits | $[8b,K]=[96,131072]$ | 每个 local CLS 预测两个 teacher global 分布 |
+| DINO student global logits | $[2b,K]=[24,131072]$ | global view A 与 teacher B 配对，反之亦然 |
+| DINO teacher logits / SK 分布 | $[2b,K]=[24,131072]$ | 先 head，再 3 次 Sinkhorn-Knopp |
+| masked indices | $[M]$，$0\le M\le2bP_g$ | 从 flatten 后的 teacher/student global patch 中选位置 |
+| iBOT student / teacher logits | $[M,K]=[M,131072]$ | 只计算被 mask 位置；不是 $[2b,256,K]$ 全量常驻 |
+| KoLeo 输入 | 两组 $[b,D]=[12,1536]$ | 两个 global CLS 分别计算后求和 |
+
+**多 crop 的语义配对。** Teacher 只 forward 两个 global views。Student 同时 forward global 与 local；DINO loss 让 8 个 local views 各自匹配两份 teacher global 分布，同时两份 student global 只做交叉视图配对，不让同一视图复制自己。`BlockDiagonalMask.from_tensor_list` 只是把不同长度序列打包进一次高效计算，attention 仍被 block diagonal 隔离，crop 间不会在 backbone 内互相看见。
+
+**训练 head 与推理 backbone 必须分开。** `DINOHead` 和 `iBOTHead` 都是训练期 prototype projector：$D\to2048\to2048\to384\to131072$（中间 GELU，384 维 L2 normalize，末层 weight norm）。发布的 backbone-only checkpoint 和常规 `forward_features` 不需要这些 heads；131072 维 prototype logits 不是下游视觉特征，也不是类别概率。下游应读取 $D$ 维 CLS / patch tokens。
+
+**teacher/student 更新。** Student backbone+heads 接受梯度；teacher 同构但 `requires_grad=False`，参数按 $\theta_t\leftarrow m\theta_t+(1-m)\theta_s$ 更新。Teacher 看未 mask global；student global 的 mask token 使 iBOT 目标成为“从上下文预测 teacher 完整 patch 表示”，而不是 RGB 重建。
+
+### 12.5 代码与论文 / 常见调用的差异
+
+1. **ViT-B 深度**：真实 `vit_base` 是 12 blocks、12 heads、768 维；不是 18 blocks。上文模型表已据源码修正。
+2. **原论文无 register**：当前类始终暴露 `register_tokens` 分支和 `x_norm_regtokens` 字段，但 `num_register_tokens=0` 时字段 shape 为 $[B,0,D]$；不能据当前 API 反推原论文用了 registers。
+3. **位置编码先加、register 后插**：DINOv2 register 不是和 patch 一起做 absolute-pos interpolation；这是由 `prepare_tokens_with_masks` 的语句顺序决定的。
+4. **Hub 默认建 518 grid**：主训练 config 写 224，而发布 Hub 构造默认 518；两者分别对应初始主训练与高分辨率适配后的发布 checkpoint。
+5. **98 而非默认 96**：`ssl_default_config.yaml` 默认 local size 96，但论文主 `vitg14.yaml` 覆盖为 98，使 $98/14=7$ 精确整除。只看 default config 会得到无法被 patch size 14 整除的错误复现。
+6. **KoLeo 实现作用于两个 global chunks**：锁定代码对两个 $[b,D]$ global CLS 分别求 KoLeo 再相加；不应写成只处理第一个 global crop。
+7. **训练配置不等于发布推理依赖**：xFormers、FSDP、block chunking、DINO/iBOT heads 属于训练系统；加载 backbone 做普通特征抽取不要求复建 teacher 或 prototype heads。
+8. **动态宽高命名容易误读**：源码在 `prepare_tokens_with_masks` 中把张量后两维命名为 `w,h`，本文统一按 PyTorch 约定写作 $H,W$；公式以实际 tensor 维序为准。
+
+### 12.6 计算与复现建议
+
+- **最小数值核验**：固定 commit，分别用 `[2,3,224,224]` 和 `[2,3,518,518]` 调 `forward_features`，断言 patch 数为 256/1369；若用 reg4，再断言 `x_norm_regtokens.shape[1]==4`。
+- **锁权重**：下载后立即记录 SHA-256、文件字节数、URL、commit 与模型名；官方 URL 的文件名稳定不等于服务端 artifact 永不可替换。
+- **输入要对齐 patch**：$H\bmod14=W\bmod14=0$，否则 `PatchEmbed` 直接 assert；非方图完全可用，输出 grid 是 $(H/14)\times(W/14)$。
+- **稠密任务不要误取 `forward()`**：普通 `model(x)` 只给 CLS。应使用 `forward_features` 或 `get_intermediate_layers(..., reshape=True)` 读取 patch grid。
+- **显存估算**：标准 attention 的主矩阵随 $B\,A\,T^2$ 增长；224 的 $T=257$，518 的 $T=1370$，单层 attention score 元素约增 $(1370/257)^2\approx28.4$ 倍。高分辨率、多 crop 和保留多层特征不可同时按线性成本估计。
+- **训练 shape 单测**：用小 $b$ 跑 `collate_data_and_cast`，逐项核对 global/local batch、mask flatten index、$M$ 个 iBOT logits；不要先尝试完整 3072 batch。
+- **原论文复现**：选无 `reg4` 权重；若研究后续 register 版本，单独记录 `R=4`、antialias interpolation 与 offset=0，不能把两套结果合并。
+
+---
+
+## 13. 关键术语表
 
 - **Frozen feature**：保持预训练 backbone 权重不变，只读取其输出或训练轻量任务头。
 - **EMA teacher**：参数由 student 指数滑动平均得到、无梯度更新的目标网络。
@@ -1286,7 +1407,7 @@ DINOv2 最值得复用的不是 142M 这个数字，而是数据原则：
 
 ---
 
-## 13. 图表索引
+## 14. 图表索引
 
 1. **图 1：通用 patch 特征与部件对应。**
    论文 Figure 1，PDF p.2，展示 PCA 后的跨姿态、跨风格部件一致性。
@@ -1308,7 +1429,7 @@ DINOv2 最值得复用的不是 142M 这个数字，而是数据原则：
 
 ---
 
-## 14. 最终评价
+## 15. 最终评价
 
 DINOv2 最深刻的结论不是“自监督比图文监督更好”，而是：
 

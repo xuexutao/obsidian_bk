@@ -72,7 +72,59 @@
 - README 更新日志中 registers 模型的加入日期；
 - 原始模型与后续 `_reg` / `reg4` checkpoint 的命名边界。
 
-## 2. Register tokens 历史边界来源
+## 2. 源码、配置与权重锁定（2026-10-31 补充）
+
+### 2.1 仓库 revision
+
+- 官方仓库：https://github.com/facebookresearch/dinov2
+- 固定 commit：`7764ea0f912e53c92e82eb78a2a1631e92725fc8`
+- commit 时间：2026-06-03T17:28:49+02:00
+- commit 标题：`Safely load weights from specified URLs (#598)`
+- 复现原则：文中所有“代码实际行为”均以该 commit 为准；未来 `main` 的接口变化不回写为论文事实。
+
+### 2.2 逐模块取证
+
+| 源码路径 | 关键 symbol / 行为 | 笔记中用于核验的内容 |
+|---|---|---|
+| `dinov2/data/augmentations.py` | `DataAugmentationDINO` | 2 global、8 local、crop/颜色/模糊/solarize/normalize 顺序 |
+| `dinov2/data/transforms.py` | `IMAGENET_DEFAULT_MEAN/STD` | mean `(0.485,0.456,0.406)`、std `(0.229,0.224,0.225)` |
+| `dinov2/data/collate.py` | `collate_data_and_cast` | crop-major batch、global masks、`mask_indices_list` 与 $M$ |
+| `dinov2/layers/patch_embed.py` | `PatchEmbed.forward` | `Conv2d(k=p,s=p)`，`BCHW→BN D`，输入必须整除 patch size |
+| `dinov2/models/vision_transformer.py` | `prepare_tokens_with_masks`、`forward_features`、`get_intermediate_layers` | mask→CLS→pos interpolation→register→blocks→norm→输出字段的精确顺序 |
+| `dinov2/models/vision_transformer.py` | `vit_base/vit_large/vit_giant2` | B/L/g 的 `D=768/1024/1536`、depth `12/24/40`、heads `12/16/24` |
+| `dinov2/train/ssl_meta_arch.py` | `SSLMetaArch.forward_backward` | teacher global、student global+local、DINO/iBOT logits 与 KoLeo 的真实 shape |
+| `dinov2/layers/dino_head.py` | `DINOHead` | MLP→L2 bottleneck→weight-normalized prototype layer |
+| `dinov2/loss/dino_clstoken_loss.py` | `DINOLoss.sinkhorn_knopp_teacher` | teacher logits 的 3 次 SK 与跨 crop CE |
+| `dinov2/loss/ibot_patch_loss.py` | `iBOTPatchLoss.forward_masked` | 只对 $M$ 个 masked patches 计算 loss |
+| `dinov2/hub/backbones.py` | `_make_dinov2_model` | Hub 默认 `img_size=518`、权重 URL 组装、reg4 参数差异 |
+
+### 2.3 固定配置
+
+- 主配置：`dinov2/configs/train/vitg14.yaml`
+  - `arch=vit_giant2`、`patch_size=14`、`drop_path_rate=0.4`、`ffn_layer=swiglufused`；
+  - DINO / iBOT 独立 heads，均为 131072 prototypes、384 bottleneck；
+  - 每卡 batch 12、teacher momentum 0.994、local crop size 98。
+- 基础配置：`dinov2/configs/ssl_default_config.yaml`
+  - 2 global + 8 local；global 224；mask sample probability 0.5；mask ratio 0.1–0.5；KoLeo 0.1。
+- 重要覆盖关系：基础配置的 local size 是 96，主 `vitg14.yaml` 覆盖为 98；ViT-g/14 复现必须取合并后的 98。
+
+### 2.4 固定权重 artifact
+
+- ViT-B/14：https://dl.fbaipublicfiles.com/dinov2/dinov2_vitb14/dinov2_vitb14_pretrain.pth
+- ViT-L/14：https://dl.fbaipublicfiles.com/dinov2/dinov2_vitl14/dinov2_vitl14_pretrain.pth
+- ViT-g/14：https://dl.fbaipublicfiles.com/dinov2/dinov2_vitg14/dinov2_vitg14_pretrain.pth
+- 后续 register 版本对应文件名含 `reg4`，与原论文无-register artifact 分开记录。
+- 本次未下载数百 MB/GB 权重，故未记录 SHA-256；这是明确的未核验项。严格复现实验应在首次下载后补记 SHA-256 和字节数。
+
+### 2.5 代码—论文差异取证结论
+
+- 当前代码类支持 register，不代表原论文 checkpoint 使用 register；原模型 `num_register_tokens=0`。
+- `vit_base` 源码为 12 blocks，已修正旧笔记中的 18。
+- `SSLMetaArch` 对两个 global CLS chunks 分别计算 KoLeo 后求和，不是只取第一个 crop。
+- 当前 Hub 用 518 构造发布 backbone；训练 YAML 的 224 是主训练 crop，两者由论文 10k 高分辨率适配衔接。
+- inference backbone 输出 $D$ 维 CLS/patch；131072 维 DINO/iBOT prototype logits 只属于训练 heads。
+
+## 3. Register tokens 历史边界来源
 
 ### 2.1 后续 register 论文
 
@@ -95,7 +147,7 @@
 - 带 registers 的 DINOv2 是 2023-10 的后续版本；
 - 本笔记中的原论文实验数字按无-register 模型解释。
 
-## 3. 后续影响来源
+## 4. 后续影响来源
 
 ### 3.1 Depth Anything
 
@@ -153,7 +205,7 @@
 - 论文报告 DINOv2 具有更好性能、更稳定的早期训练，并降低对 learning rate / momentum 的敏感性；
 - VGGT 最终把 DINOv2 作为默认 tokenizer，用于后续 camera、depth、point map 与 point track 预测。
 
-## 4. 本地图像逐张溯源
+## 5. 本地图像逐张溯源
 
 所有图均直接从 `sources/paper.pdf` 以 PyMuPDF 300 DPI 裁取，保留完整图与原始英文 caption，并在 2026-10-15 逐张使用图像读取工具检查边界、清晰度和完整性。
 
@@ -217,7 +269,7 @@
 - 内容：ADE20K 分割与 NYUd / SUN RGB-D / KITTI 深度的 Input、OpenCLIP-G、DINOv2-g 定性比较。
 - 完整性检查：通过；四行数据集、两组案例、全部方法列与 Figure 7 caption 均保留。
 
-## 5. 关键数字的原文定位
+## 6. 关键数字的原文定位
 
 ### 5.1 数据
 
@@ -262,7 +314,7 @@
 - 单次 DINOv2-g 能耗 / 碳排：Table 14，PDF p.20。
 - 项目总计 200k GPU-days、0.5k–1k tCO2eq：Sec.9，PDF p.21。
 
-## 6. 口径说明
+## 7. 口径说明
 
 - “无监督 / 自监督”指预训练不使用人工类别标签或 paired text；不表示下游 linear / DPT / Mask2Former 头不使用标注。
 - “无需微调”在论文中主要指 backbone 冻结，不代表完全无需下游训练。

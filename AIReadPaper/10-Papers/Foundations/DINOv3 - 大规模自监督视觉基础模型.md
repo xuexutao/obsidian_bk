@@ -8,7 +8,7 @@ arxiv: "2508.10104"
 doi: null
 source: https://arxiv.org/abs/2508.10104
 project: null
-code: null
+code: https://github.com/facebookresearch/dinov3
 tags:
   - self-supervised-learning
   - vision-foundation-model
@@ -17,7 +17,7 @@ tags:
   - visual-encoder
   - VLM-backbone
 created: 2026-10-15
-updated: 2026-10-15
+updated: 2026-10-31
 ---
 
 # DINOv3：大规模自监督视觉基础模型
@@ -125,7 +125,7 @@ DINOv3 教师从 DINOv2 的 1.1B ViT-g 扩为 **6.7B ViT-7B**：仍为 40 blocks
 - 256 GPUs、global batch 4096；
 - 每 batch 约 3.7M tokens；
 - AdamW，bfloat16 与 FP8 matrix multiplication；
-- 1M steps，常数学习率 $4\times10^{-4}$，100K warmup；
+- 论文训练口径为 1M steps 与常数日程；发布 `dinov3_vit7b16_pretrain.yaml` 则把 `schedules.lr.peak=end` 写为 $5\times10^{-5}$、warmup 100K，并再经 `sqrt_wrt_1024` scaling rule 处理。两种数值口径不能不加说明地混用；
 - weight decay 0.04，layer-wise LR decay 0.98，stochastic depth 0.4，EMA 0.999。
 
 这种设计把“训练多久”从预设超参数变成可由下游性能决定的开放过程，但也暴露了稠密特征退化。
@@ -152,8 +152,10 @@ Gram matrix $XX^\top\in\mathbb{R}^{P\times P}$ 记录图像内任意两个 patch
 
 $$
 \mathcal{L}_{\text{Gram}}
-= \left\|X_SX_S^\top-X_GX_G^\top\right\|_F^2.
+= \operatorname{mean}\!\left[\left(X_SX_S^\top-X_GX_G^\top\right)^2\right].
 $$
+
+论文可用 Frobenius 范数表达同一目标，但发布代码调用 `torch.nn.MSELoss()`，即对 batch 与 $P^2$ 个 Gram 元素取均值，而不是未归一化求和。
 
 这里的 Gram teacher 取自较早训练阶段，因为它的局部一致性更好。核心优点是：该损失**不要求 student 逐 patch 复制 teacher 的绝对向量**；只要 patch 间关系保持，整个特征空间仍可旋转、迁移并继续学习新的全局语义。这比直接 feature regression 更少束缚模型容量。
 
@@ -364,6 +366,167 @@ Gram anchoring 的价值不在“又加一个 loss”，而在于它准确选择
 
 ---
 
-## 10. 材料来源
+## 10. 源码锁定、全链路张量与训练特有分支
+
+### 10.1 固定代码、config 与权重 revision
+
+| 对象 | 固定值 |
+|---|---|
+| 官方仓库 | `facebookresearch/dinov3` |
+| 源码 commit | `6876159a11b4df116f30f667f8c9888617df0751`（2026-07-15） |
+| 主预训练 config | `dinov3/configs/train/dinov3_vit7b16_pretrain.yaml` |
+| Gram 修复 config | `dinov3/configs/train/dinov3_vit7b16_gram_anchor.yaml` |
+| 高分辨率适配 config | `dinov3/configs/train/dinov3_vit7b16_high_res_adapt.yaml` |
+| ViT-B/16 LVD 权重 artifact | `dinov3_vitb16_pretrain_lvd1689m-73cec8be.pth` |
+| ViT-L/16 LVD 权重 artifact | `dinov3_vitl16_pretrain_lvd1689m-8aa4cbdd.pth` |
+| ViT-7B/16 LVD 权重 artifact | `dinov3_vit7b16_pretrain_lvd1689m-a955f4ea.pth` |
+| 权重完整性边界 | 文件名中的 8 hex 是 Hub 的 hash prefix，可用 `check_hash=True` 校验前缀；本次未下载大权重，完整 SHA-256 **未核验**。 |
+
+精确 URL 由 `dinov3/hub/backbones.py::_make_dinov3_vit_model_url` 在 `https://dl.fbaipublicfiles.com/dinov3/<model_dir>/` 下组装。DINOv3 README 同时要求通过 Meta 下载页取得访问链接；若 URL 权限策略变化，应保留本地 artifact 与完整哈希，而不是只依赖在线地址。
+
+### 10.2 模块 → 代码入口
+
+| 模块 | 真实入口 | 本节关注点 |
+|---|---|---|
+| crop / Gram crop | `dinov3/data/augmentations.py::DataAugmentationDINO` | 2 global、8 local、同一几何 crop 派生 256 student 与 512 Gram teacher 输入 |
+| batch / masks | `dinov3/data/collate.py::collate_data_and_cast` | crop-major 堆叠、global mask、Gram crops 单独堆叠 |
+| patch embed | `dinov3/layers/patch_embed.py::PatchEmbed` | `Conv2d(k=16,s=16)`，输出先保持 `BHWD` |
+| token 与输出字段 | `dinov3/models/vision_transformer.py::DinoVisionTransformer` | mask→CLS/storage→blocks→分离 norm→字段 |
+| axial RoPE | `dinov3/layers/rope_position_encoding.py::RopePositionEmbedding` | 按实际 $h,w$ 生成无学习参数的 2D sin/cos |
+| RoPE 注入位置 | `dinov3/layers/attention.py::SelfAttention.apply_rope` | 只旋转 patch 的 Q/K；CLS+4 storage 前缀不旋转 |
+| Transformer | `dinov3/layers/block.py::SelfAttentionBlock` | SDPA、SwiGLU、LayerScale、sample-wise stochastic depth |
+| DINO/iBOT/Gram 总控 | `dinov3/train/ssl_meta_arch.py::SSLMetaArch` | 三个 teacher 角色、heads shape、Gram 下采样与 loss |
+| Gram loss | `dinov3/loss/gram_loss.py::GramLoss` | L2 normalize 后逐图 Gram MSE |
+| Gram 更新调度 | `dinov3/train/train.py` | 1,010,000 后每 10K 更新、最多 3 次 |
+| 发布模型/权重 | `dinov3/hub/backbones.py` | 架构参数、storage tokens=4、artifact hash prefix |
+
+### 10.3 inference backbone：DINOv3 的真实前向顺序
+
+记输入 tensor 为 $x\in\mathbb{R}^{B\times3\times H\times W}$，patch size $p=16$。发布代码把 patch embed 的整除 assert 注释掉，所以严格 shape 是
+
+$$
+h=\left\lfloor H/16\right\rfloor,\qquad
+w=\left\lfloor W/16\right\rfloor,\qquad P=hw,\qquad R=4.
+$$
+
+若 $H,W$ 不是 16 的倍数，最右/最下不足 16 像素的边缘不会形成 token；工程上仍建议 pad/crop 到整除尺寸，避免无声丢边。
+
+1. **外部 resize/crop/normalize**：backbone 不接收 PIL，也不在内部 normalize。官方训练使用 ImageNet mean/std；常规 Hub 示例可把图像变为 `[B,3,H,W]` 后归一化。训练主 global/local 分别是 256/112。
+2. **PatchEmbed**：`Conv2d(3,D,k=16,s=16)` 得 $[B,D,h,w]$，源码因 `flatten_embedding=False` 返回 $[B,h,w,D]$，随后 flatten 为 $[B,P,D]$。
+3. **mask token**：训练 student global 传入 `masks:[B,P]`，先在 patch 序列上替换；普通 inference 为 `None`。这一步发生在 CLS/register 拼接之前。
+4. **CLS + register/storage tokens**：按 `[CLS, 4 storage, patches]` 拼成 $[B,5+P,D]$。论文称 register tokens，代码统一命名 `storage_tokens`；二者是同一组 4 个 learned tokens。
+5. **位置处理不是 interpolation**：DINOv3 没有 DINOv2 式 learned absolute `pos_embed`，因此也没有 bicubic positional interpolation。每个 block 前根据当前 $h,w$ 生成 patch RoPE `sin,cos:[P,D/A]`，在 attention 内只旋转最后 $P$ 个 Q/K；前 5 个 CLS/storage Q/K 原样保留。
+6. **Transformer blocks**：序列 shape 保持 $[B,5+P,D]$。ViT-7B 的 Q/K/V 是 $[B,32,5+P,128]$，FFN ratio 3、`swiglu64`；B/L 发布模型使用 head dim 64。
+7. **末端 norm**：通常整序列统一 norm；训练 config 的 `untie_global_and_local_cls_norm=true` 时，local crop 的 CLS/register 走 `local_cls_norm`，patch 仍走主 `norm`。该 local 专用 norm 明确“eval 不使用”。
+8. **输出字段**：`forward_features` 返回字典；普通 `forward(is_training=False)` 仍只返回 $[B,D]$ CLS。
+
+#### inference 全链路张量总表
+
+| 阶段 / 字段 | 动态 shape | ViT-B/16 @224 | ViT-L/16 @224 | ViT-7B/16 @256 | ViT-7B/16 @512 |
+|---|---|---:|---:|---:|---:|
+| normalized image | $B\times3\times H\times W$ | $B\times3\times224\times224$ | 同左 | $B\times3\times256\times256$ | $B\times3\times512\times512$ |
+| patch grid | $h\times w$ | $14\times14$ | $14\times14$ | $16\times16$ | $32\times32$ |
+| patch tokens | $B\times P\times D$ | $B\times196\times768$ | $B\times196\times1024$ | $B\times256\times4096$ | $B\times1024\times4096$ |
+| CLS+4 reg+patch | $B\times(5+P)\times D$ | $B\times201\times768$ | $B\times201\times1024$ | $B\times261\times4096$ | $B\times1029\times4096$ |
+| Q/K/V | $B\times A\times(5+P)\times(D/A)$ | $B\times12\times201\times64$ | $B\times16\times201\times64$ | $B\times32\times261\times128$ | $B\times32\times1029\times128$ |
+| RoPE sin/cos | 各 $P\times(D/A)$ | $196\times64$ | $196\times64$ | $256\times128$ | $1024\times128$ |
+| `x_norm_clstoken` | $B\times D$ | $B\times768$ | $B\times1024$ | $B\times4096$ | 同左 |
+| `x_storage_tokens` | $B\times4\times D$ | $B\times4\times768$ | $B\times4\times1024$ | $B\times4\times4096$ | 同左 |
+| `x_norm_patchtokens` | $B\times P\times D$ | $B\times196\times768$ | $B\times196\times1024$ | $B\times256\times4096$ | $B\times1024\times4096$ |
+| `x_prenorm` | $B\times(5+P)\times D$ | $B\times201\times768$ | $B\times201\times1024$ | $B\times261\times4096$ | $B\times1029\times4096$ |
+| `masks` | `None` 或 $B\times P$ | `None` / $B\times196$ | 同左 | `None` / $B\times256$ | `None` / $B\times1024$ |
+
+`x_storage_tokens` 的字段名没有 `norm`，但实现从 `x_norm_cls_reg[:,1:]` 切出，因此其值已经过 CLS/register 对应的 norm。`get_intermediate_layers(..., reshape=True)` 会去掉 CLS/register，把 patch 恢复为 $[B,D,h,w]$。
+
+### 10.4 主预训练：multi-crop、heads 与三种 teacher 角色
+
+以发布主 config 的每卡 $b=16$、2×256 global、8×112 local、ViT-7B 的 $D=4096$ 为例：$P_g=16^2=256$、$P_l=7^2=49$。DINO prototype 数 $K_D=262144$；iBOT prototype 数 $K_I=98304$。
+
+| 张量 | 具体 shape | 说明 |
+|---|---:|---|
+| student/EMA global input | $[2b,3,256,256]=[32,3,256,256]$ | student 带 masks，EMA teacher 看完整图 |
+| student local input | $[8b,3,112,112]=[128,3,112,112]$ | 仅 student |
+| global CLS/register/patch | $[32,4096]$ / $[32,4,4096]$ / $[32,256,4096]$ | teacher 与 student backbone 同形 |
+| local CLS/register/patch | $[128,4096]$ / $[128,4,4096]$ / $[128,49,4096]$ | local CLS 使用训练专用 norm |
+| DINO global logits | $[2,b,K_D]=[2,16,262144]$ | student 与 teacher；global diagonal 被忽略 |
+| DINO local logits | $[8,b,K_D]=[8,16,262144]$ | 每个 local 对齐两份 teacher global |
+| masked patch indices | $[M]$ | 默认 50% global 样本 mask，比例 0.1–0.5 |
+| iBOT logits | $[M,K_I]=[M,98304]$ | student/teacher 均只把选中的 patch 送 head |
+| DINO head | $4096\to8192\to8192\to512\to262144$ | 512 bottleneck L2 normalize |
+| iBOT head | $4096\to4096\to4096\to384\to98304$ | 与 DINO head 分离 |
+
+这里实际有三个不同“教师”概念：
+
+1. **EMA teacher**：主 DINO/iBOT teacher，持续由 student EMA 更新，只看两张完整 global crops。
+2. **Gram teacher**：Gram 修复阶段额外复制的一套冻结 backbone，初始来自早期 checkpoint；不带 DINO/iBOT heads 参与 Gram 目标。
+3. **distillation teacher**：蒸馏小模型时固定的 7B 发布教师。此阶段 config 路径与主预训练不同，且不需要 Gram teacher。
+
+把三者都简称 teacher 会掩盖 DINOv3 最关键的训练分支。
+
+### 10.5 Gram anchoring 的代码级 shape 与执行顺序
+
+Gram 修复 config 不是主预训练默认分支：`dinov3_vit7b16_pretrain.yaml` 明确 `gram.use_loss=false`；只有加载 1M-step 模型进入 `dinov3_vit7b16_gram_anchor.yaml` 后才启用。
+
+**数据分支。** 对每个 global view，增强器先取最大 512 的同一几何 crop：
+
+- student/EMA global：resize 到 256，再走颜色扰动/模糊/solarization 与 normalize，shape $[2b,3,256,256]$；
+- Gram teacher：`gram_teacher_no_distortions=true`，从同一个 `im*_base` 直接 resize/normalize 到 512，不做上述 photometric distortions，shape $[2b,3,512,512]$。
+
+这样 teacher 与 student 的 patch 网格虽分辨率不同，却来自同一空间 crop，Gram 对齐才有逐位置意义。
+
+**特征分支。** Student 得 $S\in\mathbb{R}^{2b\times256\times4096}$；Gram teacher 先得 $G_{hi}\in\mathbb{R}^{2b\times1024\times4096}$。代码把后者转成 $[2b,4096,32,32]$，bicubic 下采样至 $[2b,4096,16,16]$，再展平回
+
+$$
+G\in\mathbb{R}^{2b\times256\times4096},
+$$
+
+与 student shape 完全相同。二者沿 $D$ 做 L2 normalize 后逐图计算：
+
+$$
+C_S=SS^\top,\quad C_G=GG^\top
+\in\mathbb{R}^{2b\times256\times256},
+$$
+
+最后 `MSELoss(C_S,C_G)`。config 为 `tokens_used=all,img_level=true,remove_neg=false`：masked 与 unmasked patch 全部进入逐图 Gram，正负 cosine 都保留；不是跨 batch 的 $(2bP)^2$ Gram，也不是只对 mask 位置。
+
+**更新分支。** `it_first_update=1010000`、`update_frequency=10000`、`max_updates=3`。`train.py` 在满足条件后调用 `update_gram()`；其默认 $m=0$，所以是把当前 EMA teacher 参数硬复制到 Gram teacher，而不是再做一层慢 EMA。Gram loss 权重由 schedule 从 0 推到 2；高分辨率适配 config 则固定为 1.5，不能把两个阶段都写成 $w_{Gram}=2$。
+
+**高分辨率适配。** 发布 YAML 实际使用五组 `(global,local,Gram)`：
+
+- `(512,112,768)`，采样比 0.30；
+- `(768,112,1152)`，0.30；
+- `(768,168,1152)`，0.30；
+- `(768,224,1152)`，0.05；
+- `(768,336,1152)`，0.05。
+
+所以“global 从 {512,768}、local 从 {112,168,224,336} 采样”还不够精确：这些不是独立笛卡尔积，而是上述五个绑定组合。
+
+### 10.6 代码与论文 / DINOv2 的差异
+
+1. **没有 positional interpolation**：DINOv3 以动态 axial RoPE 替代 learned absolute grid；位置处理发生在每层 Q/K，而不是 token 拼接后一次加法。照搬 DINOv2 的 `interpolate_pos_encoding` 会得到错误实现。
+2. **register 是一等组件**：主配置与所有发布 ViT 都固定 `n_storage_tokens=4`；字段名是 `x_storage_tokens`。它不是 DINOv2 后补变体在笔记中的历史旁支。
+3. **RoPE 只作用 patch**：`prefix=N-P=5`，CLS+4 registers 不旋转；这让全局存储 token 不绑定某个二维位置。
+4. **代码的 RoPE jitter 是 log-uniform rescale**：主 config `pos_embed_rope_rescale_coords=2`；实现训练时采样单个标量 $s\sim\exp U[-\log2,\log2]$，把两轴一起缩放到约 $[1/2,2]$。它不是任意独立 x/y box warping。
+5. **不整除输入不会 assert**：DINOv3 patch embed 采用 floor 卷积输出，余边被丢弃；DINOv2 锁定代码则显式 assert。推荐输入仍应整除 16。
+6. **训练 norm 有特有分支**：ViT-7B 的 local CLS/register 可走 `local_cls_norm`，patch 走主 norm；eval 不使用 local norm。这是 DINOv2 笔记中不存在的训练稳定化接口。
+7. **mask K bias**：7B config `qkv_bias=false, mask_k_bias=true`，线性层以 bias mask 只屏蔽 K 的 bias 段；不能简单概括为普通无 bias QKV。
+8. **Gram 是后期额外模型分支**：main pretrain 没有 Gram teacher；修复和高分辨率适配才有。inference checkpoint 只保留 backbone，不执行 Gram matrix，也不需要 512/1152 teacher crop。
+9. **代码 loss 是 mean-MSE**：与写成 Frobenius 平方和只差归一化时，在动态 $P$ 下该归一化会改变分辨率间权重，复现必须按代码。
+10. **发布 YAML 与论文汇总超参数存在口径差**：例如主 YAML 的 LR peak/end 是 $5\times10^{-5}$ 并经过 scaling rule；实验记录要注明引用 paper table 还是 released config。
+
+### 10.7 计算与复现建议
+
+- **先做前向 shape 单测**：B/L 在 224 应有 196 patches、4 storage；7B 在 256 应有 256 patches。检查 `x_storage_tokens` 已 norm，且普通 `model(x)` 只返回 CLS。
+- **验证 RoPE 而非位置插值**：用同一权重输入 224×320，预期 grid 为 14×20、$P=280$；不存在需要 resize 的 learned `pos_embed` state dict。
+- **避免边缘静默丢失**：虽然代码接受 230×230，但只产生 14×14 grid；应显式 pad/crop 到 240 或 224，并把变换记录进下游坐标映射。
+- **Gram 最小复现**：用较小 ViT、`b=2`、student 256、teacher 512，断言 teacher 32×32 feature bicubic 到16×16，Gram shape `[4,256,256]`，再检查 loss 对整体 feature 旋转不变。
+- **Gram 显存按 $P^2$ 估算**：256 global 的单图 Gram 有 65,536 元素；768 global 的 $P=2304$，单图有 5,308,416 元素。高分辨率阶段即使 teacher feature 下采样到 student grid，Gram 本身仍很大。
+- **分阶段复现**：先 main DINO+iBOT，保存早期与 1M checkpoint；再启用 Gram；最后 high-res。不要从 step 0 打开同一 Gram 配置并声称复现论文因果链。
+- **锁 artifact**：保存 commit、三份 YAML 的实际合并配置、权重文件名/hash prefix、完整 SHA-256、PyTorch/CUDA 与 `check_hash=True` 结果。
+- **区分 backbone/heads**：下游只需 CLS/storage/patch 的 $D$ 维特征；262144/98304 维 logits、EMA teacher、Gram teacher 都是训练期结构，不进入发布 inference graph。
+
+---
+
+## 11. 材料来源
 
 完整来源与图片追溯见 [sources.md](assets/DINOv3%20-%20大规模自监督视觉基础模型/sources.md)。
