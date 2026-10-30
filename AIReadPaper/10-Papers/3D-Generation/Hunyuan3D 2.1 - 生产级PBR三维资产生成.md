@@ -153,9 +153,9 @@ $$[1,2,6,12,64,64]\rightarrow[12,12,64,64]$$
 
 ### 4.2 Spatial-Aligned Multi-Attention
 
-Albedo 与 MR 不应各自随意生成：例如金属区域必须与基色纹理空间对齐。2.1 先计算 Albedo branch 的 reference-attention 输出，再直接传播给 MR branch，让后者学习参考图、albedo 与 metallic/roughness 的联合对应。
+Albedo 与 MR 不应各自随意生成：例如金属区域必须与基色纹理空间对齐。2.1 使用 Albedo branch 的 hidden states 计算共享的 Albedo–Reference Query/Key attention map，Albedo 与 MR 随后分别通过独立的 Value 与输出投影写入材质特征；共享的是空间对应关系，不是把 Albedo attention 输出直接复制给 MR。
 
-论文未给显式公式或单独 alignment loss，因此这是结构性耦合，而非额外像素监督。
+论文未给单独 alignment loss，因此这是结构性耦合，而非额外像素监督；精确的共享 QK、分离 Value 机制由公开代码确认。
 
 ### 4.3 3D-Aware RoPE
 
@@ -173,7 +173,7 @@ $$\mathcal L=0.85(\mathcal L_{\mathrm{albedo}}+\mathcal L_{\mathrm{MR}})+0.15\ma
 
 ### 4.5 推理与烘焙
 
-公开默认 Paint：6 views、$512^2$、UniPC 15 steps、CFG 3.0。VAE 输出六张 albedo 与六张 MR，回投到 $4096^2$ UV atlas，再导出 $2048^2$ 贴图。GLB 按规范把 roughness 写入 G、metallic 写入 B。
+独立 demo/worker 默认使用 6 views、$512^2$、UniPC 15 steps、CFG 3.0；Gradio 默认使用 8 views、$768^2$。在六视图路径中，VAE 输出六张 albedo 与六张 MR，内部回投到 $4096^2$ UV atlas，并导出 $2048^2$ 贴图。OBJ 路径可以确认独立的 albedo、metallic、roughness 贴图；虽然 glTF 规范要求 roughness 写入 G、metallic 写入 B，但固定 commit 的 Paint 调用链没有显式执行通道合并，不能将最终 GLB 打包写成代码已严格保证。
 
 ---
 

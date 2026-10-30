@@ -132,7 +132,7 @@ $$Q_u\in\mathbb R^{M'\times3},\qquad Q_i\in\mathbb R^{N'\times3}$$
 
 $$P=[P_u;P_i],\qquad Q=[Q_u;Q_i]$$
 
-“分别 FPS、最后合并”很关键。如果先混合再 FPS，高密度重要性点仍可能被均匀覆盖目标压掉；分别 FPS 等于显式给高频区域保留 token 预算。公开配置中 uniform 与 sharp-edge 点各 5120 个，encoder 最终得到 3072 个 queries。
+“分别 FPS、最后合并”很关键。如果先混合再 FPS，高密度重要性点仍可能被均匀覆盖目标压掉；分别 FPS 等于显式给高频区域保留 token 预算。发布配置将 `num_latents` 设为 3072，而 `ShapeVAE` 类默认的 uniform/sharp-edge `pc_size` 均为 5120；但 encoder 中 `downsample_ratio=20` 与这组输入点数静态不自洽，且公开推理不调用 encoder。因此“5120+5120 点经过 FPS 得到 3072 queries”只能作为论文训练流程描述，不能说已由发布代码验证。
 
 ### 3.3 Encoder：Point Cross-Attention + 8 层 Self-Attention
 
@@ -176,7 +176,7 @@ $$\mathcal L_r=\mathbb E_{x\in\mathbb R^3}\left[\operatorname{MSE}\left(D_s(x\mi
 
 ### 4.1 图像条件
 
-输入图像先去背景、统一前景尺度、居中并填白，再送入 DINOv2-Giant。论文使用 $518\times518$ 图像以及最后一层全部 patch tokens，包含 CLS/head token。
+输入图像先去背景、统一前景尺度、居中并填白，再送入 DINOv2-Giant。论文使用 $518\times518$ 图像以及最后一层全部 patch tokens，并保留 CLS token。
 
 公开实现中：
 
@@ -316,7 +316,7 @@ normal 提供局部朝向，position map 在 canonical object coordinates 中给
 
 | 模块 | 披露信息 |
 |---|---|
-| ShapeVAE | 均匀+重要性点采样；多任务损失；可变 token length；最长 3072 |
+| ShapeVAE | 均匀+重要性点采样；SDF MSE + KL 正则；可变 token length；最长 3072 |
 | Shape DiT | DINOv2-Giant；$518^2$ 输入；16 double + 32 single；Flow Matching；Euler solver |
 | Delight | 同一资产的随机 HDRI 与均匀白光成对渲染 |
 | Paint 数据 | self-collected large-scale 3D dataset；白光渲染；reference azimuth 随机；elevation 为 $[-20^\circ,20^\circ]$ |

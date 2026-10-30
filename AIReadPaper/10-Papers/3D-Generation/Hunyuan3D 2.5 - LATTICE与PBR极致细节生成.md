@@ -24,7 +24,7 @@ updated: 2026-10-30
 | 评级 | **★★★★☆**：结果强、方向关键，但技术报告过于简略且不可本地复现 |
 
 > [!summary] 一句话结论
-> Hunyuan3D 2.5 保留 2.0/2.1 的 Shape→Texture 两阶段接口，却把几何主干换成可稳定 scaling 到 10B 的 LATTICE，并把 PBR Paint 改为共享 Albedo attention mask、分离 Albedo/MR values 的多通道生成，再用“6 视图 $512^2$ 基础训练 + zoom-in 高分辨率训练”提高纹理—几何对齐；它代表系列从开放研究模型走向闭源满血生产模型的转折点。
+> Hunyuan3D 2.5 保留 2.0/2.1 的 Shape→Texture 两阶段接口；报告称几何主干采用最大 10B 的 LATTICE，并更明确地展示了共享 Albedo–Reference attention map、分离 Albedo/MR Values 的 PBR Paint，同时使用“6 视图 $512^2$ 基础训练 + zoom-in 高分辨率训练”增强局部纹理—几何对齐。由于 2.5 没有专属代码或权重，10B 配方及其与 2.1 Paint 实现的具体差异均无法从源码验证。
 
 ---
 
@@ -37,7 +37,7 @@ updated: 2026-10-30
 - [[Hunyuan3D 2.1 - 生产级PBR三维资产生成]]：3.3B Shape→Albedo/MR PBR Paint；
 - **2.5**：LATTICE 最大 10B→更高分辨率 PBR Paint。
 
-2.5 的核心不是增加一个后处理模块，而是同时替换/放大几何基础模型与材质生成策略。报告宣称最大模型 10B，目标从“正确生成对象”升级为“手工资产级细节、锐边与光滑表面同时成立”。
+2.5 的核心不是增加一个后处理模块，而是把几何基础模型推进到报告所称的 10B LATTICE，并继续强化高分辨率 PBR 管线。目标从“正确生成对象”升级为“手工资产级细节、锐边与光滑表面同时成立”；但材质侧与 2.1 公开实现究竟更换了哪些模块，由于 2.5 无代码，不能逐项确认。
 
 ### 1.2 两阶段接口保持不变
 
@@ -84,7 +84,7 @@ Hunyuan3D 2.5 报告没有解释 LATTICE 的 latent 表示、VAE、token 数、D
 
 2.0/2.1 的 VecSet token 不对应固定空间位置，DiT 甚至刻意不加 positional embedding。这样压缩紧凑，但模型扩大时仍要从 token 内容反推几何位置。
 
-LATTICE 的核心思想可以概括为：**localizable 比强行局部化更重要**。把 queries 锚定到表面相交 voxel 后，Transformer 可以明确知道 token 的 3D 位置，并通过 3D RoPE 建模相对空间关系；模型容量增加更容易转化为高频结构与复杂拓扑能力。这正解释了 2.5 为什么把最大规模推到 10B，而不继续单纯扩大 2.1 VecSet。
+LATTICE 的核心思想可以概括为：**localizable 比强行局部化更重要**。把 queries 锚定到表面相交 voxel 后，Transformer 可以明确知道 token 的 3D 位置，并通过 3D RoPE 建模相对空间关系；模型容量增加更容易转化为高频结构与复杂拓扑能力。后续 LATTICE 论文为 2.5 采用该表示提供了一个合理的方法解释：显式位置锚点可能使模型容量更容易转化为高频结构；但 2.5 报告没有给出 LATTICE 与继续放大 VecSet 的控制实验，不能把这一因果关系视为已由 2.5 实验直接证明。
 
 ---
 
@@ -96,7 +96,7 @@ LATTICE 的核心思想可以概括为：**localizable 比强行局部化更重�
 
 ### 3.1 多通道材质嵌入
 
-论文称为三种材质 maps，但实现语义仍是：
+论文称为三种材质 maps；按报告文字和 Figure 5，其建模语义可概括为：
 
 - Albedo；
 - Metallic；
@@ -121,7 +121,7 @@ $$z_{\mathrm{albedo}}^{\mathrm{new}}=z_{\mathrm{albedo}}+\operatorname{MLP}_{\ma
 
 $$z_{\mathrm{MR}}^{\mathrm{new}}=z_{\mathrm{MR}}+\operatorname{MLP}_{\mathrm{MR}}\left[M_{\mathrm{attn}}V_{\mathrm{MR}}\right]$$
 
-直觉上，QK 决定“参考图的这个位置对应 mesh 的哪里”，因此各材质应共享；V 决定“在那里写入什么物理属性”，因此 Albedo 与 MR 必须分开。这比 2.1 笼统的跨分支特征传播更明确。
+直觉上，QK 决定“参考图的这个位置对应 mesh 的哪里”，因此各材质应共享；V 决定“在那里写入什么物理属性”，因此 Albedo 与 MR 必须分开。该公式比 2.1 论文正文对跨分支关系的叙述更明确；但 2.1 公开代码已经实现共享 Albedo Query/Key 与分离 Value，因此它不能单独证明这是 2.5 才新增的源码机制。
 
 ### 3.3 3D-Aware RoPE 与照明解耦
 
@@ -170,7 +170,7 @@ $$z_{\mathrm{MR}}^{\mathrm{new}}=z_{\mathrm{MR}}+\operatorname{MLP}_{\mathrm{MR}
 | TexGen | 28.23 | 178.6 | 2.447 | 0.8818 | 0.1331 |
 | **Hunyuan3D 2.5** | **23.97** | **165.8** | **2.064** | **0.9281** | **0.1231** |
 
-2.5 在 CLIP-FID、FID、CMMD 与 CLIP-I 第一；LPIPS 则略差于 Paint3D 的 0.1261？实际上 0.1231 更低，仍为表中最好。报告没有单列 2.1，因此无法从该表直接量化 2.5 相比 2.1 的升级。
+2.5 在 CLIP-FID、FID、CMMD 与 CLIP-I 第一；LPIPS 为 0.1231，低于 Paint3D 的 0.1261，也是表中最好。报告没有单列 2.1，因此无法从该表直接量化 2.5 相比 2.1 的升级。
 
 ![](assets/Hunyuan3D%202.5%20-%20LATTICE与PBR极致细节生成/figures/05-texture-comparison.png)
 
@@ -194,18 +194,18 @@ $$z_{\mathrm{MR}}^{\mathrm{new}}=z_{\mathrm{MR}}+\operatorname{MLP}_{\mathrm{MR}
 
 ## 5. 算法级实现：按完整执行流程写清输入输出
 
-2.5 专属代码和权重没有开放，所以本节不能伪造类名与固定配置。为了既把算法讲清又不混淆证据，下面统一使用三种标记：**【2.5 报告明确】**、**【LATTICE 后续论文补充】**、**【无法确认】**。后续 LATTICE 论文的 VoxSet 细节能解释 2.5 的技术谱系，但其最高 4.5B 研究配置不等于 2.5 的 10B 产品模型。
+2.5 专属代码和权重没有开放，所以本节不能伪造类名与固定配置。为了既把算法讲清又不混淆证据，下面统一使用三种标记：**【2.5 报告明确】**、**【LATTICE 后续论文补充】**、**【无法确认】**。后续 LATTICE 论文的 VoxSet 细节能解释 2.5 的技术谱系，但其最高 4.5B 研究配置不等于 2.5 的 10B 产品模型。下列 mesh、active voxel 与 VoxSet shape 默认按单样本书写；若 $B>1$，由于 $N_v,N_f,T,M$ 可随样本变化，应表示为逐样本列表，或使用 padding 与有效性 mask，2.5 报告未披露实际 batching 方案。
 
 ### 5.1 Shape 总流程与张量总表
 
 | 步骤 | 证据 | 输入 | 输出 |
 |---:|---|---|---|
 | 1 | 【2.5 报告明确】 | 单图或四视图 $I\in\mathbb R^{B\times V_I\times3\times H_0\times W_0}$ | LATTICE shape model 的高细节 mesh；2.5 内部中间量未披露 |
-| 2 | 【LATTICE 后续论文补充】 | 单图 $I$ | coarse generator 输出 $V_0\in\mathbb R^{N_v\times3},F_0\in\mathbb N^{N_f\times3}$ |
-| 3 | 【LATTICE 后续论文补充】 | coarse mesh | 与表面相交的 active voxel centers $Q_{pos}\in\mathbb R^{B\times T\times3}$ |
-| 4 | 【LATTICE 后续论文补充】 | noisy VoxSet latent、voxel positions、DINO tokens | Rectified-flow DiT 输出 $Z\in\mathbb R^{B\times T\times64}$ |
-| 5 | 【LATTICE 后续论文补充】 | $Z$ 与 grid queries $X\in\mathbb R^{B\times M\times3}$ | $SDF\in\mathbb R^{B\times M\times1}$ |
-| 6 | 【LATTICE 后续论文补充】 | 离散 SDF field | 精细 mesh $V\in\mathbb R^{N'_v\times3},F\in\mathbb N^{N'_f\times3}$ |
+| 2 | 【LATTICE 后续论文补充】 | 单图 $I$ | 单样本 coarse mesh：$V_0\in\mathbb R^{N_v\times3},F_0\in\mathbb N^{N_f\times3}$ |
+| 3 | 【LATTICE 后续论文补充】 | coarse mesh | 单样本 active voxel centers：$Q_{pos}\in\mathbb R^{T\times3}$ |
+| 4 | 【LATTICE 后续论文补充】 | noisy VoxSet latent、voxel positions、DINO tokens | 单样本 $Z\in\mathbb R^{T\times64}$；批处理是否 padding 未披露 |
+| 5 | 【LATTICE 后续论文补充】 | $Z$ 与 grid queries $X\in\mathbb R^{M\times3}$ | $SDF\in\mathbb R^{M\times1}$ |
+| 6 | 【LATTICE 后续论文补充】 | 离散 SDF field | 单样本精细 mesh：$V\in\mathbb R^{N'_v\times3},F\in\mathbb N^{N'_f\times3}$ |
 | 7 | 【2.5 报告明确】 | mesh、reference image、normal/CCM | 多视图 Albedo/MR，再融合为 PBR 材质 |
 
 $N_v,N_f,T,M$ 都随对象或配置变化。2.5 报告没有公开它们的实际值；后续 LATTICE 论文中的 4096/8192/20480 tokens 分别属于重建实验，训练主线又使用 1024→6144，推理测试到 12288/24576、最高声称 30720，不能把这些数字拼成一个固定 10B 配置。
@@ -214,13 +214,15 @@ $N_v,N_f,T,M$ 都随对象或配置变化。2.5 报告没有公开它们的实�
 
 【LATTICE 后续论文补充】给定单图：
 
-$$I\in\mathbb R^{B\times3\times H_0\times W_0}\xrightarrow{G_{coarse}}(V_0,F_0)$$
+$$I^{(b)}\in\mathbb R^{3\times H_0\times W_0}\xrightarrow{G_{coarse}}(V_0^{(b)},F_0^{(b)})$$
+
+其中 $V_0^{(b)}\in\mathbb R^{N_v^{(b)}\times3}$、$F_0^{(b)}\in\mathbb N^{N_f^{(b)}\times3}$；batch 应表示为逐样本列表 $\{(V_0^{(b)},F_0^{(b)})\}_{b=1}^{B}$，除非实现另行 padding。
 
 $G_{coarse}$ 可以是 Hunyuan3D-2、TRELLIS 等现成 image-to-3D 模型。以 Hunyuan3D-2 为例，其公开接口是 `image → trimesh`；但【无法确认】2.5/LATTICE 内部使用哪个 checkpoint、如何归一化尺度和朝向。
 
 粗 mesh 的目的不是提供最终细节，而是把开放的三维搜索空间变成“沿哪些区域生成内容”。它随后被 voxelize 到某个 $R^3$ 网格，取所有与表面相交的 active voxel centers：
 
-$$Q_{pos}=\{q_i\}_{i=1}^{T},\qquad Q_{pos}\in\mathbb R^{B\times T\times3}$$
+$$Q_{pos}^{(b)}=\{q_i\}_{i=1}^{T_b},\qquad Q_{pos}^{(b)}\in\mathbb R^{T_b\times3}$$
 
 【无法确认】$R$、surface-intersection 判定、是否做 dilation 和实际 $T$；因此不能把 $64^3$ 写成 2.5 固定配置。这样设计的关键是解耦“where”和“what”：coarse stage 先告诉精细生成器哪里可能有表面，第二阶段只在这些已知位置生成高频几何内容。
 
@@ -230,9 +232,11 @@ $$Q_{pos}=\{q_i\}_{i=1}^{T},\qquad Q_{pos}\in\mathbb R^{B\times T\times3}$$
 
 $$P\in\mathbb R^{B\times N\times7}$$
 
-每点 7 维由 xyz、normal 和 sharp-edge flag 组成。Voxel Queries $Q_{pos}\in\mathbb R^{B\times T\times3}$ 对点特征做一次 cross-attention，随后经过 8 层 self-attention，形成可定位的 VoxSet tokens；表 1 的 `64×T` 最合理地解释为：
+每点 7 维由 xyz、normal 和 sharp-edge flag 组成。对第 $b$ 个样本，Voxel Queries $Q_{pos}^{(b)}\in\mathbb R^{T_b\times3}$ 对点特征做一次 cross-attention，随后经过 8 层 self-attention，形成可定位的 VoxSet tokens；表 1 的 `64×T` 最合理地解释为：
 
-$$Z\in\mathbb R^{B\times T\times64}$$
+$$Z^{(b)}\in\mathbb R^{T_b\times64}$$
+
+若工程实现要批处理不同 $T_b$，必须 padding 并配 attention mask，或采用 ragged list；官方没有说明。
 
 但论文没有声明内存布局是 `[B,T,64]` 还是 `[B,64,T]`。需要纠正一个容易误读的点：Figure 5 的顺序是：
 
@@ -262,9 +266,9 @@ $$L_I=\left\lfloor\frac{H_I}{14}\right\rfloor\left\lfloor\frac{W_I}{14}\right\rf
 
 Rectified-flow DiT 的输入输出为：
 
-$$Z_t\in\mathbb R^{B\times T\times64},\quad Q_{pos}\in\mathbb R^{B\times T\times3},\quad E_I\in\mathbb R^{B\times L_I\times1536}$$
+$$Z_t^{(b)}\in\mathbb R^{T_b\times64},\quad Q_{pos}^{(b)}\in\mathbb R^{T_b\times3},\quad E_I^{(b)}\in\mathbb R^{L_I^{(b)}\times1536}$$
 
-$$v_\theta(Z_t,t,Q_{pos},E_I)\in\mathbb R^{B\times T\times64}$$
+$$v_\theta(Z_t^{(b)},t,Q_{pos}^{(b)},E_I^{(b)})\in\mathbb R^{T_b\times64}$$
 
 每个 noisy latent 根据对应 voxel center 注入 3D RoPE，再以 DINO tokens 为图像条件预测同 shape 的 velocity。训练使用 rectified flow/linear coupling，并以 10% 概率把图像条件替换为零以支持 CFG。显式位置把“第 $i$ 个 latent 应该生成哪里”提前告诉模型，参数增大时不必重复从内容中猜位置，正是 VoxSet 比 VecSet 更易 scaling 的原因。
 
@@ -274,9 +278,9 @@ $$v_\theta(Z_t,t,Q_{pos},E_I)\in\mathbb R^{B\times T\times64}$$
 
 【LATTICE 后续论文补充】VoxSet latent 先通过 16 层 self-attention，再让规则或分块 grid queries 读取：
 
-$$X\in\mathbb R^{B\times M\times3}$$
+$$X^{(b)}\in\mathbb R^{M_b\times3}$$
 
-$$D_{vae}(X\mid Z)\rightarrow S\in\mathbb R^{B\times M\times1}$$
+$$D_{vae}(X^{(b)}\mid Z^{(b)})\rightarrow S^{(b)}\in\mathbb R^{M_b\times1}$$
 
 $M$ 是隐式场查询点数。Cross-attention 的直觉是：每个 xyz query 主动从 $T$ 个 VoxSet tokens 中读取与该空间位置相关的几何内容，最终线性头输出一个 SDF 标量。离散到网格后，Marching Cubes 对零等值面提取：
 
@@ -380,7 +384,7 @@ $768^2$ 指扩散生成的多视图图像分辨率，不等于最终 UV atlas �
 7. **用户研究不透明**：参与者、样本数、盲测和显著性均缺失。
 8. **匿名商业基线不可复核**：版本与运行设置未知。
 
-我的判断：2.5 是系列中**视觉能力跃迁最大、科研可审计性下降也最大**的一版。它证明 LATTICE + PBR 可以把单图资产推到更接近手工表面的观感，但不能仅凭这份报告得出“10B scaling 规律已被充分验证”或“已达到完整 production-ready”的结论。
+我的判断：2.5 是系列中**视觉能力跃迁最大、科研可审计性下降也最大**的一版。报告给出的定量、定性与用户研究结果支持“LATTICE + PBR 能生成更接近手工资产观感的单图三维结果”，但由于代码、权重和评测细节未开放，这一结论尚不能独立复核，也不能仅凭这份报告得出“10B scaling 规律已被充分验证”或“已达到完整 production-ready”的结论。
 
 ---
 
