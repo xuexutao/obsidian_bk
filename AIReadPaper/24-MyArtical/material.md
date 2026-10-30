@@ -47,6 +47,15 @@ $1×64^3→32×64^3→128×32^3→512×16^3→8×16^3$ , 两次 stride-2 下采�
 - 第二个多视图dino特征，渲染时渲染资产的150 views ，512x 512 的RGBA，再resize到 518x518 。经过DinoV2 Vit-L/14-reg【518/14=37】，输出的 x-prenorm包含【1个cls token， 4 个register token， 37^2 = 1369 个 patch token，patch token是 1024 维度】丢掉 cls 和 register-token之后，reshape 成  1024x37x37 的特征图，然后把 active voxel 的格心坐标用相机内外参投影到每个视角，然后取平均，存成npz文件，包含两个 key：indices（Nx3，uint8，取值0-63）、patchtokens（Nx1024）
 ```python
 # 丢弃cls、register token
+# vitl14-reg，每个图像块大小是 14*14*3=588 pixel，经过一个 588*1024 的MLP到1024维
+###
+#Conv2d(
+#    in_channels=3,
+#    out_channels=1024,
+#    kernel_size=14,
+#    stride=14,
+#)
+### 从588到1024，可以理解为1024个可学习的patch检测器：有些维度可能响应边缘、有些响应颜色组合等。他不增加信息，只是把像素投影到一个更方便Transformer处理的特征空间中，且经过Vit的多层self attention之后，第（i，j）个token已经不再只看第（i，j）个14*14patch了，他会与整张图的其他token交换信息。所以最终的1024维度更接近：这个局部图像块是什么，在整个物体中扮演什么角色。
 feature["x_prenorem"][:,dinov2_model.num_register_tokens + 1, :]
 ```
 接下来把dino特征，encoder-latent.py 了 1024 -> 8。 把(coords, tokens) 组成稀疏张量，经过SLAT VAE encoder（稀疏卷积和稀疏注意力）压到每体素8维，这个 （Nx8）的稀疏张量就是 SLAT。空间分辨率始终为 64^3 
