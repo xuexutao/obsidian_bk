@@ -23,23 +23,24 @@ masked video作为 x ，使用 encoder，unmask video 作为 y，由于stop grad
 
 VJEPA2 就是比较重要的，它分为两阶段训练了，第一个阶段也是训练一个 encoder，通过挖空的方式
 - vjepa2 和 vjepa2-AC 使用的 z 不同，vjepa2 的z只是一个mask 的位置编码，而vjepa2AC的z是机器人动作（末端位姿、旋转、夹爪开合）和当前位姿【action-conditioned predictor】
-![](assets/material/file-20261024222603095.png)
+![](assets/Material/file-20261030221331674.png)
 
 ### Cosmos
 
-![](assets/material/file-20261024223148427.png)
+![](assets/Material/file-20261030221331674%201.png)
  genie给出的贡献可以理解为，他只输入视频和文本，通过将latent 的action 足够小，只有 8个32维的动作，让视频生成模型在预测下一帧的时候学会这些简单的动作
-![](assets/material/file-20261025000520209.png)
-WAM
+![](assets/Material/file-20261030221331674%202.png)
+
+### WAM
+
 dreamZero · LingBot-VA · Cosmos policy
 
 ### VGGT 和 DA3
 
 VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 之间主要是通过共享 backbone 产生“软耦合”，不一定存在严格的跨 head 几何一致性约束。
 
+### Trellis 理解
 
-
-
-意思是，我理解一下：trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间，进行体素化到 64^3 的 0-1 网格，接下来有两个去处，第一个去encoder_ss_latent.py 的 SparseStructure-VAE 的 encoder 下采样4倍变成 16^3 x 8 的latent。这就是第一个flow model学习的分布。推理时再还原回 64^3。
+Trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间，进行体素化到 64^3 的 0-1 网格，接下来有两个去处，第一个去encoder_ss_latent.py 的 SparseStructure-VAE 的 encoder 下采样4倍变成 16^3 x 8 的latent。这就是第一个flow model学习的分布。推理时再还原回 64^3。
 渲染时渲染资产的150 views ，518x 518 的RGBA。经过DinoV2 Vit-L/14-reg，取 x-prenorm，丢掉 cls 和 register-token，reshape 成 1024x37x37的patch 特征图，然后把 active voxel的格心坐标用相机内外参投影到每个视角，然后取平均，存成npz文件，包含两个 key：indices（Nx3，uint8，取值0-63）、patchtokens（Nx1024）
-接下来把dino特征，encoder-latent.py 了 1024 -> 8。 把(coords, tokens) 组成稀疏张量，经过SLAT VAE encoder（稀疏卷积和稀疏注意力）压到每体素8维，这个 （Nx8）的稀疏张量就是 SLAT。空间分辨率始终为 64^3
+接下来把dino特征，encoder-latent.py 了 1024 -> 8。 把(coords, tokens) 组成稀疏张量，经过SLAT VAE encoder（稀疏卷积和稀疏注意力）压到每体素8维，这个 （Nx8）的稀疏张量就是 SLAT。空间分辨率始终为 64^3 
