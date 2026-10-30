@@ -132,7 +132,7 @@ $$Q_u\in\mathbb R^{M'\times3},\qquad Q_i\in\mathbb R^{N'\times3}$$
 
 $$P=[P_u;P_i],\qquad Q=[Q_u;Q_i]$$
 
-“分别 FPS、最后合并”很关键。如果先混合再 FPS，高密度重要性点仍可能被均匀覆盖目标压掉；分别 FPS 等于显式给高频区域保留 token 预算。发布配置将 `num_latents` 设为 3072，而 `ShapeVAE` 类默认的 uniform/sharp-edge `pc_size` 均为 5120；但 encoder 中 `downsample_ratio=20` 与这组输入点数静态不自洽，且公开推理不调用 encoder。因此“5120+5120 点经过 FPS 得到 3072 queries”只能作为论文训练流程描述，不能说已由发布代码验证。
+**<span style="color: red">“分别 FPS、最后合并”很关键。如果先混合再 FPS，高密度重要性点仍可能被均匀覆盖目标压掉</span>**；分别 FPS 等于显式给高频区域保留 token 预算。发布配置将 `num_latents` 设为 3072，而 `ShapeVAE` 类默认的 uniform/sharp-edge `pc_size` 均为 5120；但 encoder 中 `downsample_ratio=20` 与这组输入点数静态不自洽，且公开推理不调用 encoder。因此“5120+5120 点经过 FPS 得到 3072 queries”只能作为论文训练流程描述，不能说已由发布代码验证。
 
 ### 3.3 Encoder：Point Cross-Attention + 8 层 Self-Attention
 
