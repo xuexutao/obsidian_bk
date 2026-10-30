@@ -1,6 +1,6 @@
 ```python
 # uv 安装环境
-uv venv --python 3.11 ~/.cache/env
+uv venv --python 3.11 ~/.cache/env/demo
 
 # nvcc 12.1
 wget https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
