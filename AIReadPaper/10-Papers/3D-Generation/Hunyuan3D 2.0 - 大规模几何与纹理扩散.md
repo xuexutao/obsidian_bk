@@ -45,7 +45,7 @@ created: 2026-10-30
 
 ### 1.1 1.0 的核心仍是“先造视图，再重建”
 
-[[Hunyuan3D 1.0 - 统一两阶段三维生成]] 的主体逻辑是：先用多视图扩散模型把一张条件图扩展为六张环轨视图，再用稀疏视图重建模型把这些视图压成 triplane，最后以 SDF 与 Marching Cubes 输出 mesh。它解决的是单图条件不充分的问题，核心中间表示是**多视图图像与三平面神经场**。
+[[Hunyuan3D 1.0 - 统一两阶段三维生成]] 的主体逻辑是：**<span style="color: red">先用多视图扩散模型把一张条件图扩展为六张环轨视图，再用稀疏视图重建模型把这些视图压成 triplane，最后以 SDF 与 Marching Cubes 输出 mesh</span>**。它解决的是单图条件不充分的问题，核心中间表示是**多视图图像与三平面神经场**。
 
 2.0 不再把“多视图生成→重建”作为几何主干，而是转向 3DShape2VecSet / Michelangelo / CLAY 一脉的**3D latent set 生成**：先学习能够压缩 mesh 的 ShapeVAE，再直接在 VAE latent 上训练 image-conditioned Flow-Matching DiT。多视图扩散被保留，但职责移到第二阶段——生成纹理视图，而不是生成几何重建视图。
 
