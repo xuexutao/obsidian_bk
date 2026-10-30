@@ -41,11 +41,16 @@ VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 
 
 ### Trellis 理解
 
-Trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间（最长边归一），进行体素化到 64^3 的 0-1 网格，接下来有两个去处，
+Trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间（最长边归一），进行体素化到 64^3 的 0-1 网格，接下来有两个去处：
 - 第一个去encoder_ss_latent.py 的 **SparseStructure-VAE** 的 encoder 下采样**4倍**变成 16^3 x 8 的latent 【  
 $1×64^3→32×64^3→128×32^3→512×16^3→8×16^3$ , 两次 stride-2 下采样 】。这就是第一个flow model学习的分布。推理时再还原回 $64^3$。
 - 第二个多视图dino特征，渲染时渲染资产的150 views ，512x 512 的RGBA，再resize到 518x518 。经过DinoV2 Vit-L/14-reg【518/14=37】，输出的 x-prenorm包含【1个cls token， 4 个register token， 37^2 = 1369 个 patch token，patch token是 1024 维度】丢掉 cls 和 register-token之后，reshape 成  1024x37x37 的特征体。这37x37展开后还是一个图片的patch呢～
-- 要澄清一下，对于前期的体素化过程，trellis用了比较粗暴的方法，64级量化之后，他会判断有哪些体素和物体表面有交集，有的话，就认定为是一个active voxel，他存的时候只用了 1、这个active voxel的整数索引坐标（x,y,z） 还有2、体素格心坐标 $p_i$ 。直接忽略了原始的三角形、顶点、与体素的精确交点，后续trellis2似乎补上了。所以后面要做的就是，拿这个格心坐标，利用150个视图的相机位置，转换一下，看看某个格心坐标都落在每个视角的哪里，例如落在视角view1 的某个位置，转换的话大概率是个小数，他周围邻近的有4个 1024 维的向量【37x37的特征图】，然后对这4个1024维向量做双线形差值【4个token加权】得到一个 1024维的向量，然后又是一个简化，直接把150个视角的1024维向量做平均，不考虑可见性，最后得到这个voxel的dino特征，就存在npz文件的 patchtokens里面。
+- 要澄清一下，对于前期的体素化过程，trellis用了比较粗暴的方法，64级量化之后，他会判断有哪些体素和物体表面有交集，有的话，就认定为是一个active voxel，他存的时候只用了 1、这个active voxel的整数索引坐标（x,y,z） 还有2、体素格心坐标 $p_i$ 。直接忽略了原始的三角形、顶点、与体素的精确交点，后续trellis2似乎补上了。所以后面要做的就是，拿这个格心坐标，利用150个视图的相机位置，转换一下，看看某个格心坐标都落在每个视角的哪里，例如落在视角view1 的某个位置，转换的话大概率是个小数，他周围邻近的有4个 1024 维的向量【37x37的特征图】，然后对这4个1024维向量做双线形差值【4个token加权】得到一个 1024维的向量，然后又是一个简化，直接把150个视角的1024维向量做平均，不考虑可见性，最后得到这个voxel的dino特征，就存在npz文件的 patchtokens里面。这就是DINO特征聚合，每个active voxel有 1、一个三维整数坐标 $p_i$  2、一个1024维的特征 $f_i$  
+
+做完特征融合之后其实还有一个步骤，使用sparse swin transformer 降维，不能让 64^3 个原始voxel全做注意力，改成只在 active voxel 上做 attention，且不仅如此还是用 swin8。也就是将 64^3 的全量体素，划分成 8x8x8 的局部窗口，然后再这个局部窗口内，只对active voxel 做attention，例如一个 窗口中有 M 个 active voxel，attention输入就是 $X^{M\times C}$，然后分别产生 Q、K、V，计算Attention(Q,K,V);这意味着，一个voxel更新自己的特征时，会根据内容的特性，从同一窗口中的其他 active voxel 中提取信息。 这引入一个问题，如果相邻的两个局部窗口彼此之间是没有交互的，所以 swin transformer 就会交替执行两种模型，第一种是 0、8、16、24。。 这样，第二种是偏移一半长度，改成 4、12、20、28. 这样就有了交互，所以Transformer这样交替下去就好，信息可以跨窗口边界传递。【Sparse Swin Transformer blocks】
+
+接下来 Nx1024 维度的聚合 DINO 特征经过 Sparse Linear 到 Nx768维度，经过12个Sparse Swin Transformer。还是 Nx768。之后，再经过 VAE 压缩到 $N \times 16 = N \times (\mu_8, \log \sigma_8^2)$
+
 ```python
 # 丢弃cls、register token
 # vitl14-reg，每个图像块大小是 14*14*3=588 pixel，经过一个 588*1024 的MLP到1024维
