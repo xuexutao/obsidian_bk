@@ -17,6 +17,7 @@ code_url: https://github.com/Tencent-Hunyuan/Hunyuan3D-2
 code_commit: f8db63096c8282cb27354314d896feba5ba6ff8a
 rating: 4.5/5
 created: 2026-10-30
+updated: 2026-10-30
 ---
 
 # Hunyuan3D 2.0：大规模几何与纹理扩散模型精读
@@ -415,7 +416,9 @@ Hunyuan3D-DiT 并不是四项全第一：它在 Uni3D-T/I 第一，ULIP-T/I 分�
 
 ---
 
-## 8. 代码级实现
+## 8. 代码级实现：按真实推理执行顺序拆解
+
+本节不再按“模块名列表”泛讲，而是按一次 `image → bare mesh → textured mesh` 的真实调用顺序展开。张量默认取发布配置、batch size $B=1$；开启 CFG 后的临时 batch 会显式写出。证据分三类：**代码明确**表示固定 commit 源码直接定义，**配置推导**表示由官方配置与 reshape 确定，**论文描述**表示训练代码未公开、只能由论文确认。
 
 ### 8.1 仓库概览与开源边界
 
@@ -469,55 +472,222 @@ Hunyuan3D-DiT 并不是四项全第一：它在 Uni3D-T/I 第一，ULIP-T/I 分�
 | 13 | VAE decode | $[6,4,64,64]$ | 六张 $512^2$ RGB | 直接 resize 为 $2048^2$ |
 | 14 | UV baking | 六张图 + cosine maps | texture $[2048,2048,3]$ | $\cos^4$ 加权 + 补洞 |
 
-### 8.4 Shape 输入与 DINO 条件
+### 8.4 Shape 第一步：图像预处理与 DINOv2-Giant 条件
 
-`ImageProcessorV2` 根据 alpha bbox 裁剪、缩放和居中。但如果输入是普通 RGB，代码先补全全 255 alpha，bbox 就是整张图；它本身不会语义抠图。Gradio/API 会显式调用 rembg，README/minimal demo 却先 `.convert("RGBA")` 再判断 `image.mode == "RGB"`，因此该判断永远不成立。最小复现应先判断原始模式，再执行背景移除。
+#### 8.4.1 RGBA 裁剪、居中与归一化
 
-DINOv2-Giant 配置为 40 层、width 1536、24 heads。它输出 1370 个 tokens。Shape DiT 内将条件和 latent 都映射到 width 1024；CFG 路径把条件 batch 扩成 2，而 uncondition 分支是全零图像 tokens。
+入口是 `Hunyuan3DDiTFlowMatchingPipeline.prepare_image()` 调用 `ImageProcessorV2`。输入是任意尺寸的 PIL RGB/RGBA 图像 $[H,W,3/4]$；代码先统一转 RGBA，根据 alpha 非零区域取 bbox，把物体最长边缩放到方形画布的 85%，与白底合成，再 resize 到 $512\times512$，最后执行 HWC→CHW 与 $x/255\times2-1$：
 
-### 8.5 Shape DiT 与 Euler Flow
+$$[H,W,3/4]\rightarrow I\in\mathbb R^{1\times3\times512\times512},\quad M\in\mathbb R^{1\times1\times512\times512}$$
 
-标准默认：
+这么做的目的不是“增强图片”，而是把前景尺度和背景统计固定下来，避免 DINO patch 被大片背景浪费。需要注意两点：普通 RGB 会被补成全不透明 alpha，因此本类不会自动语义抠图；`mask` 虽传给 conditioner，DINO encoder 实际没有使用它。Gradio/API 会显式调用 rembg，而 README 示例在 `.convert("RGBA")` 后再判断 RGB，分支不可达。
 
-- `num_inference_steps=50`；
-- `guidance_scale=5.0`；
-- latent $[1,3072,64]$；
-- 16 double + 32 single blocks；
-- Shape DiT 本体参数量 1,113,274,432。
+#### 8.4.2 DINOv2-Giant：二维 patch tokens 是什么 shape
 
-完整 `model.fp16.safetensors` 还打包 DINOv2-Giant 1,136,480,768 参数和 ShapeVAE 214,212,865 参数，总计约 2.464B；README 的 1.1B 仅指 DiT 本体。
+`DinoImageEncoder` 把 $512^2$ 图像 resize/crop 为 $518^2$，使用 DINOv2-Giant：patch size 14、40 层、hidden 1536、24 heads。$518/14=37$，保留一个 CLS token，因此：
 
-Scheduler 创建从 0 到 1 的等间距 sigmas，并以：
+$$[1,3,512,512]\rightarrow[1,3,518,518]\rightarrow[1,1+37^2,1536]=[1,1370,1536]$$
+
+外部模型 DINOv2 在这里不是生成器，而是冻结的视觉条件编码器：1370 个 token 保留局部 patch 信息，1536 是每个 token 的语义宽度。代码开启 CFG 时构造同 shape 的全零 unconditional tokens，并按 `[conditional, unconditional]` 拼接：
+
+$$C_{\mathrm{img}}:[1,1370,1536]\rightarrow[2,1370,1536]$$
+
+这与常见 Stable Diffusion 的 `[uncond, cond]` 顺序相反，后续切 batch 时也按对应顺序处理。
+
+### 8.5 Shape 第二步：从高斯噪声到 $3072\times64$ 几何 latent
+
+#### 8.5.1 初始噪声与统一 hidden width
+
+`prepare_latents()` 直接采样：
+
+$$x_0\sim\mathcal N(0,I),\qquad x_0\in\mathbb R^{1\times3072\times64}$$
+
+这里 3072 是 ShapeVAE token 数，64 是每个 token 的 KL latent 维度。每个 denoise step 为 CFG 临时把 latent 复制为 $[2,3072,64]$。`Hunyuan3DDiT.forward()` 分别投影：
+
+$$[2,3072,64]\xrightarrow{W_x}[2,3072,1024]$$
+
+$$[2,1370,1536]\xrightarrow{W_c}[2,1370,1024]$$
+
+标量 timestep 则先做 256 维 sinusoidal embedding，再经 MLP 得到 $[2,1024]$ 的调制向量。把三类输入都投到 width 1024，是为了让 attention 可以共享 head 配置；但图像与几何在前 16 层仍保留独立 LayerNorm、QKV 与 MLP。
+
+#### 8.5.2 16 个 double-stream blocks：先保留模态边界再交互
+
+对 shape stream 和 image stream 分别计算：
+
+$$Q,K,V:[2,L,1024]\rightarrow[2,16,L,64]$$
+
+再沿 token 维拼接：
+
+$$[2,16,3072,64]\oplus[2,16,1370,64]\rightarrow[2,16,4442,64]$$
+
+共享 attention 后再切回 $3072$ 个 shape tokens 与 $1370$ 个 image tokens，两个序列的 shape 均不变。这样设计的原因是：DINO feature 与 ShapeVAE latent 的统计分布不同，不能一开始就共用全部归一化和 MLP；但 QKV 联合 attention 又允许每个几何 token 读取所有图像 patch。
+
+#### 8.5.3 32 个 single-stream blocks：把两个模态变成一个联合序列
+
+前 16 层结束后，代码沿 token 维拼成：
+
+$$[2,1370,1024]\oplus[2,3072,1024]\rightarrow[2,4442,1024]$$
+
+每个 single-stream block 用一次线性层同时产生 QKV 和 MLP 分支：QKV 为 $3\times1024$，MLP hidden 为 $4\times1024=4096$；attention 输出 1024 维，与 GELU 后的 4096 维 MLP 特征拼接，再由 $5120\rightarrow1024$ 投影回主干。32 层结束后裁掉前 1370 个 image tokens，只保留 shape 部分并执行 $1024\rightarrow64$：
+
+$$[2,4442,1024]\rightarrow[2,3072,1024]\rightarrow\hat u_\theta\in\mathbb R^{2\times3072\times64}$$
+
+#### 8.5.4 CFG 与 Euler Flow 更新
+
+按代码的 `[cond, uncond]` 顺序切开速度后：
+
+$$\hat u=\hat u_{\mathrm{uncond}}+5.0(\hat u_{\mathrm{cond}}-\hat u_{\mathrm{uncond}})$$
+
+Scheduler 以：
 
 $$x_{\mathrm{next}}=x+(\sigma_{\mathrm{next}}-\sigma)\hat u_\theta(x,\sigma,c)$$
 
-执行 Euler 更新。Turbo 形状示例将步数降到 5，并可启用 FlashVDM。
+执行 Euler 更新。标准路径调用 DiT 50 次，但 sigma 序列包含端点，最后一次有 $\sigma_{\mathrm{next}}-\sigma=0$，因此是 50 次模型评估、49 次非零状态更新。最终输出仍是：
 
-### 8.6 ShapeVAE 默认不是“octree 解码”
+$$Z_s\in\mathbb R^{1\times3072\times64}$$
 
-参数名叫 `octree_resolution=384`，但标准 pipeline 默认使用 `VanillaVolumeDecoder`，会创建完整的：
+Shape DiT 本体约 1.113B；完整 checkpoint 还包含 DINOv2-Giant 与 ShapeVAE。Turbo shape 示例将模型评估降到 5 次，并可配合 FlashVDM。
+
+### 8.6 Shape 第三步：$3072\times64$ latent 如何变成 mesh
+
+#### 8.6.1 ShapeVAE decoder 只走解码侧
+
+公开推理不会调用 ShapeVAE encoder，而是把 DiT 生成的 latent 除以 `scale_factor=0.9990943042622529`，再经 `post_kl` 从 64 维投影回 1024 维，并通过 16 层 latent self-attention：
+
+$$[1,3072,64]\rightarrow[1,3072,1024]$$
+
+64 维用于降低扩散成本，1024 维用于恢复隐式场查询所需的容量。发布配置中 encoder 的默认 `pc_size/downsample_ratio` 组合静态上并不自洽，而且推理根本不走 encoder，因此本笔记不再把“5120+5120 点如何编码成 3072 tokens”写成已由发布代码验证的训练链；那一部分只能依据论文描述。
+
+#### 8.6.2 默认所谓 `octree_resolution=384` 实际是完整稠密查询
+
+`VanillaVolumeDecoder` 创建：
 
 $$(384+1)^3=385^3=57,066,625$$
 
-个查询点，再按 8000 点分块查询 SDF。只有显式启用 HierarchicalVolumeDecoding 或 FlashVDM 才进行近表面分层筛选。这个命名很容易让使用者误以为默认采用 sparse octree。
+个三维坐标，展平为 $[57,066,625,3]$，再按最多 8000 点分块。每个 query 的 xyz 经过 8 频带 Fourier embedding：
 
-### 8.7 Turbo Paint 的真实执行链
+$$3\rightarrow3(2\times8+1)=51\rightarrow1024$$
 
-README 最短调用 `Hunyuan3DPaintPipeline.from_pretrained("tencent/Hunyuan3D-2")`，代码默认子目录其实是 `hunyuan3d-paint-v2-0-turbo`。因此默认组合是“标准 50-step Shape + Turbo Paint”，不是论文标准 Paint。
+随后 query 对 $[1,3072,1024]$ latent 做 cross-attention，线性层输出每点一个无激活标量：
 
-Turbo Paint 使用：
+$$[1,P,3]\rightarrow[1,P,1024]\rightarrow[1,P,1],\qquad P\le8000$$
 
-- 六个固定正交/上下视角；
-- reference latent $[1,1,4,64,64]$；
-- normal 与 position 各 $[1,6,4,64,64]$；
-- generation input $[6,12,64,64]$；
-- learned text embeddings，而非用户文本 prompt；
-- camera embedding table `nn.Embedding(49,1280)`；
-- generation/reference 两套 UNet 权重。
+拼接后得到 $[1,385,385,385]$。论文将该标量定义为 SDF，推理代码变量则写作 `occ/logits` 且没有距离标定；因此严谨说法是“论文语义下的 SDF/代码层的隐式标量场”，不能仅凭推理代码证明它是 metric SDF。
 
-外层传 `num_inference_steps=30`，但 Turbo 代码实际索引为 $[29,26,23,20,17,14,11,8,5,2]$，只执行 10 次 denoise。进度条仍显示 30，属于界面与真实计算不一致。
+#### 8.6.3 Marching Cubes
 
-### 8.8 论文与公开代码差异表
+`MCSurfaceExtractor` 对零等值面执行 Marching Cubes：
+
+$$[1,385,385,385]\rightarrow V\in\mathbb R^{N_v\times3},\quad F\in\mathbb N^{N_f\times3}$$
+
+$N_v,N_f$ 随对象变化。参数名虽然叫 `octree_resolution`，标准路径并不是 sparse octree；只有显式开启 hierarchical decoding 或 FlashVDM 才会进行近表面筛选。
+
+### 8.7 Paint 第一步：参考图、网格与六视图几何条件
+
+#### 8.7.1 默认加载的是 Turbo Paint
+
+`Hunyuan3DPaintPipeline.from_pretrained("tencent/Hunyuan3D-2")` 默认子目录是 `hunyuan3d-paint-v2-0-turbo`，因此 README 最短调用实际组合为“标准 50-eval Shape + Turbo Paint”，不是论文中的标准 Paint。
+
+#### 8.7.2 Delight 是外部图像到图像扩散模型
+
+输入参考图先根据 alpha bbox 居中到 $512^2$，mask 腐蚀后白底合成，再进入 `StableDiffusionInstructPix2PixPipeline`：空 prompt、50 steps、`image_guidance_scale=1.5`、`guidance_scale=1.0`。输出仍为一张 $512^2$ RGB 图，再按输入前景的 RGB 均值/方差做颜色校正。
+
+因此 Delight 的接口可写为：
+
+$$I_{\mathrm{ref}}\in\mathbb R^{1\times3\times512\times512}\rightarrow I_{\mathrm{delight}}\in\mathbb R^{1\times3\times512\times512}$$
+
+它的作用是学习式去阴影/高光，不是显式 BRDF 分解。当前保存材料没有 Delight 内部 UNet/VAE config，不能可靠补写其 latent shape。
+
+#### 8.7.3 UV、坐标归一化与几何渲染
+
+`xatlas.parametrize` 展开 UV，seam 会复制顶点，所以 $N'_v$ 可能大于原网格顶点数。mesh 经坐标轴调整、bbox 居中，并按最大顶点半径归一化到 `scale_factor=1.15`。默认相机为：
+
+$$\mathrm{azimuth}=[0,90,180,270,0,180]$$
+
+$$\mathrm{elevation}=[0,0,0,0,90,-90]$$
+
+先以 $2048^2$ 渲染 canonical normal/position，再缩放为扩散输入：
+
+$$N,P\in\mathbb R^{1\times6\times3\times512\times512}$$
+
+normal 表示局部朝向；position 是归一化 object-space 坐标，用于告诉不同视图中的像素是否来自同一表面区域。
+
+### 8.8 Paint 第二步：SD VAE、双 UNet 与多视图 attention
+
+#### 8.8.1 外部 SD VAE 的输入输出
+
+参考图、normal 和 position 都先从 $[0,1]$ 映射到 $[-1,1]$，展平 view 维后进入 `AutoencoderKL.encode()`，从 posterior 采样并乘 scaling factor：
+
+$$[1,1,3,512,512]\rightarrow Z_{\mathrm{ref}}\in\mathbb R^{1\times1\times4\times64\times64}$$
+
+$$[1,6,3,512,512]\rightarrow Z_N,Z_P\in\mathbb R^{1\times6\times4\times64\times64}$$
+
+VAE 的 8 倍空间下采样把 $512^2$ 变成 $64^2$，每个 latent 有 4 通道。三类输入落到相同 latent grid，才能直接沿通道维拼接。
+
+#### 8.8.2 Camera embedding 的精确含义
+
+代码使用 `nn.Embedding(49,1280)`，不是“49 个生成视角”：其中 5 个是 reference 保留位，44 个是 generation camera classes。默认六视图的原始 ID 为 $[21,12,15,18,43,37]$，generation UNet 查表前统一加 5，实际索引是 $[26,17,20,23,48,42]$。相机向量与 timestep embedding 同为 1280 维，用于调制 generation UNet；reference UNet 没有安装同一 camera embedding。
+
+#### 8.8.3 Generation UNet 的 12 通道输入
+
+Turbo 初始 RGB noise 为：
+
+$$Z_t\in\mathbb R^{1\times6\times4\times64\times64}$$
+
+与 normal/position latent 拼接：
+
+$$[1,6,4,64,64]^{\oplus3}\rightarrow[1,6,12,64,64]\rightarrow[6,12,64,64]$$
+
+`conv_in` 再把 12 通道映射为 $[6,320,64,64]$。公开 UNet 是 SD2.x 风格，四级 channels 为 $[320,640,1280,1280]$，cross-attention width 1024。Turbo 已蒸馏 guidance，不复制 CFG batch；标准非 Turbo 才把 batch 复制为 2。
+
+#### 8.8.4 Reference UNet 每个 denoise step 都会重新执行
+
+`Z_{\mathrm{ref}}:[1,1,4,64,64]\rightarrow[1,4,64,64]`，reference timestep 固定为 0。独立 `unet_dual` 在各 attention 层保存 reference hidden states，generation UNet 随后以 reference attention 读取。缓存只在**一次 UNet forward 内**有效，不会跨十个 denoise step 持久化，因此 Turbo 中 reference UNet 同样执行十次。
+
+论文声称训练时冻结 SD2.1 reference branch；公开推理仓库只能确认双 UNet 和推理时 `no_grad`，不能验证训练期间如何冻结。
+
+#### 8.8.5 三类 attention 的真实 reshape
+
+设某层每个视图有 $L$ 个空间 tokens、channel 为 $C$，generation hidden 为 $[6,L,C]$：
+
+1. self-attention 在每个视图内部执行，shape 不变；
+2. reference feature 从 $[1,L_r,C]$ 复制为 $[6,L_r,C]$，每个生成视图单独读取同一参考；
+3. multi-view attention 把六视图拼为 $[1,6L,C]$，交换跨视图信息，再 reshape 回 $[6,L,C]$。
+
+三项 residual contribution 都加回主干：self 维持单视图结构，reference 传递身份与局部图案，multi-view 减少视图间颜色漂移。Turbo pipeline 虽计算 position attention mask/voxel indices，但固定 commit 中 `UNet2p5DConditionModel.is_turbo` 没有同步为 `True`，这些 mask 确定没有进入 transformer block；原笔记中“待运行复核”的表述应改为静态可确认的失效路径。
+
+### 8.9 Paint 第三步：10 次采样、VAE 解码与 UV 烘焙
+
+#### 8.9.1 Turbo 的真实循环次数
+
+外层传 `num_inference_steps=30`，实际只索引：
+
+$$[29,26,23,20,17,14,11,8,5,2]$$
+
+因此 generation/reference UNet 各执行 10 次，latent 始终为 $[6,4,64,64]$；进度条仍显示 30。learned text embedding 为 $[1,77,1024]$，不是用户输入文本 prompt。
+
+#### 8.9.2 SD VAE decode
+
+最终 latent 除以 scaling factor，经 `AutoencoderKL.decode()`：
+
+$$[6,4,64,64]\rightarrow[6,3,512,512]$$
+
+得到六张 RGB 纹理视图。默认代码没有运行单图超分模型，只用 PIL 把它们 resize 为 $2048^2$。
+
+#### 8.9.3 反投影、加权融合与补洞
+
+每个视图反投影到 $2048^2$ UV atlas，过滤夹角大于 $75^\circ$、深度边界和 silhouette 附近像素；权重为：
+
+$$w_v=w_v^{\mathrm{preset}}\cos^4\theta,\
+\qquad w^{\mathrm{preset}}=[1,0.1,0.5,0.1,0.05,0.05]$$
+
+六张 projected textures 加权平均得到：
+
+$$U\in\mathbb R^{2048\times2048\times3},\quad M_{\mathrm{trust}}\in\mathbb R^{2048\times2048\times1}$$
+
+未覆盖 texels 先转成 vertex colors，在 mesh 邻接图上以 $1/d^2$ 权重传播，再写回 UV，最后用 OpenCV Navier–Stokes、半径 3 补剩余空洞。几何传播优先保持跨 UV island 的表面连续性，二维 inpaint 只负责最后的无信息区域。
+
+### 8.10 论文与公开代码差异表
 
 | 论文描述 | 默认公开实现 |
 |---|---|
@@ -529,9 +699,9 @@ Turbo Paint 使用：
 | 冻结 SD2.1 reference branch | checkpoint 有双 UNet，但无训练代码验证冻结过程 |
 | 输入前去背景 | Gradio/API 会做；README 最短示例对 RGB 的判断不可达 |
 
-此外，Turbo pipeline 会计算 position attention mask，但 `UNet2p5DConditionModel` 自身的 `is_turbo` 默认仍为 `False`，本地代码没有看到同步赋值。这个 mask 是否在特定 Diffusers 动态加载版本中生效，需要运行时复核，不能仅凭论文假定。
+此外，Turbo pipeline 会计算 position attention mask 和 voxel indices，但 `set_turbo(True)` 只修改外层 pipeline，`UNet2p5DConditionModel.is_turbo` 仍固定为 `False`，构造 transformer blocks 时也继承该值。因此在固定 commit 中，这些 position mask **确定没有进入 multi-view attention**；这不是需要运行时猜测的版本差异，而是静态可确认的失效路径。
 
-### 8.9 计算与部署成本
+### 8.11 计算与部署成本
 
 | 阶段 | 主要成本 | 公开信息 |
 |---|---|---|
@@ -545,7 +715,7 @@ Turbo Paint 使用：
 
 完整 Paint 路径硬依赖 CUDA：custom rasterizer 使用 PyTorch `CUDAExtension` 并需要 `nvcc`；代码中还有硬编码 `.to("cuda")`。README 虽写支持 macOS、Windows、Linux，但 macOS 无法按默认实现完整运行纹理管线。
 
-### 8.10 最小复现建议
+### 8.12 最小复现建议
 
 1. 优先跑 shape-only，显式指定 `hunyuan3d-dit-v2-0`、fp16、50 steps、CFG 5.0；
 2. 输入先用 rembg 得到正确 alpha，不能照抄示例中的不可达判断；
