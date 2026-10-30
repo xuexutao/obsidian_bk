@@ -49,7 +49,9 @@ $1×64^3→32×64^3→128×32^3→512×16^3→8×16^3$ , 两次 stride-2 下采�
 
 做完特征融合之后其实还有一个步骤，使用sparse swin transformer 降维，不能让 64^3 个原始voxel全做注意力，改成只在 active voxel 上做 attention，且不仅如此还是用 swin8。也就是将 64^3 的全量体素，划分成 8x8x8 的局部窗口，然后再这个局部窗口内，只对active voxel 做attention，例如一个 窗口中有 M 个 active voxel，attention输入就是 $X^{M\times C}$，然后分别产生 Q、K、V，计算Attention(Q,K,V);这意味着，一个voxel更新自己的特征时，会根据内容的特性，从同一窗口中的其他 active voxel 中提取信息。 这引入一个问题，如果相邻的两个局部窗口彼此之间是没有交互的，所以 swin transformer 就会交替执行两种模型，第一种是 0、8、16、24。。 这样，第二种是偏移一半长度，改成 4、12、20、28. 这样就有了交互，所以Transformer这样交替下去就好，信息可以跨窗口边界传递。【Sparse Swin Transformer blocks】
 
-接下来 Nx1024 维度的聚合 DINO 特征经过 Sparse Linear 到 Nx768维度，经过12个Sparse Swin Transformer。还是 Nx768。之后，再经过 VAE 压缩到 $N \times 16 = N \times (\mu_8, \log \sigma_8^2)$
+接下来 Nx1024 维度的聚合 DINO 特征经过 Sparse Linear 到 Nx768 维度，经过 12 个Sparse Swin Transformer。还是 Nx768。之后，再经过 VAE 压缩到 $N \times 16 = N \times (\mu_8, \log \sigma_8^2)$ 这就是 SLat 里保存的，这16维度，经过VAE的 $z_i=\mu_i+\sigma_i \odot \epsilon_i$ 得到真正的 $z_i \in R^8$
+
+【768只是trellis内部采用的一个维度，trellis默认是每个head 64维，所以一般trellis只需要12个heads就好】
 
 ```python
 # 丢弃cls、register token
@@ -64,6 +66,5 @@ $1×64^3→32×64^3→128×32^3→512×16^3→8×16^3$ , 两次 stride-2 下采�
 ### 从588到1024，可以理解为1024个可学习的patch检测器：有些维度可能响应边缘、有些响应颜色组合等。他不增加信息，只是把像素投影到一个更方便Transformer处理的特征空间中，且经过Vit的多层self attention之后，第（i，j）个token已经不再只看第（i，j）个14*14patch了，他会与整张图的其他token交换信息。所以最终的1024维度更接近：这个局部图像块是什么，在整个物体中扮演什么角色。
 feature["x_prenorem"][:,dinov2_model.num_register_tokens + 1, :]
 ```
-接下来把dino特征，encoder-latent.py 了 1024 -> 8。 把(coords, tokens) 组成稀疏张量，经过SLAT VAE encoder（稀疏卷积和稀疏注意力）压到每体素8维，这个 （Nx8）的稀疏张量就是 SLAT。空间分辨率始终为 64^3 
 
 SLAT理解：叫做结构化潜在表示，主要是在稀疏的3D网格上定义局部潜在变量，同时表征几何和纹理。
