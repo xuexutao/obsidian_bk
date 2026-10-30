@@ -41,6 +41,14 @@ VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 
 
 ### Trellis 理解
 
-Trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间，进行体素化到 64^3 的 0-1 网格，接下来有两个去处，第一个去encoder_ss_latent.py 的 SparseStructure-VAE 的 encoder 下采样4倍变成 16^3 x 8 的latent。这就是第一个flow model学习的分布。推理时再还原回 64^3。
-渲染时渲染资产的150 views ，518x 518 的RGBA。经过DinoV2 Vit-L/14-reg，取 x-prenorm，丢掉 cls 和 register-token，reshape 成 1024x37x37的patch 特征图，然后把 active voxel的格心坐标用相机内外参投影到每个视角，然后取平均，存成npz文件，包含两个 key：indices（Nx3，uint8，取值0-63）、patchtokens（Nx1024）
+Trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间（最长边归一），进行体素化到 64^3 的 0-1 网格，接下来有两个去处，
+- 第一个去encoder_ss_latent.py 的 **SparseStructure-VAE** 的 encoder 下采样**4倍**变成 16^3 x 8 的latent 【  
+$1×64^3→32×64^3→128×32^3→512×16^3→8×16^3$ , 两次 stride-2 下采样 】。这就是第一个flow model学习的分布。推理时再还原回 $64^3$。
+- 第二个多视图dino特征，渲染时渲染资产的150 views ，512x 512 的RGBA，再resize到 518x518 。经过DinoV2 Vit-L/14-reg【518/14=37】，输出的 x-prenorm包含【1个cls token， 4 个register token， 37^2 = 1369 个 patch token】丢掉 cls 和 register-token之后，reshape 成  1024x37x37 的patch 特征图，然后把 active voxel 的格心坐标用相机内外参投影到每个视角，然后取平均，存成npz文件，包含两个 key：indices（Nx3，uint8，取值0-63）、patchtokens（Nx1024）
+```python
+# 丢弃cls、register token
+feature["x_prenorem"][:,dinov2_model.num_register_tokens + 1, :]
+```
 接下来把dino特征，encoder-latent.py 了 1024 -> 8。 把(coords, tokens) 组成稀疏张量，经过SLAT VAE encoder（稀疏卷积和稀疏注意力）压到每体素8维，这个 （Nx8）的稀疏张量就是 SLAT。空间分辨率始终为 64^3 
+
+SLAT理解：叫做结构化潜在表示，主要是在稀疏的3D网格上定义局部潜在变量，同时表征几何和纹理。
