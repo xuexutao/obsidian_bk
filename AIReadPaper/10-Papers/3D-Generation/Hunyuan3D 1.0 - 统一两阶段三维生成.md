@@ -126,7 +126,7 @@ $$p\xrightarrow{\text{Hunyuan-DiT}}I_{cond}\xrightarrow{\text{RemoveBG}}I_{rgba}
 
 ### 4.1 多视图扩散：把六张图作为一个大画布联合生成
 
-Lite 以 SD 2.1 为骨干，目标拼图为 $960\times640$，每个视图约 $320\times320$；Standard 以 SDXL 为骨干，拼图为 $1536\times1024$，每个视图约 $512\times512$。六张图不是六次独立采样，而是作为一个 $3\times2$ grid 联合去噪，因此同一个 UNet receptive field 与 attention 能跨视图交换信息。
+<span style="color: red">Lite 以 SD 2.1 为骨干，目标拼图为 $960\times640$，每个视图约 $320\times320$；Standard 以 SDXL 为骨干，拼图为 $1536\times1024$，每个视图约 $512\times512$。</span>六张图不是六次独立采样，而是作为一个 $3\times2$ grid 联合去噪，因此同一个 UNet receptive field 与 attention 能跨视图交换信息。
 
 相机固定在 0° elevation，原因不是它能观察整个物体，而是相邻方位角之间具有更稳定、更大的重叠区域。代价也很明确：顶部与底部天然缺失，所以论文必须在第二阶段引入原始条件图补偿。
 
