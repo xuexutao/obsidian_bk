@@ -401,7 +401,7 @@
 | 2026-10-16 | VQ-VAE：离散潜表示与可学习先验 | Neural Discrete Representation Learning | 待完成 | [arXiv](https://arxiv.org/abs/1711.00937) | [[VQ-VAE - 离散潜表示与向量量化]] |
 | 2026-10-16 | VQGAN：感知压缩与高分辨率视觉分词 | Taming Transformers for High-Resolution Image Synthesis | 待完成 | [arXiv](https://arxiv.org/abs/2012.09841) | [[VQGAN - 感知压缩与高分辨率视觉分词]] |
 | 2026-10-16 | LDM：在潜空间训练高分辨率扩散模型 | High-Resolution Image Synthesis with Latent Diffusion Models | 待完成 | [arXiv](https://arxiv.org/abs/2112.10752) | [[LDM - 潜空间扩散生成]] |
-| 2026-10-16 | ViT：把图像分块序列交给纯 Transformer | An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale | 待完成 | [arXiv](https://arxiv.org/abs/2010.11929) | [[ViT - 图像分块与纯Transformer视觉建模]] |
+| 2026-10-16 | ViT：把图像分块序列交给纯 Transformer | An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale | 把图像切成 patch token 后直接交给标准 pre-LN Transformer，证明卷积不是视觉识别的必要骨干；小数据下弱归纳偏置导致样本效率较差，但在 ImageNet-21k/JFT 规模预训练后，ViT 以更好的性能—计算扩展性成为视觉与多模态统一 token 接口。★★★★★ | [arXiv](https://arxiv.org/abs/2010.11929) | [[ViT - 图像分块与纯Transformer视觉建模]] |
 | 2026-10-16 | FlashAttention：IO 感知的精确注意力 | FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness | 待完成 | [arXiv](https://arxiv.org/abs/2205.14135) | [[FlashAttention - IO感知精确注意力]] |
 | 2026-10-16 | U-ViT：长跳连的视觉扩散 Transformer | All are Worth Words: A ViT Backbone for Diffusion Models | 待完成 | [arXiv](https://arxiv.org/abs/2209.12152) | [[U-ViT - 长跳连视觉扩散Transformer]] |
 | 2026-10-16 | Rectified Flow：通过整流学习更直的生成轨迹 | Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow | 待完成 | [arXiv](https://arxiv.org/abs/2209.03003) | [[Rectified Flow - 直线化生成流]] |

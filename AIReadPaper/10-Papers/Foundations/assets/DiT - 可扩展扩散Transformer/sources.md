@@ -43,3 +43,31 @@
 - 五张 PNG 均内容完整、边界无异常裁切、文字与曲线清晰可辨，无空白图、损坏或明显压缩伪影。
 - 图号与用途已依据官方 arXiv v2 正文及图注核对。
 - 完整性提示：本地 `arxiv-source.tar` 可读取并提取本精读使用的五个官方原图成员，但全量归档列表检查报告 `Truncated input file`；因此此处仅确认已使用材料，不声明该源码包包含官方归档的全部成员。
+
+## 官方代码核验（2026-10-30）
+
+- 官方仓库：https://github.com/facebookresearch/DiT
+- 固定提交：[`ed81ce2229091fd4ecc9a223645f95cf379d582b`](https://github.com/facebookresearch/DiT/commit/ed81ce2229091fd4ecc9a223645f95cf379d582b)
+- 提交时间：2023-06-02T16:01:00Z。
+- 许可证：CC-BY-NC（代码与模型权重，详见仓库 `LICENSE.txt`）。
+- 开源范围：PyTorch 模型定义、DDP 训练脚本、单卡/分布式采样、预训练权重和 ADM 风格扩散实现。
+
+本机 `git`/`curl` 的 LibreSSL 与 GitHub 当前 TLS 协商失败，因此没有伪称成功 clone。代码通过 GitHub 官方 commit API、tree API 和 commit 固定源码页逐文件核验；以下结论均绑定上述 commit。
+
+| 文件 | 主要用途 | 固定版本链接 |
+|---|---|---|
+| `models.py` | DiT、timestep/class embedding、adaLN-Zero、unpatchify、CFG | https://github.com/facebookresearch/DiT/blob/ed81ce2229091fd4ecc9a223645f95cf379d582b/models.py |
+| `train.py` | VAE 编码、DDP 训练、EMA、checkpoint | https://github.com/facebookresearch/DiT/blob/ed81ce2229091fd4ecc9a223645f95cf379d582b/train.py |
+| `sample.py` | 预训练模型、250-step respacing、CFG、VAE 解码 | https://github.com/facebookresearch/DiT/blob/ed81ce2229091fd4ecc9a223645f95cf379d582b/sample.py |
+| `sample_ddp.py` | 50K 样本分布式生成与 FID 数据准备 | https://github.com/facebookresearch/DiT/blob/ed81ce2229091fd4ecc9a223645f95cf379d582b/sample_ddp.py |
+| `diffusion/__init__.py` | 1000-step 基础扩散过程与 timestep respacing 配置 | https://github.com/facebookresearch/DiT/blob/ed81ce2229091fd4ecc9a223645f95cf379d582b/diffusion/__init__.py |
+| `diffusion/gaussian_diffusion.py` | 加噪、反向均值/方差、MSE+VB loss、DDPM 采样 | https://github.com/facebookresearch/DiT/blob/ed81ce2229091fd4ecc9a223645f95cf379d582b/diffusion/gaussian_diffusion.py |
+| `README.md` | JAX/PyTorch 差异、训练与评估命令、预训练权重 | https://github.com/facebookresearch/DiT/blob/ed81ce2229091fd4ecc9a223645f95cf379d582b/README.md |
+
+### 代码口径边界
+
+1. 论文旗舰模型原始训练发生在 JAX/TPU；官方仓库是 PyTorch 对应实现，预训练权重由 JAX 直接移植。
+2. PyTorch `train.py` 是可运行的最小 DDP 训练脚本，但不等于论文 JAX 基础设施逐行开源；README 明确列出 AMP/bfloat16、断点续训、自动 FID 等缺失功能。
+3. 默认 `sample.py` 使用 250 个 respaced DDPM steps、CFG 4.0、MSE VAE；论文 FID 2.27 的口径是 CFG 1.5 与 ft-EMA decoder，不能混用。
+4. 代码硬编码 Stable Diffusion VAE latent scaling `0.18215`；训练 encode 后乘，采样 decode 前除。
+5. 当前活动 CFG 代码只对 4 个 epsilon latent 通道中的前三个做 guidance，第 4 个 epsilon 与 4 个 learned-range variance 通道不做 guidance。

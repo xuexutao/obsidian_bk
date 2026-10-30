@@ -1,20 +1,30 @@
 ---
+type: paper-note
 title: DiT - 可扩展扩散Transformer
 aliases:
   - Scalable Diffusion Models with Transformers
   - Diffusion Transformer
   - DiT
 tags:
-  - paper
+  - Foundations
   - generative-modeling
   - diffusion-model
   - transformer
   - latent-diffusion
   - image-generation
+domain: Foundations
+paper: "Scalable Diffusion Models with Transformers"
 arxiv: "2212.09748"
+doi: "10.48550/arXiv.2212.09748"
+source: "https://arxiv.org/abs/2212.09748"
+project: "https://www.wpeebles.com/DiT"
+code: "https://github.com/facebookresearch/DiT"
+code_commit: "ed81ce2229091fd4ecc9a223645f95cf379d582b"
 year: 2022
 venue: CVPR 2023
-status: 精读完成
+status: complete
+created: 2026-10-16
+updated: 2026-10-30
 ---
 
 # DiT：可扩展扩散 Transformer
@@ -516,7 +526,238 @@ SiT 反过来证明了 DiT 的基础价值：骨干标准化后，研究者可�
 4. “Transformer 替换 U-Net”只发生在 diffusion backbone，VAE 仍是卷积网络。
 5. 论文展示的是有限设计空间中的 Gflops—FID 强相关，不是已经拟合完成、可任意外推的通用幂律。
 
-## 11. 关键术语表
+## 11. 代码级实现
+
+### 11.1 官方仓库、版本与开源边界
+
+- 仓库：https://github.com/facebookresearch/DiT
+- 固定 commit：`ed81ce2229091fd4ecc9a223645f95cf379d582b`
+- 框架：PyTorch + timm + diffusers，训练使用 NCCL DDP。
+- 许可证：CC-BY-NC。
+- 开源范围：模型定义、最小训练脚本、单卡与分布式采样、预训练权重、ADM 风格扩散实现。
+
+需要严格区分论文与代码：论文模型原本在 JAX/TPU 上训练，仓库中的预训练权重由 JAX 直接移植到 PyTorch。官方 README 报告 PyTorch 版在数十万步范围能复现相近趋势，并提供完整的最小 DDP 训练脚本；但它没有自动 FID、断点续训、AMP/bfloat16 等完整训练基础设施。因此应称为**官方 PyTorch 对应实现**，不能写成论文 JAX 训练系统逐行开源。
+
+| 论文模块 | 官方代码入口 | 阶段 | 主要产物 |
+|---|---|---|---|
+| VAE latent | `train.py::AutoencoderKL` | 训练输入 | `[B,4,32,32]` scaled latent |
+| Patchify | `models.py::DiT.x_embedder` | 前向 | `[B,256,1152]` tokens |
+| 时间步编码 | `models.py::TimestepEmbedder` | 前向 | `[B,1152]` |
+| 类别编码与 CFG dropout | `models.py::LabelEmbedder` | 训练/推理 | `[B,1152]` |
+| adaLN-Zero block | `models.py::DiTBlock` | 28 层主干 | `[B,256,1152]` |
+| 输出头 | `models.py::FinalLayer` | 前向 | `[B,256,32]` |
+| Unpatchify | `models.py::DiT.unpatchify` | 前向 | `[B,8,32,32]` |
+| 加噪与训练损失 | `diffusion/gaussian_diffusion.py` | 训练 | MSE + VB loss |
+| CFG | `models.py::DiT.forward_with_cfg` | 采样 | 指导后的 epsilon/variance |
+| DDPM respacing | `diffusion/__init__.py` | 采样 | 1000 基础步中的 250 个离散步 |
+
+### 11.2 DiT-XL/2 全链路张量总表
+
+默认实例：ImageNet $256\times256$、DiT-XL/2、VAE 下采样 8 倍、patch size 2、hidden 1152、28 blocks、16 heads。
+
+| # | 模块 | 具体输入 | 具体输出 | 说明 |
+|---:|---|---|---|---|
+| 1 | RGB 输入 | — | `[B,3,256,256]` | `train.py`归一化到约`[-1,1]` |
+| 2 | VAE encoder | `[B,3,256,256]` | `[B,4,32,32]` | 从 posterior 采样 |
+| 3 | Latent scaling | `[B,4,32,32]` | `[B,4,32,32]` | 乘`0.18215` |
+| 4 | 前向加噪 | `z_0,ε,t` | `[B,4,32,32]` | 每样本随机一个 timestep |
+| 5 | PatchEmbed | `[B,4,32,32]` | `[B,256,1152]` | $32/2=16$，共$16^2=256$ tokens |
+| 6 | 位置编码 | `[B,256,1152]` | `[B,256,1152]` | 固定二维 sin-cos，参数形状`[1,256,1152]` |
+| 7 | Timestep frequency | `[B]` | `[B,256]` | 256 维频率特征 |
+| 8 | Timestep MLP | `[B,256]` | `[B,1152]` | `256→1152→1152`，SiLU |
+| 9 | Class embedding | `[B]` | `[B,1152]` | 1000 类 + 1 个 null 类 |
+| 10 | 条件和 | `t_emb+y_emb` | `[B,1152]` | 对全部空间 token 共享 |
+| 11 | 每层调制 | `[B,1152]` | `[B,6912]` | $6\times1152$，拆为 shift/scale/gate 两组 |
+| 12 | Attention | `[B,256,1152]` | `[B,256,1152]` | 16 heads，每头 72 维 |
+| 13 | MLP | `[B,256,1152]` | `[B,256,4608]→[B,256,1152]` | ratio 4 |
+| 14 | 28 blocks | `[B,256,1152]` | `[B,256,1152]` | token 数与宽度固定 |
+| 15 | FinalLayer | `[B,256,1152]` | `[B,256,32]` | 每 token 输出$2^2\times8=32$ |
+| 16 | Unpatchify | `[B,256,32]` | `[B,8,32,32]` | 恢复 latent 网格 |
+| 17 | 输出拆分 | `[B,8,32,32]` | 两个`[B,4,32,32]` | epsilon + learned-range variance |
+
+这里最容易误读的是最后 8 通道。它不是把 VAE latent 扩成 8 维，而是 4 通道噪声预测与 4 通道方差参数拼接。
+
+### 11.3 VAE 与 latent scaling
+
+#### 11.3.1 输入输出与内部张量流
+
+训练脚本把`[B,3,256,256]`图像送入`stabilityai/sd-vae-ft-{ema|mse}`，从 posterior 采样`[B,4,32,32]`，再乘`0.18215`作为扩散数据$z_0$。采样结束后执行逆操作：latent 除以`0.18215`，再交给 decoder 恢复 RGB。
+
+#### 11.3.2 为什么这么设计
+
+VAE 把边长缩小 8 倍，空间位置从$256^2=65,536$降到$32^2=1,024$；再用$2\times2$ latent patch，只剩 256 tokens。DiT 的计算预算因此可以集中在大 Transformer，而不是消耗在像素级长序列。
+
+#### 11.3.3 关键超参
+
+- latent channel：4；
+- 下采样率：8；
+- scaling：`0.18215`，代码硬编码；
+- 训练 CLI 默认 VAE：`ema`；
+- `sample.py`默认 VAE：`mse`。
+
+#### 11.3.4 代码与论文差异
+
+论文最终 FID 2.27 使用 ft-EMA decoder，而默认`sample.py`使用 MSE VAE；训练时二者 encoder 相同，因此官方注释称 VAE 选择不影响 denoiser 训练。**默认脚本可视化结果不自动等于论文 2.27 的评估口径。**
+
+### 11.4 Patchify、固定位置编码与主干
+
+#### 11.4.1 输入输出与内部张量流
+
+`PatchEmbed`把`[B,4,32,32]`变成`[B,256,1152]`。每个原始 patch 只有$2\times2\times4=16$个数，经共享投影升到 1152 维。固定二维 sin-cos 位置编码直接相加；DiT 没有 ViT 的 class token，因为输出必须对齐整张 latent 网格。
+
+#### 11.4.2 为什么这么设计
+
+Patch size 2 在空间细节与 token 成本之间折中。若 patch 从 4 降到 2，token 数从 64 增到 256，而主干权重几乎不变；这正是论文用来区分“参数规模”和“前向计算规模”的关键实验轴。
+
+#### 11.4.3 关键超参
+
+- hidden size 1152；
+- 28 blocks；
+- 16 heads，head dimension 72；
+- MLP ratio 4，内部宽度 4608；
+- LayerNorm 无 affine 参数，`eps=1e-6`；
+- attention 使用`qkv_bias=True`；
+- MLP 使用 tanh approximation GELU，dropout 0。
+
+#### 11.4.4 代码与论文差异
+
+论文写“展平 latent patch 后线性投影”，代码借用 timm`PatchEmbed`，本质是 kernel/stride 等于 patch size 的卷积，数学上等价。代码只实现最终选定的固定二维 sin-cos 与 adaLN-Zero 模型，没有保留 in-context、cross-attention 和普通 adaLN 的消融分支。
+
+### 11.5 Timestep、类别条件与 adaLN-Zero
+
+#### 11.5.1 输入输出与内部张量流
+
+标量$t$先变成`[B,256]`频率编码，再经 SiLU MLP 得到`[B,1152]`；类别$y$查表得到同形状向量。二者相加成全局条件$c$。每个 block 用自己的线性层把$c$映射成`[B,6912]`，切成六个`[B,1152]`向量：attention 前的 shift/scale/gate 与 MLP 前的 shift/scale/gate。
+
+#### 11.5.2 为什么这么设计
+
+时间步告诉网络当前噪声水平，类别决定目标语义。把二者变成每层调制与残差 gate，比追加两个普通 token 的路径更短，又不引入 cross-attention 的 token 相关开销。零初始化 gate 让每个 block 初始近似恒等映射，深层训练更稳定。
+
+#### 11.5.3 关键超参
+
+- timestep frequency dim：256；
+- `max_period=10000`；
+- class 数：1000；
+- label dropout：0.1；
+- null class index：1000；
+- 调制线性层与 gate 全零初始化。
+
+#### 11.5.4 代码与论文差异
+
+结构与论文最终 adaLN-Zero 一致。论文比较了四种条件注入，当前代码只保留最佳分支；`eps=1e-6`、tanh-GELU 等实现细节是代码具体化，不应从论文框图擅自补出。
+
+### 11.6 FinalLayer、方差头与训练目标
+
+#### 11.6.1 输入输出与内部张量流
+
+FinalLayer 先对`[B,256,1152]`做条件化 LayerNorm，再线性映射为`[B,256,32]`，unpatchify 为`[B,8,32,32]`。前 4 通道是 epsilon，后 4 通道控制 learned-range log variance。
+
+训练时每个样本随机采一个$t$，一次构造$z_t$，只执行一次 DiT forward。Epsilon 分支用 MSE；方差分支进入 variational bound 项，而且代码对 epsilon 输出`detach`后计算 VB，使 VB 主要训练方差头：
+
+$$\mathcal{L}=\mathcal{L}_{\mathrm{MSE}}+\mathcal{L}_{\mathrm{VB}}$$
+
+#### 11.6.2 为什么这么设计
+
+沿用 ADM/Improved-DDPM 的成熟目标，可以把论文实验差异集中归因于 denoiser backbone，而不是新损失。Learned-range variance 在 posterior clipped log variance 与$\log\beta_t$之间插值，比完全自由预测方差更稳定。
+
+#### 11.6.3 关键超参
+
+- 基础扩散步数：1000；
+- linear beta schedule：$10^{-4}\rightarrow2\times10^{-2}$；
+- mean type：epsilon；
+- variance type：learned range；
+- loss type：MSE + VB；
+- FinalLayer 调制与输出线性层全零初始化。
+
+#### 11.6.4 代码与论文差异
+
+论文概括为“预测噪声和对角协方差”，代码给出更具体的 learned-range 插值实现。当前`create_diffusion`选择普通`MSE`而非`RESCALED_MSE`；这是理解实际 loss 权重时必须看代码才能确认的细节。
+
+### 11.7 CFG 的真实代码路径
+
+`sample.py`先生成$N$个噪声 latent，再复制一份并拼接 null class，形成条件/无条件的$2N$ batch。模型一次 batched forward 后，当前活动代码执行：
+
+- `eps = model_out[:, :3]`；
+- `rest = model_out[:, 3:]`；
+- 只对前三个 epsilon latent 通道做 CFG；
+- 第 4 个 epsilon 通道与 4 个方差通道都留在`rest`中，不做 guidance。
+
+因此“只指导前三通道”绝不是对 RGB 三通道做 CFG，而是对**四维 VAE latent 的 epsilon 预测前三维**做 guidance。完整四通道 guidance 的写法仍以注释保留。
+
+默认`sample.py`配置：250 个 respaced DDPM steps、CFG 4.0、MSE VAE。论文 FID 2.27 的配置则是 CFG 1.5 和 ft-EMA decoder。正式复现指标时应使用`sample_ddp.py`生成 50K 样本，再用 ADM TensorFlow evaluation suite 评估，不能用默认 8 张 sample grid 代替 FID。
+
+### 11.8 训练与推理计算账
+
+论文给 DiT-XL/2@256 的单样本前向计算量为 118.64 Gflops。训练时每个样本只随机一个 timestep，不会跑 1000 次网络。用论文粗估：
+
+$$\text{训练计算}\approx118.64\ \text{Gflops}\times B\times\text{steps}\times3$$
+
+默认 global batch 256 时，约为 91.12 Tflops/step；400K steps 约 36.45 EFLOPs，7M steps 约 637.81 EFLOPs。该估算不含 VAE、优化器、EMA、DDP 通信和硬件利用率。
+
+推理时 250 steps：
+
+- 无 CFG：$118.64\times250\approx29.66$ Tflops/图；
+- CFG 条件/无条件双分支：算术量近似 59.32 Tflops/图；
+- CFG 虽合并成一次$2N$ batch forward，但计算量并没有消失。
+
+### 11.9 最小复现建议
+
+最小预训练权重采样：
+
+```bash
+python sample.py \
+  --image-size 256 \
+  --num-sampling-steps 250 \
+  --cfg-scale 4.0 \
+  --seed 0
+```
+
+更接近论文 FID 2.27 的视觉采样口径：
+
+```bash
+python sample.py \
+  --image-size 256 \
+  --num-sampling-steps 250 \
+  --cfg-scale 1.5 \
+  --vae ema \
+  --seed 0
+```
+
+最小 DDP 训练：
+
+```bash
+torchrun --nnodes=1 --nproc_per_node=N train.py \
+  --model DiT-XL/2 \
+  --image-size 256 \
+  --global-batch-size 256 \
+  --data-path /path/to/imagenet/train
+```
+
+复现时应明确：
+
+1. CUDA + NCCL 是训练脚本硬要求；
+2. ImageNet 需要`ImageFolder`目录；
+3. 默认训练 1400 epochs，真实 step 数取决于数据规模；
+4. checkpoint 含 model、EMA、optimizer 与 args，评估优先使用 EMA；
+5. 官方 README 只声称 PyTorch 在数十万步范围复现 JAX 趋势，不等于重跑全部 7M-step 旗舰实验；
+6. TF32、VAE decoder、CFG 通道数与 scale 都会让最终数字偏离论文。
+
+### 11.10 代码与论文最关键的差异汇总
+
+| 论文口径 | 官方 PyTorch 代码事实 |
+|---|---|
+| 原始 JAX/TPU 训练 | 仓库为官方 PyTorch 对应实现，权重从 JAX 移植 |
+| DiT 预测噪声与方差 | 具体为 4 epsilon + 4 learned-range variance |
+| CFG 作为条件/无条件组合 | 活动代码只指导 epsilon 前 3 个 latent 通道 |
+| 最终 FID 使用 CFG 1.5 | 默认`sample.py`为 CFG 4.0 |
+| 最终结果使用 ft-EMA decoder | 默认采样脚本使用 MSE VAE |
+| 250 sampling steps | 代码在 1000-step 基础 schedule 上做 250-step respacing |
+| 训练过程 | 每样本随机一个$t$、每 step 只跑一次 DiT，而非 1000 次 forward |
+| 论文完整训练系统 | 代码是最小 DDP 脚本，缺少 AMP、断点续训、自动 FID 等工程功能 |
+
+---
+
+## 12. 关键术语表
 
 - **DiT**：Diffusion Transformer，以 ViT 风格 Transformer 作为扩散去噪骨干。
 - **Latent diffusion**：在 autoencoder latent space 而非 RGB pixel space 中执行扩散与去噪。
@@ -529,7 +770,7 @@ SiT 反过来证明了 DiT 的基础价值：骨干标准化后，研究者可�
 - **SiT**：在 DiT 类骨干上研究 stochastic interpolant、flow/diffusion 目标与采样器。
 - **MMDiT**：使用模态专属参数与联合注意力连接文本、图像 token 的多模态扩散 Transformer。
 
-## 12. 图表索引
+## 13. 图表索引
 
 | 图 | 本地文件 | 内容 |
 |---|---|---|
@@ -541,11 +782,14 @@ SiT 反过来证明了 DiT 的基础价值：骨干标准化后，研究者可�
 
 五张图均由官方 arXiv v2 TeX 源包中的矢量 PDF 等比例栅格化，未重绘、未修改实验数据；原始矢量文件、尺寸、SHA-256 和逐图核验记录见 [[assets/DiT - 可扩展扩散Transformer/sources.md|sources.md]]。
 
-## 13. 来源
+## 14. 来源
 
 - Peebles, W.; Xie, S. *Scalable Diffusion Models with Transformers*. arXiv:2212.09748 / CVPR 2023.
 - 官方摘要页：https://arxiv.org/abs/2212.09748
 - 官方 PDF：https://arxiv.org/pdf/2212.09748
 - 官方 TeX 源包：https://arxiv.org/e-print/2212.09748
+- 官方代码：https://github.com/facebookresearch/DiT
+- 固定代码提交：https://github.com/facebookresearch/DiT/commit/ed81ce2229091fd4ecc9a223645f95cf379d582b
+- 本地代码核验记录：[[assets/DiT - 可扩展扩散Transformer/sources.md]]
 - 【后世关系】Ma et al. *SiT: Exploring Flow and Diffusion-based Generative Models with Scalable Interpolant Transformers*. arXiv:2401.08740.
 - 【后世关系】Esser et al. *Scaling Rectified Flow Transformers for High-Resolution Image Synthesis*. arXiv:2403.03206.
