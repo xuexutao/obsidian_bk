@@ -16,4 +16,9 @@ cd hyworld2/worldgen/third_party/gsplat_maskgaussian
 uv pip install -e . --no-build-isolation
 uv pip install flash-attn --no-build-isolation
 
+uv pip install --no-build-isolation -r requirements_git.txt "pandas==2.2.3"
+git submodule update --init --recursive
+cd hyworld2/worldgen/third_party/navmesh
+uv pip install . --no-build-isolation
+cd ../../../../
 ```
