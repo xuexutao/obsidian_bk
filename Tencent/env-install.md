@@ -12,4 +12,8 @@ uv pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url ht
 uv pip install -r requirements.txt "onnx==1.19.0"
 
 
+cd hyworld2/worldgen/third_party/gsplat_maskgaussian
+uv pip install -e . --no-build-isolation
+uv pip install flash-attn --no-build-isolation
+
 ```
