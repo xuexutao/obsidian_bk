@@ -20,7 +20,7 @@ authors:
   - Jun Gao
   - Xuanchi Ren
 year: 2026
-venue: SIGGRAPH Asia 2026
+venue: arXiv preprint
 arxiv: "2604.13036"
 tags:
   - paper
@@ -29,192 +29,337 @@ tags:
   - long-video
   - spatial-memory
   - 3dgs
-status: detailed-read
+status: source-verified
 created: 2026-10-15
+updated: 2026-10-31
 source: "https://arxiv.org/abs/2604.13036"
 ---
 
 # Lyra 2.0：可探索的生成式三维世界
 
-## 1. 基本信息与一句话结论
+## 0. 一句话结论、版本与证据边界
 
-**论文全名**：*Lyra 2.0: Explorable Generative 3D Worlds*。作者均来自 NVIDIA，论文已被 SIGGRAPH Asia 2026 接收。官方全文见 [arXiv:2604.13036](https://arxiv.org/abs/2604.13036)，本地 PDF 为 `assets/Lyra 2.0 - 可探索的生成式三维世界/sources/paper.pdf`。
+> Lyra 2.0 的 persistent world state 不是融合后的全局 3DGS，而是持续增长的历史 RGB、逐帧独立 depth/pose/point cache、FramePack 时间 slots 与最多 5 个几何检索空间 slots；几何只决定“找哪帧、目标像素该看哪个历史位置”，Wan2.1 扩散先验决定外观，最后再用 VIPE + DA3 把长视频重建成 3DGS。
 
-> **一句话结论**：Lyra 2.0 通过“逐帧几何只负责检索和建立对应、扩散模型负责外观生成”的空间记忆解决回访遗忘，再用一次去噪构造自劣化历史解决自回归漂移，使单图能够沿用户轨迹持续扩展为数百帧、可回望、可重建成 3DGS/mesh 的大尺度世界。
+本文固定审阅：
+
+- 官方代码 `nv-tlabs/lyra` commit **`9fffc9adc37004091ecf26ef03abfb3abdf4d59a`**；
+- 官方权重 `nvidia/Lyra-2.0` revision **`c178c3fcf12b63cf98f6749999e6ecb63901669f`**；
+- 该 revision 的权重树含 DCP 主模型、Wan VAE、image/text encoder、`checkpoints/recon/model.pt`、`dmd_distillation.safetensors`、`detail_enhancer.safetensors`、`realism_boost.safetensors` 与两份 sample training data。
+
+源码 Apache-2.0；权重是 **NVIDIA Internal Scientific Research and Development Model License**，明确不等同于开源生产许可。官方仓库当前只把论文列为 arXiv；因此本笔记不保留未经官方入口确认的会议录用信息。
 
 ![Lyra 2.0 总览](assets/Lyra%202.0%20-%20%E5%8F%AF%E6%8E%A2%E7%B4%A2%E7%9A%84%E7%94%9F%E6%88%90%E5%BC%8F%E4%B8%89%E7%BB%B4%E4%B8%96%E7%95%8C/figures/fig1_teaser.png)
 
-*图 1 解读：用户从单图开始迭代指定相机轨迹，模型能穿行、回望并扩展到约 90 米；生成视频再被重建为 3DGS/mesh，可进入交互查看器和机器人仿真。来源：论文 Figure 1，Page 1；官方源码 `figures/teaser_v3.pdf`。*
+## 1. 模块入口表
 
-## 2. 从 Lyra 1.0 到 2.0：问题重新定义
+| 模块 | 公开入口 | 作用 |
+|---|---|---|
+| 有效实验 config | `Lyra-2/lyra_2/_src/configs/experiment.py::register_lyra2` | FramePack 布局、memory、self-aug、可训练模块 |
+| 总模型 | `_src/models/lyra2_model.py::Lyra2Model` | VAE、history 选择、camera condition、self-aug、AR 输入组织 |
+| 持久状态 | 同文件 `Sparse3DCache` | per-frame point cache、可见性评分、贪心最大覆盖检索 |
+| canonical warp | `Lyra2Model._apply_camera_controls` | `(u,v,slot,depth)` 前向 warp 到 80 个目标帧 |
+| 上下文组装 | `_prepare_lyra2_inputs` | temporal slots + spatial RGB slots + 20 new latent slots |
+| DiT | `_src/networks/wan2pt1_lyra2.py::WanModel` | 14B Wan 主干、FramePack patchify |
+| 对应注入 | 同文件 `Lyra2AttentionBlock` | correspondence encoder，只注入 K/Q |
+| AR 推理 | `_src/inference/lyra2_ar_inference.py` | streaming VAE cache、chunk rollout、memory update |
+| preset/custom | `lyra2_zoomgs_inference.py`、`lyra2_custom_traj_inference.py` | 轨迹入口；长度须 `1+80k` |
+| depth | `_src/inference/depth_utils.py` | 生成帧深度与 DA3 加载 |
+| 3DGS 重建 | `vipe_da3_gs_recon.py` | 单次 VIPE pose + DA3 Gaussian recon |
+| 长视频重建 | `vipe_da3_chunked_gs_recon.py` | overlapping chunks、对齐与合并 |
+| GUI | `Lyra-2/gui/` | 交互规划相机并持续扩展 |
 
-Lyra 1.0 已证明视频扩散先验可被蒸馏成显式 3D，但一次生成只覆盖有限相机窗口。要从“生成一段局部场景”变成“用户可持续探索的世界”，视频模型必须跨越房间、街道、大视角旋转和数百帧后的位置回访。论文把失败归纳为两个不同问题：
+## 2. 全链路表：seed/camera → persistent rollout → 3DGS
 
-- **Spatial forgetting**：早期观察离开有限 context window 后，回到旧区域时模型只能重新编造布局。
-- **Temporal drifting**：每个自回归 chunk 的轻微色偏、模糊和结构误差被下一段当作条件，逐段复利。
+以公开默认分辨率 `H×W=480×832`、单次新增 `F=80` 帧为例；batch 为 `B`。
 
-已有 3D memory 路线把历史帧融合成全局点云并渲染为后续条件。它的几何约束强，但生成伪影会污染深度，坏几何又污染条件，形成错误放大。另一类方法把历史 RGB 和相机 embedding 塞进上下文，不产生损坏的全局点云，却要求 self-attention 在大视角差下自己寻找远程几何对应。
+| 顺序 | 操作 | 关键 shape | 原因 |
+|---:|---|---|---|
+| 1 | seed image | `[B,3,1,480,832]` | 世界初始观测与 anchor |
+| 2 | 用户轨迹 | `w2c [B,N,4,4]`、`K [B,N,3,3]`；`N=1+80k` | 每次消费下一段 80 帧；1 是 chunk 边界共享帧 |
+| 3 | 最近帧 depth warp | RGB/depth 从 buffer frame warp 到 80 targets：`[B,3,80,H,W]` | 提供局部精确像素/相机控制 |
+| 4 | Plücker | `[B,T,H,W,6] → [B,384,T,H/8,W/8]` | `8×8` pixel shuffle：`6·64=384` 通道；无覆盖处仍有射线条件 |
+| 5 | Wan causal VAE | 新 80 帧 ↔ 20 video latents；空间 `[H,W]→[60,104]`，通道 16 | 时间压缩 4×、空间 8×；流式 cache 避免重编码全部历史 |
+| 6 | 时间 history | 20 个 temporal history latent slices | FramePack 保留远粗近细的时间连续性 |
+| 7 | 几何检索 | 所有候选 per-frame points → 最多 5 帧 | 回访按 3D overlap，而非时间距离 |
+| 8 | spatial RGB slots | 5 张检索图分别 image encode：每帧 `[B,16,1,60,104]` | 保留未 warp 的真实/生成外观 value |
+| 9 | canonical correspondence | 每 slot `[B,3,80,H,W]` + depth → `[B,256,20,60,104]`；5 slots concat → `[B,1280,20,60,104]` | 每 4 帧采样，`4 channels·8·8=256`；只传几何对应，不传 warped RGB |
+| 10 | FramePack context | 20 temporal + 5 spatial + 20 new latent slices | 固定 attention 预算承载可变长历史 |
+| 11 | Wan DiT flow matching | patch tokens → 20 个新 latent | 外观由 14B 生成先验合成；correspondence 只改 K/Q |
+| 12 | VAE decode | 20 latent → 80 新 RGB frames | causal feature cache 保持 chunk 边界连续 |
+| 13 | update state | 新 RGB/depth/pose/points 加入 cache | persistent/explorable 的真正状态更新 |
+| 14 | world rollout | 重复 retrieve → generate → update | 数据结构可持续增长，质量不保证无限不退化 |
+| 15 | 3D recon | 长视频 `[T,H,W,3]` + VIPE pose → DA3 Gaussians → `.ply` | 生成与最终显式重建分离 |
+| 16 | render/mesh | Gaussian render；论文另有分层 mesh | 3DGS 实时渲染；mesh 开放程度见证据边界 |
 
-Lyra 2.0 的核心贡献是把二者拆开：**显式几何只做信息路由，不直接提供外观。** 每帧几何独立保存，用于选对历史帧、告诉 attention 哪些位置对应；真正像素仍由扩散先验合成。第二个贡献是 self-augmentation，让训练条件接近推理时的自生成历史。第三个贡献是把长视频域适配后的 Depth Anything v3 重建器和分层 mesh 提取接到生成端，形成可部署资产。
+## 3. persistent/explorable world state 到底存什么
 
-## 3. 输入、输出与 retrieve–generate–update 总体循环
+### 3.1 四类状态
 
-输入包括单张 seed image$I_0$、用户分段指定的相机内外参轨迹${(T_i,K_i)}$和可选文本 prompt。每次生成一个 80 帧 chunk，系统维护：历史 RGB、每帧深度、相机参数、下采样点云、FramePack 时间上下文和检索出的空间 slots。输出首先是长视频，随后是紧凑 3DGS 与 surface mesh。
+1. **历史 RGB/视频 latent**：FramePack 的时间上下文；保持局部时间连续和风格。
+2. **每帧独立 depth + `w2c/K`**：用于反投影、检索和 correspondence；不融合成全局点云。
+3. **`Sparse3DCache._world_points`**：每条 entry `[B,H/d,W/d,3]`；当前代码实例 `downsample=4`。
+4. **VAE encoder/decoder causal cache**：让下一 chunk 只编码/解码新增部分。
+
+这与“维护一个越来越大的 3DGS 世界并从中渲染条件”不同。Lyra 2.0 故意不让错误深度成为永久融合几何；每帧错误被限制在自己的 entry，检索时由覆盖和多帧选择缓冲。
+
+### 3.2 `Sparse3DCache.add`
+
+```text
+depth [B,1,H,W]
+→ stride d subsample [B,1,H/d,W/d]
+→ K 同比例缩放
+→ unproject(depth,w2c,K)
+→ world_points [B,H/d,W/d,3]
+→ append；可选保留 full-res depth/w2c/K
+```
+
+论文描述检索点云下采样 8×，当前审阅代码在训练/推理路径实例化为 `downsample=4`。这是明确的论文—代码差异，复现报告必须写 revision，而不能只抄论文数字。
+
+## 4. geometry-aware retrieval：从候选帧到 5 个空间 slots
+
+### 4.1 投影与遮挡
+
+对每个候选帧 `i` 的 world points 和一个或多个目标相机：
+
+1. stack 为 `[C,B,H',W',3]`；
+2. 齐次化并广播到 `V_target`，得到 camera points `[V,C,B,H',W',3]`；
+3. 用缩放后的 `K` 投影到目标低分辨率像素；
+4. 每个 `(target-view,batch,y,x)` 用 `scatter_reduce(amin)` 得最小深度；
+5. 若 `z≤z_min+δ`，视为未被遮挡，默认 `δ=0.1`。
+
+训练时可按可见分数随机采样；推理 `max_coverage=True` 时先把最近 buffer frame 的覆盖视为已满足，再逐次选能覆盖最多“尚未覆盖 pixels”的候选，最多 `num_latents=5`。这避免 top-5 全是相邻冗余视角。
+
+### 4.2 为什么回访不依赖时间距离
+
+只要新目标视图与 500 帧前某 entry 有 3D overlap，它就能获得高覆盖并被召回；FramePack 的时间窗口可以忘掉它，但空间 cache 不会按时间窗口删除它。因此“持久”来自 cache 地址空间，“可探索”来自用户可继续提供轨迹。
+
+## 5. canonical correspondence：几何只路由，不渲染外观
+
+### 5.1 canonical map
+
+当前代码为每个空间 slot 构造：
+
+`C_j(u,v)=(x_norm,y_norm,z_j)∈[-1,1]^3`，shape `[N_s,3,H,W]`。
+
+`z_j` 不是真实深度，而是 slot id 在 `[-1,1]` 的编码。随后使用该历史帧 full-res depth/pose 将 canonical map forward warp 到 80 个目标相机，并附上归一化 warped depth：
+
+`[coords(3);depth(1)] = [B,4,80,480,832]`。
+
+每 4 帧取索引 `3,7,…,79`，得到 20 个时间位置；`8×8` pixel shuffle：
+
+`[B,4,20,480,832] → [B,256,20,60,104]`。
+
+5 个 slots 沿 channel concat：`[B,1280,20,60,104]`。padding slot 以 `coords=-1, depth=+1` 标记。
+
+### 5.2 为什么不 warp RGB
+
+warped RGB 会直接携带洞、拉伸、边界渗色；模型容易把这些伪影复制到输出。canonical map 只告诉 attention：“目标 token 应从第几张历史图的哪个位置取信息”。检索 RGB 本身以 spatial image token 进入 value 路径；correspondence encoder 只注入 self-attention 的 **K/Q**，不替换 V。
+
+因此真正原则是：
+
+> **Geometry as routing, not appearance rendering.**
 
 ![Lyra 2.0 方法总览](assets/Lyra%202.0%20-%20%E5%8F%AF%E6%8E%A2%E7%B4%A2%E7%9A%84%E7%94%9F%E6%88%90%E5%BC%8F%E4%B8%89%E7%BB%B4%E4%B8%96%E7%95%8C/figures/fig2_method.png)
 
-*图 2 解读：左侧是交互式 retrieve–generate–update 循环；右侧 spatial memory 先按目标视角召回历史帧，再把 canonical coordinate warp 成稠密 3D 对应，连同历史图像 slots 和时间 slots 注入 DiT。来源：论文 Figure 2，Page 6；官方源码 `figures/method_v3.pdf`。*
+## 6. FramePack 上下文窗口：精确 config 与动态长度
 
-一次循环分三步：
+公开有效配置：
 
-1. **Retrieve**：预测目标轨迹的可见区域，从所有历史帧中选最多 5 个、联合覆盖最大的视图。
-2. **Generate**：将空间 slots、warped correspondence、FramePack 时间 slots、相机条件和文本送入 Wan2.1-14B DiT，生成下一段。
-3. **Update**：对新帧估深度，逐帧保存几何，不进行全局点云融合，然后允许用户继续规划轨迹。
+`f1k1f4s2f1s1f16k4f2k2f1k1_g20`
 
-## 4. 视频骨干、相机控制与上下文压缩
+解析规则：`f<count><type><kernel>`；`k` 是时空压缩，`s` 只做空间压缩，`g20` 是 20 个待生成 latent slices。
 
-### 4.1 Flow matching 骨干
+| 段 | 数量 | 类型 | kernel | 语义 |
+|---|---:|---|---:|---|
+| `f1k1` | 1 | temporal | 1 | anchor/远端稳定参考 |
+| `f4s2` | 4 | spatial | 2 | 4 个检索帧，空间压缩 2× |
+| `f1s1` | 1 | spatial | 1 | 1 个高分辨率检索帧 |
+| `f16k4` | 16 | temporal | 4 | 远历史，时空更强压缩 |
+| `f2k2` | 2 | temporal | 2 | 中距历史 |
+| `f1k1` | 1 | temporal | 1 | 最近历史 |
+| `g20` | 20 | generation | base | 20 latent = 80 新视频帧 |
 
-Wan 2.1 causal VAE 对空间下采样 8 倍、时间下采样 4 倍，latent 通道$C=16$：
+因此 context tensor 在 patch 前含 **45 个 latent slices = 20 temporal + 5 spatial + 20 new**。这不等于 45×4 个独立原视频帧：spatial slots 是检索图片单帧编码，temporal slots 经过不同 kernel packing；FramePack 的目的正是让 attention token 数不随全部历史线性增长。
 
-$$z=E(x)∈R^{F'×C×h×w},\quad F'=floor((F-1)/4)+1,\quad h=H/8,\quad w=W/8.$$
+以 latent 空间 `60×104`、Wan base patch `(1,2,2)` 为例，base 新段 token 数为 `20×30×52=31,200`；历史段根据 k/s kernel 进一步压缩。代码通过 `_patchify_lyra2` 把每段 `B,C,T,H,W` rearrange 为 `B,(f·h·w),(C·pt·ph·pw)` 后线性映射到 DiT hidden，最后 concat 全段 tokens。
 
-对干净 latent$z_0$和噪声$ε∼N(0,I)$，线性插值得到
+## 7. 相机条件：轨迹不是一个 embedding
 
-$$z_t=(1-t)z_0+tε.$$
+Lyra 2.0 同时使用两路：
 
-DiT$v_θ$回归速度$ε-z_0$：
+### 7.1 最近帧 depth warp
 
-$$L_{flow}=E[||v_θ(z_t,t,c)-(ε-z_0)||^2].$$
+buffer RGB/depth 被 forward warp 到每个目标相机，得到 `[B,3,80,H,W]`，再经 VAE 形成 20 个 camera conditioning latents，覆盖 `cond_latent` 的 generation tail。优点是局部控制精确；缺点是大视角/反遮挡区域没有投影内容。
 
-### 4.2 双重相机条件
+### 7.2 全序列 Plücker
 
-第一路是 GEN3C 式 depth-based warping：把最近帧按估计深度前向 warp 到每个目标相机，经 VAE 编码后与 denoising latent 拼接，提供精确局部相机控制。大视角下若没有像素落到目标视图，这一路会完全失效，因此另加 6D Plücker ray$(d,o×d)$，经 pixel shuffle 与线性层映射到 token hidden dimension，并加到每层 attention 的 query/key 输入。前者给可见内容，后者在空洞时仍提示射线几何。
+每个目标像素生成 `(d,o×d)` 六通道：
 
-### 4.3 FramePack 时间记忆
+`[B,T,H,W,6] → permute [B,6,T,H,W] → pixelshuffle8 [B,384,T,H/8,W/8]`。
 
-FramePack 在固定 token budget 中按时间距离改变空间压缩：近帧细粒度、远帧粗粒度。原始布局可记为：1 个全分辨率 anchor；16 个$k=4$远历史帧、2 个$k=2$中距帧、1 个$k=1$近帧；最后是待生成 20 帧 token。anchor 始终是$I_0$，用于抑制整体风格漂移。但相机探索时早期帧常与新区域无视觉重叠，所以仅拉长时间记忆不足以解决空间回访。
+它与 FramePack 选中的 latent 时间位置对齐，再 concat 到 condition channel。即使 warp 全空，Plücker 仍说明每个像素对应哪条世界射线。因此二者分别回答：
 
-## 5. Anti-forgetting：逐帧几何检索与稠密对应
+- depth warp：已知内容怎样移动；
+- Plücker：相机究竟在看哪里。
 
-### 5.1 几何缓存为何绝不融合
+自定义 trajectory 文件必须含 `w2c: [N,4,4]`、`intrinsics: [N,3,3]`、`image_height/image_width`；`N` 应是 `1+80k`。首帧单目深度决定轨迹尺度，`--pose_scale` 只是相对缩放，不保证用户轨迹的绝对米制语义。
 
-每个历史帧$I_i$保存全分辨率深度$D_i$、相机$(T_i,K_i)$，以及按$d=8$下采样再反投影的点云$P_i$。全分辨率深度用于准确 correspondence，下采样点云只用于快速检索。关键是$P_i$彼此独立：生成视频越长，单帧深度越可能有误；若融合为一个全局点云，跨视图错位会永久写入世界模型。独立保存把错误限制在单帧，检索时让多个观察相互补充。
+## 8. anti-drifting：self-augmentation 的代码路径
 
-### 5.2 Geometry-aware retrieval
+### 8.1 训练—推理偏差
 
-对目标相机$(T^*,K^*)$，将每个$P_i$投影到目标平面。每个目标 pixel 先在所有历史点中求最小投影深度$d_{min}$处理遮挡；若某点深度与$d_{min}$之差小于阈值$δ=0.1$，则视为可见。帧$i$的 visibility score$φ(i)$就是可见点数。
+训练条件通常是干净历史，推理条件是模型自己的输出；chunk 越多，颜色、纹理和结构误差越会复利。Lyra 2.0 对上一生成 chunk 做短程自去噪，把退化结果作为下一 chunk 历史，但当前 chunk GT 仍由干净 VAE cache 编码。
 
-训练时按$φ(i)$比例采样历史帧，使网络适应非最优检索；推理时贪心选择：每轮取覆盖“尚未覆盖目标 pixels”最多的帧，最多$N_s=5$。这比独立选 top-5 更好，因为后者容易选出五张相邻、彼此冗余的图。只要数百帧后的回访与某个旧观察有 3D overlap，召回就不依赖时间距离。
+代码阶段 A/B 的关键拼接：
 
-### 5.3 空间 slots 与 canonical coordinates
+```text
+previous generated chunk → one-step self-aug → lat1
+zero tail for next chunk                    → lat2
+clean current chunk via clean VAE cache     → lat3
+training latent target = prefix + lat1 + lat3
+conditioning latent   = prefix + lat1 + lat2
+```
 
-被召回的 5 帧单独经 VAE image encoding，不做时间压缩。空间 slots 采用 4 帧$k=2$、1 帧$k=1$；与 anchor、时间 slots、generation tokens 一起进入完整 DiT self-attention。
+这样网络必须从不完美 `lat1` 继续生成干净 `lat3`，而不是复制漂移。
 
-仅放 RGB 还不够，大视角下 attention 不知道哪个历史 pixel 对应哪个目标 pixel。Lyra 2.0 给第$j$个历史帧定义三通道 canonical map：
+### 8.2 论文与当前 config
 
-$$C_j(u,v)=(u,v,2j/N_s-1),$$
+论文用 flow-matching 公式解释一次近似去噪；公开有效 config 明确为：
 
-再利用该帧全分辨率深度前向 warp：
+- `self_aug_enabled=True`
+- `self_aug_steps=1`
+- `self_aug_every_k=2`
+- `self_aug_prob=1.0`
+- `self_aug_max_T=500`
+- `self_aug_encode_gt_with_clean_history=True`
 
-$$C'_j=FwdWarp(C_j,D_{s_j},T_{s_j},T^*,K_{s_j},K^*).$$
+论文中概率化描述与此 revision 的“每两次训练触发、触发时概率 1”不能直接互换，应按固定 config 复现。
 
-warped depth 作为第 4 通道，得到$[C'_j;D'_j]$。它经 sinusoidal positional encoding、pixel shuffle 和线性层聚合后，注入每个 Transformer block 的 query/key，而不改 value。直觉是：对应信号决定“生成 token 应看哪个历史 token”，外观内容仍来自原历史 value 与预训练先验。
+## 9. 视频模型、权重与 rollout
 
-论文刻意不 warp RGB，因为 RGB warp 会带来反遮挡洞、拉伸和深度边界渗色；网络很容易把这些伪影复制到输出。canonical coordinates 携带同等几何对应，却不携带坏外观。这是全文最关键的设计原则：**几何只回答去哪找，不能替扩散模型回答画什么。**
+### 9.1 主干
 
-## 6. Anti-drifting：self-augmentation 与加速蒸馏
+- 基础：Wan2.1 I2V 14B 480P；
+- latent channel：16；
+- DiT hidden：5120，40 layers，40 heads；
+- flow matching；完整推理 35 steps；
+- DMD LoRA：4 steps，蒸馏掉 CFG，README 报告约 15× 加速，但 prompt following/重复纹理可能变差。
 
-### 6.1 Observation bias
+权重目录的角色：
 
-训练时模型看真实历史，推理时看自己的不完美输出，这种 train–test gap 导致误差累积。Self-Forcing 若对双向视频模型模拟完整历史，需要约 35 步去噪和全 attention，代价过高。
+| 文件/目录 | 角色 |
+|---|---|
+| `checkpoints/model/model/*.distcp` | Lyra 2.0 主模型 DCP shards |
+| `checkpoints/vae/vae.pth` + mean/std | Wan causal VAE |
+| `checkpoints/image_encoder/model.pth` | 图像条件编码器 |
+| `checkpoints/text_encoder/*` | T5 text condition/negative prompt |
+| `checkpoints/lora/dmd_distillation.safetensors` | 4-step DMD |
+| `detail_enhancer.safetensors`、`realism_boost.safetensors` | 推理增强 LoRA |
+| `checkpoints/recon/model.pt` | 生成域适配的 DA3 Gaussian recon |
 
-Lyra 2.0 以概率$p_{aug}=0.7$对干净历史 latent$z_0^{hist}$采样$t∼U(0,0.5)$并加噪：
+### 9.2 retrieve–generate–update
 
-$$z_t^{hist}=(1-t)z_0^{hist}+tε.$$
+每轮：
 
-只做一次 DiT forward，得到近似干净历史：
+1. 从下一段 80 帧轨迹取一个或多个目标视图；
+2. cache 检索最多 5 帧；
+3. 组装 temporal/spatial/Plücker/warp/correspondence 条件；
+4. DiT 生成 20 latent；
+5. causal VAE 流式 decode 80 帧；
+6. 对新帧估 depth，逐帧加到 cache；
+7. 用户规划下一段。
 
-$$z'^{hist}_0=z_t^{hist}-t·v_θ(z_t^{hist},t,c).$$
+“arbitrarily long”应理解为循环接口和 cache 没有论文式固定终点，不应理解为质量已证明无限稳定。
 
-训练当前 chunk 时，用$z'^{hist}_0$替代完美历史作为条件；但目标$z_0^{cur}$始终由干净历史的 causal VAE cache 编码。于是网络必须在坏历史条件下恢复干净当前帧，而不是把历史误差复制下去。额外成本只有一次 forward。
+## 10. 3DGS/场景表示：生成状态与最终资产分开
 
-### 6.2 DMD 4 步模型
+### 10.1 当前公开主路径
 
-完整模型使用 35 步 FlowUniPC 和 CFG。论文再用 Distribution Matching Distillation 把教师蒸馏成 4 步学生，并把 CFG 合并进单次条件前向；蒸馏时保留 self-augmentation。每 80 帧从单张 GB200 的约 194 秒降到 15 秒，约 13 倍，空间检索本身低于 1 秒，真正瓶颈仍是 DiT 去噪。
+README 的最终重建不是 Lyra 1.0 decoder，而是：
 
-## 7. 3DGS/mesh 重建、训练数据与设置
+```text
+generated video [T,H,W,3]
+→ VIPE：pose/intrinsics/depth
+→ DA3（checkpoints/recon/model.pt）
+→ Gaussians: means/scales/rotations/opacities/SH
+→ reconstructed_scene.ply
+→ Gaussian render
+```
 
-### 7.1 生成视频如何落成 3D
+`vipe_da3_gs_recon.py` 接受 `[T,H,W,3]` 或 `[T,3,H,W]`。PLY 读取后显式恢复：
 
-Lyra 2.0 不沿用 Lyra 1.0 的自家 3DGS decoder，而采用 Depth Anything v3 前馈模型预测 per-pixel Gaussian 属性。预训练 DAv3 有两个问题：高分辨率每像素一个 Gaussian 数量过大；真实图像训练不足以容忍生成视频的轻微多视不一致。作者将 Gaussian DPT head 下采样$k=2$，Gaussian 数量降 4 倍，并在自生成视频上微调。
+- means `[1,N,3]`
+- scales `[1,N,3]`
+- rotations `[1,N,4]`
+- opacities `[1,N]`
+- harmonics `[1,N,3,D_sh]`
 
-微调集由 DL3DV 图像/轨迹出发，自回归生成 3,000 段一分钟视频；DAv3 训练 10K iterations，学习率$5×10^{-5}$、batch size 8。mesh 提取用 OpenVDB/FVDB 分层稀疏网格：靠近生成相机用细 voxel，远背景用粗 voxel；由 Gaussian median depth 和法线构建 SDF，各层 marching cubes 后拼接并 decimate。
+论文的 Gaussian head 使用 `k=2` 空间降采样，候选数量约从 `T·H·W` 降为 `T·H/2·W/2`；准确属性通道布局由内置 DA3 子模块和 `Gaussians` spec 管理，不应套用 1.0 的 14D RGB Gaussian 格式。
 
-### 7.2 视频模型训练
+### 10.2 长视频为什么要 chunked recon
 
-训练数据为 DL3DV 10K 长视频；ViPE 估相机，DAv3 估逐帧深度，Qwen3-VL-8B-Instruct 生成 caption。每个视频采样 1,000 帧。30% 概率做 I2V：单帧条件生成最初 80 帧；70% 做 chunk 自回归训练：随机取历史前缀，下一段 80 帧作为目标。
+官方 README 明确：超过约 500 帧时，DA3 Gaussian head 未针对如此长序列微调，单次 pass 可能模糊。推荐 `chunk_size=128`、`chunk_overlap=10`、`num_chunks≥2`，再做 chunk 对齐与合并。
 
-骨干是 Wan2.1-14B，分辨率$832×480$。AdamW 学习率$3×10^{-5}$、weight decay 0.1、batch size 64，使用 64 张 NVIDIA GB200 训练 7,000 iterations，bf16；新模块零初始化，使训练初始行为等于预训练 Wan。推理文本 CFG scale 5.0，完整模型 35 steps。
+这说明 rollout 的动态长度与 recon 的有效上下文不是同一限制：视频可继续生成，但最终 3D 重建器仍需分块。
 
-## 8. 主要定量结果、消融与失败案例
-
-### 8.1 长视频生成
-
-论文在 DL3DV-Evaluation（域内）和 Tanks-and-Temples（域外）同时报告 SSIM/LPIPS/FID、WorldScore 主观质量/风格一致性/相机可控性，以及基于 ViPE 的 reprojection error。T&T 关键结果如下：
-
-| 方法 | SSIM↑ | LPIPS↓ | FID↓ | 主观质量↑ | 风格一致↑ | 相机控制↑ | 重投影误差↓ |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| GEN3C | 0.350 | 0.589 | 79.07 | 21.75 | 75.54 | **70.91** | **0.054** |
-| SPMem | 0.383 | 0.571 | 60.11 | 34.41 | 79.68 | 45.07 | 0.059 |
-| **Lyra 2.0** | **0.384** | 0.552 | 51.33 | **43.35** | **85.07** | 63.87 | 0.069 |
-| Lyra 2.0 DMD | 0.362 | **0.545** | **49.71** | 43.02 | 78.91 | 58.12 | 0.077 |
-
-GEN3C 的硬 depth warp 获得最高相机控制与最低重投影误差，却牺牲画质；SPMem 画质较强但全局点云误差拖累长程风格；Lyra 2.0 在画质、一致性和控制之间取得更均衡结果。DMD 的单帧 LPIPS/FID 甚至略好，但长程 style 和 camera 指标下降，说明少步蒸馏不是无损替代。
+## 11. 实验与消融该怎样读
 
 ![约第 800 帧长视频比较](assets/Lyra%202.0%20-%20%E5%8F%AF%E6%8E%A2%E7%B4%A2%E7%9A%84%E7%94%9F%E6%88%90%E5%BC%8F%E4%B8%89%E7%BB%B4%E4%B8%96%E7%95%8C/figures/fig5_video_results.png)
 
-*图 3 解读：约第 800 帧时，VMem 已结构崩塌，GEN3C/Yume 出现扭曲，CaM/SPMem 有明显漂移；Lyra 2.0 在回访区域仍保留较真实的几何和外观。来源：论文 Figure 3，Page 10；官方源码 `figures/comparison_grid_all.png`。*
+Tanks-and-Temples 长视频：
 
-### 8.2 3D 场景生成
+| 方法 | SSIM↑ | LPIPS↓ | FID↓ | 主观质量↑ | 风格一致↑ | 相机控制↑ |
+|---|---:|---:|---:|---:|---:|---:|
+| GEN3C | 0.350 | 0.589 | 79.07 | 21.75 | 75.54 | **70.91** |
+| SPMem | 0.383 | 0.571 | 60.11 | 34.41 | 79.68 | 45.07 |
+| **Lyra 2.0** | **0.384** | 0.552 | 51.33 | **43.35** | **85.07** | 63.87 |
+| Lyra 2.0 DMD | 0.362 | **0.545** | **49.71** | 43.02 | 78.91 | 58.12 |
 
-Tanks-and-Temples 上，GEN3C+DAv3 的 LPIPS-P/LPIPS-G/FID/主观质量为 0.511/0.694/125.19/5.38；SPMem+DAv3 为 0.412/0.666/94.11/9.95；Lyra 2.0+DAv3 为 0.409/0.648/79.36/14.42；**完整 Lyra 2.0** 为 **0.372/0.629/72.47/18.80**。两层结论应分开：视频生成机制降低 LPIPS-P，说明底层视频更 3D 一致；DAv3 的生成域微调进一步改善 LPIPS-G/FID，说明重建器域适配不可省略。
+T&T 3D 重建的 `LPIPS-P / LPIPS-G / FID / subjective`：GEN3C+DA3 `0.511/0.694/125.19/5.38`，SPMem+DA3 `0.412/0.666/94.11/9.95`，Lyra video+DA3 `0.409/0.648/79.36/14.42`，完整生成域微调 recon `0.372/0.629/72.47/18.80`。
 
-### 8.3 消融
-
-| 变体 | 主观质量↑ | 风格一致↑ | 相机控制↑ | 重投影误差↓ | 结论 |
-|---|---:|---:|---:|---:|---|
-| Full | 43.35 | **85.07** | **63.87** | 0.069 | 完整平衡 |
-| Global Point Cloud | 44.58 | 82.42 | 49.86 | 0.067 | 融合深度误差损害相机执行 |
-| Explicit Corr. Fusion | 45.71 | 83.28 | 57.29 | 0.071 | 硬融合不如 learned aggregation 容错 |
-| w/o FramePack | 45.27 | 80.61 | 62.62 | 0.079 | 时间锚点缺失导致漂移 |
-| w/o Self-Augmentation | **47.88** | 77.98 | 53.92 | **0.066** | 单帧更漂亮，长程目标反而崩坏 |
+关键不是单帧最锐：去掉 self-augmentation 时主观质量 47.88 高于 full 43.35，但风格一致 77.98 低于 85.07、相机控制 53.92 低于 63.87。长程目标和单帧美观存在冲突。
 
 ![关键组件消融](assets/Lyra%202.0%20-%20%E5%8F%AF%E6%8E%A2%E7%B4%A2%E7%9A%84%E7%94%9F%E6%88%90%E5%BC%8F%E4%B8%89%E7%BB%B4%E4%B8%96%E7%95%8C/figures/fig7_ablation.png)
 
-*图 4 解读：全局点云和显式对应融合会受深度错位影响；无 FramePack 出现明显外观漂移；无 self-augmentation 的单帧可能更锐利，却无法维持长程风格与相机轨迹。来源：论文 Figure 6，Page 14；官方源码 `figures/comparison_grid_ablations.png`。*
+## 12. 代码—论文差异与开放边界
 
-失败与边界包括：仅支持静态环境，没有继承 Lyra 1.0 的动态 4D；依赖目标视角与历史帧有足够 3D overlap，激进长距离跳跃时检索无从召回；深度错误虽然不直接作为 RGB 条件，仍会通过“选错历史帧/错对应”间接影响生成；DL3DV 的曝光变化会被模型继承，并在 3DGS 重建中产生光度伪影；生成世界视觉可信不代表碰撞、尺度和物理语义真实。
+| 项目 | 论文 | revision `9fffc9a` 代码 | 复现含义 |
+|---|---|---|---|
+| cache 下采样 | 描述 8× | `Sparse3DCache(downsample=4)` | 以代码 revision 为准，记录差异 |
+| self-aug 频率 | 概念上概率采样 | `prob=1.0,every_k=2,steps=1` | 不要只抄论文 `p` |
+| FramePack | 概念性 1+16/2/1+5 | 明确 `f1k1f4s2f1s1f16k4f2k2f1k1_g20` | 可还原 slot 顺序与 kernel |
+| correspondence | canonical+depth 注入 attention | 每 slot 256 通道，5 slot 1280；`inject_kq_only=True` | shape 与注入点已开放 |
+| training | 初版曾标 planned | 2026-07 revision 已有 `TRAINING.md`、config、sample data | 当前不是“仅推理代码” |
+| mesh | 论文展示分层 mesh/仿真 | 公共 README 一键主路径清楚到 3DGS PLY；未见与论文同等完整的 mesh 一键说明 | 不能把展示资产等同完整开放 pipeline |
+| 无限长度 | 可任意续写 | cache 可增长；实验有限，DA3 >500 帧建议分块 | 接口无限 ≠ 质量无限 |
+| 许可 | 研究发布 | 权重限制生产/部署/分发 | 不可因 Apache 源码推导商用 |
 
-## 9. 局限、Future Work 与个人判断
+## 13. 复现建议
 
-作者明确提出两个未来方向：把当前静态系统扩展到动态世界；通过网络内 photometric stability 或光度一致的游戏引擎合成数据，减少曝光变化。还可进一步研究检索失败时的 global localization、跨 chunk 的对象身份、动态遮挡与几何不确定性。
+1. 固定 code/HF revision；先只下载 `checkpoints/*`，记录 DCP shard 数和本地哈希。
+2. 首次只跑 81 帧（1 seed + 80），断言新 latent 是 20、空间是 `60×104`。
+3. 每 chunk 落盘：selected frame ids、每候选 coverage、canonical warp mask、cache entry 数、相机轨迹。
+4. 做三个最小消融：无 spatial slots、RGB slots 但无 correspondence、完整 K/Q correspondence。
+5. 轨迹必须 `1+80k`；先做小平移和回头，再做跨房间，避免轨迹穿物导致把规划错误归因于模型。
+6. self-augmentation 复现按当前 config，不将论文概率直接代入。
+7. rollout 与 recon 分开验收；>500 帧使用 chunked DA3，否则重建模糊会污染对 world persistence 的判断。
+8. 2.0 只适合静态世界；输入中的人车运动可能被当作世界纹理固化。
+9. 权重仅按内部科研许可使用；任何部署/公开演示/分发前重新审查条款。
 
-我的判断是，Lyra 2.0 最值得保留的原则是“**geometry as routing, not rendering**”。GEN3C 的经验是强几何渲染能提高控制，Lyra 2.0 则发现长期运行时硬几何会把局部错误写成永久事实，因此退一步只让几何决定 attention 路由。这个解耦比具体采用 Wan、DAv3 或 FramePack 更有迁移价值，可用于机器人记忆、多视图 agent、长视频编辑等系统。
+## 14. 局限
 
-但“arbitrarily long”更准确地说是数据结构可持续增长，而不是质量已被证明无限稳定。检索成本虽低于 1 秒，memory 大小、错误深度数量和世界分支歧义仍随时间增加；实验展示约 800+ 帧和特定探索轨迹，不能外推到无限城市或反复闭环。对于仿真用途，应额外验证 metric scale、mesh watertightness、可通行区域和碰撞体。
+- spatial memory 依赖与目标视图有 3D overlap；长距离跳跃无法检索不存在的重叠。
+- depth 错误虽不直接作为 RGB 外观，却会通过错检索、错 correspondence 影响生成。
+- cache 随时间增长；公开实现没有证明无限规模下的检索、内存和歧义稳定性。
+- 静态世界假设没有继承 1.0 的动态 4D 能力。
+- 首帧单目 depth 决定轨迹尺度，几何视觉可信不等于 metric/碰撞/物理正确。
+- DMD 提速会损失 prompt following、风格一致性或相机控制。
 
-## 10. 复现资源、图表索引与缺失信息
+## 15. 官方资源
 
-官方项目页为 <https://research.nvidia.com/labs/sil/lyra2/>，代码与系列资源仓库为 <https://github.com/nv-tlabs/lyra>，模型资源页为 <https://huggingface.co/nvidia/Lyra-2.0>。复现关键依赖包括 Wan2.1-14B、FramePack、ViPE、Depth Anything v3、Qwen3-VL-8B-Instruct、OpenVDB/FVDB 与 Isaac Sim。官方 PDF 和源码包已保存为 `sources/paper.pdf`、`sources/arxiv-source.tar`，逐项来源见 `sources.md`。
-
-复现顺序建议：先实现 Wan+depth warp+Plücker 的 80 帧 I2V；再实现 per-frame cache 和 visibility greedy retrieval；加入 canonical coordinate 的 Q/K 注入并做回望测试；加入 FramePack；最后加入$p_{aug}=0.7$的一步 self-augmentation。3D 输出可先直接使用预训练 DAv3，再做生成域微调，避免同时调试生成与重建两套系统。
-
-**图表索引**：
-
-1. `fig1_teaser.png`：可探索大世界与仿真应用，Figure 1 / Page 1。
-2. `fig2_method.png`：完整循环与空间记忆注入，Figure 2 / Page 6。
-3. `fig5_video_results.png`：约第 800 帧定性比较，Figure 3 / Page 10。
-4. `fig7_ablation.png`：记忆、对应、FramePack、自增强消融，Figure 6 / Page 14。
-
-**仍缺信息**：官方论文未给出 DL3DV 训练片段的精确划分清单、所有用户轨迹、WorldScore 评测 prompt/人工评分原始记录、DMD 全部超参数、最终 checkpoint 哈希和 mesh 质量的系统定量结果；此外，CaM/SPMem 因未开源而由作者复现，公平性依赖复现质量。这些缺口应在严格复现报告中单独标记。
+- [论文](https://arxiv.org/abs/2604.13036)
+- [项目页](https://research.nvidia.com/labs/sil/projects/lyra2/)
+- [官方代码](https://github.com/nv-tlabs/lyra/tree/main/Lyra-2)
+- [官方权重](https://huggingface.co/nvidia/Lyra-2.0)
+- 精确 revision、权重树、配置、图片和证据映射见 `assets/Lyra 2.0 - 可探索的生成式三维世界/sources.md`。

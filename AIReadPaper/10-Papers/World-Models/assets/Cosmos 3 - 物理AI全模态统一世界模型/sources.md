@@ -20,6 +20,25 @@
 - 自动评估框架：https://github.com/NVIDIA/cosmos-evaluator
 - 官方模型集合：https://huggingface.co/collections/nvidia/cosmos3
 
+## 2026-10-31 源码与权重锁定
+
+| 对象 | 锁定 revision | 已读入口 | 用途 / 结论 |
+|---|---|---|---|
+| Cosmos Framework | `NVIDIA/cosmos-framework@50e883466491abacdcb69843e1e026479d927a95` | `cosmos_framework/inference/model.py` | HF/DCP 权重映射、`vae2llm`/`llm2vae`、sound/action projections，确认是 Cosmos 3 专属实现 |
+| 同上 | 同一 commit | `cosmos_framework/data/generator/sample_token_counter.py` | 视觉 $T_z=1+\lfloor(T-1)/4\rfloor$、空间 token 公式、每动作步一个 token |
+| 同上 | 同一 commit | `cosmos_framework/data/generator/action/utils/transforms.py` | FD/ID/WAM/policy 的 clean/noisy 条件索引与 action-video 对齐 |
+| 同上 | 同一 commit | `cosmos_framework/data/generator/sequence_packing/` | AR/DM/vision/sound/action 统一序列排布 |
+| 同上 | 同一 commit | `examples/integration/trainer_level_training.py` | 官方源码示例：`[1,3,5,128,128]` video + `[4,7]→[4,64]` action |
+| Nano HF 权重 | `nvidia/Cosmos3-Nano@e59a53c25979a090fa8706c9acc0c254a6e89b92` | `config.json`、`checkpoint.json`、`model_index.json`、`transformer/config.json`、`vae/config.json` | 固定模型/config；`d=4096`、VAE `4×16×16`、patch=2、`max_action_dim=64`、audio 64ch/25Hz、74k packed context |
+| Cosmos landing repo | 2026-10-30 页面可见提交 `8e2f3c7fb606304ed5fdcbdc437b108c7fcd3af3` | README / COOKBOOK | 只作为当前发布入口；模型实现已经迁往 framework |
+
+### 版本边界
+
+- 当前确有 **Cosmos 3 专属开源代码**，所以正文 shape 以 `cosmos-framework` 上述 commit 为准。
+- `NVIDIA/Cosmos` 历史上也托管 Cosmos 1/2/Predict/Transfer 内容；这些只能做代际对照，**未用于替代 Cosmos 3 源码**。
+- 报告数字取 v4；代码与 HF config 取 2026-10-31 当前发布版本。两者时间不同，新增 Edge/Sim/Transfer 等 checkpoint 不倒灌为论文首发结论。
+- HF revision 通过官方 API 的 `sha` 字段锁定；后续 `main` 变化时应继续使用上述 SHA 才能得到相同配置。
+
 ## 核验说明
 
 - 五张图片均从本地官方 PDF 按原始 Figure 页面完整裁剪并保留图注，已用 `Read` 逐张视觉核验；动作模式图和 MoT 图首次裁剪不完整，已调整边界并再次核验。

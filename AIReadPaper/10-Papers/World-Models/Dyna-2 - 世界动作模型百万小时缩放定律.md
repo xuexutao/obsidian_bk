@@ -10,7 +10,7 @@ project: null
 code: null
 tags: [World-Models, VLA, Scaling-Law, Human-Video]
 created: 2026-08-22
-updated: 2026-08-22
+updated: 2026-10-31
 ---
 
 # Dyna-2：世界动作模型百万小时缩放定律
@@ -27,6 +27,72 @@ updated: 2026-08-22
 - **类别**：世界动作模型 WAM（World-Action Model），对应主领域世界模型；与 VLA 主线紧密相关
 - **核心问题**：世界动作模型在百万小时人类视频上是否仍然遵循缩放定律？人类→机器人的跨具身迁移能否被一条可预测的幂律所描述？
 - **重要性评估**：★★★★☆（4/5）——首次把"人类视频预训练 + 跨具身迁移"做成硬缩放定律，并把"世界建模是跨具身泛化的必要条件"变成受控实验结论；但所有实验由公司内部完成、未公开复现协议、缺乏模型/数据细节，且"10 分钟遥操作解锁双手机器人开瓶盖"等戏剧性结果仍需外部独立验证，因此暂未给到 5 星。
+
+## 发布物、源码与复现边界（2026-10-31）
+
+### 入口表：这里没有可锁定的 repo/权重/config
+
+| 对象 | 官方入口 / revision | 本次核验结果 | 可以作为证据吗 |
+|---|---|---|---|
+| 官方报告 | `https://www.dyna.co/dyna-2`，BibTeX 标识 `dyna2026dyna2`（2026-08） | 已逐节核对 §1–§7、公式和 Figure 文本 | **可以**，但它是动态网页，不是不可变 commit |
+| 代码 repo | 未给出 | 官方报告没有 GitHub/GitLab/源码包链接 | **不可以假装已读源码** |
+| 权重 / checkpoint | 未给出下载入口 | 报告提到检查点和 production 模型，但无公开文件 | 无法固定 hash/revision |
+| config | 未给 YAML/JSON/Python config | 未公开 tokenizer、层数、宽度、动作 horizon、FPS、分辨率、采样 schedule | 只能写符号 shape，不能补数值 |
+| 数据 | 内部及合作方 >1M 小时 | 无下载、许可、样本清单或数据 revision | 无法复现缩放曲线 |
+| 许可/API | 未披露 | 无开源许可、自托管 API 或模型卡 | 当前只能阅读和评议报告 |
+
+> **硬边界**：Dyna-2 当前只公开研究报告、图表与高层方法。下文所有“实现”均指报告明确陈述的机制，**不是源码还原**。尤其不能把其他 WAM、公开 DiT 或 Dyna-1 代码当成 Dyna-2；也不能把论文图中的示意宽度当作真实层数。
+
+### 视频/动作 → tokenization → WAM → latent/transformer/decoder → 输出 shape
+
+由于官方没有数值 config，以下只使用可验证的符号。设批量 $B$、视角数 $V$、历史/未来帧数 $T_c/T_f$、分辨率 $H\times W$、文本长度 $L$、动作 chunk 长度 $T_a$、动作维 $D_a$、本体长度/维数 $T_p,D_p$。视频 tokenizer 的通道和 token 数记作 $C_z,N_c,N_f$，主干宽度记 $d$。
+
+| 阶段 | 输入 shape | 报告明确的变换 / 原因 | 输出 shape | 未公开项 |
+|---|---|---|---|---|
+| past video | `[B,V,3,T_c,H,W]` | 每模态独立 tokenize；把高维像素压成视频 token | context `[B,N_c,d]` | VAE 名称、压缩率、patch/tubelet、$N_c$ 公式 |
+| future video target | `[B,V,3,T_f,H,W]` | 编码为未来 latent $z$，加高斯噪声做 flow matching | $z,z_t,\epsilon_z\in\mathbb{R}^{B\times N_f\times C_z}$ | $T_f,H,W,C_z,N_f$ |
+| pseudo/robot action | `[B,T_a,D_a]` | 人类域用 3D wrist pose + thumb-index aperture 构造伪动作；机器人域在后训练适配 | $a,a_t,\epsilon_a\in\mathbb{R}^{B\times T_a\times D_a}$ | 坐标系、旋转参数化、双手拼接、归一化、$T_a,D_a$ |
+| proprioception | `[B,T_p,D_p]` | tokenize 后直接进入 action Transformer，提供当前机器人状态 | action-context tokens `[B,N_p,d]` | tokenizer、$N_p,D_p$ |
+| text | `[B,L]` ids | text token 由 video stream cross-attend；不直接连 action stream | text hidden `[B,L,d_t]` | tokenizer、词表、文本 encoder |
+| video DiT | context + noisy future video | 更深、causal mask；学习世界时序并吸收文本条件 | $u_\theta^{vid}\in\mathbb{R}^{B\times N_f\times C_z}$ | 层数、heads、hidden、连接层号 |
+| action DiT | observed-video context + proprio + noisy action | 更浅、双向 self-attention，只在早期层与 video stream 交互；降低策略延迟 | $u_\theta^{act}\in\mathbb{R}^{B\times T_a\times D_a}$ | 深度、交互层、动作投影 |
+| video decoder | 去噪后的 $\hat z$ | latent 解码回多视角 RGB | `[B,V,3,T_f,H,W]` | decoder/VAE 与后处理 |
+| policy output | 去噪后的 $\hat a$ | 裁回机器人原动作表示并执行 chunk | `[B,T_a,D_a]` | 控制频率、执行 chunk 长度 |
+
+shape 不变量由 flow matching 公式直接保证：
+
+$$z_t,z,\epsilon_z,u_\theta^{vid}(z_t;t,c)\text{ 同形},\qquad a_t,a,\epsilon_a,u_\theta^{act}(a_t;t,c)\text{ 同形}.$$
+
+**代入官方唯一可数的生成示例**：一步蒸馏段落写的是“3 秒、3 视角 manipulation video”。因此 $V=3$、duration=3s；若实际 FPS 为 $f$（官方未给），最终像素张量只能写成 `[B,3,3,3f,H,W]`。任何把它进一步写成固定 `T/H/W/C_z` 的数值都属于猜测。报告给出 1-step student 在单张 H100 上 110 ms，但这属于蒸馏视频生成管线，**不能当成 action policy 延迟或主 scaling-law WAM 的 tokenizer shape**。
+
+### 训练与推理全链路
+
+| 模式 | 干净条件 | 加噪/监督目标 | 推理是否运行 | 意义 |
+|---|---|---|---|---|
+| action-only 消融 | context $c$ | action $a_t$ | action only | 无视频世界建模，跨具身随规模过拟合 |
+| joint | 同一带动作数据上的 context | future video $z_t$ + action $a_t$ | 训练两头；策略时只 action | 视频目标正则共享表示，但数据轴仍受限 |
+| video co-training | 带动作数据 + 额外纯视频 | 有动作样本训两头，纯视频样本只训 video | 策略时只 action | 让无动作视频成为独立缩放轴 |
+| production Dyna-2 | 报告未完整披露 | 报告明确说 production recipe 不同 | 未公开 | 不能与 scaling-law 变体视作同一 config |
+| one-step student | 生成条件 | 蒸馏后的 future video | 1 NFE 视频生成 | 独立能力展示，不等于主策略必须生成视频 |
+
+### 逐模块：已知超参、设计原因、未知量与差异
+
+| 模块 | 官方明确值 | 设计原因 | 与相邻版本/变体的差异 |
+|---|---|---|---|
+| 数据 ladder | 1k/10k/100k/1M 小时，100h held-out | 嵌套同分布子集隔离“数据量”变量 | 只测数据缩放，未测模型/compute 缩放 |
+| objective | flow matching；视频+动作边缘速度场；动作权重 $\lambda$ | 视频塑造共享物理表示，动作保持可直接执行 | $\lambda$ 数值与时间采样分布未公开 |
+| video stream | causal、更深 | 承担时序世界建模 | 具体层数未公开 |
+| action stream | bidirectional、更浅、early interaction | action chunk 可并行去噪，减少实时开销 | **不是自回归 action decoder**；不直接 attend noisy future video |
+| text route | video cross-attends text | 让语言通过视频表示间接影响动作 | 文本不直接接 action，不等于语言完全无效 |
+| pseudo-action | 3D wrist trajectory + grasp aperture | 从海量人类 ego 视频得到动作监督 | 到机器人自由度的映射只在后训练发生，细节未公开 |
+| one-step distill | 1 NFE，110 ms；teacher 100 NFE/10203 ms | 解决视频扩散延迟 | 是生成分支蒸馏实验，不是 scaling-law 模型统一 config |
+
+### 复现成本与可复现性结论
+
+- **严格复现：当前不可行**。缺代码、权重、数据、config 和不可变 revision；即使有足够 GPU，也无法还原实验。
+- **概念复现：可行但不是 Dyna-2 复现**。可在 Ego4D/自采 ego 视频上实现双流 DiT + flow matching + action-only/joint/video co-training 消融，但只能称“受 Dyna-2 启发的复现”。
+- **成本下界无法可靠估计**。官方未给参数量、训练 FLOPs、GPU 数与 wall-clock；原笔记“100M–1B、数十到上百 H100 数周”属于推测，已删除。
+- **最大成本在数据**：1M 小时视频、3D 手姿提取与质量过滤均未开放；39 个离线任务和 14 个实机任务也不是公开可下载 benchmark。
 
 ## 一句话结论
 
@@ -150,9 +216,9 @@ $$\mathcal{L}_{\mathrm{co}}(\theta) = \mathbb{E}\big\|u_\theta^{\mathrm{vid}}(z_
 
 推理时只跑动作流：
 
-1. 把过去视频帧、语言指令、本体感觉送进对应的 tokenizer。
-2. 视频 tokenizer 输出作为动作 Transformer 的 KV 缓存；动作 Transformer 自回归地生成 action chunk。
-3. 不生成未来视频帧，因此推理延迟只由动作流决定（与"想象-再动作"类 WAM 相比显著更低）。
+1. 把过去视频帧、语言指令、本体感觉送进各自 tokenizer（具体 tokenizer 未公开）。
+2. 观测视频 context 与本体 token 条件化浅层 action DiT；动作 token 使用双向注意力，通过 flow-matching 去噪并行得到 action chunk，**不是自回归生成**。报告没有披露是否实现 KV cache，因此不应擅自写成“视频输出作为 KV 缓存”。
+3. 不生成、也不 attend 预测未来视频，因此策略推理延迟只由观测编码与动作流决定；报告未给 action-policy 的独立毫秒延迟。
 
 > 备注：Dyna-2 没有在报告中公开参数规模、tokenizer 细节、动作 horizon、控制频率、训练 FLOPs、采样步数等关键工程数值。其生产版本使用了 1 步蒸馏的管道（§5.7），把 3 秒、3 视角操作视频的生成时间从 10,203 ms 压到 110 ms（约 93× 加速）。
 
@@ -406,13 +472,13 @@ Dyna 在 §3.5 末尾给出了一条第一性原理论述：**世界建模的承
 ### 8.1 复现成本
 
 - **数据**：1M 小时人类第一人称视频是巨大的成本——这几乎是当前任何学术团队都无法独立获取的。EgoScale 的 20k 小时上限大概是可以想象的，但 1M 小时需要工业级数据合作。
-- **算力**：双流 DiT 在 100M–1B 参数规模上训练千万级 token 序列（视频 + 动作），至少需要数十到上百张 H100 训练数周。
-- **复现可行性**：**外部团队几乎不可能直接复现这条缩放曲线**，但可以验证 Dyna-2 在 39 任务 / 14 任务上的具体能力（如果 Dyna 愿意开放权重）。
-- **小规模可复现部分**：
-    - MoT 双流 DiT 架构（公开技术细节充分）；
-    - Flow Matching 联合去噪损失；
-    - 5k / 50k / 100k 三个动作规模上的 Action-only / Joint / Video co-training 三路消融（用现有的人类视频数据集如 Ego4D、Something-Something 可以做到）；
-    - 一步视频蒸馏的追逐博弈框架（数学描述完整）。
+- **算力**：官方未公开参数量、GPU 数、训练 FLOPs 或 wall-clock，因而不能给出 H100 数量与训练周数；任何具体预算都只是猜测。
+- **复现可行性**：**外部团队当前无法直接复现缩放曲线或 39/14 任务结果**，因为权重、数据与 benchmark 均未开放；只有在未来发布后才可能验证。
+- **可做的独立验证（不应称为 Dyna-2 复现）**：
+    - 按报告高层描述自建 MoT 双流 DiT，但分支宽度、层数与连接位置只能自行设计；
+    - 实现 Flow Matching 联合去噪损失；
+    - 在公开/自采 ego 数据上重做 Action-only / Joint / Video co-training 缩放消融；
+    - 依据报告数学描述独立实现一步视频蒸馏的追逐博弈。
 
 ### 8.2 实践建议
 

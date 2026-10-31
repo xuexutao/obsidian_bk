@@ -19,6 +19,27 @@
 | 官方代码 | https://github.com/gaoyuezhou/dino_wm | 2026-10-15 | 训练、CEM 规划、环境配置、数据与 checkpoint 说明 |
 | 官方数据与 checkpoint | https://osf.io/bmw48/?view_only=a56a296ce3b24cceaf408383a175ce28 | 2026-10-15 | 公开数据；PointMaze、PushT、Wall 预训练模型 |
 
+## 2026-10-31 源码、config 与权重 revision
+
+| 对象 | 固定 revision | 已读文件 | 核验用途 |
+|---|---|---|---|
+| 官方 GitHub | `gaoyuezhou/dino_wm@0a9492fa12044b852ae9e001cc74604b79c8bb0c` | `train.py` | 模型实例化、优化器、DINO/动作/本体/decoder 维度 |
+| 同上 | 同一 commit | `models/dino.py` | `facebookresearch/dinov2`、`dinov2_vits14`、`x_norm_patchtokens` |
+| 同上 | 同一 commit | `models/visual_world_model.py` | `[B,T,3,S,S]→[B,T,N,E]`、动作/本体 tile+concat、rollout 与 loss detach 边界 |
+| 同上 | 同一 commit | `models/vit.py` | frame-causal mask、6-layer predictor 输入输出保持 shape |
+| 同上 | 同一 commit | `models/vqvae.py` | 默认辅助 decoder；`quantize=False`，不参与 predictor 梯度 |
+| 同上 | 同一 commit | `planning/cem.py`、`planning/mpc.py`、`planning/objectives.py` | `[N_c,T,K]` 候选、elite 更新、终点 latent 代价、闭环重规划 |
+| 同上 | 同一 commit | `conf/train.yaml`、`conf/predictor/vit.yaml`、`conf/plan_pusht.yaml` | 224→196/196 patches/384D；`H=3`；CEM 300/30/30；源码 predictor lr `5e-4` |
+| HF 数据/权重镜像 | `gaoyuezhou/dino_wm@d5c69e8fe60c3ed6b01d2f6e88fbfd66be078e57`（dataset repo） | `checkpoints/outputs.zip`、dataset archives | PointMaze/PushT/Wall checkpoint 与四类数据固定快照 |
+
+### 关键边界与差异记录
+
+- GitHub 当前 HEAD 与论文接收版不是同一类 revision：前者锁定“可运行公开代码”，后者锁定“论文实验描述”。数值不一致时两者分列，不用当前 config 篡改论文历史。
+- 当前 `conf/train.yaml` 的 `predictor_lr=5e-4`；旧笔记误写为 `5e-5`，已修正并注明来源。
+- 论文延迟段落使用 100 CEM samples / 10 iterations；当前 PushT 规划 config 是 `num_samples=300,opt_steps=30,topk=30`。两者不能合并成一个“官方默认”。
+- HF `outputs.zip` 仅声明 PointMaze、PushT、Wall 模型；Rope/Granular 只有数据，没有公开 checkpoint。
+- DINOv2 权重由源码通过 `torch.hub.load("facebookresearch/dinov2", "dinov2_vits14")` 获取，但上游 DINOv2 commit 未被 DINO-WM 仓锁定；严格离线复现还应自行固定上游 revision/权重哈希。
+
 ## 版本与材料说明
 
 - 本地 `paper.pdf` 保存 arXiv v2 官方版本；该版本已经使用 ICML 2025 accepted 模板，并含完整附录。

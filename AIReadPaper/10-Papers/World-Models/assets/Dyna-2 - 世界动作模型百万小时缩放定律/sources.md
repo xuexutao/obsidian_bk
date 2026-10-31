@@ -2,6 +2,25 @@
 
 本笔记的所有定量数据与架构描述均来自 Dyna Robotics 官方研究文章《Dyna-2: A 1-Million-Hour Scaling Law for World-Action Models》。由于该文为网页版技术报告而非 PDF，且原文中的官方配图（Figure 1–Figure 18）无法在本轮抓取（dyna.co 在沙箱网络下不直达），本笔记的四张配图全部基于官方公开文字与数据**重绘**（忠实于原文描述与官方数值），并在每张图注里标明了官方对应 Figure 编号与原始链接。
 
+## 2026-10-31 发布物审计
+
+| 对象 | 可锁定 revision | 官方报告中是否提供 | 本笔记处理 |
+|---|---|---|---|
+| 官方网页报告 | 无 commit；仅 BibTeX `dyna2026dyna2`、2026-08 | 是 | 作为唯一一手主来源，记录核验日期 |
+| 官方源码 repo | **无** | 否 | 未声称读过源码，不借用其他 WAM/DiT 实现替代 |
+| 模型权重/checkpoint | **无公开下载与 hash** | 否 | 不写伪 revision，不推断文件格式 |
+| config | **无** | 否 | tokenizer、层数、hidden、heads、FPS、分辨率、action horizon 全部保留为未知 |
+| 数据 revision/许可 | **无** | 否 | 只引用 >1M 小时及报告描述，不声称可下载 |
+| API / model card / license | **无** | 否 | 明确标记为未开放研究报告 |
+
+### shape 与模型变体核验边界
+
+- 只可由公式推出：$z_t,z,\epsilon_z,u^{vid}$ 同形；$a_t,a,\epsilon_a,u^{act}$ 同形。
+- 报告唯一明确的生成规格是“一段 3 秒、3 视角操作视频”；FPS、分辨率、latent channel 未给，所以正文只代入 $V=3,duration=3s$。
+- 必须区分五个对象：scaling-law co-training 变体、action-only 消融、production Dyna-2、用于 WAM-vs-VLA 的 early Dyna-2、one-step distilled video student。报告没有证明它们共享同一 config/权重。
+- action stream 是 bidirectional DiT + flow matching；旧稿“自回归生成 action chunk / KV cache”没有官方依据，已删除。
+- 旧稿给出的“100M–1B 参数、数十至上百 H100 数周”没有一手配置支撑，已删除。
+
 ## 本地材料
 
 | 本地文件 | 材料类型 | 原始来源 | 报告位置 | 获取日期 | 用途 |

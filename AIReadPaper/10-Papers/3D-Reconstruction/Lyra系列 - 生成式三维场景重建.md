@@ -1,224 +1,148 @@
 # Lyra 系列：生成式三维场景重建
 
-## 基本信息
+## 0. 阅读结论与证据版本
 
-**系列名称**：Lyra — Generative 3D Scene Reconstruction via Video Diffusion Model Self-Distillation（1.0）→ Explorable Generative 3D Worlds（2.0）
+Lyra 不是同一网络的两次小升级，而是两条不同代码基线共享一个“先生成可控视频，再落成显式 3D”的产品接口：
 
-**所属机构**：NVIDIA（Spatial Intelligence Lab / Toronto AI Lab）、University of Toronto、Vector Institute、Simon Fraser University；1.0 一作 Sherwin Bahmani，2.0 一作 Tianchang Shen 与 Sherwin Bahmani
+- **Lyra 1.0**：基于 **Cosmos Predict 1 + GEN3C**，把同一 denoised video latent 同时送给冻结 RGB decoder 与可训练 3DGS decoder，用视频扩散自蒸馏得到一次前馈的静态 3DGS / 动态 4DGS。
+- **Lyra 2.0**：基于 **Wan2.1-I2V-14B + FramePack**，先用持久 per-frame 几何记忆生成长程、可回访视频，再用 **VIPE + 经过生成域适配的 Depth Anything 3 Gaussian head** 重建 3DGS；它没有沿用 1.0 的 `LatentRecon`。
 
-**发表信息**：Lyra 1.0 arXiv 2509.19296（2025-09-23），ICLR 2026；Lyra 2.0 arXiv 2604.13036（2026-04-15）。代码与权重均开源（Apache 2.0），仓库 nv-tlabs/lyra
+本笔记按以下不可变版本读代码：
 
-**撰写日期**：2026-10-10
+| 对象 | 官方位置 | 固定 revision | 本文用途 |
+|---|---|---|---|
+| 系列代码 | `nv-tlabs/lyra` | `9fffc9adc37004091ecf26ef03abfb3abdf4d59a`（2026-07-20） | 1.0/2.0 源码、配置、README、许可 |
+| Lyra 1.0 权重 | `nvidia/Lyra` | `240ecc75fedadd3d0056666c679d82348903806e` | `lyra_static.pt`、`lyra_dynamic.pt`、`config.json` |
+| Lyra 2.0 权重 | `nvidia/Lyra-2.0` | `c178c3fcf12b63cf98f6749999e6ecb63901669f`（2026-07-15） | DCP 主模型、VAE、图像/文本编码器、DA3 recon、DMD/增强 LoRA |
+| Lyra 1.0 合成数据 | `nvidia/PhysicalAI-SpatialIntelligence-Lyra-SDG` | `45bc128fdf3a98053aeb4b6ee1113d4ec429552b` | 静态/动态 SDG 训练集 |
 
-**阅读定位**：把 Lyra 1.0 与 2.0 当作一条线来读——1.0 提出「生成式三维场景重建」（generative 3D scene reconstruction）这个范式并解决「从单图/单视频一次前向出 3D/4D」，2.0 解决同一范式下「长程探索」的两个退化。系列谱系位置详见 [[前馈式三维重建 - 分支谱系总览]]（E 类生成式 × B 类前馈 3DGS 的交叉点），与 LSRM / ArtiFixer / GenRec 的横向对比见 [[前馈式三维重建与生成式补全 - Survey]] 第 4 章。
+> [!warning] 许可不能按“系列统一 Apache 2.0”理解
+> 源码是 Apache-2.0；1.0 权重是 NVIDIA Open Model License，模型卡称可商用；2.0 权重是 NVIDIA Internal Scientific Research and Development Model License，明确限制部署、分发、生产使用和生成供销售/分发的作品。代码许可不覆盖权重。
 
----
+## 1. 系列统一接口，而非统一实现
 
-## 1. 研究背景：两条老路的尽头
+### 1.1 统一外部接口表
 
-### 1.1 重建路线的数据瓶颈
+| 阶段 | 统一语义 | Lyra 1.0 实现 | Lyra 2.0 实现 |
+|---|---|---|---|
+| 输入 image/video/camera | 给定观测与相机运动意图 | 单图或单目视频；GEN3C 生成 6 条轨迹 | 单图 + `w2c[N,4,4]` + `K[N,3,3]` + chunk captions |
+| 预处理 | 规范像素、深度、位姿、相机射线 | ViPE 为动态输入给 pose/depth；Plücker rays | 首帧深度定轨迹尺度；VIPE/DA3 深度；Plücker rays |
+| 外部视频模型/VAE | 把相机轨迹变成视频 latent | Cosmos/GEN3C；VAE 压缩 `(τ,σ)=(8,8)` | Wan2.1 causal VAE；压缩 `(τ,σ)=(4,8)` |
+| latent 与上下文 | 承载生成先验 | 一次性联合 6×121 帧 latent | 80 帧一 chunk；FramePack 时间 slots + 最多 5 个空间 slots |
+| 场景表示 | 产生可渲染 3D | 自家 Mamba-2/Transformer 3DGS decoder | per-frame 几何仅作生成记忆；最终由 DA3 Gaussian head 生成 3DGS |
+| render / novel view | 显式资产渲染 | gsplat/3DGUT 渲染任意相机、动态目标时间 | 先 world rollout，再把长视频重建为 `.ply`，可渲染或提 mesh |
+| 长程 rollout | 持续扩展世界 | 不支持；受一次 GEN3C 窗口限制 | 支持；retrieve → generate 80 frames → update cache 循环 |
 
-基于学习的 3D 重建（无论是 per-scene 优化还是前馈重建）都绕不开一个前提：大规模、多样、带位姿的真实多视角数据。数据采集贵、覆盖有限，直接决定了这类模型的上限——前馈重建模型（GS-LRM 一类）之所以泛化差，根源就是 3D 训练数据的稀缺与单一。而且重建本质上只能恢复观测到的内容，不能外推。
+### 1.2 系列模块入口表
 
-### 1.2 生成路线的 2D 天花板
+| 版本 | 模块 | 公开代码入口 | 说明 |
+|---|---|---|---|
+| 1.0 | 单图/视频扩散 | `Lyra-1/cosmos_predict1/diffusion/inference/gen3c_*_sdg.py` | GEN3C 多轨迹 latent 生成 |
+| 1.0 | demo config | `Lyra-1/configs/demo/lyra_static.yaml`、`lyra_dynamic.yaml` | 固定 checkpoint 与训练 config 继承链 |
+| 1.0 | 3DGS decoder | `Lyra-1/src/models/recon/model_latent_recon.py::LatentRecon` | latent、Plücker、time → Gaussians |
+| 1.0 | 主干 | `Lyra-1/src/models/utils/model.py::get_model_blocks` | 16 层，Transformer/Mamba-2 混合 |
+| 1.0 | 渲染 | `Lyra-1/src/rendering/gs*.py` | 训练重投影和导出渲染 |
+| 2.0 | 训练配置 | `Lyra-2/lyra_2/_src/configs/experiment.py::register_lyra2` | 有效 FramePack、self-aug、memory 配置 |
+| 2.0 | 持久世界模型 | `Lyra-2/lyra_2/_src/models/lyra2_model.py::Lyra2Model` | VAE、上下文选择、相机条件、AR rollout |
+| 2.0 | per-frame memory | 同文件 `Sparse3DCache` | 独立点云、可见性检索、最大覆盖贪心选择 |
+| 2.0 | DiT | `Lyra-2/lyra_2/_src/networks/wan2pt1_lyra2.py` | FramePack patchify、相机/对应注入 |
+| 2.0 | 长视频推理 | `Lyra-2/lyra_2/_src/inference/lyra2_*_inference.py` | preset/custom/交互轨迹 |
+| 2.0 | 3D 重建 | `vipe_da3_gs_recon.py`、`vipe_da3_chunked_gs_recon.py` | VIPE pose + DA3 GS，长视频建议分块 |
 
-另一边，视频扩散模型（Wan、Cosmos 等）在海量互联网视频上训练，通过自然相机运动（手持、摇镜、航拍）隐式学到了三维世界的先验，想象力和泛化力远超重建模型。但它只输出 2D 帧：没有显式几何，不支持实时渲染、物理交互，做不了机器人仿真需要的闭环。
+## 2. 统一全链路：同一抽象，不同数据流
 
-### 1.3 Lyra 的答案：让视频模型当老师
+| 顺序 | Lyra 1.0 | Lyra 2.0 | 为什么不同 |
+|---:|---|---|---|
+| 1 | image/video + 6 条相机轨迹 | seed image + 用户相机轨迹 + chunk text | 1.0 求一次前馈覆盖；2.0 求持续探索 |
+| 2 | GEN3C 生成每轨迹 121 帧 | 最近帧 depth warp + 全轨迹 Plücker | 2.0 必须在未覆盖区仍保留相机控制 |
+| 3 | Cosmos VAE：`[B,V·121,3,704,1280] → [B,V·16,16,88,160]` | Wan VAE：80 新帧 → 20 个新 latent，空间 `480×832 → 60×104` | VAE 时间压缩率分别 8 与 4 |
+| 4 | reshape `B(VT)CHW ↔ (BV)TCHW`，再把 6 视角 token 合并 | FramePack 把时间 history、检索 RGB slots、新 latent 拼成固定预算 | 1.0 联合融合固定窗口；2.0 压缩可变历史 |
+| 5 | `2×2` patch → 16 层重建块 → deconv | Wan DiT flow matching；canonical/depth correspondence 只注入 Q/K | 1.0 latent 直接解 3D；2.0 latent 先解长视频 |
+| 6 | 每个候选沿 ray 预测 depth + RGB/scale/rotation/opacity，得到 `[B,N,14]` | 每轮解码 80 帧并向 `Sparse3DCache` 追加逐帧 depth/pose | 2.0 的 persistent state 是生成状态，不是最终融合 3D |
+| 7 | 3DGS render 任意 novel view；动态版额外选 `t_tgt` | rollout 可无限追加数据结构；完成后 VIPE + DA3 → `.ply`/mesh | 2.0 把 world rollout 与资产重建解耦 |
 
-Lyra 1.0 把这两条路接起来，起名为**生成式三维场景重建**：用相机可控的视频扩散模型（GEN3C）生成「虚拟拍摄」——指定相机轨迹的一段多视角一致视频——再用它当监督信号，把视频模型里隐式的 3D 知识蒸馏进一个显式的 3DGS 解码器。从此训练 3D 重建模型不再需要任何真实多视角数据。
-
-这个范式的因果链值得记住：**视频模型负责想象，3DGS 解码器负责落地**。后来 Lyra 2.0、以及更广的「生成式补全」路线，都是在这个分工上加细节。
-
----
-
-## 2. Lyra 1.0：自蒸馏把视频先验变成 3DGS 解码器
-
-### 2.1 能力总览
-
-单张图进、3DGS 出，一次前向；输入换成单目视频则出动态 3DGS（4D），可以同时在时间轴和视角上交互控制。
+## 3. 版本对照：真正改变了什么
 
 ![Lyra 1.0 teaser：单图前馈出 3DGS、单视频出 4DGS](assets/Lyra系列%20-%20生成式三维场景重建/figures/lyra1_teaser.png)
 
-*图注：Lyra 1.0 Fig.1（arXiv 2509.19296）。上：单张输入图像一次前向推断 3DGS 表示；下：单目视频输入推断动态 3DGS，时间（行）与视角（列）均可交互控制。*
-
-### 2.2 自蒸馏框架
-
-整个框架的关键在于**监督信号完全由教师自己产生**：
-
-- 教师：预训练的相机可控视频扩散模型 GEN3C + 它自带的 RGB 解码器；
-- 学生：额外加挂的 3DGS 解码器，直接在视频模型的 latent 空间里工作；
-- 训练数据全合成：LLM 生成文本 prompt → 图像扩散模型出图 → GEN3C 按 6 条采样相机轨迹各扩展 121 帧，每个场景得到 726 个合成视图；
-- 冻结 VAE 与扩散主干，只训练 3DGS 解码器；
-- 损失就是「学生的 3DGS 渲染结果对齐教师的 RGB 解码输出」。推理时 RGB 解码器直接扔掉，只留 3DGS 解码器。
-
 ![Lyra 1.0 训练框架与 3DGS 解码器结构](assets/Lyra系列%20-%20生成式三维场景重建/figures/lyra1_method.png)
 
-*图注：arXiv HTML 版 method 图（论文 Fig.3，位于 §3.2 Self-Distillation）。左：训练管线，冻结的视频扩散 Transformer 与 RGB 解码器（雪花）监督可训练的 3DGS 解码器（火焰）；右：3DGS 解码器结构，静态分支吃 Video Latents 与 Plücker 相机嵌入，动态分支额外引入 Source/Target Time 两个时间嵌入，经 patchify 后与相机特征求和，进入多视角重建块，最后由转置 3D 卷积输出每像素 14 维高斯。*
+| 维度 | Lyra 1.0 | Lyra 2.0 |
+|---|---|---|
+| 论文问题 | 如何把视频扩散隐式 3D 蒸馏成显式 3DGS | 如何让视频生成跨长轨迹、回访和大视角变化仍保持世界 |
+| 视频基线 | Cosmos Predict 1 / GEN3C | Wan2.1-I2V-14B / FramePack |
+| 核心状态 | 一次前向的多轨迹 latent | 时间上下文 + 持久 per-frame RGB/depth/pose/point cache |
+| 几何角色 | 最终表示；3DGS 直接从 latent 解码 | 生成期只做检索/对应路由；最终 3D 另由 DA3 重建 |
+| 上下文长度 | 固定 6×121 像素帧，对应 6×16 latent 帧 | 每 chunk 80 新帧/20 新 latent；有效配置含 20 temporal + 5 spatial history slices |
+| 新视图条件 | Plücker + 视频 latent；动态再加 source/target time | 最近帧 RGB depth warp + 全序列 Plücker + 检索帧 RGB slots + canonical/depth correspondence |
+| 输出 | 静态 `[B,N,14]` 3DGS 或按目标时间变化的 4DGS | 长视频，再生成 3DGS `.ply` / mesh |
+| 动态内容 | 支持动态 4D | 只建模静态世界中的相机运动 |
+| 权重许可 | NVIDIA Open Model License | NVIDIA Internal Scientific R&D Model License |
 
-在 latent 空间操作是这套框架能跑起来的工程前提：latent 通道数 C=16，空间压缩 8 倍、时间压缩 8 倍。若直接在像素空间做多视角前馈重建，内存直接爆掉。
+一句话总结：**1.0 把 video latent 直接变成场景表示；2.0 把 video latent 变成可持续更新的世界观测，再离线重建场景表示。**
 
-### 2.3 架构：Mamba-2 换来了 6.5 倍
+## 4. 两代不能混用的代码基线
 
-3DGS 解码器的重建块设计很务实：2×2 patchify 把 latent 与 Plücker 相机嵌入转成 token 相加，每个重建块 = 1 层 Transformer + 7 层 Mamba-2，重复 2 次，共 16 层、512 隐藏维，最后转置 3D 卷积输出每像素 14 维高斯参数（位置、尺度、旋转四元数、不透明度、RGB）。
+### 4.1 Lyra 1.0：`LatentRecon` 是主角
 
-Mamba-2 的引入把一次前向从 20922ms 压到 3213ms（6.5× 加速）——纯 Transformer 方案在这个 token 量级下已经不可行，像素空间方案更是直接 OOM。这是「线性注意力进重建解码器」一个很有说服力的实例。
-
-### 2.4 损失与两个补丁
-
-总损失：
-
-$$L=\lambda_{\mathrm{mse}}L_{\mathrm{mse}}+\lambda_{\mathrm{lpips}}L_{\mathrm{lpips}}+\lambda_{\mathrm{depth}}L_{\mathrm{depth}}+\lambda_{\mathrm{opacity}}L_{\mathrm{opacity}}$$
-
-权重依次为 1.0、0.5、0.05、0.1。其中两个补丁各有明确动机：
-
-**深度监督补几何**。只用 RGB 损失训出来的几何会「压扁」——平面场景被生成为浅浮雕。作者用现成的 ViPE 估计一致视频深度，加 Long-LRM 式的尺度无关深度损失。这份深度是视频模型的产物，依然不需要真实标注。
-
-**不透明度正则补速度**。对不透明度做 L1 正则、再剪掉透明度最低的 80% 高斯，表示更紧凑，704×1280 渲染从 30ms 降到 18ms（1.67×）。
-
-### 2.5 动态 4D 扩展与倒放增强
-
-把静态框架推到动态，改动极小：解码器额外吃源时间/目标时间嵌入（$T_{src},T_{tgt}$，与相机嵌入同一个 RGB 编码器编码后相加），从预训练静态解码器微调，新增的 patchify 层零初始化。
-
-真正的难点在监督结构上：动态场景里每个时间步只有对应时刻的那一帧能做监督，naive 训练会让模型走捷径、忽略其他帧的输入，表现为早期时间步在极端视角下不透明度坍塌。作者的解法是动态数据增强——把输入视频**倒放**再喂给视频模型，得到 6 条「由远向近」的轨迹，与原本 6 条「由近向远」的轨迹合并，让每个时间步都有近/远各一的成对监督（共 12 视角），且这一增强只在训练时用、推理不需要。
+1. `gen3c_*_sdg.py` 输出多轨迹 denoised latent；
+2. `LatentRecon.forward_gaussians` 把视角维临时折进 batch，分别 patchify；
+3. 再把 `(B·V)` 还原为 `B`，把视角 token 拼入序列联合建模；
+4. deconv 恢复到 `121×88×160` 候选网格；
+5. 网络输出 12 个 raw 属性，其中位置不是直接 xyz，而是 `ray_o + ray_d·depth`，最终拼成 14 维高斯；
+6. 训练由冻结 RGB decoder 的合成帧监督，推理不需 RGB decoder。
 
 ![Lyra 1.0 动态扩展与数据增强](assets/Lyra系列%20-%20生成式三维场景重建/figures/lyra1_dynamic_data_augmentation.png)
 
-*图注：arXiv HTML 版 dynamic_data_augmentation 图（论文 §5 Extension to Dynamic 3D Scenes 配图）。倒放轨迹与原轨迹合并成对监督，修复早期时间步在极端视角下的不透明度坍塌。*
+### 4.2 Lyra 2.0：`Lyra2Model + Sparse3DCache` 是主角
 
-### 2.6 结果与局限
-
-单图→3D 与单视频→4D 两条线在当时均为 SOTA，且模型的改进完全跟随视频教师走——换更强的视频模型，重建质量自动上涨，这是自蒸馏结构最舒服的性质。
-
-局限也很清楚：场景的规模与一致性受限于相机可控视频扩散模型本身，GEN3C 的有效生成窗口决定了 Lyra 1.0 一次只能生成一小段场景，谈不上「探索」；一次前向的架构也天然没有长程记忆。论文自己在 future work 里点名了两个方向：把自回归技术融进来做大规模生成、在重建网络里建模运动与跟踪信息。Lyra 2.0 正是沿着这两条做的。
-
----
-
-## 3. Lyra 2.0：从「生成一段场景」到「生成可探索世界」
-
-### 3.1 要解决的两个退化
-
-把生成式重建推广到大场景（跨房间、长街道，带大幅视角变化和位置重访）时，视频模型的两个固有退化被急剧放大：
-
-**空间遗忘（spatial forgetting）**：自回归生成中，早期帧迟早滑出有限的上下文窗口。相机回头时，模型对看过的区域只能凭空重编，全局布局崩坏。
-
-**时间漂移（temporal drifting）**：自回归的误差累积。每段视频的小瑕疵逐段复利，色偏、纹理抖动、几何扭曲；探索场景里新区域不断进入视野、与早期历史帧的重叠不断稀释，问题更糟。
-
-此前的两类记忆方案各有硬伤：GEN3C / SPMem 一类维护累积的 3D 表示、渲染它作为条件——显式约束强，但生成瑕疵会污染几何、坏几何又反过来污染后续生成（误差放大）；CameraCtrl 一类把历史帧直接塞进上下文窗口——没有损坏的中间表示，但全靠 self-attention 自己猜远距几何对应，大视角变化下经常失败。
+1. `Sparse3DCache` 为每个历史帧独立保存下采样 world points；不做全局融合；
+2. `retrieve` 将所有候选点投到目标视图，做 z-buffer 式遮挡过滤，再按新增覆盖像素数贪心取最多 5 帧；
+3. 检索 RGB 经 image VAE 形成 spatial slots；
+4. 每个 slot 的 `(u,v,slot-id)` canonical map 与 depth 被 forward warp 到 80 个目标帧；
+5. 每 4 帧取一个对应图，经 `8×8` pixel shuffle 变成每 slot 256 通道的 latent-grid 条件，5 slots 共 1280 通道；
+6. correspondence encoder 仅修改 self-attention 的 K/Q，V 仍来自 RGB/history token；
+7. 新生成 80 帧加入 persistent state，下一轮重复。
 
 ![Lyra 2.0 teaser：单图出发的可探索世界](assets/Lyra系列%20-%20生成式三维场景重建/figures/lyra2_fig1_teaser.png)
 
-*图注：Lyra 2.0 Fig.1（arXiv 2604.13036）。用户从单张输入图像迭代定义相机运动，Lyra 2.0 合成空间持久的视频输出、渐进扩展环境；注意「Look back」处绕行回望场景保持一致，点云跨度约 90 米。输出视频可直接重建为高保真 3DGS 与表面网格，可部署进仿真引擎。*
-
-### 3.2 核心洞察：几何只做路由
-
-Lyra 2.0 的关键设计是把「几何追踪」和「像素合成」彻底解耦：
-
-> 显式 3D 几何只用于信息路由——决定检索哪些历史帧、建立哪些空间对应；外观合成完全交给扩散先验。
-
-三个具体设计环环相扣（详细展开见 [[前馈式三维重建与生成式补全 - Survey]] §4.2）：
-
-1. **per-frame 点云，绝不融合**。每帧生成后用深度估计得到独立的 per-frame 深度与点云。深度是在生成帧而非真实图像上估的，越往后越不准，融合就是把跨视图误配准累积成一个损坏的重建。
-2. **几何感知检索**。把历史帧的降采样点云投到目标视角，逐像素取最小投影深度处理遮挡，深度差小于 δ 判定可见，可见点数即该帧的可见性分数；推理时贪心选择覆盖最多「尚未覆盖目标像素」的帧（最多 5 帧），避免选出一堆相邻冗余视角。几百帧后重访，靠 3D 重叠自然召回——这就是对空间遗忘的回答。
-3. **warp 规范坐标而非 RGB**。给检索帧赋三通道规范坐标（u、v、帧序归一化值），前向 warp 后附上 warped depth 作第四通道注入注意力层。原文的论证很关键：warped RGB 必然带 disocclusion 空洞、拉伸伪影、深度边界渗色，拿它当条件，视频模型会倾向把伪影重新生成出来——「warped image 成了绕过生成先验的拐杖」。规范坐标携带同样的几何对应信息，却不带任何外观内容。
-
 ![Lyra 2.0 pipeline：几何路由与外观合成的解耦](assets/Lyra系列%20-%20生成式三维场景重建/figures/lyra2_fig2_pipeline.png)
 
-*图注：Lyra 2.0 pipeline 图（arXiv 2604.13036）。Spatial memory 保存 per-frame 深度与点云，用于检索目标视角可见的历史帧，经 Dense 3D correspondence 建立规范坐标对应后注入 DiT 注意力层；外观合成由视频扩散先验负责。*
+## 5. 论文—代码差异与证据边界
 
-### 3.3 self-augmentation 对抗漂移
+| 项目 | 论文表述 | revision `9fffc9a` 公开代码 | 解读 |
+|---|---|---|---|
+| 1.0 开放范围 | 承诺训练/推理/数据 | 3DGS 训练、静态/动态推理、GEN3C 分支和数据下载均在仓库 | 关键链路可审计，但仍依赖外部 Cosmos/GEN3C/ViPE 权重 |
+| 1.0 位置维度 | 图中常概括为每高斯 14 维 | config `output_dims: 12`，代码先预测 ray depth 等 12 维，再构造 xyz 得 14 维 | 不是矛盾，是 raw head 与最终表示口径不同 |
+| 2.0 memory 下采样 | 论文描述 retrieval 点云下采样因子 8 | 当前 `Sparse3DCache` 实例使用 `downsample=4` | 复现以 revision/config 为准，并记录该偏差 |
+| 2.0 FramePack | 论文给概念性 1 anchor + 16/2/1 temporal + 5 spatial | 有效 config 为 `f1k1f4s2f1s1f16k4f2k2f1k1_g20` | 代码明确了 spatial slots 插入位置与 kernel 类型 |
+| 2.0 self-augmentation | 论文常写概率 0.7、一次前向 | 当前公开训练 config 为 `self_aug_prob=1.0`、`self_aug_every_k=2`、`self_aug_steps=1` | “每两次触发一次”与论文抽象概率不能直接等同 |
+| 2.0 3D 输出 | 论文含 3DGS 与分层 mesh | 公共 README 主路径完整提供 VIPE+DA3→PLY；mesh 的论文级完整资产管线没有作为同等清晰的一键入口 | 不把论文展示等同于所有后处理代码都完整开放 |
+| 2.0 无限探索 | “arbitrarily long” | 状态/cache 可继续增长，公开实验与 README 只覆盖有限轨迹；长视频 DA3 还建议分块 | 表示数据结构可续写，不代表质量无限稳定 |
 
-时间漂移的根因是 observation bias：训练时条件是干净历史，推理时条件却是自己的不完美输出。解法是以概率 p 采样 $t\sim U(0,0.5)$，按 flow matching 调度给历史 latent 加噪，一步去噪得到近似重建，用它替换干净历史作为条件，但监督目标仍由干净历史编码：
+## 6. 复现建议：按版本拆开，不做“统一环境”
 
-$$z^{hist}_t=(1-t)z^{hist}_0+t\epsilon,\qquad \tilde{z}^{hist}_0=z^{hist}_t-t\cdot v_\theta(z^{hist}_t,t,c)$$
+1. **固定 revision**：代码用 `9fffc9a…`；HF 下载时显式指定上表 revision，保存 `git rev-parse` 与文件哈希。
+2. **先复现 1.0 静态最小闭环**：使用预生成 latent + `lyra_static.pt`，避免先调 GEN3C；确认 `[B,N,14]`、PLY 和 novel-view render 后再生成自己的多轨迹 latent。
+3. **再复现 1.0 动态**：ViPE 单独环境；检查 121 帧、6 输入轨迹、12 个目标监督视角以及 `t_tgt∈[0,120]`。
+4. **2.0 先只做 81 帧**：一张 seed + 80 新帧，逐项保存 temporal slots、5 个 retrieved frame ids、warp coverage、cache size。
+5. **回访单元测试**：设计“前进 2 chunks → 转身 → 回原位”，对比关闭 spatial memory、关闭 correspondence、关闭 self-augmentation。
+6. **重建最后接**：先验证 rollout 视频，再运行 `vipe_da3_gs_recon.py`；超过约 500 帧按 README 用 `vipe_da3_chunked_gs_recon.py`，不要把 DA3 长序列模糊误判为世界模型遗忘。
+7. **许可隔离**：2.0 权重不得因源码 Apache-2.0 就进入生产或对外服务。
 
-强迫模型学会从自己的劣化输出中恢复而非传播错误。开销仅一次额外 DiT 前向——相比 Self-Forcing 需要 35 步去噪来模拟推理分布，代价极低。
-
-### 3.4 前馈 3DGS 重建端
-
-生成出来的长轨迹要落成 3D，用的是 Depth Anything v3 前馈预测 per-pixel 3DGS 属性，做了两处针对性修改：Gaussian DPT 头输出 k×k 降采样特征图（高斯数量减少 k²，否则高分辨率下爆炸）；在 Lyra 自己生成的场景上 fine-tune，让重建器学会容忍生成数据里轻微的多视不一致。
-
-这条线很值得注意：Lyra 2.0 的重建端直接采用了 [[DA3 - 任意视角恢复视觉空间]]，说明「生成先验」与「几何骨干」的分工在 2026 年已经形成事实标准——生成侧管内容，pointmap/深度基础模型管几何落地。
-
-### 3.5 结果与一组值得记住的消融
-
-Tanks and Temples 上从单图重建（3DGS）：
-
-| Method | LPIPS-P↓ | LPIPS-G↓ | FID↓ | Subj. Qual.↑ |
-|---|---|---|---|---|
-| GEN3C + DAv3 | 0.511 | 0.694 | 125.19 | 5.38 |
-| SPMem + DAv3 | 0.412 | 0.666 | 94.11 | 9.95 |
-| Ours + DAv3 | 0.409 | 0.648 | 79.36 | 14.42 |
-| **Ours Full** | **0.372** | **0.629** | **72.47** | **18.80** |
-
-静态 SOTA 对比与深度监督消融的完整大图如下：
+## 7. 图像与结果索引
 
 ![Lyra 1.0 静态场景 SOTA 对比（附录大图）](assets/Lyra系列%20-%20生成式三维场景重建/figures/lyra1_sota_static_comparison.png)
 
 ![Lyra 1.0 深度监督消融（附录大图）](assets/Lyra系列%20-%20生成式三维场景重建/figures/lyra1_ablation_depth.png)
 
-*图注：上，Lyra 1.0 附录中的静态场景生成 SOTA 对比（各方法新视角渲染对比）；下，深度监督消融，可见去掉深度损失后平面被「压扁」的典型失败模式。均取自 arXiv HTML 版附录配图。*
+- 1.0 的完整数据流、reshape、损失与动态监督见 [[Lyra 1.0 - 视频扩散自蒸馏三维重建]]。
+- 2.0 的 persistent state、上下文窗口、轨迹条件与 correspondence shape 见 [[Lyra 2.0 - 可探索的生成式三维世界]]。
+- 本文只保留统一接口、版本对照和代码基线边界，避免复制两篇逐模块正文。
 
-Lyra 2.0 消融里最值得记住的一条张力：去掉 self-augmentation 后，单帧主观质量反而更高（47.88 vs 43.35），但风格一致性（77.98 vs 85.07）和相机可控性（53.92 vs 63.87）大幅崩坏——典型的单帧指标与长程目标的冲突，单看 PSNR/FID 会误判。
+## 8. 官方入口
 
-性能：全模型约 194 秒每 80 帧（单 GB200），DMD 4 步蒸馏版约 15 秒（13× 加速），per-frame 质量持平略好，仅相机可控性略降。
-
----
-
-## 4. 系列对比与谱系定位
-
-### 4.1 Lyra 1.0 vs Lyra 2.0
-
-| 维度 | Lyra 1.0 | Lyra 2.0 |
-|---|---|---|
-| 发布 | 2025.09（ICLR 2026） | 2026.04 |
-| 核心贡献 | 提出 generative 3D scene reconstruction 范式；自蒸馏出前馈 3DGS 解码器 | 范式的长程化：可探索世界 |
-| 输入 | 单图 / 单视频 / 文本 | 单图 + 用户迭代定义的相机轨迹 |
-| 记忆机制 | 无（一次前向） | per-frame 几何缓存 + 可见性检索（仅做路由） |
-| 抗漂移 | — | self-augmentation（一步去噪模拟自身劣化） |
-| 重建端 | 自家 3DGS 解码器（Mamba-2 重建块） | DA3 前馈 3DGS + k×k 降采样 + 生成数据微调 |
-| 输出规模 | 一段场景（受教师生成窗口限制） | 数百帧、点云跨度约 90 米、可回访 |
-| 速度 | 前向 3.2s（Mamba-2 后） | 194s/80 帧；DMD 4 步蒸馏 15s |
-| 局限 | 无长程能力；受教师能力上限约束 | 仅静态；继承训练数据曝光特性 |
-
-一句话串起来：**1.0 证明了「视频先验可以蒸馏成 3D」，2.0 回答「蒸馏出来的世界能走多远」**。
-
-### 4.2 在谱系中的位置
-
-用 [[前馈式三维重建 - 分支谱系总览]] 的分类：Lyra 系列站在 E 类（3D-free 生成式视图合成）与 B 类（前馈 3DGS）的交叉点上——视频扩散先验属于 E 类的力量，3DGS 输出属于 B 类的形态，而「generative reconstruction」这个范式名本身就是 Lyra 1.0 定下的。它与 LSRM / ArtiFixer / GenRec 同属「生成式补全」路线，但切入角度不同：LSRM 争保真度上界，ArtiFixer 做已有 3DGS 的修图插件，GenRec 处理忠实/生成的边界，而 Lyra 系列争的是**规模化**——用虚拟拍摄取代真实采集，让 3D 环境的生产摆脱数据瓶颈。
-
-同类工作对比：GEN3C（紧耦合：全局 3D 表示渲染后作为条件）、CaM / Context-as-Memory（按相机 FOV 重叠直接选历史帧进上下文）、SPMem、Wonderland（无显式空间记忆）、Yume 1.5。Lyra 2.0 的差异化就是「几何只路由、外观归扩散」这一刀切得干净。
-
-### 4.3 对工程方的一个额外提醒
-
-Lyra 1.0 / 2.0 代码是 Apache 2.0，模型权重另行按目录授权——在 DUSt3R/MASt3R 系（CC BY-NC-SA）普遍不可商用的背景下，这是少数许可上可直接进产品管线的生成式 3D 方案，选型时值得把这一点算进权重。
-
----
-
-## 5. 局限与个人评价
-
-**局限**。其一，仅静态场景，2.0 没有把 1.0 的动态能力接过来，两代各占一角；其二，几何路由依赖生成帧的深度估计质量，深度误差在检索阶段虽不直接进外观，但会以「选错帧」的形式间接伤一致性；其三，继承训练数据（DL3DV）的曝光变化，前馈 3DGS 重建会出现伪影；其四，检索依赖视觉重叠，探索路径过于激进（长距离跳跃）时召回会退化。
-
-**评价**。我给 Lyra 1.0 ★★★★☆：范式开创性强、自蒸馏框架干净利落，但单篇的绝对结果受限于 GEN3C 的生成窗口。Lyra 2.0 ★★★★★：两个退化（空间遗忘、时间漂移）的命名与解法会成为这一领域的通用语汇，「几何只做路由」是近年 3D 生成里最值得记住的一条设计原则；加上 Apache 2.0 全开源，工程完成度在这一波工作里是最高的。
-
----
-
-## 6. 材料与来源
-
-**关键图（figures/）**
-
-| 文件 | 来源 | 用途 |
-|---|---|---|
-| lyra1_teaser.png | Lyra 1.0 Fig.1，arXiv 2509.19296v1 HTML | 单图→3DGS / 视频→4D 总览 |
-| lyra1_method.png | 同上（§3.2 配图，论文 Fig.3） | 自蒸馏训练框架与 3DGS 解码器结构 |
-| lyra1_dynamic_data_augmentation.png | 同上（§5 配图） | 倒放轨迹成对监督 |
-| lyra1_sota_static_comparison.png | 同上附录 | 静态场景 SOTA 渲染对比 |
-| lyra1_ablation_depth.png | 同上附录（消融） | 深度监督防平面压扁 |
-| lyra2_fig1_teaser.png | Lyra 2.0 Fig.1，arXiv 2604.13036 | 可探索世界与 Look back |
-| lyra2_fig2_pipeline.png | Lyra 2.0 pipeline 图 | 几何路由机制 |
-
-**官方论文（sources/）**：Lyra1_2509.19296.pdf、Lyra2_2604.13036.pdf，均取自 arXiv，获取日期 2026-10-10。
-
-**链接**：[Lyra 1.0 arXiv](https://arxiv.org/abs/2509.19296) · [Lyra 2.0 arXiv](https://arxiv.org/abs/2604.13036) · [项目主页 1.0](https://research.nvidia.com/labs/toronto-ai/lyra/) · [项目主页 2.0](https://research.nvidia.com/labs/sil/lyra2/) · [GitHub](https://github.com/nv-tlabs/lyra) · [HuggingFace Lyra-2.0](https://huggingface.co/nvidia/Lyra-2.0)
-
-**相关笔记**：[[前馈式三维重建与生成式补全 - Survey]]（§4.2 为 Lyra 2.0 细读）· [[前馈式三维重建 - 分支谱系总览]] · [[DA3 - 任意视角恢复视觉空间]]
+- [系列官方仓库](https://github.com/nv-tlabs/lyra)
+- [Lyra 1.0 论文](https://arxiv.org/abs/2509.19296) · [项目页](https://research.nvidia.com/labs/toronto-ai/lyra/) · [权重](https://huggingface.co/nvidia/Lyra)
+- [Lyra 2.0 论文](https://arxiv.org/abs/2604.13036) · [项目页](https://research.nvidia.com/labs/sil/projects/lyra2/) · [权重](https://huggingface.co/nvidia/Lyra-2.0)
+- 精确来源、revision、文件树与本地图片映射见 `assets/Lyra系列 - 生成式三维场景重建/sources.md`。

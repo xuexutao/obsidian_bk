@@ -18,7 +18,7 @@ tags:
   - World-Action-Model
   - Robot-Policy
 created: 2026-10-24
-updated: 2026-10-24
+updated: 2026-10-31
 ---
 
 # Cosmos 3：物理 AI 的全模态统一世界模型
@@ -28,10 +28,61 @@ updated: 2026-10-24
 - **正式名称**：Cosmos 3: Omnimodal World Models for Physical AI
 - **机构 / 作者**：NVIDIA，集体署名（arXiv 提交人 Yin Cui，完整作者列表含 195+ 人）
 - **版本**：arXiv 2606.02800，v1 提交于 2026-06-01，v4 修订于 2026-06-23（正文 80 页 + 附录约 59 页，合计 139 页）
-- **发布模型**：`Cosmos3-Super`（64B）、`Cosmos3-Nano`（16B）及其后训练特化版 `Cosmos3-Super-Text2Image`、`Cosmos3-Super-Image2Video`、`Cosmos3-Nano-Policy-DROID`；`Cosmos3-Edge`（4B）论文声明"后续发布"
-- **开源边界**：代码、权重、 curated 合成数据集（SDG）、评测基准一并开放，许可为 Linux Foundation 的 **OpenMDW-1.1**（比 Predict2.5 的 NVIDIA Open Model License 更宽松）
+- **发布模型**：报告首发 `Cosmos3-Super`（64B）与 `Cosmos3-Nano`（16B）；截至 2026-10-31，官方集合还已发布 `Cosmos3-Edge`（4B）及 T2I/I2V、Transfer/Sim、Nano/Edge Policy-DROID 等后训练权重。必须区分“报告首发状态”与“当前仓库状态”。
+- **开源边界**：Cosmos 3 权重、推理与后训练框架已经开放，许可为 **OpenMDW-1.1**；但百亿级原始媒体池、十万亿级训练 token、完整预训练运行环境和内部 checkpoint 不可复刻。`NVIDIA/Cosmos` 当前只是 landing repo；**Cosmos 3 专属实现位于 `NVIDIA/cosmos-framework`，不能拿旧 `Cosmos-Predict2`/`Cosmos-Transfer2` 源码冒充 Cosmos 3**。
 - **家族定位**：Cosmos 平台的第三代，把前代分离的 Predict（世界生成）、Transfer（结构控制）、Reason（物理推理）三条产品线 **合并进同一个 Mixture-of-Transformers 骨干**
 - **重要性评估**：★★★★★。它第一次把一个"能读、能想、能生成视频音频、还能输出机器人动作"的全模态世界模型完整开源，并且给了 48 项推理基准 + 五类生成基准 + 真机策略榜首的系统证据。扣分点是复现门槛（Super 用 2048 张 GB200 训 17.86T token）、自动指标已明显饱和、以及若干子能力（中文文字渲染、音频保真度、通用推理）仍落后闭源前沿。
+
+## 源码、权重与 revision 锁定（2026-10-31）
+
+### 可复现入口表
+
+| 对象 | 固定版本 / 入口 | 本次实际核验内容 | 边界 |
+|---|---|---|---|
+| 报告 | arXiv `2606.02800v4`，本地 `sources/paper.pdf` | 架构、训练目标、数据与消融 | 报告不是源码 |
+| Landing repo | `NVIDIA/Cosmos`，页面核到提交 `8e2f3c7…`（2026-10-30 可见提交） | README、COOKBOOK、模型入口 | 当前根目录无模型实现；历史 cookbook/evaluation 已迁出 |
+| **Cosmos 3 框架** | `NVIDIA/cosmos-framework@50e883466491abacdcb69843e1e026479d927a95` | `inference/model.py`、`sequence_packing/`、action transforms、训练/推理 examples | 这是本节 shape 与代码行为的主依据，明确是 Cosmos 3，不是 2.x |
+| Nano 权重 | `nvidia/Cosmos3-Nano@e59a53c25979a090fa8706c9acc0c254a6e89b92` | `config.json`、`checkpoint.json`、`model_index.json`、`transformer/`、`vae/`、`sound_tokenizer/`、`vision_encoder/` | 权重约 16B；下载和运行成本高 |
+| 关键 config | 上述 revision 的 `config.json` | `state_ch=48`、VAE 时/空压缩 `4/16`、`patch_spatial=2`、`hidden=4096`、`max_action_dim=64`、sound `64ch@25Hz`、上下文 `74000` | 配置是当前发布权重，不应倒灌解释报告中未公开的训练细节 |
+| 2.x 对照 | 旧 Predict/Transfer 仓库与本文 §1.2 | 只用于代际差异 | **不得作为 Cosmos 3 的实现证据** |
+
+### 端到端链路与动态 shape
+
+统一记像素视频为 $x\in\mathbb{R}^{B\times3\times T\times H\times W}$，文本长度为 $L$，隐藏维为 $d$（Nano 为 4096），动作步数为 $T_a$、原始动作维为 $D_a$。
+
+| 阶段 | 输入 shape | 变换与原因 | 输出 shape / 官方例子 |
+|---|---|---|---|
+| text | `[B,L]` token id | Qwen3-VL tokenizer + AR embedding；保留语言 next-token 能力 | `[B,L,d]`；Nano `d=4096` |
+| image/video（理解） | `[B,3,T,H,W]` | ViT `patch=16`、`temporal_patch=2`、`spatial_merge=2`；局部 patch 保留空间语义 | 近似 `[B,N_u,d]`，$N_u=\lceil T/2\rceil\lceil H/16\rceil\lceil W/16\rceil/4$（整除时）；走 AR/Reasoner 路径 |
+| image/video（生成） | `[B,3,T,H,W]` | Wan2.2 VAE 把像素变成连续 latent，避免主干直接处理像素 | `[B,48,T_z,H/16,W/16]`，$T_z=1+\lfloor(T-1)/4\rfloor$ |
+| latent patchify | 上一行 | 空间再按 `2×2` patch 化并线性投影到 $d$；总空间压缩 `16×2=32` | `[B,N_v,d]`，$N_v=T_z\lceil H/32\rceil\lceil W/32\rceil$ |
+| audio | `[B,2,S]`，48 kHz stereo | AVAE `hop=1920`、`io_channels=64`；每个 hop 对齐一个物理时间 token | `[B,N_s,64]→[B,N_s,d]`，$N_s=\lceil S/1920\rceil\approx25\cdot duration$ |
+| action / control | `[B,T_a,D_a]` | 按域归一化，pad 到 `max_action_dim=64`，domain-aware 投影；每个动作时刻一个 token | `[B,T_a,64]→[B,T_a,d]`；未 padding 的真实输出再裁回 `[B,T_a,D_a]` |
+| unified backbone | AR `[B,N_{AR},d]` + DM `[B,N_{DM},d]` | AR 因果；DM 对 AR+DM 全注意力；两路独立 LN/MLP，two-way joint attention | shape 不变；$N_{DM}=N_v+N_s+T_a$（按启用模态求和） |
+| understanding head | AR hidden | LM head 自回归；原因是离散文本适合 next-token | logits `[B,N_{AR},151936]`，再解码文本 |
+| generation heads | DM hidden | `llm2vae/llm2sound/llm2action` 预测 rectified-flow velocity；原因是连续、多解输出适合去噪 | video velocity 与 patchified latent 同形，sound `[B,N_s,64]`，action `[B,T_a,64]` |
+| decode | 去噪后的连续 token | VAE/AVAE/action output projection | RGB `[B,3,T,H,W]`、audio `[B,2,S]`、action `[B,T_a,D_a]` |
+
+**代入官方默认 T2V 示例**：框架 benchmark 使用 `B=1,T=189,H=480,W=848,fps=24`。因此 $T_z=1+188/4=48$，空间 token 网格为 $\lceil480/32\rceil\times\lceil848/32\rceil=15\times27$，生成视觉序列为 `[1, 48×15×27, 4096] = [1,19440,4096]`，VAE 解码回 `[1,3,189,480,848]`。若同时生成约 $189/24=7.875$ 秒音频，则 $N_s\approx197$；实际样本数需按 1920 hop 对齐。该计算来自 Cosmos 3 当前 config 与 token counter，不是对 Cosmos 2.x 的类比。
+
+**代入源码最小 action-FD 示例**：`examples/integration/trainer_level_training.py` 构造 video `[1,3,5,128,128]` 与 raw action `[4,7]`，后者 pad 成 `[4,64]`。视频经 VAE 得 $T_z=2$，patch 网格 `4×4`，即 32 个视觉 token；动作是 4 个 token。`SequencePlan` 将首帧设为 clean vision、全部动作设为 clean action，余下视觉 token 为去噪目标。FD / ID / WAM / policy 的结构差异只来自 `condition_frame_indexes_vision/action`，不换 backbone。
+
+### 逐模块超参、选择原因与 2.x 差异
+
+| 模块 | Cosmos 3 当前公开超参 | 为什么这样做 | 相比 Cosmos 2.x |
+|---|---|---|---|
+| VAE/tokenizer | `state_ch=48`，时压缩 4、空压缩 16、patch 2 | 把 480p/720p 视频降到可承受 token 数 | 继承 Wan 系 VAE 思路，但 3 的统一序列还接音频/动作 |
+| MoT | Nano 36 层、`d=4096`、32 heads/8 KV、FFN 12288 | 理解与生成共享注意力语义，同时隔离各自 LN/MLP | 2.x Predict/Transfer 是分离产品；3 是同一 backbone/config 模式切换 |
+| 时间位置 | unified 3D MRoPE，`base_fps=24`，margin `15000` | 对齐不同 FPS、25Hz 音频和动作采样率，防 AR/DM 边界位置拥挤 | 2.x 主要服务视觉生成，未统一动作/音频时间轴 |
+| flow matching | train steps 1000；shift `256/480/720 = 3/5/10`；action loss ×10 | 分辨率越高越偏高噪声训练；动作元素 MSE 数值小需增权 | 3 把视觉、音频、动作放入同一连续生成目标 |
+| action | `max_action_dim=64`、32 embodiment domains | 用 padding + 域投影吸收不同具身维数 | 2.x 没有一等 action modality |
+| packing | `max_num_tokens_after_packing=74000` | 可变分辨率/时长下按 token 而非样本数控显存 | 从视频专用 batch 演进为全模态统一打包 |
+
+### 复现成本分级
+
+- **接口复现**：固定 HF revision，用官方 Diffusers/vLLM-Omni；至少需下载数十 GB 权重，BF16 为官方验证精度。单卡只能依赖 offload/量化或较小输出，不能据此复现论文吞吐。
+- **后训练复现**：框架内置 8×H100 80GB 示例 recipe；可复现 SFT、DROID policy、Transfer/Sim 等公开路径，但数据预处理和 DCP 转换仍重。
+- **基础训练复现**：Nano 31.05T token/1024×GB200、Super 17.86T/2048×GB200，外部团队基本不可复现；公开框架与权重不等于公开全部原始训练语料和生产基础设施。
 
 ## 一句话结论
 
@@ -405,7 +456,7 @@ Cosmos 3 的推理不是"给一句话"，而是先由一个 upsampler（Claude O
 6. **评测管线依赖闭源模型**。prompt upsampler 用 Claude Opus 4.6/4.7，UniGenBench 的 judge 是 Gemini 3.1 Pro，Cosmos-HUE 的问题生成跑 GPT 5.2，AVQ 的 judge 是 Claude + Gemini + GPT 集成。这让报告的分数难以被第三方按同样口径复现。
 7. **复现门槛**：Nano 31.05T token / 1024 张 GB200（预训练）+ 2.4T（中训）；Super 17.86T / 2048 张 + 1.9T。论文未给完整 wall-clock，无法换算 GPU-hours 或成本。对学术界来说这是一个"只能读、不能跑"的模型。
 8. **机器人策略的绝对成功率仍然很低**：RoboLab 在 specific 指令下 39.7%，复杂任务只有 29.4%（vague 指令下 4.1%）。榜首是相对榜首，不是可用级。
-9. **Edge 档位缺席**：论文只发布 Nano 与 Super，Edge 声明后续发布；与 Edge 相关的消融（PushT 动作模式协同）是在 Edge 上做的，但 Edge 本身的能力表（Tab. 10）里好几项明显弱于 Nano/Super（如 VANTAGE-SOT 4.8 vs 62.2），说明小档位在 Physical AI 域上掉得很厉害。
+9. **报告首发时 Edge 缺席、当前已补发**：v4 报告写的是 Nano/Super 首发、Edge 后续发布；截至 2026-10-31，官方已提供 Cosmos3-Edge 与 Edge-Policy-DROID 权重。报告中的 Edge 消融仍显示小档位在部分 Physical AI 基准明显弱于 Nano/Super（如 VANTAGE-SOT 4.8 vs 62.2），因此“已发布”不等于能力差距消失。
 10. **Nano 在若干基准上反超 Super**（HealthSurgiBench 56.1 vs 44.5、VSI-Bench 63.0 vs 60.9、BlinkDepth 92.7 vs 91.9），文中未讨论。可能是 Super 的数据配比被更多域稀释，也可能是评测噪声，但作者没给解释。
 
 ### 6.2 我的判断
@@ -436,4 +487,4 @@ Cosmos 3 的推理不是"给一句话"，而是先由一个 upsampler（Claude O
 - 全部数据、公式与实验数值均取自本地官方 PDF（`assets/.../sources/paper.pdf`，arXiv 2606.02800v4，139 页）正文与附录，未使用二手解读。
 - 五张配图均从该 PDF 按原始 Figure 页面完整裁剪并保留图注，路径为相对本笔记的 `assets/Cosmos 3 - 物理AI全模态统一世界模型/figures/`。
 - 版本与许可信息以 arXiv abs 页（v1 2026-06-01、v4 2026-06-23，DOI 10.48550/arXiv.2606.02800）与摘要中的 OpenMDW-1.1 声明为准。
-- 仓库现状备注（2026-10 核）：`NVIDIA/Cosmos` 已把 Cosmos 3 的 cookbook 与 evaluation 内容迁移到 `NVIDIA/cosmos-framework`，主仓保留 README / COOKBOOK / 推理基准文档并通过短链跳转。
+- 仓库现状备注（2026-10-31 核）：`NVIDIA/Cosmos` 是 landing repo；Cosmos 3 专属模型、训练、推理、sequence packing 与动作数据代码已迁入并公开在 `NVIDIA/cosmos-framework@50e883466491abacdcb69843e1e026479d927a95`。本笔记的源码结论不再引用旧 Cosmos 2.x 实现。Nano 权重固定为 `nvidia/Cosmos3-Nano@e59a53c25979a090fa8706c9acc0c254a6e89b92`。

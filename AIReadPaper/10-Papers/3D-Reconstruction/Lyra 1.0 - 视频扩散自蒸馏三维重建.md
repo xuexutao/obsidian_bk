@@ -28,170 +28,275 @@ tags:
   - self-distillation
   - video-diffusion
   - 4d-generation
-status: detailed-read
+status: source-verified
 created: 2026-10-15
+updated: 2026-10-31
 source: "https://arxiv.org/abs/2509.19296"
 ---
 
 # Lyra 1.0：视频扩散自蒸馏三维重建
 
-## 1. 基本信息与一句话结论
+## 0. 一句话结论与代码版本
 
-**论文全名**：*Lyra: Generative 3D Scene Reconstruction via Video Diffusion Model Self-Distillation*。论文作者来自 NVIDIA、University of Toronto、Vector Institute 与 Simon Fraser University，录用 ICLR 2026。官方全文见 [arXiv:2509.19296](https://arxiv.org/abs/2509.19296)，本地 PDF 为 `assets/Lyra 1.0 - 视频扩散自蒸馏三维重建/sources/paper.pdf`。
+> Lyra 1.0 冻结 Cosmos/GEN3C 视频教师，让 RGB decoder 与新加的 3DGS decoder 读取同一 denoised video latent；RGB 输出提供合成监督，学生把 6 条相机轨迹、每条 121 帧的 latent 一次融合成 `[B,N,14]` 显式高斯，动态版再以 source/target time 查询同一段视频的不同运动状态。
 
-> **一句话结论**：Lyra 把相机可控视频扩散模型当成“虚拟多相机摄影棚”，用其 RGB 解码结果监督一个直接读取视频 latent 的 3DGS 学生解码器，从而无需任何真实多视图训练数据，就能由单图一次前向生成静态 3DGS、由单目视频生成可换时间与视角的动态 4DGS。
+本文源码结论固定在官方仓库 `nv-tlabs/lyra` commit **`9fffc9adc37004091ecf26ef03abfb3abdf4d59a`**；权重固定在 `nvidia/Lyra` revision **`240ecc75fedadd3d0056666c679d82348903806e`**。权重仓库实际含 `lyra_static.pt`、`lyra_dynamic.pt`、`config.json`；下载脚本还给出 MD5：
+
+- `lyra_static.pt`：`28ddd05011b33350c70edab02c23c602`
+- `lyra_dynamic.pt`：`91c1b3920332287ed161bc47a1fd7077`
+
+源码 Apache-2.0；权重是 NVIDIA Open Model License，不应把两者写成同一种许可。
 
 ![Lyra 1.0 能力总览](assets/Lyra%201.0%20-%20%E8%A7%86%E9%A2%91%E6%89%A9%E6%95%A3%E8%87%AA%E8%92%B8%E9%A6%8F%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/figures/fig1_teaser.png)
 
-*图 1 解读：上半部分从单图一次前向输出 3DGS 并支持任意新视角；下半部分从单目视频输出随目标时间变化的动态 3DGS。来源：论文 Figure 1，Page 1；官方源码 `imgs/teaser.pdf`。*
+*图 1：单图→静态 3DGS；单目视频→可按目标时间与视角查询的动态 4DGS。来源：论文 Figure 1。*
 
-## 2. 研究背景、核心问题与贡献
+## 1. 模块入口表
 
-学习式 3D 重建长期受制于数据：静态场景需要有位姿的多视图，动态场景还需要同步多相机；前馈重建虽免去 per-scene 优化，却仍依赖有限的 3D 数据，分布外泛化差。与此同时，互联网规模训练的视频扩散模型在手持、航拍、电影镜头中隐式学到了物体和场景如何随视角变化，但其输出只是 2D 帧，不能直接实时渲染、交互或进入物理仿真。
+| 模块 | 公开入口 | 读代码时的职责 |
+|---|---|---|
+| 静态 SDG | `Lyra-1/cosmos_predict1/diffusion/inference/gen3c_single_image_sdg.py` | 单图 + 6 条轨迹 → GEN3C 视频/denoised latent |
+| 动态 SDG | `gen3c_dynamic_sdg.py` | 单目视频 + ViPE geometry → 多轨迹 latent；`--flip_supervision` 生成反向监督 |
+| demo config | `configs/demo/lyra_static.yaml`、`lyra_dynamic.yaml` | checkpoint、轨迹顺序、目标时间 |
+| 有效基础 config | `configs/training/default.yaml` | VAE 压缩率、16 层/512 维、patch、loss、Gaussian 参数化 |
+| 静态末阶段 | `3dgs_res_704_1280_views_121_multi_6_prune.yaml` | 6 轨迹、121 帧、0.8 opacity prune |
+| 动态阶段 | `3dgs_res_704_1280_views_121_multi_6_dynamic_prune.yaml` | 6 输入轨迹、12 目标帧、source/target time |
+| 3DGS decoder | `src/models/recon/model_latent_recon.py::LatentRecon` | latent/camera/time → Gaussian attributes |
+| 视角 reshape | 同文件 `reshape_mv_*` | `B(VT)↔(BV)T↔B(VT)` |
+| 主干 | `src/models/utils/model.py::get_model_blocks` | 1 Transformer + 7 Mamba-2，重复两组 |
+| Gaussian 参数化 | `LatentRecon.gaussian_processing` | ray depth → xyz；激活 scale/rotation/opacity/RGB |
+| renderer | `src/rendering/gs.py`、`gs_deferred.py` | 训练 render、novel-view render、depth/alpha |
+| 权重下载 | `scripts/download_lyra_checkpoints.py` | 固定文件名和 MD5 |
 
-Lyra 将二者拼成“generative 3D scene reconstruction”：视频模型负责想象未观测区域并生成带相机位姿的多视图，3DGS 解码器负责把这些视图压成显式、可渲染的世界。关键问题由“怎样采集更多真实多视图”变成“怎样把视频模型的隐式 3D 知识蒸馏出来”。
+## 2. 全链路表：image/video/camera → latent → 3DGS → render
 
-论文贡献有三层：第一，建立冻结视频教师、训练 3DGS 学生的自蒸馏框架，监督完全来自合成视频；第二，提出在压缩 video latent 上处理 726 个高分辨率视图的前馈解码器；第三，以源时间/目标时间条件和倒放增强，把静态框架最小改动扩展到动态 4D。
+记 batch 为 `B`，轨迹数 `V`，每轨迹像素帧数 `L`，latent 通道 `C=16`，输入分辨率 `H×W=704×1280`。
 
-## 3. 输入、输出与总体框架
+| 顺序 | 张量/操作 | full config shape | reshape 的原因 |
+|---:|---|---|---|
+| 1 | 单图/单目视频 | image `[B,3,H,W]`；video `[B,L,3,H,W]` | 生成教师的 seed observation |
+| 2 | 相机轨迹 | `V=6`；每条 `L=121`；`c2w/w2c [B,V·L,4,4]`、`K [B,V·L,3,3]` | 让教师按已知相机拍摄合成多视图 |
+| 3 | GEN3C | RGB `[B,V·L,3,H,W]` | 冻结教师负责补全遮挡区和未见内容 |
+| 4 | Cosmos VAE encode | `[B,V·121,3,704,1280] → [B,V·16,16,88,160]` | 时间 8×、空间 8×压缩；`L'=(L-1)/8+1=16` |
+| 5 | 分视角 | `[B,V·16,C,88,160] → [B·V,16,C,88,160]` | VAE/patch embedding 先逐轨迹共享参数处理 |
+| 6 | `PatchEmbed3D(1,2,2)` | 每轨迹 `[B·V,16,16,88,160] → [B·V,16·44·80,512]` | 空间 token 数降 4×；每轨迹 56,320 tokens |
+| 7 | 联合多视图 | `[B·V,56320,512] → [B,V·56320,512]` | 6 条轨迹必须在同一序列里交换信息，不能独立重建再合并 |
+| 8 | 16 层重建块 | `[B,337920,512] → 同 shape` | Transformer 建全局交互，Mamba-2 降低长序列成本 |
+| 9 | 拆回视角 | `[B,V·56320,512] → [B·V,56320,512] → [B·V,512,16,44,80]` | deconv 按每条轨迹恢复规则网格 |
+| 10 | transposed Conv3D | `[B·V,512,16,44,80] → [B·V,12,121,88,160]` | temporal kernel/stride/padding 把 16 latent steps 精确映回 121；空间恢复到 latent-grid 分辨率 |
+| 11 | flatten + ray 参数化 | raw `[B·V,121·88·160,12] → Gaussian [B·V,N_v,14]` | raw 只预测 1D ray depth，不直接回归 xyz；最终 `N_v=1,703,680` |
+| 12 | 融合/剪枝 | 6 视图拼成 `N=10,222,080`；剪 80% 后约 `2,044,416` | 保留联合覆盖，移除低 opacity 高斯 |
+| 13 | render | Gaussians + target camera → RGB/depth/alpha `[B,S,C,H,W]` | 训练对齐教师 RGB/depth；推理支持 novel view |
 
-Lyra 的静态输入可以是文本或单张图像。文本先经图像扩散模型生成 seed image；单图则直接进入相机可控 GEN3C 教师。每个 seed image 采样 6 条轨迹，每条 121 帧，形成 726 个$704×1280$合成视图。输出是一组显式 3D Gaussians，每个 Gaussian 含位置、尺度、旋转、不透明度和 RGB，可实时 splat 渲染。
+> [!note] “12 维 head”与“14 维高斯”不是矛盾
+> `output_dims: 12` 对应 `distance(1)+rgb(3)+scale(3)+quaternion(4)+opacity(1)`；代码用 `pos=ray_o+ray_d·depth` 构造 xyz(3)，最终顺序为 `xyz(3)+opacity(1)+scale(3)+rotation(4)+rgb(3)=14`。
 
-动态输入是一段带相机估计的单目视频；输出不是一个固定 3DGS，而是目标时间$t_{tgt}$条件下的 3DGS。改变$t_{tgt}$得到不同运动状态，改变相机得到同一状态的新视角，因此形成 4D 表示。
+## 3. 教师：外部视频扩散与 RGB/VAE 分支
+
+### 3.1 生成式监督的真实闭环
+
+给 seed image `I` 和 6 条相机轨迹 `C^{1:L}`：
+
+1. GEN3C 生成 denoised latent `z`；
+2. 冻结 RGB decoder 得教师视频 `X_rgb=D_rgb(z)`；
+3. 学生 `G=D_gs(z,E_cam[,E_t])` 得显式高斯；
+4. `X_gs=Render(G,C)`；
+5. 只更新 3DGS decoder，使 `X_gs` 对齐 `X_rgb`、教师深度和正则项。
+
+这是真正的 self-distillation：监督目标来自教师自己的生成结果，不需要真实多视图或真实 3D GT。推理时如果目标是 3DGS，RGB decoder 不在主输出路径中。
+
+### 3.2 为什么学生读 latent，而不是教师 RGB
+
+像素输入有 `6×121×704×1280≈6.54×10^8` 像素；若直接把每像素变 token 或 Gaussian，注意力和显存不可接受。VAE 后仅 `6×16×88×160` 网格，再做 `2×2` patch 得 337,920 tokens。它仍很长，所以主干混用 Mamba-2；论文报告纯 Transformer 20,922 ms，混合主干 3,213 ms。
+
+### 3.3 Plücker 相机编码
+
+每个像素射线由 origin `o` 和 direction `d` 表示，Plücker 为 `(d,o×d)∈R^6`。代码把两组 3 通道分别送入 Cosmos VAE，得到两个 `[B,V·16,16,88,160]` latent 后 concat 成 32 通道，再由零初始化 `PatchEmbed3D` 映到 512 维，与 video token 相加。
+
+这样做的原因：
+
+- 相机条件与视频 latent 具有同一时空网格；
+- 零初始化保证加载静态视频特征时，新条件分支初始不扰动主干；
+- ray origin/direction 也直接用于最终 Gaussian xyz，条件与输出参数化一致。
 
 ![Lyra 自蒸馏与解码器](assets/Lyra%201.0%20-%20%E8%A7%86%E9%A2%91%E6%89%A9%E6%95%A3%E8%87%AA%E8%92%B8%E9%A6%8F%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/figures/fig3_method.png)
 
-*图 2 解读：左侧冻结 RGB encoder、Video Diffusion Transformer 与 RGB decoder，只训练 3DGS decoder；学生渲染结果对齐教师 RGB。右侧 video latent、Plücker 相机、源时间与目标时间分别 patchify 后相加，再经多视图重建块和转置 3D 卷积输出 Gaussians。来源：论文 Figure 4，Page 5；官方源码 `imgs/method.pdf`。*
+*图 2：冻结 RGB/VAE/视频扩散教师，训练 3DGS decoder。图中 14 维指最终 Gaussian；公开代码 raw head 为 12 维。*
 
-## 4. 教师—学生机制与完整公式
+## 4. 3DGS decoder：逐模块与 shape
 
-### 4.1 GEN3C 教师提供什么
+### 4.1 Patch 与多视图融合
 
-GEN3C 从输入帧深度建立时空点云 cache，再沿目标轨迹渲染 cache 作为视频扩散条件。Lyra 使用升级后的 GEN3C，其 VAE latent 通道$C=16$，空间压缩因子$σ=8$、时间压缩因子$τ=8$：
+`forward_gaussians` 的顺序非常明确：
 
-$$z=E(X)∈R^{L'×C×h×w},\quad L'=(L-1)/τ+1,\quad h=H/σ,\quad w=W/σ.$$
+```text
+[B,V·T',C,h,w]
+  → reshape_mv_temp_to_batch
+[B·V,T',C,h,w]
+  → patch(video) + patch(plücker) [+ patch(t_src)+patch(t_tgt)]
+[B·V,T'·h/2·w/2,512]
+  → reshape_mv_batch_to_temp
+[B,V·T'·h/2·w/2,512]
+  → 16 blocks
+  → reshape_mv_temp_to_batch
+[B·V,T'·h/2·w/2,512]
+  → [B·V,512,T',h/2,w/2] → deconv
+```
 
-Lyra 并不让学生读取 RGB 教师输出后再重建，而是让学生和 RGB decoder 共享同一 denoised latent。这减少了像素级输入数量，也避免再次运行视觉编码器。
+先“视角入 batch”是为了复用同一 patch encoder；再“视角入 sequence”是为了联合注意力；最后拆开是因为卷积上采样要求规则 `T×H×W` 网格。
 
-### 4.2 自蒸馏闭环
+### 4.2 Transformer + Mamba-2
 
-给定输入图$I$和轨迹$C^{1:L}$，教师生成 denoised video latent：
+有效 config：
 
-$$z=V(I,C^{1:L}).$$
+- `enc_depth=16`
+- `enc_embed_dim=512`
+- `enc_num_heads=8`
+- `llrm_7m1t=true`
+- `llrm_7m1t_index=8`
 
-冻结的 RGB decoder 得到教师视频$X_{rgb}=D_{rgb}(z)$；学生输出 Gaussians$G=D_s(z,E_{cam})$，并在同一组相机下渲染$X_{gs}=Render(G,C^{1:L})$。训练让$X_{gs}$逼近$X_{rgb}$。这里没有真实 3D、真实深度或真实多视图标签；ViPE 深度也来自教师生成视频，仍属于合成监督。
+`get_model_blocks` 将每 8 层组织成 1 个 Transformer + 7 个 Mamba-2，重复两次。Transformer 提供跨轨迹全局混合；Mamba-2 以线性序列扫描承担大部分深层传播。
 
-每个 seed image 使用 6 条轨迹、每条 121 帧。学生不是分别输出 6 个场景再硬合并，而是联合读取所有轨迹 latent，让 token 之间在重建块中交换信息，直接输出一个一致 3DGS。
+### 4.3 deconv 为什么能从 16 恢复到 121
 
-### 4.3 为什么必须在 latent 空间重建
+full config 下时间输入 `T'=16`，deconv temporal stride 为 8、kernel 为 9、padding 为 4：
 
-像素空间共有$6×121×704×1280$个观测，若每像素生成一个 Gaussian，将产生 654,213,120 个候选且注意力不可承受。视频 latent 已做时空压缩，Lyra 再以$2×2$ patchify 转 token。附录还说明最终每个$8×8$空间邻域只生成一个 Gaussian，把数量降到 10,222,080；按 opacity 剪掉 80% 后约 2,044,416 个。
+`(16-1)×8 - 2×4 + 9 = 121`。
 
-### 4.4 3DGS 解码器
+空间从 `44×80` 以 kernel/stride 2 恢复为 `88×160`。注意这仍是 VAE 空间网格，不是 `704×1280`；每个 Gaussian 对应原图约 `8×8` 区域，因此 6 轨迹候选总数是 `6×121×88×160=10,222,080`。
 
-video latent 与相机 Plücker embedding 都具有$V×L'×C×h×w$形状。Plücker 的 6 维由 ray direction 和$origin×direction$组成；两组 3 通道各自经冻结 RGB encoder 编码，拼成$2C$通道，再由轻量 MLP 降回$C$。两路 patch token 相加后进入两个重建 block；每个 block 是 1 层 Transformer 加 7 层 Mamba-2，共 16 层、hidden size 512。
+### 4.4 Gaussian 激活与物理含义
 
-转置 3D 卷积输出每像素 14 维：位置$(x,y,z)$、尺度$(s_x,s_y,s_z)$、四元数$(q_w,q_x,q_y,q_z)$、opacity$α$和颜色$(r,g,b)$。Mamba-2 的线性序列建模把一次前向从纯 Transformer 的 20,922 ms 降到 3,213 ms，约 6.5 倍。
+| raw 分量 | 代码变换 | 最终 shape/意义 |
+|---|---|---|
+| `distance[...,1]` | sigmoid 后映射到 `[dnear,dfar]` | 射线深度 |
+| ray + depth | `o+d·depth` | `pos[...,3]`，强制像素对齐射线 |
+| `rgb[...,3]` | `0.5*tanh(x)+0.5` | `[0,1]` 颜色 |
+| `scale[...,3]` | capped exp | 椭球尺度，cap 0.3 |
+| `rotation[...,4]` | L2 normalize | 单位四元数 |
+| `opacity[...,1]` | `sigmoid(x-2)` | 初始偏透明，便于正则/剪枝 |
 
-### 4.5 损失
+## 5. 损失与监督
 
-总损失为
+`L = L_mse + 0.5L_lpips + 0.05L_depth + 0.1L_opacity`（最后一项在 prune 阶段打开）。
 
-$$L=λ_{mse}L_{mse}+λ_{lpips}L_{lpips}+λ_{depth}L_{depth}+λ_{opacity}L_{opacity},$$
+- **MSE / LPIPS**：学生 render 对齐教师 RGB；LPIPS 防止只追平均颜色。
+- **depth**：ViPE 对教师生成视频估深度，使用尺度不敏感损失；它修复仅 RGB 监督时的浅浮雕几何。
+- **opacity L1 + prune**：动态/最终阶段 `lambda_opacity=0.1`，按 opacity 排序剪 80%。
 
-权重依次是$1.0,0.5,0.05,0.1$。$L_{mse}$和$L_{lpips}$约束教师/学生 RGB；仅 RGB 会产生“浅浮雕”几何，所以用 ViPE 对教师视频估计一致深度，再采用 Long-LRM 的 scale-invariant depth loss；opacity 的 L1 正则让大部分无贡献 Gaussian 可被剪枝。
+![深度损失消融](assets/Lyra%201.0%20-%20%E8%A7%86%E9%A2%91%E6%89%A9%E6%95%A3%E8%87%AA%E8%92%B8%E9%A6%8F%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/figures/fig8_depth_ablation.png)
 
-## 5. 动态 4D 扩展
+*图 3：无 depth loss 时 RGB 尚可，但几何被压成浅浮雕。*
 
-动态学生$D_d$从静态$D_s$初始化，新增源时间$T^{src}$与目标时间$T^{tgt}$。原始时间是 1 通道标量，与 2 维 sinusoidal embedding 拼成 3 通道，再由冻结 RGB encoder 压到 latent 尺度。新增时间 patchify 层零初始化，避免微调开始即破坏静态能力：
+## 6. 动态 4D：source time、target time 与 12 视角监督
 
-$$G=D_d(Z,E_{cam},T^{src},T^{tgt}).$$
+### 6.1 表示不是“高斯轨迹”，而是条件查询
 
-动态监督的陷阱是：目标时间$t$只能由同一时刻的帧监督。原始 6 条相机轨迹从近视角向远视角运动，早期时间只有近视角、晚期时间只有远视角，网络会学会忽略其他时间帧，并在极端视角下出现 opacity collapse。Lyra 把输入视频倒放后再送入教师，得到 6 条由远到近的轨迹，再倒回原运动时间，与原 6 条由近到远轨迹合并。于是每个时间步都有 12 个监督视角，且近/远成对。该增强只用于训练，推理无需额外轨迹。
+动态模型仍输出一个目标时刻的 `[B,N,14]` Gaussian 集：
 
-这个设计的实质不是普通时间反转，而是重新平衡“运动状态—相机距离”的联合分布，使学生不能靠时间位置猜视角难度。
+`G(t_tgt)=D(z_video,E_cam,E(t_src),E(t_tgt))`。
 
-## 6. 数据引擎、训练与推理
+- `t_src`：每个输入帧自己的时间；
+- `t_tgt`：希望重建的运动状态，复制到全部输入 token；
+- 改 `t_tgt` 得不同状态，改 render camera 得同一状态的新视图。
 
-### 6.1 全合成数据
+时间标量与 sinusoidal 分量组成 3 通道，再经冻结 VAE 编码到 `[B,V·16,16,88,160]`，由两个零初始化 patch 层分别注入 source/target time。
 
-静态数据含 59,031 张由多样文本 prompt 生成的图像，每张 6 条视频，共 354,186 个视频。动态数据含 7,378 个生成视频，每个扩展 6 条轨迹，共 44,268 个视频。prompt 覆盖室内、室外、人、动物、现实与幻想内容。论文明确不使用任何现成真实多视图数据训练 3DGS decoder。
+### 6.2 动态训练的真实长度
 
-### 6.2 渐进训练
+有效动态 config：
 
-完整$V=6,L=121,H=704,W=1280$成本过高，因此静态模型分六阶段：
+- `num_input_views=121`
+- `num_input_multi_views=6`
+- `num_views=133`
+- 因此每个样本是 **121 输入帧/轨迹 × 6 条轨迹 + 12 个目标监督视角**；`num_views=133` 是单轨迹时间口径的 121+12，不应误读成 133 条轨迹。
+- demo 的 `target_index_manual=[0,60,120]` 只是导出三个目标时间，模型可遍历 0–120。
 
-| 阶段 | 分辨率 | $L$ | $V$ | 每步监督帧$S$ | Batch | Steps |
+### 6.3 为什么要倒放增强
+
+原始 6 条轨迹通常从近到远；某时间 `t` 只有同一运动状态的少量监督，模型可走捷径，只依赖当前位置附近输入。作者将源视频倒放后再由教师生成 6 条反方向轨迹，并映回原时间，使每个 `t` 同时得到近/远成对的 12 个监督视角，避免早期时刻在远视角 opacity collapse。
+
+这不是推理时双向生成：`--flip_supervision` 只用于构造训练监督，推理仍用 6 条输入轨迹。
+
+## 7. 数据、训练阶段与动态长度
+
+静态数据：59,031 张生成 seed image × 6 轨迹 = 354,186 段视频。动态数据：7,378 个生成视频 × 6 轨迹 = 44,268 段视频。
+
+| 阶段 | 分辨率 | 输入 L | V | 每步监督 S | Batch | Steps |
 |---|---:|---:|---:|---:|---:|---:|
 | 1 | 176×320 | 17 | 1 | 17 | 4 | 10K |
 | 2 | 176×320 | 49 | 1 | 49 | 4 | 2.5K |
 | 3 | 352×640 | 49 | 1 | 49 | 2 | 2.5K |
 | 4 | 704×1280 | 49 | 1 | 49 | 1 | 2.5K |
 | 5 | 704×1280 | 121 | 1 | 9 | 1 | 57.5K |
-| 6 | 704×1280 | 121 | 1～6 | 9 | 1 | 7K |
-| 动态 7 | 704×1280 | 121 | 6 | 12 | 1 | 10K |
+| 6 | 704×1280 | 121 | 1–6 | 9 | 1 | 7K |
+| 动态 | 704×1280 | 121 | 6 | 12 | 1 | 10K |
 
-总训练约 6 天、8 张 A100 80GB，3DGS 实现使用 gsplat。推理只需视频 diffusion 得到 latents，再运行一次 3DGS decoder；RGB decoder 在最终 3D 输出路径中可丢弃，也不需要 per-scene 优化或后处理。
+渐进策略先扩时间、再扩空间、最后扩多轨迹；否则一开始就处理 337,920 tokens 和千万候选高斯，训练成本不可控。
 
-## 7. 实验设置与主要定量结果
+## 8. 推理路径与最终表示
 
-静态单图到 3D 采用 RealEstate10K、DL3DV、Tanks-and-Temples，指标为 PSNR/SSIM/LPIPS。论文指出部分 baseline 未开源，因此主表使用其论文报告数字；这一点限制了严格统一测试的程度。
+### 静态
 
-| 方法 | RE10K PSNR / SSIM / LPIPS | DL3DV PSNR / SSIM / LPIPS | T&T PSNR / SSIM / LPIPS |
-|---|---|---|---|
-| ZeroNVS | 13.01 / 0.378 / 0.448 | 13.35 / 0.339 / 0.465 | 12.94 / 0.325 / 0.470 |
-| Wonderland | 17.15 / 0.550 / 0.292 | 16.64 / 0.574 / 0.325 | 15.90 / 0.510 / 0.344 |
-| Bolt3D | 21.54 / 0.747 / 0.234 | — | — |
-| **Lyra** | **21.79 / 0.752 / 0.219** | **20.09 / 0.583 / 0.313** | **19.24 / 0.570 / 0.336** |
+```text
+image
+→ gen3c_single_image_sdg.py（6×121 video latents）
+→ sample.py + configs/demo/lyra_static.yaml
+→ lyra_static.pt
+→ [1,N,14] Gaussians
+→ novel-view render / PLY
+```
 
-在自建 Lyra 数据集上，与“GEN3C 生成 12 帧 + BTimer 像素空间重建”的统一 baseline 比较：静态由 16.32/0.580/0.427 提升到 24.92/0.834/0.183；动态由 20.29/0.687/0.315 提升到 23.07/0.779/0.231。提升不仅来自教师，因为 baseline 同样使用 GEN3C；核心差异是 latent 多视图聚合可读取 726 帧，而 BTimer 受内存限制只能采样 12 帧。
+### 动态
+
+```text
+monocular video
+→ ViPE: depth + K + pose
+→ gen3c_dynamic_sdg.py（6 条相机轨迹）
+→ sample.py + lyra_dynamic.yaml + t_tgt
+→ lyra_dynamic.pt
+→ [1,N(t_tgt),14]
+→ 改 camera 或 t_tgt 渲染
+```
+
+全 offload 的官方 README 记录峰值约 43GB，测试平台为 A100/H100。
 
 ![Lyra 静态主结果](assets/Lyra%201.0%20-%20%E8%A7%86%E9%A2%91%E6%89%A9%E6%95%A3%E8%87%AA%E8%92%B8%E9%A6%8F%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/figures/fig4_main_results.png)
 
-*图 3 解读：每个场景展示多个 3DGS 新视角，覆盖自然景观、室内、机器人与城市；它主要证明合成训练数据的语义覆盖，而非单个场景的严格几何误差。来源：论文 Figure 6，Page 8；官方源码 `imgs/main_results.png`。*
+## 9. 代码—论文差异与证据边界
 
-## 8. 消融、失败案例与证据解读
+| 项目 | 论文/图示 | 公开代码证据 | 结论 |
+|---|---|---|---|
+| Gaussian 输出维度 | 常写 per-pixel 14D | `output_dims:12`，`gaussian_processing` 再构造 xyz | 论文描述最终表示，代码 config 描述 raw head |
+| “每像素 Gaussian” | 视觉上可理解为输出像素 | 实际网格是 `121×88×160`，空间对应原图 8×8 区域 | 不是 704×1280 每像素 |
+| 训练开放 | 论文承诺发布 | 当前仓库有 progressive configs、`train.sh`、数据仓库 | 核心 decoder 可训练复现 |
+| 教师冻结 | 方法图明确 | 仓库含 Cosmos/GEN3C 分支，但依赖外部 checkpoint | 可审代码，不等于所有基础权重由 Lyra 仓库自行许可 |
+| 动态 4D | 论文强调时间/视角控制 | 公开 `lyra_dynamic.pt`、time patch、flip supervision | 关键推理链路已开放 |
+| 严格复现缺口 | 论文级数据引擎 | 未固定 FLUX seed/prompt 全表、GEN3C 所有依赖 revision、ViPE checkpoint hash | 结果级 bitwise 复现仍有边界 |
 
-完整模型在 Lyra 数据集上为 PSNR 24.77、SSIM 0.837、LPIPS 0.224。关键消融如下：
+## 10. 复现建议
 
-| 变体 | PSNR↑ | SSIM↑ | LPIPS↓ | 说明 |
-|---|---:|---:|---:|---|
-| Real data only | 19.08 | 0.659 | 0.413 | 真实 RE10K+DL3DV 多样性不足 |
-| Self-distill + real data | 24.74 | 0.823 | 0.236 | 加真实数据未超过纯自蒸馏 |
-| w/o depth loss | 24.31 | 0.811 | 0.247 | 图像指标小降，但几何显著压扁 |
-| w/o opacity pruning | 24.55 | 0.820 | 0.237 | 表示更大，渲染 30ms 而非 18ms |
-| w/o LPIPS | 23.74 | 0.766 | 0.370 | 高频与输入不一致鲁棒性下降 |
-| w/o multi-view fusion | 17.73 | 0.632 | 0.446 | 独立重建再合并严重失败 |
-| w/o Mamba-2 | 24.58 | 0.818 | 0.241 | 质量略降，速度慢 6.5 倍 |
-| w/o latent 3DGS | OOM | OOM | OOM | 像素空间无法承载全部视图 |
+1. checkout `9fffc9a…`，不要直接跟随 `main`；HF 权重下载固定 `240ecc…` 并核 MD5。
+2. 先用仓库自带 pre-generated latents 跑 `sample.py`，把视频生成与 3DGS decoder 两类问题隔离。
+3. 保存并断言关键 shape：`[1,96,16,88,160]`（6 轨迹折叠时间前）、每轨迹 56,320 tokens、联合 337,920 tokens、剪枝前 10,222,080 Gaussians。
+4. 先关动态/time，只验证单轨迹→六轨迹；再从静态权重微调动态。
+5. ViPE 放单独环境，确保 depth、pose、RGB 的 frame index 完全对齐；动态错一帧会被误判为模型运动失败。
+6. 训练时分别记录 RGB 指标和几何 depth；只看 PSNR/LPIPS 会漏掉浅浮雕。
+7. 导出 PLY 前记录 opacity prune 前后数量，不把更少高斯带来的速度提升误认成网络加速。
 
-![深度损失消融](assets/Lyra%201.0%20-%20%E8%A7%86%E9%A2%91%E6%89%A9%E6%95%A3%E8%87%AA%E8%92%B8%E9%A6%8F%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/figures/fig8_depth_ablation.png)
+## 11. 局限
 
-*图 4 解读：去掉 depth loss 后 RGB 外观看似仍合理，但汽车和飞船的深度轮廓收缩成浅层；这说明仅以新视角 RGB 指标判断 3D 质量可能漏掉几何退化。来源：论文 Figure 11，Page 26；官方源码 `imgs/ablation_depth.pdf`。*
+- 学生只会固化教师能生成出的 3D 一致解释，不保证真实度量几何。
+- 121 帧/6 轨迹仍是固定局部窗口，没有持久记忆和跨房间回访。
+- 动态表示以目标时间条件查询，不显式维护对象身份、拓扑和运动轨迹。
+- 约 200 万剪枝后高斯仍是重资产。
+- GEN3C 幻觉、ViPE depth/pose 误差和第三方许可都会传到最终资产。
 
-失败案例和适用边界包括：教师 GEN3C 的视角范围与一致性直接限定学生上限；视频教师对遮挡区的错误想象会被学生固化为几何；高斯仍约 200 万个，虽可实时渲染但不是轻量资产；动态解码器依赖 ViPE 相机/深度与教师生成质量，快速非刚体运动、遮挡交换和拓扑变化并未单独量化；主表部分 baseline 使用已报告结果而非同一代码重跑。
+## 12. 官方资源
 
-实验总体能支撑“视频教师可取代真实多视图监督”和“latent 空间可扩展到大量视图”。但“显式 3D 保证几何一致”应理解为表示层面的强约束，不等于恢复真实几何；学生学习的是教师可渲染的一致解释。
-
-## 9. 局限、Future Work 与个人判断
-
-作者承认场景尺度与一致性受相机可控视频模型能力限制，并把自回归大场景生成列为 future work；动态方向则建议在重建网络中显式建模 motion 与 tracking。论文没有解决长程回访：一次前向的 726 个视图仍来自有限生成窗口，无法持续穿过多房间再回到原处。
-
-我的判断是，Lyra 最重要的不是 3DGS decoder 的某个局部模块，而是**监督来源的改写**：生成模型不再只负责最终媒体，而成为可按需采样、带相机标签的数据引擎。它把视频模型升级直接转化为 3D 数据质量提升；同时也把 teacher bias、幻觉和授权问题一并传给下游 3D。对物理 AI 而言，Lyra 适合生成大量视觉上可信的训练环境，但若任务依赖度量几何、碰撞边界或因果动力学，仍需额外校验与物理化。
-
-后续最自然的工作是：让学生增量更新并维护长程记忆；把静态/动态统一而非两个解码器分支；用对象轨迹与 scene graph 约束非刚体运动；减少 Gaussian 数量并直接输出可碰撞 mesh；给生成式 3D 引入不确定性，区分观测、教师补全和学生推断区域。
-
-## 10. 复现资源、图表索引与缺失信息
-
-论文 Reproducibility Statement 承诺发布 3D/4D 训练与推理代码、权重和数据。官方项目页为 <https://research.nvidia.com/labs/toronto-ai/lyra/>，代码仓库为 <https://github.com/nv-tlabs/lyra>。核心依赖包括 GEN3C/Cosmos 视频教师、ViPE、Flux 类图像生成器、gsplat、Transformer/Mamba-2 重建块与 3DGUT 导出工具。官方 PDF 和源码包已保存为 `sources/paper.pdf`、`sources/arxiv-source.tar`，逐项来源见 `sources.md`。
-
-复现建议按静态最小闭环推进：固定 GEN3C，先生成少量多轨迹 latent/RGB；实现 Plücker encoder 与 3DGS decoder；以 MSE+LPIPS 对齐教师，再加入 ViPE 深度与 opacity pruning；确认单轨迹稳定后再扩展 6 轨迹和渐进分辨率；最后从静态权重微调动态时间条件与倒放增强。
-
-**图表索引**：
-
-1. `fig1_teaser.png`：静态 3D / 动态 4D 能力，Figure 1 / Page 1。
-2. `fig3_method.png`：自蒸馏与解码器结构，Figure 4 / Page 5。
-3. `fig4_main_results.png`：单图到 3DGS 结果，Figure 6 / Page 8。
-4. `fig8_depth_ablation.png`：深度监督消融，Figure 11 / Page 26。
-
-**仍缺信息**：官方论文没有给出 prompt 全量清单、合成数据去重/过滤规则、GEN3C 教师 checkpoint 哈希、完整动态失败集和最终发布数据的精确许可拆分；这些会显著影响严格复现与商业使用判断，应以仓库实际文件和各模型权重许可证为准。
+- [论文](https://arxiv.org/abs/2509.19296)
+- [项目页](https://research.nvidia.com/labs/toronto-ai/lyra/)
+- [官方仓库](https://github.com/nv-tlabs/lyra/tree/main/Lyra-1)
+- [模型权重](https://huggingface.co/nvidia/Lyra)
+- [合成训练数据](https://huggingface.co/datasets/nvidia/PhysicalAI-SpatialIntelligence-Lyra-SDG)
+- 精确 revision、文件、图片与证据映射见 `assets/Lyra 1.0 - 视频扩散自蒸馏三维重建/sources.md`。

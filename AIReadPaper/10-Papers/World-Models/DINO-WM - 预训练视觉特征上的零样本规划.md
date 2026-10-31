@@ -17,7 +17,7 @@ tags:
   - Model-Predictive-Control
   - Offline-RL
 created: 2026-10-15
-updated: 2026-10-15
+updated: 2026-10-31
 ---
 
 # DINO-WM：预训练视觉特征上的零样本规划
@@ -29,6 +29,59 @@ updated: 2026-10-15
 - **版本：** arXiv v1 于 2024-11-07 提交，v2 于 2025-02-01 更新；本笔记以 v2 官方 PDF 及其 TeX 源包为主
 - **研究对象：** 从离线视觉—动作轨迹学习任务无关的潜空间动力学，并在测试时针对新的目标图像直接优化动作
 - **开源情况：** 官方代码、数据及 PointMaze / PushT / Wall checkpoint 已公开；论文未披露完整训练墙钟时间与总 GPU 小时
+
+## 官方实现锁定与源码入口（2026-10-31）
+
+### 入口表
+
+| 对象 | 固定 revision | 入口 | 本次核验结论 |
+|---|---|---|---|
+| 官方代码 | `gaoyuezhou/dino_wm@0a9492fa12044b852ae9e001cc74604b79c8bb0c`（`main`） | `train.py` | Hydra 实例化 encoder/predictor/decoder，训练入口；该 commit 是公开仓当前 HEAD |
+| 模型主链 | 同上 | `models/dino.py`、`models/visual_world_model.py`、`models/vit.py` | DINOv2 patch→动作/本体拼接→frame-causal ViT→latent MSE→可选 decoder |
+| 规划 | 同上 | `planning/cem.py`、`planning/mpc.py`、`planning/objectives.py` | 候选 `[N,T,K]` 批量 rollout、终点 latent MSE、执行前若干动作后重规划 |
+| 训练 config | 同上 | `conf/train.yaml`、`conf/predictor/vit.yaml`、`conf/encoder/dino.yaml`、`conf/decoder/vqvae.yaml` | `H=3`、224 输入、DINOv2-S/14、6 层/16 头 predictor、action/proprio emb=10 |
+| PushT 规划 config | 同上 | `conf/plan_pusht.yaml` | CEM `horizon=5,num_samples=300,topk=30,opt_steps=30`，MPC 每轮执行 5 个聚合动作 |
+| 数据+权重镜像 | `gaoyuezhou/dino_wm` HF dataset `d5c69e8fe60c3ed6b01d2f6e88fbfd66be078e57` | `checkpoints/outputs.zip`、四个 dataset archive | checkpoint 只覆盖 PointMaze / PushT / Wall；Rope/Granular 无公开 checkpoint |
+| 论文 | arXiv `2411.04983v2` / PMLR 267 | 本地 `paper.pdf` | 方法与实验主张；若论文文字和仓库当前 config 不同，本文分别标注 |
+
+### frame → DINO patches → latent dynamics → decoder/loss → CEM 的全链路 shape
+
+记批大小 $B$，历史长度 $H$，预测步数 $P=1$，RGB 高宽 $S=224$，DINO patch 边长 $p=14$，patch 数 $N=(196/14)^2=196$，DINO-S/14 通道 $E=384$，环境原始动作维 $K_0$，`frameskip=F`，聚合动作维 $K=F K_0$，action/proprio embedding 均为 10。
+
+| 阶段 | 输入 | 代码变换与原因 | 输出 |
+|---|---|---|---|
+| dataset window | RGB `[B,H+P,3,224,224]`；action `[B,H+P,K]` | 取连续窗口；`F=5` 时把 5 个低层动作 concat，令一个模型步对应 5 个环境步 | 默认 `[B,4,3,224,224]` 与 `[B,4,K]` |
+| DINO preprocess | `[B(H+P),3,224,224]` | 为让 DINO patch 网格与 16× decoder 网格都为 14×14，代码 resize 到 `196×196` | `[B(H+P),3,196,196]` |
+| frozen DINOv2-S/14 | 上一行 | 取 `x_norm_patchtokens`，冻结感知坐标系避免端到端表征坍塌 | `[B,H+P,196,384]`；默认 `[B,4,196,384]` |
+| action / proprio encoder | action `[B,H+P,K]`，proprio `[B,H+P,K_p]` | 各用 Conv1d/线性式投影到 10 维，再 tile 到 196 个 patch；动作条件在每个空间 token 都可见 | 各 `[B,H+P,196,10]` |
+| predictor input | 三者 concat | `concat_dim=1`，通道 $D=384+10+10=404$；取前 $H$ 帧并展平 time×patch | `[B,H·196,404]`；默认 `[B,588,404]` |
+| latent dynamics | 上一行 | 6 层 ViT、16 heads、head dim 64、MLP 2048；frame-level causal mask 阻止看未来 | `[B,H·196,404]→[B,H,196,404]` |
+| supervised target | 编码序列右移一帧 | 只在 visual+proprio 上做 MSE，排除 action 通道；目标 detach | visual `[B,H,196,384]`，proprio `[B,H,196,10]`；标量 `z_loss` |
+| decoder（辅助） | predicted/frozen DINO visual `[B,H,196,384]` | 默认 `VQVAE(channel=384,n_embed=2048,quantize=False)`，两次 4× 上采样；decoder loss 对 predictor `detach` | `[B,H,3,224,224]`；像素 MSE 只训练 decoder |
+| open-loop rollout | 初始 latent `[B,H,196,404]` + actions `[B,T,K]` | 每步预测下一组 patch、覆盖其中的 action 条件、再拼回历史 | visual trajectory `[B,H+T+1,196,384]` |
+| CEM | 均值/方差 `[B,T,K]` | 每轮采样 `N_c` 条 `[N_c,T,K]`，并行 rollout；按终点 visual MSE + $\alpha$·proprio MSE 排序 | elite `[K_e,T,K]`→新 `μ,σ:[B,T,K]` |
+| MPC | CEM 最优动作 `[B,T,K]` | 执行前 `k` 个动作，读取真实新帧，再规划；降低开环误差 | 最终执行序列 `[B,T_{exec},K]` |
+
+**代入官方 PushT config**：`H=3,P=1,F=5`。PushT 底层动作通常为 2D，因此聚合 $K=10$；单个训练样本从 `[4,3,224,224]` 经 DINO 得 `[4,196,384]`，再拼 action/proprio 后 predictor 输入 `[588,404]`。规划时 `T=5,N_c=300,K_e=30`，每轮候选动作张量 `[300,5,10]`；展开到环境层等价于 25 个低层步。30 轮 CEM 后 MPC config 执行 5 个聚合动作再取新观测。论文正文曾用 100 samples/10 iterations 报告延迟，**不能与仓库 PushT 当前 300/30 config 混写**。
+
+### 模块选择、超参与差异
+
+| 模块 | 源码超参 | 为什么 | 与常见替代方案的差异 |
+|---|---|---|---|
+| encoder | `dinov2_vits14`，patch 14，384D，冻结 | 保留局部空间几何；固定 target 防 collapse | CLS 只有 `[B,1,384]`，规划显著更差；端到端 encoder 可适配但需 anti-collapse |
+| dynamics | depth 6、heads 16、MLP 2048、dropout 0.1 | 19M 级模型足够拟合环境局部动力学 | 一帧内并行预测全部 patch，不做逐 patch 自回归 |
+| action injection | emb 10，tile + channel concat | 让每个 patch 直接获得同一动作条件，结构简单 | 不是 action token cross-attention，也不是 inverse model |
+| loss | latent/proprio MSE；decoder MSE 隔离梯度 | 优先控制相关表示，不让像素细节扭曲 predictor | decoder 只用于可视化/图像指标，不参与规划代价 |
+| optimization | 100 epochs，batch 32；源码 `predictor_lr=5e-4`、decoder/action `3e-4/5e-4` | 小模型单环境训练 | 原笔记中的 `predictor_lr=5e-5` 与当前公开 config 不符，已按源码修正 |
+| planner | CEM + receding-horizon MPC | 接触任务多峰、非凸，黑盒搜索比动作梯度稳 | 成本是大量并行 rollout 与较高延迟 |
+
+### 复现成本
+
+- **最低**：下载固定 revision 的 PointMaze checkpoint 与数据，只跑 `plan_point_maze.yaml`；需要兼容的 MuJoCo 2.1/Linux 环境。
+- **标准**：单 GPU 训练 predictor，公开 Slurm config 请求 1×H100、batch 32、100 epochs；实际也可按显存减 batch。冻结 DINO features 可预缓存以降成本。
+- **PushT**：训练本身不大，主要成本是 300×5×30 的 CEM rollout 与 50 次评估。
+- **Rope/Granular**：还需 Docker、NVIDIA Docker、PyFleX 编译和昂贵模拟；官方无 checkpoint，复现成本最高。
+- **不可由公开材料精确还原**：论文未报告训练 wall-clock/GPU-hours，不能编造总费用。
 
 ## 一句话结论
 
@@ -181,7 +234,7 @@ Maze、Wall、Reach、PushT 各抽 50 组初始—目标状态，评价 Success 
 
 ### 4.3 实现细节与复现入口
 
-所有环境共享约 19M 的 predictor，AdamW 训练 100 epochs，batch size 32；predictor / decoder / action encoder 学习率分别为 $5\times10^{-5}$、$3\times10^{-4}$、$5\times10^{-4}$，action embedding 维度 10。PointMaze、Reacher、PushT 的历史 $H=3$、frameskip=5；Wall 的 $H=1$、frameskip=5；Rope 与 Granular 的 $H=1$、frameskip=1。官方仓库给出 Conda 环境、训练与规划命令；可变形体环境还需 Docker、NVIDIA Docker 和 PyFleX，工程门槛显著高于普通 MuJoCo 任务。
+所有环境共享约 19M 的 predictor，AdamW 训练 100 epochs，batch size 32；当前官方仓 `conf/train.yaml@0a9492f` 中 predictor / decoder / action encoder 学习率分别为 $5\times10^{-4}$、$3\times10^{-4}$、$5\times10^{-4}$，action embedding 维度 10（论文若采用其他运行配置，应以论文实验记录为准）。PointMaze、Reacher、PushT 的历史 $H=3$、frameskip=5；Wall 的 $H=1$、frameskip=5；Rope 与 Granular 的 $H=1$、frameskip=1。官方仓库给出 Conda 环境、训练与规划命令；可变形体环境还需 Docker、NVIDIA Docker 和 PyFleX，工程门槛显著高于普通 MuJoCo 任务。
 
 ---
 
