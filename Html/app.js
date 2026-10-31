@@ -817,25 +817,27 @@
       bq.parentNode.replaceChild(box, bq);
     });
 
-    // 为所有本地知识库内的图片注入悬浮快捷操作栏（原地裁剪 / 替换原图 / 在 Finder 中显示）
-    root.querySelectorAll('img[data-vault-path]').forEach(function (img) {
-      const vpath = img.getAttribute('data-vault-path');
-      if (!vpath) return;
-      const wrap = document.createElement('span');
-      wrap.className = 'md-img-figure';
-      wrap.setAttribute('data-vault-path', vpath);
-      img.parentNode.insertBefore(wrap, img);
-      wrap.appendChild(img);
+    // 为所有本地知识库内的图片注入悬浮快捷操作栏（原地裁剪 / 替换原图 / 在 Finder 中显示；只读静态页不注入）
+    if (!window.READER_READONLY) {
+      root.querySelectorAll('img[data-vault-path]').forEach(function (img) {
+        const vpath = img.getAttribute('data-vault-path');
+        if (!vpath) return;
+        const wrap = document.createElement('span');
+        wrap.className = 'md-img-figure';
+        wrap.setAttribute('data-vault-path', vpath);
+        img.parentNode.insertBefore(wrap, img);
+        wrap.appendChild(img);
 
-      const bar = document.createElement('span');
-      bar.className = 'img-edit-toolbar';
-      bar.setAttribute('contenteditable', 'false');
-      bar.innerHTML =
-        '<button type="button" class="img-tool-btn" data-img-act="crop" title="原地裁剪此图片并覆盖保存到原文件">✂️ 裁剪</button>' +
-        '<button type="button" class="img-tool-btn" data-img-act="replace" title="用剪贴板 (⌘V) 或本地新图片直接替换文件夹中的这张原图">🔄 替换图片</button>' +
-        '<button type="button" class="img-tool-btn" data-img-act="reveal" title="在 Finder 中定位此图片原文件">📂</button>';
-      wrap.appendChild(bar);
-    });
+        const bar = document.createElement('span');
+        bar.className = 'img-edit-toolbar';
+        bar.setAttribute('contenteditable', 'false');
+        bar.innerHTML =
+          '<button type="button" class="img-tool-btn" data-img-act="crop" title="原地裁剪此图片并覆盖保存到原文件">✂️ 裁剪</button>' +
+          '<button type="button" class="img-tool-btn" data-img-act="replace" title="用剪贴板 (⌘V) 或本地新图片直接替换文件夹中的这张原图">🔄 替换图片</button>' +
+          '<button type="button" class="img-tool-btn" data-img-act="reveal" title="在 Finder 中定位此图片原文件">📂</button>';
+        wrap.appendChild(bar);
+      });
+    }
   }
 
   async function openDoc(path, preserveScroll) {
