@@ -41,7 +41,8 @@ VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 
 
 输入也是 518x518 大小的，patch 网格维 37x37 的，每帧图像token为37x37=1369，每个patch对应一个token。每个token的维度是1024，共1369x1024个标量。然后每一帧要加1个 camera token 和 4 个 VGGT register token。这样每帧对应的就是【（B，1374，1024）】，也是先丢弃DINO内部的cls 和 register token。
 Alternating Attention运行24轮。交替之后在通道维度拼接，多头注意力一直是，16head，每个head 64 dim。 16x64=1024。
-例如，对于一个3帧的图片集来说，(1,3,1374,1024) --reshape--> (3,1374,1024) --frameAttn--> (3,1374,1024) --globalAttn--> (1,4122,1024) --reshape--> (3,1374,1024) --...-->
+例如，对于一个3帧的图片集来说，(1,3,1374,1024) --reshape--> (3,1374,1024) --frameAttn--> (3,1374,1024) --globalAttn--> (1,4122,1024) --reshape--> (3,1374,1024) --...复制24层...--> 
+
 
 ### Trellis 理解
 
