@@ -59,7 +59,7 @@ updated: 2026-10-31
 | supervised target | 编码序列右移一帧 | 只在 visual+proprio 上做 MSE，排除 action 通道；目标 detach | visual `[B,H,196,384]`，proprio `[B,H,196,10]`；标量 `z_loss` |
 | decoder（辅助） | predicted/frozen DINO visual `[B,H,196,384]` | 默认 `VQVAE(channel=384,n_embed=2048,quantize=False)`，两次 4× 上采样；decoder loss 对 predictor `detach` | `[B,H,3,224,224]`；像素 MSE 只训练 decoder |
 | open-loop rollout | 初始 latent `[B,H,196,404]` + actions `[B,T,K]` | 每步预测下一组 patch、覆盖其中的 action 条件、再拼回历史 | visual trajectory `[B,H+T+1,196,384]` |
-| CEM | 均值/方差 `[B,T,K]` | 每轮采样 `N_c` 条 `[N_c,T,K]`，并行 rollout；按终点 visual MSE + $\alpha$·proprio MSE 排序 | elite `[K_e,T,K]`→新 `μ,σ:[B,T,K]` |
+| CEM | 规划代码按 $B=1$，均值/方差 `[T,K]` | 每轮采样 `N_c` 条 `[N_c,T,K]`，并行 rollout；按终点 visual MSE + $\alpha$·proprio MSE 排序 | elite `[K_e,T,K]` → 新 `μ,σ:[T,K]` |
 | MPC | CEM 最优动作 `[B,T,K]` | 执行前 `k` 个动作，读取真实新帧，再规划；降低开环误差 | 最终执行序列 `[B,T_{exec},K]` |
 
 **代入官方 PushT config**：`H=3,P=1,F=5`。PushT 底层动作通常为 2D，因此聚合 $K=10$；单个训练样本从 `[4,3,224,224]` 经 DINO 得 `[4,196,384]`，再拼 action/proprio 后 predictor 输入 `[588,404]`。规划时 `T=5,N_c=300,K_e=30`，每轮候选动作张量 `[300,5,10]`；展开到环境层等价于 25 个低层步。30 轮 CEM 后 MPC config 执行 5 个聚合动作再取新观测。论文正文曾用 100 samples/10 iterations 报告延迟，**不能与仓库 PushT 当前 300/30 config 混写**。

@@ -7,11 +7,15 @@
 | `sim2real.png` | Sim2Real 图 | arXiv e-print 2510.19430，`images/sim2real.pdf` | Figure，`sections/GigaBrain_Data.tex` | 2026-10-16 | 仿真到真实迁移说明；由官方矢量 PDF 以 2400 px 渲染 |
 | `human_transfer.png` | 人类视频到机器人迁移图 | arXiv e-print 2510.19430，`images/human_transfer.pdf` | Figure，`sections/GigaBrain_Data.tex` | 2026-10-16 | Human Video Transfer 说明；由官方矢量 PDF 以 2400 px 渲染 |
 | `videogen.png` | 视频生成与 IDM 图 | arXiv e-print 2510.19430，`images/videogen.pdf` | Figure，`sections/GigaBrain_Data.tex` | 2026-10-16 | Video Generation + IDM 说明；由官方矢量 PDF 以 2400 px 渲染 |
+| `framework.png` | GigaBrain-0 总体架构图 | arXiv 2510.19430 官方 PDF / e-print | 总体 framework figure | 2026-10-31 | 说明 RGBD/指令/状态、Embodied CoT 与动作专家的数据流 |
+| `multiview.png` | 多视图生成示意 | arXiv 2510.19430 官方 PDF / e-print | Multiview generation figure | 2026-10-31 | 说明 GigaWorld 生成数据的跨视角增强路线 |
+| `main_exp.png` | 主要实验结果图表 | arXiv 2510.19430 官方 PDF / e-print | Main experiments | 2026-10-31 | 汇总主基准结果 |
+| `generalization_exp.png` | 泛化实验结果图表 | arXiv 2510.19430 官方 PDF / e-print | Generalization experiments | 2026-10-31 | 汇总外观、摆放与视角泛化结果 |
 
 - 论文页：<https://arxiv.org/abs/2510.19430>
 - 官方 PDF：<https://arxiv.org/pdf/2510.19430>
 - 官方源码：<https://arxiv.org/e-print/2510.19430>
-- 五张图片均已逐张视觉核验：内容完整、标签可读、无截边、无多余正文。
+- 正文引用的九张图片均已登记；其中五张数据迁移图由官方矢量 PDF 渲染，另外四张 framework/实验图来自官方论文 PDF/e-print。
 
 ## 官方代码与固定 revision（代码级实现核查）
 

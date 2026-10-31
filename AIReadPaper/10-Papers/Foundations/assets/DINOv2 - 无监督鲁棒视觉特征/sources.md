@@ -127,13 +127,13 @@
 
 ## 3. Register tokens 历史边界来源
 
-### 2.1 后续 register 论文
+### 3.1 后续 register 论文
 
 - 标题：Vision Transformers Need Registers
 - arXiv：https://arxiv.org/abs/2309.16588
 - 访问日期：2026-10-15
 
-### 2.2 官方仓库时间线
+### 3.2 官方仓库时间线
 
 `facebookresearch/dinov2` README 记录：
 
@@ -150,7 +150,7 @@
 
 ## 4. 后续影响来源
 
-### 3.1 Depth Anything
+### 4.1 Depth Anything
 
 - 标题：Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data
 - arXiv：https://arxiv.org/abs/2401.10891
@@ -165,7 +165,7 @@
 - Table 11：NYUv2 AbsRel 0.066→0.056、δ1 0.973→0.984；KITTI AbsRel 0.058→0.046、δ1 0.971→0.982；ADE20K mIoU 58.8→59.4；
 - 论文明确指出大规模 MDE 训练在 DINOv2 初始化之上继续增强迁移能力。
 
-### 3.2 Depth Anything V2
+### 4.2 Depth Anything V2
 
 - 官方项目页：http://depth-anything-v2.github.io/
 - 论文：https://arxiv.org/abs/2406.09414
@@ -177,7 +177,7 @@
 - 595K 合成标注图训练初始 teacher；
 - 62M+ 真实无标签图由 teacher 生成伪深度，再训练 students。
 
-### 3.3 DINO-WM
+### 4.3 DINO-WM
 
 - 标题：DINO-WM: World Models on Pre-trained Visual Features enable Zero-shot Planning
 - arXiv：https://arxiv.org/abs/2411.04983
@@ -192,7 +192,7 @@
 - 在迷宫导航、桌面推物和粒子操作上评估；
 - 不依赖 expert demonstration、reward model 或预训练 inverse model。
 
-### 3.4 VGGT 与 3D 视觉
+### 4.4 VGGT 与 3D 视觉
 
 - 标题：VGGT: Visual Geometry Grounded Transformer
 - arXiv：https://arxiv.org/abs/2503.11651
@@ -210,7 +210,7 @@
 
 所有图均直接从 `sources/paper.pdf` 以 PyMuPDF 300 DPI 裁取，保留完整图与原始英文 caption，并在 2026-10-15 逐张使用图像读取工具检查边界、清晰度和完整性。
 
-### 4.1 `figures/01-general-features.png`
+### 5.1 `figures/01-general-features.png`
 
 - 论文编号：Figure 1
 - PDF 页码：p.2
@@ -220,7 +220,7 @@
 - 内容：四组跨类别 / 姿态 / 风格图像与 DINOv2 patch PCA 颜色图；用于说明对象部件对应和前景分离。
 - 完整性检查：通过；四列 `(a)–(d)`、全部原图、PCA 图和 Figure 1 caption 均保留。
 
-### 4.2 `figures/02-task-scaling.png`
+### 5.2 `figures/02-task-scaling.png`
 
 - 论文编号：Figure 2
 - PDF 页码：p.3
@@ -230,7 +230,7 @@
 - 内容：八类任务上 DINOv2 随模型 FLOPs 扩展的曲线，与此前 SSL / WSL 比较。
 - 完整性检查：通过；8 个子图、图例、坐标轴、WSL 虚线与 Figure 2 caption 均保留。
 
-### 4.3 `figures/03-data-curation-pipeline.png`
+### 5.3 `figures/03-data-curation-pipeline.png`
 
 - 论文编号：Figure 3
 - PDF 页码：p.4
@@ -240,7 +240,7 @@
 - 内容：Uncurated / Curated Data → Embedding → Deduplication → Retrieval → Augmented Curated Data。
 - 完整性检查：通过；左右数据池、三阶段流程箭头与 Figure 3 caption 均保留。
 
-### 4.4 `figures/04-distillation-ablation.png`
+### 5.4 `figures/04-distillation-ablation.png`
 
 - 论文编号：Figure 5
 - PDF 页码：p.10
@@ -250,7 +250,7 @@
 - 内容：ViT-L scratch、ViT-L distilled 与 ViT-g teacher 在 12 个指标及 8 类任务均值上的比较。
 - 完整性检查：通过；雷达图、两张汇总表、图例与 Figure 5 caption 均保留。
 
-### 4.5 `figures/05-high-resolution-ablation.png`
+### 5.5 `figures/05-high-resolution-ablation.png`
 
 - 论文编号：Figure 6
 - PDF 页码：p.10
@@ -260,7 +260,7 @@
 - 内容：ImageNet / ADE20K 上固定 224、固定 416 与短时 224→416 高分辨率适配的比较。
 - 完整性检查：通过；两个子图、三组曲线、坐标轴、图例与 Figure 6 caption 均保留。
 
-### 4.6 `figures/06-dense-results.png`
+### 5.6 `figures/06-dense-results.png`
 
 - 论文编号：Figure 7
 - PDF 页码：p.17
@@ -272,14 +272,14 @@
 
 ## 6. 关键数字的原文定位
 
-### 5.1 数据
+### 6.1 数据
 
 - LVD-142M 最终规模 142,109,386：Table 15，PDF p.30。
 - self-dedup 1.3B→1.1B、relative dedup→744M：Appendix A.3，PDF p.29。
 - 1.2B unique images 主文口径：Sec.3，PDF p.5。
 - 20×8 V100、少于两天：Sec.3 Implementation Details，PDF p.5。
 
-### 5.2 目标与训练
+### 6.2 目标与训练
 
 - DINO / iBOT：Sec.4，PDF pp.5–6。
 - 独立 heads、SK 3 iterations、KoLeo：Sec.4，PDF p.6。
@@ -289,7 +289,7 @@
 - 625k iterations、优化器与 schedules：Table 16，PDF p.31。
 - 模型维度 / 层数 / FFN：Table 17，PDF p.31。
 
-### 5.3 消融
+### 6.3 消融
 
 - iBOT→DINOv2 累积配方：Table 1，PDF p.8。
 - 数据源消融：Table 2，PDF p.8。
@@ -297,7 +297,7 @@
 - 蒸馏：Figure 5，PDF p.10。
 - 分辨率：Figure 6，PDF p.10。
 
-### 5.4 结果
+### 6.4 结果
 
 - ImageNet frozen linear：Table 4，PDF p.12。
 - OOD domain generalization：Table 6，PDF p.13。
@@ -308,7 +308,7 @@
 - 单目深度：Table 11，PDF p.16。
 - dense qualitative：Figures 7–10，PDF pp.17–19。
 
-### 5.5 成本与偏差
+### 6.5 成本与偏差
 
 - Dollar Street：Table 12，PDF p.19。
 - harmful association：Table 13，PDF p.20。

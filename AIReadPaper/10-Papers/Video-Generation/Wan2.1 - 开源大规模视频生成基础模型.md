@@ -58,7 +58,7 @@ Sora 把视频生成带进公众视野之后，开源社区迅速跟进：Hunyua
 
 1. **完整开源的工业级视频基础模型套件**：1.3B（轻量）和 14B（旗舰）两个版本，覆盖 T2V、I2V、指令编辑（V2V）、个性化、长视频等最多 8 个下游任务，**首次支持在视频中同时生成中英文视觉文本**；
 2. **Wan-VAE**：一个 127M 参数的时空因果 3D VAE，4×8×8 压缩比，支持任意长视频的 chunked 编码/解码（feature cache 机制），重建质量与效率超过 HunyuanVideo、CogVideoX、SVD、Mochi、Open Sora Plan、Step Video；
-3. **可复现的训练工程**：Flow Matching 训练目标、图像 256px 预训练 + 渐进式图像-视频联合训练、umT5 文本编码、2D Context Parallelism（Ulysses+Ring）+ FSDP、8-bit FlashAttention、Diffusion Cache 等一整套训练/推理栈，**全部开源**；
+3. **较完整披露的训练工程设计**：论文给出 Flow Matching 目标、图像 256px 预训练 + 渐进式图像-视频联合训练、umT5、2D Context Parallelism（Ulysses+Ring）+ FSDP、8-bit FlashAttention 与 Diffusion Cache；官方仓库主要开放模型和推理实现，基座预训练 dataloader、loss 与完整 training loop 并未全部开放；
 4. **完整的数据治理与 caption 管线**：四步数据清洗（基础维度 / 视觉质量 / 运动质量 / 视觉文本）+ 内部 dense caption 模型，覆盖「数据从哪儿来、怎么标、怎么过滤」全流程；
 5. **Wan-Bench 自建评测**：14 个维度的细粒度评测（人类偏好加权），配合 1,035 条 prompt，覆盖大运动、物理合理性、相机控制、ID 一致性等 VBench 难以量化的能力。
 
@@ -75,7 +75,7 @@ Wan2.1 不是单一任务模型，而是一套视频生成基础基座。论文�
 - **指令引导视频编辑 V2V**：基于 VACE 框架，输入视频条件单元 $\mathcal{V} = [\mathbf{T}; \mathbf{F}; \mathbf{M}]$（文本 + 帧序列 + 掩码序列），支持局部重绘、扩展、外绘等编辑；
 - **个性化生成**：输入参考人/物图像，输出保留身份的动态视频；
 - **中英文视觉文本生成**：在视频画面内生成可读的中英文文字（这是 Wan2.1 的差异化卖点）；
-- **长视频与实时生成**：通过 chunked 编码和 feature cache 支持任意长视频，配合 DiT streaming 输出可实时生成。
+- **长视频编解码能力**：Wan-VAE 可通过 feature cache 对任意长视频做 chunked 编解码；这不等于官方基础 DiT 已支持常数内存、实时的任意长视频流式生成，基础 DiT 仍对整段 token 做全局 attention。
 
 ### 2.2 关键符号与扩散目标
 
