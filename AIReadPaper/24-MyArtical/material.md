@@ -43,6 +43,9 @@ VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 
 Alternating Attention运行24轮。交替之后在通道维度拼接，多头注意力一直是，16head，每个head 64 dim。 16x64=1024。
 例如，对于一个3帧的图片集来说，(1,3,1374,1024) --reshape--> (3,1374,1024) --frameAttn--> (3,1374,1024) --globalAttn--> (1,4122,1024) --reshape--> (3,1374,1024) --...复制24层...--> 
 
+### VGGT-Omiga
+
+算是给出了前馈重建的scaling law，主要是通过解决显存和计算瓶颈
 
 ### Trellis 理解
 
