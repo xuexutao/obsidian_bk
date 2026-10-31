@@ -1,3 +1,5 @@
+# GigaBrain-0：世界模型驱动的 VLA 数据引擎
+
 ## 1. 背景
 
 **一句话判断：** 这篇论文的核心价值，不是单纯再做一个 VLA backbone，而是把 **world model 前移为 VLA 的数据引擎**，用可规模化生成的数据去缓解真实机器人数据昂贵、单一、难扩展的问题。
@@ -70,13 +72,13 @@
 
 |阶段|内容|技术要点|
 |---|---|---|
-|输入|RGBD 观测、自然语言任务指令、机器人状态、轨迹 token|视觉输入形状为 `B × H × W × 4`，即 RGB + Depth。若原始数据没有深度，训练集里会用深度估计方法补齐；训练时还会随机丢弃 depth 通道，以兼容推理阶段仅 RGB 的情况。|
-|视觉编码|SigLIP / PaliGemma2 体系下的视觉-语言编码|作者以预训练 VLM `PaliGemma2` 负责多模态理解，并将 SigLIP 第一层卷积扩展到 depth 通道，且 depth 新核零初始化，以尽量保留原有 RGB 先验。|
-|中间推理 1|Manipulation Trajectory|以 **10 个均匀采样的 2D 关键点** 表示末端执行器在图像平面上的操作轨迹。论文没有做自回归轨迹生成，而是引入 10 个 learnable trajectory tokens，与视觉上下文做双向注意力交互，再用轻量 GRU 回归 2D 坐标。|
-|中间推理 2|Subgoal Language|生成自然语言形式的中间目标，帮助长时序任务分阶段推进。|
-|中间推理 3|Discrete Action Tokens|离散动作 token 作为 Embodied CoT 的一部分，同时用于提升后续连续动作学习的收敛速度。|
-|动作生成|Continuous action chunks|使用 **DiT + flow matching** 预测连续动作片段。语义理解与动作生成由不同 expert 负责，中间通过 `Knowledge Insulation` 降低干扰。|
-|输出|机器人动作序列|用于控制 wheeled bi-manual robot，如 Agilex / G1 / PiPER 等平台。|
+|输入|论文完整模型：RGBD、指令、状态、可选轨迹监督；公开 base：RGB、指令、状态|代码接口是 $K$ 路 `[B,C,224,224]` 图像列表。完整模型可令 `C=4`；公开 checkpoint 固定 `C=3`，且关闭轨迹 token。状态经离散化后进入最长 200 的语言 prefix。|
+|视觉编码|SigLIP / PaliGemma2|SigLIP 每图输出 256×1152，再投影为 256×2304；3 路相机默认得到 768 个视觉 token。4 通道模式扩展 patch conv，新增深度核零初始化。|
+|中间推理 1|Manipulation Trajectory|代码支持 10 个 learnable trajectory tokens，经 GRU 回归 `[B,10,4]`，每点是左右手 `(x_l,y_l,x_r,y_r)`；公开 base 的 `enable_learnable_traj_token=false`。|
+|中间推理 2|Subgoal Language|作为 prefix 中受 loss mask 监督的 next-token prediction；可单独自回归生成当前子目标。|
+|中间推理 3|Discrete Action Tokens|FAST action token 可与 task/subgoal 一起进入最长 200 的 prefix，并提供 CE 监督；连续动作仍由 suffix flow expert 生成。|
+|动作生成|Continuous action chunks|`[B,50,32]` noisy action 经 1024-D action expert；PaliGemma2 prefix 与 action suffix 每层共享 attention。KI 开启时 flow 只读 detach 后的 prefix KV。|
+|输出|连续动作、可选语言/轨迹|flow head 输出 `[B,50,32]`，反归一化并裁回本体 $D_a$；可选 language logits 与 10×4 trajectory。policy 不在线生成未来视频。|
 
 ### 3.3 模型结构拆解
 
@@ -130,6 +132,69 @@
 ![](assets/GigaBrain-0%20-%20世界模型驱动的VLA数据引擎/multiview.png)
 
 > 补注：上图为 Multiview Video Generation（论文图 9），生成多视角一致视频，用于提升 3D-aware 训练效果。
+
+### 3.6 官方代码级实现：发布版策略的真实 forward
+
+> **版本边界与证据标记**：初代 GigaBrain-0 固定到 `open-gigaai/giga-brain-0@19328ff7d16e5047b7401a00aa6677d08dc160c7`（2025-11-28 首次发布附近），其实际模型实现来自官方依赖 `open-gigaai/giga-models@b5e69a53e4b6efa965b615cc648d229a9f4c7413`；发布权重固定到 `open-gigaai/GigaBrain-0-3.5B-Base@6b169fe5d01353a91974a0cf418de30bb04c9394`。当前主仓库 HEAD 已演进为 GigaBrain-0.7，不能拿 0.7 三系统代码冒充本文初代实现。以下使用【源码事实】、【配置推导】、【论文描述】、【无法确认】标记证据层级。
+
+#### 3.6.1 模块到代码入口表
+
+| 模块 | 官方入口 | 作用 |
+|---|---|---|
+| 训练入口 | `giga_brain_0/giga_brain_0_trainer.py::GigaBrain0Trainer.forward_step` | 取 batch、加 flow 噪声、调用 policy、汇总三类 loss |
+| 数据变换 | `giga_brain_0/giga_brain_0_transforms.py::GigaBrain0Transform` | delta action、分位数归一化、32-D padding、图像/文本/轨迹变换 |
+| 策略主入口 | `giga_models/models/vla/giga_brain_0/modeling_giga_brain_0.py::GigaBrain0Policy.forward` | prefix/suffix 构造、attention mask、双专家前向、输出动作/语言/轨迹 |
+| 视觉与双专家主干 | `paligemma2_with_expert.py::PaliGemma2WithExpertModel` | 27 层 SigLIP；26 层 PaliGemma2 + action expert 联合 attention |
+| Flow loss | `giga_brain_0/giga_brain_0_loss.py::GigaBrain0Loss` | Beta timestep、线性 flow path、动作 MSE、文本 CE、轨迹 MSE |
+| 推理入口 | `pipeline_giga_brain_0.py::GigaBrain0Pipeline.__call__` | 预处理、10-step Euler 去噪、反归一化、delta→absolute、裁回原动作维 |
+| 默认配置 | `configs/giga_brain_0_from_scratch.py` | 3 相机、224²、50×32 action、L≤200；深度与轨迹默认关闭 |
+
+#### 3.6.2 原始输入、预处理与默认数字
+
+【源码事实】默认发布链路接收最多 3 路相机 `cam_high/cam_left_wrist/cam_right_wrist`，每路原始 `[3,H_0,W_0]` 经等比缩放和 padding 变成 `[3,224,224]`，再归一化到 `[-1,1]`。若打开 RGBD，深度会与 RGB 沿 channel 拼成 `[4,224,224]`，缺失/随机丢弃深度填 0；训练器会把 SigLIP patch conv 从 3 通道扩到 4 通道，新通道权重为 0。
+
+【源码事实】机器人 state/action 先按 embodiment 做 delta 变换与 1%/99% 分位数归一化，再从原始 $D_s,D_a$ 补零到 32-D：`state=[B,32]`、`action=[B,50,32]`。默认 `discrete_state_input=true`，所以 state 不作为独立连续 suffix token，而是由 `PromptTokenizerTransform` 编进最长 200 的语言/FAST token 序列。`embodiment_id∈{0,1,2}` 选择动作输入、输出两端各自的 embodiment-specific linear。
+
+【源码事实】发布权重的官方 `config.json` 是：`vlm_type=paligemma2`、`vlm_hidden_size=2304`、`proj_width=1024`、`n_action_steps=50`、`max_action_dim=max_state_dim=32`、`num_steps=10`、`vision_in_channels=3`、`enable_knowledge_insulation=true`、`enable_next_token_prediction=true`、`enable_learnable_traj_token=false`。因此论文所述 RGBD 与 10 点轨迹是**代码支持/论文训练配方**，不是公开 base checkpoint 的默认输入输出。
+
+#### 3.6.3 按真实 forward 顺序的全链路张量表
+
+设相机数为 $K≤3$，文本/离散 state/可选 FAST 或 subgoal 合并后的有效长度为 $L≤200$；发布 checkpoint 取 $K=3$、RGB、无 trajectory token。
+
+| 顺序 | 张量与 shape | 变化原因与证据 |
+|---:|---|---|
+| 1 | 每路 RGB `[B,3,H_0,W_0] → [B,3,224,224]` | 【源码事实】`ImageTransform` 等比 resize+pad、训练增强、归一化到 `[-1,1]` |
+| 2 | 可选 RGBD `[B,4,224,224]` | 【源码事实】`enable_depth_img=true` 时拼深度；【配置事实】公开 base 为 3 通道，故此步默认不发生 |
+| 3 | raw state/action → `[B,32]`、`[B,50,32]` | 【源码事实】delta/quantile normalize 后 `PadStatesAndActions(32)`；时间 padding 另由 `[B,50]` mask 控制 |
+| 4 | prompt/state/FAST/subgoal → token `[B,L]`，pad 到 `[B,200]` | 【源码事实】不同 sample recipe 决定哪些位置产生 next-token loss |
+| 5 | SigLIP patch embedding `[BK,3,224,224] → [BK,256,1152]` | 【源码事实】patch 14，16×16=256 token，vision hidden 1152，27 层 |
+| 6 | multimodal projector `[BK,256,1152] → [BK,256,2304]` | 【源码事实】把视觉宽度对齐 PaliGemma2 hidden 2304 |
+| 7 | reshape/concat → image prefix `[B,K·256,2304]` | 【源码事实】先批量编码全部相机，再恢复相机轴并沿 token 轴拼接 |
+| 8 | language embedding `[B,200,2304]` | 【源码事实】token embedding 乘 `sqrt(2304)`；state 若离散编码已包含在这 200 个位置中 |
+| 9 | 可选 trajectory token `[B,10,2304]` | 【源码事实】仅 `enable_learnable_traj_token=true` 时插在图像和语言之间；发布 base 为 false |
+| 10 | prefix `[B,K·256(+10)+200,2304]` | 【源码事实】图像、可选轨迹、语言顺序拼接；有效位由 pad mask 决定 |
+| 11 | clean action 加噪：$x_t=t\epsilon+(1-t)a∈R^{B×50×32}$ | 【源码事实】$t∼0.999·Beta(1.5,1)+0.001$，target $u_t=\epsilon-a$ |
+| 12 | embodiment action projection `[B,50,32] → [B,50,1024]` | 【源码事实】不同 embodiment 选不同输入权重；flow time 经两层 MLP 得 AdaRMS 条件 `[B,1024]` |
+| 13 | suffix `[B,50,1024]` | 【源码事实】50 个动作步各一个 token；动作块内部共享同一 attention block |
+| 14 | prefix/suffix QKV → 各自 8 heads×256 | 【源码事实】prefix residual width 2304、suffix width 1024，但二者独立投影到相同 attention head 几何 |
+| 15 | Q/K/V 沿 sequence concat，在 26 层做联合 attention | 【源码事实】attention 空间融合；输出再按 prefix/suffix 长度切开，各走 2304/1024 宽度的独立 MLP |
+| 16 | mask：prefix 内按图文/语言块规则；prefix 不看 suffix；suffix 看 prefix 和整个 action block | 【源码事实】suffix 的 block mask 为 `[1,0,…,0]`，故 50 个 action token 同组双向可见，而非逐动作自回归 |
+| 17 | Knowledge Insulation：prefix KV prefill 后 detach | 【源码事实】公开 base 开启 KI；flow suffix 可读 prefix KV，但 flow 梯度不回传到 VLM prefix |
+| 18 | action head `[B,50,1024] → v_t=[B,50,32]` | 【源码事实】embodiment-specific output linear，监督目标为 `ε-a` |
+| 19 | language head `prefix[-200:] → [B,200,V]` | 【源码事实】仅 loss mask 标记的 subgoal/FAST/普通语言位置算 next-token CE |
+| 20 | 可选 traj：10 token → GRU 256 → `[B,10,4]` | 【源码事实】每点 4-D 是左右手 `(x_l,y_l,x_r,y_r)`；发布 base 未启用 |
+| 21 | 推理从 `N(0,I) [B,50,32]` 做 10 次 Euler，`dt=-0.1` | 【源码事实】从 $t=1$ 噪声走到 $t=0$ 数据；prefix KV 只算一次 |
+| 22 | 反归一化、delta→absolute、slice → `[B,50,D_a]` | 【源码事实】最后裁回机器人原始动作维；32-D 只是跨本体模型槽位 |
+
+#### 3.6.4 代码—论文差异、开源边界与复现建议
+
+- **World model 不在 policy forward 内**：【论文描述】GigaWorld 负责生成训练数据；【源码事实】`GigaBrain0Policy.forward` 只接图像、语言/离散状态和 noisy action，没有视频 latent，也不输出未来视频。不能把它写成在线 world-model planner。
+- **公开 base 没有 RGBD/轨迹头**：【源码事实】HF revision 明确 `vision_in_channels=3`、`enable_learnable_traj_token=false`；README 也说明发布权重为了易用排除了 depth 与 2D trajectory。笔记前文的 RGBD/轨迹应标成论文完整模型，而非公开 checkpoint 默认行为。
+- **初代仓库不是单仓自包含**：【源码事实】训练器只 import `GigaBrain0Policy`，真正主干在官方 `giga-models`；数据和 trainer 还依赖 `giga-datasets/giga-train`。复现时必须固定四个仓库/包版本，不能只 pin 主仓库。
+- **`from_scratch` 名称误导**：【源码事实】该配置实际写有 `pretrained='open-gigaai/GigaBrain-0-3.5B-Base'`，默认是从发布 base 继续训练；若真从 PaliGemma2 初始化，需走 `pretrained_paligemma_path` 分支。
+- **tokenizer 配置有历史不一致**：【源码事实】初版 config 写 `google/paligemma-3b-pt-224`，但 HF 模型配置是 `vlm_type=paligemma2`；后续官方配置已改为 PaliGemma2。复现初代权重应优先服从 checkpoint config 并显式校验 vocab/token IDs。
+- **动作 padding 需要 mask 审计**：【源码事实】初版 flow loss 只有时间 mask，没有逐维 action mask；32-D 尾部零 padding 也会进入 MSE。若新增本体的 $D_a<32$，应确认该行为是否符合预期，或采用后续官方实现的 `[B,T,32]` dimension mask。
+- **无法确认项**：【无法确认】论文 GigaWorld 的完整生成 backbone、质量筛选、多视角一致性训练和 IDM 细节仍未随初代 policy 代码完整开放；公开 repo 能复现 policy/post-training，不能据此宣称已经复现论文的数据引擎。
 
 ---
 

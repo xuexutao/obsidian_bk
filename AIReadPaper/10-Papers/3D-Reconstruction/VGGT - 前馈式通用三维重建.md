@@ -1,6 +1,25 @@
 ---
-updated: 2026-10-15
+type: paper-note
+status: complete
+domain: 3D-Reconstruction
+paper: "VGGT: Visual Geometry Grounded Transformer"
+year: 2025
+arxiv: 2503.11651
+doi: null
+source: https://arxiv.org/abs/2503.11651
+project: https://vgg-t.github.io/
+code: https://github.com/facebookresearch/vggt
+code_commit: a288dd0f14786c93483e45524328726ab7b1b4ce
+tags:
+  - 3D-Reconstruction
+  - Feed-Forward-Reconstruction
+  - VGGT
+  - Transformer
+created: 2026-08-26
+updated: 2026-10-31
 ---
+
+# VGGT：前馈式通用三维重建
 
 **一句话结论：** VGGT（Visual Geometry Grounded Transformer）把"多视图三维重建"从"神经网络 + 几何后优化（BA）"的混合范式，推进到"一个前馈大 Transformer 一次前向直接输出相机位姿、点图、深度图、点轨迹"的纯网络范式。它没有花哨的 3D 归纳偏置，只靠海量 3D 标注数据 + 标准大 Transformer，就在相机估计、多视图深度、稠密点云、点跟踪四类任务上刷新 SOTA，且推理亚秒级——是 CVPR 2025 Best Paper，也是后续 DA3、π³、VGGT-Ω 一整条"前馈重建"路线的共同起点。
 
@@ -98,7 +117,7 @@ VGGT 的哲学是"最小 3D 归纳偏置"：不设计专门的几何网络结构
 
 关键点：这些任务不是独立训练的几个模型，而是共享一个 backbone、联合训练的多任务系统。论文强调，联合训练让相机、几何、跟踪三者的表征互相增强。
 
-### 2.4.1 dense head 展开：DPT 是什么、为什么需要它
+#### 2.4.1 dense head 展开：DPT 是什么、为什么需要它
 
 **先看矛盾在哪。** 主干吐出来的是 token：518px 的图按 14×14 patch 切开，一帧只有约 37×37 ≈ 1400 个 patch token；而 dense head 要输出的是 518×518 的逐像素深度图 / 点图。中间差了 14 倍的空间分辨率，且 token 是一维序列、显式的二维排布已经被抹掉。**DPT 就是补这个落差的解码器。**
 
@@ -108,7 +127,7 @@ DPT = **Dense Prediction Transformer**，出自 Ranftl, Bochkovskiy, Koltun 的�
 
 这句话是对着卷积网络说的。FCN 系要靠逐级 downsample 才能把感受野撑大，代价是分辨率一路掉，细节在 bottleneck 处不可逆地丢失；ViT 没有这个 tradeoff。
 
-#### Reassemble：三步把 token 摆回二维
+##### 2.4.1.1 Reassemble：三步把 token 摆回二维
 
 DPT 的核心算子是 **Reassemble**，把任意一层的 token 序列还原成一张特征图：
 
@@ -132,7 +151,7 @@ $$\text{Read}_{\text{proj}}(t) = \{\text{mlp}(\text{cat}(t_1,t_0)),\dots,\text{m
 
 **Resample 的实现**：先用 1×1 卷积把通道投到 $\hat D$，再根据方向选算子——$s \ge p$ 时用 strided 3×3 卷积下采样，$s < p$ 时用 strided 3×3 转置卷积上采样。
 
-#### 四层抽取 + RefineNet Fusion
+##### 2.4.1.2 四层抽取 + RefineNet Fusion
 
 关键设计不是「取最后一层」，而是**从主干四个不同深度各抽一份，且深层配低分辨率、浅层配高分辨率**：
 
@@ -152,13 +171,13 @@ $$\text{Read}_{\text{proj}}(t) = \{\text{mlp}(\text{cat}(t_1,t_0)),\dots,\text{m
 
 *图：DPT 论文 Figure 1（arXiv:2103.13413，Page 3）。**左**：整体架构——图像 embed 成 token（橙）后过多个 transformer stage，从四个不同深度 reassemble 成四种分辨率的特征图（绿），Fusion 模块（紫）逐级融合上采样，最后接 Head。**中**：$\text{Reassemble}_s$ 的三步展开（Read → Concatenate → Project/Resample）。**右**：Fusion block 内部——两个 residual conv unit + $\text{Resample}_{0.5}$（此处指 2× 上采样）+ project。*
 
-#### 附带的好处：对输入尺寸鲁棒
+##### 2.4.1.3 附带的好处：对输入尺寸鲁棒
 
 DPT 只要求边长能被 patch size $p$ 整除、并对齐解码器 stride（32px），换分辨率时线性插值 position embedding 即可。论文 Figure 4 显示，把推理分辨率从训练的 384 一路推到 640，DPT-Hybrid 的性能衰减明显小于 ResNet-50 / ResNeXt-101——因为卷积网靠近输入的层是局部的、感受野被训练分辨率绑死，而 ViT 每层都全局。
 
 **这一点正好是 VGGT 敢在训练时把 aspect ratio 在 0.33–1.0 之间随机化、并支持任意分辨率输入的前提。**
 
-#### VGGT 里的 DPT 具体长什么样
+##### 2.4.1.4 VGGT 里的 DPT 具体长什么样
 
 回到 VGGT。论文 §3.3 的原文口径是：主干输出的图像 token $\hat t^I_i$ **先经一个 DPT 层转成稠密特征图** $F_i \in \mathbb{R}^{C''\times H\times W}$，然后：
 
@@ -172,7 +191,7 @@ DPT 只要求边长能被 patch size $p$ 整除、并对齐解码器 stride（32
 
 > DPT 从 2021 年一路被继承到今天几乎所有前馈几何模型（DUSt3R、MASt3R、Depth Anything、VGGT、DA3……），谱系与演化见文末 [第 5 节](#5-附dpt-的谱系与发展路径)。
 
-### 2.4.2 aleatoric uncertainty：让模型说出「这个像素我不确定」
+#### 2.4.2 aleatoric uncertainty：让模型说出「这个像素我不确定」
 
 dense head 除了深度和点图，还并行输出一张同尺寸的不确定性图。这里的 **aleatoric（偶然性）** 是不确定性二分法里的一支（Kendall & Gal, 2017）：
 
@@ -288,7 +307,7 @@ VGGT 的预训练表征可以直接赋能下游任务，无需重新训练：
 
 这说明 VGGT 学到的表征**可迁移、有通用性**，不只是"会重建"。
 
-### 3.3.1 在 FantasyWorld、Lyra 与 DA3 下游中的实际角色边界
+#### 3.3.1 在 FantasyWorld、Lyra 与 DA3 下游中的实际角色边界
 
 后续论文频繁使用“VGGT-style”或把 VGGT 放进几何实验，容易把**架构影响、评测工具与真正的 backbone 依赖**混为一谈。三类关系应分开：
 
@@ -435,3 +454,321 @@ DPT 也不是没有代价，且已经出现被绕开的信号：
 | Kendall & Gal（aleatoric / epistemic 二分） | [arXiv:1703.04977](https://arxiv.org/abs/1703.04977) |
 
 vault 内相关：[[视觉基础模块综述 - Survey]] §3.2 有 MiDaS / DPT 在单目深度谱系中的定位；[[前馈式三维重建与生成式补全 - Survey]] 覆盖多视图这条线的整体版图。
+
+---
+
+## 6. 代码级实现：沿官方 pipeline 追踪张量与 latent shape
+
+### 6.1 代码范围、版本与阅读口径
+
+本节以官方仓库 `facebookresearch/vggt` 的 commit `a288dd0f14786c93483e45524328726ab7b1b4ce`（commit date: 2026-05-18）为准。仓库已经包含推理代码、预训练权重接口和一个**重新实现的训练框架**；后者能做 camera/depth/point 微调，但并不是论文 64×A100、160K iteration、全数据混合训练基础设施的原样发布，tracking 联合训练路径也尚未清理完成。因此，下文把“推理 forward 的确定事实”和“论文训练配置”分开陈述。
+
+为了让每个 shape 都可计算，本节统一使用官方 README 三图示例并令输入为正方形：
+
+$$B=1,\quad S=3,\quad H=W=518,\quad p=14$$
+
+于是 patch 网格为 $37\times37$，每帧图像 token 数为：
+
+$$K=\frac{H}{p}\frac{W}{p}=37\times37=1369$$
+
+每帧再增加 1 个 camera token 与 4 个 VGGT register token，因此 Alternating-Attention 实际处理：
+
+$$P=K+1+4=1374$$
+
+三帧 global attention 的序列长度为 $SP=3\times1374=4122$。若输入不是正方形，官方 `crop` 预处理固定 $W=518$、将高度四舍五入到 14 的倍数，并在 batch 内用白色补齐；下文所有公式仍成立，只需把 $37\times37$ 改成 $(H/14)\times(W/14)$。
+
+### 6.2 论文模块到代码入口
+
+| 论文 pipeline | 官方代码入口 | 主要职责 |
+|---|---|---|
+| 图像加载与统一尺寸 | `vggt/utils/load_fn.py::load_and_preprocess_images` | RGB 转换、等比 resize、crop/pad、`[0,1]` tensor |
+| 模型总入口 | `vggt/models/vggt.py::VGGT.forward` | 调用 backbone 与 camera/depth/point/track 分支 |
+| DINO patch encoder + 特殊 token + 交替注意力 | `vggt/models/aggregator.py::Aggregator` | 产生 24 个稳定索引的多视图 latent 槽位 |
+| DINOv2 ViT-L/14 | `vggt/layers/vision_transformer.py::vit_large` | 每帧图像编码为 1024 维 patch token |
+| frame/global Transformer block | `vggt/layers/block.py`、`attention.py` | QKNorm、2D RoPE、SDPA 自注意力、MLP |
+| 相机头 | `vggt/heads/camera_head.py::CameraHead` | 读取 camera token，4 次迭代回归 9D 相机编码 |
+| 深度/点图头 | `vggt/heads/dpt_head.py::DPTHead` | 从第 `[4,11,17,23]` 槽聚合多尺度特征并恢复逐像素输出 |
+| 跟踪头 | `vggt/heads/track_head.py::TrackHead` | DPT 稠密特征 + CoTracker 风格相关体与更新器 |
+| 相机 9D 编解码 | `vggt/utils/pose_enc.py` | 9D 编码与 `3×4` 外参、`3×3` 内参互转 |
+| 训练重实现 | `training/` | camera/depth/point 微调示例；tracking loss 尚未接通 |
+
+### 6.3 全链路张量总表
+
+| # | 阶段 | 通用 shape | 标准三帧 518 输入的具体 shape | 说明 |
+|---:|---|---|---|---|
+| 1 | 原始模型输入 | `[B,S,3,H,W]` | `[1,3,3,518,518]` | 像素在 `[0,1]` |
+| 2 | 合并 scene/view 维 | `[BS,3,H,W]` | `[3,3,518,518]` | DINO 按帧编码 |
+| 3 | patch Conv | `[BS,1024,H/14,W/14]` | `[3,1024,37,37]` | `kernel=stride=14` |
+| 4 | DINO patch latent | `[BS,K,1024]` | `[3,1369,1024]` | DINO 内部 CLS/register 最终被丢弃 |
+| 5 | 加 VGGT camera/register | `[BS,P,1024]` | `[3,1374,1024]` | token 顺序 `[camera,4 register,1369 patch]` |
+| 6 | frame attention | `[BS,P,1024]` | `[3,1374,1024]` | 每帧独立注意力 |
+| 7 | global attention | `[B,SP,1024]` | `[1,4122,1024]` | 三帧全部 token 共同注意力 |
+| 8 | 缓存 AA latent | `[B,S,P,2048]` | `[1,3,1374,2048]` | `cat(frame_output,global_output)` |
+| 9 | camera token | `[B,S,2048]` | `[1,3,2048]` | 取最后槽位的 token 0 |
+| 10 | 相机编码 | `[B,S,9]` | `[1,3,9]` | `[T(3),q(4),FoV(2)]` |
+| 11 | 外参与内参 | `[B,S,3,4]`、`[B,S,3,3]` | `[1,3,3,4]`、`[1,3,3,3]` | 由 9D 编码解码 |
+| 12 | DPT patch latent | `[BS,2048,h,w]` | `[3,2048,37,37]` | 删除 5 个特殊 token 后还原二维 |
+| 13 | depth raw output | `[BS,H,W,2]` | `[3,518,518,2]` | 1 depth + 1 confidence logit |
+| 14 | depth/conf | `[B,S,H,W,1]`、`[B,S,H,W]` | `[1,3,518,518,1]`、`[1,3,518,518]` | `exp` 与 `1+exp` |
+| 15 | point/conf | `[B,S,H,W,3]`、`[B,S,H,W]` | `[1,3,518,518,3]`、`[1,3,518,518]` | 三维点 + confidence |
+| 16 | tracking feature map | `[B,S,128,H/2,W/2]` | `[1,3,128,259,259]` | 独立 feature-only DPT |
+| 17 | query points | `[B,Q,2]` | `[1,Q,2]` | 第一帧像素坐标 |
+| 18 | 相关特征 | `[B,S,Q,567]` | `[1,3,Q,567]` | 7 level × 9×9 correlation |
+| 19 | update transformer 输入 | `[B,Q,S,388]` | `[1,Q,3,388]` | flow 132 + corr 128 + track feat 128 |
+| 20 | 最终 tracks/vis/conf | `[B,S,Q,2]`、两个 `[B,S,Q]` | `[1,3,Q,2]`、两个 `[1,3,Q]` | 坐标恢复到原图尺度 |
+
+### 6.4 图像编码：DINO latent 与“两套 register token”
+
+#### 6.4.1 输入输出与内部张量流
+
+Aggregator 先做 ImageNet mean/std 归一化，再将 `[B,S,3,H,W]` reshape 为 `[BS,3,H,W]`。DINOv2 ViT-L/14 的 patch projection 是 `Conv2d(3,1024,kernel_size=14,stride=14)`：
+
+```text
+[3,3,518,518]
+→ [3,1024,37,37]
+→ flatten + transpose
+→ [3,1369,1024]
+```
+
+DINO 自己会在 1369 个 patch 前插入 CLS 和 4 个 DINO register，形成 `[3,1374,1024]`，经过 24 层 ViT-L 后返回字典；Aggregator **只取** `x_norm_patchtokens=[3,1369,1024]`，因此 DINO 的 CLS/register 不会直接进入 VGGT 主干。随后 VGGT 又插入自己的一套 camera/register：
+
+```text
+camera token:   [3,1,1024]
+VGGT registers: [3,4,1024]
+DINO patches:   [3,1369,1024]
+cat(dim=1)   →  [3,1374,1024]
+```
+
+第一帧与其余帧使用两套不同的初始 camera/register 参数，原始参数 shape 分别为 `[1,2,1,1024]` 与 `[1,2,4,1024]`；第二个槽位会广播给所有非首帧。
+
+#### 6.4.2 为什么这样设计
+
+DINOv2 先把 RGB 压成强语义 patch latent，VGGT 无需从像素开始重新学习纹理与类别结构。VGGT 自己再加特殊 token，是为了把“首帧参考系”和“每帧相机状态”显式注入多视图聚合器；DINO register 只服务于 DINO 内部注意力稳定性，而 VGGT register 服务于后续几何主干，二者作用阶段不同，不能混为同一组 token。
+
+#### 6.4.3 关键超参
+
+| 项 | 值 |
+|---|---:|
+| DINO backbone | ViT-L/14 register |
+| patch size | 14 |
+| DINO/VGGT token width | 1024 |
+| DINO depth / heads | 24 / 16 |
+| VGGT register 数 | 每帧 4 |
+| camera token 数 | 每帧 1 |
+| patch 起始索引 | 5 |
+
+#### 6.4.4 代码与论文的差异
+
+论文图容易让人以为“DINO patchify”只是一个 patch embedding 层；代码实际执行**完整 DINOv2 ViT-L/14 的 24 层前向**，然后只保留其 patch token。与此同时，论文只画了一组 register token，代码内部实际先经历 DINO register，再丢弃，再插入 VGGT register。这也是理解参数量和计算量时不能漏掉的一段。
+
+### 6.5 Alternating-Attention：24 轮不是 24 个总 block
+
+#### 6.5.1 输入输出与内部张量流
+
+默认 `depth=24`、`aa_order=["frame","global"]`、`aa_block_size=1`。每一轮都先运行一个 frame block，再运行一个 global block：
+
+```text
+第 k 轮输入
+→ frame reshape  [B,S,P,1024] → [BS,P,1024]
+→ frame block    [3,1374,1024]
+→ global reshape [BS,P,1024] → [B,SP,1024]
+→ global block   [1,4122,1024]
+→ reshape        [1,3,1374,1024]
+```
+
+因此 VGGT 几何主干实际有 **24 个 frame block + 24 个 global block = 48 个 Transformer block**。每个 block 内 16 个 head，head dim 为 64：frame attention 的 $q/k/v$ 为 `[3,16,1374,64]`，global attention 的 $q/k/v$ 为 `[1,16,4122,64]`。
+
+每轮结束后，代码把 frame 与 global 输出沿通道拼接：
+
+$$O_k=\operatorname{cat}(F_k,G_k)\in\mathbb{R}^{B\times S\times P\times2048}$$
+
+即标准输入下为 `[1,3,1374,2048]`。列表保留 24 个稳定索引，但为节省显存，只有 Python 索引 `[4,11,17,23]` 真正存 tensor，其余槽位为 `None`。
+
+#### 6.5.2 为什么这样设计
+
+frame attention 先在单图内整理对象、边缘和局部几何；global attention 再让所有视图交换对应关系。若每层都直接对 $SP$ 做全局注意力，成本随视图数快速增长，也会弱化单图内部结构；交替设计则在“局部结构”和“跨视图一致性”之间建立硬节奏。把 $F_k$ 与 $G_k$ 拼接而非只取最后输出，还让下游 DPT 同时看到单帧与跨帧两种状态，这解释了 head 输入为何是 2048 而主干宽度只是 1024。
+
+#### 6.5.3 关键超参
+
+| 项 | 值 |
+|---|---:|
+| AA 轮数 | 24 |
+| 实际 frame/global block 数 | 24 + 24 |
+| width / heads / head dim | 1024 / 16 / 64 |
+| MLP hidden | 4096 |
+| QKNorm | 开启 |
+| 位置编码 | 2D RoPE，frequency 100 |
+| LayerScale 初值 | 0.01 |
+| 缓存索引 | `[4,11,17,23]` |
+
+#### 6.5.4 代码与论文的差异
+
+论文“24-layer Transformer”若按普通 ViT 直觉理解为 24 个 block，会低估实现：代码每一层号下都有 frame/global 两个独立 block。另一个易错点是论文自然语言中的“第 4/11/17/23 层”与 Python 零基索引有歧义；官方代码直接使用 `[4,11,17,23]`，按人类一基计数对应第 5/12/18/24 轮。本笔记后续均使用**官方 Python 索引**。
+
+### 6.6 CameraHead：从 2048 维 camera latent 到 9D 相机
+
+#### 6.6.1 输入输出与内部张量流
+
+CameraHead 只取最后缓存槽 `O_23` 的 token 0：
+
+```text
+[1,3,1374,2048]
+→ tokens[:,:,0]
+→ [1,3,2048]
+```
+
+它执行 4 次 iterative refinement。首次从可学习空相机 `[1,1,9]` 广播到 `[B,S,9]`，后续把上一轮预测 `detach()` 后再嵌入为 `[B,S,2048]`，生成 shift/scale/gate 三组调制量 `[B,S,2048]`，用 AdaLN 调制 camera token，再通过共享的 4 层 Transformer trunk。每轮 `pose_branch` 做 `2048→1024→9`，预测 delta 并累加，因此产生 4 个 `[B,S,9]` 结果，顶层默认返回最后一轮。
+
+代码中的 9D 排列是：
+
+$$g=[t_x,t_y,t_z,q_x,q_y,q_z,q_w,\mathrm{FoV}_h,\mathrm{FoV}_w]$$
+
+随后解码为外参 `[B,S,3,4]` 与内参 `[B,S,3,3]`。焦距由 FoV 和当前 $H,W$ 计算，主点固定在图像中心。
+
+#### 6.6.2 为什么这样设计
+
+单独的 camera token 把全局几何压缩为每帧一个状态向量，避免相机头在 1369 个 patch 上做逐像素回归。迭代 delta 更新类似 learned optimization：第一轮给粗解，后续在同一视觉 latent 上逐步修正。把上一轮预测 detach，避免 4 轮形成长反传链，同时让每轮学“基于当前估计修正多少”。
+
+#### 6.6.3 关键超参
+
+- 输入宽度 2048；trunk 4 层、16 heads；迭代 4 次。
+- translation 与 quaternion 输出为 linear；FoV 经 ReLU 保正。
+- quaternion 不在 head 内显式单位化，后续 `quat_to_mat` 按四元数平方和归一。
+
+#### 6.6.4 代码与论文的差异
+
+论文常写 $g=[q,t,f]$，官方实现顺序却是 `[t,q,FoV]`，且焦距不是直接回归而是回归两个 FoV。论文明确把第一相机当参考系，训练归一化也将第一帧 GT 变为 identity；但推理代码**没有硬编码** `pose_enc[:,0]=identity`，而是依靠训练学出。另一个细节是“4 层 camera attention”与“4 次 refinement”同时存在：共享 4 层 trunk 会被重复调用 4 次，不应把二者当成同一个数字。
+
+### 6.7 DPT：从 4 个 2048 维多视图 latent 恢复深度与点图
+
+#### 6.7.1 输入输出与内部张量流
+
+深度头和点图头是两套独立参数的 DPTHead，但输入槽位相同。每个槽先删除 5 个特殊 token：
+
+```text
+[1,3,1374,2048]
+→ [1,3,1369,2048]
+→ reshape [3,1369,2048]
+→ permute/reshape [3,2048,37,37]
+```
+
+四路 1×1 projection 与 resize 后得到：
+
+| 官方索引 | projection/resize 输出 | 统一到 scratch 后 |
+|---:|---|---|
+| 4 | `[3,256,148,148]` | `[3,256,148,148]` |
+| 11 | `[3,512,74,74]` | `[3,256,74,74]` |
+| 17 | `[3,1024,37,37]` | `[3,256,37,37]` |
+| 23 | `[3,1024,19,19]` | `[3,256,19,19]` |
+
+RefineNet 从低分辨率向高分辨率融合：`19→37→74→148→296`，得到 `[3,256,296,296]`；`output_conv1` 降为 `[3,128,296,296]`，再双线性插值到 `[3,128,518,518]`。
+
+深度头最终输出 2 通道，转为 channels-last 后拆成：
+
+```text
+depth raw/conf raw [3,518,518,1] + [3,518,518]
+reshape scene/view → [1,3,518,518,1] + [1,3,518,518]
+```
+
+其中 `depth=exp(raw)`，`depth_conf=1+exp(raw_conf)`。点图头同理输出 4 通道，拆成 `[1,3,518,518,3]` 的 world point 与 `[1,3,518,518]` 的 confidence；点坐标采用 signed inverse-log 激活。
+
+#### 6.7.2 为什么这样设计
+
+主干 patch grid 只有 $37\times37$，而几何输出要逐像素。DPT 用四层 latent 恢复不同语义层级，并通过卷积融合补回空间细节；深度与点图各自使用独立 DPT，允许两种几何目标发展不同解码特征。代码把输出做成 channels-last，是为了让每个像素最后一维直接对应 depth/xyz，便于后续几何函数消费。
+
+#### 6.7.3 关键超参
+
+- `intermediate_layer_idx=[4,11,17,23]`；`out_channels=[256,512,1024,1024]`。
+- dense DPT feature width 256；按 8 帧 chunk 解码以控显存。
+- depth `output_dim=2`、point `output_dim=4`。
+- confidence 是 $1+e^x$，不是 `[0,1]` 概率；它在损失中更接近 precision/置信度权重。
+
+#### 6.7.4 代码与论文的差异
+
+论文把 dense projection 简写为“DPT + 3×3 conv”，代码末端其实是 `3×3 Conv(128→32) + ReLU + 1×1 Conv(32→output_dim)`。DPT 的 docstring 仍写接近 channels-first 的输出口径，但实际 tensor 是 `[B,S,H,W,C]`。此外，当前实现不是“一套共享 DPT 后分叉深度与点图”，而是 `depth_head` 与 `point_head` 两个独立 DPTHead；tracking 又有第三套 feature-only DPT。论文的功能图比实际参数共享关系更抽象。
+
+### 6.8 TrackHead：query、correlation pyramid 与时空更新
+
+#### 6.8.1 输入输出与内部张量流
+
+TrackHead 先用独立的 feature-only DPT 把四层主干 latent 变为半分辨率特征：
+
+```text
+[B,S,128,H/2,W/2] = [1,3,128,259,259]
+```
+
+输入 query 为第一帧原图坐标 `[B,Q,2]`。坐标除以 stride 2，并复制到全部帧形成 `[B,S,Q,2]`；query feature 只从 `fmaps[:,0]` 采样，得到 `[B,Q,128]`，再复制为 `[B,S,Q,128]`。
+
+Tracker 建 7 层 correlation pyramid。每层对每个 query 在半径 4 的 $9\times9=81$ 邻域采样，拼接为：
+
+$$7\times81=567$$
+
+即 `[B,S,Q,567]`，经 MLP 变为 128 维 correlation feature。flow 的二维 Fourier embedding 与两份原始坐标共 132 维，最终 update transformer 输入：
+
+$$132_{flow}+128_{corr}+128_{track}=388$$
+
+shape 为 `[B,Q,S,388]`。它投影到 384 维，加入 64 个 virtual tracks，交替执行 6 层时间注意力与 6 层空间/virtual-track 交互；最后输出 130 维更新量，其中前 2 维是坐标 delta，后 128 维是 track feature delta。默认迭代 4 次，返回最后的 `[B,S,Q,2]` 轨迹，以及 sigmoid 后的 visibility/confidence `[B,S,Q]`。
+
+#### 6.8.2 为什么这样设计
+
+DPT 将多尺度几何 latent 变成可双线性采样的稠密特征；correlation pyramid 给出局部到大范围的匹配证据；virtual tracks 用固定 64 个全局中介连接不同 query，避免所有真实轨迹两两做昂贵的空间 attention。四次迭代让坐标逐步靠近匹配峰值。
+
+#### 6.8.3 关键超参
+
+| 项 | 值 |
+|---|---:|
+| tracking feature width | 128 |
+| feature stride | 2 |
+| update iterations | 4 |
+| correlation levels / radius | 7 / 4 |
+| correlation width | 567 |
+| update hidden width | 384 |
+| temporal / spatial depth | 6 / 6 |
+| virtual tracks | 64 |
+
+#### 6.8.4 代码与论文的差异
+
+当前 API 没有 query-frame index，而是硬编码从第 0 帧采 query feature，并在每轮把第 0 帧坐标锁回原 query；若想从其他帧发起查询，必须把该帧重排到序列首位。官方 COLMAP demo 也没有使用内置 TrackHead，而是改用 VGGSfM tracker。更关键的是，公开训练重实现中 `enable_track=False`，`MultitaskLoss.forward()` 遇到 tracking 会抛 `NotImplementedError`，只有被注释的 dirty loss 草稿；因此预训练 checkpoint 可以推理 tracking，但论文所述 tracking 联合训练无法仅靠当前默认训练 recipe 完整复现。
+
+### 6.9 计算账：哪里真正昂贵
+
+| 阶段 | 序列长度 | width | 层数/次数 | 主要复杂度判断 |
+|---|---:|---:|---:|---|
+| DINO ViT-L/14 | 每帧 1374（含 DINO 特殊 token） | 1024 | 24 | 对每帧独立，随 $S$ 线性增长 |
+| frame attention | 每帧 1374 | 1024 | 24 blocks | $O(BS\cdot P^2)$ |
+| global attention | 三帧 4122 | 1024 | 24 blocks | $O(B\cdot(SP)^2)$，长序列主瓶颈 |
+| camera head | 每帧 1 token | 2048 | 4-layer trunk × 4 iterations | 相对 backbone 很小 |
+| depth + point DPT | 4 个尺度 | 256 主宽度 | 两套独立解码器 | 主要吃高分辨率 feature map 显存 |
+| tracking DPT + updater | `259×259` feature；$Q$ queries | 128/384 | 4 iterations | 随 $Q$ 和 $S$ 近线性增长，correlation pyramid 有额外开销 |
+
+对长序列，global attention 的序列长度是 $SP=S(K+5)$，二次项随 $S^2$ 增长；DPT 通过 8 帧 chunk 只缓解解码显存，**不会降低 backbone 的 global attention 成本**。论文报告 200 帧约 8.75 秒、40.63GB，也正说明主干跨帧注意力才是扩展到数百帧的决定性成本。
+
+### 6.10 公开训练代码的真实覆盖范围
+
+官方 README 已标记训练代码发布，但 `training/README.md` 明确称其为 framework 的 re-implementation。默认 `training/config/default.yaml` 是 Co3D 风格的微调示例：冻结 aggregator，只开 camera + depth，关闭 point + track，AdamW `lr=5e-5`、weight decay 0.05、20 epochs、gradient accumulation 2。数据模板仍保留 2–24 帧、aspect ratio 0.33–1.0、tracking query 1024 等字段，但默认路径不会执行完整四任务训练。
+
+因此复现应分三层：
+
+1. **最小推理复现**：下载官方 checkpoint，用 2–3 张 518 尺寸图验证 `pose_enc/depth/world_points` shape；显存不足先关闭 track 和 point head。
+2. **几何微调复现**：使用 `training/`，先保持 aggregator 冻结，只训练 camera/depth；确认尺度归一化、首帧参考系和 confidence loss 正确后再开 point。
+3. **论文完整训练**：当前公开配置与 loss 不足以原样复现，尤其 tracking 联合训练、原始多数据集混合和论文训练调度仍需自行补齐。
+
+### 6.11 调试与下游实践建议
+
+- 在 `Aggregator.forward` 首次调试时打印 `K/P/SP`，先确认输入高宽均可被 14 整除；非正方形输入不要照抄 `37×37`。
+- 明确区分 DINO register 与 VGGT register；从缓存 tensor 切 patch 必须使用 `patch_start_idx=5`，不能只删一个 camera token。
+- 解析相机编码时按 `[T,q,FoV]`，不要按论文符号顺序 `[q,t,f]` 直接切片。
+- 想得到质量更高的点云，优先用 `depth + camera` 反投影；官方 README 也指出它通常优于直接 `world_points` 分支。
+- confidence 的数值域不同：dense confidence 为 $(1,\infty)$，tracking `vis/conf` 才是 sigmoid 后的 $(0,1)$。
+- 多 query-frame 跟踪不要在同一序列上误以为 API 已原生支持；需要重排输入或改 tracker 代码。
+- 显存调试顺序建议为：`camera only → +depth → +point → +track`。DPT 的 8-frame chunk 只能救 head，长序列主干仍要控制 $S$。
+
+---
+
+## 7. 材料来源
+
+- 官方论文 PDF：`assets/VGGT - 前馈式通用三维重建/sources/paper.pdf`
+- 官方代码版本：`assets/VGGT - 前馈式通用三维重建/sources/code-version.txt`
+- 训练重实现配置：`assets/VGGT - 前馈式通用三维重建/sources/training-default.yaml`
+- 数据模板配置：`assets/VGGT - 前馈式通用三维重建/sources/training-default-dataset.yaml`
+- 完整来源、图号、页码、commit 与人工复核文件清单：`assets/VGGT - 前馈式通用三维重建/sources.md`

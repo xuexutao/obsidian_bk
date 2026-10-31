@@ -123,6 +123,7 @@
 - `SSLMetaArch` 对两个 global CLS chunks 分别计算 KoLeo 后求和，不是只取第一个 crop。
 - 当前 Hub 用 518 构造发布 backbone；训练 YAML 的 224 是主训练 crop，两者由论文 10k 高分辨率适配衔接。
 - inference backbone 输出 $D$ 维 CLS/patch；131072 维 DINO/iBOT prototype logits 只属于训练 heads。
+- 2026-10-31 本轮以 detached checkout 逐文件复核 commit、`git show` 元数据、两份合并 YAML、`vision_transformer.py` 与 `ssl_meta_arch.py`；未使用搜索结果中的 fork 作为代码事实来源。
 
 ## 3. Register tokens 历史边界来源
 

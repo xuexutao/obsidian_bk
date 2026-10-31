@@ -62,6 +62,7 @@
 - `update_gram(m=0)` 是当前 EMA teacher 到 Gram teacher 的硬复制；修复 config 每 10K、最多 3 次。
 - 高分辨率适配的 Gram weight 是 1.5；修复阶段 schedule 目标是 2.0。
 - 发布 config 的 LR 数字与论文汇总口径不同，引用时必须标明来源。
+- 2026-10-31 本轮以 detached checkout 复核固定 commit 的 `git show` 元数据、三阶段 YAML、Gram/RoPE/attention/Hub 源码；搜索结果中的 fork 仅用于发现，不作为笔记事实来源。
 
 ## 来源说明
 

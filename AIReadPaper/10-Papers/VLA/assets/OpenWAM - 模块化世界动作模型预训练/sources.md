@@ -28,3 +28,21 @@
 
 - arXiv v1 已把 Appendix A–D 合并在同一份 PDF 中，未发现独立 supplementary PDF；因此 `sources/paper.pdf` 同时覆盖主文与补充实验细节。
 - 所有本地图片均从官方 PDF 以高清页面区域裁剪，保留图号、图例或图注；未使用 PDF 内嵌的零散位图碎片。
+
+## 固定源码与 checkpoint revision（代码级实现核查）
+
+| 材料 | 固定 revision | 关键文件 | 核查内容 |
+|---|---|---|---|
+| OpenWAM 官方仓库 | `OpenWAM-Official/OpenWAM@3950b6d9ea848dc980a82a89b4554af2c082544a` | `openwam/model/architectures/base.py` | 数据聚合、video/action 独立 timestep、flow target、masked loss |
+| 同上 | 同一 commit | `openwam/model/architectures/dual_system/joint_self_attn.py`、`mot_driver.py`、`utils/mask_modes.py` | 双流 QKV 拼接、30 层联合 attention、mutual/first-frame-causal mask |
+| 同上 | 同一 commit | `openwam/model/video_backbone/wan_backbone.py` | VAE latent、patchify/unpatchify、3D RoPE、视频输出 shape |
+| 同上 | 同一 commit | `openwam/model/action_backbone/separate_action_dit.py`、`scheduler.py` | 80→1024 action token、1D RoPE、AdaLN、shifted flow 与 Euler step |
+| 同上 | 同一 commit | `openwam/dataloader/bases/lerobot_v3_reader.py`、`utils/unify_action.py` | 33 控制时刻→9 视频帧、32×80 action、1×80 proprio、逐维 validity mask |
+| OpenWAM-α Foundation checkpoint | HF revision `52df4e66c82c5c8b480adcc8d01f4db7415dfb56` | `config.yaml`、`checkpoint_step_154000.safetensors` | α 的权威默认配置：Wan2.2-TI2V-5B、48-D latent、3072 video width、1024 action width、24×128 attention、30 layers、mutual mask |
+
+### Shape 核查结论
+
+- Foundation config 的 `num_frames=33, video_stride=4` 表示 33 个控制时刻中取 `{0,4,…,32}` 共 9 张视频帧，不是直接向 VAE 输入 33 张图。
+- 默认 384×320、9 帧经 Wan VAE 得 `[B,48,3,48,40]`；`(1,2,2)` patchify 后为 `3×24×20=1440` 个 3072-D video token。
+- action 为 `[B,32,80]`，投影成 32 个 1024-D token；两流 QKV 都进入 `24×128=3072` attention 空间，联合序列长 1472。
+- 仓库通用 deploy helper 默认 49 帧/50 denoise steps；论文 OpenWAM-α 评测协议为 10-step sync，复现必须显式覆盖，不能把 helper 裸默认当论文配置。

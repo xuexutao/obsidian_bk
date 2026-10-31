@@ -6,9 +6,12 @@ paper: Self-Supervised Learning from Images with a Joint-Embedding Predictive Ar
 year: 2023
 arxiv: 2301.08243
 source: https://arxiv.org/abs/2301.08243
+project: https://facebookresearch.github.io/ijepa/
+code: https://github.com/facebookresearch/ijepa
+code_commit: 52c1ae95d05f743e000e8f10a1f3a79b10cff048
 tags: [World-Models, JEPA, Self-Supervised, Energy-Model, Representation-Learning]
 created: 2026-08-27
-updated: 2026-08-27
+updated: 2026-10-31
 ---
 
 # I-JEPA：联合嵌入预测架构
@@ -265,14 +268,291 @@ I-JEPA 的算力效率是其隐藏的最大亮点。论文摘要给出：**ViT-H
 
 ---
 
-## 10. 材料来源
+## 10. 代码级实现：严格沿 I-JEPA 训练 pipeline 追踪 shape
 
-### Sources
+### 10.1 代码范围、版本与默认配置
+
+本节以官方仓库 `facebookresearch/ijepa` 的 commit `52c1ae95d05f743e000e8f10a1f3a79b10cff048`（2023-06-13）为准，并以官方 `configs/in1k_vith14_ep300.yaml` 作为唯一默认配置来源。仓库覆盖 ImageNet 预训练主链路，但不包含论文全部 linear probe、fine-tune、低样本评测与 RCDM 可视化 decoder，因此本节重点解释“从图像到 JEPA loss”的真实训练数据流。
+
+先纠正一个容易被口头描述带错的数字：ViT-H/14 在 224×224 输入下不是 196 个 patch，而是：
+
+$$N=(224/14)^2=16^2=256$$
+
+196 对应 224/16 的 ViT-H/16 或 ViT-B/16 口径。官方配置的 ViT-H/14 encoder width 为 1280、depth 32、heads 16；predictor width 384、depth 12、heads 16。
+
+默认每 GPU 的 local batch 为 128，官方复现实验用 16 张 A100 80GB，因此有效 global batch 为：
+
+$$B_{global}=128\times16=2048$$
+
+代码从不把全局激活真正拼成 `[2048,...]`；每卡只持有 `[128,...]`，反向时由 DDP 聚合梯度。下文先用通用 $B$，再给单样本和单卡的具体数字。
+
+### 10.2 论文模块到代码入口
+
+| 论文 pipeline | 官方代码入口 | 职责 |
+|---|---|---|
+| YAML 入口 | `main.py`、`main_distributed.py` | 读取实验配置并启动单机/Submitit 任务 |
+| ImageNet 数据 | `src/datasets/imagenet1k.py` | `ImageFolder`、`DistributedSampler`、DataLoader |
+| 图像变换 | `src/transforms.py` | `RandomResizedCrop(224)`、ToTensor、ImageNet normalize |
+| multi-block masks | `src/masks/multiblock.py::MaskCollator` | 每 batch 采 target/context 的大小与位置，并定长 |
+| context/target patch 抽取 | `src/masks/utils.py::apply_masks` | 按 patch index gather，并把 mask 数并入 batch 维 |
+| context/target encoder | `src/models/vision_transformer.py::VisionTransformer` | ViT-H/14；同构、不同更新方式 |
+| predictor | `VisionTransformerPredictor` | 1280→384、拼 target mask token、12 层预测、384→1280 |
+| 主训练循环 | `src/train.py` | target forward、context/predictor forward、loss、优化、EMA |
+| optimizer/schedule | `src/helper.py`、`src/utils/schedulers.py` | AdamW、LR/WD cosine、参数分组 |
+| EMA teacher | `src/train.py` | optimizer step 后更新 target encoder |
+
+### 10.3 全链路张量总表
+
+记 context mask 数 $C=1$、target mask 数 $T=4$、每个 target token 数为 $N_t$、当前 local batch 经截断后的 context token 数为 $N_c$。
+
+| # | 阶段 | 通用 shape | 单样本 $B=1$ | 单卡 $B=128$ |
+|---:|---|---|---|---|
+| 1 | crop 后图像 | `[B,3,224,224]` | `[1,3,224,224]` | `[128,3,224,224]` |
+| 2 | patch Conv | `[B,1280,16,16]` | `[1,1280,16,16]` | `[128,1280,16,16]` |
+| 3 | 全 patch token | `[B,256,1280]` | `[1,256,1280]` | `[128,256,1280]` |
+| 4 | context index | `[B,N_c]` | `[1,N_c]` | `[128,N_c]` |
+| 5 | 每个 target index | `[B,N_t]` | `[1,N_t]` | `[128,N_t]` |
+| 6 | target encoder 全图输出 | `[B,256,1280]` | `[1,256,1280]` | `[128,256,1280]` |
+| 7 | gather 4 个 target | `[TB,N_t,1280]` | `[4,N_t,1280]` | `[512,N_t,1280]` |
+| 8 | context encoder 输出 | `[CB,N_c,1280]` | `[1,N_c,1280]` | `[128,N_c,1280]` |
+| 9 | predictor context 投影 | `[CB,N_c,384]` | `[1,N_c,384]` | `[128,N_c,384]` |
+| 10 | target mask+position tokens | `[TCB,N_t,384]` | `[4,N_t,384]` | `[512,N_t,384]` |
+| 11 | predictor 拼接序列 | `[TCB,N_c+N_t,384]` | `[4,N_c+N_t,384]` | `[512,N_c+N_t,384]` |
+| 12 | predictor 输出 $\hat h$ | `[TCB,N_t,1280]` | `[4,N_t,1280]` | `[512,N_t,1280]` |
+| 13 | target $h$ | `[TCB,N_t,1280]` | `[4,N_t,1280]` | `[512,N_t,1280]` |
+| 14 | Smooth L1 | scalar | scalar | scalar/rank |
+
+> 注：上表标题中的 predictor 输出应读作预测表征 $\hat h$。实际 global batch 为 2048 时，概念上的 target/prediction 总量是 `[8192,N_t,1280]`，但物理上分布在 16 张 GPU 上；各 rank 的 $N_c$ 还可能不同，不能简单视为一个稠密全局 tensor。
+
+### 10.4 DataLoader 与 multi-block mask：latent shape 在进入模型前就被决定
+
+#### 10.4.1 输入输出与内部张量流
+
+数据侧只使用 `RandomResizedCrop(224,scale=(0.3,1.0))`、ToTensor 与 ImageNet normalize；默认关闭 horizontal flip、color jitter 和 Gaussian blur。DataLoader 的 collator 返回：
+
+```text
+collated_batch         # images + ImageNet labels
+collated_masks_enc     # list 长度 C=1，每项 [B,N_c]
+collated_masks_pred    # list 长度 T=4，每项 [B,N_t]
+```
+
+训练循环只读取 `udata[0]` 的图像，ImageNet label 被完全丢弃。
+
+Patch 网格是 $16\times16$。MaskCollator 每次调用只采一次 target block size，所以**同一个 local batch 的 128 张图、4 个 target 都共享相同的 $h_t,w_t$**，只是位置不同。对 `[0.15,0.2]` target scale 与 `[0.75,1.5]` aspect ratio 静态枚举，当前实现可能得到：
+
+$$N_t\in\{35,36,42,48,54\}$$
+
+对应约 `5×7`、`6×6`、`6×7/7×6`、`8×6`、`9×6` 等矩形。4 个 target 之间可以重叠。
+
+Context 候选的 scale 为 `[0.85,1.0]`、aspect ratio 固定 1；经过代码的 round 与“必须小于网格边长”逻辑，默认候选总是 `15×15=225` patch。再删去与 4 个 target 重叠的区域，得到每张图不同长度的 context。为了 batch 化，collator 取 local batch 内最小长度并对所有样本做：
+
+```python
+cm[:min_keep_enc]
+```
+
+所以最终 $11\le N_c\le225$，但通常明显小于 225。
+
+#### 10.4.2 为什么这样设计
+
+Target 大小在 batch 内固定，保证 `[B,N_t]` 可以直接 stack；context 取 local batch 最短长度，则让 `[B,N_c]` 能进入标准 dense Transformer，而不用 padding mask。代价是部分图像会丢掉本可用的 context token，且截断按 raster index 顺序发生，天然偏向保留索引较小的区域。
+
+#### 10.4.3 关键超参
+
+| 项 | 值 |
+|---|---:|
+| input / patch | 224 / 14 |
+| patch grid / total token | 16×16 / 256 |
+| target 数 | 4 |
+| target scale | `[0.15,0.2]` |
+| target aspect ratio | `[0.75,1.5]` |
+| context 数 | 1 |
+| context candidate scale | `[0.85,1.0]` |
+| `min_keep` | 10，即有效长度必须 >10 |
+| target/context overlap | 配置上禁止，但代码可超时回退 |
+
+#### 10.4.4 代码与论文的差异及实现边界
+
+这里有三条源码级细节必须单独记住：
+
+1. **scale 与 aspect ratio 共用同一个随机数**，二者正相关，而不是论文文字容易让人理解的独立采样。
+2. 位置用 `torch.randint(0,height-h)`，上界少了应有的 `+1`。默认 16×16 网格下，所有 block 都无法覆盖最后一行/列；`15×15` context 的 top/left 更只能取 0，因此候选 context 永远固定在左上角。这是该 commit 的明确 off-by-one 局限。
+3. `allow_overlap=false` 是软约束：若 20 次仍找不到足够大的 context，代码会逐步减少必须避开的 target 区域，最终可能允许重叠。
+
+这些行为不会改变 JEPA 的概念目标，却会改变真实训练样本分布，是“论文 pipeline”与“代码 pipeline”之间最值得关注的差异之一。
+
+### 10.5 Target encoder：完整 256-token 图像先编码，再 gather target latent
+
+#### 10.5.1 输入输出与内部张量流
+
+Target encoder 是 context encoder 初始化后的 `deepcopy`，参数不走梯度，而是在每次 optimizer step 后做 EMA。它始终看到完整图像：
+
+```text
+images                     [B,3,224,224]
+patch Conv                  [B,1280,16,16]
+flatten + fixed 2D sincos   [B,256,1280]
+32-layer ViT-H/14           [B,256,1280]
+模型内部 LayerNorm          [B,256,1280]
+训练循环额外 F.layer_norm   [B,256,1280]
+apply 4 target masks        [4B,N_t,1280]
+```
+
+`apply_masks` 对每个 `[B,N_t]` index 做 gather，再沿 batch 维 `cat`。其内存顺序是“target 0 的 B 个样本 → target 1 的 B 个样本 → …”。默认 $C=1$ 时不再扩张；一般 $C>1$ 时，`repeat_interleave_batch` 会把 target 再复制为 `[TCB,N_t,1280]`。
+
+#### 10.5.2 为什么这样设计
+
+先用完整图像编码、再在输出 latent 上取 target，保证 teacher target 包含该区域在全图上下文中的语义，而不是一个被裁碎、信息不足的局部编码。这也是论文消融中“output masking”明显优于“input masking”的代码对应。Target encoder 不反传，既提供稳定目标，又避免 context 与 target 两条路径共同追逐瞬时噪声。
+
+#### 10.5.3 关键超参
+
+- ViT-H/14：width 1280、depth 32、heads 16、head dim 80、MLP 5120。
+- 无 CLS token；固定二维 sin-cos position embedding `[1,256,1280]`。
+- EMA momentum 从 0.996 逐 iteration 线性升到 1.0。
+
+#### 10.5.4 代码与论文的差异
+
+论文公式写 target 表征 $s_y$，没有突出 loss 前的额外标准化；代码在模型尾部 LayerNorm 之后，又对 feature 维执行一次无可学习参数的 `F.layer_norm`，而 predictor 输出没有对应的第二次标准化。这个不对称是实际训练目标的一部分。
+
+### 10.6 Context encoder：patch projection 全图算，32 层 Transformer 只看 $N_c$ token
+
+#### 10.6.1 输入输出与内部张量流
+
+Context encoder 与 target encoder 同为 ViT-H/14，但 `forward(x,masks_enc)` 的顺序是：
+
+```text
+全图 patch Conv         [B,3,224,224] → [B,256,1280]
+加完整位置编码          [B,256,1280]
+apply context mask      [B,N_c,1280]       # C=1
+32 层 Transformer       [B,N_c,1280]
+最终 LayerNorm          [B,N_c,1280]
+```
+
+因此“context encoder 只编码可见 patch”只对昂贵的 Transformer 部分成立；最前面的 patch Conv 仍对完整图像计算。
+
+#### 10.6.2 为什么这样设计
+
+在位置编码之后 gather，可以保留每个可见 patch 的绝对二维位置；随后让注意力只在 $N_c$ 个 token 上运行，计算量从 $256^2$ 降为 $N_c^2$。这正是 multi-block masking 同时承担学习目标设计和计算稀疏化的地方。
+
+#### 10.6.3 关键超参与差异
+
+Context encoder 的结构参数与 target 完全相同，唯一差异是参数更新：context 走 AdamW 梯度，target 走 EMA。论文常把 encoder 输入抽象为“context block $x$”，代码并没有先裁出一张小图，而是在完整 patch 网格上通过 index gather 得到稀疏 token 序列。
+
+### 10.7 Predictor：$T\times C$ 次预测被向量化到 batch 维
+
+#### 10.7.1 输入输出与内部张量流
+
+设 context encoder 输出为 `[CB,N_c,1280]`。Predictor 首先做：
+
+```text
+Linear(1280→384)
+[CB,N_c,1280] → [CB,N_c,384]
+```
+
+然后从固定 `[1,256,384]` position embedding 中 gather context 位置并相加。对 4 个 target，从同一位置表 gather `[TB,N_t,384]`，再为 $C$ 个 context 复制为 `[TCB,N_t,384]`。可学习 mask token `[1,1,384]` 广播相加，得到 target query token。
+
+Context 同时按 target 数整体复制：
+
+```text
+context:       [CB,N_c,384]
+repeat T 次 →  [TCB,N_c,384]
+target token:  [TCB,N_t,384]
+cat seq dim →  [TCB,N_c+N_t,384]
+```
+
+默认 $B=128,C=1,T=4$：
+
+```text
+context projected       [128,N_c,384]
+target mask+pos tokens  [512,N_t,384]
+repeated context        [512,N_c,384]
+predictor input         [512,N_c+N_t,384]
+12-layer predictor      [512,N_c+N_t,384]
+drop context slice      [512,N_t,384]
+Linear(384→1280)        [512,N_t,1280]
+```
+
+预测结果与 target latent `[512,N_t,1280]` 一一对应。论文说“对每个 target 调用 predictor 一次”，代码则把 4 次独立调用打包到 batch 维；attention 不跨 batch，因此数学上等价。
+
+#### 10.7.2 为什么这样设计
+
+384 维 bottleneck 把 predictor 变成“难以抄答案的窄模型”，迫使 1280 维视觉语义压缩后再预测。Target query 由“同一个可学习 mask 向量 + 该 patch 的固定位置编码”组成：前者表示未知内容，后者明确告诉 predictor 要填图像的哪个位置。把 4 个 target 向量化到 batch 维则避免 Python 循环，也保证每个 target 只与自己的 context 做 self-attention。
+
+#### 10.7.3 关键超参
+
+| 项 | 值 |
+|---|---:|
+| encoder→predictor | 1280→384 |
+| predictor depth / heads | 12 / 16 |
+| head dim / MLP dim | 24 / 1536 |
+| position embedding | fixed 2D sin-cos `[1,256,384]` |
+| mask token | learnable `[1,1,384]` |
+| predictor→target space | 384→1280 |
+
+#### 10.7.4 代码与论文的差异
+
+代码的 predictor 输入不是“context 表征 + 一个 target block 的 token”单次张量，而是 `[TCB,N_c+N_t,384]` 的批量展开。阅读 shape 时若漏掉 `x.repeat(len(masks),1,1)`，就会错误地把输出写成 `[B,N_t,1280]`；真实默认 shape 是 `[4B,N_t,1280]`。
+
+### 10.8 Loss、AdamW 与 EMA 更新顺序
+
+#### 10.8.1 真实训练顺序
+
+每个 iteration 严格执行：
+
+```text
+1. target_encoder(imgs)（no_grad）
+2. 额外 LayerNorm + gather target latent h
+3. context encoder 得到 z_context
+4. predictor 得到 z_pred
+5. Smooth L1(z_pred,h)
+6. backward + AdamW step（只更新 context encoder/predictor）
+7. optimizer.zero_grad()
+8. target encoder EMA update
+```
+
+Target encoder 不在 optimizer 参数组中。Bias 和所有一维参数（包括 LayerNorm 参数）不做 weight decay；其余参数的 weight decay 从 0.04 cosine 增至 0.4。学习率前 40 epochs 从 $2\times10^{-4}$ warmup 到 $10^{-3}$，再 cosine 降到 $10^{-6}$；训练 300 epochs，BF16 开启。
+
+#### 10.8.2 论文与代码最直接的目标函数差异
+
+论文公式写 squared L2：
+
+$$\mathcal L_{paper}=\frac1M\sum_i\sum_{j\in B_i}\|\hat s_{y_j}-s_{y_j}\|_2^2$$
+
+当前官方代码却调用 `F.smooth_l1_loss(z,h)`，默认 `beta=1,reduction="mean"`。因此真实实现对小误差使用二次惩罚、对大误差转为线性惩罚，并在 `[TCB,N_t,1280]` 的所有元素上取 mean。这个差异会降低异常 target feature 对梯度的支配，不应在代码复现时擅自换回 MSE 而不做消融。
+
+### 10.9 计算账：I-JEPA 为什么比像素重建收敛快但单步并非“免费”
+
+| 阶段 | 序列长度 | width | depth | 单 iteration 执行次数 |
+|---|---:|---:|---:|---:|
+| Target ViT-H/14 | 256 | 1280 | 32 | 1，完整图像，no-grad |
+| Context ViT-H/14 | $N_c$ | 1280 | 32 | 1，需反传 |
+| Predictor | $N_c+N_t$ | 384 | 12 | 向量化为 $T=4$ 份，需反传 |
+
+I-JEPA 每步仍要运行一次完整 target encoder，所以单步不一定比 MAE 便宜；节省来自两点：context 主干只在 $N_c$ token 上做注意力，predictor 只有 384 维，而且表征目标更容易优化、所需 epoch 更少。默认 16 GPU 下每步 target 数量为 $4\times2048=8192$ 个 block，每个 block 包含 35–54 个 1280 维 latent，loss 直接在这一大批 patch 表征上平均。
+
+### 10.10 代码局限、复现建议与最小调试路径
+
+1. **先核对 256 patch**：对 ViT-H/14@224 应打印 `[B,256,1280]`；出现 196 通常是误用了 patch size 16 的口径。
+2. **记录 $N_t$ 与 $N_c$**：`N_t` 在一个 local batch 内固定，$N_c$ 是该 rank 的最短 context；不同 GPU 的 $N_c$ 可不同，这是合法的 DDP 分片行为。
+3. **不要把配置 `batch_size:128` 当成 global batch**：只有 16 ranks 才得到论文的 2048；少卡复现要明确有效 batch 与学习率变化。
+4. **保留 target output masking**：先全图过 target encoder，再 gather；若把 mask 提前到输入，语义与论文消融都改变。
+5. **保留 predictor 384 维瓶颈**：不要为了“容量更大”随手改成 1280，论文消融表明更宽反而更差。
+6. **按代码复现时默认用 Smooth L1**：论文写 L2，但官方 commit 的真实训练目标是 Smooth L1；两者应分别记录。
+7. **警惕 mask off-by-one**：该 commit 的最后一行/列永远采不到，15×15 context 固定左上；若修复，训练分布会变化，应视为新的实现版本而不是 bitwise reproduction。
+8. **位置编码换分辨率有风险**：模型没有 CLS token，但插值函数带有 `-1` 的 CLS 遗留逻辑；224 原分辨率走直接返回不受影响，变分辨率前要先修正并测试。
+9. **最小可跑路径**：单卡先用 ViT-B/16 小配置验证 `images → masks → h/z shape → Smooth L1 → EMA`；再迁移到 ViT-H/14。真正复现 2048 global batch 需要多卡 DDP，而不是 gradient accumulation 的默认实现。
+10. **仓库覆盖边界**：官方代码能复现预训练主链路，但没有论文完整下游评估脚本；预训练 loss 跑通不等于 linear probe、1% fine-tune 与可视化结果均已复现。
+
+---
+
+## 11. 材料来源
+
+### 11.1 Sources
 
 | 本地文件 | 材料类型 | 原始来源 | 论文位置 | 获取日期 | 用途 |
 |---|---|---|---|---|---|
-| `sources/paper.pdf` | 论文 PDF | <https://arxiv.org/pdf/2301.08243> | 全文（含附录） | 2026-08-27 | 精读主来源 |
+| `sources/paper.pdf` | 论文 PDF | <https://arxiv.org/pdf/2301.08243> | 全文（含附录） | 2026-10-31 | 精读主来源 |
 | `figures/01-architectures.png` | Figure 2：自监督三大架构对比（JEA / Generative / JEPA） | arXiv:2301.08243 | 第 2 页 | 2026-08-27 | 架构对比 |
 | `figures/02-method.png` | Figure 3：I-JEPA 方法示意（context/target encoder + predictor） | arXiv:2301.08243 | 第 3 页 | 2026-08-27 | 核心方法 |
 | `figures/03-visualization.png` | Figure 6：predictor 表征可视化（RCDM decoder 解码） | arXiv:2301.08243 | 第 8 页 | 2026-08-27 | 关键定性结果 |
-| 代码 <https://github.com/facebookresearch/ijepa> | 官方实现 | — | — | 2026-08-27 | 复现参考 |
+| `sources/in1k_vith14_ep300.yaml` | 官方 ViT-H/14 预训练配置 | <https://github.com/facebookresearch/ijepa> | `configs/in1k_vith14_ep300.yaml` | 2026-10-31 | shape 与超参一手依据 |
+| `sources/code-version.txt` | 官方仓库版本 | <https://github.com/facebookresearch/ijepa> | commit `52c1ae95...` | 2026-10-31 | 固定代码阅读版本 |
+| `sources.md` | 完整来源与代码人工复核清单 | 本地 | — | 2026-10-31 | 溯源 |

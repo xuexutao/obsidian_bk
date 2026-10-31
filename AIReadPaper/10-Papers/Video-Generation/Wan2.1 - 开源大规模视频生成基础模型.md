@@ -2,7 +2,7 @@
 type: paper-note
 status: draft
 domain: Video-Generation
-paper: Wan: Open and Advanced Large-Scale Video Generative Models
+paper: "Wan: Open and Advanced Large-Scale Video Generative Models"
 year: 2025
 arxiv: 2503.20314
 doi: null
@@ -18,7 +18,7 @@ tags:
   - Wan
   - VAE
 created: 2026-08-27
-updated: 2026-10-15
+updated: 2026-10-31
 ---
 
 # Wan2.1：开源大规模视频生成基础模型
@@ -30,7 +30,7 @@ updated: 2026-10-15
 - **发表**：arXiv 2503.20314v1（2025-03-27），v2（2025-04-19）
 - **项目/权重**：<https://github.com/Wan-Video/Wan2.1>
 - **原文 PDF**：<https://arxiv.org/pdf/2503.20314>
-- **模型规模**：1.3B（小）/ 14B（旗舰），均支持 480p T2V 与 I2V
+- **模型规模**：T2V 有 1.3B / 14B；官方 I2V checkpoint 只有 14B（480P、720P 两套），不存在 Wan2.1-I2V-1.3B 官方基座
 - **训练数据规模**：数十亿图像 + 视频，约 O(1) 万亿 tokens
 - **核心依赖**：Diffusion Transformer（DiT）+ Flow Matching + 时空因果 VAE（Wan-VAE）+ umT5 文本编码器
 
@@ -256,6 +256,121 @@ Wan 在 NVIDIA H20 GPU 上自研了 8-bit FlashAttention，针对 attention 数�
 - **多 caption 风格**：每张图/视频配长短不一、风格多样（正式 / 非正式 / 诗意等）的多份 caption，覆盖不同用户的输入风格；
 - **Prompt Rewrite**：用一个 LLM 把用户简短 prompt 改写成训练时 dense caption 的分布，Table 1 展示了 Viking warrior、motorboat、Potato King 三个 case 的改写效果。
 
+### 3.10 以官方源码为准的完整推理链
+
+> **版本边界。** 以下实现核对的是官方仓库 commit [`9737cba9c1c3c4d04b33fcad41c111989865d315`](https://github.com/Wan-Video/Wan2.1/tree/9737cba9c1c3c4d04b33fcad41c111989865d315)。权重/config 固定到 Hugging Face revisions：T2V-1.3B `37ec512624d61f7aa208f7ea8140a131f93afc9a`、T2V-14B `a064a6c71f5be440641209c07bf2a5ce7a2ff5e4`、I2V-14B-480P `6b73f84e66371cdfe870c72acd6826e1d61cf279`、I2V-14B-720P `8823af45fcc58a8aa999a54b04be9abc7d2aac98`。这里描述的是官方原生 `generate.py → WanT2V/WanI2V → WanModel`，不是 Diffusers 的二次封装。
+
+#### 3.10.1 三套模型配置到底哪里不同
+
+| 分支 | `model_type` / DiT 输入 | hidden / FFN | heads × layers | 文本/图像条件 | 官方分辨率 |
+|---|---|---:|---:|---|---|
+| T2V-1.3B | `t2v`, `in_dim=16` | 1536 / 8960 | 12 × 30 | umT5-XXL | 480P；官方明确不把 720P 列为支持项 |
+| T2V-14B | `t2v`, `in_dim=16` | 5120 / 13824 | 40 × 40 | umT5-XXL | 480P、720P |
+| I2V-14B | `i2v`, `in_dim=36` | 5120 / 13824 | 40 × 40 | umT5-XXL + CLIP ViT-H/14 + VAE 条件 | 480P 或 720P 专用 checkpoint |
+
+三者共同使用 16 通道 Wan-VAE latent、`patch_size=(1,2,2)`、`freq_dim=256`、QK RMSNorm、全局时空 self-attention。1.3B 与 14B 的 pipeline 完全相同，只改变宽度、FFN、head 数和层数；I2V 则同时改变输入通道和 cross-attention 类，并新增 CLIP。
+
+#### 3.10.2 输入与预处理
+
+**T2V。** CLI 接收 `prompt`、`size=(W,H)`、`frame_num=F`。默认 `F=81`，且要求 `F=4n+1`。T2V 不会先造一段像素视频再过 VAE；它直接按 VAE 压缩后的目标 shape 采高斯噪声：
+
+$$T_z=\left\lfloor\frac{F-1}{4}\right\rfloor+1,\quad H_z=H/8,\quad W_z=W/8,$$
+
+$$x_T\sim\mathcal N(0,I),\qquad x_T\in\mathbb R^{16\times T_z\times H_z\times W_z}.$$
+
+**I2V。** PIL 图像先 `ToTensor` 并从 $[0,1]$ 线性变到 $[-1,1]$。输出尺寸不是强制拉伸到 CLI 的 `(W,H)`，而是在 `max_area` 下保持输入长宽比，再把 latent 高宽取成 patch 的整数倍：
+
+```python
+lat_h = round(sqrt(max_area * h / w) // 8 // 2 * 2)
+lat_w = round(sqrt(max_area * w / h) // 8 // 2 * 2)
+H, W = lat_h * 8, lat_w * 8
+```
+
+因此 `--size` 对 I2V 表示面积预算，不是最终固定宽高。官方 `examples/i2v_input.JPG` 是 $832\times1104$；代入 `832*480` 面积后得到实际输出 $W\times H=544\times720$。
+
+#### 3.10.3 umT5 与 I2V 的 CLIP 分支
+
+prompt 先做 whitespace clean，再由 `google/umt5-xxl` tokenizer 截断/补齐到 **512 tokens**。umT5-XXL encoder 是 24 层、hidden 4096、64 heads；源码先得到 `[B,512,4096]`，按 attention mask 截掉 padding，进入 DiT 前又补零回 `[B,512,4096]`，再经 `4096→D→D` MLP 投影。也就是说“512”是固定 cross-attention 槽位上限，不代表短 prompt 真有 512 个有效 token。
+
+I2V 还把第一帧送入 XLM-RoBERTa-CLIP 的视觉塔：图像 resize 到 $224\times224$，ViT-H/14 形成 $16\times16=256$ 个 patch，加 CLS 后为 `[B,257,1280]`。源码取前 31 个视觉 block 的 token，`MLPProj(1280→D)` 后为 `[B,257,D]`。在每个 DiT block 中，视频 query 分别注意：
+
+1. 257 个图像 token，使用专门的 `k_img/v_img`；
+2. 512 个 T5 token，使用普通 `k/v`；
+3. 两个 attention 输出相加后过同一个输出投影。
+
+CLIP 条件在正/负 CFG 两支都保留，CFG 主要改变文本语义，不把首帧身份条件丢掉。
+
+#### 3.10.4 Wan-VAE：真实时间公式与确定性条件编码
+
+官方 VAE 为 16 latent channels，压缩率 $4\times8\times8$。时间轴并不是简单写成 $F/4$，而是因果首帧单独保留：
+
+$$T_z=1+\left\lfloor\frac{F-1}{4}\right\rfloor,$$
+
+编码器把输入显式切成 `1,4,4,...` 帧 chunk；两个 temporal downsample 各做 stride 2，空间有三个 stride-2 下采样。任意 `F=4n+1` 时输出恰为 `n+1` 个 latent frames。解码逐 latent frame 调因果 decoder，第一帧解 1 帧，之后每个 latent frame 解 4 帧，因此：
+
+$$F_{decode}=1+4(T_z-1).$$
+
+因果卷积缓存最近 2 帧 feature；temporal downsample 额外缓存前一帧后再 stride-2。推理 wrapper 的 `encode()` 返回归一化 posterior mean $\mu$，没有调用重参数采样；I2V 条件因此是确定性的。16 通道分别用 checkpoint 内固定 mean/std 做标准化，decode 时再逆变换。
+
+#### 3.10.5 latent、I2V mask 与通道拼接
+
+T2V 的噪声就是 `[16,T_z,H_z,W_z]`。
+
+I2V 先把 resize 后的条件图与 $F-1$ 张全零图沿时间拼成 `[3,F,H,W]`，送 Wan-VAE 得到条件 latent `y_vae=[16,T_z,H_z,W_z]`。另造像素时间 mask `[1,F,H_z,W_z]`：首帧为 1，其余为 0；为了匹配因果 VAE 的 `1+4n` 时间分组，代码先把首帧复制 4 次，再 reshape/transpose：
+
+```python
+msk: [1,F,H_z,W_z]
+→ concat(repeat(first,4), rest): [1,F+3,H_z,W_z]
+→ view(1,T_z,4,H_z,W_z)
+→ transpose(1,2)[0]: [4,T_z,H_z,W_z]
+```
+
+然后 `y = concat([msk, y_vae], channel)` 得 `[20,T_z,H_z,W_z]`。`WanModel.forward()` 再执行 `cat([x_t(16), y(20)], dim=channel)`，所以 I2V checkpoint 的 `in_dim=36`。这也是为什么不能把 I2V 简化成“16 latent + 16 条件 latent + 1 mask”；真实 mask 是 **4 通道**，用于把像素帧分组信息对齐到每个因果 latent frame。
+
+#### 3.10.6 3D patchify、token 数与官方示例代入
+
+`Conv3d(kernel=stride=(1,2,2))` 将 `[C,T_z,H_z,W_z]` 映射为 `[D,T_z,H_z/2,W_z/2]`，随后 `flatten(2).transpose(1,2)` 得 `[B,L,D]`：
+
+$$L=T_z\cdot\frac{H_z}{2}\cdot\frac{W_z}{2}=T_z\cdot\frac{H}{16}\cdot\frac{W}{16}.$$
+
+官方默认 81 帧示例：
+
+| 命令/输入 | 像素输出 | VAE latent | patch grid | 3D tokens |
+|---|---:|---:|---:|---:|
+| T2V-1.3B `832*480`, 81 帧 | `[3,81,480,832]` | `[16,21,60,104]` | `[21,30,52]` | **32,760** |
+| T2V-14B `1280*720`, 81 帧 | `[3,81,720,1280]` | `[16,21,90,160]` | `[21,45,80]` | **75,600** |
+| I2V 官方 $832\times1104$ 图 + `832*480` 面积 | `[3,81,720,544]` | 噪声 `[16,21,90,68]`；条件 `[20,21,90,68]` | `[21,45,34]` | **32,130** |
+
+`seq_len` 还会向上补到 sequence-parallel world size 的倍数；单卡时就是表中的精确 token 数。3D RoPE 把每个 attention head 的频率维分配给时间、高度、宽度，`window_size=(-1,-1)` 表示这些 token 做全局时空 self-attention，而非先空间后时间的 factorized attention。
+
+#### 3.10.7 每个 DiT block 如何注入条件
+
+对 timestep $t$，先生成 256 维 sinusoidal embedding，再经 MLP 得 `[B,D]`；共享 `time_projection` 产生 `[B,6,D]`。每层另有独立可学习 `modulation=[1,6,D]`，两者相加后切为 6 组 shift/scale/gate：
+
+1. `LN(x) * (1 + scale_sa) + shift_sa` → full self-attention；`gate_sa` 控制残差；
+2. cross-attention 直接残差注入 T5；I2V 再并行注入 CLIP 图像 token；
+3. `LN(x) * (1 + scale_ffn) + shift_ffn` → FFN；`gate_ffn` 控制残差。
+
+最后 head 用另一组 2-way modulation，线性输出 `16×1×2×2=64` 维/patch，再按 `fhwpqrc→cfphqwr` 重排回 `[16,T_z,H_z,W_z]`。这里论文“所有 block 共享 timestep MLP、每层只保留 bias”的表述，在代码中具体对应：`time_projection` 全局共享，而每层 `modulation` 是完整 `[1,6,D]` 参数，不应字面写成只有标量 bias。
+
+#### 3.10.8 CFG、Flow sampler、decode 与保存
+
+官方推理支持 Flow-UniPC（默认）和 Flow-DPM++。训练时间离散为 1000，T2V 默认 50 步，I2V 默认 40 步；默认 shift=5，但 480P I2V 自动改为 3。README 对 T2V-1.3B 的官方建议是 CFG=6、shift=8～12；14B CLI 默认 CFG=5。
+
+每一步对同一个 latent 跑正、负 prompt 两次：
+
+$$\hat v=\hat v_{neg}+s(\hat v_{pos}-\hat v_{neg}),$$
+
+scheduler 更新 `[16,T_z,H_z,W_z]`，shape 不变。I2V 的 `y` 与 CLIP 在两支相同。最后 Wan-VAE 逆标准化并逐 latent frame 因果 decode，得到 `[3,F,H,W]`、值域 clamp 到 $[-1,1]$；`cache_video` 以 16 fps 写 MP4，所以 81 帧约为 5.06 秒。
+
+#### 3.10.9 论文与公开代码的可验证差异/边界
+
+- 论文给出 Flow Matching 训练目标，但官方仓库主要公开**推理代码**，没有基座预训练 dataloader、loss 与训练 loop；不能从仓库声称已完整复现训练。
+- 论文公式常省略 latent channel；实际 Wan-VAE 与 DiT 输入/输出均为 16 通道。
+- 论文把 I2V 概述成“条件图+mask”；公开实现还包含 257-token CLIP 视觉分支，并把时间 mask 重排为 4 通道。
+- VAE 支持任意长 chunked encode/decode，不等于 DiT 可常数内存生成任意长视频；官方主 pipeline 仍一次对整段 3D token 做全局 attention。
+- 当前仓库后续加入 FLF2V/VACE，但本节只追踪原始 T2V/I2V，不把这些适配器倒推为论文基座设计。
+
 ---
 
 ## 4. 数据集与训练配置
@@ -460,13 +575,13 @@ VBench（16 维、视频生成最权威的公开评测）：
 
 ### 6.1 图生视频（I2V）
 
-Wan-I2V 在 T2V 基座上微调，引入**条件图 + 掩码**作为额外输入：
+Wan-I2V 的公开实现不是只加“条件图 + 1 通道掩码”，而是三路条件：
 
-- 把条件图 $\mathbf{I} \in \mathbb{R}^{C \times 1 \times H \times W}$ 沿时间轴 zero-pad 成 $\mathbf{I}_c \in \mathbb{R}^{C \times T \times H \times W}$，经 Wan-VAE 压缩为条件潜变量 $\mathbf{z}_c$；
-- 引入二值掩码 $\mathbf{M} \in \{0, 1\}^{1 \times T \times h \times w}$（1 = 保留帧，0 = 待生成），按 Wan-VAE 的时间 stride 重新排列；
-- 噪声潜变量 $\mathbf{z}_t$、条件潜变量 $\mathbf{z}_c$、重排掩码 $\mathbf{m}$ 沿 channel 维拼接，输入 DiT 训练。
+- **VAE 条件**：条件图后补 $F-1$ 张零帧，经 Wan-VAE 得 `[16,T_z,H_z,W_z]`；
+- **时间 mask**：像素 mask 按因果 VAE 的每 4 帧分组，重排为 `[4,T_z,H_z,W_z]`；两者拼成 `[20,T_z,H_z,W_z]`，再与 `[16,...]` 噪声 latent 拼成 DiT 的 36 通道输入；
+- **CLIP 条件**：首帧经 ViT-H/14 得 257 个 1280 维视觉 token，投影后在每个 block 通过独立 image K/V cross-attention 注入。
 
-效果（Figure 19）显示 Wan-I2V 能稳定捕捉真实场景的动力学并扩展为动态视频。
+因此官方 I2V 是独立的 14B `model_type=i2v` checkpoint，而不是可直接拿 T2V-14B 权重、在推理时临时多拼一张图。完整 shape 见 §3.10.5～§3.10.7。
 
 ### 6.2 VACE：统一可控生成与编辑框架
 
@@ -641,7 +756,11 @@ Wan 的开源 + 强运动建模 + 8GB 显存可跑特性，使其在 VPP（视�
 | `figures/03-pipeline.png` | Figure 9：Wan 整体架构 pipeline | arXiv:2503.20314 | 第 13 页 | 2026-08-29 | 整体架构图 |
 | `figures/04-ablation.png` | Figure 16：adaLN 共享 vs 深度 消融训练 loss 曲线 | arXiv:2503.20314 | 第 25 页 | 2026-08-29 | 消融实验 |
 | `figures/05-dit-block.png` | Figure 10：DiT block 内部结构（共享 adaLN + Cross-Attn + FFN） | arXiv:2503.20314 | 第 14 页 | 2026-08-29 | DiT 块详细结构 |
-| <https://github.com/Wan-Video/Wan2.1> | 官方代码与权重 | — | — | 2026-08-29 | 复现参考 |
+| [Wan2.1@`9737cba9`](https://github.com/Wan-Video/Wan2.1/tree/9737cba9c1c3c4d04b33fcad41c111989865d315) | 官方推理源码固定提交 | — | `generate.py`、`wan/text2video.py`、`wan/image2video.py`、`wan/modules/{model,t5,clip,vae}.py` | 2026-10-31 | 真实调用顺序、shape、CFG、采样与 decode |
+| [T2V-1.3B@`37ec5126`](https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B/tree/37ec512624d61f7aa208f7ea8140a131f93afc9a) | 官方权重/config 固定 revision | — | `config.json` | 2026-10-31 | 1.3B 的 1536/8960、12 heads、30 layers、16 通道 |
+| [T2V-14B@`a064a6c7`](https://huggingface.co/Wan-AI/Wan2.1-T2V-14B/tree/a064a6c71f5be440641209c07bf2a5ce7a2ff5e4) | 官方权重/config 固定 revision | — | `config.json` | 2026-10-31 | 14B 的 5120/13824、40 heads、40 layers |
+| [I2V-14B-480P@`6b73f84e`](https://huggingface.co/Wan-AI/Wan2.1-I2V-14B-480P/tree/6b73f84e66371cdfe870c72acd6826e1d61cf279) | 官方权重/config 固定 revision | — | `config.json` | 2026-10-31 | `in_dim=36`、CLIP/VAE 条件核对 |
+| [I2V-14B-720P@`8823af45`](https://huggingface.co/Wan-AI/Wan2.1-I2V-14B-720P/tree/8823af45fcc58a8aa999a54b04be9abc7d2aac98) | 官方权重/config 固定 revision | — | `config.json` | 2026-10-31 | 720P I2V checkpoint 边界 |
 | <https://github.com/Wan-Video/Wan2.2> | Wan2.2 官方代码、权重与技术说明 | arXiv:2503.20314（官方沿用引用） | README | 2026-10-15 | Wan2.1→2.2 差异核实 |
 | <https://arxiv.org/abs/2604.13036> | Lyra 2.0 论文 | arXiv:2604.13036 | 方法与附录 A.1 | 2026-10-15 | Wan2.1-14B 的空间记忆/防漂移改造 |
 | <https://arxiv.org/abs/2506.08009> | Self-Forcing 论文 | arXiv:2506.08009 | 方法与实验设置 | 2026-10-15 | Wan2.1-1.3B 的因果流式改造 |

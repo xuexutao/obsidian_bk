@@ -524,6 +524,7 @@ $$
 - **分阶段复现**：先 main DINO+iBOT，保存早期与 1M checkpoint；再启用 Gram；最后 high-res。不要从 step 0 打开同一 Gram 配置并声称复现论文因果链。
 - **锁 artifact**：保存 commit、三份 YAML 的实际合并配置、权重文件名/hash prefix、完整 SHA-256、PyTorch/CUDA 与 `check_hash=True` 结果。
 - **区分 backbone/heads**：下游只需 CLS/storage/patch 的 $D$ 维特征；262144/98304 维 logits、EMA teacher、Gram teacher 都是训练期结构，不进入发布 inference graph。
+- **本轮源码复核**：已将官方仓库 detached checkout 到 `6876159a11b4df116f30f667f8c9888617df0751`，用 `git show`、三阶段 YAML、`ssl_meta_arch.py`、`gram_loss.py`、RoPE/attention 与 Hub 构造代码交叉核验；没有把 fork 或当前浮动 `main` 当作一手实现。
 
 ---
 

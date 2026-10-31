@@ -376,15 +376,15 @@ Ego→Robot 与 Ego+Robot 的 OOD 只差 0.12 pp，ID 差 0.58 pp，不能声称
 
 一次前向的数据流可以逐步写成：
 
-1. 多相机视图被拼成一张 canvas，形成当前观测 $o_1$；训练时还包含未来帧 $o_{2:T}$。
-2. 冻结 Wan2.2-VAE 因果编码视频：第一帧单独编码，后续每 4 帧一组，得到 $T'=1+(T-1)/4$ 个 latent frame；当前帧 latent 始终是干净锚点。
-3. 视频 latent 用 $(1,2,2)$ patch embedding 变成宽度 3072 的 world token，并使用 $(frame,height,width)$ 的 3D RoPE。
-4. 每个带噪动作步线性映射为一个宽度 1024 的 action token，使用 action chunk index 的 1D RoPE。
-5. 冻结 umT5 把语言编码为 4096-D context；统一 80-D proprioception 经线性投影后作为额外 context token。
-6. Video DiT 与 1B ActionDiT 各有 30 个 paired layer；每一层都是 bridge layer。两流通过各自 QKV projection 映射到 24 heads × 128 dimensions 的共享 attention 空间。
-7. Mutual mask 允许未来 world token 与 action token 双向读取；当前干净帧行既不读取带噪未来，也不读取动作，防止条件被噪声污染。
-8. 两流分别通过 AdaLN 注入 $t_v$ 与 $t_a$，最后各自线性头输出速度场。
-9. 推理用 10 步同步 Euler 更新；完成后只把动作通过 $\pi^{-1}$ 映射回机器人原生单位并执行，视频不解码。
+1. 数据窗口含 33 个连续控制时刻；action 取未来 32 步。多相机在每个视频采样点先拼成一张 canvas，再按 `video_stride=4` 取第 `{0,4,…,32}` 时刻，共 9 张 `384×320` RGB。
+2. 冻结 Wan2.2-VAE 因果编码这 9 帧：第一帧单独成组、之后每 4 帧一组，得到 3 个 48-channel latent frame，即 `[B,48,3,48,40]`；第一个 latent 是干净条件锚点。
+3. 视频 latent 用 $(1,2,2)$ patch embedding 变成 $3×24×20=1440$ 个宽度 3072 的 world token，并使用 $(frame,height,width)$ 的 3D RoPE。
+4. 每个带噪动作步线性映射为一个宽度 1024 的 action token；默认 `[B,32,80]→[B,32,1024]`，使用 action chunk index 的 1D RoPE。
+5. 冻结 umT5 把语言编码为最多 512 个 4096-D context token；统一 80-D proprioception 经线性投影后追加为一个 4096-D context token。
+6. Video DiT 与约 1B ActionDiT 各有 30 个 paired layer；每一层都是 bridge layer。两流通过各自 QKV projection 映射到 24 heads × 128 dimensions 的共享 attention 空间。
+7. Mutual mask 允许未来 world token 与 action token 双向读取；当前干净 latent frame 的 480 个 query 既不读取带噪未来，也不读取动作，防止条件被噪声污染。
+8. 两流分别通过 AdaLN 注入独立采样的 $t_v$ 与 $t_a$，最后输出 `[B,48,3,48,40]` video velocity 和 `[B,32,80]` action velocity。
+9. 论文正式评测用 10 步同步 Euler 更新；完成后动作通过 $\pi^{-1}$ 映射回机器人原生单位并执行。视频 latent 可由 VAE 解码，但策略评测默认跳过像素解码。
 
 ### 5.2 训练参数与算力
 
@@ -398,7 +398,7 @@ Ego→Robot 与 Ego+Robot 的 OOD 只差 0.12 pp，ID 差 0.58 pp，不能声称
 | Weight decay | 0.01 |
 | 训练步数 | 155,862，1 epoch |
 | 精度与并行 | bf16，DeepSpeed ZeRO-2 |
-| 输入 | 33 帧，video stride 4，window stride 1，384×320，多视角 |
+| 输入 | 33 个控制时刻→9 张 RGB canvas（video stride 4），window stride 1，384×320，多视角 |
 | 增强 | ColorJitter(0.2,0.2,0.2,0.0) |
 | Flow shift | video/action 均为 5.0 |
 | 损失权重 | $\lambda_v=\lambda_a=1$ |
@@ -431,6 +431,87 @@ OpenWAM-α 不是低成本可从零复现的模型。论文的开放性主要体
 5. 若损失超过 70% 帧，或视频冻结 ≥90%，整条删除。
 
 这部分体现了论文对大规模机器人数据的现实理解：WAM 同时学习像素未来与动作，一旦视频、state、action 时间错位，两个流会收到互相矛盾的监督，比纯 action policy 更敏感。
+
+### 5.5 官方代码级实现：9 帧视频、32 步动作与双流联合 attention
+
+> **证据边界**：源码固定为 `OpenWAM-Official/OpenWAM@3950b6d9ea848dc980a82a89b4554af2c082544a`；OpenWAM-α foundation checkpoint/config 固定为 Hugging Face revision `OpenWAM/OpenWAM-Alpha-Pretrain-Foundation-Model@52df4e66c82c5c8b480adcc8d01f4db7415dfb56`。以下明确区分【源码事实】、【checkpoint 配置】、【论文描述】与【无法确认】。
+
+#### 5.5.1 模块到代码入口表
+
+| 模块 | 官方入口 | 作用 |
+|---|---|---|
+| 数据窗口 | `openwam/dataloader/bases/lerobot_v3_reader.py::_getitem_impl` | 33 个原始时刻、每 4 帧采一张视频、32 步 action、1 个 proprio |
+| 统一动作 | `openwam/dataloader/utils/unify_action.py` | 原始本体维 scatter 到 80-D，并生成逐维 validity mask |
+| 训练总入口 | `openwam/train/openwam_trainer.py::compute_loss` | batch → architecture `prepare_inputs/compute_loss` |
+| 预处理与 loss | `openwam/model/architectures/base.py::prepare_inputs/compute_loss` | VAE/T5、双时间步加噪、联合 forward、masked flow MSE |
+| Video stream | `openwam/model/video_backbone/wan_backbone.py::WanBase.prepare/finalize` | 48-channel latent patchify、3D RoPE、30 层 Wan DiT、unpatchify |
+| Action stream | `openwam/model/action_backbone/separate_action_dit.py::ActionDiT` | 80→1024 token、1D RoPE、AdaLN、80-D velocity head |
+| 双流编排 | `openwam/model/architectures/dual_system/joint_self_attn.py::forward` | 准备两流、逐层 MoT 联合 attention、分别输出 |
+| mask | `openwam/model/architectures/utils/mask_modes.py` | first-frame-causal video mask 与 mutual 跨模态 mask |
+| 联合 attention | `openwam/model/architectures/dual_system/mot_driver.py` | 两流各算 QKV，沿 token 轴拼接、一次 SDPA、再切回两流 |
+| action scheduler | `openwam/model/action_backbone/scheduler.py::ActionScheduler` | 1000 个 shifted-flow timestep、target 与 Euler step |
+
+#### 5.5.2 一个容易误读的默认配置：33 不是视频实际帧数
+
+【checkpoint 配置】`num_frames=33, video_stride=4, height=384, width=320`。代码的真实含义是：
+
+- 33 是连续的 state/action 原始窗口长度；action horizon 为 `33-1=32`；
+- 视频索引是 `arange(0,33,4)={0,4,…,32}`，所以真正送入视频 encoder 的是 **9 帧**；
+- Wan VAE 是 causal 4× temporal compression，因此 9 帧编码为 **3 个 latent frame**；
+- 每个样本还含 `proprio=[1,80]`、`action=[32,80]`、二者的逐维 mask，以及动态长度 prompt。
+
+这纠正了前文“输入 33 帧后再做 VAE 压缩”的简写：源码里是**33 个控制时刻 → 9 张 RGB canvas → 3 个 VAE latent frame**。
+
+#### 5.5.3 按真实 forward 顺序的全链路张量表
+
+设 batch 为 $B$，umT5 有效文本长度为 $L≤512$。多相机先由数据 reader 拼成单张 `384×320` canvas，因此模型侧仍只有一个视频张量。
+
+| 顺序 | 张量与 shape | 变化原因与证据 |
+|---:|---|---|
+| 1 | 多相机原图 → 9 张 canvas `[B,9,3,384,320]` | 【源码事实】33 时刻按 stride 4 采样；缺失相机槽填黑帧，布局在 reader 完成 |
+| 2 | action/state 原始 $D$ → `[B,32,80]` / `[B,1,80]` | 【源码事实】先按本体归一化，再 scatter 到统一槽位；mask 同 shape 标记真实维 |
+| 3 | prompt → umT5 context `[B,L,4096]` | 【checkpoint 配置】tokenizer `seq_len=512`，text encoder 冻结 |
+| 4 | proprio `[B,80] → [B,1,4096]` | 【源码事实】linear 后作为一个 context token 追加到 T5 context；无效样本由 mask 关闭 |
+| 5 | 视频预处理 `[B,9,3,384,320] → [B,3,9,384,320]` | 【源码事实】Wan encoder 使用 channel-first video；像素缩放/裁剪在 adapter 内完成 |
+| 6 | Wan VAE → clean latent $z=[B,48,3,48,40]$ | 【配置推导】48 latent channels、空间 8× 压缩、causal 时间 4× 压缩：$9→3$ |
+| 7 | $z_{σ_v}=(1-σ_v)z+σ_vε_v$，shape 不变 | 【源码事实】每样本独立采 video timestep；随后把 latent 第 0 帧替换成 clean first-frame condition |
+| 8 | action $a_{σ_a}=(1-σ_a)a+σ_aε_a=[B,32,80]$ | 【源码事实】action timestep 与 video timestep 独立采样，shift 均为 5.0 |
+| 9 | video patchify `(1,2,2)` → `[B,1440,3072]` | 【配置推导】3 latent 帧×24×20 patch=1440 token；每 token width 3072 |
+| 10 | action linear `[B,32,80] → [B,32,1024]` | 【源码事实】每个控制步一个 token；1D RoPE，time embedding 产生 6 组 AdaLN 参数 |
+| 11 | 两流 QKV：video/action 分别 → `[B,1440,3072]` / `[B,32,3072]` | 【源码事实】action residual 虽为 1024，QKV 投影到与 video 相同的 `24 heads×128` attention 空间 |
+| 12 | concat QKV → `[B,1472,3072]` | 【源码事实】MoT driver 沿 sequence 拼接，不拼 residual channel |
+| 13 | joint mask `[1472,1472]` | 【源码事实】video 前 480 token 是 clean latent frame；其 query 只看前 480 video token且不看 action；后续 video token 看全部 video 并在 mutual 模式看 action；32 个 action token 看全部 video/action |
+| 14 | 30 层 joint SDPA，随后按 1440/32 切开 | 【checkpoint 配置】video/action 各有 30 个 paired block；attention 共享，FFN/residual width 独立 |
+| 15 | 两流各自 cross-attend context | 【源码事实】video 把 4096-D context 投到 3072；action 把同一 text+proprio context 投到 1024 |
+| 16 | video head/unpatchify → `[B,48,3,48,40]` | 【源码事实】预测 video velocity，shape 与 VAE latent 相同 |
+| 17 | action decoder → `[B,32,80]` | 【源码事实】预测 action velocity，shape 与统一动作块相同 |
+| 18 | video target `ε_v-z`；action target `ε_a-a` | 【源码事实】两项均为 flow velocity，不是 DDPM epsilon target；各自带 timestep weighting |
+| 19 | video loss 丢掉第 0 个 clean latent；action loss应用 `[B,32,80]` validity mask | 【源码事实】尾部时间 padding和未使用 embodiment 槽位都不产生梯度 |
+| 20 | 总损失 `L=L_video+L_action` | 【checkpoint 配置】`lambda_video=lambda_action=1.0` |
+| 21 | 推理同步更新 $(σ_v,σ_a)$，输出 action latent `[B,32,80]` | 【论文描述】正式评测取 10-step synchronized Euler；执行前 gather/反归一化为 `[B,32,D_robot]` |
+| 22 | 可选视频解码：`[B,48,3,48,40] → 9` 张 RGB | 【源码事实】框架支持 VAE decode；【论文/部署事实】OpenWAM-α 策略评测跳过解码，只执行动作 |
+
+#### 5.5.4 mask 的精确矩阵含义
+
+令 $S_v=1440,S_a=32$，则 checkpoint 的 `mutual + first_frame_causal` 不是“所有 token 全双向”，而是：
+
+$$
+M=\begin{bmatrix}
+M_{vv}^{\text{first-frame-causal}} & M_{v\leftarrow a}\\
+\mathbf 1_{S_a×S_v} & \mathbf 1_{S_a×S_a}
+\end{bmatrix}
+$$
+
+其中 $M_{v\leftarrow a}$ 对第一个 latent frame 的 480 行为 0、对后 960 行为 1。也就是说，**动作可以读完整世界流，带噪未来世界可以读动作，但 clean 当前帧永远不读带噪未来或动作**。这是防止 condition 被生成变量污染的代码级约束。
+
+#### 5.5.5 代码—论文差异与复现建议
+
+- **foundation config 才是 α 的权威默认值**：【源码事实】仓库通用 `train.yaml` 默认 `batch_size=16,num_epochs=5`；【checkpoint 配置】OpenWAM-α 实际是每 GPU 24、1 epoch。复现论文不能只运行仓库裸默认。
+- **通用 deploy helper 默认不是论文协议**：【源码事实】Wan 推理 helper 默认 `num_frames=49,num_inference_steps=50`；【论文描述】α 正式评测使用 10-step sync。部署时必须显式覆盖，否则 shape、延迟与论文都不一致。
+- **世界流确实输出 latent，但策略可不解码**：【源码事实】`forward` 同时返回 video/action velocity；“推理不输出视频”应准确写成“不做像素解码/不把视频交给执行器”，而不是“模型没有视频输出”。
+- **action mask 不进入 attention**：【源码事实】sample-level padding mask只用于 loss，MoT attention 本身仍处理全部 32 个 action token；因此尾部 padding 会参与中间表征，但不会直接产生监督。
+- **精确复现断言**：首 batch 应打印 `video=9×3×384×320`、`latent=48×3×48×40`、`video_tokens=1440×3072`、`action=32×80`、`action_tokens=32×1024`、joint QKV sequence=1472；任何一个不同都说明 stride、canvas、VAE 或 checkpoint config 未对齐。
+- **无法确认项**：【无法确认】公开 config 的若干绝对数据路径是占位符，不能从仓库自动重建论文的私有 WorldEngine/InternData 清洗结果；128×H200 的完整一阶段预训练仍需同等数据快照与 normalization records。
 
 ---
 

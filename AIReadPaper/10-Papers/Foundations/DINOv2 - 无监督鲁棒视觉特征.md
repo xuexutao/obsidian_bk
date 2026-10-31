@@ -1386,6 +1386,7 @@ $$
 - **显存估算**：标准 attention 的主矩阵随 $B\,A\,T^2$ 增长；224 的 $T=257$，518 的 $T=1370$，单层 attention score 元素约增 $(1370/257)^2\approx28.4$ 倍。高分辨率、多 crop 和保留多层特征不可同时按线性成本估计。
 - **训练 shape 单测**：用小 $b$ 跑 `collate_data_and_cast`，逐项核对 global/local batch、mask flatten index、$M$ 个 iBOT logits；不要先尝试完整 3072 batch。
 - **原论文复现**：选无 `reg4` 权重；若研究后续 register 版本，单独记录 `R=4`、antialias interpolation 与 offset=0，不能把两套结果合并。
+- **本轮源码复核**：已对官方仓库做 detached checkout 到 `7764ea0f912e53c92e82eb78a2a1631e92725fc8`，逐文件复核 `vision_transformer.py`、`ssl_meta_arch.py`、两份合并 config 与 Hub 权重入口；本节 shape 不依赖网页代码镜像或二手实现。
 
 ---
 
@@ -1454,3 +1455,9 @@ ViT-g scaling 与蒸馏把强能力转移到可部署模型；
 尽管如此，DINOv2 仍完成了一个范式转换：
 
 在它之后，深度、3D、机器人与 world model 研究不再总要从像素或 ImageNet 分类特征起步，而可以把一个冻结的、语义与几何兼具的 patch feature field 当作通用视觉状态空间。
+
+---
+
+## 16. 材料来源
+
+官方论文、固定 commit、配置、权重 URL、逐模块源码与图片溯源见 [sources.md](assets/DINOv2%20-%20无监督鲁棒视觉特征/sources.md)。

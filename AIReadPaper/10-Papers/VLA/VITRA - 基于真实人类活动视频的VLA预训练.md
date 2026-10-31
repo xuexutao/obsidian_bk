@@ -6,8 +6,8 @@ paper: VITRA
 year: 2025
 arxiv: 2510.21571
 source: https://arxiv.org/abs/2510.21571
-project: null
-code: null
+project: https://microsoft.github.io/VITRA/
+code: https://github.com/microsoft/VITRA
 tags: [VLA]
 ---
 
@@ -20,7 +20,7 @@ tags: [VLA]
 - **作者**：Qixiu Li、Yu Deng、Yaobo Liang、Lin Luo、Lei Zhou、Chengtang Yao 等
 - **单位**：Microsoft Research Asia（主要）、Tsinghua University（部分作者）
 - **arXiv**：[2510.21571](https://arxiv.org/abs/2510.21571)（v1，2025-10-24，cs.RO）
-- **项目页**：[https://microsoft.github.io/VITRA/](https://microsoft.github.io/VITRA/)（论文承诺开源数据与模型，截至笔记写作时 `code` 字段记为 null，正式发布情况以项目页为准）
+- **项目页**：[https://microsoft.github.io/VITRA/](https://microsoft.github.io/VITRA/)；**官方代码**：[microsoft/VITRA](https://github.com/microsoft/VITRA)（2025-11-30 起已公开代码、模型与 VITRA-1M，本文代码核查固定到 commit `b35517202b39d32a753fdd42014b2cc3c41fab58`）
 - **领域关键词**：VLA 预训练、灵巧手操作、人类视频、3D 手部重建、数据引擎、scaling law
 
 ## 一句话结论
@@ -281,6 +281,72 @@ $$
 
 推理时，VLM 对当前帧编码得到 cognition 特征，动作专家据此执行扩散去噪，生成未来 $N=16$ 步的双手动作块；动作块可以按常见的 receding-horizon 方式滚动执行。论文**未披露**具体推理延迟、每秒帧率或是否做动作块分块调度等运行时细节，只给出训练成本（§4.3）。这是复现时需要自行补测的空白点（个人判断）。
 
+### 3.9 官方代码级实现：从原始帧到 16×192 扩散输出
+
+> **证据标记**：下文把【源码事实】、【配置推导】、【论文描述】和【无法确认】严格分开。源码固定到 `microsoft/VITRA@b35517202b39d32a753fdd42014b2cc3c41fab58`；发布权重配置固定到 Hugging Face revision `microsoft/VITRA-VLA-3B@4bd47d5be2f664b9ae9636094a07a20e905d1ec1`。因此本节取代前文“代码尚未发布”的旧判断。
+
+#### 3.9.1 模块到代码入口表
+
+| 模块 | 官方入口 | 关键职责 |
+|---|---|---|
+| 训练入口 | `scripts/train.py::experiment` | 构建模型、数据、FSDP；把 `fwd_pred_next_n=16` 转成 future window 15 |
+| 人手样本 | `vitra/datasets/human_dataset.py::EpisodicDatasetCore.get_item_frame` | 世界坐标手轨迹转锚帧相机坐标，构造 16 步状态/动作/mask/FoV |
+| 统一维度 | `EpisodicDatasetCore.transform_trajectory`、`pad_action`、`pad_state_human` | 102-D 人手动作补到 192-D，状态补到 212-D |
+| 图文预处理 | `vitra/datasets/dataset.py::FrameDataset.post_transform` | 只取当前一帧；PaliGemma2 processor 生成 `pixel_values/input_ids` |
+| VLA 主入口 | `vitra/models/vla/vitra_paligemma.py::VITRA_Paligemma.forward` | VLM 前向、提取 cognition token、调用动作扩散专家 |
+| PaliGemma2 拼接 | `prepare_vlm_input_embeddings` | 图像占位 token 替换、追加 FoV token 与 cognition token、构造 causal mask |
+| 动作扩散 | `vitra/models/action_model/diffusion_policy.py::DiffusionPolicy` | 100-step forward diffusion、masked noise MSE、DDIM 采样 |
+| DiT 主干 | `vitra/models/action_model/dit.py::DiT.forward` | cognition/state/action token 化、12 层 causal DiT、AdaLN-Zero |
+
+#### 3.9.2 默认配置与真实输入
+
+【源码事实】发布配置采用 PaliGemma2 `google/paligemma2-3b-mix-224`、单帧 `224×224`、chunk 长度 16、统一 action width 192、state width 212、`DiT-B`、每个样本重复 8 次独立扩散噪声、视觉塔冻结。原始人手动作仍是论文中的 102-D：每手 `[Δt(3), Δr_xyz(3), MANO Euler(45)] = 51`，左右手拼成 102。
+
+【源码事实】数据代码并非把 102-D 直接送入模型：
+
+1. 每个 episode 先产生 `action_abs/action_rel ∈ R^{16×102}`；默认 `use_rel=false` 时，腕部 6-D 取逐步相对量，45-D 手指取下一帧绝对角度。
+2. 动作按数据统计做 Gaussian normalization，再零填充为 `action ∈ R^{16×192}`；`action_mask ∈ {0,1}^{16×192}` 只在有效手、有效时间和前 102 维为真，后 90 维永远不参与损失。
+3. 原始 state 是两手各 `6 + 45 + MANO β(10) = 61`，合计 122-D；`pad_state_human` 明确丢弃两侧 β，只保留 102-D 位姿并补到 `state ∈ R^{212}`，同时生成逐维 mask。
+4. 数据 loader 实际只取 `image_list[-1]`，不是视频窗口。轨迹感知增强可先得到高度 224、宽度动态变化的图像，随后 PaliGemma2 processor 统一输出 `[1,3,224,224]`。batch collator 再形成 `pixel_values=[B,3,224,224]`、`fov=[B,2]`、`actions=[B,16,192]`、`state=[B,212]`。
+
+#### 3.9.3 按真实 forward 顺序的全链路张量表
+
+设 batch 为 $B$，PaliGemma2 processor 输出的图文序列长度为 $L$；其中一张 224 图像对应 $16×16=256$ 个 SigLIP patch token。
+
+| 顺序 | 张量与 shape | 变化原因与证据 |
+|---:|---|---|
+| 1 | 原始 RGB `[B,H_0,W_0,3]` → processor `[B,3,224,224]` | 【源码事实】增强后再由 PaliGemma2 processor 统一尺寸；当前实现只保留一帧 |
+| 2 | instruction → `input_ids/attention_mask=[B,L]` | 【源码事实】文本前加一个 `<image>`；$L$ 动态，batch 内右侧 padding |
+| 3 | SigLIP `[B,3,224,224] → [B,256,2304]` | 【配置推导】patch 14、16×16 patch；PaliGemma2-3B text width 为 2304 |
+| 4 | word/image embedding → `[B,L,2304]` | 【源码事实】256 个 image placeholder 由视觉特征原位替换，而不是再额外拼一次 |
+| 5 | FoV `[B,2] → [B,1,2304]`；cognition `[B,1,2304]` | 【源码事实】FoV 经 MLP；独立可学习 cognition embedding 追加在最后 |
+| 6 | VLM 输入 `[B,L+2,2304]` → 最后一层 `[B,L+2,2304]` | 【源码事实】调用 `language_model`；vision encoder 冻结，Gemma2 与新增 token 可训练 |
+| 7 | cognition feature `[B,1,2304]` | 【源码事实】按有效 mask 取最后一个有效 token，即追加在末尾的 cognition token |
+| 8 | repeat 8 次：`B → 8B` | 【源码事实】同一监督配 8 个独立 timestep/noise，降低单次扩散采样方差 |
+| 9 | clean action/mask `[8B,16,192]`；state/mask `[8B,1,212]` | 【源码事实】102/212 的真实有效槽位由 mask 标记，统一宽度便于人手/机器人共用模型 |
+| 10 | $x_i=q(a,i,\epsilon)\in\mathbb R^{8B\times16\times192}$，再与 mask 拼为 `[8B,16,384]` | 【源码事实】100-step squared-cosine DDPM；无效 action 先置零，mask 作为显式输入特征 |
+| 11 | action MLP `[8B,16,384] → [8B,16,768]` | 【源码事实】`DiT-B` 在工厂函数中硬编码 hidden 768 |
+| 12 | cognition `2304→768`，state `424→768` | 【源码事实】state 先拼 `[state,mask]` 得 424-D；二者各经投影 |
+| 13 | DiT 序列 `[cognition(1), state(1), action(16)] → [8B,18,768]` | 【源码事实】加入长度 18 的学习位置 embedding |
+| 14 | 12 层、12 heads causal self-attention，shape 不变 | 【源码事实】每层构造严格上三角 `-inf` mask；第 $k$ 个动作 token 看不到未来动作 token |
+| 15 | AdaLN 条件 $c=z_{cog}+e(i)=[8B,768]$ | 【源码事实】同一条件调制每层 attention/MLP；cognition 还作为序列首 token 再参与注意力 |
+| 16 | head `[8B,18,192]` → 末 16 token `[8B,16,192]` | 【源码事实】输出预测噪声 $\hat{\epsilon}$，前两个 condition token 的输出被丢弃 |
+| 17 | masked MSE target `ε=[8B,16,192]` | 【源码事实】只在有效时间/手/维度求 `(ε̂-ε)^2`；102-D 之外 padding 不计梯度 |
+| 18 | 推理：DDIM 10 步、CFG 5.0 → `[S,16,192]` | 【源码事实】condition/uncondition 沿 batch 翻倍，采样后去掉 uncondition 分支并乘 action mask |
+| 19 | 反归一化/按映射 gather → `[S,16,D_robot]` 或人手 `[S,16,102]` | 【源码事实】统一槽位只用于模型内部；执行前还原目标本体的实际动作维 |
+
+【源码事实】VLM mask 由 Transformers 4.47.1 的 `PaliGemmaForConditionalGeneration._update_causal_mask` 构造，仓库传入 `token_type_ids=None`。因此能稳定确认的是 cognition token 位于最后且能汇总此前图像/文本/FoV；不能把它写成“独立 cross-attention 池化器”。更细的 prefix-LM 行为应固定到该 Transformers 版本验证，不能仅凭论文架构图推断。
+
+#### 3.9.4 代码—论文差异与复现建议
+
+- **开源状态已变化**：【源码事实】官方现已发布训练/微调/推理代码、VITRA-1M 和权重；早期“代码未披露”的判断已失效，不能再用第三方 PaliGemma+DiT 实现代替官方实现。
+- **102-D 与 192-D 不矛盾**：【论文描述】定义人手语义动作是 102-D；【源码事实】模型 I/O 是 192-D，靠 mask 保持 102-D 有效区。这是跨本体工程槽位，不是论文另加了 90 个动作自由度。
+- **`hidden_size:1024` 是失效配置**：【源码事实】JSON 虽写 1024，但 `_init_act_model` 没把它传给 `DiT-B`；真正 residual width 是工厂硬编码的 768。复现应以构造函数调用链为准。
+- **训练步数不一致**：【论文描述】5000 warmup + 80K 联合训练；【源码事实】发布 JSON 的 `max_steps=2,000,000` 只是上限，不能据此声称官方预训练跑了 2M 步。复现实验应显式设定论文的停止步数并记录 checkpoint。
+- **当前视觉输入是单帧**：【源码事实】虽然数据类保留 image window 接口，`post_transform` 只取最后一帧。任何“视频 Transformer 直接编码多帧”的说法都不符合此 revision。
+- **复现最小检查**：在第一个 batch 打印并断言 `pixel=[B,3,224,224]`、`action=[B,16,192]`、`action_mask=[B,16,192]`、`state=[B,212]`、DiT token `[8B,18,768]`；同时统计有效 action mask 数，避免 padding 被误算为监督。
+- **无法确认项**：【无法确认】仓库没有给出与论文 80K 最终模型一一对应的训练日志、精确 checkpoint step、真实部署控制频率和端到端时延；这些必须从发布权重元数据或实测补齐。
+
 ---
 
 ## 4. 数据集与实验设置
@@ -490,9 +556,9 @@ VITRA 横跨四条线，且都对它们构成了明确的推进或对照：
 
 **复现成本评估**：
 
-- **数据**：论文承诺开源数据集与模型，但笔记写作时正式链接未定（项目页存在）。若无法获得官方 Hand VLA 数据，自行复现需重跑三阶段 pipeline，其中 HaWoR、MegaSAM、MoGe-2 的手部重建 + 相机追踪是最大工程与算力门槛，且 GPT-4.1 标注百万级 episode 的 API 成本可观。
+- **数据**：官方现已发布 VITRA-1M、VITRA-TeleData 与 VITRA-VLA-3B；若要从原始视频重建数据，仍需重跑三阶段 pipeline，其中 HaWoR、MegaSAM、MoGe-2 的手部重建 + 相机追踪是最大工程与算力门槛，且 GPT-4.1 标注百万级 episode 的 API 成本可观。
 - **算力**：预训练 8×H100 约 2 天（80K 步 + 5K 步热身），微调 8×H100 约 8 小时。对多数团队而言门槛不低，但相比从零采集机器人数据，仍是"数据成本换算力成本"的划算交易。
-- **代码**：论文未披露官方代码（code 字段为 null）；可先参照 PaliGemma-2、DiT 的公开实现搭骨架，动作空间、cognition token、因果去噪、动作掩码需自行实现。
+- **代码**：应直接使用官方 `microsoft/VITRA` 与发布权重配置，不再以第三方 PaliGemma+DiT 拼装实现代替；复现前先核对 §3.9 所列 192-D 动作槽、212-D state、DiT-B 实际宽度 768 与 mask。
 
 **实践建议**：
 
@@ -526,6 +592,9 @@ VITRA 横跨四条线，且都对它们构成了明确的推进或对照：
 - **论文原文（HTML）**：https://arxiv.org/html/2510.21571 （精读主来源，本笔记所有数字、公式与图注均据此核对）
 - **论文 PDF / 摘要页**：https://arxiv.org/abs/2510.21571
 - **项目页**：https://microsoft.github.io/VITRA/
+- **官方代码（固定 commit）**：https://github.com/microsoft/VITRA/tree/b35517202b39d32a753fdd42014b2cc3c41fab58 （§3.9 的源码主依据）
+- **官方权重与配置（固定 revision）**：https://huggingface.co/microsoft/VITRA-VLA-3B/tree/4bd47d5be2f664b9ae9636094a07a20e905d1ec1
+- **重点源码路径**：`vitra/datasets/human_dataset.py`、`vitra/datasets/dataset.py`、`vitra/models/vla/vitra_paligemma.py`、`vitra/models/action_model/{diffusion_policy.py,dit.py}`、`vitra/configs/human_pretrain.json`
 - **延伸阅读（§3.2.1、§3.2.2 的依据）**：
   - HaWoR: World-Space Hand Motion Reconstruction from Egocentric Videos，CVPR 2025 — [arXiv:2501.02973](https://arxiv.org/abs/2501.02973)｜[项目页](https://hawor-project.github.io/)｜[代码](https://github.com/ThunderVVV/HaWoR)
   - WiLoR: End-to-end 3D Hand Localization and Reconstruction in-the-Wild，CVPR 2025 — [arXiv:2409.12259](https://arxiv.org/abs/2409.12259)
