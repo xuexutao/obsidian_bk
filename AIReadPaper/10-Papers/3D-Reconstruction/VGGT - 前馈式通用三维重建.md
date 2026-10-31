@@ -81,7 +81,7 @@ VGGT 的哲学是"最小 3D 归纳偏置"：不设计专门的几何网络结构
 
 ### 2.4 多任务输出头
 
-最终做的事情是在聚合后的Token上开出多个输出分支。比如输出Camera参数，包括Rotation、Translation等位姿信息；输出Depth；输出Tracks；以及其他各种几何相关的表征。
+最终做的事情是在聚合后的Token上开出多个输出分支。<span style="color: red">**比如输出Camera参数，包括Rotation、Translation等位姿信息**</span>；输出Depth；输出Tracks；以及其他各种几何相关的表征。
 
 主干之上并行挂三个输出头，共享同一个 backbone 表征：
 
@@ -91,7 +91,7 @@ VGGT 的哲学是"最小 3D 归纳偏置"：不设计专门的几何网络结构
 | **dense head（DPT）**           | 类 DPT 的密集预测头                | 逐像素的深度图 / 点图 / tracking 特征，以及深度与点图各自的 aleatoric uncertainty（$\Sigma^D$、$\Sigma^P$）。展开见 [§2.4.1](#241-dense-head-展开dpt-是什么为什么需要它) |
 | **tracking head（CoTracker2）** | 基于 CoTracker2               | 跨帧的 3D 点跟踪特征                                             |
 
-> **口径提示**：论文原文只承认**两个 head**——图 2 的说明是 "A camera head makes the final prediction for camera extrinsics and intrinsics, and **a DPT head for any dense output**"。也就是说**并不存在独立的 "depth head"**，深度只是 DPT head 的一路输出分支；tracking 则是一个吃 DPT 特征的**独立模块** $\mathcal{T}$，而非挂在主干上的第三个头。上表按「功能」分三行便于对照，但引用架构时应以「camera head + DPT head」为准。
+> **口径提示**：论文原文只承认两个 head——图 2 的说明是 "A camera head makes the final prediction for camera extrinsics and intrinsics, and a DPT head for any dense output"。也就是说并不存在独立的 "depth head"，深度只是 DPT head 的一路输出分支；tracking 则是一个吃 DPT 特征的独立模块 $\mathcal{T}$，而非挂在主干上的第三个头。上表按「功能」分三行便于对照，但引用架构时应以「camera head + DPT head」为准。
 
 **depth 分支到底输出什么。** 两样东西，都是逐像素的：
 
@@ -123,7 +123,7 @@ VGGT 的哲学是"最小 3D 归纳偏置"：不设计专门的几何网络结构
 
 DPT = **Dense Prediction Transformer**，出自 Ranftl, Bochkovskiy, Koltun 的《Vision Transformers for Dense Prediction》（ICCV 2021，arXiv:2103.13413）——也就是 MiDaS 团队（Intel Labs）把自家单目深度主干从 ResNeXt 换成 ViT 的那一篇。它的核心主张是：
 
-> ViT 全程维持**恒定且相对高**的空间分辨率（token 数从头到尾不变），且**每一层都有全局感受野**——这两个性质正好是密集预测想要的；缺的只是一个把 token 还原成图的解码器。
+> ViT 全程维持**恒定且相对高**的空间分辨率（token 数从头到尾不变），且<span style="color: red">**每一层都有全局感受野**</span>——这两个性质正好是密集预测想要的；缺的只是一个把 token 还原成图的解码器。
 
 这句话是对着卷积网络说的。FCN 系要靠逐级 downsample 才能把感受野撑大，代价是分辨率一路掉，细节在 bottleneck 处不可逆地丢失；ViT 没有这个 tradeoff。
 
@@ -141,7 +141,7 @@ $$\text{Reassemble}^{\hat D}_s(t) = \left(\text{Resample}_s \circ \text{Concaten
 | **Concatenate** | 按 patch 在原图中的位置，把 token 摆回二维网格 | $\mathbb{R}^{N_p\times D} \to \mathbb{R}^{\frac{H}{p}\times\frac{W}{p}\times D}$ |
 | **Resample** | 重采样到目标分辨率与通道数 | $\to \mathbb{R}^{\frac{H}{s}\times\frac{W}{s}\times\hat D}$ |
 
-**Read 的三个变体**（readout token 即 ViT 的 class token，它对密集预测没有明确用途，但可能承载有用的全局信息）：<span style="color: red">就是对ViT的class token全局token做操作的</span>
+**Read 的三个变体**（readout token 即 ViT 的 class token，它对密集预测没有明确用途，但可能承载有用的全局信息）：<span style="color: red">**就是对ViT的class token全局token做操作的**</span>
 
 $$\text{Read}_{\text{ignore}}(t) = \{t_1,\dots,t_{N_p}\}$$
 $$\text{Read}_{\text{add}}(t) = \{t_1 + t_0,\dots,t_{N_p} + t_0\}$$
