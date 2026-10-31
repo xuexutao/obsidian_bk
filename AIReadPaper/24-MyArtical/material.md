@@ -39,6 +39,8 @@ dreamZero · LingBot-VA · Cosmos policy
 
 VGGT 的关键确实是 over-complete multi-task supervision，VGGT 各个 head 之间主要是通过共享 backbone 产生“软耦合”，不一定存在严格的跨 head 几何一致性约束。
 
+输入也是 518x518 大小的，patch 网格维 37x37 的，每帧图像token为37x37=1369，
+
 ### Trellis 理解
 
 Trellis的流程是首先对一个资产归一化到 -0.5到0.5 之间（最长边归一），进行体素化到 64^3 的 0-1 网格，接下来有两个去处：
