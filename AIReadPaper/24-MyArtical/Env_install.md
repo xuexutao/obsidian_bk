@@ -92,4 +92,8 @@ python -m pip install \
   flash-attn==2.8.3.post2 \
   --no-build-isolation \
   --no-cache-dir
+  
+- 8.0 = A100 / A800
+- 8.6 = RTX3090、A10
+- 9.0 = H100/H800
 ```
