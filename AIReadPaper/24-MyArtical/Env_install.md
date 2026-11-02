@@ -79,4 +79,17 @@ python -m pip install flash-attn==2.8.3.post2 --no-build-isolation
 python -c "import flash_attn; from flash_attn import flash_attn_func; print(flash_attn.__version__)"
 
 
+
+
+# ==========================================
+mkdir -p /dockerdata/root/flashattn-build/tmp
+
+TMPDIR=/dockerdata/root/flashattn-build/tmp \
+FLASH_ATTENTION_FORCE_BUILD=TRUE \
+TORCH_CUDA_ARCH_LIST="8.0" \
+MAX_JOBS=8 \
+python -m pip install \
+  flash-attn==2.8.3.post2 \
+  --no-build-isolation \
+  --no-cache-dir
 ```
