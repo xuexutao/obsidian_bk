@@ -64,3 +64,19 @@ python -m uvicorn qwen25_openai_server:app \
 
 
 ```
+
+install flash attn
+```bash
+mkdir -p /dockerdata/root/flashattn-install/tmp
+mkdir -p /dockerdata/root/flashattn-install/cache
+
+TMPDIR=/dockerdata/root/flashattn-install/tmp \
+PIP_CACHE_DIR=/dockerdata/root/flashattn-install/cache \
+MAX_JOBS=8 \
+python -m pip install flash-attn==2.8.3.post2 --no-build-isolation
+
+
+python -c "import flash_attn; from flash_attn import flash_attn_func; print(flash_attn.__version__)"
+
+
+```
