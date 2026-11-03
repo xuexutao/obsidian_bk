@@ -4,6 +4,8 @@
 curl -L https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/Miniforge3.sh
 
 bash /tmp/Miniforge3.sh -b -p ~/.cache/miniforge3
+
+
 source ~/.cache/miniforge3/etc/profile.d/conda.sh
 
 ```
@@ -101,7 +103,7 @@ python -m pip install \
 单卡的demo
 ```bash
 cd /apdcephfs/private_xt/dev_workspace/demo/hyworld2/worldgen
-
+source ~/.cache/miniforge3/etc/profile.d/conda.sh
 
 
 # ================================= stage 2 ====================================
