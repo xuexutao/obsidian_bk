@@ -176,15 +176,28 @@ conda 环境打包
 # base env
 conda install -n base -c conda-forge conda-pack zstandard -y
 
+
+
 # -n：conda env list 下的名字
 # -p：环境绝对路径
-conda pack \
-  -n qwen25-transformers \
-  -o ./demo_env/qwen25-transformers-conda.tar.zst \
-  --format tar.zst \
-  --compress-level 1 \
-  --n-threads -1 \
-  --force
+conda run -n base conda-pack \
+	-n qwen25-transformers \
+	-o ./demo_env/qwen25-transformers-conda.tar.zst \
+	--format tar.zst \
+	--compress-level 1 \
+	--n-threads -1 \
+	--force
+
+# 或者
+
+CONDA_BASE="$(conda info --base)"
+"$CONDA_BASE/bin/conda-pack" \
+	-n qwen25-transformers \
+	-o ./demo_env/qwen25-transformers-conda.tar.zst \
+	--format tar.zst \
+	--compress-level 1 \
+	--n-threads -1 \
+	--force
 
 
 ```
