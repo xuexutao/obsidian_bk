@@ -188,6 +188,8 @@ conda run -n base conda-pack \
 	--n-threads -1 \
 	--force
 
+# 如果有-e 安装的第三方库，例如 gsplat，可以加上 `--ignore-editable-packages` 忽略可编辑包，但是重启之后要重新 pip install -e . 安装
+
 # 或者
 
 CONDA_BASE="$(conda info --base)"
@@ -198,6 +200,17 @@ CONDA_BASE="$(conda info --base)"
 	--compress-level 1 \
 	--n-threads -1 \
 	--force
+
+# --------------------- 重启使用 -----------------------------
+
+ARCHIVE="/dockerdata/root/conda-packages/demo-conda.tar.zst"
+DEST="/root/.cache/env/demo-conda-restored"
+
+mkdir -p "$DEST"
+tar --zstd -xf "$ARCHIVE" -C "$DEST"
+
+source "$DEST/bin/activate"
+conda-unpack
 
 
 ```
