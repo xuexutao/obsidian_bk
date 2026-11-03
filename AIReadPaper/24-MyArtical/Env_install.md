@@ -97,3 +97,75 @@ python -m pip install \
 - 8.6 = RTX3090、A10
 - 9.0 = H100/H800
 ```
+
+单卡的demo
+```bash
+cd /apdcephfs/private_xt/dev_workspace/demo/hyworld2/worldgen
+
+
+
+# ================================= stage 2 ====================================
+CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 \
+torchrun --standalone --nnodes=1 --nproc-per-node=1 \
+traj_render.py \
+	--target_path /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001 \
+	--llm_addr 127.0.0.1 \
+	--llm_port 8000 \
+	--llm_name Qwen/Qwen2.5-VL-7B-Instruct \
+> /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001/log_2.log 2>&1
+
+
+
+# ================================= stage 3 ====================================
+CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 \
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+torchrun --standalone --nnodes=1 --nproc-per-node=1 \
+video_gen.py \
+	--target_path /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001 \
+	--max_reference 4 \
+	--downsampled_pts 1000000 \
+	--skip_exist \
+> /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001/log_3.log 2>&1
+
+
+cd /apdcephfs/private_xt/dev_workspace/demo/hyworld2/worldgen
+CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 \
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+torchrun --standalone --nnodes=1 --nproc-per-node=1 \
+video_gen.py \
+	--target_path /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001 \
+	--max_reference 4 \
+	--downsampled_pts 1000000 \
+	--skip_exist \
+> /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001/log_3_3.log 2>&1
+
+
+
+# ================================= stage 4 ====================================
+cd /apdcephfs/private_xt/dev_workspace/demo/hyworld2/worldgen
+CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 \
+torchrun --nproc_per_node 1 gen_gs_data.py \
+	--root_path /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001 \
+	--save_normal --split_sky \
+> /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001/log_4.log 2>&1
+
+
+
+# ================================= stage 5 ====================================
+CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 \
+python -m world_gs_trainer default \
+	--data_dir /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001/gs_data \
+	--result_dir /apdcephfs/private_xt/dev_workspace/demo/examples/output/worldgen/case001 \
+	--max_steps 8000 --save_steps 1500 --eval_steps 1500 --ply_steps 1500 \
+	--disable-viewer \
+	--save_ply --convert_to_spz --disable_video \
+	--use_scale_regularization --antialiased \
+	--depth_loss --normal_loss --sky_depth_from_pcd \
+	--use_mask_gaussian --mask_export_stochastic \
+	--no-mask-export-anchor-protection --use_anchor_protection --export_mesh \
+	--strategy.refine-start-iter 150 --strategy.refine-stop-iter 750 \
+	--strategy.refine-every 100 --strategy.refine-scale2d-stop-iter 750 \
+	--strategy.reset-every 99990 --strategy.grow-grad2d 0.0001 --strategy.prune-scale3d 0.1 \
+> /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001/log_5.log 2>&1
+
+```
