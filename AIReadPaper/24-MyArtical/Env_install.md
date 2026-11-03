@@ -169,3 +169,22 @@ python -m world_gs_trainer default \
 > /apdcephfs/private_xt/dev_workspace/demo/examples/worldgen/case001/log_5.log 2>&1
 
 ```
+
+conda 环境打包
+```bash
+
+# base env
+conda install -n base -c conda-forge conda-pack zstandard -y
+
+# -n：conda env list 下的名字
+# -p：环境绝对路径
+conda pack \
+  -n qwen25-transformers \
+  -o ./demo_env/qwen25-transformers-conda.tar.zst \
+  --format tar.zst \
+  --compress-level 1 \
+  --n-threads -1 \
+  --force
+
+
+```
