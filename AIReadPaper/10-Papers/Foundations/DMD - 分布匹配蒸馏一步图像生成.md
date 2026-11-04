@@ -107,7 +107,7 @@ $$\nabla_\theta D_{KL} = \mathbb{E}_{z,\ x=G_\theta(z)}\Big[-\big(s_{\text{real}
 
 直觉上，$s_{\text{real}}$ 把 $x$ 推向真实分布的模态，$-s_{\text{fake}}$ 把样本推开、防止坍缩（见 Figure 3(a,b)）。
 
-但式 (2) 有两个障碍：① 对低概率样本分数发散（尤其 fake 样本处 $p_{\text{real}}$ 趋零）；② 扩散模型只给出**扩散后分布**的分数。Score-SDE 的理论给出解答——**给数据注入不同方差的高斯噪声**，得到一族支撑在全空间、彼此重叠的"模糊分布"，使梯度处处有定义（Figure 4）；训练好的扩散模型恰好逼近这个扩散分布的分数。
+但式 (2) 有两个障碍：① 对低概率样本分数发散（尤其 fake 样本处 $p_{\text{real}}$ 趋零）；② 扩散模型只给出**扩散后分布**的分数。Score-SDE 的理论给出解答——<span style="color: red">**给数据注入不同方差的高斯噪声**</span><span style="color: red">**，得到一族支撑在全空间、彼此重叠的"模糊分布"，使梯度处处有定义**</span>（Figure 4）；训练好的扩散模型恰好逼近这个扩散分布的分数。此时的 $x$ 就变为 $x_t$，且 $x_t \sim q(x_t | x) \quad q_t(x_t | x) \sim \mathcal{N}(\alpha_t x ; \sigma_t^2 \mathbf{I})$
 
 因此用两个扩散去噪器分别建模扩散后 real/fake 分布的分数：
 
