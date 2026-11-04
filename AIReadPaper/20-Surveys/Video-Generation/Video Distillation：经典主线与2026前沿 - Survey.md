@@ -153,6 +153,20 @@ Diffusion Forcing 提供的是**如何训练一个多步因果 diffusion teacher
 
 CausVid 的历史地位不在某一个 VBench 数字，而在两个结论。第一，**双向教师与因果学生不必同构**；第二，视频少步蒸馏可与 decoder-only 式 KV-cache 推理结合。它把 DMD 从“图像一步生成”真正变成“流式视频生成”的核心工具。
 
+CausVid 的核心是 **双向教师 $s_{\mathrm{data}}$** 与 **因果学生 $G_\phi$** 之间的两步训练：
+
+- **ODE 初始化损失**（Step 1）：教师在 $\mathcal{N}(0,I)$ 上做概率流 ODE 反向求解，得到潜空间轨迹 $\{x_t^i\}_{i=1}^{N}$。学生通过回归损失模仿这条轨迹：
+
+$$\mathcal{L}_{\mathrm{init}} = \mathbb{E}_{x,t^i}\big[\|G_\phi(\{x_{t-1}^i\}_{i=1}^{N}, \{t^i\}_{i=1}^{N}) - \{x_0^i\}_{i=1}^{N}\|^2\big]$$
+
+- **DMD 蒸馏损失**（Step 2）：沿用 Yin et al. 2024 的 DMD，用两个分数函数的差做近似 KL 梯度，并把"假分数"由学生自己训练：
+
+$$\nabla_\phi \mathbb{E}_{z \sim \mathcal{N}} D_{\mathrm{KL}}\big(p_{\mathrm{fake}} \,\|\, p_{\mathrm{data}}\big) = \mathbb{E}_{t,\epsilon}\Big[\big(s_{\mathrm{real}}(x_t) - s_{\mathrm{gen}}(x_t)\big)\frac{\partial x_t}{\partial \phi}\Big]$$
+
+其中 $s_{\mathrm{real}}$ 是固定预训练 diffusion 的分数函数，$s_{\mathrm{gen}}$ 是学生自己连续训练得到的分数网络（与 DMD 原始论文完全一致）。注意关键点：**DMD 的真实分数函数 $s_{\mathrm{real}}$ 在此处使用双向教师**，而非因果教师。
+
+---
+
 ### 4.2 留下的两个缺口
 
 CausVid 训练时仍主要使用真实/加噪历史，而推理时历史来自学生自己，因此 exposure bias 尚未闭合。更隐蔽的问题是，它的 ODE 初始化直接回归双向教师整段视频轨迹；学生看不到未来帧，这个逐帧回归目标未必是单值函数。前者由 Self Forcing 解决，后者由 Causal Forcing 解决。
