@@ -183,7 +183,7 @@ $$L_v=\frac{T}{q}\frac{H}{p}\frac{W}{p}.$$
 
 初代 CogVideoX-5B 的模型配置只有空间 `patch_size=2`，没有 temporal patch；49 帧经 VAE 得 13 latent frames，patch grid 是 $13\times30\times45$，共有 17,550 个视觉 token。
 
-CogVideoX1.5-5B 新增 `patch_size_t=2`。81 帧经 VAE 得 21 latent frames，先复制首帧补为 22，再按时间 2、空间 2×2 patchify，grid 是 $11\times48\times85$，共有 44,880 个视觉 token。若没有时间 patch，token 会翻倍；因此 1.5 能提高分辨率和帧率，一个关键补偿就是额外的时间 patchification。
+CogVideoX1.5-5B 新增 `patch_size_t=2`。81 帧的名义 VAE 长度是 21 latent frames；训练时微调代码在序列开头复制首帧补为 22，T2V 推理时 pipeline 则直接按补齐后的 22 帧创建噪声 latent，去噪结束后从开头裁掉额外 1 帧，再把 21 帧交给 VAE decode。按时间 2、空间 2×2 patchify 后，grid 是 $11\times48\times85$，共有 44,880 个视觉 token。若没有时间 patch，token 会翻倍；因此 1.5 能提高分辨率和帧率，一个关键补偿就是额外的时间 patchification。
 
 ### 3.4 T5 文本编码器
 
@@ -536,16 +536,15 @@ $$\operatorname{FLOPs}_{attn}\approx4L^2D.$$
 
 | 阶段 | 张量形状 | 说明 |
 |---|---:|---|
-| 像素视频 | `[1,3,81,768,1360]` | 16 fps，约 5 秒 |
-| VAE latent | `[1,16,21,96,170]` | 同样 4×8×8 压缩 |
-| 首帧复制后 | `[1,16,22,96,170]` | 21 不能整除 temporal patch 2 |
-| Transformer 输入顺序 | `[1,22,16,96,170]` | `[B,F,C,H,W]` |
+| 目标像素视频 | `[1,3,81,768,1360]` | 16 fps，约 5 秒 |
+| 名义 VAE latent | `[1,16,21,96,170]` | 输出端 81 帧对应 21 latent frames |
+| 补齐后的去噪 latent | `[1,22,16,96,170]` | T2V 推理直接创建 22 帧噪声；训练编码后复制首帧 |
 | 时空 patch | `[1,11,48,85,128]` | 每 patch `2×16×2×2=128` |
 | 视觉 token | `[1,44880,3072]` | `11×48×85` |
 | T5 token | `[1,226,4096]` | config 上限 226 |
 | 联合序列 | `[1,45106,3072]` | 42× Expert Transformer |
-| 输出 patch | `[1,44880,128]` | 还原两个 latent frames/patch |
-| 去复制/还原 latent | `[1,21,16,96,170]` | pipeline 处理因果首帧对齐 |
+| 输出 patch | `[1,44880,128]` | unpatchify 回 22 个 latent frames |
+| decode 前裁剪 | `[1,21,16,96,170]` | pipeline 从时间开头裁掉额外 1 帧 |
 | VAE decode | `[1,3,81,768,1360]` | 导出 16 fps |
 
 ### 10.5 逐模块四段拆解
@@ -605,7 +604,7 @@ $$\operatorname{FLOPs}_{attn}\approx4L^2D.$$
 - **结构研究**：应使用 SAT 权重/代码路径，不要在 diffusers wrapper 上误判论文原始 block；转换时检查 1.0/1.5、T2V/I2V 四个维度。
 - **LoRA**：优先锁定 Q/K/V/out 与 FFN 层，不训练冻结 T5/VAE；1.5 长序列需要 gradient checkpointing、ZeRO 或更小 batch。
 - **验证论文技巧**：Expert AdaLN、3D vs 2D+1D attention、Explicit Uniform Sampling 都需要基座级训练对照；公开微调脚本不足以公平复现实验。
-- **避免形状错误**：初代 49 帧→13 latent frames；1.5 81 帧→21，再复制到 22 做 temporal patch。若直接用 $F/4$ 或忽略首帧复制，会造成 RoPE grid 与 unpatchify 错位。
+- **避免形状错误**：初代 49 帧→13 latent frames；1.5 的 81 帧名义上→21，但训练时需在开头复制到 22，T2V 推理时则直接创建 22 帧噪声并在 decode 前从开头裁回 21。若直接用 $F/4$ 或忽略这一步时间补齐，会造成 RoPE grid 与 unpatchify 错位。
 
 ---
 

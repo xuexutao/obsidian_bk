@@ -18,6 +18,8 @@
 | `finetune/README.md` | 官方微调说明 | <https://github.com/zai-org/CogVideo/blob/7a1af7154511e0ce4e4be8d62faa8c5e5a3532d2/finetune/README.md> | 同上 commit | 2026-11-05 | LoRA/SFT 显存测试、数据格式、尺寸约束 |
 | CogVideoX-5B 模型卡/config | 官方 Hugging Face 权重 | <https://huggingface.co/zai-org/CogVideoX-5b/tree/8fc5b281006c82b82d34fd2543d2f0ebb4e7e321> | revision `8fc5b281006c82b82d34fd2543d2f0ebb4e7e321` | 2026-11-05 | 5B Transformer/VAE/T5/scheduler 配置与部署数据 |
 | CogVideoX1.5-5B 模型卡/config | 官方 Hugging Face 权重 | <https://huggingface.co/zai-org/CogVideoX1.5-5B/tree/fdc5267c90b5c06492985b966e43aae984e189e0> | revision `fdc5267c90b5c06492985b966e43aae984e189e0` | 2026-11-05 | 1.5 temporal patch、默认 shape、VAE scale 与部署数据 |
+| diffusers CogVideoX pipeline | 官方 diffusers v0.32.0 源码 | <https://github.com/huggingface/diffusers/blob/v0.32.0/src/diffusers/pipelines/cogvideo/pipeline_cogvideox.py> | tag `v0.32.0` | 2026-11-05 | 1.5 时间 padding、22 帧去噪 latent、decode 前裁回 21 帧 |
+| diffusers CogVideoX Transformer | 官方 diffusers v0.32.0 源码 | <https://github.com/huggingface/diffusers/blob/v0.32.0/src/diffusers/models/transformers/cogvideox_transformer_3d.py> | tag `v0.32.0` | 2026-11-05 | temporal unpatchify 与输出 shape 核对 |
 | CogVideo 原论文 | 官方 arXiv 页面 | <https://arxiv.org/abs/2205.15868> | CogVideo: Large-scale Pretraining for Text-to-Video Generation via Transformers；ICLR 2023 | 2026-11-05 | CogVideo→CogVideoX 演进核对 |
 | CogVLM2-Caption 模型卡 | 官方 Hugging Face 模型 | <https://huggingface.co/zai-org/cogvlm2-llama3-caption> | 仓库 README 指向的 caption 模型 | 2026-11-05 | 数据 caption 公开状态与模型来源 |
 
