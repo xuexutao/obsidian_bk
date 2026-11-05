@@ -8,7 +8,7 @@
 
 **谱系骨架参考**：*Advances in Feed-Forward 3D Reconstruction and View Synthesis: A Survey*（arXiv 2507.14501，v3 提交于 2025.12，NTU / Caltech / 西湖大学 / Oxford / 南大 / Cambridge / UCSD / MPI / Harvard / MIT 等 12 家机构联合；项目页 https://fnzhan.com/projects/Feed-Forward-3D/）
 
-**与既有笔记的关系**：本馆已有一份 [[前馈式三维重建与生成式补全 - Survey]]，那一篇以「问题演化」为主轴，讲的是「为什么后面的工作会出现」，核心论点是回归与生成两条路线的对立。本篇换一个切面——以**输出表征**分类，讲的是「这个领域一共有哪些条路、每条路上站着谁」。两篇互补，建议对照阅读。
+**与既有笔记的关系**：本馆已有一份 [[../../20-Surveys/3D-Reconstruction/前馈式三维重建与生成式补全 - Survey]]，那一篇以「问题演化」为主轴，讲的是「为什么后面的工作会出现」，核心论点是回归与生成两条路线的对立。本篇换一个切面——以**输出表征**分类，讲的是「这个领域一共有哪些条路、每条路上站着谁」。两篇互补，建议对照阅读。
 
 **撰写日期**：2026-10-09
 
@@ -21,9 +21,7 @@
 选择输出表征时，有一个无法回避的三元约束：**能不能直接渲染、几何够不够准、要不要相机位姿**。三者几乎不可兼得。
 
 - 要能直接渲染出照片级图像，就得输出带颜色和材质的东西（高斯、辐射场、网格贴图），但这类表示天然为「看起来对」而优化，几何精度会向视觉质量让步；
-
 - 要几何绝对准确，最干净的选择是输出像素对齐的三维点（pointmap），代价是它只是一堆点，没有颜色、没有拓扑，想渲染还得再挂一个头；
-
 - 要不要相机位姿是最硬的一条分界线：真实数据里位姿要么没有、要么不准，能不能在没有位姿的前提下训练，直接决定了一个方法能不能走出实验室。
 
 再加上「输入是 1 张还是 1000 张」「场景是静态还是动态」「有没有未观测区域需要编内容」这几个维度，就形成了今天这张谱系图。
@@ -50,13 +48,13 @@
 
 | **F. 单目几何基础模型** | 深度 / 射线 / 点图 | 单图或任意视图集 | 不需要 | 泛化极强，已经成为所有分支的公用底座 | 单帧缺乏跨视一致性，需要多视后处理 | Depth Anything 1/2/3、MoGe、UniDepth、Metric3D |
 
-F 类严格说不属于「重建」，但今天任何一个重建系统的几何前端都跑不掉它——[[DA3 - 任意视角恢复视觉空间]] 已经证明，一个冻结的 DINOv2 骨干加简单 DPT 头，就能在几何精度上压过一众专用架构，这件事对 B/C/D/E 四类都是降维打击。
+F 类严格说不属于「重建」，但今天任何一个重建系统的几何前端都跑不掉它——[[../../10-Papers/3D-Reconstruction/DA3 - 任意视角恢复视觉空间]] 已经证明，一个冻结的 DINOv2 骨干加简单 DPT 头，就能在几何精度上压过一众专用架构，这件事对 B/C/D/E 四类都是降维打击。
 
 ---
 
 ## 3. A 类详解：pointmap 主线的七个子方向
 
-pointmap 是当前最活跃的一支，内部已经分化出七个方向。旭涛已经精读过 [[VGGT - 前馈式通用三维重建]]、[[DA3 - 任意视角恢复视觉空间]]、[[π³ - 置换等变视觉几何学习]]，此处把它们在谱系中的位置补齐。
+pointmap 是当前最活跃的一支，内部已经分化出七个方向。旭涛已经精读过 [[../../10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建]]、[[../../10-Papers/3D-Reconstruction/DA3 - 任意视角恢复视觉空间]]、[[../../10-Papers/3D-Reconstruction/π³ - 置换等变视觉几何学习]]，此处把它们在谱系中的位置补齐。
 
 ### 3.1 奠基：把重建写成回归
 
@@ -97,49 +95,34 @@ pointmap 是当前最活跃的一支，内部已经分化出七个方向。旭�
 与记忆机制相反的一条路——不做增量，直接让所有视角互相看。
 
 - **Fast3R**（CVPR 2025，Meta / UMich）：24 层融合 Transformer，N 张图一次前向，all-to-all 注意力；随机化位置索引实现「训练 20 视角、测试 1000+ 视角」；单张 A100 可处理 1500 张图（DUSt3R 在 32 张就 OOM），CO3Dv2 上 15° 位姿准确率 99.7%。
-
-- **VGGT**（CVPR 2025 Best Paper，Oxford VGG / Meta）：把「只出点图」推广成「一次前向出全部几何属性」——内参、外参、点图、深度、跨帧 3D point track。详见 [[VGGT - 前馈式通用三维重建]]。
-
-- **π³**（ICLR 2026，上海 AI Lab）：指出 VGGT 继承了 SfM 的「固定参考帧」假设——用 camera token 隐式指定参考视图，参考选得差就整体崩。π³ 去掉所有与顺序相关的组件，做成完全置换等变，输出仿射不变位姿 + 各自相机系下的尺度不变局部点图。详见 [[π³ - 置换等变视觉几何学习]]。2025.12 的 **Pi3X** 进一步支持条件注入（位姿/内参/深度）、连续置信度与近似度量尺度。
-
-- **DA3**（ICLR 2026 Oral，字节 Seed）：极简主义的胜利——单个 plain DINOv2 + 单一 depth-ray 目标 + teacher-student 蒸馏，相机位姿平均比 VGGT 好 35.7%、几何精度好 23.6%，模型却只有 0.30B。详见 [[DA3 - 任意视角恢复视觉空间]]。
-
-- **VGGT-Ω**（2026.08）：证明前馈重建存在可预测的 scaling law，用 Register Attention 架构 + 动态标注管线 + 自监督协议，训练显存降到约 30%，Sintel 相机精度 +77%。详见 [[VGGT-Ω - 可扩展前馈式静动态三维重建]]。
+- **VGGT**（CVPR 2025 Best Paper，Oxford VGG / Meta）：把「只出点图」推广成「一次前向出全部几何属性」——内参、外参、点图、深度、跨帧 3D point track。详见 [[../../10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建]]。
+- **π³**（ICLR 2026，上海 AI Lab）：指出 VGGT 继承了 SfM 的「固定参考帧」假设——用 camera token 隐式指定参考视图，参考选得差就整体崩。π³ 去掉所有与顺序相关的组件，做成完全置换等变，输出仿射不变位姿 + 各自相机系下的尺度不变局部点图。详见 [[../../10-Papers/3D-Reconstruction/π³ - 置换等变视觉几何学习]]。2025.12 的 **Pi3X** 进一步支持条件注入（位姿/内参/深度）、连续置信度与近似度量尺度。
+- **DA3**（ICLR 2026 Oral，字节 Seed）：极简主义的胜利——单个 plain DINOv2 + 单一 depth-ray 目标 + teacher-student 蒸馏，相机位姿平均比 VGGT 好 35.7%、几何精度好 23.6%，模型却只有 0.30B。详见 [[../../10-Papers/3D-Reconstruction/DA3 - 任意视角恢复视觉空间]]。
+- **VGGT-Ω**（2026.08）：证明前馈重建存在可预测的 scaling law，用 Register Attention 架构 + 动态标注管线 + 自监督协议，训练显存降到约 30%，Sintel 相机精度 +77%。详见 [[../../10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建]]。
 
 ### 3.5 条件注入：让已知先验可插拔
 
 真实管线里往往不是什么都没有——可能有标定好的内参、可能有 LiDAR 或深度、可能有部分相对位姿。这一类工作把这些先验做成可选条件。
 
 - **Pow3R**：测试时灵活注入内参、稀疏/稠密深度、相对位姿，作为轻量条件。
-
 - **Rig3R**：把多相机 rig 的元数据当条件，同时提升位姿与重建。
-
 - **MoGe**：把 DUSt3R 的尺度不变点图换成仿射不变点图，并给出全局对齐求解器修正尺度与平移误差。
-
 - **Test3R**：用测试时训练提升点图的几何一致性。
-
-- **WorldMirror**（腾讯混元，2026.09）：把内参、位姿、深度编码成可任意组合的 prompt token，共享 Transformer 同时出点图、相机、深度、法线与 3DGS；无先验已领先 VGGT/π³，全先验下 7-Scenes 点图误差从 0.043 降到 0.018。详见 [[WorldMirror - 多模态先验驱动的通用前馈三维重建]]。这是一支里工程完成度最高的。
+- **WorldMirror**（腾讯混元，2026.09）：把内参、位姿、深度编码成可任意组合的 prompt token，共享 Transformer 同时出点图、相机、深度、法线与 3DGS；无先验已领先 VGGT/π³，全先验下 7-Scenes 点图误差从 0.043 降到 0.018。详见 [[../../10-Papers/3D-Reconstruction/WorldMirror - 多模态先验驱动的通用前馈三维重建]]。这是一支里工程完成度最高的。
 
 ### 3.6 动态与 4D
 
 - **MonST3R**（ICLR 2025，Berkeley / Google DeepMind）：最简单也最有效的一招——把 DUSt3R 的点图按时间步各预测一份，靠静态元素做跨帧对齐，无需显式运动表示；微调即可处理动态，在视频深度与相机位姿上超过此前专门设计的流水线。
-
 - 其他：**Easi3R**、**DAS3R**、**Geo4D**、**POMATO**、**ODHSR**、**DPM**。
-
 - **VGGT4D**：反其道而行——不训练，直接挖 VGGT 内部 Gram 相似度统计里隐含的运动线索做动静态分离，VKITTI 上 ATE 0.164（MonST3R 2.272），且能在 500 帧长序列上跑起来（多数 4D 方法那里已经 OOM）。
-
-- **D4RT**（2026）：把动态 4D 重建统一成对全局场景表示的查询接口，一个轻量解码器同时出深度、点云、3D 轨迹与相机参数。详见 [[D4RT - 统一查询式动态四维场景重建]]。
+- **D4RT**（2026）：把动态 4D 重建统一成对全局场景表示的查询接口，一个轻量解码器同时出深度、点云、3D 轨迹与相机参数。详见 [[../../10-Papers/3D-Reconstruction/D4RT - 统一查询式动态四维场景重建]]。
 
 ### 3.7 大规模 SfM 与评测
 
 - **Light3R-SfM**：用可学习的 latent 对齐模块取代优化式全局对齐，配稀疏场景图大幅降显存。
-
 - **Regist3R**：立体基础模型 + 可扩展增量 SfM 流水线。
-
 - **VGGT-Long**：chunk-and-align 流水线，把 VGGT 推到公里级序列。
-
 - **AerialMegaDepth**：从数据侧做空地几何重建。
-
 - **MEt3R**：专门评测多视重建一致性的指标/基准。
 
 ---
@@ -187,9 +170,7 @@ pointmap 是当前最活跃的一支，内部已经分化出七个方向。旭�
 这是历史最长的一支，起点是 **PixelNeRF**（CVPR 2021）——把 NeRF 条件化在输入图像的特征上，第一次实现对未见场景的泛化。综述按特征条件化方式把它分成三小类：
 
 - **1D 特征**：CodeNeRF、ShaRF——用一个全局潜码条件化；
-
 - **2D 特征**：PixelNeRF、GRF、IBRNet、GNT、MatchNeRF——沿射线投影取像素对齐特征；
-
 - **3D 特征**：MVSNeRF、GeoNeRF、NeuRay——构建 cost volume 或三平面等中间三维表示。
 
 2023.11 的 **LRM**（ICLR 2024，Adobe / ANU）是这一支的分水岭：5 亿参数 transformer，在百万级三维物体上训练，单图 5 秒出 NeRF，彻底不需要 per-scene 优化。它把「前馈重建」从一个想法变成一个可工程化的事实。此后迅速迭代出 **InstantMesh**、**MeshLRM**、**TripoSR / OpenLRM**、**CRM**、**Wonder3D**、**One-2-3-45**。
@@ -203,10 +184,8 @@ pointmap 是当前最活跃的一支，内部已经分化出七个方向。旭�
 这一支延续传统几何建模，把 transformer 与扩散模型接进来。
 
 - **Mesh 侧**：MeshFormer、InstantMesh、MeshGPT、MeshXL——引入自回归或大模型式结构，直接生成网格顶点与面；
-
 - **SDF / Occupancy 侧**：SparseNeuS、C2F2NeuS、UFORecon——体积感知 + transformer 特征聚合，做高精度表面重建；
-
-- **交叉**：[[LATO - 拓扑保持潜变量的网格流匹配]]用顶点位移场 VDF 把网格潜变量建在稀疏体素上，直接预测边连通性，重建与生成双 SOTA；[[前馈式三维重建与生成式补全 - Survey]] 里细读的 LIRM 用 hexa-plane neural SDF 联合重建形状、材质与视角相关辐射场。
+- **交叉**：[[../../10-Papers/3D-Generation/LATO - 拓扑保持潜变量的网格流匹配]]用顶点位移场 VDF 把网格潜变量建在稀疏体素上，直接预测边连通性，重建与生成双 SOTA；[[../../20-Surveys/3D-Reconstruction/前馈式三维重建与生成式补全 - Survey]] 里细读的 LIRM 用 hexa-plane neural SDF 联合重建形状、材质与视角相关辐射场。
 
 强项是拓扑正确、可直接用于仿真/打印/绑定，弱项是外观与纹理质量明显弱于高斯类，且分辨率受表示本身限制。
 
@@ -220,7 +199,7 @@ pointmap 是当前最活跃的一支，内部已经分化出七个方向。旭�
 
 **生成式**：Zero-1-to-3、SyncDreamer、MVDream、CAT3D、CAT4D、ReconFusion、Difix3D+、GEN3C、Lyra、ArtiFixer、GenRec。用图像或视频扩散模型做先验，能补出从未观测到的内容，代价是慢、多视角一致性要靠额外机制保证。
 
-这一半的详细脉络见本馆已有的 [[前馈式三维重建与生成式补全 - Survey]]，那一篇的第 1.3 节把「回归 vs 生成」的分野讲得很清楚：两者的根本区别不是架构成败，而是**允不允许模型编造内容**——回归式里发明即错误，生成式里不发明就是空洞。
+这一半的详细脉络见本馆已有的 [[../../20-Surveys/3D-Reconstruction/前馈式三维重建与生成式补全 - Survey]]，那一篇的第 1.3 节把「回归 vs 生成」的分野讲得很清楚：两者的根本区别不是架构成败，而是**允不允许模型编造内容**——回归式里发明即错误，生成式里不发明就是空洞。
 
 ---
 
@@ -267,9 +246,7 @@ VGGT 用 camera token 隐式指定参考视图，π³ 系统性地指出这个�
 2026 年最能打的工作基本都是跨分支组合：
 
 - **pointmap 先验 → 3DGS 头**（PM-Loss、DepthSplat+PM、WorldMirror 直接同时出点图与 3DGS）；
-
 - **几何骨干 → 生成补全**（Lyra 2.0 用视频扩散自蒸馏、ArtiFixer 做 3DGS 插件、GenRec 用掩码门控把观测与未观测的监督硬隔离）；
-
 - **条件注入统一接口**（Pow3R、Rig3R、Pi3X、WorldMirror 都在这件事上，WorldMirror 做得最完整）。
 
 换句话说，2026 年已经不太有「纯 A 类」或「纯 B 类」的工作了，大家都在做 A+B、A+E、A+条件。
@@ -305,23 +282,16 @@ VGGT 用 camera token 隐式指定参考视图，π³ 系统性地指出这个�
 **常用数据集（按场景类型）**
 
 - 物体级：Objaverse / Objaverse-XL（10.2M 对象）、MVImgNet（219,188 对象）、CO3Dv2、DTU
-
 - 室内：7-Scenes、NRGBD、ScanNet、Tanks and Temples、InLoc、Aachen Day-Night
-
 - 室外 / 大规模：MegaDepth、RealEstate10K、KITTI、AerialMegaDepth
-
 - 动态 / 视频：Sintel、TartanAir、PointOdyssey、DAVIS、DyCheck、VKITTI
-
 - 定位：Map-free、Aachen、InLoc
 
 **指标**
 
 - 图像质量：PSNR / SSIM / LPIPS
-
 - 几何精度：Accuracy / Completion / Chamfer Distance / Normal Consistency
-
 - 相机位姿：ATE / RPE / RRA@15 / RRA@30 / AUC@30
-
 - 深度：AbsRel / δ<1.25
 
 一个值得注意的现象：不同分支之间几乎没有可比的统一 benchmark——A 类在比位姿和几何，B 类在比 PSNR，E 类在比 FID 和主观质量。这是「前馈」这个词过于宽泛留下的后遗症，也是目前做横向选型时最大的实际困难。
@@ -357,26 +327,18 @@ VGGT 用 camera token 隐式指定参考视图，π³ 系统性地指出这个�
 ### 13.1 谱系骨架
 
 - Advances in Feed-Forward 3D Reconstruction and View Synthesis: A Survey — arXiv 2507.14501，12 家机构联合，项目页 https://fnzhan.com/projects/Feed-Forward-3D/
-
 - ruili3/awesome-dust3r — DUSt3R/MASt3R 生态的持续跟踪清单
 
 ### 13.2 本馆已有精读笔记（内链）
 
-- [[VGGT - 前馈式通用三维重建]]
-
-- [[DA3 - 任意视角恢复视觉空间]]
-
-- [[π³ - 置换等变视觉几何学习]]
-
-- [[VGGT-Ω - 可扩展前馈式静动态三维重建]]
-
-- [[D4RT - 统一查询式动态四维场景重建]]
-
-- [[WorldMirror - 多模态先验驱动的通用前馈三维重建]]
-
-- [[LATO - 拓扑保持潜变量的网格流匹配]]
-
-- [[前馈式三维重建与生成式补全 - Survey]]
+- [[../../10-Papers/3D-Reconstruction/VGGT - 前馈式通用三维重建]]
+- [[../../10-Papers/3D-Reconstruction/DA3 - 任意视角恢复视觉空间]]
+- [[../../10-Papers/3D-Reconstruction/π³ - 置换等变视觉几何学习]]
+- [[../../10-Papers/3D-Reconstruction/VGGT-Ω - 可扩展前馈式静动态三维重建]]
+- [[../../10-Papers/3D-Reconstruction/D4RT - 统一查询式动态四维场景重建]]
+- [[../../10-Papers/3D-Reconstruction/WorldMirror - 多模态先验驱动的通用前馈三维重建]]
+- [[../../10-Papers/3D-Generation/LATO - 拓扑保持潜变量的网格流匹配]]
+- [[../../20-Surveys/3D-Reconstruction/前馈式三维重建与生成式补全 - Survey]]
 
 ### 13.3 各分支入口文献
 

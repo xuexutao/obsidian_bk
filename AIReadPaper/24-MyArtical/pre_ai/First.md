@@ -8,7 +8,7 @@
 |---|---|
 |项目|内容|
 |主题|视频生成模型的技术分支谱系与 2026 年现状全景|
-|定位|与本 vault 已有两篇互补：[[视频生成模型发展与架构演进 - Survey]]（纵向历史：表示/骨干/范式三主线）与 [[因果视频蒸馏路线 - Survey]]（专项：双向扩散→因果自回归蒸馏）分别覆盖历史与蒸馏，本篇做**横向分支谱系 + 2026-10 快照**|
+|定位|与本 vault 已有两篇互补：[[../../20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey]]（纵向历史：表示/骨干/范式三主线）与 [[../../20-Surveys/Video-Generation/因果视频蒸馏路线 - Survey]]（专项：双向扩散→因果自回归蒸馏）分别覆盖历史与蒸馏，本篇做**横向分支谱系 + 2026-10 快照**|
 |时间|2026-10-10|
 |主要参考|Wan 技术报告 [arXiv:2503.20314](https://arxiv.org/abs/2503.20314)、HunyuanVideo 1.5 技术报告 [arXiv:2511.18870](https://arxiv.org/abs/2511.18870)、Sparse VideoGen [arXiv:2502.01776](https://arxiv.org/abs/2502.01776)、Radial Attention [arXiv:2506.19852](https://arxiv.org/abs/2506.19852)、FramePack [arXiv:2504.12626](https://arxiv.org/abs/2504.12626)、DanceGRPO [arXiv:2505.07818](https://arxiv.org/abs/2505.07818)、Controllable Video Generation: A Survey [arXiv:2507.16869](https://arxiv.org/abs/2507.16869)|
 |附件|`assets/视频生成模型技术谱系与2026现状 - Survey/figures/`（8 张官方图）、`sources/`（PDF 与溯源）|
@@ -64,7 +64,7 @@
 
 ## 3. 基座架构：收敛与三条分岔
 
-![Wan 2.1 DiT 结构](figures/wan_dit_arch.png)
+![Wan 2.1 DiT 结构](../../20-Surveys/Video-Generation/assets/视频生成模型技术谱系与2026现状%20-%20Survey/figures/wan_dit_arch.png)
 
 **图：Wan 2.1 的 DiT 设计**（来源：[arXiv:2503.20314](https://arxiv.org/abs/2503.20314) HTML 版配图 dit_arch）。DiT block 内以 3D 全注意力处理时空 patch，文本经 T5 类编码器以 cross-attention 注入——这是 2025 年后开源旗舰的标准形态。
 
@@ -84,7 +84,7 @@
 
 **分岔三：高压缩 VAE（Wan 2.2-VAE）。** 压缩比 4×16×16（总 64×，加 patchify 达 4×32×32），让 5B 密集模型在单张 4090 上 9 分钟出 5s 720p@24fps。VAE 压缩率正在成为和参数量同量级的工程杠杆。
 
-![HunyuanVideo 1.5 总览](figures/hunyuanvideo_overview.png)
+![HunyuanVideo 1.5 总览](../../20-Surveys/Video-Generation/assets/视频生成模型技术谱系与2026现状%20-%20Survey/figures/hunyuanvideo_overview.png)
 
 **图：HunyuanVideo 1.5 全管线**（来源：[arXiv:2511.18870](https://arxiv.org/abs/2511.18870) HTML 版配图 hunyuanvideo_overview）。从数据 curated、Qwen2.5-VL + ByT5 双文本编码、8.3B DiT（SSTA）到视频超分两阶段出 1080p 的完整工业化管线，可当作 2025 年末开源基座的标准样板对照阅读。
 
@@ -92,13 +92,13 @@
 
 ## 4. 可控性：条件信号图谱与相机控制子线
 
-![可控视频生成的条件信号分类](figures/ctrl_survey_taxonomy.png)
+![可控视频生成的条件信号分类](../../20-Surveys/Video-Generation/assets/视频生成模型技术谱系与2026现状%20-%20Survey/figures/ctrl_survey_taxonomy.png)
 
 **图：可控视频生成的条件信号总览**（来源：Controllable Video Generation: A Survey，[arXiv:2507.16869](https://arxiv.org/abs/2507.16869) HTML 版配图 visual_0706）。Depth/Subject/Image/BBox/Identity/Style/Flow/Camera/Voice/Trajectory/Sketch/Landmark/BEV/Pose/Text-Rendering/Motion 共 16 类条件。值得注意：BEV-Guided 一列已经是自动驾驶场景，条件信号与研究社区正在向具身靠拢。
 
 按这篇综述的划分，可控性方法沿三条轴组织：**控制什么**（外观/运动/相机/音频/结构）、**怎么注入**（cross-attention 适配器、token 拼接、ControlNet 式旁路、guidance 干预）、**训练还是免训练**。2026 年的趋势是**条件信号正在从外挂适配器走向基座内置**。
 
-![Wan 2.1 相机控制模块](figures/wan_framework.png)
+![Wan 2.1 相机控制模块](../../20-Surveys/Video-Generation/assets/视频生成模型技术谱系与2026现状%20-%20Survey/figures/wan_framework.png)
 
 **图：Wan 2.1 内置的相机控制**（来源：[arXiv:2503.20314](https://arxiv.org/abs/2503.20314) HTML 版配图 framework）。相机外参序列经 Plücker embedding 编码，由 Camera Encoder（ResBlock 栈）生成特征，经 Camera Adapter 以 scale/shift 方式注入 DiT 的 self-attention 特征——条件注入从「外挂 ControlNet」变成「基座原生模块」。
 
@@ -107,7 +107,7 @@
 - **MotionCtrl → CameraCtrl**（2024）：专用相机编码器注入 6DoF 轨迹，首次把「相机」变成显式控制信号；
 - **ViewCrafter**（2024）：相机条件 + 3D 先验做新视角合成，是「视频生成当 NVS 用」的早期尝试；
 - **ReCamMaster**（快手 Kling，ICCV 2025 Oral & Best Paper Finalist，[arXiv:2503.11647](https://arxiv.org/abs/2503.11647)）：换机位重摄给定视频（V2V），核心是帧级 video conditioning + UE5 合成的 136K 多机位同步数据（13.6K 场景、122K 轨迹）弥合 sim-to-real 域差；
-- **GEN3C**（NVIDIA）：干脆用 3D 点云缓存做条件（见 [[Lyra系列 - 生成式三维场景重建]] 对 GEN3C 的定位），相机控制精度来自显式 3D 而非学出来的 embedding。
+- **GEN3C**（NVIDIA）：干脆用 3D 点云缓存做条件（见 [[../../10-Papers/3D-Reconstruction/Lyra系列 - 生成式三维场景重建]] 对 GEN3C 的定位），相机控制精度来自显式 3D 而非学出来的 embedding。
 
 一条规律：**控制信号越几何化（深度/位姿/点云），精度越高、生成自由度越低；越语义化（文本/参考图），自由度越高、精度越低**。2026 年的产品形态（Kling 运动笔刷、Seedance @Image 绑定、Veo 的文字运镜）本质是在这条谱上给不同用户群选不同的工作点。
 
@@ -115,9 +115,9 @@
 
 ## 5. 效率：稀疏注意力成为主战场
 
-蒸馏线（CausVid/Self-Forcing/OmniForcing，步数压缩）已由 [[因果视频蒸馏路线 - Survey]] 专文覆盖；系统侧的另一条主线是**稀疏注意力**，针对的正是 3D full attention 占推理 80%+ 的瓶颈。
+蒸馏线（CausVid/Self-Forcing/OmniForcing，步数压缩）已由 [[../../20-Surveys/Video-Generation/因果视频蒸馏路线 - Survey]] 专文覆盖；系统侧的另一条主线是**稀疏注意力**，针对的正是 3D full attention 占推理 80%+ 的瓶颈。
 
-![SVG 与 Radial Attention 对比](figures/radial_idea.png)
+![SVG 与 Radial Attention 对比](../../20-Surveys/Video-Generation/assets/视频生成模型技术谱系与2026现状%20-%20Survey/figures/radial_idea.png)
 
 **图：Sparse VideoGen 与 Radial Attention 的对比**（来源：[arXiv:2506.19852](https://arxiv.org/abs/2506.19852) HTML 版配图 idea）。(a) SVG 逐头在线判别「空间头/时间头」再分别套掩码——推理快，但 profiling 在训练和长视频外推时会误判；(b) Radial Attention 用统一的 O(n log n) 静态掩码同时覆盖训练与推理，右侧三个勾表示推理、训练、长视频适配三项全能。
 
@@ -126,13 +126,13 @@
 - **Sparse VideoGen**（Berkeley/MIT，ICML 2025，[arXiv:2502.01776](https://arxiv.org/abs/2502.01776)）：训练自由，发现注意力头天然分成空间头（只看帧内）与时间头（只看跨帧），在线 profiling 分类后各自套稀疏掩码 + 定制 kernel，CogVideoX/HunyuanVideo 上端到端 2.28×/2.33× 加速，PSNR≈29 几乎无损。
 - **Radial Attention**（MIT Han Lab，[arXiv:2506.19852](https://arxiv.org/abs/2506.19852)）：提出**时空能量衰减**（Spatiotemporal Energy Decay）——post-softmax 注意力随空间/时间距离指数衰减，类比波的传播。据此把两类头统一为一个静态径向掩码，窗口随时序距离指数收缩，复杂度 O(n log n)。关键增量是**训练也可加速**：4× 长视频 LoRA 适配成本降 4.4×，推理 3.7×。
 
-而 HunyuanVideo 1.5 的 SSTA 说明这条线已经**从社区优化内化进官方架构**——2026 年新发布的基座默认带稀疏注意力，不再是可以后挂的 trick。与之并行的还有：缓存复用（TeaCache、Δ-DiT）、量化（ViditQ、NVFP4，见 [[LongLive-2.0 - NVFP4长视频生成训练与推理系统]]）、序列/上下文并行。效率优化已从单点 trick 变成**训练-架构-系统协同**的系统工程。
+而 HunyuanVideo 1.5 的 SSTA 说明这条线已经**从社区优化内化进官方架构**——2026 年新发布的基座默认带稀疏注意力，不再是可以后挂的 trick。与之并行的还有：缓存复用（TeaCache、Δ-DiT）、量化（ViditQ、NVFP4，见 [[../../10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统]]）、序列/上下文并行。效率优化已从单点 trick 变成**训练-架构-系统协同**的系统工程。
 
 ---
 
 ## 6. 长视频：遗忘与漂移的根本两难
 
-![FramePack 三种采样顺序](figures/framepack_sampling.png)
+![FramePack 三种采样顺序](../../20-Surveys/Video-Generation/assets/视频生成模型技术谱系与2026现状%20-%20Survey/figures/framepack_sampling.png)
 
 **图：FramePack 的抗漂移采样设计**（来源：[arXiv:2504.12626](https://arxiv.org/abs/2504.12626) HTML 版配图 sampling）。(a) 朴素逐段生成误差单向累积；(b) 先定端点帧再填中间，打断因果链；(c) 倒序生成，每段都向已知高质量帧靠拢。斜纹块为正在生成的段。
 
@@ -144,7 +144,7 @@ FramePack（Lvmin Zhang & Maneesh Agrawala，Stanford）把长视频自回归的
 放到谱系里看，长视频在 2025–2026 年分成三派：
 
 - **分段拼接派**（StreamingT2V、anchor 帧）：实现简单但接缝与剧情漂移难解，基本退出旗舰；
-- **因果流式派**：Diffusion Forcing 定义框架 → CausVid/Self-Forcing 系蒸馏提速 → Self-Forcing++ 分钟级 → OmniForcing 音视频实时（全部见 [[因果视频蒸馏路线 - Survey]]）；
+- **因果流式派**：Diffusion Forcing 定义框架 → CausVid/Self-Forcing 系蒸馏提速 → Self-Forcing++ 分钟级 → OmniForcing 音视频实时（全部见 [[../../20-Surveys/Video-Generation/因果视频蒸馏路线 - Survey]]）；
 - **上下文打包派**：FramePack 代表，不改变扩散目标而改变**给模型看什么**——历史被压缩而非截断。
 
 SkyReels-V2（Diffusion Forcing 工程化）、Infinite-World（千帧 HPMC 记忆压缩，见生成式世界模型综述）与 FramePack 属于后两派的代表。**「历史如何进入上下文」是长视频的下一个架构竞赛**，这与三维重建里 Spann3R 的空间记忆、Lyra 2.0 的几何路由是同一个问题的两种解法。
@@ -175,7 +175,7 @@ SkyReels-V2（Diffusion Forcing 工程化）、Infinite-World（千帧 HPMC 记�
 
 **角色三：策略先验/世界动作模型。** DreamZero/DreamDojo（NVIDIA，2026）：用 14B 视频扩散骨干**单次前向同时预测未来世界状态与机器人动作**，10–20 分钟示教视频即可跨本体迁移，泛化超标准 VLA 基线两倍以上。这里视频模型不再是数据生成器，而直接是策略的表征底座——VLA 与世界模型正在合流成 World Action Model。
 
-**与三维重建线的接口**在本 vault 已有专文：GEN3C 的点云缓存（视频生成←3D 条件）、Voyager 的 RGB-D 联合生成、Lyra 的自蒸馏出 3DGS、WorldMirror 的先验 token 注入——见 [[Lyra系列 - 生成式三维场景重建]] 与 [[生成式世界模型路线的前馈三维重建 - Survey]]。一条贯穿性判断：**视频模型管「看起来对」，几何模型管「真的是对」**，两侧分工在 2026 年已经定型；而 Cosmos 与 Genie 3 的对照（物理锚定 vs 像素涌现）说明「世界模型的物理正确性」还没有共识解法——sim-to-real 的瓶颈是物理不是像素。
+**与三维重建线的接口**在本 vault 已有专文：GEN3C 的点云缓存（视频生成←3D 条件）、Voyager 的 RGB-D 联合生成、Lyra 的自蒸馏出 3DGS、WorldMirror 的先验 token 注入——见 [[../../10-Papers/3D-Reconstruction/Lyra系列 - 生成式三维场景重建]] 与 [[../../20-Surveys/3D-Reconstruction/生成式世界模型路线的前馈三维重建 - Survey]]。一条贯穿性判断：**视频模型管「看起来对」，几何模型管「真的是对」**，两侧分工在 2026 年已经定型；而 Cosmos 与 Genie 3 的对照（物理锚定 vs 像素涌现）说明「世界模型的物理正确性」还没有共识解法——sim-to-real 的瓶颈是物理不是像素。
 
 ---
 
@@ -206,12 +206,12 @@ SkyReels-V2（Diffusion Forcing 工程化）、Infinite-World（千帧 HPMC 记�
 |DanceGRPO|[2505.07818](https://arxiv.org/abs/2505.07818)|RL 后训练统一框架|
 |Controllable Video Generation: A Survey|[2507.16869](https://arxiv.org/abs/2507.16869)|可控性条件信号分类总纲|
 |ReCamMaster|[2503.11647](https://arxiv.org/abs/2503.11647)|相机控制 V2V 重摄（ICCV 2025 Oral）|
-|因果蒸馏系列（CausVid/Self-Forcing++/OmniForcing）|见 [[因果视频蒸馏路线 - Survey]]|蒸馏专项已另文覆盖|
-|LongLive-2.0|见 [[LongLive-2.0 - NVFP4长视频生成训练与推理系统]]|低精度训练/推理系统|
+|因果蒸馏系列（CausVid/Self-Forcing++/OmniForcing）|见 [[../../20-Surveys/Video-Generation/因果视频蒸馏路线 - Survey]]|蒸馏专项已另文覆盖|
+|LongLive-2.0|见 [[../../10-Papers/Video-Generation/LongLive-2.0 - NVFP4长视频生成训练与推理系统]]|低精度训练/推理系统|
 
 ### 本 vault 相关笔记
 
-- [[视频生成模型发展与架构演进 - Survey]]（历史主线）
-- [[因果视频蒸馏路线 - Survey]]（蒸馏专项）
-- [[Lyra系列 - 生成式三维场景重建]]（视频先验 → 3D）
-- [[生成式世界模型路线的前馈三维重建 - Survey]]（世界模型另一侧）
+- [[../../20-Surveys/Video-Generation/视频生成模型发展与架构演进 - Survey]]（历史主线）
+- [[../../20-Surveys/Video-Generation/因果视频蒸馏路线 - Survey]]（蒸馏专项）
+- [[../../10-Papers/3D-Reconstruction/Lyra系列 - 生成式三维场景重建]]（视频先验 → 3D）
+- [[../../20-Surveys/3D-Reconstruction/生成式世界模型路线的前馈三维重建 - Survey]]（世界模型另一侧）
