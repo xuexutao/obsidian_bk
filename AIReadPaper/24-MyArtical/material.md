@@ -94,4 +94,4 @@ merger模块就是把一个2x2的patch pixel变成一个，用MLP变
 所以qwen3vl就对MRoPE做了改进，先给每个token分别（t，h，w）三个位置，再把64组旋转分给这三个轴。t是为视频设置的，所以如果是单张图片的所有token t值相同
 - 文本token：thw三轴的位置编码相同
 - 图像token：t轴随帧数增加，单帧内相同，纵向相邻的token h+1，横向相邻的token w+1 ，最多占用max(H,W)个token
-频率分配：![](assets/Material/file-20261106161141588.png)
+频率分配：qwen2vl和qwen2.5vl是按照 16、24、24的连续分组，把 64组旋转分开，这是不均衡的，t独占频率高的一段，w是最低的一段，低频组转的慢，相邻两列的角度几乎没变化，横向位置难以分辨。所以qwen3vl就在前60组里用THW交错分布，然后把剩余的4组都给t。这样每个轴都有高频和低频旋转这个就叫做 Interleaved MRoPE。![](assets/Material/file-20261106161141588.png)
