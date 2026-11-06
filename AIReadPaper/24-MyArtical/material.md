@@ -80,10 +80,13 @@ SLAT理解：叫做结构化潜在表示，主要是在稀疏的3D网格上定�
 ### hunyuan3D 理解
 
 最核心的就是把几何和纹理生成分成两阶段生成
-
 都经过重要性采样（5120点）、表面均匀采样之后（5120点），分别执行最远点采样（）
 
 ### Qwen3VL
 
 从qwenVL、qwen2VL、qwen2.5VL、qwen3VL和LLava以来都是三段式的分层架构，一个视觉编码器Vit、一个跨模态融合模块 merger、再加一个大语言模型LLM。
-对于视觉编码器部分，初代qwen先把图片压缩到固定尺寸448x448，然后得到【1,256,1024】的固定token，qwen2、2.5 开始变为动态分辨率Vit，使用patch size=14的Vit架构，例如 720x1280 px 的图像（第一步是会resize到14的倍数），然后变为 51x91 个patch
+对于视觉编码器部分，初代qwen先把图片压缩到固定尺寸448x448，然后得到【1,256,1024】的固定token，qwen2、2.5 开始变为动态分辨率Vit，使用patch size=14的Vit架构，例如 720x1280 px 的图像（第一步是会resize到14的倍数），然后变为 51x91 个patch【qwen3VL的patch_size=16，同样的图片大约可以减少四分之一的token数】，固定尺寸会强制缩放破环原图比例导致信息损失，动态分辨率可以用不同的token表示，可以保留更多信息---> 引入一个问题，一维的位置编码表达不了二维网格了，于是从qwen2vl引入了MRoPE技术。
+merger模块就是把一个2x2的patch pixel变成一个，用MLP变
+视觉编码器的另一知识点是他的演进过程，qwen2vl的vit是675M参数，用DFN初始化，把原来的固定位置编码变为2D-RoPE，支持动态分辨率，qwen2.5vl则是从头训vit，且把2.0vl的全注意力大部分改成窗口注意力了，只有7、15、23、31层保留全局注意力，这样用window attention 和 full attention 的方式降低复杂度。【qwen2vl激活函数是GELU归一化是LayerNorm，到了2.5就变成 SwiGLU + RMSNorm的范式和LLM对齐了，后面qwen3vl也继承这个】
+视觉编码器的第三个知识点是DeepStack多层注入机制，对于qwen2vl和qwen2.5vl来说，他们都是只用了vit模型的最后一层特征作为视觉特征与后续的LLM交互的。但是qwen3vl因为是使用了sigLIP2 特征提取器，所以他的中间特征也是很有意义的，比如浅层可以提取纹理和边缘，深层提取语义，所以qwen3vl就把8、16、24层的特征单独拿了出来【qwen3vl-8B的Vit有27层】。受限qwen3vl还是会以最后一层的feature作为LLM的输入作为主分支，然后执行LLM的backbone的前三层，分别加上8、16、24的浅中深特征，以保留特征，这就是DeepStack
+位置编码的变化：
