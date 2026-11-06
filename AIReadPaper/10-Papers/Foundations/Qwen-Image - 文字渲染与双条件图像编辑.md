@@ -99,7 +99,7 @@ $$\mathcal{L}_{\mathrm{FM}}=\mathbb{E}_{(x_0,h)\sim\mathcal D,x_1,t}\left\|v_\th
 
 ![](assets/Qwen-Image%20-%20文字渲染与双条件图像编辑/figures/02-architecture.png)
 
-> **图 6：Qwen-Image 总体架构。** 左侧冻结的 Qwen2.5-VL 把系统提示与用户提示编码成文本/语义 token；VAE encoder 把图像压到 16 通道 latent，再以 $2\times2$ patch 打包成生成 token；右侧每个 MMDiT block 保留图像流和文本流各自的归一化、调制、QKV、输出投影与 MLP，但在 self-attention 中拼接为联合序列，使两种模态双向交互。来源：论文 Figure 6，PDF 第 8 页，[arXiv](https://arxiv.org/abs/2508.02324)。
+> **图 6：Qwen-Image 总体架构。** 左侧冻结的 Qwen2.5-VL 把系统提示与用户提示编码成文本/语义 token；VAE encoder 把图像压到 16 通道 latent，再以 $2\times2$ patch 打包成生成 token；右侧每个 MMDiT block 保留图像流和文本流各自的归一化、调制、QKV、输出投影与 MLP，但在 self-attention 中拼接为联合序列，使两种模态双向交互。来源：论文 Figure 6，PDF 第 7 页，[arXiv](https://arxiv.org/abs/2508.02324)。
 
 Qwen2.5-VL-7B 的 ViT 为 32 层、patch size 14，语言部分 28 层、hidden size 3584。论文选择它而不是普通文本 LLM，有三个原因：视觉—语言空间已经对齐；语言能力没有明显退化；它原生接受图片，因而同一条件编码器可从 T2I 平滑扩展到 TI2I。Qwen-Image 取其 LLM 最后一层 hidden state，而不是只取 pooled embedding，这为长提示、文字内容和多图语义保留逐 token 条件。
 
@@ -109,7 +109,7 @@ MMDiT 为 60 层、24 头、每头 128 维，总 hidden size $24\times128=3072$�
 
 ![](assets/Qwen-Image%20-%20文字渲染与双条件图像编辑/figures/01-vae-text-reconstruction.png)
 
-> **图 15：小字重建对比。** 从 FLUX、Hunyuan、SD3.5、Cosmos-CI 到 Wan2.1，多数 VAE 在放大后都把 “double-aspect” 的笔画粘连或重排；Qwen-Image-VAE 与原图最接近。论文用这张图强调：文字生成能力不能只归因于大 MMDiT，VAE 是否保存字形本身就是硬上限。来源：论文 Figure 15，PDF 第 25 页，[arXiv](https://arxiv.org/abs/2508.02324)。
+> **图 17：小字重建对比。** 从 FLUX、Hunyuan、SD3.5、Cosmos-CI 到 Wan2.1，多数 VAE 在放大后都把 “double-aspect” 的笔画粘连或重排；Qwen-Image-VAE 与原图最接近。论文用这张图强调：文字生成能力不能只归因于大 MMDiT，VAE 是否保存字形本身就是硬上限。来源：论文 Figure 17，PDF 第 26 页，[arXiv](https://arxiv.org/abs/2508.02324)。
 
 Qwen-Image VAE 沿用 Wan2.1-VAE 的单编码器、双解码器设计：图像和视频共用 encoder，图像与视频分别使用专门 decoder。作者冻结 encoder，只对图像 decoder 训练，并加入 PDF、PPT、海报和程序化段落等文字密集图像。损失只保留 reconstruction 与 perceptual loss，并动态调整比例；当重建已经足够强时，判别器无法提供有效方向，因此去掉 adversarial loss。
 
@@ -143,7 +143,7 @@ $$A=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{128}}\right)V$$
 
 ![](assets/Qwen-Image%20-%20文字渲染与双条件图像编辑/figures/04-editing-dual-condition.png)
 
-> **图 14：TI2I 编辑机制。** 左侧参考图和用户指令进入 Qwen2.5-VL，形成语义条件；参考图另经 VAE 编码形成干净外观 token，与目标图的加噪 latent token 沿序列维拼接。右侧在 h/w 之外加入 frame 轴，目标图和输入图被赋予不同 frame 位置。来源：论文 Figure 14，PDF 第 20 页，[arXiv](https://arxiv.org/abs/2508.02324)。
+> **图 14：TI2I 编辑机制。** 左侧参考图和用户指令进入 Qwen2.5-VL，形成语义条件；参考图另经 VAE 编码形成干净外观 token，与目标图的加噪 latent token 沿序列维拼接。右侧在 h/w 之外加入 frame 轴，目标图和输入图被赋予不同 frame 位置。来源：论文 Figure 14，PDF 第 18 页，[arXiv](https://arxiv.org/abs/2508.02324)。
 
 两条条件路径各自解决不同失效模式：
 
@@ -250,11 +250,11 @@ MSRoPE 与 Qwen-VL 系列的 MRoPE 都属于多轴旋转位置编码，但目标
 
 ### 7.1 论文透明度不足
 
-论文披露了架构、数据类别、过滤逻辑和训练阶段，却没有给出总训练 token/图像数之外的精确规模、训练 GPU 数、总算力、学习率、batch size、各阶段步数、T2I/TI2I/I2I 配比、编辑数据构造和 RL reward 细节。训练代码未开源，官方仓库主要是推理调用，因此“完整复现”实际上不可行。
+论文只称训练数据包含数十亿图文对，没有给出精确样本总数、训练 token 数、训练 GPU 数、总算力、学习率、batch size、各阶段步数、T2I/TI2I/I2I 配比、编辑数据构造和 RL reward 细节。训练代码未开源，官方仓库主要是推理调用，因此“完整复现”实际上不可行。
 
 ### 7.2 20B MMDiT 成本极高
 
-Qwen-Image 不是轻量模型。BF16 仅 20B MMDiT 权重理论上就约 40GB，还要加载 7B Qwen2.5-VL、VAE、激活和 CFG 双前向。官方 1328² 推理默认 50 steps、true CFG 4.0；即便单次结果很强，延迟、显存和吞吐都限制了本地与在线规模化部署。
+Qwen-Image 不是轻量模型。BF16 仅 20B MMDiT 权重理论上就约 40GB，还要加载 7B Qwen2.5-VL、VAE、激活和 CFG 双前向。官方基础 T2I 示例常显式使用 1328×1328、50 steps 和 true CFG 4.0；Diffusers 管线未显式传入宽高时通常采用 1024×1024。即便单次结果很强，延迟、显存和吞吐都限制了本地与在线规模化部署。
 
 ### 7.3 Benchmark 仍依赖模型裁判
 
@@ -376,7 +376,7 @@ Qwen-Image 最值得复用的方法论是“先找生成上限所在层级”。
 
 ### 10.5 计算账与复现建议
 
-1328² 对应 6889 个图像 token。联合 attention 的序列长度是 $L+6889$；2509 加一张 1024² 参考图后变为 $L+10985$，加三张则约 $L+19177$。注意力显存和计算随序列长度近似平方增长，因此多图编辑远比单图 T2I 贵。MMDiT 20B BF16 约 40GB，Qwen2.5-VL-7B 另需约 14GB，再加 VAE、KV/激活、CFG 双前向，80GB 单卡也只算合理起点。
+1328² 对应 6889 个图像 token。联合 attention 的序列长度是 $L+6889$；2509 加一张 1024² 参考图后变为 $L+10985$，加三张则约 $L+19177$。联合注意力的计算量随序列长度近似平方增长；显存增长取决于 attention backend，朴素实现可能接近平方，而 Flash Attention / SDPA 可显著降低注意力激活显存。因此多图编辑仍远比单图 T2I 贵。MMDiT 20B BF16 约 40GB，Qwen2.5-VL-7B 另需约 14GB，再加 VAE、KV/激活、CFG 双前向，80GB 单卡也只算合理起点。
 
 如果目标是“理解原理”，无需下载约 58GB 完整权重，阅读 config、Diffusers pipeline 和 transformer/VAE 实现即可；如果目标是 LoRA，建议 1024² 以下、小 batch、gradient checkpointing/CPU offload，并接受论文已证明 checkpointing 会显著拖慢全量训练。若做生产推理，应优先量化 MMDiT、缓存 Qwen 条件、减少 steps，并根据内容复杂度动态选择分辨率。
 

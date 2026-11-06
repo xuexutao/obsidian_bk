@@ -3,10 +3,10 @@
 | 本地文件 | 材料类型 | 原始来源 | 论文位置 / 版本 | 获取日期 | 用途 |
 |---|---|---|---|---|---|
 | `sources/paper.pdf` | 官方论文 PDF | https://arxiv.org/pdf/2508.02324 | Qwen-Image Technical Report 全文 | 2026-11-06 | 精读主来源 |
-| `figures/01-vae-text-reconstruction.png` | 论文关键图 | https://arxiv.org/abs/2508.02324 | Figure 15，PDF 第 25 页 | 2026-11-06 | 核对不同 VAE 对小字与文档纹理的重建能力 |
-| `figures/02-architecture.png` | 论文方法图 | https://arxiv.org/abs/2508.02324 | Figure 6，PDF 第 8 页 | 2026-11-06 | Qwen2.5-VL + VAE + 双流 MMDiT 总体架构 |
+| `figures/01-vae-text-reconstruction.png` | 论文关键图 | https://arxiv.org/abs/2508.02324 | Figure 17，PDF 第 26 页 | 2026-11-06 | 核对不同 VAE 对小字与文档纹理的重建能力 |
+| `figures/02-architecture.png` | 论文方法图 | https://arxiv.org/abs/2508.02324 | Figure 6，PDF 第 7 页 | 2026-11-06 | Qwen2.5-VL + VAE + 双流 MMDiT 总体架构 |
 | `figures/03-msrope.png` | 论文方法图 | https://arxiv.org/abs/2508.02324 | Figure 8，PDF 第 9 页 | 2026-11-06 | Naive / Scaling RoPE / MSRoPE 对比 |
-| `figures/04-editing-dual-condition.png` | 论文方法图 | https://arxiv.org/abs/2508.02324 | Figure 14，PDF 第 20 页 | 2026-11-06 | 图像编辑的语义、VAE 双条件与 frame 位置编码 |
+| `figures/04-editing-dual-condition.png` | 论文方法图 | https://arxiv.org/abs/2508.02324 | Figure 14，PDF 第 18 页 | 2026-11-06 | 图像编辑的语义、VAE 双条件与 frame 位置编码 |
 | — | arXiv 源文件 | https://arxiv.org/e-print/2508.02324 | TeX、表格和原始矢量 Figure | 2026-11-06 | 核对公式、表格、图号和图注；未复制整个源码包到 Vault |
 | — | 官方项目仓库 | https://github.com/QwenLM/Qwen-Image | commit `6b5e1f5cec987d404be5ac6657db3b9aacb56a89` | 2026-11-06 | 版本演进、官方推理示例、Qwen-Image-Edit-2509 发布说明 |
 | — | 基础模型卡 | https://huggingface.co/Qwen/Qwen-Image | `model_index.json`、`transformer/config.json`、`vae/config.json` | 2026-11-06 | 核对流水线组件、MMDiT 与 VAE 配置 |
