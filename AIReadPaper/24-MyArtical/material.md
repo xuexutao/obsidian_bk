@@ -89,4 +89,9 @@ SLAT理解：叫做结构化潜在表示，主要是在稀疏的3D网格上定�
 merger模块就是把一个2x2的patch pixel变成一个，用MLP变
 视觉编码器的另一知识点是他的演进过程，qwen2vl的vit是675M参数，用DFN初始化，把原来的固定位置编码变为2D-RoPE，支持动态分辨率，qwen2.5vl则是从头训vit，且把2.0vl的全注意力大部分改成窗口注意力了，只有7、15、23、31层保留全局注意力，这样用window attention 和 full attention 的方式降低复杂度。【qwen2vl激活函数是GELU归一化是LayerNorm，到了2.5就变成 SwiGLU + RMSNorm的范式和LLM对齐了，后面qwen3vl也继承这个】
 视觉编码器的第三个知识点是DeepStack多层注入机制，对于qwen2vl和qwen2.5vl来说，他们都是只用了vit模型的最后一层特征作为视觉特征与后续的LLM交互的。但是qwen3vl因为是使用了sigLIP2 特征提取器，所以他的中间特征也是很有意义的，比如浅层可以提取纹理和边缘，深层提取语义，所以qwen3vl就把8、16、24层的特征单独拿了出来【qwen3vl-8B的Vit有27层】。受限qwen3vl还是会以最后一层的feature作为LLM的输入作为主分支，然后执行LLM的backbone的前三层，分别加上8、16、24的浅中深特征，以保留特征，这就是DeepStack
-位置编码的变化：
+位置编码的变化：RoPE原理，MRoPE 相较于RoPE就是从一个整数变成三个整数，频率按轴分给三个整数
+把图像Token按行展开，用一维RoPE编号有几个缺点：1、空间距离失真：以448x448为例，经过patch 16x16 分块和 2x2 合并后，进入LLM时为 14x14 的token网格。这时候正下方邻居差14的位置和同行相隔14的token一样远，模型分不清紧挨着下一行和统一行很远处，导致距离失真。2、位置编号膨胀：这一张图就用掉了196个位置，高分辨率图甚至会迅速超出训练时可见范围
+所以qwen3vl就对MRoPE做了改进，先给每个token分别（t，h，w）三个位置，再把64组旋转分给这三个轴。t是为视频设置的，所以如果是单张图片的所有token t值相同
+- 文本token：thw三轴的位置编码相同
+- 图像token：t轴随帧数增加，单帧内相同，纵向相邻的token h+1，横向相邻的token w+1 ，最多占用max(H,W)个token
+频率分配：![](assets/Material/file-20261106161141588.png)
