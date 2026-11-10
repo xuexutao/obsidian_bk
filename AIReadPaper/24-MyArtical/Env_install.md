@@ -216,3 +216,18 @@ conda-unpack
 
 
 ```
+
+scene_create
+```bash
+conda create -n scene_create python=3.11 -y
+conda activate scene_create
+
+# nvcc 为 11.8
+# install torch
+pip install loguru
+pip install torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 --index-url https://download.pytorch.org/whl/cu118
+
+pip install plyfile pyyaml scipy trimesh
+
+python main.py --help
+```
